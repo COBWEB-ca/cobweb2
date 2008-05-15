@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: driver.CobwebApplication
+Created-By: 0.92-gcc
+
