@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Main-Class: driver.CobwebApplication
 Created-By: 0.92-gcc
-
+Class-Path: . jfreechart-1.0.9.jar jcommon-1.0.12.jar
