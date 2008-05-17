@@ -137,12 +137,7 @@ public class ComplexAgentInfo {
 	}
 
 	private static String paddMe(String s, int pad) {
-		String ret = "";
-		for (; pad >= s.length(); pad--) {
-			ret += " ";
-		}
-		ret += s;
-		return ret;
+		return paddMe(s, pad, ' ');
 	}
 
 	/* Allows custom padding. */
@@ -434,8 +429,10 @@ public class ComplexAgentInfo {
 
 	private static boolean alreadyInitialized = false;
 
+	@SuppressWarnings("unused")
 	private static int[] cheatingAgent;
 
+	@SuppressWarnings("unused")
 	private static int[] cooperatingAgent;
 
 	private static int MAX_NUM_OF_AGENTS = 4;

@@ -4,7 +4,6 @@ package cwcore;
 import cwcore.ComplexEnvironment.CommManager;
 import cwcore.ComplexEnvironment.CommPacket;
 import cwcore.ComplexEnvironment;
-import cwcore.ComplexEnvironment.CommPacket;
 import ga.GeneticCode;
 import ga.GeneticCodeException;
 import ga.PhenotypeMaster;
@@ -271,7 +270,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
   }
   
   // simple controller class
-  private static class SimpleController implements cobweb.Agent.Controller { 
+  @SuppressWarnings("unused")
+private static class SimpleController implements cobweb.Agent.Controller { 
     public void addClientAgent (cobweb.Agent a) {}
     public void removeClientAgent (cobweb.Agent a) {}
     
@@ -426,7 +426,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
     
   }
   
-  private static long groupLastPolled = 1;
+  @SuppressWarnings("unused")
+private static long groupLastPolled = 1;
   
   /*
 	 * Record the state here for logging. Can also be treated as a "setup"
@@ -701,7 +702,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 * Payoff Matrix: 0 0 => 5 5 0 1 => 2 8 1 0 => 8 2 1 1 => 3 3
 		 */
         
-        final int PD_STATIC_PAYOFF = 0;
+        @SuppressWarnings("unused")
+		final int PD_STATIC_PAYOFF = 0;
         
         final int PD_COOPERATE = 0;
         final int PD_DEFECT = 1;
@@ -1049,14 +1051,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
     CommManager commManager = new CommManager();
     CommPacket commPacket = null;
     for (int i=0; i<ComplexEnvironment.currentPackets.size();i++) {
-      commPacket = (CommPacket)ComplexEnvironment.currentPackets.get(i);
+      commPacket = ComplexEnvironment.currentPackets.get(i);
       if (commManager.packetInRange(commPacket.getRadius(), /* commPacket. */getPosition(), getPosition()/* loc */)) return i;
     }
     return -1;
   }
   
   void receiveFoodBroadcast(CommPacket commPacket) {
-    String message = commPacket.getContent();
+    @SuppressWarnings("unused")
+	String message = commPacket.getContent();
     int foodPos = 0;;
     try {
       foodPos = 3;// Integer.parseInt(message);
@@ -1069,7 +1072,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
   }
   
   void receiveCheatingBroadcast(CommPacket commPacket) {
-    String message = commPacket.getContent();
+    @SuppressWarnings("unused")
+	String message = commPacket.getContent();
     int cheaterId = 0;
     try {
       cheaterId = 3;// Integer.parseInt(message);
@@ -1082,10 +1086,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
   
   void receiveBroadcast() {
     
-    CommManager commManager = new CommManager();
+    @SuppressWarnings("unused")
+	CommManager commManager = new CommManager();
     CommPacket commPacket = null;
     
-    commPacket = (CommPacket)ComplexEnvironment.currentPackets.get(checkforBroadcasts());
+    commPacket = ComplexEnvironment.currentPackets.get(checkforBroadcasts());
     // check if dispatcherId is in list
     if (checkCredibility(commPacket.getDispatcherId())) ;
     

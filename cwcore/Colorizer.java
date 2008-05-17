@@ -1,21 +1,26 @@
 package cwcore;
 
-import java.util.*;
 import java.awt.Color;
-import ga.GeneticCode;
+import java.util.Collection;
+
+import cobweb.Agent;
 
 public class Colorizer {
 
+	@SuppressWarnings("unused")
 	private int selectSize;
 
 	private int numColor;
 
 	private cobweb.Agent[] modelArray;
 
+	@SuppressWarnings("unused")
 	private int mode;
 
+	@SuppressWarnings("unused")
 	private int[] model;
 
+	@SuppressWarnings("unused")
 	private int orignumColor;
 
 	private int MAsize;
@@ -40,7 +45,7 @@ public class Colorizer {
 	}
 
 	/* set a model array of agents for other agents to be compared to */
-	public void setModelArray(Collection agents, cobweb.Agent[] array) {
+	public void setModelArray(Collection<Agent> agents, cobweb.Agent[] array) {
 
 		modelArray = new cobweb.Agent[array.length];
 
@@ -62,7 +67,7 @@ public class Colorizer {
 	 * recolor the agents, if mode is = 1 then recolour the agents according to
 	 * the current agents else recolor agents according the the initial agents
 	 */
-	public void reColorAgents(Collection agents, int lmode) {
+	public void reColorAgents(Collection<Agent> agents, int lmode) {
 
 		if (agents.size() == 0)
 			return;
@@ -77,6 +82,7 @@ public class Colorizer {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static cobweb.ColorLookup colorMap = new cobweb.GAColorEnumeration();
 
 	public void colorAgent(cobweb.Agent agent) {

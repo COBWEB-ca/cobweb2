@@ -1,6 +1,5 @@
 package cobweb;
 
-import cobweb.parseClass.*;
 
 public class ArrayEnvironment {
 	public ArrayEnvironment(int w, int h, ArrayEnvironment a) {

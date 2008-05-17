@@ -11,21 +11,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.io.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.JComboBox;
-import java.awt.event.KeyEvent;
 import java.awt.*;
-import javax.swing.table.TableModel;
 import ga.PhenotypeMaster;
 import ga.GeneticCodeException;
 import ga.GeneticCode;
 import ga.GATracker;
 import ga.GAChartOutput;
 import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class GUI extends JPanel implements ActionListener {
 
@@ -844,8 +840,8 @@ public class GUI extends JPanel implements ActionListener {
 		if (theDialog.getFile() != null) {
 			// $$$$$$ Check if the saving filename is one of the names reserved by CobwebApplication.  Feb 8
 			// $$$$$$$$$$$$$$$$$$$$$$$$$$ Block silenced by Andy due to the annoyingness of this feature. May 7, 2008
-			String savingFileName;
-			savingFileName = theDialog.getFile();
+			//String savingFileName;
+			//savingFileName = theDialog.getFile();
 			
 			// Block silenced, see above.
 			
@@ -974,6 +970,7 @@ public class GUI extends JPanel implements ActionListener {
 		}
 		// public Class getColumnClass(int c) { return values[0].getClass();}
 
+		public static final long serialVersionUID = 0x38FAF24EC6162F2CL; 
 	}
 
 	/* table class */
@@ -1110,23 +1107,29 @@ public class GUI extends JPanel implements ActionListener {
 			 */
 		}
 
+		public static final long serialVersionUID = 0x38DC79AEAD8B2091L;
 	}
 
 	/* extends MyTableModel, implements the checkboxes in the food web class */
 	class MyTableModel2 extends MyTableModel {
+		@SuppressWarnings("unused")
 		private Object[][] data;
 
+		@SuppressWarnings("unused")
 		private String[] rowNames;
 
+		@SuppressWarnings("unused")
 		private int numTypes = 0;
 
 		MyTableModel2(String rownames[], int numcol, Object data[][]) {
 			super(rownames, numcol, data);
 		}
 
-		public Class getColumnClass(int c) {
+		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
+		
+		public static final long serialVersionUID = 0x6E1D565A6F6714AFL;
 	}
 
 	/**
@@ -1908,4 +1911,6 @@ public class GUI extends JPanel implements ActionListener {
 
 		return true;
 	}
+	
+	public static final long serialVersionUID = 0xB9967684A8375BC0L;
 }

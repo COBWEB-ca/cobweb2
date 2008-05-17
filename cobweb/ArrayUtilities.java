@@ -1,8 +1,5 @@
 package cobweb;
 
-import java.util.Random;
-import java.awt.*;
-import java.awt.color.*;
 
 public class ArrayUtilities {
 

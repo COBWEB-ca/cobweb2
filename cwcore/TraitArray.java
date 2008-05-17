@@ -4,7 +4,6 @@ package cwcore;
  * constanat within the lifetime of a single agent and represent what 
  * to a biological organism would be physical and genetic constraints. */
 
-import java.util.*;
 
 public class TraitArray implements InnateArray {
 
@@ -32,7 +31,7 @@ public class TraitArray implements InnateArray {
 	 * Return -1, 0, or 1, depending on whether this InnateArray is less than,
 	 * equal to, or greater than other, by some measure.
 	 */
-	public int compareTo(Object other) {
+	public int compareTo(InnateArray other) {
 		int compare;
 		Comparable o, t;
 		/* Compare the indices in order. */

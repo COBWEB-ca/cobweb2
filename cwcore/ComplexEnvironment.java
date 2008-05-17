@@ -5,6 +5,7 @@ import java.util.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.text.*;
+
 import cobweb.Environment;
 import cobweb.TickScheduler;
 import ga.GeneticCode;
@@ -13,6 +14,7 @@ import ga.GATracker;
 public class ComplexEnvironment extends Environment implements
 		TickScheduler.Client {
 
+	@SuppressWarnings("unused")
 	private final String filePath = "report.xls"; // default report file path; may change in future
 	
 	public static final int FLAG_STONE = 1;
@@ -35,7 +37,7 @@ public class ComplexEnvironment extends Environment implements
 	
 	public static final int AGENT_TYPES = 4;
 
-	public static final List currentPackets = new ArrayList();
+	public static final List<CommPacket> currentPackets = new ArrayList<CommPacket>();
 
 	// Info for logfile
 	private long tickCount = 0;
@@ -211,7 +213,7 @@ public class ComplexEnvironment extends Environment implements
 			asexualBreedChance, breedSimMin, sexualPregnancyPeriod,
 			communicationBits, genetic_sequence };
 
-	private java.util.Hashtable parseData = new java.util.Hashtable();
+	private java.util.Hashtable<String, Object> parseData = new java.util.Hashtable<String, Object>();
 
 	private Colorizer colorizer;
 
@@ -525,8 +527,8 @@ public class ComplexEnvironment extends Environment implements
 			}
 		} else {
 			// if keepOldAgents is false then we want to kill all of the agents
-			for (java.util.Enumeration e = getAgents(); e.hasMoreElements();) {
-				((ComplexAgent) (e.nextElement())).die();
+			for (java.util.Enumeration<cobweb.Agent> e = getAgents(); e.hasMoreElements();) {
+				e.nextElement().die();
 			}
 			// This second line may seem redundant, but it fact its not.
 			// By reseting the hashtable, we remove a bit of non-determinance
@@ -856,12 +858,12 @@ public class ComplexEnvironment extends Environment implements
 		int length = parseData.size();
 		String[] names = new String[length];
 		Object[] saveArray = new Object[length];
-		java.util.Enumeration nameList = parseData.keys();
-		java.util.Enumeration saveList = parseData.elements();
+		java.util.Enumeration<String> nameList = parseData.keys();
+		java.util.Enumeration<Object> saveList = parseData.elements();
 
 		for (int i = 0; saveList.hasMoreElements()
 				&& nameList.hasMoreElements(); ++i) {
-			names[i] = (String) nameList.nextElement();
+			names[i] = nameList.nextElement();
 			saveArray[i] = java.lang.reflect.Array.get(saveList.nextElement(),
 					0);
 		}
@@ -919,7 +921,7 @@ public class ComplexEnvironment extends Environment implements
 				// how many food items we need to destroy, say N,
 				// and we destroy the food at the positions occupying the last N
 				// spots in our vector
-				Vector locations = new Vector();
+				Vector<Location> locations = new Vector<Location>();
 				for (int x = 0; x < getSize(AXIS_X); ++x)
 					for (int y = 0; y < getSize(AXIS_Y); ++y) {
 						Location currentPos = getLocation(x, y);
@@ -932,8 +934,7 @@ public class ComplexEnvironment extends Environment implements
 				int foodToDeplete = (int) ((float) locations.size() * foodDeplete[0][i]);
 
 				for (int j = 0; j < foodToDeplete; ++j) {
-					Location loc = (Location) locations
-							.remove(locations.size() - 1);
+					Location loc = locations.remove(locations.size() - 1);
 					loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 				}
 				draughtdays[i] = draught_period[0][i];
@@ -1145,7 +1146,7 @@ public class ComplexEnvironment extends Environment implements
 	/* Return totalEnergy of all agents */
 	private long countAgentEnergy() {
 		long totalEnergy = 0;
-		java.util.Enumeration e = getAgents();
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
 		while (e.hasMoreElements()) {
 			ComplexAgent agent = (ComplexAgent) e.nextElement();
 			totalEnergy += agent.getEnergy();
@@ -1174,7 +1175,7 @@ public class ComplexEnvironment extends Environment implements
 	/* Return totalEnergy (long) for a certain agentType (int) */
 	private long countAgentEnergy(int agentType) {
 		long totalEnergy = 0;
-		java.util.Enumeration e = getAgents();
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
 		while (e.hasMoreElements()) {
 			ComplexAgent agent = (ComplexAgent) e.nextElement();
 			if (agent.getAgentType() == agentType)
@@ -1187,7 +1188,7 @@ public class ComplexEnvironment extends Environment implements
 		int stratArray[] = new int[2];
 		int cheaters = 0;
 		int coops = 0;
-		java.util.Enumeration e = getAgents();
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
 		while (e.hasMoreElements()) {
 			ComplexAgent agent = (ComplexAgent) e.nextElement();
 			if (agent.getAgentType() == agentType
@@ -1208,7 +1209,7 @@ public class ComplexEnvironment extends Environment implements
 		int stratArray[] = new int[2];
 		int cheaters = 0;
 		int coops = 0;
-		java.util.Enumeration e = getAgents();
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
 		while (e.hasMoreElements()) {
 			ComplexAgent agent = (ComplexAgent) e.nextElement();
 			if (agent.getAgentPDAction() == 0) {
@@ -1297,7 +1298,7 @@ public class ComplexEnvironment extends Environment implements
 	}
 
 	public void resetAgentInfo() {
-		agentInfoVector = new Vector();
+		agentInfoVector = new Vector<ComplexAgentInfo>();
 	}
 	
 	/**
@@ -1459,7 +1460,7 @@ public class ComplexEnvironment extends Environment implements
 	/* Return the number of agents (int) for a certain agentType (int) */
 	private int countAgents(int agentType) {
 		int agentCount = 0;
-		java.util.Enumeration e = getAgents();
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
 		while (e.hasMoreElements()) {
 			ComplexAgent agent = (ComplexAgent) e.nextElement();
 			if (agent.getAgentType() == agentType)
@@ -1571,9 +1572,10 @@ public class ComplexEnvironment extends Environment implements
 
 	private java.io.PrintWriter logStream;
 
+	@SuppressWarnings("unused")
 	private java.io.PrintWriter trackAgentStream;
 
-	private Vector agentInfoVector = new Vector();
+	private Vector<ComplexAgentInfo> agentInfoVector = new Vector<ComplexAgentInfo>();
 
 	private cobweb.ArrayEnvironment array;
 
@@ -1596,6 +1598,7 @@ public class ComplexEnvironment extends Environment implements
 
 		private boolean valid;
 
+		@SuppressWarnings("unused")
 		private long lastAmount = 0;
 
 		public Waste(long birthTick, int weight, float rate) {
@@ -1785,9 +1788,9 @@ public class ComplexEnvironment extends Environment implements
 		public void decrementPersistence() {
 			int pValue;
 			for (int i = 0; i < currentPackets.size(); i++) {
-				pValue = --((CommPacket) currentPackets.get(i)).persistence;
+				pValue = --currentPackets.get(i).persistence;
 				if (pValue <= 0)
-					removePacketfromList((CommPacket) currentPackets.get(i));
+					removePacketfromList(currentPackets.get(i));
 			}
 		}
 
@@ -1808,11 +1811,11 @@ public class ComplexEnvironment extends Environment implements
 		 */
 		public CommPacket getPacket(int packetId) {
 			int i = 0;
-			while (packetId != ((CommPacket) currentPackets.get(i)).packetId
+			while (packetId != (currentPackets.get(i)).packetId
 					& i < currentPackets.size()) {
 				i++;
 			}
-			return (CommPacket) currentPackets.get(i);
+			return currentPackets.get(i);
 		}
 
 		public void blockBroadcast() {
@@ -1830,6 +1833,7 @@ public class ComplexEnvironment extends Environment implements
 	// Food array contains type and their locations
 	private static int[][] foodarray = new int[0][];
 
+	@SuppressWarnings("unused")
 	private int clickcount = 0;
 
 	// Returns current location's food type

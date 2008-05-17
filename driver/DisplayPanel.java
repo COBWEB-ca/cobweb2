@@ -130,4 +130,6 @@ public class DisplayPanel extends java.awt.Panel {
 	private int mapHeight = 0;
 
 	cobweb.UIInterface theUI;
+	
+	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 }

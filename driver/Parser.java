@@ -1,14 +1,10 @@
 package driver;
 
 import java.lang.Object;
-import java.rmi.*;
-import java.rmi.server.*;
-import java.util.*;
 
 import java.lang.String;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import ga.PhenotypeMaster;
 import ga.GeneticCodeException;
@@ -17,7 +13,6 @@ import ga.GATracker;
 import ga.GAChartOutput;
 
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import java.io.*;
 
@@ -205,10 +200,10 @@ public class Parser {
 			"111111111111111111111111", "111111111111111111111111",
 			"111111111111111111111111", "", "", "", "", "", "" } };
 
-	java.util.Hashtable parseData;
+	java.util.Hashtable<String, Object> parseData;
 
 	public Parser(String fileName) {
-		parseData = new java.util.Hashtable();
+		parseData = new java.util.Hashtable<String, Object>();
 		this.fileName = fileName;
 		org.w3c.dom.Node domNode;
 
@@ -238,7 +233,6 @@ public class Parser {
 
 		// now start reading from the XML file
 		String nodeValue = "";
-		int d = 0;
 		int countf = 0;
 		int counta = 0;
 		clearArrayHelper(plants2eat);

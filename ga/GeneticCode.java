@@ -369,7 +369,6 @@ public class GeneticCode {
 		String new_genes = "";
 		try {
 			int PARENT1 = 0;
-			int PARENT2 = 1;
 			
 			int parent1_contribution = 0;
 			int parent2_contribution = 0;

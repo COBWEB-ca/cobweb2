@@ -1,8 +1,6 @@
 package cobweb;
 
 import java.util.Random;
-import java.awt.*;
-import java.awt.color.*;
 
 public class RandomNoGenerator extends Random {
 
@@ -29,4 +27,6 @@ public class RandomNoGenerator extends Random {
 	public int nextBits(int n) {
 		return next(n);
 	}
+	
+	public static final long serialVersionUID = 0x660028115BCBF9CEL;
 }

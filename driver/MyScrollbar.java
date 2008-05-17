@@ -20,4 +20,6 @@ public class MyScrollbar extends java.awt.Scrollbar implements
 		int val = getValue();
 		uiPipe.slowDown(val);
 	}
+
+	public static final long serialVersionUID = 0xD5E78F1D65B18165L;
 }

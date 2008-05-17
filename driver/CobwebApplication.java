@@ -1094,8 +1094,8 @@ public class CobwebApplication extends java.awt.Frame {
 		//String savingFileName = "";
 		if (theDialog.getFile() != null) {
 			// $$$$$$ Check if the saving filename is one of the names reserved by CobwebApplication.  Feb 22
-			String savingFileName;
-			savingFileName = theDialog.getFile();
+			//String savingFileName;
+			//savingFileName = theDialog.getFile();
 			
 			/* Block silenced by Andy because he finds it annoying not being able to modify the default input. */			
 			
@@ -1179,6 +1179,7 @@ public class CobwebApplication extends java.awt.Frame {
 		final javax.swing.JDialog theDialog = new javax.swing.JDialog(GUI.frame, "Credits",  // $$$$$$ change from java.awt.Dialog mult.  Feb 18
 				true);								  				  // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
 		theDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
+		@SuppressWarnings("unused")
 		java.awt.Panel info = new java.awt.Panel();
 		java.awt.Panel credit = new java.awt.Panel();
 		java.awt.Button brad = new java.awt.Button("Brad Bass, PhD");
@@ -1353,6 +1354,8 @@ public class CobwebApplication extends java.awt.Frame {
 					jtf.setText(fn);
 				}
 			}
+			
+			public static final long serialVersionUID = 0x4DCEE6AA76B8E16DL; 
 		});
 		
 		b1.addActionListener(new AbstractAction() {
@@ -1461,6 +1464,7 @@ public class CobwebApplication extends java.awt.Frame {
 						}
 				}
 			}
+			public static final long serialVersionUID = 0xB69B9EE3DA1EAE11L;		
 		});
 
 		b2.addActionListener(new AbstractAction() {
@@ -1500,6 +1504,7 @@ public class CobwebApplication extends java.awt.Frame {
 
 				jtf.setText("");
 			}
+			public static final long serialVersionUID = 0x16124B6CEDFF67E9L;		
 		});
 
 		b3.addActionListener(new AbstractAction() {
@@ -1508,6 +1513,7 @@ public class CobwebApplication extends java.awt.Frame {
 				mult.dispose();  // $$$$$$ added on Feb 14
 				if (uiPipe != null) CobwebApplication.this.toFront(); // $$$$$$ added for CA frame going to front when cancelling.  Feb 22; Modified on Feb 28
 			}
+			public static final long serialVersionUID = 0xEAE8EA9DF8593309L;
 		});
 
 		mult.add(p1, "Center");

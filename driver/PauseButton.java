@@ -41,4 +41,6 @@ public class PauseButton extends java.awt.Button implements
 		updateLabel();
 		*/
 	}
+	
+	public static final long serialVersionUID = 0xE55CC6E3B8B5824DL;
 }

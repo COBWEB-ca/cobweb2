@@ -1,9 +1,8 @@
 package cobweb;
 
-import cwcore.ComplexEnvironment;
+import ga.GATracker;
 import cwcore.ComplexEnvironment.CommManager;
 import driver.Parser;
-import ga.GATracker;
 
 /**
  * TickScheduler is an implementation of Scheduler that sends uniform ticks to
@@ -32,7 +31,7 @@ public class TickScheduler extends Thread implements Scheduler {
 
 	private UIInterface theUI;
 
-	private java.util.Vector clientV = new java.util.Vector();
+	private java.util.Vector<Client> clientV = new java.util.Vector<Client>();
 
 	public boolean isSchedulerPaused() {
 		return bPaused;
@@ -70,11 +69,11 @@ public class TickScheduler extends Thread implements Scheduler {
 	// Client management
 
 	public synchronized void addSchedulerClient(Object theClient) {
-		clientV.addElement(theClient);
+		clientV.addElement((Client)theClient);
 	}
 
 	public synchronized void removeSchedulerClient(Object theClient) {
-		clientV.removeElement(theClient);
+		clientV.removeElement((Client)theClient);
 	}
 
 	// Parameters
@@ -129,8 +128,8 @@ public class TickScheduler extends Thread implements Scheduler {
 		commManager.unblockBroadcast();
 		++tickCount;
 		
-		for (java.util.Enumeration e = clientV.elements(); e.hasMoreElements();)
-			((Client) e.nextElement()).tickNotification(tickCount);
+		for (java.util.Enumeration<Client> e = clientV.elements(); e.hasMoreElements();)
+			e.nextElement().tickNotification(tickCount);
 		
 		/* If program is set to track GA info, then print them. */
 		if (GATracker.getTrackGeneStatusDistribution() || GATracker.getTrackGeneValueDistribution()) {

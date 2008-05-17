@@ -1,6 +1,6 @@
 package cwcore;
 
-public interface InnateArray extends Comparable, Cloneable {
+public interface InnateArray extends Comparable<InnateArray>, Cloneable {
 	/*
 	 * Constructor: make an InnateArray to hold size objects. InnateArray(int
 	 * size);
@@ -13,7 +13,7 @@ public interface InnateArray extends Comparable, Cloneable {
 	 * Return -1, 0, or 1, depending on whether this InnateArray is less than,
 	 * equal to, or greater than other, by some measure.
 	 */
-	int compareTo(Object other);
+	int compareTo(InnateArray other);
 
 	/*
 	 * Return a copy of this InnateArray, mutated to a degree determined by an

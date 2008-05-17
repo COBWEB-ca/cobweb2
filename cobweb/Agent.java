@@ -1,6 +1,5 @@
 package cobweb;
 
-import cwcore.ComplexAgentInfo;
 import ga.GeneticCode;
 
 /**

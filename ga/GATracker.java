@@ -1,15 +1,7 @@
 package ga;
 
-import cobweb.globals;
 import cwcore.ComplexAgent;
-import cwcore.ComplexAgentInfo;
 import cwcore.ComplexEnvironment;
-import java.util.LinkedList;
-import java.io.PrintWriter;
-import java.io.FileWriter;
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
 
 
 public class GATracker {

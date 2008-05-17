@@ -1,8 +1,5 @@
 package cobweb;
 
-import java.util.Random;
-import java.awt.*;
-import java.awt.color.*;
 
 public class parseClass {
 
@@ -25,7 +22,7 @@ public class parseClass {
 	 * 
 	 */
 	public static void parseLoad(java.io.Reader r, String endString,
-			java.util.Hashtable parseData) throws java.io.IOException,
+			java.util.Hashtable<String, Object> parseData) throws java.io.IOException,
 			ArrayIndexOutOfBoundsException {
 
 		java.io.StreamTokenizer inTokens = new java.io.StreamTokenizer(r);
@@ -36,7 +33,6 @@ public class parseClass {
 
 		try {
 			while (true) {
-				int i;
 				if (inTokens.nextToken() != java.io.StreamTokenizer.TT_WORD)
 					throw new java.io.IOException();
 
@@ -91,13 +87,13 @@ public class parseClass {
 
 						Object[] arrayDest = (Object[]) theDest;
 
-						java.lang.reflect.Constructor[] theCtors = arrayDest
+						java.lang.reflect.Constructor<?>[] theCtors = arrayDest
 								.getClass().getComponentType()
 								.getConstructors();
-						java.lang.reflect.Constructor theCtor = null;
+						java.lang.reflect.Constructor<?> theCtor = null;
 
 						for (int j = 0; j < theCtors.length; ++j) {
-							Class[] params = theCtors[j].getParameterTypes();
+							Class<?>[] params = theCtors[j].getParameterTypes();
 							if (params != null && params.length == 1
 									&& params[0].equals(String.class)) {
 								theCtor = theCtors[j];

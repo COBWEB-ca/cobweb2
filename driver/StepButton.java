@@ -49,4 +49,6 @@ public class StepButton extends java.awt.Button implements
 			uiPipe.pause();
 		*/
 	}
+	
+	public static final long serialVersionUID = 0xD4B844C0AA5E3991L;
 }

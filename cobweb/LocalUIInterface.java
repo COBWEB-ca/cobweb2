@@ -1,8 +1,5 @@
 package cobweb;
 
-import java.io.*;
-import java.awt.*;
-import javax.swing.ImageIcon;
 import java.lang.reflect.*;
 import driver.Parser;
 import cwcore.ComplexEnvironment;
@@ -297,8 +294,7 @@ public class LocalUIInterface implements UIInterface,
 		// Open the writer...
 		java.io.FileWriter outStream = new java.io.FileWriter(filePath);
 		// Fire it off to the environment
-		cwcore.ComplexEnvironment cw = (ComplexEnvironment) theEnvironment;
-		cw.trackAgent(outStream);
+		ComplexEnvironment.trackAgent(outStream);
 	}
 
 	/**
@@ -536,16 +532,16 @@ public class LocalUIInterface implements UIInterface,
 				theEnvironment.load(theScheduler, p);
 				return;
 			}
-			Class environmentClass = Class.forName(environmentName);
+			Class<?> environmentClass = Class.forName(environmentName);
 			// Use reflection to find a constructor taking a Scheduler parameter
 			// and a Reader
-			Constructor environmentCtor = null;
+			Constructor<?> environmentCtor = null;
 			{
-				Constructor[] environmentCtors = environmentClass
+				Constructor<?>[] environmentCtors = environmentClass
 						.getConstructors();
 
 				for (int i = 0; i < environmentCtors.length; ++i) {
-					Class[] params = environmentCtors[i].getParameterTypes();
+					Class<?>[] params = environmentCtors[i].getParameterTypes();
 
 					if (params != null && params.length == 2
 							&& params[0].getName().equals("cobweb.Scheduler")
@@ -611,14 +607,14 @@ public class LocalUIInterface implements UIInterface,
 				return;
 			}
 
-			Class schedulerClass = Class.forName(schedulerName);
+			Class<?> schedulerClass = Class.forName(schedulerName);
 			// Use reflection to find a contructor taking a UIInterface
 			// parameter and a Reader
-			Constructor theCtor = null;
+			Constructor<?> theCtor = null;
 			{
-				Constructor[] schedulerCtors = schedulerClass.getConstructors();
+				Constructor<?>[] schedulerCtors = schedulerClass.getConstructors();
 				for (int i = 0; i < schedulerCtors.length; ++i) {
-					Class[] params = schedulerCtors[i].getParameterTypes();
+					Class<?>[] params = schedulerCtors[i].getParameterTypes();
 					if (params != null
 							&& params.length == 2
 							&& params[0].getName().equals("cobweb.UIInterface")

@@ -1,7 +1,5 @@
 package cobweb;
 
-import java.util.ArrayList;
-import java.util.List;
 import driver.Parser;
 
 /**
@@ -370,9 +368,9 @@ public abstract class Environment {
 		fillTileColors(tileColors);
 		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
 
-		for (java.util.Enumeration e = agentTable.elements(); e
+		for (java.util.Enumeration<Agent> e = agentTable.elements(); e
 				.hasMoreElements();)
-			((Agent) e.nextElement()).getDrawInfo(theUI);
+			e.nextElement().getDrawInfo(theUI);
 	}
 
 	/**
@@ -409,7 +407,7 @@ public abstract class Environment {
 	}
 
 	/** Returns an Enumeration of Agents */
-	public java.util.Enumeration agents() {
+	public java.util.Enumeration<Agent> agents() {
 		return agentTable.elements();
 	}
 
@@ -462,7 +460,7 @@ public abstract class Environment {
 	// are many
 	// more locations than agents.
 	private final Agent getAgent(Location l) {
-		return (Agent) agentTable.get(l);
+		return agentTable.get(l);
 	}
 
 	private final void setAgent(Location l, Agent a) {
@@ -474,7 +472,7 @@ public abstract class Environment {
 
 	protected void clearAgents() {
 		agentTable.clear();
-		agentTable = new java.util.Hashtable();
+		agentTable = new java.util.Hashtable<Location, Agent>();
 	}
 
 	public abstract int getTypeCount();
@@ -483,15 +481,15 @@ public abstract class Environment {
 		return agentTable.size();
 	}
 
-	public java.util.Enumeration getAgents() {
+	public java.util.Enumeration<Agent> getAgents() {
 		return agentTable.elements();
 	}
 
-	public java.util.Collection getAgentCollection() {
+	public java.util.Collection<Agent> getAgentCollection() {
 		return agentTable.values();
 	}
 
-	private java.util.Hashtable agentTable = new java.util.Hashtable();
+	private java.util.Hashtable<Location, Agent> agentTable = new java.util.Hashtable<Location, Agent>();
 
 	public abstract void setclick(int count);
 
