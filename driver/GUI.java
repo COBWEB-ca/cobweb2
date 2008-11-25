@@ -1138,7 +1138,7 @@ public class GUI extends JPanel implements ActionListener {
 	 */
 	public static void createAndShowGUI(CobwebApplication ca, String filename) {
 		// Make sure we have nice window decorations.
-		JFrame.setDefaultLookAndFeelDecorated(true);
+		//JFrame.setDefaultLookAndFeelDecorated(true);
 
 		// Create and set up the window.
 		frame = new JFrame("Test Data");

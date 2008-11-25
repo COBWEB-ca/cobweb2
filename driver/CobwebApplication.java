@@ -101,7 +101,11 @@ public class CobwebApplication extends java.awt.Frame {
 	
 	public static void main(String[] param) {
 		CA = new CobwebApplication(param);
-		CA.inputFile = INITIAL_OR_NEW_INPUT_FILE_NAME + XML_FILE_SUFFIX;  //  $$$$$$ change the name from original "input.xml".  Jan 31
+		if (param.length > 0) {
+			CA.inputFile = param[0];
+		} else {
+			CA.inputFile = INITIAL_OR_NEW_INPUT_FILE_NAME + XML_FILE_SUFFIX;  //  $$$$$$ change the name from original "input.xml".  Jan 31
+		}
 		CA.setCurrentFile(CA.inputFile);  // $$$$$$ added on Mar 14
 		//CA.setEnabled(false);  // $$$$$$ to make sure the "Cobweb Application" frame disables when ever the "Test Data" window showing.  Feb 28
 		// $$$$$  a file named as the above name will be automatically created or modified when everytime running the

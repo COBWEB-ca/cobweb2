@@ -74,7 +74,7 @@ public abstract class Agent {
 											// controller
 		position.setAgent(this);
 		position.getEnvironment().getScheduler().addSchedulerClient(this);
-		id = (new java.util.Random()).nextLong();
+		id =  globals.random.nextLong(); //(new java.util.Random()).nextLong();
 	}
 
 	/**
