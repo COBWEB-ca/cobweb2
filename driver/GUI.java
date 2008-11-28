@@ -1,28 +1,60 @@
 /*  $$$$$:  Comments by Liang
- * 
+ *
  *  $$$$$$: Codes modified and/or added by Liang
  */
 
 
 package driver;
 
+import ga.GAChartOutput;
+import ga.GATracker;
+import ga.GeneticCode;
+import ga.GeneticCodeException;
+import ga.PhenotypeMaster;
+
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Checkbox;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.Label;
+import java.awt.TextField;
+import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.JOptionPane;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.JComboBox;
-import java.awt.*;
-import ga.PhenotypeMaster;
-import ga.GeneticCodeException;
-import ga.GeneticCode;
-import ga.GATracker;
-import ga.GAChartOutput;
-import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
+
+/**
+ * Simulation configuration dialog
+ * @author time itself
+ *
+ */
 public class GUI extends JPanel implements ActionListener {
 
 	final String TickScheduler = "cobweb.TickScheduler";
@@ -48,7 +80,7 @@ public class GUI extends JPanel implements ActionListener {
 	TextField randomStones;
 	TextField maxFoodChance;
 	TextField memory_size;
-	
+
 	// //////////////////////////////////////////////////////////////////////////////////////////////
 
 	public static final int GA_AGENT_1_ROW = 0;
@@ -72,7 +104,7 @@ public class GUI extends JPanel implements ActionListener {
 
 	JButton link_gene_3 = new JButton("Link to Gene 3.");
 
-	public static String[] meiosis_mode_list = {"Colour Averaging", 
+	public static String[] meiosis_mode_list = {"Colour Averaging",
 	"Random Recombination", "Gene Swapping"};
 	public static JComboBox meiosis_mode = new JComboBox(meiosis_mode_list);
 
@@ -90,16 +122,16 @@ public class GUI extends JPanel implements ActionListener {
 	/** The TextFields that store the genetic bits of the agents. */
 	public static JTable genetic_table = new JTable(default_genetics,
 			genetic_table_col_names);
-	
+
 	/** Controls whether or not the distribution of gene status of an agent type is tracked and outputted. */
-	public static JCheckBox track_gene_status_distribution; 
-	
+	public static JCheckBox track_gene_status_distribution;
+
 	/** Controls whether or not the distribution of gene value of an agent type is tracked and outputted. */
 	public static JCheckBox track_gene_value_distribution;
-	
+
 	/** The number of chart updates per time step. */
 	public static JTextField chart_update_frequency;
-	
+
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 		try {
 			if (e.getSource().equals(link_gene_1)) {
@@ -148,10 +180,10 @@ public class GUI extends JPanel implements ActionListener {
 							GA_GENE_3_COL);
 				}
 			} else if (e.getSource().equals(meiosis_mode)) {
-				
+
 				// Read which mode of meiosis is selected and
-				// add save it. 
-				GeneticCode.meiosis_mode 
+				// add save it.
+				GeneticCode.meiosis_mode
 				= (String) ((JComboBox) e.getSource()).getSelectedItem();
 			} else if (e.getSource().equals(track_gene_status_distribution)) {
 				boolean state = GATracker.negateTrackGeneStatusDistribution();
@@ -162,7 +194,7 @@ public class GUI extends JPanel implements ActionListener {
 			} else if (e.getSource().equals(chart_update_frequency)) {
 				try {
 					int freq = Integer.parseInt(chart_update_frequency.getText());
-					
+
 					if (freq <= 0) {
 						chart_update_frequency.setText("Input must be > 0.");
 					} else {
@@ -192,7 +224,7 @@ public class GUI extends JPanel implements ActionListener {
 	static Button close;
 
 	static Button save;
-	
+
 	public Object[][] inputArray;
 
 	public Object[][] data1;
@@ -415,8 +447,8 @@ public class GUI extends JPanel implements ActionListener {
 		 * check filename, if file name exists and has a correct format set the
 		 * values from the file filename
 		 */
-		
-		File f = new File(datafile);  // $$$$$  a new file named as datafile will be automatically created 
+
+		File f = new File(datafile);  // $$$$$  a new file named as datafile will be automatically created
 									  //          after click "OK" button, line 590 write the file.  Jan 24
 		// $$$$$$ delete temporary file "default_data_(reserved).temp", for "Default" button (and "Retrieve Default Data" menu).  Jan 31
 		//if ( datafile.equals( (CobwebApplication.DEFAULT_DATA_FILE_NAME + TEMPORARY_FILE_SUFFIX) ) ) {
@@ -530,8 +562,8 @@ public class GUI extends JPanel implements ActionListener {
 
 		JComponent panelGA = new JPanel(new BorderLayout());
 		DefaultListModel mutable_list_model = new DefaultListModel();
-		for (int i = 0; i < PhenotypeMaster.mutable.length; i++) {
-			mutable_list_model.addElement(PhenotypeMaster.mutable[i]);
+		for (String element : PhenotypeMaster.mutable) {
+			mutable_list_model.addElement(element);
 		}
 		mutable_list_model.addElement("[No Phenotype]");
 		mutable_phenotypes = new JList(mutable_list_model);
@@ -540,8 +572,8 @@ public class GUI extends JPanel implements ActionListener {
 		mutable_phenotypes.setLayoutOrientation(JList.HORIZONTAL_WRAP);
 		mutable_phenotypes.setVisibleRowCount(-1);
 		JScrollPane phenotypeScroller = new JScrollPane(mutable_phenotypes);
-		phenotypeScroller.setPreferredSize(new Dimension(150, 260));		
-    	
+		phenotypeScroller.setPreferredSize(new Dimension(150, 260));
+
 		// Set the default selected item as the previously selected item.
 		meiosis_mode.setSelectedIndex(GeneticCode.meiosis_mode_index);
 
@@ -564,10 +596,10 @@ public class GUI extends JPanel implements ActionListener {
 		gene_info_display.add(gene_3, BorderLayout.EAST);
 		JPanel meiosis_mode_panel = new JPanel(new BorderLayout());
 		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
-		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);		
-		
+		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);
+
 		// Checkboxes and TextAreas
-		track_gene_status_distribution = new JCheckBox("Track Gene Status Distribution", GATracker.getTrackGeneStatusDistribution());			
+		track_gene_status_distribution = new JCheckBox("Track Gene Status Distribution", GATracker.getTrackGeneStatusDistribution());
 		track_gene_value_distribution = new JCheckBox("Track Gene Value Distribution", GATracker.getTrackGeneValueDistribution());
 		chart_update_frequency = new JTextField(GAChartOutput.update_frequency + "", 12);
 		JPanel chart_update_frequency_panel = new JPanel();
@@ -578,13 +610,13 @@ public class GUI extends JPanel implements ActionListener {
 		gene_check_boxes.add(track_gene_value_distribution, BorderLayout.CENTER);
 		gene_check_boxes.add(chart_update_frequency_panel, BorderLayout.SOUTH);
 
-		// Combine Checkboxes and Dropdown menu		
+		// Combine Checkboxes and Dropdown menu
 		JPanel ga_combined_panel = new JPanel(new BorderLayout());
 		ga_combined_panel.add(meiosis_mode_panel, BorderLayout.EAST);
 		ga_combined_panel.add(gene_check_boxes, BorderLayout.WEST);
 
 		gene_info_display.add(ga_combined_panel, BorderLayout.SOUTH);
-		
+
 		JScrollPane genetic_table_scroller = new JScrollPane(genetic_table);
 		genetic_table_scroller.setPreferredSize(new Dimension(150, 260));
 		panelGA.add(genetic_table_scroller, BorderLayout.CENTER);
@@ -594,12 +626,12 @@ public class GUI extends JPanel implements ActionListener {
 		/** Listeners of JButtons, JComboBoxes, and JCheckBoxes */
 		link_gene_1.addActionListener(this);
 		link_gene_2.addActionListener(this);
-		link_gene_3.addActionListener(this);		
+		link_gene_3.addActionListener(this);
     	meiosis_mode.addActionListener(this);
     	track_gene_status_distribution.addActionListener(this);
     	track_gene_value_distribution.addActionListener(this);
     	chart_update_frequency.addActionListener(this);
-		
+
 		tabbedPane.addTab("Genetic Algorithm", panelGA);
 
 		/** ************************************************************************************* */
@@ -611,36 +643,36 @@ public class GUI extends JPanel implements ActionListener {
 		close = new java.awt.Button("OK");
 		close.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-			
-			/*	$$$$$$  Invalidate the below codes and use the help 
+
+			/*	$$$$$$  Invalidate the below codes and use the help
 			 *  $$$$$$    method checkValidityOfGAInput instead.  Feb 1
 				Pattern pattern = Pattern.compile("^[01]{8}$");
 				Matcher matcher;
-				
+
 				boolean correct_input = true;
-				
+
 				// $$$$$$  added on Jan 23  $$$$$  not perfect since the dialog won't popup until hit "OK"
 				updateTable(genetic_table);
 
-				for (int i = GA_AGENT_1_ROW; i < GA_AGENT_1_ROW + GA_NUM_AGENT_TYPES; i++) { 
+				for (int i = GA_AGENT_1_ROW; i < GA_AGENT_1_ROW + GA_NUM_AGENT_TYPES; i++) {
 					for (int j = GA_GENE_1_COL; j < GA_GENE_1_COL + GA_NUM_GENES; j++) {
 						matcher = pattern.matcher((String) genetic_table.getValueAt(i,j));
 						if (!matcher.find()) {
 							correct_input = false;
-							JOptionPane.showMessageDialog(GUI.this, 
+							JOptionPane.showMessageDialog(GUI.this,
 							"GA: All genes must be binary and 8-bit long");
-							break; 
-						} 
+							break;
+						}
 					}
 					if (!correct_input) {
 						break;
-					} 					
+					}
 				}
 			*/
 				// $$$$$$ check validity of genetic table input.  Feb 1
 				boolean correct_GA_input;
 				correct_GA_input = checkValidityOfGAInput();
-				
+
 				// Save the chart update frequency
 				try {
 					int freq = Integer.parseInt(chart_update_frequency.getText());
@@ -652,9 +684,9 @@ public class GUI extends JPanel implements ActionListener {
 				} catch (NumberFormatException e) { // Invalid input
 					GAChartOutput.update_frequency = 1;
 				}
-				
+
 				if ( (checkHeightLessThanWidth() != false) && (correct_GA_input != false) ) {
-					
+
 					//checkRandomSeedValidity(); // $$$$$$ added on Feb 18
 					// $$$$$$ Change the above code as follows on Feb 25
 					if (CA.randomSeedReminder == 0) {
@@ -668,15 +700,20 @@ public class GUI extends JPanel implements ActionListener {
 					updateTable(table2);
 					updateTable(table3);
 					updateTable(tablePD); // $$$$$$ Jan 25
-					
+
 					/* write UI info to xml file */
 					try {
 						write(datafile);  // $$$$$ write attributes showed in the "Test Data" window into the file "datafile".   Jan 24
 					} catch (java.io.IOException e) {
 					}
-					
+
 					/* create a new parser for the xml file */
-					p = new Parser(datafile);
+					try {
+						p = new Parser(datafile);
+					} catch (FileNotFoundException ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					}
 					CA.openFile(p);
 					if (!datafile.equals(CA.getCurrentFile())) {CA.setCurrentFile(datafile);}  // $$$$$$ added on Mar 14
 					frame.setVisible(false);
@@ -687,9 +724,9 @@ public class GUI extends JPanel implements ActionListener {
 							CA.getUI().reset();   // reset tick
 							//CA.refresh(CA.getUI());
 							//if (CA.tickField != null && !CA.tickField.getText().equals("")) {CA.tickField.setText("");}    // $$$$$$ Mar 17
-						} 
+						}
 						CA.getUI().refresh(1);
-						
+
 						/*** $$$$$$ Cancel textWindow  Apr 22*/
 						if (cobweb.globals.usingTextWindow == true) {
 							// $$$$$$ Reset the output window, specially for Linux.  Mar 29
@@ -707,7 +744,7 @@ public class GUI extends JPanel implements ActionListener {
 		save.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				// $$$$$$ check validity of genetic table input.  Feb 1
-				
+
 				// Save the chart update frequency
 				try {
 					int freq = Integer.parseInt(chart_update_frequency.getText());
@@ -719,32 +756,32 @@ public class GUI extends JPanel implements ActionListener {
 				} catch (NumberFormatException f) { // Invalid input
 					GAChartOutput.update_frequency = 1;
 				}
-				
+
 				boolean correct_GA_input;
 				correct_GA_input = checkValidityOfGAInput();
-				
+
 				// $$$$$$ Implement "Save" only if GA input is correct
 				if ( (checkHeightLessThanWidth() != false) && (correct_GA_input != false) ) { // modified on Feb 21
-					
+
 					//checkRandomSeedValidity();	// $$$$$$ added on Feb 22
 					// $$$$$$ Change the above code as follows on Feb 25
 					if (CA.randomSeedReminder == 0) {
 						CA.randomSeedReminder = checkRandomSeedStatus();
 					}
-					
+
 					updateTable(table1);
 					updateTable(table2);
 					updateTable(table3);
 					updateTable(tablePD); // $$$$$$ Jan 25
 					//updateTable(genetic_table);  // $$$$$$ Jan 25 $$$$$$ genetic_table already updated by checkValidityOfGAInput(). Feb 22
 					openFileDialog();
-					
-					
-					
+
+
+
 				}
 			}
 		});
-		
+
 		JPanel buttons = new JPanel();
 		buttons.setLayout(new BorderLayout());
 		buttons.add(save, BorderLayout.WEST);
@@ -755,41 +792,41 @@ public class GUI extends JPanel implements ActionListener {
 		add(tabbedPane);
 		add(buttons, BorderLayout.SOUTH);
 	}
-	
+
 	// $$$$$$  Check the validity of genetic_table input, used by "OK" and "Save" buttons.  Feb 1
 	private boolean checkValidityOfGAInput() {
 		Pattern pattern = Pattern.compile("^[01]{8}$");
 		Matcher matcher;
-		
+
 		boolean correct_input = true;
-		
+
 		// $$$$$$  added on Jan 23  $$$$$  not perfect since the dialog won't popup until hit "OK"
 		updateTable(genetic_table);
 
-		for (int i = GA_AGENT_1_ROW; i < GA_AGENT_1_ROW + GA_NUM_AGENT_TYPES; i++) { 
+		for (int i = GA_AGENT_1_ROW; i < GA_AGENT_1_ROW + GA_NUM_AGENT_TYPES; i++) {
 			for (int j = GA_GENE_1_COL; j < GA_GENE_1_COL + GA_NUM_GENES; j++) {
 				matcher = pattern.matcher((String) genetic_table.getValueAt(i,j));
 				if (!matcher.find()) {
 					correct_input = false;
-					JOptionPane.showMessageDialog(GUI.this, 
+					JOptionPane.showMessageDialog(GUI.this,
 						"GA: All genes must be binary and 8-bit long");
-					break; 
-				} 
+					break;
+				}
 			}
 			if (!correct_input) {
 				break;
-			} 					
+			}
 		}
-		
+
 		return correct_input;
 	}
-	
+
 	/**************** Rendered defunct by Andy, because the pop up is annoying. */
 	// $$$$$$ To check whether RandomSeed == 0. If RandomSeed != 0, popup a message.  Apr 18 [Feb 18] Refer class ComplexEnvironment line 365-6 for the reason
 	private int checkRandomSeedStatus() {
 		/*
 		if ( Integer.parseInt(RandomSeed.getText()) != 0) {   // $$$$$$ change from "==".  Apr 18
-			//JOptionPane.showMessageDialog(GUI.frame, 
+			//JOptionPane.showMessageDialog(GUI.frame,
 			//	"CAUTION:  \"Random Seed\" is setting to zero.\n" +
 			//	"\nFor retrievable experiments, please set \"Random Seed\" to non-zero.");
 			// $$$$$$ Change the above block as follows and return an integer.  Feb 25
@@ -810,20 +847,20 @@ public class GUI extends JPanel implements ActionListener {
 		}*/
 		return 0;
 	}
-	
+
 	// $$$$$$ check if Width >= Height, for if Height > Width, an exception will occur and cobweb2 will malfunction.  Feb 20
 	private boolean checkHeightLessThanWidth(){
 		if ( Integer.parseInt(Width.getText()) < Integer.parseInt(Height.getText()) ) {
-			JOptionPane.showMessageDialog(GUI.this, 
-					"Please set Width >= Height for Grid Settings, or Cobweb2 would malfunction.", 
+			JOptionPane.showMessageDialog(GUI.this,
+					"Please set Width >= Height for Grid Settings, or Cobweb2 would malfunction.",
 					"Warning", JOptionPane.WARNING_MESSAGE);
 			return false;
 		} else {
 			return true;
 		}
 	}
-	
-	
+
+
 	public void updateTable(JTable table) {
 		int row = table.getEditingRow();
 		int col = table.getEditingColumn();
@@ -842,19 +879,19 @@ public class GUI extends JPanel implements ActionListener {
 			// $$$$$$$$$$$$$$$$$$$$$$$$$$ Block silenced by Andy due to the annoyingness of this feature. May 7, 2008
 			//String savingFileName;
 			//savingFileName = theDialog.getFile();
-			
+
 			// Block silenced, see above.
-			
+
 			/*if ( (savingFileName.contains(CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME) != false)
 					  || (savingFileName.contains(CobwebApplication.CURRENT_DATA_FILE_NAME) != false) //$$$$$ added for "Modify Current Data"
 					  || (savingFileName.contains(CobwebApplication.DEFAULT_DATA_FILE_NAME) != false)) {
-				
-				
-				JOptionPane.showMessageDialog(GUI.this, 
+
+
+				JOptionPane.showMessageDialog(GUI.this,
 				"Save State: The filename\"" + savingFileName + "\" is reserved by Cobweb Application.\n" +
 						"                       Please choose another file to save.",
 						"Warning", JOptionPane.WARNING_MESSAGE); // $$$$$$ modified on Feb 22
-				openFileDialog(); 
+				openFileDialog();
 			} else { */  // $$$$$ If filename not reserved.  Feb 8
 				try {
 					// $$$$$$ The following block added to handle a readonly file.  Feb 22
@@ -864,7 +901,7 @@ public class GUI extends JPanel implements ActionListener {
 						JOptionPane.showMessageDialog(GUI.frame,   // $$$$$$ change from "this" to "GUI.frame".  Feb 22
 								"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.",
 								"Warning", JOptionPane.WARNING_MESSAGE);
-					} else { 
+					} else {
 						// $$$$$ The following block used to be the original code.  Feb 22
 						write(theDialog.getDirectory() + theDialog.getFile());
 						p = new Parser(theDialog.getDirectory() + theDialog.getFile());
@@ -878,9 +915,9 @@ public class GUI extends JPanel implements ActionListener {
 								CA.getUI().reset();    // reset tick
 								//CA.refresh(CA.getUI());
 								//if (CA.tickField != null && !CA.tickField.getText().equals("")) {CA.tickField.setText("");}    // $$$$$$ Mar 17
-							} 
+							}
 							CA.getUI().refresh(1);
-							
+
 							/*** $$$$$$ Cancel textWindow  Apr 22*/
 							if (cobweb.globals.usingTextWindow == true) {
 								// $$$$$$ Reset the output window, specially for Linux.  Mar 29
@@ -888,7 +925,7 @@ public class GUI extends JPanel implements ActionListener {
 									CA.textArea.setText(CobwebApplication.GREETINGS);
 								}
 							}
-							
+
 						}
 					}
 				} 	catch (java.io.IOException evt) {
@@ -896,7 +933,7 @@ public class GUI extends JPanel implements ActionListener {
 							"Save failed: " + evt.getMessage(),
 							"Warning", JOptionPane.WARNING_MESSAGE);
 					/*** $$$$$$ Cancel textWindow  Apr 22*/
-					if (cobweb.globals.usingTextWindow == true) {CA.textArea.append("Save failed:" + evt.getMessage());} // $$$$$$ Added to be consistent with 
+					if (cobweb.globals.usingTextWindow == true) {CA.textArea.append("Save failed:" + evt.getMessage());} // $$$$$$ Added to be consistent with
 																												// CobwebApplication's saveFile method.  Feb 8
 				}
 			// }
@@ -908,9 +945,9 @@ public class GUI extends JPanel implements ActionListener {
 	}
 
 	class PDTable extends AbstractTableModel {
-		private Object[][] values;
+		private final Object[][] values;
 
-		private String[] rownames;
+		private final String[] rownames;
 
 		public PDTable(String rownames[], Object data[][]) {
 			this.rownames = rownames;
@@ -925,9 +962,11 @@ public class GUI extends JPanel implements ActionListener {
 			return 2;
 		}
 
+		@Override
 		public String getColumnName(int column) {
-			if (column == 0)
+			if (column == 0) {
 				return "";
+			}
 			return "value";
 		}
 
@@ -936,20 +975,24 @@ public class GUI extends JPanel implements ActionListener {
 		}
 
 		public Object getValueAt(int row, int column) {
-			if (column == 0)
+			if (column == 0) {
 				return rownames[row];
+			}
 			return values[row][0];
 		}
 
+		@Override
 		public boolean isCellEditable(int row, int col) {
 			// Note that the data/cell address is constant,
 			// no matter where the cell appears onscreen.
-			if (col == 0)
+			if (col == 0) {
 				return false;
-			else
+			} else {
 				return true;
+			}
 		}
 
+		@Override
 		public void setValueAt(Object value, int row, int col) {
 			if ((isCellEditable(row, col))) {
 				try {
@@ -970,15 +1013,15 @@ public class GUI extends JPanel implements ActionListener {
 		}
 		// public Class getColumnClass(int c) { return values[0].getClass();}
 
-		public static final long serialVersionUID = 0x38FAF24EC6162F2CL; 
+		public static final long serialVersionUID = 0x38FAF24EC6162F2CL;
 	}
 
 	/* table class */
 	class MyTableModel extends AbstractTableModel {
 
-		private Object[][] data;
+		private final Object[][] data;
 
-		private String[] rowNames;
+		private final String[] rowNames;
 
 		private int numTypes = 0;
 
@@ -999,11 +1042,13 @@ public class GUI extends JPanel implements ActionListener {
 		}
 
 		/* return column name given the number of the column */
+		@Override
 		public String getColumnName(int col) {
-			if (col == 0)
+			if (col == 0) {
 				return "";
-			else
+			} else {
 				return "Type" + (col);
+			}
 		}
 
 		/* return row name given the number of the row */
@@ -1012,8 +1057,9 @@ public class GUI extends JPanel implements ActionListener {
 		}
 
 		public Object getValueAt(int row, int col) {
-			if (col == 0)
+			if (col == 0) {
 				return rowNames[row];
+			}
 			return data[col - 1][row];
 		}
 
@@ -1028,18 +1074,21 @@ public class GUI extends JPanel implements ActionListener {
 		/*
 		 * Don't need to implement this method unless your table's editable.
 		 */
+		@Override
 		public boolean isCellEditable(int row, int col) {
 			// Note that the data/cell address is constant,
 			// no matter where the cell appears onscreen.
-			if (col == 0)
+			if (col == 0) {
 				return false;
-			else
+			} else {
 				return true;
+			}
 		}
 
 		/*
 		 * set the value at (row,col)
 		 */
+		@Override
 		public void setValueAt(Object value, int row, int col) {
 
 			if ((isCellEditable(row, col))) {
@@ -1099,7 +1148,7 @@ public class GUI extends JPanel implements ActionListener {
 		private void printDebugData() {
 			/*
 			 * int numRows = getRowCount(); int numCols = getColumnCount();
-			 * 
+			 *
 			 * for (int i=0; i < numRows; i++) { System.out.print(" row " + i +
 			 * ":"); for (int j=0; j < numCols-1; j++) { System.out.print(" " +
 			 * data[j][i]); } System.out.println(); }
@@ -1118,17 +1167,17 @@ public class GUI extends JPanel implements ActionListener {
 		@SuppressWarnings("unused")
 		private String[] rowNames;
 
-		@SuppressWarnings("unused")
-		private int numTypes = 0;
+		private final int numTypes = 0;
 
 		MyTableModel2(String rownames[], int numcol, Object data[][]) {
 			super(rownames, numcol, data);
 		}
 
+		@Override
 		public Class<?> getColumnClass(int c) {
 			return getValueAt(0, c).getClass();
 		}
-		
+
 		public static final long serialVersionUID = 0x6E1D565A6F6714AFL;
 	}
 
@@ -1145,7 +1194,7 @@ public class GUI extends JPanel implements ActionListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Create and set up the content pane.
-		
+
 		JComponent newContentPane = new GUI(ca, filename);
 		newContentPane.setOpaque(true); // content panes must be opaque
 		frame.getContentPane().add(newContentPane/* new GUI(ca, datafile) */,
@@ -1539,15 +1588,16 @@ public class GUI extends JPanel implements ActionListener {
 	private void setTableHelper(Object data[][]) {
 
 		for (int i = 0; i < data.length; i++) {
-			for (int j = 0; j < data[i].length; j++)
+			for (int j = 0; j < data[i].length; j++) {
 				data[i][j] = new Boolean(false);
+			}
 		}
 	}
 
 	/**
 	 * Writes the information stored in this tree to an XML file, comforming to
 	 * the rules of our spec.
-	 * 
+	 *
 	 * @param fileName
 	 *            the name of the file to which to save the file
 	 * @return true if the file was saved successfully, false otherwise
@@ -1911,6 +1961,6 @@ public class GUI extends JPanel implements ActionListener {
 
 		return true;
 	}
-	
+
 	public static final long serialVersionUID = 0xB9967684A8375BC0L;
 }

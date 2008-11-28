@@ -14,6 +14,7 @@ public class DisplayPanel extends java.awt.Panel {
 		borderWidth = borderW;
 		borderHeight = borderH;
 		addComponentListener(new java.awt.event.ComponentAdapter() {
+			@Override
 			public void componentResized(java.awt.event.ComponentEvent evt) {
 				DisplayPanel.this.setupOffscreen();
 			}
@@ -25,6 +26,7 @@ public class DisplayPanel extends java.awt.Panel {
 		theUI = ui;
 		setupOffscreen();
 		addComponentListener(new java.awt.event.ComponentAdapter() {
+			@Override
 			public void componentResized(java.awt.event.ComponentEvent evt) {
 				DisplayPanel.this.setupOffscreen();
 			}
@@ -32,14 +34,17 @@ public class DisplayPanel extends java.awt.Panel {
 
 	}
 
+	@Override
 	public void paint(java.awt.Graphics g) {
 		update(g);
 	}
 
+	@Override
 	public void update(java.awt.Graphics g) {
 		if (offscreenImage == null || tileWidth == 0 || mapWidth != getWidth()
-				|| mapHeight != getHeight() || tileHeight == 0)
+				|| mapHeight != getHeight() || tileHeight == 0) {
 			setupOffscreen();
+		}
 		theUI.draw(offscreenGraphics, tileWidth, tileHeight);
 		offscreenGraphics.setColor(java.awt.Color.white);
 		offscreenGraphics.fillRect(0, -fontHeight, getSize().width - 2
@@ -54,6 +59,9 @@ public class DisplayPanel extends java.awt.Panel {
 		offscreenGraphics = null;
 		offscreenImage = null;
 		java.awt.Dimension size = getSize();
+		if (size.width <= 0 || size.height <= 0) {
+			return;
+		}
 		offscreenImage = createImage(size.width, size.height);
 		offscreenGraphics = offscreenImage.getGraphics();
 		offscreenGraphics.setColor(java.awt.Color.white);
@@ -67,20 +75,24 @@ public class DisplayPanel extends java.awt.Panel {
 
 		mapWidth = theUI.getWidth();
 		mapHeight = theUI.getHeight();
-		if (mapWidth != 0)
+		if (mapWidth != 0) {
 			tileWidth = size.width / mapWidth;
-		if (mapHeight != 0)
+		}
+		if (mapHeight != 0) {
 			tileHeight = size.height / mapHeight;
+		}
 	}
 
 	/*
 	 * the following information needed to convert the mouse coords into the
 	 * grid coordinates
 	 */
+	@Override
 	public int getWidth() {
 		return theUI.getWidth();
 	}
 
+	@Override
 	public int getHeight() {
 		return theUI.getHeight();
 	}
@@ -130,6 +142,6 @@ public class DisplayPanel extends java.awt.Panel {
 	private int mapHeight = 0;
 
 	cobweb.UIInterface theUI;
-	
+
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 }

@@ -1,22 +1,23 @@
 package driver;
 
-import java.lang.Object;
+import ga.GAChartOutput;
+import ga.GATracker;
+import ga.GeneticCode;
+import ga.GeneticCodeException;
+import ga.PhenotypeMaster;
 
-import java.lang.String;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import ga.PhenotypeMaster;
-import ga.GeneticCodeException;
-import ga.GeneticCode;
-import ga.GATracker;
-import ga.GAChartOutput;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import java.io.*;
-
-import org.w3c.dom.*;
 
 public class Parser {
 	public String fileName;
@@ -202,9 +203,17 @@ public class Parser {
 
 	java.util.Hashtable<String, Object> parseData;
 
-	public Parser(String fileName) {
-		parseData = new java.util.Hashtable<String, Object>();
+	public Parser(String fileName) throws FileNotFoundException {
 		this.fileName = fileName;
+		loadFile(new FileInputStream(fileName));
+	}
+
+	public Parser(InputStream file) {
+		loadFile(file);
+	}
+
+	private void loadFile(InputStream file) {
+		parseData = new java.util.Hashtable<String, Object>();
 		org.w3c.dom.Node domNode;
 
 		// read these variables from the xml file
@@ -213,12 +222,13 @@ public class Parser {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			document = builder.parse(new File(fileName));
+			document = builder.parse(file);
 		} catch (SAXException sxe) {
 			// Error generated during parsing)
 			Exception x = sxe;
-			if (sxe.getException() != null)
+			if (sxe.getException() != null) {
 				x = sxe.getException();
+			}
 			x.printStackTrace();
 		} catch (ParserConfigurationException pce) {
 			// Parser with specified options can't be built
@@ -228,7 +238,7 @@ public class Parser {
 			ioe.printStackTrace();
 		}
 
-		domNode = (org.w3c.dom.Node) document;
+		domNode = document;
 		domNode.normalize();
 
 		// now start reading from the XML file
@@ -255,9 +265,9 @@ public class Parser {
 				for (int k = 0; k < nodeChildren3.getLength(); k++) {
 					nodeName2 = nodeChildren3.item(k).getNodeName();
 					NodeList value = nodeChildren3.item(k).getChildNodes();
-					if (value.toString().equals("None")) { 
+					if (value.toString().equals("None")) {
 						continue;
-					} else if (nodeName2.equals("agent1gene1")) {						
+					} else if (nodeName2.equals("agent1gene1")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
 								GUI.GA_AGENT_1_ROW, GUI.GA_GENE_1_COL); // Set
@@ -464,16 +474,16 @@ public class Parser {
 						boolean state = false;
 						if (getValue(value).equals("true")) {
 							state = true;
-						}		
+						}
 						GATracker.setTrackGeneStatusDistribution(state);
 						GUI.track_gene_status_distribution.setSelected(state);
 					} else if (nodeName2.equals("trackgenevaluedistribution")) {
 						boolean state = false;
 						if (getValue(value).equals("true")) {
 							state = true;
-						}		
+						}
 						GATracker.setTrackGeneValueDistribution(state);
-						GUI.track_gene_value_distribution.setSelected(state);						
+						GUI.track_gene_value_distribution.setSelected(state);
 					} else if (nodeName2.equals("chartupdatefrequency")) {
 						nodeValue = getValue(value);
 						try {
@@ -482,14 +492,14 @@ public class Parser {
 								// Do nothing
 							} else {
 								GAChartOutput.update_frequency = freq;
-							}								
+							}
 						} catch (NumberFormatException e) {
 							// Do nothing
 						}
 					}
 				}
 			}
-			
+
 			if (nodeName2.equals("pd")) {
 				NodeList nodeChildren3 = nodeChildren.item(j).getChildNodes();
 				for (int k = 0; k < nodeChildren3.getLength(); k++) {
@@ -527,7 +537,7 @@ public class Parser {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				Width[0] = Integer.parseInt(nodeValue);
-				GAChartOutput.grid_width = Width[0]; 
+				GAChartOutput.grid_width = Width[0];
 			}
 			if (nodeName2.equals("Height")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
@@ -540,27 +550,30 @@ public class Parser {
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					wrap[0] = true;
-				} else
+				} else {
 					wrap[0] = false;
+				}
 			}
 			if (nodeName2.equals("PrisDilemma")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					PrisDilemma[0] = true;
-				} else
+				} else {
 					PrisDilemma[0] = false;
 				// System.out.print("in nodename set: Value of PrisDilemma
 				// is....");
 				// System.out.println("PrisDilemma: "+PrisDilemma[0]);
+				}
 			}
 			if (nodeName2.equals("FoodWeb")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					FoodWeb[0] = true;
-				} else
+				} else {
 					FoodWeb[0] = false;
+				}
 			}
 			if (nodeName2.equals("randomStones")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
@@ -577,32 +590,36 @@ public class Parser {
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					keepOldAgents[0] = true;
-				} else
+				} else {
 					keepOldAgents[0] = false;
+				}
 			}
 			if (nodeName2.equals("spawnNewAgents")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					spawnNewAgents[0] = true;
-				} else
+				} else {
 					spawnNewAgents[0] = false;
+				}
 			}
 			if (nodeName2.equals("keepOldArray")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					keepOldArray[0] = true;
-				} else
+				} else {
 					keepOldArray[0] = false;
+				}
 			}
 			if (nodeName2.equals("dropNewFood")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					dropNewFood[0] = true;
-				} else
+				} else {
 					dropNewFood[0] = false;
+				}
 			}
 			if (nodeName2.equals("randomSeed")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
@@ -615,24 +632,27 @@ public class Parser {
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					newColorizer[0] = true;
-				} else
+				} else {
 					newColorizer[0] = false;
+				}
 			}
 			if (nodeName2.equals("keepOldWaste")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					keepOldWaste[0] = true;
-				} else
+				} else {
 					keepOldWaste[0] = false;
+				}
 			}
 			if (nodeName2.equals("keepOldPackets")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					keepOldPackets[0] = true;
-				} else
+				} else {
 					keepOldPackets[0] = false;
+				}
 			}
 			if (nodeName2.equals("numColor")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
@@ -659,8 +679,9 @@ public class Parser {
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					ColorCodedAgents[0] = true;
-				} else
+				} else {
 					ColorCodedAgents[0] = false;
+				}
 			}
 			if (nodeName2.equals("memorySize")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
@@ -672,8 +693,9 @@ public class Parser {
 				nodeValue = getValue(value);
 				if (nodeValue.equals("true")) {
 					food_bias[0] = true;
-				} else
+				} else {
 					food_bias[0] = false;
+				}
 			}
 
 			if (nodeName2.equals("food")) {
@@ -998,8 +1020,9 @@ public class Parser {
 
 	private void clearArrayHelper(int array[][]) {
 		for (int k = 0; k < array.length; k++) {
-			for (int i = 0; i < array[k].length; i++)
+			for (int i = 0; i < array[k].length; i++) {
 				array[k][i] = -1;
+			}
 		}
 	}
 

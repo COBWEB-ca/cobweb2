@@ -138,7 +138,9 @@ public class GATracker {
 	/** Initialize the output of GA info. i.e. Setting up output streams and naming headers in files */	
 	public static void initializeGAInfoOutput() {
 		GAChartOutput gco = new GAChartOutput();
-		gco.initPlots();	
+		if (track_gene_status_distribution || track_gene_value_distribution) {
+			gco.initPlots();	
+		}
 		if (track_gene_status_distribution) {
 			// Initialize chart output
 			GAChartOutput.updateGeneStatusDistributionData(gene_status_distribution);

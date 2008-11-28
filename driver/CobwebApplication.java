@@ -1,26 +1,45 @@
 /*  $$$$$:  Comments by Liang
- * 
+ *
  *  $$$$$$: Codes modified and/or added by Liang
  */
- 
+
 /// test
 
 package driver;
 
 import ga.GeneticCode;
 
-import javax.swing.*;
-//import javax.swing.JLabel.*;
-import java.awt.event.*;
-//import java.applet.*;
-import java.awt.*;
-import java.io.*;
-import java.awt.event.MouseListener;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.TextArea;
+import java.awt.TextField;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.TextEvent;
-//import java.awt.event.WindowEvent;
-//import java.util.*;
-//import java.lang.reflect.*;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 
 import cobweb.LocalUIInterface;
 
@@ -35,12 +54,12 @@ public class CobwebApplication extends java.awt.Frame {
 		+ "This text area is for information output only.\n"
 		+ "Send us any errors/suggestions please!\n\n";
 	TextArea textArea;
-	
+
 	private Window textWindow;
 	private boolean textWindowHide = false;  // $$$$$$ indicating whether the output window is chosen to show.  (Mar 29)  Apr 22
 	private Button hide; // $$$$$$ Mar 25
-	
-	private int maxfiles = 100;
+
+	private final int maxfiles = 100;
 
 	private String fileNames[];
 
@@ -51,10 +70,10 @@ public class CobwebApplication extends java.awt.Frame {
 	private Parser prsNames[];
 
 	private String inputFile;
-	
+
 	private String midFile; // $$$$$$  added for supporting "Modify Current Data", to temporary save the name when adding a file.  Feb 14
 	private String currentFile; // $$$$$$ added for saving current used file name.  Mar 14
-	
+
 	private cobweb.UIInterface uiPipe;
 
 	private DisplayPanel displayPanel;
@@ -62,8 +81,8 @@ public class CobwebApplication extends java.awt.Frame {
 	private PauseButton pauseButton;
 
 	private StepButton stepButton;
-	
-	private Mouse mymouse = new Mouse();;  // $$$$$$ added to avoid duplicately information lines shown in textWindow.  Apr 1
+
+	private final Mouse mymouse = new Mouse();;  // $$$$$$ added to avoid duplicately information lines shown in textWindow.  Apr 1
 
 	/* selection mode */
 	private int mode = 0;
@@ -74,19 +93,19 @@ public class CobwebApplication extends java.awt.Frame {
 
 	public TextField tickField;
 
-	private java.awt.MenuItem stoneMenu;
+	private final java.awt.MenuItem stoneMenu;
 
-	private java.awt.MenuItem observeMenu;
+	private final java.awt.MenuItem observeMenu;
 
-	private java.awt.Menu foodMenu;
+	private final java.awt.Menu foodMenu;
 
-	private java.awt.Menu agentMenu;
+	private final java.awt.Menu agentMenu;
 
-	private CobwebEventListener theListener;
-	
-	private boolean invokedByModify; // $$$$$$ The value is determined by whether a "Test Data" window is invoked by one of "Modify This File" 
+	private final CobwebEventListener theListener;
+
+	private boolean invokedByModify; // $$$$$$ The value is determined by whether a "Test Data" window is invoked by one of "Modify This File"
 									 //          and "Modify Current Data" or by one of "Open", "Create New Data" and "Retrieve Default Data".  Mar 14
-	
+
 	// $$$$$$ Reserved file names.  Feb 8
 	public static final String INITIAL_OR_NEW_INPUT_FILE_NAME = "initial_or_new_input_(reserved)";
 	public static final String DEFAULT_DATA_FILE_NAME = "default_data_(reserved)";
@@ -95,10 +114,10 @@ public class CobwebApplication extends java.awt.Frame {
 	//$$$$$$ Frequently-used file suffixes.  Feb 11
 	public static final String XML_FILE_SUFFIX = ".xml";
 	public static final String TEMPORARY_FILE_SUFFIX = ".temp";
-	
+
 	int randomSeedReminder = 0;  // $$$$$$ added for checkValidityOfGAInput() method in GUI.  Feb 25
 	int modifyingDefaultDataReminder = 0; // $$$$$$  added for openCurrentFile() method.  Mar 25
-	
+
 	public static void main(String[] param) {
 		CA = new CobwebApplication(param);
 		if (param.length > 0) {
@@ -123,8 +142,8 @@ public class CobwebApplication extends java.awt.Frame {
 	// constructor
 	CobwebApplication(String[] param) {
 		super("Cobweb Application");
-		
-		
+
+
 		/*** $$$$$$ For cancelling the output info text window, remove some codes in the field to the below block.  Apr 22*/
 		if (cobweb.globals.usingTextWindow == true) {
 			textArea = new TextArea(GREETINGS, 40, // Height
@@ -132,9 +151,10 @@ public class CobwebApplication extends java.awt.Frame {
 					java.awt.TextArea.SCROLLBARS_VERTICAL_ONLY);
 			textWindow = new Window(this);
 		}
-		
-		
+
+
 		addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				CobwebApplication.this.quitApplication();
 			}
@@ -147,11 +167,12 @@ public class CobwebApplication extends java.awt.Frame {
 			public void windowIconified(WindowEvent e) {
 				//textWindow.toBack();
 			} */
-			
+
 			// $$$$$$ The following is modified for correctly showing in both Windows and Linux.  Mar 29
+			@Override
 			public void windowActivated(WindowEvent e) { // without this block, in Linux textWindow would fail keep on top when the simulation is running
 				if (cobweb.globals.usingTextWindow == true && textWindowHide == false) { // if text window is chosen to show.  $$$$$$ "usingTextWindow" Apr 22
-					if (textWindow.isVisible() == false) { // if textWindow was set to invisible by the following block windowDeactivated 
+					if (textWindow.isVisible() == false) { // if textWindow was set to invisible by the following block windowDeactivated
 						textWindow.setVisible(true);
 					} else {
 						textWindow.toFront();
@@ -160,6 +181,7 @@ public class CobwebApplication extends java.awt.Frame {
 				//textWindow.toFront();
 			}
 
+			@Override
 			public void windowDeactivated(WindowEvent e) {
 				if (cobweb.globals.usingTextWindow == true && textWindowHide == false) { // if text window is chosen to show.  $$$$$$ "usingTextWindow" Apr 22
 					textWindow.setVisible(false);
@@ -167,7 +189,7 @@ public class CobwebApplication extends java.awt.Frame {
 				//textWindow.toBack(); // if set textWindow toFront when window-Activated and toBack when Deactivated, problems may occur in Windows
 			}
 		});
-		
+
 		setLayout(new java.awt.BorderLayout());
 		setSize(550, 650);
 
@@ -180,12 +202,12 @@ public class CobwebApplication extends java.awt.Frame {
 		java.awt.MenuItem openMenu = new java.awt.MenuItem("Open");
 		openMenu.setActionCommand("Open");
 		openMenu.addActionListener(theListener);
-		
+
 		// $$$$$$ Add "Set Default Data" menu.  Feb 21
 		java.awt.MenuItem setMenu = new java.awt.MenuItem("Set Default Data");
 		setMenu.setActionCommand("Set Default Data");
 		setMenu.addActionListener(theListener);
-		
+
 		// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4
 		java.awt.MenuItem defaultMenu = new java.awt.MenuItem("Retrieve Default Data");
 		defaultMenu.setActionCommand("Retrieve Default Data");
@@ -194,7 +216,7 @@ public class CobwebApplication extends java.awt.Frame {
 		java.awt.MenuItem currentDataMenu = new java.awt.MenuItem("Modify Current Data");
 		currentDataMenu.setActionCommand("Modify Current Data");
 		currentDataMenu.addActionListener(theListener);
-		
+
 		java.awt.MenuItem NewDataFileMenu = new java.awt.MenuItem(
 				"Create New Data");
 		NewDataFileMenu.setActionCommand("Create New Data");
@@ -228,8 +250,8 @@ public class CobwebApplication extends java.awt.Frame {
 		java.awt.MenuItem creditsMenu = new java.awt.MenuItem("Credits");
 		creditsMenu.setActionCommand("Credits");
 		creditsMenu.addActionListener(theListener);
-		
-		/*** $$$$$$ Cancel textWindow  Apr 22*/ 
+
+		/*** $$$$$$ Cancel textWindow  Apr 22*/
 		// $$$$$$ Add "Show/Hide Info" menu.  Mar 14
 		java.awt.MenuItem showInfoMenu = null;
 		if (cobweb.globals.usingTextWindow == true) {
@@ -237,7 +259,7 @@ public class CobwebApplication extends java.awt.Frame {
 			showInfoMenu.setActionCommand("Show/Hide Info");
 			showInfoMenu.addActionListener(theListener);
 		}
-		
+
 		observeMenu = new java.awt.MenuItem("Observation Mode");
 		observeMenu.setActionCommand("Observation Mode");
 		observeMenu.addActionListener(theListener);
@@ -262,7 +284,7 @@ public class CobwebApplication extends java.awt.Frame {
 				"Remove All Agents");
 		removeAgents.setActionCommand("Remove All Agents");
 		removeAgents.addActionListener(theListener);
-		
+
 		// $$$$$$ Added on Feb 29
 		java.awt.MenuItem removeWaste = new java.awt.MenuItem(
 				"Remove All Waste");
@@ -272,7 +294,7 @@ public class CobwebApplication extends java.awt.Frame {
 		java.awt.MenuItem removeAll = new java.awt.MenuItem("Remove All");
 		removeAll.setActionCommand("Remove All");
 		removeAll.addActionListener(theListener);
-		
+
 
 		// Assemble the items into menus
 		java.awt.Menu EditMenu = new java.awt.Menu("Edit");
@@ -292,7 +314,7 @@ public class CobwebApplication extends java.awt.Frame {
 		fileMenu.add(NewDataFileMenu);
 		fileMenu.add(MultFileMenu);
 		fileMenu.add(modifyMenu);
-		
+
 		// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4
 		fileMenu.add(defaultMenu);
 		// $$$$$$ Add "Modify Current Data" menu.  Feb 12
@@ -300,7 +322,7 @@ public class CobwebApplication extends java.awt.Frame {
 		// $$$$$$ Add "Set Default Data" menu.  Feb 21
 		fileMenu.add("-");
 		fileMenu.add(setMenu);
-		
+
 		fileMenu.add("-");
 		fileMenu.add(saveMenu);
 		fileMenu.add(reportMenu);
@@ -310,14 +332,14 @@ public class CobwebApplication extends java.awt.Frame {
 		fileMenu.add(quitMenu);
 
 		java.awt.Menu helpMenu = new java.awt.Menu("Help");
-		
-		/*** $$$$$$ Cancel textWindow  Apr 22*/ 
+
+		/*** $$$$$$ Cancel textWindow  Apr 22*/
 		if (cobweb.globals.usingTextWindow == true) {
 			// $$$$$$ Add "Show/Hide Info" menu.  Mar 14
 			helpMenu.add(showInfoMenu);
 			helpMenu.add("-");
 		}
-		
+
 		helpMenu.add(aboutMenu);
 		//helpMenu.add("-");  // $$$$$$ silenced on Mar 28
 		helpMenu.add(creditsMenu);
@@ -329,27 +351,29 @@ public class CobwebApplication extends java.awt.Frame {
 		myMenuBar.add(helpMenu);
 
 		setMenuBar(myMenuBar);
-		
+
 		setVisible(true);
-		
-		/*** $$$$$$ Cancel textWindow  Apr 22*/ 
+
+		/*** $$$$$$ Cancel textWindow  Apr 22*/
 		if (cobweb.globals.usingTextWindow == true) {
 			// $$$$$$ Move the below block from "UIsettings()" method to here so that this "Info" window will only be created once at the beginning.  Mar 18
 			textArea.setEditable(false);
 			textArea.setFont(new Font("Courier", Font.PLAIN, 11));
 			textWindow.add(textArea, "North"); // $$$$$$ add "North" on Mar 25
-			
+
 			// $$$$$$ Added on Mar 25
 			hide = new java.awt.Button("Hide");
 			hide.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					textWindow.setVisible(false);
 					textWindowHide = true; // $$$$$$ (Mar 29)  Apr 22
-					if (uiPipe == null) GUI.frame.toFront();
+					if (uiPipe == null) {
+						GUI.frame.toFront();
+					}
 				}
 			});
 			textWindow.add(hide, "South");
-			
+
 			int text_x, text_y;
 			int size_x, size_y;
 			size_x = 400;// 80*6;
@@ -374,12 +398,12 @@ public class CobwebApplication extends java.awt.Frame {
 		}
 
 	}
-	
+
 	// $$$$$$ get UI.  Mar 14
 	public cobweb.UIInterface getUI() {
 		return uiPipe;
 	}
-	
+
 	// $$$$$$ Implemented on Mar 14
 	public boolean isInvokedByModify() {
 		return invokedByModify;
@@ -387,7 +411,7 @@ public class CobwebApplication extends java.awt.Frame {
 	public void setInvokedByModify(boolean b) {
 		invokedByModify = b;
 	}
-	
+
 	// $$$$$$ Implemented on Mar 14
 	public String getCurrentFile() {
 		return currentFile;
@@ -396,7 +420,7 @@ public class CobwebApplication extends java.awt.Frame {
 		currentFile = input;
 	}
 
-	
+
 	public void refreshAll(cobweb.UIInterface ui) {
 		displayPanel.repaint();
 		pauseButton.repaint();
@@ -407,14 +431,17 @@ public class CobwebApplication extends java.awt.Frame {
 
 	public void refresh(cobweb.UIInterface theUIInterface) {
 		// Don't repaint the whole frame; that causes overdraw (white flash)
-		if (displayPanel != null)
+		if (displayPanel != null) {
 			displayPanel.repaint();
-		if (pauseButton != null)
+		}
+		if (pauseButton != null) {
 			pauseButton.repaint();
+		}
 		pauseButton.updateLabel();
-		if (stepButton != null)
+		if (stepButton != null) {
 			stepButton.repaint();
 		//if (tickField != null && !tickField.getText().equals("")) {tickField.setText("");}  // $$$$$$ reset tickField.  Mar 14
+		}
 	}
 
 	public void openMultFiles(Parser p[], int time[], int numfiles) {
@@ -435,14 +462,15 @@ public class CobwebApplication extends java.awt.Frame {
 
 	public void UIsettings(cobweb.UIInterface uiPipe) {
 
-		if (cobweb.globals.usingTextWindow == true) {uiPipe.addTextArea(textArea);}		/*** $$$$$$ Cancel textWindow  Apr 22*/ 
+		if (cobweb.globals.usingTextWindow == true) {uiPipe.addTextArea(textArea);}		/*** $$$$$$ Cancel textWindow  Apr 22*/
 
 		uiPipe.setRefreshTimeout(100);
 		uiPipe.setFrameSkip(0);
-		if (displayPanel == null)
+		if (displayPanel == null) {
 			displayPanel = new DisplayPanel(uiPipe, 10, 20);
-		else
+		} else {
 			displayPanel.setUI(uiPipe);
+		}
 
 		add(displayPanel, "Center");
 		if (tickField == null) {
@@ -459,8 +487,9 @@ public class CobwebApplication extends java.awt.Frame {
 			MyScrollbar sb = new MyScrollbar(uiPipe);
 			displayPanel.add(new java.awt.Label("   Adjust Speed:"));
 			displayPanel.add(sb);
-		} else
+		} else {
 			pauseButton.setUI(uiPipe);
+		}
 
 		if (stepButton == null) {
 			pauseButton = new PauseButton(uiPipe);
@@ -470,8 +499,9 @@ public class CobwebApplication extends java.awt.Frame {
 			MyScrollbar sb = new MyScrollbar(uiPipe);
 			displayPanel.add(new java.awt.Label("   Adjust Speed:"));
 			displayPanel.add(sb);
-		} else
+		} else {
 			stepButton.setUI(uiPipe);
+		}
 
 		java.awt.MenuItem foodtype[] = new java.awt.MenuItem[uiPipe
 				.countAgentTypes()];
@@ -490,12 +520,14 @@ public class CobwebApplication extends java.awt.Frame {
 			agentype[i].addActionListener(theListener);
 			agentMenu.add(agentype[i]);
 		}
-		
-		/*** $$$$$$ Cancel textWindow  Apr 22*/ 
+
+		/*** $$$$$$ Cancel textWindow  Apr 22*/
 		if (cobweb.globals.usingTextWindow == true) {
-			if (textArea.getText().endsWith(GREETINGS) == false) textArea.setText(GREETINGS);  // $$$$$$ reset the output window.  Mar 25
+			if (textArea.getText().endsWith(GREETINGS) == false) {
+				textArea.setText(GREETINGS);  // $$$$$$ reset the output window.  Mar 25
+			}
 		}
-		
+
 		/*  // $$$$$$ Moved to the constructor of this class, and then modified.  Mar 18
 		textArea.setEditable(false);
 		textArea.setFont(new Font("Courier", Font.PLAIN, 11));
@@ -523,7 +555,7 @@ public class CobwebApplication extends java.awt.Frame {
 		//textWindow.toFront();  // silenced on Mar 14
 		*/
 		uiPipe.setTickField(tickField);
-		
+
 		// $$$$$$ Implemented specially for Linux to show inputting numbers in the box after "Stop at".  Mar 20.
 		tickField.addTextListener(new java.awt.event.TextListener() {
 			//@To Override, need delete the following method first, then "Quick fix".
@@ -532,21 +564,23 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 		});
 		tickField.addFocusListener(new java.awt.event.FocusAdapter(){
+			@Override
 			public void focusLost(FocusEvent e) {
 				tickField.repaint();
 			}
+			@Override
 			public void focusGained(FocusEvent e) {
 				tickField.repaint();
 			}
 		});
-		
+
 		//Mouse mymouse = new Mouse(); // $$$$$$ moved to this class's field to avoid duplicate mouse additions to displayPanel.  Apr 1
 		displayPanel.addMouseListener(mymouse);
 		displayPanel.addMouseMotionListener(mymouse);
 		//addMouseListener(mymouse);  // $$$$$$ do not know what for. silenced on Apr 1
-		
+
 		uiPipe.setPauseButton(pauseButton); // $$$$$$ Mar 20
-		
+
 		validate();
 		uiPipe.start();
 	} // end of UISettings
@@ -581,7 +615,7 @@ public class CobwebApplication extends java.awt.Frame {
 			if (cobweb.globals.usingTextWindow == true) {textArea.append("Save failed:" + e.getMessage());} 	/*** $$$$$$ Cancel textWindow  Apr 22*/
 		}
 	}
-	
+
 	public void logFile(String filePath) {
 		if (uiPipe != null) {
 			try {
@@ -590,7 +624,7 @@ public class CobwebApplication extends java.awt.Frame {
 				JOptionPane.showMessageDialog(this,  // $$$$$$ added on Apr 22
 						"Log failed: " + e.getMessage(),
 						"Warning", JOptionPane.WARNING_MESSAGE);
-				if (cobweb.globals.usingTextWindow == true) {textArea.append("Log failed:" + e.getMessage());} 	/*** $$$$$$ Cancel textWindow  Apr 22*/ 
+				if (cobweb.globals.usingTextWindow == true) {textArea.append("Log failed:" + e.getMessage());} 	/*** $$$$$$ Cancel textWindow  Apr 22*/
 			}
 		}
 	}
@@ -614,8 +648,9 @@ public class CobwebApplication extends java.awt.Frame {
 	}
 	*/
 	public void quitApplication() {
-		if (uiPipe != null)
+		if (uiPipe != null) {
 			uiPipe.killScheduler();
+		}
 		System.exit(0);
 	}
 
@@ -625,37 +660,45 @@ public class CobwebApplication extends java.awt.Frame {
 			if (e.getActionCommand().compareTo("Open") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe();  // added to ensure no popup GUI frame when hitting a menu.  Feb 29
-				setInvokedByModify(false);  // $$$$$$ added on Mar 14  // need to implement only if using the old "Open" behaviour in Version 2006 
+				setInvokedByModify(false);  // $$$$$$ added on Mar 14  // need to implement only if using the old "Open" behaviour in Version 2006
 				CobwebApplication.this.openFileDialog();
 			// $$$$$$ Add "Set Default Data" menu.  Feb 21
 			} else if (e.getActionCommand().compareTo("Set Default Data") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe();  // added to ensure no popup GUI frame when hitting a menu.  Feb 29
 				CobwebApplication.this.setDefaultData();
-			// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4	
+			// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4
 			} else if (e.getActionCommand().compareTo("Retrieve Default Data") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
-				if (GUI.frame.isVisible() == true) GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up
+				if (GUI.frame.isVisible() == true) {
+					GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up
+				}
 				//CobwebApplication.this.setEnabled(false);  // $$$$$$ another way, to make sure the "Cobweb Application" frame disables when ever "Test Data" window showing
 				setInvokedByModify(false);  // $$$$$$ added on Mar 14
 				CobwebApplication.this.retrieveDefaultData();
 			// $$$$$$ Added for "Modify Current Data" menu.  Feb 12
 			} else if (e.getActionCommand().compareTo("Modify Current Data") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
-				if (GUI.frame.isVisible() == true) GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up
+				if (GUI.frame.isVisible() == true) {
+					GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up
+				}
 				//CobwebApplication.this.setEnabled(false);  // $$$$$$ another way, to make sure the "Cobweb Application" frame disables when ever "Test Data" window showing
 				setInvokedByModify(true);  // $$$$$$ added on Mar 14
 				CobwebApplication.this.openCurrentData();
-			// $$$$$$ Modified on Mar 14	
+			// $$$$$$ Modified on Mar 14
 			} else if (e.getActionCommand().compareTo("Create New Data") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
-				if (GUI.frame.isVisible() == true) GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up
+				if (GUI.frame.isVisible() == true) {
+					GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up
+				}
 				//CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the "Cobweb Application" frame disables when ever "Test Data" window showing
 				setInvokedByModify(false);  // $$$$$$ added on Mar 14
 				CobwebApplication.this.createNewData();  // $$$$$$ implemented on Mar 14
 			} else if (e.getActionCommand().compareTo("Modify This File") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
-				if (GUI.frame.isVisible() == true) GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up
+				if (GUI.frame.isVisible() == true) {
+					GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up
+				}
 				//CobwebApplication.this.setEnabled(false);  // $$$$$$ another way, to make sure the "Cobweb Application" frame disables when ever "Test Data" window showing
 				setInvokedByModify(true);  // $$$$$$ added on Mar 14
 				CobwebApplication.this.openCurrentFile();
@@ -666,7 +709,9 @@ public class CobwebApplication extends java.awt.Frame {
 			} else if (e.getActionCommand().compareTo("Save") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe();  // added to ensure no popup GUI frame when hitting a menu.  Feb 29
-				if (GUI.frame.isVisible() == false) GUI.createAndShowGUI(CA, CA.getCurrentFile());// $$$$$$ changed from "GUI.frame.setVisible(true);". Mar 17
+				if (GUI.frame.isVisible() == false) {
+					GUI.createAndShowGUI(CA, CA.getCurrentFile());// $$$$$$ changed from "GUI.frame.setVisible(true);". Mar 17
+				}
 				CobwebApplication.this.saveFileDialog();
 				// $$$$$$ Modified for very first time running.  Feb 28
 				if (uiPipe != null) {
@@ -698,7 +743,7 @@ public class CobwebApplication extends java.awt.Frame {
 				disposeGUIframe();
 				if (textWindow.isVisible() == false) {
 					textWindow.setVisible(true);
-					textWindowHide = false;  // $$$$$$ (Mar 29)  Apr 22 
+					textWindowHide = false;  // $$$$$$ (Mar 29)  Apr 22
 				} else {
 					textWindow.setVisible(false);
 					textWindowHide = true;  // $$$$$$ (Mar 29)  Apr 22
@@ -775,7 +820,7 @@ public class CobwebApplication extends java.awt.Frame {
 				}
 				//mode = -3;
 				//uiPipe.removeComponents(mode);
-				
+
 			// $$$$$$ Added on Feb 29
 			} else if (e.getActionCommand().compareTo("Remove All Waste") == 0) {
 				//pauseUI(); // $$$$$$ Feb 12
@@ -789,7 +834,7 @@ public class CobwebApplication extends java.awt.Frame {
 				//mode = -4;
 				//uiPipe.removeComponents(mode);
 			}
-			
+
 			// Handles Foodtype and AgentType selections:
 			for (int i = 0; i < 4; i++) {
 				if (e.getActionCommand().compareTo("Food Type " + (i + 1)) == 0) {
@@ -808,10 +853,12 @@ public class CobwebApplication extends java.awt.Frame {
 				}
 			}
 		}
-		
+
 		// $$$$$$ If a "Test Data" window is open (visible), dispose it (when hitting a menu).  Feb 29
-		private void disposeGUIframe() {if (uiPipe != null && GUI.frame.isVisible() != false) GUI.frame.dispose();}
-		
+		private void disposeGUIframe() {if (uiPipe != null && GUI.frame.isVisible() != false) {
+			GUI.frame.dispose();
+		}}
+
 		// $$$$$$ A facilitating method to ensure the UI to pause.  Feb 12
 		private void pauseUI(){
 			if (uiPipe != null && uiPipe.isPaused() == false) { // $$$$$$ changed from "if (uiPipe.isPaused() == false) {", for the very first run.  Feb 28
@@ -854,9 +901,11 @@ public class CobwebApplication extends java.awt.Frame {
 				//if (tickField != null && !tickField.getText().equals("")) {tickField.setText("");}  // $$$$$$ reset tickField.  Mar 14
 				CA.openFile(p);
 				*/
-				
+
 				///* $$$$$$ If NOT wanting the "Test Data" window to show up, use the above block instead.  Feb 28  // implement this block on Mar 31
-				if (GUI.frame.isVisible() == true) GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up.  Feb 28
+				if (GUI.frame.isVisible() == true) {
+					GUI.frame.dispose();  // $$$$$ for allowing only one "Test Data" window to show up.  Feb 28
+				}
 				GUI.createAndShowGUI(CA, getCurrentFile());
 				//CobwebApplication.this.setEnabled(false);  // $$$$$$ to make sure the "Cobweb Application" frame disables when ever the "Test Data" window showing
 		 		// $$$$$$ Modified on Feb 28
@@ -868,13 +917,15 @@ public class CobwebApplication extends java.awt.Frame {
 			} else {
 				//if (uiPipe != null && GUI.frame.isVisible() == true) GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up.  Feb 28
 				JOptionPane.showMessageDialog(this,  // $$$$$ change from "GUI.frame".  Mar 17
-						"File \" " + directory + file + "\" could not be found!", 
+						"File \" " + directory + file + "\" could not be found!",
 						"Warning", JOptionPane.WARNING_MESSAGE);
-				if (uiPipe == null) GUI.frame.toFront();  // $$$$$$ Mar 17
+				if (uiPipe == null) {
+					GUI.frame.toFront();  // $$$$$$ Mar 17
+				}
 			}
 		}
 	}
-	
+
 	// $$$$$$ Added for the "Retrieve Default Data" menu.  Feb 18
 	private void retrieveDefaultData() {
 		// $$$$$$ Two fashions for retrieving default data:
@@ -889,7 +940,7 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 			isTheFirstFashion = true;
 		}
-		
+
 		String tempDefaultData = DEFAULT_DATA_FILE_NAME + TEMPORARY_FILE_SUFFIX;
 		File tdf = new File(tempDefaultData);  // $$$$$$ temporary file default_data_(reserved).temp   Feb 11
 		tdf.deleteOnExit();
@@ -902,12 +953,12 @@ public class CobwebApplication extends java.awt.Frame {
 				isTheFirstFashion = false;
 			}
 		}
-			
+
 		if (isTheFirstFashion == false) { // $$$$$$ Use the second (stable) fashion as backup.  Feb 11
 			if (tdf.exists() != false) { // $$$$$$ added on Feb 21
 				tdf.delete(); // delete the potential default_data file created by last time pressing "Retrieve Default Data" menu.  Feb 8
 			}
-			
+
 			// $$$$$$ set default of GA.  Feb 1
 	 		GeneticCode.meiosis_mode_index = GeneticCode.DEFAULT_MEIOSIS_MODE_INDEX;
 	 		String[][] DEFAULT_GENETICS = {
@@ -918,7 +969,7 @@ public class CobwebApplication extends java.awt.Frame {
 					{ "Linked Phenotype", "None", "None", "None" } };
 			GUI.genetic_table = new JTable(DEFAULT_GENETICS, GUI.genetic_table_col_names);
 		}
-		
+
 		// $$$$$$ Modified on Mar 14
 	 	GUI.createAndShowGUI(CA, tempDefaultData);
 		if (uiPipe == null) {setCurrentFile(tempDefaultData);}  // $$$$$$ added on Mar 14
@@ -928,7 +979,7 @@ public class CobwebApplication extends java.awt.Frame {
 			refreshAll(uiPipe);
 		}*/
 	}
-	
+
 	// $$$$$$ Implement the "Set Default Data" menu, using the default_data_(reserved).xml file.  Feb 21
 	private void setDefaultData() {
 		String defaultData = DEFAULT_DATA_FILE_NAME + XML_FILE_SUFFIX;
@@ -938,18 +989,20 @@ public class CobwebApplication extends java.awt.Frame {
 			JOptionPane.showMessageDialog(this,   // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22.  Change back on Mar 17
 					"Cannot set default data:  file \"" + defaultData + "\" is hidden.",
 					"Warning", JOptionPane.WARNING_MESSAGE);
-			if (uiPipe == null) GUI.frame.toFront();  // $$$$$$ Mar 17
+			if (uiPipe == null) {
+				GUI.frame.toFront();  // $$$$$$ Mar 17
+			}
 			return;
 		}
 		if ( (df.exists() != false) && (df.canWrite() == false) ) {
 			df.setWritable(true);
 		}
-		
+
 		if ( (df.exists() == false) || (df.canWrite() == true) ) {
 			java.awt.FileDialog setDialog = new java.awt.FileDialog(GUI.frame,   // $$$$$$ modified from "this".  Feb 29
 					"Set Default Data", java.awt.FileDialog.LOAD);
 			setDialog.setVisible(true);
-			
+
 			// $$$$$$ The following codes modified on Feb 22
 			if (setDialog.getFile() != null) {
 				String directory = setDialog.getDirectory();
@@ -966,43 +1019,49 @@ public class CobwebApplication extends java.awt.Frame {
 								"Fail to set default data!\n" +
 								"\nPossible cause(s): " + te.getMessage(),
 								"Warning", JOptionPane.WARNING_MESSAGE);
-						
+
 						/*** $$$$$$ Cancel textWindow  Apr 22*/
 						if (cobweb.globals.usingTextWindow == true) {
 							textArea.append("Set default data failed: " + te.getMessage());
 						}
-						
+
 						//df.delete(); // $$$$$ do not need to keep the file default_data_(reserved).xml any more
 					}
 				} else {
-					if (uiPipe != null && GUI.frame.isVisible() == true) GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up.  Feb 28
+					if (uiPipe != null && GUI.frame.isVisible() == true) {
+						GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up.  Feb 28
+					}
 					JOptionPane.showMessageDialog(this,
-							"File \" " + chosenFile + "\" could not be found!", 
+							"File \" " + chosenFile + "\" could not be found!",
 							"Warning", JOptionPane.WARNING_MESSAGE);
-					if (uiPipe == null) GUI.frame.toFront();  // $$$$$$ Mar 17
+					if (uiPipe == null) {
+						GUI.frame.toFront();  // $$$$$$ Mar 17
+					}
 				}
 			}
-			
+
 		} else { // $$$$$ write permission failed to set
 			JOptionPane.showMessageDialog(this,   // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
 					"Fail to set default data!\n" +
 					"\nPossible cause(s): Permission for the current folder may not be attained.",
 					"Warning", JOptionPane.WARNING_MESSAGE);
-			
+
 			/*** $$$$$$ Cancel textWindow  Apr 22*/
 			if (cobweb.globals.usingTextWindow == true) {
 				textArea.append("Set default data failed: Permission for the current folder may not be attained.");
 			}
-			
-			if (uiPipe == null) GUI.frame.toFront();  // $$$$$$ Mar 17
-			//df.delete();// $$$$$ do not need to keep the file default_data_(reserved).xml any more
+
+			if (uiPipe == null) {
+				GUI.frame.toFront();  // $$$$$$ Mar 17
+				//df.delete();// $$$$$ do not need to keep the file default_data_(reserved).xml any more
+			}
 		}
 		// $$$$$$ Disallow write again to make sure the default data file would not be modified by outer calling.  Feb 22
 		if (df.canWrite() != false) {
 			df.setReadOnly();
 		}
 	}
-	
+
     // $$$$$$ Implement "create New Data".  Mar 14
 	public void createNewData() {
 		// $$$$$  a file named as the below name will be automatically created or modified when everytime running the
@@ -1027,7 +1086,7 @@ public class CobwebApplication extends java.awt.Frame {
 			refreshAll(uiPipe);
 		}*/
 	}
-	
+
 	public void openCurrentFile() {  // $$$$$ "Modify This File" method
 		// $$$$$  a file named as the below name will be automatically created or modified when everytime running the
 		//          following code.  Please refer to GUI.GUI.close.addActionListener, "/* write UI info to xml file */".  Jan 24
@@ -1044,10 +1103,10 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 			setCurrentFile(midFile);
 		}
-		
+
 		GUI.createAndShowGUI(CA, getCurrentFile());  // $$$$$$ modified on Mar 14
-		
-		// $$$$$$ Added on Mar 25		
+
+		// $$$$$$ Added on Mar 25
 		if (getCurrentFile().equals(DEFAULT_DATA_FILE_NAME + TEMPORARY_FILE_SUFFIX)) {
 			if (modifyingDefaultDataReminder == 0) {
 				// $$$$$ Ask if need to remind again.  Mar 25
@@ -1063,7 +1122,7 @@ public class CobwebApplication extends java.awt.Frame {
 													 null,     //do not use a custom Icon
 													 options,  //the titles of buttons
 													 options[0]); //default button titl
-				
+
 				modifyingDefaultDataReminder = n;
 			}
 		}
@@ -1089,7 +1148,7 @@ public class CobwebApplication extends java.awt.Frame {
 		}
 		GUI.createAndShowGUI(CA, currentData);
 	}
-	
+
 
 	public void saveFileDialog() {
 		java.awt.FileDialog theDialog = new java.awt.FileDialog(GUI.frame,    // $$$$$$ modified from "this".  Feb 29
@@ -1100,14 +1159,14 @@ public class CobwebApplication extends java.awt.Frame {
 			// $$$$$$ Check if the saving filename is one of the names reserved by CobwebApplication.  Feb 22
 			//String savingFileName;
 			//savingFileName = theDialog.getFile();
-			
-			/* Block silenced by Andy because he finds it annoying not being able to modify the default input. */			
-			
+
+			/* Block silenced by Andy because he finds it annoying not being able to modify the default input. */
+
 			/*
 			if ( (savingFileName.contains(INITIAL_OR_NEW_INPUT_FILE_NAME) != false)
 					  || (savingFileName.contains(CURRENT_DATA_FILE_NAME) != false)
 					  || (savingFileName.contains(DEFAULT_DATA_FILE_NAME) != false)) {
-				JOptionPane.showMessageDialog(GUI.frame, 
+				JOptionPane.showMessageDialog(GUI.frame,
 				"Save State: The filename\"" + savingFileName + "\" is reserved by Cobweb Application.\n" +
 						"                       Please choose another file to save.",
 						"Warning", JOptionPane.WARNING_MESSAGE);
@@ -1122,16 +1181,18 @@ public class CobwebApplication extends java.awt.Frame {
 		java.awt.FileDialog theDialog = new java.awt.FileDialog(this,    // $$$$$$ modified from "this".  Feb 29
 				"Choose a file to save log to", java.awt.FileDialog.SAVE);
 		theDialog.setVisible(true);
-		if (theDialog.getFile() != null)
-				logFile(theDialog.getDirectory() + theDialog.getFile());
+		if (theDialog.getFile() != null) {
+			logFile(theDialog.getDirectory() + theDialog.getFile());
+		}
 	}
 
 	public void reportDialog() {
 		java.awt.FileDialog theDialog = new java.awt.FileDialog(this,    // $$$$$$ modified from "this".  Feb 29
 				"Choose a file to save report to", java.awt.FileDialog.SAVE);
 		theDialog.setVisible(true);
-		if (theDialog.getFile() != null)
+		if (theDialog.getFile() != null) {
 			reportFile(theDialog.getDirectory() + theDialog.getFile());
+		}
 	}
 	/*
 	// $$$$$$ Modified on Feb 22
@@ -1146,7 +1207,7 @@ public class CobwebApplication extends java.awt.Frame {
 				trackAgentFile(theDialog.getDirectory() + theDialog.getFile());
 		// $$$$$$ The following added on Feb 22
 		} else {
-			JOptionPane.showMessageDialog(GUI.frame, 
+			JOptionPane.showMessageDialog(GUI.frame,
 					"Track Agent is disabled for now!  Please use the logging function instead."); // $$$$$$ added on Feb 22
 			// $$$$$$ Modified from "uiPipe.writeToTextWindow("Track Agent is disabled for now! Please use the logging function instead.\n");"   Feb 28
 			if (uiPipe != null) uiPipe.writeToTextWindow("Track Agent is disabled for now! Please use the logging function instead.\n");
@@ -1253,8 +1314,9 @@ public class CobwebApplication extends java.awt.Frame {
 				"Click on Close to continue", true);
 
 		java.awt.Panel credit = new java.awt.Panel();
-		for (int i = 0; i < S.length; ++i)
+		for (int i = 0; i < S.length; ++i) {
 			credit.add(new java.awt.Label(S[i]), "Center");
+		}
 
 		java.awt.Panel term = new java.awt.Panel();
 		/* new */
@@ -1335,10 +1397,11 @@ public class CobwebApplication extends java.awt.Frame {
 				String filename = jtf.getText();
 				if (filename != null) {
 					File thefile = new File(filename);
-					if (thefile.isDirectory())
+					if (thefile.isDirectory()) {
 						chooser.setCurrentDirectory(thefile);
-					else
+					} else {
 						chooser.setSelectedFile(thefile);
+					}
 				}
 
 				// set the title of the FileDialog
@@ -1348,20 +1411,21 @@ public class CobwebApplication extends java.awt.Frame {
 				// get the file
 				String fn;
 				int retVal = chooser.showOpenDialog(null);
-				if (retVal == JFileChooser.APPROVE_OPTION)
+				if (retVal == JFileChooser.APPROVE_OPTION) {
 					fn = chooser.getSelectedFile().getAbsolutePath();
-				else
+				} else {
 					return;
+				}
 
 				if (fn != null) {
 					// display the path to the chosen file
 					jtf.setText(fn);
 				}
 			}
-			
-			public static final long serialVersionUID = 0x4DCEE6AA76B8E16DL; 
+
+			public static final long serialVersionUID = 0x4DCEE6AA76B8E16DL;
 		});
-		
+
 		b1.addActionListener(new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				// $$$$$$ The following codes were modified on Feb 18
@@ -1381,7 +1445,7 @@ public class CobwebApplication extends java.awt.Frame {
 															 null,     //do not use a custom Icon
 															 options,  //the titles of buttons
 															 options[0]); //default button titl
-						
+
 						/* $$$$$ or	default icon, custom title
 						int n = JOptionPane.showConfirmDialog(
 						    		mult,
@@ -1390,20 +1454,29 @@ public class CobwebApplication extends java.awt.Frame {
 									"Multiple File Running",
 						    		JOptionPane.YES_NO_OPTION);
 						*/
-						
+
 						if (n == 0) {
-							int status = addfileNames(filename, (new Integer(num_ticks
-									.getText())));
+							int status = 0;
+							try {
+								status = addfileNames(filename, (new Integer(num_ticks
+										.getText())));
+							} catch (NumberFormatException ex) {
+								// TODO Auto-generated catch block
+								ex.printStackTrace();
+							} catch (FileNotFoundException ex) {
+								// TODO Auto-generated catch block
+								ex.printStackTrace();
+							}
 							if (status == 1) {
 								//canRun = true;
 								midFile = filename;  // $$$$$$ added for supporting "Modify Current Data".  Feb 14
-							// $$$$$$ added on Feb 18	
+							// $$$$$$ added on Feb 18
 							} else if (status == -2) {
 								canRun = false;
 								JOptionPane.showMessageDialog(mult,
 										"File \" " + filename + "\" could not be found!",
 										"Warning", JOptionPane.WARNING_MESSAGE);
-							// $$$$$ The following "Invalid filename" check is invalid.  Feb 18	
+							// $$$$$ The following "Invalid filename" check is invalid.  Feb 18
 							} else if (status == 0) {
 								canRun = false;
 								JOptionPane.showMessageDialog(mult,
@@ -1412,24 +1485,24 @@ public class CobwebApplication extends java.awt.Frame {
 							} else if (status == -1) {
 								canRun = false;
 								JOptionPane.showMessageDialog(mult,
-										"Invalid input!", 
+										"Invalid input!",
 										"Warning", JOptionPane.WARNING_MESSAGE);
 							}
 						}
-						
+
 						/* $$$$$ The old way, without asking if adding the file to the list
 						int status = addfileNames(filename, (new Integer(num_ticks
 								.getText())));
 						if (status == 1) {
 							//canRun = true;
 							midFile = filename;  // $$$$$$ added for supporting "Modify Current Data".  Feb 14
-						// $$$$$$ added on Feb 18	
+						// $$$$$$ added on Feb 18
 						} else if (status == -2) {
 							canRun = false;
 							JOptionPane.showMessageDialog(mult,
 									"File \" " + filename + "\" could not be found!",
 									"Warning", JOptionPane.WARNING_MESSAGE);
-						// $$$$$ The following "Invalid filename" check is invalid.  Feb 18	
+						// $$$$$ The following "Invalid filename" check is invalid.  Feb 18
 						} else if (status == 0) {
 							canRun = false;
 							JOptionPane.showMessageDialog(mult,
@@ -1438,19 +1511,19 @@ public class CobwebApplication extends java.awt.Frame {
 						} else if (status == -1) {
 							canRun = false;
 							JOptionPane.showMessageDialog(mult,
-									"Invalid input!", 
+									"Invalid input!",
 									"Warning", JOptionPane.WARNING_MESSAGE);
 						}
 						*/
-						
+
 					} else {
 						canRun = false;
 						JOptionPane.showMessageDialog(mult,
-								"You can NOT add more than " + maxfiles + " files!", 
+								"You can NOT add more than " + maxfiles + " files!",
 								"Warning", JOptionPane.WARNING_MESSAGE);
 					}
 				}
-				
+
 				if (canRun == false) {
 					jtf.setText("");
 				} else {
@@ -1462,13 +1535,13 @@ public class CobwebApplication extends java.awt.Frame {
 						setCurrentFile(midFile);  // $$$$$$ added for supporting "Modify Current Data".  Feb 18  &&&&&& modified on Mar 14
 						mult.setVisible(false);
 						mult.dispose();  // $$$$$$ added on Feb 14
-						} else {	
+						} else {
 							JOptionPane.showMessageDialog(mult,
 									"Please enter a filename.");
 						}
 				}
 			}
-			public static final long serialVersionUID = 0xB69B9EE3DA1EAE11L;		
+			public static final long serialVersionUID = 0xB69B9EE3DA1EAE11L;
 		});
 
 		b2.addActionListener(new AbstractAction() {
@@ -1477,45 +1550,56 @@ public class CobwebApplication extends java.awt.Frame {
 				String filename = jtf.getText();
 				if (filename != null && filename.compareTo("") != 0) {
 					if (getFileCount() < maxfiles) {
-						int status = addfileNames(filename, (new Integer(num_ticks
-								.getText())));
+						int status = 0;
+						try {
+							status = addfileNames(filename, (new Integer(num_ticks
+									.getText())));
+						} catch (NumberFormatException ex) {
+							// TODO Auto-generated catch block
+							ex.printStackTrace();
+						} catch (FileNotFoundException ex) {
+							// TODO Auto-generated catch block
+							ex.printStackTrace();
+						}
 						if (status == 1) {
 							fnames.append("file added: " + filename + " ");
 							fnames.append(new Integer(num_ticks.getText())
 									+ " steps" + newline);
 							midFile = filename;  // $$$$$$ added for supporting "Modify Current Data".  Feb 14
-						// $$$$$$ added on Feb 18	
+						// $$$$$$ added on Feb 18
 						} else if (status == -2) {
 							JOptionPane.showMessageDialog(mult,
 									"File \" " + filename + "\" could not be found!",
 									"Warning", JOptionPane.WARNING_MESSAGE);
-						// $$$$$ The following "Invalid filename" check is invalid.  Feb 18		
+						// $$$$$ The following "Invalid filename" check is invalid.  Feb 18
 						} else if (status == 0) {
 							JOptionPane.showMessageDialog(mult,
-									"Invalid filename: \"" + filename + "\" !", 
+									"Invalid filename: \"" + filename + "\" !",
 									"Warning", JOptionPane.WARNING_MESSAGE);
 						} else if (status == -1) {
 							JOptionPane.showMessageDialog(mult,
-									"Invalid input!", 
+									"Invalid input!",
 									"Warning", JOptionPane.WARNING_MESSAGE);
 						}
 					} else {
 						JOptionPane.showMessageDialog(mult,
-								"You can NOT add more than " + maxfiles + " files!", 
+								"You can NOT add more than " + maxfiles + " files!",
 								"Warning", JOptionPane.WARNING_MESSAGE);
 					}
 				}
 
 				jtf.setText("");
 			}
-			public static final long serialVersionUID = 0x16124B6CEDFF67E9L;		
+			public static final long serialVersionUID = 0x16124B6CEDFF67E9L;
 		});
 
 		b3.addActionListener(new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				mult.setVisible(false);
 				mult.dispose();  // $$$$$$ added on Feb 14
-				if (uiPipe != null) CobwebApplication.this.toFront(); // $$$$$$ added for CA frame going to front when cancelling.  Feb 22; Modified on Feb 28
+				if (uiPipe != null) {
+					CobwebApplication.this.toFront(); // $$$$$$ added for CA frame going to front when cancelling.  Feb 22; Modified on Feb 28
+				}
 			}
 			public static final long serialVersionUID = 0xEAE8EA9DF8593309L;
 		});
@@ -1526,13 +1610,13 @@ public class CobwebApplication extends java.awt.Frame {
 
 	}
 
-	public int addfileNames(String filename, Integer step) {
+	public int addfileNames(String filename, Integer step) throws FileNotFoundException {
 		// $$$$$$ added on Feb 18
 		File f = new File(filename);
 		if (f.exists() == false) {
 			return -2;
 		}
-		
+
 		Parser prsfile = new Parser(filename);
 		if (prsfile != null && step.intValue() >= 0) {
 			prsNames[filecount] = prsfile;
@@ -1550,7 +1634,7 @@ public class CobwebApplication extends java.awt.Frame {
 	public int getFileCount() {  // changed from filecount().  Feb 18
 		return filecount;
 	}
-	
+
 	// $$$$$$ filecount modifier.  Feb 18
 	public void setFileCount(int c) {
 		filecount = c;
@@ -1571,25 +1655,33 @@ public class CobwebApplication extends java.awt.Frame {
 		}
 
 		/* NEW */
+		@Override
 		public void mouseEntered(MouseEvent e) {
 			//convertCoords(e.getX(), e.getY());  // $$$$$$ silenced on Mar 28
 		}
 
+		@Override
 		public void mouseExited(MouseEvent e) {
 		}
 
+		@Override
 		public void mousePressed(MouseEvent e) {
 		}
 
+		@Override
 		public void mouseClicked(MouseEvent e) {
 			convertCoords(e.getX(), e.getY());
 		}
 
+		@Override
 		public void mouseMoved(MouseEvent e) {
 		}
 
+		@Override
 		public void mouseDragged(MouseEvent e) {
-			if (mode != 0) convertCoords(e.getX(), e.getY());  // $$$$$$ no need for observation mode.  Mar 28
+			if (mode != 0) {
+				convertCoords(e.getX(), e.getY());  // $$$$$$ no need for observation mode.  Mar 28
+			}
 		}
 
 		int storedX = -1;
@@ -1633,18 +1725,19 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 		}
 	} // Mouse
-	
+
 	// $$$$$$ A file copy method.  Feb 11
 	public static void copyFile(String src, String dest)  throws IOException {
 		FileReader in = new FileReader(src);
 		FileWriter out = new FileWriter(dest);
 		int c;
 
-		while ((c = in.read()) != -1)
-		out.write(c);
+		while ((c = in.read()) != -1) {
+			out.write(c);
+		}
 
 		in.close();
 		out.close();
 	}
-	
+
 } // CobwebApplication

@@ -2,15 +2,15 @@
 package driver;
 
 /**
- * 
+ *
  * @author skinawy This class represents the button responsible for advancing
  *         the appliaction by one time tick.
- * 
+ *
  */
 public class StepButton extends java.awt.Button implements
 		java.awt.event.ActionListener {
 	private cobweb.UIInterface uiPipe;
-	
+
 	public StepButton(cobweb.UIInterface theUI) {
 		uiPipe = theUI;
 		updateLabel();
@@ -25,18 +25,20 @@ public class StepButton extends java.awt.Button implements
 	public void updateLabel() {
 		setLabel("Step");
 	}
-	
+
 	// $$$$$$ Modified on Mar 14
 	public void actionPerformed(java.awt.event.ActionEvent e) {
-		if  (GUI.frame.isVisible() == false) {
+		if  (GUI.frame == null || GUI.frame.isVisible() == false) {
 			java.lang.Long stepTime = uiPipe.getTime();
 			stepTime++;
 			java.awt.TextField textStepTime = uiPipe.getTickField();
 			textStepTime.setText(stepTime.toString());
-			if (uiPipe.isPaused())
+
+			if (uiPipe.isPaused()) {
 				uiPipe.resume();
-			else
+			} else {
 				uiPipe.pause();
+			}
 		}
 		/* $$$$$ Original code.  Mar 14
 		java.lang.Long stepTime = uiPipe.getTime();
@@ -49,6 +51,6 @@ public class StepButton extends java.awt.Button implements
 			uiPipe.pause();
 		*/
 	}
-	
+
 	public static final long serialVersionUID = 0xD4B844C0AA5E3991L;
 }

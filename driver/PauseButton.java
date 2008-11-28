@@ -18,19 +18,21 @@ public class PauseButton extends java.awt.Button implements
 	public void updateLabel() {
 		//System.out
 		//		.println("-------------- UpdateLabel Called ----------------");  // $$$$$$ Used for testing purpose, silenced on Mar 10
-		if (uiPipe.isPaused())
+		if (uiPipe.isPaused()) {
 			setLabel("Resume");
-		else
+		} else {
 			setLabel("Pause");
+		}
 	}
 
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 		// $$$$$$ Modified on Mar 14
-		if (GUI.frame.isVisible() == false) {
-			if (uiPipe.isPaused())
+		if (GUI.frame == null || GUI.frame.isVisible() == false) {
+			if (uiPipe.isPaused()) {
 				uiPipe.resume();
-			else
+			} else {
 				uiPipe.pause();
+			}
 			updateLabel();
 		}
 		/*  $$$$$ Original code
@@ -41,6 +43,6 @@ public class PauseButton extends java.awt.Button implements
 		updateLabel();
 		*/
 	}
-	
+
 	public static final long serialVersionUID = 0xE55CC6E3B8B5824DL;
 }
