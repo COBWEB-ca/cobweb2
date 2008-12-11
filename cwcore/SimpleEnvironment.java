@@ -215,5 +215,11 @@ public class SimpleEnvironment extends cobweb.Environment implements
 	}
 
 	public void observe(int x, int y, cobweb.UIInterface ui) {
+	}
+
+	@Override
+	public EnvironmentStats getStatistics() {
+		// TODO Auto-generated method stub
+		return null;
 	};
 }

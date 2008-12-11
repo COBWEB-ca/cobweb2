@@ -1,15 +1,18 @@
 package cwcore;
 
-import driver.Parser;
-import java.util.*;
+import ga.GATracker;
+import ga.GeneticCode;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.text.*;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 import cobweb.Environment;
 import cobweb.TickScheduler;
-import ga.GeneticCode;
-import ga.GATracker;
+import driver.Parser;
 
 public class ComplexEnvironment extends Environment implements
 		TickScheduler.Client {
@@ -1132,8 +1135,8 @@ public class ComplexEnvironment extends Environment implements
 	}
 
 	/* Return foodCount (long) for a specific foodType (int) */
-	private long countFoodTiles(int foodType) {
-		long foodCount = 0;
+	private int countFoodTiles(int foodType) {
+		int foodCount = 0;
 		Location currentPos = getLocation(0, 0);
 		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1])
 			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0])
@@ -1893,5 +1896,18 @@ public class ComplexEnvironment extends Environment implements
 						+ y + ").\n");
 			}
 		}
+	}
+
+	@Override
+	public EnvironmentStats getStatistics() {
+		EnvironmentStats stats = new EnvironmentStats();
+		stats.agentCounts = new long[getAgentTypes()];
+		stats.foodCounts = new long[getAgentTypes()];
+		for (int i = 0; i < getAgentTypes(); i++) {
+			stats.agentCounts[i] = countAgents(i);
+			stats.foodCounts[i] = countFoodTiles(i);
+		}
+		stats.timestep = this.getTickCount();
+		return stats;
 	}
 }

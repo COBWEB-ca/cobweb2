@@ -11,7 +11,8 @@ import java.awt.event.TextEvent;
 import javax.swing.JPanel;
 
 import cobweb.LocalUIInterface;
-import cobweb.UIInterface;
+import cobweb.Environment.EnvironmentStats;
+import cobweb.LocalUIInterface.TickEventListener;
 
 /**
  *
@@ -25,7 +26,19 @@ public class SimulatorUI extends JPanel {
 	 */
 	private static final long serialVersionUID = 2671092780367865697L;
 
-	private final UIInterface uiPipe;
+	private final LocalUIInterface uiPipe;
+
+	public void AddTickEventListener(TickEventListener listener) {
+		uiPipe.AddTickEventListener(listener);
+	}
+
+
+
+	public void RemoveTickEventListener(TickEventListener listener) {
+		uiPipe.RemoveTickEventListener(listener);
+	}
+
+
 
 	private DisplayPanel displayPanel;
 
@@ -36,9 +49,6 @@ public class SimulatorUI extends JPanel {
 	public TextField tickField;
 
 
-
-
-
 	public SimulatorUI(Parser p) {
 		uiPipe = new LocalUIInterface(new CobwebUIClient(), p);
 		setLayout(new BorderLayout());
@@ -47,9 +57,14 @@ public class SimulatorUI extends JPanel {
 
 		this.add(displayPanel);
 
-
+		
 	}
 
+	
+	
+	public EnvironmentStats getStatistics() {
+		return uiPipe.getStatistics();
+	}
 
 	public void UIsettings(cobweb.UIInterface uiPipe) {
 

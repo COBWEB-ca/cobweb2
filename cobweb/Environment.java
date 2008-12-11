@@ -504,4 +504,13 @@ public abstract class Environment {
 	public static cobweb.UIInterface getUIPipe() {
 		return myUI;
 	}
+	
+	public class EnvironmentStats {
+		public long[] agentCounts;
+		public long[] foodCounts;
+		public long timestep;
+		
+	}
+	
+	public abstract EnvironmentStats getStatistics();
 }

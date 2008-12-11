@@ -1,8 +1,12 @@
 package cobweb;
 
-import java.lang.reflect.*;
-import driver.Parser;
+import java.lang.reflect.Constructor;
+import java.util.HashSet;
+import java.util.Set;
+
+import cobweb.Environment.EnvironmentStats;
 import cwcore.ComplexEnvironment;
+import driver.Parser;
 
 public class LocalUIInterface implements UIInterface,
 		cobweb.TickScheduler.Client {
@@ -487,7 +491,7 @@ public class LocalUIInterface implements UIInterface,
 	public LocalUIInterface(UIClient client, Parser p) {
 		load(client, p);
 		currentParser = p;
-
+		theScheduler.addSchedulerClient(this);
 	}
 
 	public LocalUIInterface(UIInterface.UIClient client, Parser p[],
@@ -586,8 +590,26 @@ public class LocalUIInterface implements UIInterface,
 				this.resume();
 			}
 		}
-		if (files >= pauseAt.length)
+		if (pauseAt != null && files >= pauseAt.length)
 			this.pause();
+		
+		for (TickEventListener listener : tickListeners) {
+			listener.TickPerformed(tickCount);
+		}
+	}
+	
+	private Set<TickEventListener> tickListeners = new HashSet<TickEventListener>();
+	
+	public interface TickEventListener {
+		public void TickPerformed(long currentTick);
+	}
+	
+	public void AddTickEventListener(TickEventListener listener) {
+		tickListeners.add(listener);
+	}
+	
+	public void RemoveTickEventListener(TickEventListener listener) {
+		tickListeners.remove(listener);
 	}
 
 	/**
@@ -718,5 +740,9 @@ public class LocalUIInterface implements UIInterface,
 	}
 	public void setPauseButton(driver.PauseButton pb) {
 		pauseButton = pb;
+	}
+	
+	public EnvironmentStats getStatistics() {
+		return theEnvironment.getStatistics();
 	}
 }

@@ -1,5 +1,7 @@
 package driver;
 
+import java.awt.event.ComponentEvent;
+
 /**
  * DisplayPanel is a Panel derivative useful for displaying a cobweb simulation.
  * It uses an offscreen image to buffer drawing, for flicker-free performance at
@@ -16,8 +18,16 @@ public class DisplayPanel extends java.awt.Panel {
 		addComponentListener(new java.awt.event.ComponentAdapter() {
 			@Override
 			public void componentResized(java.awt.event.ComponentEvent evt) {
+				super.componentResized(evt);
 				DisplayPanel.this.setupOffscreen();
 			}
+
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				super.componentShown(arg0);
+				DisplayPanel.this.setupOffscreen();
+			}
+			
 		});
 
 	}
@@ -28,6 +38,13 @@ public class DisplayPanel extends java.awt.Panel {
 		addComponentListener(new java.awt.event.ComponentAdapter() {
 			@Override
 			public void componentResized(java.awt.event.ComponentEvent evt) {
+				super.componentResized(evt);
+				DisplayPanel.this.setupOffscreen();
+			}
+
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				super.componentShown(arg0);
 				DisplayPanel.this.setupOffscreen();
 			}
 		});
