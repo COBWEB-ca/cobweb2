@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<inputData>
+	<scheduler>cobweb.TickScheduler</scheduler>
+	<Width>70</Width>
+	<Height>70</Height>
+	<wrap>true</wrap>
+	<PrisDilemma>false</PrisDilemma>
+	<randomStones>20</randomStones>
+	<maxFoodChance>0.8</maxFoodChance>
+	<keepOldAgents>false</keepOldAgents>
+	<spawnNewAgents>true</spawnNewAgents>
+	<keepOldArray>false</keepOldArray>
+	<dropNewFood>true</dropNewFood>
+	<randomSeed>0</randomSeed>
+	<newColorizer>true</newColorizer>
+	<numColor>4</numColor>
+	<colorSelectSize>4</colorSelectSize>
+	<reColorTimeStep>100</reColorTimeStep>
+	<colorizerMode>0</colorizerMode>
+	<ColorCodedAgents>true</ColorCodedAgents>
+	<memorySize>10</memorySize>
+	<food_bias>false</food_bias>
+<food>
+	<Index>0</Index>
+	<Food>20</Food>
+	<FoodRate>0.0</FoodRate>
+	<FoodGrow>4</FoodGrow>
+	<FoodDeplete>0.9</FoodDeplete>
+	<DepleteTimeSteps>40</DepleteTimeSteps>
+	<DraughtPeriod>0</DraughtPeriod>
+	<FoodMode>0</FoodMode>
+</food>
+<food>
+	<Index>1</Index>
+	<Food>20</Food>
+	<FoodRate>0.0</FoodRate>
+	<FoodGrow>4</FoodGrow>
+	<FoodDeplete>0.9</FoodDeplete>
+	<DepleteTimeSteps>40</DepleteTimeSteps>
+	<DraughtPeriod>0</DraughtPeriod>
+	<FoodMode>0</FoodMode>
+</food>
+<food>
+	<Index>2</Index>
+	<Food>20</Food>
+	<FoodRate>0.0</FoodRate>
+	<FoodGrow>4</FoodGrow>
+	<FoodDeplete>0.9</FoodDeplete>
+	<DepleteTimeSteps>40</DepleteTimeSteps>
+	<DraughtPeriod>0</DraughtPeriod>
+	<FoodMode>0</FoodMode>
+</food>
+<food>
+	<Index>3</Index>
+	<Food>20</Food>
+	<FoodRate>0.0</FoodRate>
+	<FoodGrow>4</FoodGrow>
+	<FoodDeplete>0.9</FoodDeplete>
+	<DepleteTimeSteps>40</DepleteTimeSteps>
+	<DraughtPeriod>0</DraughtPeriod>
+	<FoodMode>0</FoodMode>
+</food>
+<agent>
+	<Index>0</Index>
+	<Agents>20</Agents>
+	<MutationRate>0.05</MutationRate>
+	<InitEnergy>100</InitEnergy>
+	<FoodEnergy>100</FoodEnergy>
+	<OtherFoodEnergy>25</OtherFoodEnergy>
+	<BreedEnergy>60</BreedEnergy>
+	<pregnancyPeriod>0</pregnancyPeriod>
+	<StepEnergy>1</StepEnergy>
+	<StepRockEnergy>1</StepRockEnergy>
+	<TurnRightEnergy>1</TurnRightEnergy>
+	<TurnLeftEnergy>1</TurnLeftEnergy>
+	<MemoryBits>2</MemoryBits>
+	<commSimMin>0</commSimMin>
+	<StepAgentEnergy>1</StepAgentEnergy>
+	<communicationBits>2</communicationBits>
+	<sexualPregnancyPeriod>5</sexualPregnancyPeriod>
+	<breedSimMin>0.0</breedSimMin>
+	<sexualBreedChance>1.0</sexualBreedChance>
+	<asexualBreedChance>0.0</asexualBreedChance>
+<foodweb>
+	<agent1>true</agent1>
+	<agent2>true</agent2>
+	<agent3>true</agent3>
+	<agent4>true</agent4>
+	<food1>true</food1>
+	<food2>true</food2>
+	<food3>true</food3>
+	<food4>true</food4>
+</foodweb>
+</agent>
+<agent>
+	<Index>1</Index>
+	<Agents>20</Agents>
+	<MutationRate>0.05</MutationRate>
+	<InitEnergy>100</InitEnergy>
+	<FoodEnergy>100</FoodEnergy>
+	<OtherFoodEnergy>25</OtherFoodEnergy>
+	<BreedEnergy>60</BreedEnergy>
+	<pregnancyPeriod>0</pregnancyPeriod>
+	<StepEnergy>1</StepEnergy>
+	<StepRockEnergy>1</StepRockEnergy>
+	<TurnRightEnergy>1</TurnRightEnergy>
+	<TurnLeftEnergy>1</TurnLeftEnergy>
+	<MemoryBits>2</MemoryBits>
+	<commSimMin>0</commSimMin>
+	<StepAgentEnergy>1</StepAgentEnergy>
+	<communicationBits>2</communicationBits>
+	<sexualPregnancyPeriod>5</sexualPregnancyPeriod>
+	<breedSimMin>0.0</breedSimMin>
+	<sexualBreedChance>1.0</sexualBreedChance>
+	<asexualBreedChance>0.0</asexualBreedChance>
+<foodweb>
+	<agent1>false</agent1>
+	<agent2>false</agent2>
+	<agent3>false</agent3>
+	<agent4>false</agent4>
+	<food1>true</food1>
+	<food2>true</food2>
+	<food3>true</food3>
+	<food4>true</food4>
+</foodweb>
+</agent>
+<agent>
+	<Index>2</Index>
+	<Agents>20</Agents>
+	<MutationRate>0.05</MutationRate>
+	<InitEnergy>100</InitEnergy>
+	<FoodEnergy>50</FoodEnergy>
+	<OtherFoodEnergy>25</OtherFoodEnergy>
+	<BreedEnergy>60</BreedEnergy>
+	<pregnancyPeriod>0</pregnancyPeriod>
+	<StepEnergy>1</StepEnergy>
+	<StepRockEnergy>1</StepRockEnergy>
+	<TurnRightEnergy>1</TurnRightEnergy>
+	<TurnLeftEnergy>1</TurnLeftEnergy>
+	<MemoryBits>2</MemoryBits>
+	<commSimMin>0</commSimMin>
+	<StepAgentEnergy>1</StepAgentEnergy>
+	<communicationBits>2</communicationBits>
+	<sexualPregnancyPeriod>5</sexualPregnancyPeriod>
+	<breedSimMin>0.0</breedSimMin>
+	<sexualBreedChance>1.0</sexualBreedChance>
+	<asexualBreedChance>0.0</asexualBreedChance>
+<foodweb>
+	<agent1>false</agent1>
+	<agent2>false</agent2>
+	<agent3>false</agent3>
+	<agent4>false</agent4>
+	<food1>true</food1>
+	<food2>true</food2>
+	<food3>true</food3>
+	<food4>true</food4>
+</foodweb>
+</agent>
+<agent>
+	<Index>3</Index>
+	<Agents>20</Agents>
+	<MutationRate>0.05</MutationRate>
+	<InitEnergy>100</InitEnergy>
+	<FoodEnergy>100</FoodEnergy>
+	<OtherFoodEnergy>25</OtherFoodEnergy>
+	<BreedEnergy>60</BreedEnergy>
+	<pregnancyPeriod>0</pregnancyPeriod>
+	<StepEnergy>1</StepEnergy>
+	<StepRockEnergy>1</StepRockEnergy>
+	<TurnRightEnergy>1</TurnRightEnergy>
+	<TurnLeftEnergy>1</TurnLeftEnergy>
+	<MemoryBits>2</MemoryBits>
+	<commSimMin>0</commSimMin>
+	<StepAgentEnergy>1</StepAgentEnergy>
+	<communicationBits>2</communicationBits>
+	<sexualPregnancyPeriod>5</sexualPregnancyPeriod>
+	<breedSimMin>0.0</breedSimMin>
+	<sexualBreedChance>1.0</sexualBreedChance>
+	<asexualBreedChance>0.0</asexualBreedChance>
+<foodweb>
+	<agent1>false</agent1>
+	<agent2>false</agent2>
+	<agent3>false</agent3>
+	<agent4>false</agent4>
+	<food1>true</food1>
+	<food2>true</food2>
+	<food3>true</food3>
+	<food4>true</food4>
+</foodweb>
+</agent>
+</inputData>
