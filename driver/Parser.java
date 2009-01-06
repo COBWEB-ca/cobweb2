@@ -197,9 +197,9 @@ public class Parser {
 	 * The genetic sequence. Initialize them to a certain sequence for the four
 	 * agents.
 	 */
-	public String[][] genetic_sequence = { { "111111111111111111111111",
-			"111111111111111111111111", "111111111111111111111111",
-			"111111111111111111111111", "", "", "", "", "", "" } };
+	public String[][] genetic_sequence = { { "000111100001111000011110",
+			"000111100001111000011110", "000111100001111000011110",
+			"000111100001111000011110", "", "", "", "", "", "" } };
 
 	java.util.Hashtable<String, Object> parseData;
 

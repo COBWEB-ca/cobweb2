@@ -47,10 +47,11 @@ public class Cobweb2Applet extends JApplet {
 
 
 	SimulatorUI ui;
+	JPanel controls;
 	Parser parser;
 	String currentexp;
 	ExperementSelector expselector;
-	
+
 	JLabel statsLabel;
 
 	@Override
@@ -66,47 +67,46 @@ public class Cobweb2Applet extends JApplet {
 		experements.put("Cheaters vs Cooperators", "cheaters vs cooperators.xml");
 		currentexp = "Baseline";
 
-		
-		JPanel controls = new JPanel();
-		
+
+		controls = new JPanel();
+
 		JLabel selectorlabel = new JLabel("Experiment:");
 		controls.add(selectorlabel);
-		
+
 		expselector = new ExperementSelector(experements);
 		controls.add(expselector);
-		
+
 		JButton resetbutton = new JButton("Reset");
 		controls.add(resetbutton);
 		resetbutton.addActionListener(new ActionListener() {
-
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				loadSimulation(currentexp);
 			}
 		});
-		
+
 		statsLabel = new JLabel("Statistics:");
 		controls.add(statsLabel);
-		
+
 		JButton statsButton = new JButton("Graph");
 		statsButton.addActionListener(new ActionListener() {
-
-			@Override
 			public void actionPerformed(ActionEvent e) {
 				statsUpdater.toggleGraphVisible();
 			}
-			
-		});
-		
-		controls.add(statsButton);
-		
 
-		
+		});
+
+		controls.add(statsButton);
+
+
+
 
 		getContentPane().add(controls, BorderLayout.SOUTH);
 		expselector.setVisible(true);
 
 		expselector.addActionListener(new ExpSelectorListener());
+
+//		controls.setComponentZOrder(expselector, 1);
+//		controls.setComponentZOrder(statsButton, 2);
 
 		loadSimulation(currentexp);
 
@@ -117,7 +117,6 @@ public class Cobweb2Applet extends JApplet {
 		/* (non-Javadoc)
 		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
-		@Override
 		public void actionPerformed(ActionEvent e) {
 			JComboBox cb = (JComboBox)e.getSource();
 	        String expname = (String)cb.getSelectedItem();
@@ -132,45 +131,47 @@ public class Cobweb2Applet extends JApplet {
 	 */
 	private void loadSimulation(String currentexp) {
 		if (ui != null) {
-			
+
 			ui.RemoveTickEventListener(statsUpdater);
 			getContentPane().remove(ui);
 		}
-		
+
 
 		InputStream datafile = getClass().getResourceAsStream("/resources/" + experements.get(currentexp));
 
 		parser = new Parser(datafile);
 		ui = new SimulatorUI(parser);
-		
+
 		//FIX: DisplayPanel is buggy, so we have to hide and show it for it to redraw
 		ui.setVisible(false);
 		getContentPane().add(ui, BorderLayout.CENTER);
+//		getContentPane().setComponentZOrder(ui, 0);
+//		getContentPane().setComponentZOrder(controls, 1);
+
 		ui.setVisible(true);
 		statsUpdater = new StatsUpdater();
 		ui.AddTickEventListener(statsUpdater);
-
 	}
 
 	StatsUpdater statsUpdater;
-	
+
 	private class StatsUpdater implements TickEventListener {
 
 		JFrame graph = new JFrame("Statistics");
-		
+
 		public StatsUpdater() {
 			graph.setSize(500, 500);
 			ChartPanel cp = new ChartPanel(plot, true);
 			graph.add(cp);
-			plot.setAntiAlias(false);
+			plot.setAntiAlias(true);
 			plot.setNotify(false);
-			
+
 			data.addSeries(agentData);
 			data.addSeries(foodData);
 		}
-		
-		
-		
+
+
+
 		public void toggleGraphVisible() {
 			graph.setVisible(!graph.isVisible());
 		}
@@ -179,12 +180,12 @@ public class Cobweb2Applet extends JApplet {
 
 		int frame = 0;
 		static final int frameskip = 50;
-		
+
 		XYSeries agentData = new XYSeries("Agents");
 		XYSeries foodData = new XYSeries("Food");
-		
+
 		XYSeriesCollection data = new XYSeriesCollection();
-		
+
 		JFreeChart plot = ChartFactory.createXYLineChart(
 				"Agent and Food count"
 				, "Time"
@@ -194,22 +195,23 @@ public class Cobweb2Applet extends JApplet {
 				, true
 				, false
 				, false);
-		
-		@Override
+
 		public void TickPerformed(long currentTick) {
 
-				
+
 				EnvironmentStats stats = ui.getStatistics();
 				long agentCount = 0;
-				for (long count : stats.agentCounts)
+				for (long count : stats.agentCounts) {
 					agentCount += count;
+				}
 				long foodCount = 0;
-				for (long count : stats.foodCounts) 
+				for (long count : stats.foodCounts) {
 					foodCount += count;
-				
+				}
+
 				agentData.add(currentTick, agentCount);
 				foodData.add(currentTick, foodCount);
-				
+
 			if (frame++ == frameskip) {
 				frame = 0;
 				plot.setNotify(true);

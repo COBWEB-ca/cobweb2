@@ -1699,14 +1699,14 @@ public class CobwebApplication extends java.awt.Frame {
 				/* Check the x-axis bounds */
 				x >= displayPanel.getBorderWidth()
 						&& x < (displayPanel.getTileW() * displayPanel
-								.getWidth())
+								.getWidthInTiles())
 								+ displayPanel.getBorderWidth()
 						&&
 						/* Check the y-axis bounds */
 						y >= 17 + displayPanel.getBorderHeight()
 						&& y < 17
 								+ (displayPanel.getTileH() * displayPanel
-										.getHeight())
+										.getHeightInTiles())
 								+ displayPanel.getBorderHeight()) {
 					realX = (x - displayPanel.getBorderWidth())
 							/ displayPanel.getTileW();

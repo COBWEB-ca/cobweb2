@@ -2,6 +2,8 @@ package driver;
 
 import java.awt.event.ComponentEvent;
 
+import javax.swing.JPanel;
+
 /**
  * DisplayPanel is a Panel derivative useful for displaying a cobweb simulation.
  * It uses an offscreen image to buffer drawing, for flicker-free performance at
@@ -9,7 +11,7 @@ import java.awt.event.ComponentEvent;
  * required in Cobweb, but it does automate display handling. Future
  * enhancement: implement a ScrollingDisplayPanel for large simulations.
  */
-public class DisplayPanel extends java.awt.Panel {
+public class DisplayPanel extends JPanel {
 
 	public DisplayPanel(cobweb.UIInterface ui, int borderW, int borderH) {
 		theUI = ui;
@@ -27,7 +29,7 @@ public class DisplayPanel extends java.awt.Panel {
 				super.componentShown(arg0);
 				DisplayPanel.this.setupOffscreen();
 			}
-			
+
 		});
 
 	}
@@ -58,8 +60,8 @@ public class DisplayPanel extends java.awt.Panel {
 
 	@Override
 	public void update(java.awt.Graphics g) {
-		if (offscreenImage == null || tileWidth == 0 || mapWidth != getWidth()
-				|| mapHeight != getHeight() || tileHeight == 0) {
+		if (offscreenImage == null || tileWidth == 0 || mapWidth != getWidthInTiles()
+				|| mapHeight != getHeightInTiles() || tileHeight == 0) {
 			setupOffscreen();
 		}
 		theUI.draw(offscreenGraphics, tileWidth, tileHeight);
@@ -71,6 +73,7 @@ public class DisplayPanel extends java.awt.Panel {
 				fontDrawHeight);
 		g.drawImage(offscreenImage, 0, 0, null);
 	}
+
 
 	void setupOffscreen() {
 		offscreenGraphics = null;
@@ -104,13 +107,11 @@ public class DisplayPanel extends java.awt.Panel {
 	 * the following information needed to convert the mouse coords into the
 	 * grid coordinates
 	 */
-	@Override
-	public int getWidth() {
+	public int getWidthInTiles() {
 		return theUI.getWidth();
 	}
 
-	@Override
-	public int getHeight() {
+	public int getHeightInTiles() {
 		return theUI.getHeight();
 	}
 
