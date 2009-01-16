@@ -1,6 +1,8 @@
 package driver;
 
-public class PauseButton extends java.awt.Button implements
+import javax.swing.JButton;
+
+public class PauseButton extends JButton implements
 		java.awt.event.ActionListener {
 	private cobweb.UIInterface uiPipe;
 
@@ -19,9 +21,9 @@ public class PauseButton extends java.awt.Button implements
 		//System.out
 		//		.println("-------------- UpdateLabel Called ----------------");  // $$$$$$ Used for testing purpose, silenced on Mar 10
 		if (uiPipe.isPaused()) {
-			setLabel("Resume");
+			setText("Resume");
 		} else {
-			setLabel("Pause");
+			setText("Pause");
 		}
 	}
 

@@ -57,7 +57,9 @@ public class Cobweb2Applet extends JApplet {
 	@Override
 	public void init() {
 		super.init();
+
 		setSize(580,660);
+
 		getContentPane().setLayout(new BorderLayout());
 
 		experements.put("Baseline", "baseline 2008.xml");
@@ -65,8 +67,8 @@ public class Cobweb2Applet extends JApplet {
 		experements.put("Exponential Growth", "Exponential Growth Experiment.xml");
 		experements.put("Central Place", "central place 1.xml");
 		experements.put("Cheaters vs Cooperators", "cheaters vs cooperators.xml");
-		currentexp = "Baseline";
 
+		currentexp = "Baseline";
 
 		controls = new JPanel();
 
@@ -100,7 +102,7 @@ public class Cobweb2Applet extends JApplet {
 
 
 
-		getContentPane().add(controls, BorderLayout.SOUTH);
+		getContentPane().add(controls, BorderLayout.NORTH);
 		expselector.setVisible(true);
 
 		expselector.addActionListener(new ExpSelectorListener());
@@ -120,16 +122,16 @@ public class Cobweb2Applet extends JApplet {
 		public void actionPerformed(ActionEvent e) {
 			JComboBox cb = (JComboBox)e.getSource();
 	        String expname = (String)cb.getSelectedItem();
-	        currentexp = expname;
 	        loadSimulation(expname);
 		}
 
 	}
 
 	/**
-	 * @param currentexp
+	 * @param expname
 	 */
-	private void loadSimulation(String currentexp) {
+	private void loadSimulation(String expname) {
+		this.currentexp = expname;
 		if (ui != null) {
 
 			ui.RemoveTickEventListener(statsUpdater);
@@ -137,7 +139,7 @@ public class Cobweb2Applet extends JApplet {
 		}
 
 
-		InputStream datafile = getClass().getResourceAsStream("/resources/" + experements.get(currentexp));
+		InputStream datafile = getClass().getResourceAsStream("/resources/" + experements.get(expname));
 
 		parser = new Parser(datafile);
 		ui = new SimulatorUI(parser);

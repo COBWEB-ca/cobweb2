@@ -1,6 +1,9 @@
 package cobweb;
 
 import ga.GATracker;
+
+import java.util.Vector;
+
 import cwcore.ComplexEnvironment.CommManager;
 import driver.Parser;
 
@@ -23,7 +26,7 @@ public class TickScheduler extends Thread implements Scheduler {
 
 	private long logCount = 0;
 
-	private long logTicks = 0;
+	private final long logTicks = 0;
 
 	private long tickCount = 0;
 
@@ -31,7 +34,7 @@ public class TickScheduler extends Thread implements Scheduler {
 
 	private UIInterface theUI;
 
-	private java.util.Vector<Client> clientV = new java.util.Vector<Client>();
+	private final java.util.Vector<Client> clientV = new java.util.Vector<Client>();
 
 	public boolean isSchedulerPaused() {
 		return bPaused;
@@ -48,8 +51,9 @@ public class TickScheduler extends Thread implements Scheduler {
 	}
 
 	public synchronized void startScheduler() {
-		if (!isAlive())
+		if (!isAlive()) {
 			start();
+		}
 	}
 
 	public synchronized void killScheduler() {
@@ -73,7 +77,7 @@ public class TickScheduler extends Thread implements Scheduler {
 	}
 
 	public synchronized void removeSchedulerClient(Object theClient) {
-		clientV.removeElement((Client)theClient);
+		clientV.removeElement(theClient);
 	}
 
 	// Parameters
@@ -127,53 +131,56 @@ public class TickScheduler extends Thread implements Scheduler {
 		commManager.decrementPersistence();
 		commManager.unblockBroadcast();
 		++tickCount;
-		
-		for (java.util.Enumeration<Client> e = clientV.elements(); e.hasMoreElements();)
-			e.nextElement().tickNotification(tickCount);
-		
+
+		for (Client client : new Vector<Client>(clientV)) {
+			client.tickNotification(tickCount);
+		}
+
 		/* If program is set to track GA info, then print them. */
 		if (GATracker.getTrackGeneStatusDistribution() || GATracker.getTrackGeneValueDistribution()) {
 			GATracker.printGAInfo(tickCount);
 		}
-		
+
 		++logCount;
 		if (logCount > logTicks) {
 			logCount = 0;
 			theUI.writeLogEntry();
-		}		
-		
-		
-		
+		}
+
+
+
 		// start doing something
 		try {
 			Thread.sleep(slowdown);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
-		// carry on doing something				
+		// carry on doing something
 	}
 
+	@Override
 	public void run() {
 		theUI.refresh(refreshTimeout);
 		long frameCount = 0;
 		// Forever...
-		
-		
-		while (!bDone) {					
+
+
+		while (!bDone) {
 			cwcore.ComplexAgent.dumpData(tickCount);
 			cwcore.ComplexAgent.clearData();
-			
-			if (tickCount == 0) { 
+
+			if (tickCount == 0) {
 				GATracker.initializeGAInfoOutput();
 			}
-			
+
 			doTick();
 
 			if (frameCount >= frameSkip) {
 				frameCount = 0;
 				theUI.refresh(refreshTimeout);
-			} else
+			} else {
 				++frameCount;
+			}
 			yield();
 			if (theUI.getTick() != 0 && getTime() == theUI.getTick()) {
 				pauseScheduler();

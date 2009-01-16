@@ -5,7 +5,7 @@ package cwcore;
  * for each permutation of those bits, return a set of corresponding output
  * bits. A set of output bits are stored for each permutation and thus the size
  * of this array grow exponentially with the number of input bits.
- * 
+ *
  * Input: A collection of 6 bit groups combined into a single number: 1) 2 bits
  * for first "seen" object (nothing, agent, food, barrier) 2) 2 bits for
  * distance of "seen" object 3) n bits for memory input (n equal to mem output
@@ -16,16 +16,16 @@ package cwcore;
  * for physical action (0-left, 1-right, 2-stop, 3-step) 2) n bits for memory
  * output (n is user specified) 3) m bits for communication w/ other agents 4) 1
  * bit for sexual(0)/asexual(1) reproduction
- * 
+ *
  * In addition to associating a group of output bits with each permutation of
  * input bits, BehaviorArray splits the output into functional pieces, and
  * during mutation and similarity operations it examines these pieces
  * individually.
- * 
+ *
  * BehaviorArray is extremely efficient in its storage of bits. It uses an array
  * of integers but no single bit is wasted. The amount of memory it consumes is
  * approximately: outputBits*2^(inputBits-3) bytes
- * 
+ *
  */
 
 public class BehaviorArray {
@@ -83,8 +83,9 @@ public class BehaviorArray {
 		 * of this extra int
 		 */
 		totalInts = (totalBits >> 5) + 1;
-		if (totalInts == 1)
+		if (totalInts == 1) {
 			totalInts = 2;
+		}
 
 		array = new int[totalInts];
 
@@ -133,10 +134,10 @@ public class BehaviorArray {
 	 * splices it with this one to create a new behavior array. The algorithm is
 	 * random and ensures that exactly half of the genetic makeup of each parent
 	 * is used.
-	 * 
+	 *
 	 * Preconditions: BOther must be identical to this one in terms of input
 	 * bits and output bits.
-	 * 
+	 *
 	 * @return a new behavior that is a splice of this one and the parameter
 	 */
 
@@ -156,8 +157,9 @@ public class BehaviorArray {
 			int r = cobweb.globals.random.nextInt(size);
 			if (boolArray[r] == false) {
 				boolArray[r] = true;
-				if (++i == size >> 1)
+				if (++i == size >> 1) {
 					break;
+				}
 			}
 		}
 		/*
@@ -168,10 +170,11 @@ public class BehaviorArray {
 		 */
 		for (int i = 0; i < size; ++i) {
 
-			if (boolArray[i])
+			if (boolArray[i]) {
 				newBArray.set(i, BOther.get(i));
-			else
+			} else {
 				newBArray.set(i, get(i));
+			}
 		}
 
 		return newBArray;
@@ -244,10 +247,12 @@ public class BehaviorArray {
 		 * element due to the overhead involved with the 'get' and 'set' methods
 		 */
 		for (int i = 0; i < totalInts; ++i) {
-			if (array[i] < otherArray[i])
+			if (array[i] < otherArray[i]) {
 				return -1;
-			if (array[i] > otherArray[i])
+			}
+			if (array[i] > otherArray[i]) {
 				return 1;
+			}
 		}
 		return 0;
 	}
@@ -298,11 +303,12 @@ public class BehaviorArray {
 			BitField outputCode2 = new BitField(other.get(i));
 			for (int j = 0; j < outputSize.length; ++j) {
 				if (outputCode1.remove(outputSize[j]) == outputCode2
-						.remove(outputSize[j]))
+						.remove(outputSize[j])) {
 					total += outputSize[j];
+				}
 			}
 		}
-		return total / (double) (size * outputBits);
+		return total / (size * outputBits);
 	}
 
 	public double similarity(int other) {
@@ -315,23 +321,24 @@ public class BehaviorArray {
 			BitField outputCode2 = new BitField(other);
 			for (int j = 0; j < outputSize.length; ++j) {
 				if (outputCode1.remove(outputSize[j]) == outputCode2
-						.remove(outputSize[j]))
+						.remove(outputSize[j])) {
 					total += outputSize[j];
+				}
 			}
 		}
-		return total / (double) (size * outputBits);
+		return total / (size * outputBits);
 	}
 
 	/**
 	 * The following is obsolete code included here because they use techniques
 	 * that might* be preferable to the current ones in use.
-	 * 
+	 *
 	 * The old version of copy mutated the output bit group as a whole and did
 	 * not do it on the basis of the functional bit sub-groups.
-	 * 
+	 *
 	 * Like copy, similarity examined the whole output bit group for equality
 	 * instead of the sub-groups.
-	 * 
+	 *
 	 * Below that is the old coloring algorithm might be interesting to look at.
 	 * It is a fairly simple algorithm, made complex only because of the care it
 	 * takes in dealing with floating-point precision limitations.
@@ -339,54 +346,54 @@ public class BehaviorArray {
 
 	/*
 	 * public BehaviorArray copy(float mutationRate) {
-	 * 
+	 *
 	 * BehaviorArray newArray = new BehaviorArray( inputSize, outputSize );
-	 * 
+	 *
 	 * for( int i = 0; i < size; ++i ) { if( cobweb.globals.random.nextFloat() <=
 	 * mutationRate ) { newArray.set(i,
 	 * cobweb.globals.random.nextBits(outputBits)); } else newArray.set(i,
 	 * get(i) ); }
-	 * 
+	 *
 	 * return newArray; }
 	 */
 	/*
 	 * public double similarity( BehaviorArray other ) {
-	 * 
+	 *
 	 * double total = 0; for( int i = 0; i < size; ++i ) { if( get(i) ==
 	 * other.get(i) ) total += 1.0; } return total/(double)size;
 	 *  }
 	 */
 	/*
 	 * private static cobweb.ColorLookup colorMap = new cobweb.RbgInterpol();
-	 * 
+	 *
 	 * private static final int addLim = 16;
-	 * 
-	 * 
+	 *
+	 *
 	 * private float[] generateColor( int numComponents, int start, int end ) {
-	 * 
+	 *
 	 * int amount = end-start;
-	 * 
+	 *
 	 * float addArray[] = new float[numComponents];
-	 * 
+	 *
 	 * if( amount <= addLim ) { float compArray[] = new float[numComponents];
-	 * 
+	 *
 	 * for( int i = start; i < end; ++i ) {
-	 * 
+	 *
 	 * if( getBit(i) ) { colorMap.getColor(i,totalBits+1).getColorComponents(
 	 * compArray ); for( int j = 0; j < numComponents; ++j ) { addArray[j] +=
 	 * compArray[j]; } } } for( int i = 0; i < numComponents; ++i ) {
 	 * addArray[i] /= amount; } } else { int numjump = (amount+addLim-1)/addLim;
 	 * int jumpsize = amount/numjump;
-	 * 
+	 *
 	 * for( int i = start; i < end; i+=jumpsize ) { float getArray[] =
 	 * generateColor( numComponents, i, i+jumpsize ); for( int j = 0; j <
 	 * numComponents; ++j ) { addArray[j] += getArray[j]; } } if( amount%numjump !=
 	 * 0 ) { float getArray[] = generateColor( numComponents, end-jumpsize,end );
 	 * for( int j = 0; j < numComponents; ++j ) { addArray[j] += getArray[j]; } }
-	 * 
+	 *
 	 * for( int i = 0; i < numComponents; ++i ) { addArray[i] /= numjump; } }
 	 * return addArray; }
-	 * 
+	 *
 	 * public java.awt.Color getColor() {
 	 * //System.out.println(colorMap.getSpace().getNumComponents()); float A[] =
 	 * generateColor( colorMap.getSpace().getNumComponents(), 0, totalBits );
@@ -401,22 +408,22 @@ public class BehaviorArray {
 	 *  }
 	 */
 
-	private int[] outputSize;
+	private final int[] outputSize;
 
-	private int inputSize;
+	private final int inputSize;
 
-	private int totalInMask;
+	private final int totalInMask;
 
-	private int totalOutMask;
+	private final int totalOutMask;
 
 	private int outputBits;
 
 	private int totalInts;
 
-	private int[] array;
+	private final int[] array;
 
-	private int size;
+	private final int size;
 
-	private int totalBits;
+	private final int totalBits;
 
 }

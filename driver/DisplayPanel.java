@@ -55,22 +55,12 @@ public class DisplayPanel extends JPanel {
 
 	@Override
 	public void paint(java.awt.Graphics g) {
-		update(g);
-	}
-
-	@Override
-	public void update(java.awt.Graphics g) {
+		super.paint(g);
 		if (offscreenImage == null || tileWidth == 0 || mapWidth != getWidthInTiles()
 				|| mapHeight != getHeightInTiles() || tileHeight == 0) {
 			setupOffscreen();
 		}
 		theUI.draw(offscreenGraphics, tileWidth, tileHeight);
-		offscreenGraphics.setColor(java.awt.Color.white);
-		offscreenGraphics.fillRect(0, -fontHeight, getSize().width - 2
-				* borderWidth, fontHeight);
-		offscreenGraphics.setColor(java.awt.Color.black);
-		offscreenGraphics.drawString((new Long(theUI.getTime())).toString(), 0,
-				fontDrawHeight);
 		g.drawImage(offscreenImage, 0, 0, null);
 	}
 
@@ -86,12 +76,9 @@ public class DisplayPanel extends JPanel {
 		offscreenGraphics = offscreenImage.getGraphics();
 		offscreenGraphics.setColor(java.awt.Color.white);
 		offscreenGraphics.fillRect(0, 0, size.width, size.height);
-		java.awt.FontMetrics m = offscreenGraphics.getFontMetrics();
-		fontDrawHeight = -1 * (m.getMaxDescent() + m.getLeading());
-		fontHeight = m.getMaxAscent() + m.getMaxDescent() + m.getLeading();
-		offscreenGraphics.translate(borderWidth, borderHeight + fontHeight);
+		offscreenGraphics.translate(borderWidth, borderHeight);
 		size.width -= 2 * borderWidth;
-		size.height -= (2 * borderHeight) + fontHeight;
+		size.height -= (2 * borderHeight);
 
 		mapWidth = theUI.getWidth();
 		mapHeight = theUI.getHeight();
@@ -123,14 +110,6 @@ public class DisplayPanel extends JPanel {
 		return tileHeight;
 	}
 
-	public int getfontDH() {
-		return fontDrawHeight;
-	}
-
-	public int getfontHeight() {
-		return fontHeight;
-	}
-
 	public int getBorderHeight() {
 		return borderHeight;
 	}
@@ -146,10 +125,6 @@ public class DisplayPanel extends JPanel {
 	private int tileWidth = 0;
 
 	private int tileHeight = 0;
-
-	private int fontDrawHeight = 0;
-
-	private int fontHeight = 0;
 
 	private int borderWidth = 0;
 

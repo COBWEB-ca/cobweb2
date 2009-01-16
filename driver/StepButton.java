@@ -1,13 +1,16 @@
 //[]SK new class
 package driver;
 
+import javax.swing.JButton;
+import javax.swing.JTextField;
+
 /**
  *
  * @author skinawy This class represents the button responsible for advancing
  *         the appliaction by one time tick.
  *
  */
-public class StepButton extends java.awt.Button implements
+public class StepButton extends JButton implements
 		java.awt.event.ActionListener {
 	private cobweb.UIInterface uiPipe;
 
@@ -23,7 +26,7 @@ public class StepButton extends java.awt.Button implements
 	}
 
 	public void updateLabel() {
-		setLabel("Step");
+		setText("Step");
 	}
 
 	// $$$$$$ Modified on Mar 14
@@ -31,7 +34,7 @@ public class StepButton extends java.awt.Button implements
 		if  (GUI.frame == null || GUI.frame.isVisible() == false) {
 			java.lang.Long stepTime = uiPipe.getTime();
 			stepTime++;
-			java.awt.TextField textStepTime = uiPipe.getTickField();
+			JTextField textStepTime = uiPipe.getTickField();
 			textStepTime.setText(stepTime.toString());
 
 			if (uiPipe.isPaused()) {

@@ -1,7 +1,7 @@
 package cwcore;
 
 /* TraitArray encompasses the features of an autonomous agent that are
- * constanat within the lifetime of a single agent and represent what 
+ * constanat within the lifetime of a single agent and represent what
  * to a biological organism would be physical and genetic constraints. */
 
 
@@ -25,21 +25,25 @@ public class TraitArray implements InnateArray {
 	public Float mutationRate;
 
 	/* The same variables kept in an array. */
-	private Object[] array;
+	private final Object[] array;
 
 	/*
 	 * Return -1, 0, or 1, depending on whether this InnateArray is less than,
 	 * equal to, or greater than other, by some measure.
 	 */
 	public int compareTo(InnateArray other) {
+		if ( !(other instanceof TraitArray) ) {
+			throw new IllegalArgumentException("Can only compare to TraitArray");
+		}
 		int compare;
-		Comparable o, t;
+		Integer o, t;
 		/* Compare the indices in order. */
 		for (int i = 0; i < this.size(); i++) {
-			o = (Comparable) ((InnateArray) other).index(i);
-			t = (Comparable) ((InnateArray) this).index(i);
-			if ((compare = o.compareTo(t)) != 0)
+			o = (Integer) other.index(i);
+			t = (Integer) this.index(i);
+			if ((compare = o.compareTo(t)) != 0) {
 				return compare;
+			}
 		}
 
 		/*
@@ -50,6 +54,7 @@ public class TraitArray implements InnateArray {
 	}
 
 	/* Return an exact copy of this object. */
+	@Override
 	public Object clone() {
 		try {
 			return super.clone();
@@ -65,7 +70,7 @@ public class TraitArray implements InnateArray {
 		return (InnateArray) this.clone();
 		/*
 		 * InnateArray c = this.clone();
-		 * 
+		 *
 		 * for (int i = 0; i < this.size(); i++) { if (cobweb.globals.random.() <
 		 * mutationRate) { // Mutate index!!! int newval = array[i].intValue(); //
 		 * takes values: 1, 2 int modifier = (int)(cobweb.globals.random.() * 2) +
@@ -82,11 +87,12 @@ public class TraitArray implements InnateArray {
 
 	/* Set the Object at index "i" to "o". */
 	public void index(int i, Object o) {
-		if (array[i].getClass().getName().compareTo(o.getClass().getName()) != 0)
+		if (array[i].getClass().getName().compareTo(o.getClass().getName()) != 0) {
 			throw new java.lang.ClassCastException("index(int i, Object o)"
 					+ ": o is of different type from array[i]");
-		else
+		} else {
 			array[i] = o;
+		}
 	}
 
 	/* Give random values to all of the variables in the array. */
@@ -95,8 +101,9 @@ public class TraitArray implements InnateArray {
 		 * Initializes that array to all random Integers . This function is
 		 * relatively useless for now.
 		 */
-		for (int i = 0; i < this.size(); i++)
+		for (int i = 0; i < this.size(); i++) {
 			array[i] = new Integer(cobweb.globals.random.nextInt());
+		}
 	}
 
 	/*
@@ -105,10 +112,11 @@ public class TraitArray implements InnateArray {
 	 */
 	public InnateArray splice(InnateArray other) {
 		/* change of plans: gets all of one parents info */
-		if (cobweb.globals.random.nextFloat() < .5)
+		if (cobweb.globals.random.nextFloat() < .5) {
 			return (InnateArray) this.clone();
-		else
+		} else {
 			return (InnateArray) other.clone();
+		}
 	}
 
 	/* Return the number of elements this InnateArray can hold. */
@@ -121,13 +129,15 @@ public class TraitArray implements InnateArray {
 	 * InnateArray's with identical properties will return the same String from
 	 * their toString() methods.
 	 */
+	@Override
 	public String toString() {
 		// Is there a way to check if toString() has been overloaded in a
 		// certain object (ie. no longer returns a memory address?
 		String output = this.index(0).toString();
 
-		for (int i = 1; i < this.size(); i++)
+		for (int i = 1; i < this.size(); i++) {
 			output += "-" + index(i).toString();
+		}
 
 		return output;
 	}

@@ -2,8 +2,8 @@
 
 <inputData>
 	<scheduler>cobweb.TickScheduler</scheduler>
-	<Width>100</Width>
-	<Height>100</Height>
+	<Width>92</Width>
+	<Height>92</Height>
 	<wrap>true</wrap>
 	<PrisDilemma>false</PrisDilemma>
 	<randomStones>0</randomStones>

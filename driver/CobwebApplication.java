@@ -12,17 +12,14 @@ import ga.GeneticCode;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.TextArea;
-import java.awt.TextField;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.TextEvent;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,8 +37,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import cobweb.LocalUIInterface;
+import cobweb.LocalUIInterface.TickEventListener;
 
 public class CobwebApplication extends java.awt.Frame {
 
@@ -91,7 +90,7 @@ public class CobwebApplication extends java.awt.Frame {
 
 	String newline = "\n";
 
-	public TextField tickField;
+	public JTextField tickField;
 
 	private final java.awt.MenuItem stoneMenu;
 
@@ -191,7 +190,7 @@ public class CobwebApplication extends java.awt.Frame {
 		});
 
 		setLayout(new java.awt.BorderLayout());
-		setSize(550, 650);
+		setSize(580, 650);
 
 		// Create the various widgits to make the application go.
 
@@ -447,7 +446,7 @@ public class CobwebApplication extends java.awt.Frame {
 	public void openMultFiles(Parser p[], int time[], int numfiles) {
 		uiPipe = new cobweb.LocalUIInterface(new CobwebUIClient(), p, time,
 				numfiles);
-		UIsettings(uiPipe);
+		UIsettings();
 	}
 
 	public void openFile(Parser p) {
@@ -455,50 +454,75 @@ public class CobwebApplication extends java.awt.Frame {
 			uiPipe.load(new CobwebUIClient(), p);
 		} else {
 			uiPipe = new LocalUIInterface(new CobwebUIClient(), p);
-			UIsettings(uiPipe);
+			UIsettings();
 		}
 		//this.toFront(); // $$$$$$ added for CA frame going to front when anytime this method is called.  Feb 22
 	}
 
-	public void UIsettings(cobweb.UIInterface uiPipe) {
+	JPanel mainPanel;
+
+	JLabel tickDisplay;
+
+	JPanel controls;
+
+	public void UIsettings() {
 
 		if (cobweb.globals.usingTextWindow == true) {uiPipe.addTextArea(textArea);}		/*** $$$$$$ Cancel textWindow  Apr 22*/
+
+		if (mainPanel == null) {
+			mainPanel = new JPanel();
+			mainPanel.setLayout(new BorderLayout());
+			add(mainPanel);
+		}
 
 		uiPipe.setRefreshTimeout(100);
 		uiPipe.setFrameSkip(0);
 		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(uiPipe, 10, 20);
+			displayPanel = new DisplayPanel(uiPipe, 10, 10);
 		} else {
 			displayPanel.setUI(uiPipe);
 		}
 
-		add(displayPanel, "Center");
+
+
+		mainPanel.add(displayPanel, BorderLayout.CENTER);
+		if (controls == null) {
+			controls = new JPanel();
+			//controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+			mainPanel.add(controls, BorderLayout.NORTH);
+		}
+		if (tickDisplay == null) {
+			tickDisplay = new JLabel();
+			tickDisplay.setPreferredSize(new Dimension(90, 20));
+			controls.add(tickDisplay);
+		}
 		if (tickField == null) {
-			displayPanel.add(new java.awt.Label("Stop at"));
-			tickField = new java.awt.TextField(8);
-			displayPanel.add(tickField);
+			controls.add(new JLabel("Stop at"));
+			tickField = new JTextField(8);
+			tickField.setPreferredSize(new Dimension(40, 20));
+			controls.add(tickField);
 		}
 
 		if (pauseButton == null) {
 			pauseButton = new PauseButton(uiPipe);
-			displayPanel.add(pauseButton, "North");
+			controls.add(pauseButton);
 			stepButton = new StepButton(uiPipe);
-			displayPanel.add(stepButton/* , "North" */);
+			controls.add(stepButton);
+			controls.add(new JLabel("   Adjust Speed:"));
 			MyScrollbar sb = new MyScrollbar(uiPipe);
-			displayPanel.add(new java.awt.Label("   Adjust Speed:"));
-			displayPanel.add(sb);
+			controls.add(sb);
 		} else {
 			pauseButton.setUI(uiPipe);
 		}
 
 		if (stepButton == null) {
 			pauseButton = new PauseButton(uiPipe);
-			displayPanel.add(pauseButton, "North");
+			controls.add(pauseButton);
 			stepButton = new StepButton(uiPipe);
-			displayPanel.add(stepButton);
+			controls.add(stepButton);
+			controls.add(new JLabel("   Adjust Speed:"));
 			MyScrollbar sb = new MyScrollbar(uiPipe);
-			displayPanel.add(new java.awt.Label("   Adjust Speed:"));
-			displayPanel.add(sb);
+			controls.add(sb);
 		} else {
 			stepButton.setUI(uiPipe);
 		}
@@ -528,41 +552,7 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 		}
 
-		/*  // $$$$$$ Moved to the constructor of this class, and then modified.  Mar 18
-		textArea.setEditable(false);
-		textArea.setFont(new Font("Courier", Font.PLAIN, 11));
-		textWindow.add(textArea);
-		int text_x, text_y;
-		int size_x, size_y;
-		size_x = 400;// 80*6;
-		size_y = 600;// 40*11;
-		try {
-			text_x = (java.awt.Toolkit.getDefaultToolkit().getScreenSize()).width
-					- size_x;
-		} catch (Exception e) {
-			text_x = 0;
-		}
-		try {
-			text_y = (java.awt.Toolkit.getDefaultToolkit().getScreenSize()).height
-					- size_y;
-		} catch (Exception e) {
-			text_y = 0;
-		}
-		textWindow.setBounds(text_x, text_y - 25, size_x, size_y);
-		//textWindow.setAlwaysOnTop(true);  $$$$$$ silenced on Mar 18
-		textWindow.pack();
-		textWindow.setVisible(true);
-		//textWindow.toFront();  // silenced on Mar 14
-		*/
-		uiPipe.setTickField(tickField);
 
-		// $$$$$$ Implemented specially for Linux to show inputting numbers in the box after "Stop at".  Mar 20.
-		tickField.addTextListener(new java.awt.event.TextListener() {
-			//@To Override, need delete the following method first, then "Quick fix".
-			public void textValueChanged(TextEvent e) {
-				tickField.repaint();
-			}
-		});
 		tickField.addFocusListener(new java.awt.event.FocusAdapter(){
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -578,6 +568,14 @@ public class CobwebApplication extends java.awt.Frame {
 		displayPanel.addMouseListener(mymouse);
 		displayPanel.addMouseMotionListener(mymouse);
 		//addMouseListener(mymouse);  // $$$$$$ do not know what for. silenced on Apr 1
+
+		uiPipe.setTickField(tickField);
+
+		uiPipe.AddTickEventListener(new TickEventListener() {
+			public void TickPerformed(long currentTick) {
+				tickDisplay.setText("Tick: " + Long.toString(currentTick) + "  ");
+			}
+		});
 
 		uiPipe.setPauseButton(pauseButton); // $$$$$$ Mar 20
 
@@ -1217,7 +1215,7 @@ public class CobwebApplication extends java.awt.Frame {
 	public void aboutDialog() {
 		final javax.swing.JDialog whatDialog = new javax.swing.JDialog(GUI.frame,  // $$$$$$ change from java.awt.Dialog mult.  Feb 18
 				"About Cobweb", true);								   // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
-		whatDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
+		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
 		java.awt.Panel info = new java.awt.Panel();
 		info.add(new java.awt.Label("Cobweb 2003/2004"));
 		info.add(new java.awt.Label(""));
@@ -1243,7 +1241,7 @@ public class CobwebApplication extends java.awt.Frame {
 	public void creditsDialog() {
 		final javax.swing.JDialog theDialog = new javax.swing.JDialog(GUI.frame, "Credits",  // $$$$$$ change from java.awt.Dialog mult.  Feb 18
 				true);								  				  // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
-		theDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
+		theDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
 		@SuppressWarnings("unused")
 		java.awt.Panel info = new java.awt.Panel();
 		java.awt.Panel credit = new java.awt.Panel();
@@ -1349,7 +1347,7 @@ public class CobwebApplication extends java.awt.Frame {
 		pauseAt = new int[maxfiles];
 		final javax.swing.JDialog mult = new javax.swing.JDialog(this,  // $$$$$$ change from java.awt.Dialog mult.  Feb 14
 				"Multiple File Setting", false);				 // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
-		mult.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 14
+		mult.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 14
 		final JTextField jtf = new JTextField(20);
 		final JTextField num_ticks = new JTextField(6);
 		num_ticks.setText("100");
@@ -1618,17 +1616,13 @@ public class CobwebApplication extends java.awt.Frame {
 		}
 
 		Parser prsfile = new Parser(filename);
-		if (prsfile != null && step.intValue() >= 0) {
+		if (step.intValue() >= 0) {
 			prsNames[filecount] = prsfile;
 			pauseAt[filecount] = step.intValue();
 			filecount++;
 			return 1;
-
-		} else if (prsfile == null) {
-			return 0;
-		} else {
-			return -1;
 		}
+		return -1;
 	}
 
 	public int getFileCount() {  // changed from filecount().  Feb 18
@@ -1649,39 +1643,18 @@ public class CobwebApplication extends java.awt.Frame {
 	}
 
 	/* NEWWW */
-	private class Mouse extends MouseAdapter implements MouseListener,
-			MouseMotionListener {
-		Mouse() {
-		}
-
-		/* NEW */
-		@Override
-		public void mouseEntered(MouseEvent e) {
-			//convertCoords(e.getX(), e.getY());  // $$$$$$ silenced on Mar 28
-		}
-
-		@Override
-		public void mouseExited(MouseEvent e) {
-		}
-
-		@Override
-		public void mousePressed(MouseEvent e) {
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			convertCoords(e.getX(), e.getY());
-		}
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-		}
+	private class Mouse extends MouseAdapter {
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
 			if (mode != 0) {
 				convertCoords(e.getX(), e.getY());  // $$$$$$ no need for observation mode.  Mar 28
 			}
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			convertCoords(e.getX(), e.getY());
 		}
 
 		int storedX = -1;
@@ -1703,14 +1676,13 @@ public class CobwebApplication extends java.awt.Frame {
 								+ displayPanel.getBorderWidth()
 						&&
 						/* Check the y-axis bounds */
-						y >= 17 + displayPanel.getBorderHeight()
-						&& y < 17
-								+ (displayPanel.getTileH() * displayPanel
+						y >= displayPanel.getBorderHeight()
+						&& y < (displayPanel.getTileH() * displayPanel
 										.getHeightInTiles())
 								+ displayPanel.getBorderHeight()) {
 					realX = (x - displayPanel.getBorderWidth())
 							/ displayPanel.getTileW();
-					realY = (y - displayPanel.getBorderHeight() - 17)
+					realY = (y - displayPanel.getBorderHeight())
 							/ displayPanel.getTileH();
 					// Avoid flickering
 					if (storedX != realX || storedY != realY

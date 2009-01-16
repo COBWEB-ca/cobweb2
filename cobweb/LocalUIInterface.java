@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JTextField;
+
 import cobweb.Environment.EnvironmentStats;
 import cwcore.ComplexEnvironment;
 import driver.Parser;
@@ -36,7 +38,7 @@ public class LocalUIInterface implements UIInterface,
 
 	/**
 	 * Is the simulation paused? Calls isSchedulerPaused on the scheduler.
-	 * 
+	 *
 	 * @return the paused state flag of the simulation
 	 */
 	public boolean isPaused() {
@@ -80,31 +82,29 @@ public class LocalUIInterface implements UIInterface,
 
 	/**
 	 * Returns the width, in tiles, of the environment.
-	 * 
+	 *
 	 * @return 0 if there is no valid frame data, otherwise returns the width of
 	 *         the frame data.
 	 */
 
 	public int getWidth() {
-		if (theDrawingInfo == null)
+		if (theDrawingInfo == null) {
 			return 0;
-
-		else {
+		} else {
 			return theDrawingInfo.width;
 		}
 	}
 
 	/**
 	 * Returns the height, in tiles, of the environment.
-	 * 
+	 *
 	 * @return 0 if there is no valid frame data, otherwise returns the height
 	 *         of the frame data.
 	 */
 	public int getHeight() {
-		if (theDrawingInfo == null)
+		if (theDrawingInfo == null) {
 			return 0;
-
-		else {
+		} else {
 			return theDrawingInfo.height;
 		}
 	}
@@ -113,7 +113,7 @@ public class LocalUIInterface implements UIInterface,
 	 * Inform the UI that new frame data is available. Calls getDrawInfo on the
 	 * environment, then informs the client that the frame data has been
 	 * updated.
-	 * 
+	 *
 	 * @param timeout
 	 *            the number of milliseconds to wait for a draw call to
 	 *            complete. Negative values mean don't wait, and a value of 0
@@ -129,16 +129,17 @@ public class LocalUIInterface implements UIInterface,
 			// a race condition between the UI thread that refreshes and this
 			// thread
 			// which waits for the refresh.
-			if (timeout >= 0)
+			if (timeout >= 0) {
 				waitForRefresh(timeout);
-			else
+			} else {
 				theClient.refresh(this);
+			}
 		}
 	}
 
 	/**
 	 * Display the most recent frame data.
-	 * 
+	 *
 	 * @param g
 	 *            Graphics to render to
 	 * @param tileWidth
@@ -147,8 +148,9 @@ public class LocalUIInterface implements UIInterface,
 	 *            height, in pixels, of a single tile
 	 */
 	public void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
-		if (theDrawingInfo != null)
+		if (theDrawingInfo != null) {
 			theDrawingInfo.draw(g, tileWidth, tileHeight);
+		}
 		// Don't synchronize the whole method; drawing could take a while,
 		// and the wait in refresh might want to acquire the monitor on a
 		// timeout.
@@ -159,14 +161,15 @@ public class LocalUIInterface implements UIInterface,
 	 * Returns the tick count for the most recent frame data.
 	 */
 	public long getTime() {
-		if (theDrawingInfo == null)
+		if (theDrawingInfo == null) {
 			return 0;
+		}
 		return theDrawingInfo.getTime();
 	}
 
 	/**
 	 * Save the state of the simulation.
-	 * 
+	 *
 	 * @see cobweb.UIInterface#save
 	 */
 	// $$$$$ Method save used to be invoked by the now silenced method CobwebApplication.saveFile
@@ -177,11 +180,12 @@ public class LocalUIInterface implements UIInterface,
 		boolean pauseState = isPaused();
 
 		// Pause, if needed
-		if (!pauseState)
+		if (!pauseState) {
 			pause();
+		}
 
 		// Save the scheduler: blocks for appropriate timing
-		theScheduler.saveScheduler(outStream);  
+		theScheduler.saveScheduler(outStream);
 
 		// Save the environment
 		theEnvironment.save(outStream);
@@ -190,8 +194,9 @@ public class LocalUIInterface implements UIInterface,
 		outStream.close();
 
 		// Resume, if needed
-		if (!pauseState)
+		if (!pauseState) {
 			resume();
+		}
 	}
 
 	public void report(String filePath) throws java.io.IOException {
@@ -201,8 +206,9 @@ public class LocalUIInterface implements UIInterface,
 		boolean pauseState = isPaused();
 
 		// Pause, if needed
-		if (!pauseState)
+		if (!pauseState) {
 			pause();
+		}
 
 		// Save the environment
 		theEnvironment.report(outStream);
@@ -211,13 +217,14 @@ public class LocalUIInterface implements UIInterface,
 		outStream.close();
 
 		// Resume, if needed
-		if (!pauseState)
+		if (!pauseState) {
 			resume();
+		}
 	}
 
 	/**
 	 * Set the log file.
-	 * 
+	 *
 	 * @see cobweb.UIInterface#log
 	 */
 	public void log(String filePath) throws java.io.IOException {
@@ -234,19 +241,20 @@ public class LocalUIInterface implements UIInterface,
 		theEnvironment.writeLogEntry();
 	}
 
-	public void setTickField(java.awt.TextField tickField) {
+	public void setTickField(JTextField tickField) {
 		field = tickField;
 	}
 
 	/**
 	 * @return TextField TickField
 	 */
-	public java.awt.TextField getTickField() {
-		if (field != null)
+	public JTextField getTickField() {
+		if (field != null) {
 			return field; // return the TickField instance
-		else
-			return new java.awt.TextField(); // return a new "blank" instance
+		} else {
+			return new JTextField(); // return a new "blank" instance
 												// of TextField
+		}
 	}
 
 	public int getTick() {
@@ -443,8 +451,9 @@ public class LocalUIInterface implements UIInterface,
 				g.setColor(action);
 				g.drawPolygon(xPts, yPts, 3);
 			}
-			if (next != null)
+			if (next != null) {
 				next.draw(g, tileWidth, tileHeight);
+			}
 		}
 	}
 
@@ -476,12 +485,12 @@ public class LocalUIInterface implements UIInterface,
 
 	/**
 	 * Construct a LocalUIInterface from a specified state file URL.
-	 * 
+	 *
 	 * Any failure to load the state file, either from file/network input
 	 * errors, a badly formed state file, or a class specified in the data file
 	 * being unknown will result in a InstantiationError being thrown with a
 	 * descriptive and appropriate message string.
-	 * 
+	 *
 	 * @param client
 	 *            the UIClient to notify of new frame data.
 	 * @param fileIn
@@ -555,10 +564,10 @@ public class LocalUIInterface implements UIInterface,
 					}
 				}
 			}
-			if (environmentCtor == null)
+			if (environmentCtor == null) {
 				throw new InstantiationError(
 						"No valid constructor found on environment class.");
-			else {
+			} else {
 				theEnvironment = (Environment) environmentCtor
 						.newInstance(new Object[] { theScheduler, p });
 			}
@@ -590,24 +599,26 @@ public class LocalUIInterface implements UIInterface,
 				this.resume();
 			}
 		}
-		if (pauseAt != null && files >= pauseAt.length)
+		if (pauseAt != null && files >= pauseAt.length) {
 			this.pause();
-		
+		}
+
 		for (TickEventListener listener : tickListeners) {
 			listener.TickPerformed(tickCount);
 		}
 	}
-	
-	private Set<TickEventListener> tickListeners = new HashSet<TickEventListener>();
-	
+
+	private final Set<TickEventListener> tickListeners = new HashSet<TickEventListener>();
+
 	public interface TickEventListener {
 		public void TickPerformed(long currentTick);
 	}
-	
+
 	public void AddTickEventListener(TickEventListener listener) {
 		tickListeners.add(listener);
+		listener.TickPerformed(tickcounter);
 	}
-	
+
 	public void RemoveTickEventListener(TickEventListener listener) {
 		tickListeners.remove(listener);
 	}
@@ -648,12 +659,13 @@ public class LocalUIInterface implements UIInterface,
 					}
 				}
 			}
-			if (theCtor == null)
+			if (theCtor == null) {
 				throw new InstantiationError(
 						"Correct constructor not found in " + schedulerName);
-			else
+			} else {
 				theScheduler = (Scheduler) theCtor.newInstance(new Object[] {
 						this, p /* fileIn */});
+			}
 		} catch (SecurityException e) {
 			throw new InstantiationError(e.toString());
 		} catch (InstantiationException e) {
@@ -669,7 +681,7 @@ public class LocalUIInterface implements UIInterface,
 
 	/**
 	 * Notify the simulation of a completed draw call. Private helper to draw.
-	 * 
+	 *
 	 * @see cobweb.LocalUIInterface#draw
 	 */
 	private synchronized void doRefreshNotification() {
@@ -679,16 +691,17 @@ public class LocalUIInterface implements UIInterface,
 	/**
 	 * Wait at most timeout ms for a refresh notification. Private helper to
 	 * refresh.
-	 * 
+	 *
 	 * @see cobweb.LocalUIInterface#refresh
 	 */
 	private synchronized void waitForRefresh(long timeout) {
 		theClient.refresh(this);
 		try {
-			if (timeout == 0)
+			if (timeout == 0) {
 				wait();
-			else
+			} else {
 				wait(timeout);
+			}
 		} catch (InterruptedException e) {
 		}
 	}
@@ -711,7 +724,7 @@ public class LocalUIInterface implements UIInterface,
 
 	private int RequestedTick = 0;
 
-	private java.awt.TextField field;
+	private JTextField field;
 
 	public int count = 0;
 
@@ -730,10 +743,10 @@ public class LocalUIInterface implements UIInterface,
 	private int totalfilenum = 0;
 
 	private long tickcounter = 0;
-	
-	
+
+
 	private driver.PauseButton pauseButton;  // $$$$$$ Mar 20
-	
+
 	// $$$$$$ Get/Set Pause Button.  Mar 20
 	public driver.PauseButton getPauseButton() {
 		return pauseButton;
@@ -741,7 +754,7 @@ public class LocalUIInterface implements UIInterface,
 	public void setPauseButton(driver.PauseButton pb) {
 		pauseButton = pb;
 	}
-	
+
 	public EnvironmentStats getStatistics() {
 		return theEnvironment.getStatistics();
 	}

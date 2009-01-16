@@ -4,11 +4,12 @@
 package driver;
 
 import java.awt.BorderLayout;
-import java.awt.TextField;
+import java.awt.Dimension;
 import java.awt.event.FocusEvent;
-import java.awt.event.TextEvent;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import cobweb.LocalUIInterface;
 import cobweb.Environment.EnvironmentStats;
@@ -21,9 +22,6 @@ import cobweb.LocalUIInterface.TickEventListener;
  *
  */
 public class SimulatorUI extends JPanel {
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 2671092780367865697L;
 
 	private final LocalUIInterface uiPipe;
@@ -32,13 +30,9 @@ public class SimulatorUI extends JPanel {
 		uiPipe.AddTickEventListener(listener);
 	}
 
-
-
 	public void RemoveTickEventListener(TickEventListener listener) {
 		uiPipe.RemoveTickEventListener(listener);
 	}
-
-
 
 	private DisplayPanel displayPanel;
 
@@ -46,76 +40,87 @@ public class SimulatorUI extends JPanel {
 
 	private StepButton stepButton;
 
-	public TextField tickField;
+	public JTextField tickField;
+
+	public JLabel tickDisplay;
 
 
 	public SimulatorUI(Parser p) {
 		uiPipe = new LocalUIInterface(new CobwebUIClient(), p);
 		setLayout(new BorderLayout());
 
-		UIsettings(uiPipe);
+		setupUI();
 
 		this.add(displayPanel);
-
-		
 	}
 
-	
-	
 	public EnvironmentStats getStatistics() {
 		return uiPipe.getStatistics();
 	}
 
-	public void UIsettings(cobweb.UIInterface uiPipe) {
+	public void setupUI() {
+
+		setLayout(new BorderLayout());
+
+		JPanel controls = new JPanel();
 
 		uiPipe.setRefreshTimeout(100);
 		uiPipe.setFrameSkip(0);
 		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(uiPipe, 10, 20);
+			displayPanel = new DisplayPanel(uiPipe, 10, 10);
 		} else {
 			displayPanel.setUI(uiPipe);
 		}
 
+		add(controls, BorderLayout.NORTH);
+		add(displayPanel, BorderLayout.CENTER);
 
-		add(displayPanel, "Center");
+		if (tickDisplay == null) {
+			tickDisplay = new JLabel();
+
+			controls.add(tickDisplay);
+			tickDisplay.setPreferredSize(new Dimension(90, 20));
+		}
 		if (tickField == null) {
-			displayPanel.add(new java.awt.Label("Stop at"));
-			tickField = new java.awt.TextField(8);
-			displayPanel.add(tickField);
+			controls.add(new JLabel("Stop at"));
+			tickField = new JTextField(8);
+
+			controls.add(tickField);
+
+			tickField.setMinimumSize(new Dimension(20, 20));
+			tickField.setPreferredSize(new Dimension(20, 20));
 		}
 
 		if (pauseButton == null) {
 			pauseButton = new PauseButton(uiPipe);
-			displayPanel.add(pauseButton, "North");
+			controls.add(pauseButton);
 			stepButton = new StepButton(uiPipe);
-			displayPanel.add(stepButton/* , "North" */);
+			controls.add(stepButton);
+			controls.add(new JLabel(" Speed:"));
 			MyScrollbar sb = new MyScrollbar(uiPipe);
-			displayPanel.add(new java.awt.Label("   Adjust Speed:"));
-			displayPanel.add(sb);
+			controls.add(sb);
 		} else {
 			pauseButton.setUI(uiPipe);
 		}
 
 		if (stepButton == null) {
 			pauseButton = new PauseButton(uiPipe);
-			displayPanel.add(pauseButton, "North");
+			controls.add(pauseButton);
 			stepButton = new StepButton(uiPipe);
-			displayPanel.add(stepButton);
+			controls.add(stepButton);
+			controls.add(new JLabel("   Adjust Speed:"));
 			MyScrollbar sb = new MyScrollbar(uiPipe);
-			displayPanel.add(new java.awt.Label("   Adjust Speed:"));
-			displayPanel.add(sb);
+			controls.add(sb);
 		} else {
 			stepButton.setUI(uiPipe);
 		}
 
 		uiPipe.setTickField(tickField);
 
+		AddTickEventListener(new TickEventListener() {
 
-		// $$$$$$ Implemented specially for Linux to show inputting numbers in the box after "Stop at".  Mar 20.
-		tickField.addTextListener(new java.awt.event.TextListener() {
-			//@To Override, need delete the following method first, then "Quick fix".
-			public void textValueChanged(TextEvent e) {
-				tickField.repaint();
+			public void TickPerformed(long currentTick) {
+				tickDisplay.setText("Tick: " + Long.toString(currentTick) + "  ");
 			}
 		});
 
@@ -132,11 +137,11 @@ public class SimulatorUI extends JPanel {
 
 		//TODO: use mouse to click on grid
 
-		uiPipe.setPauseButton(pauseButton); // $$$$$$ Mar 20
+		uiPipe.setPauseButton(pauseButton);
 
 		validate();
 		uiPipe.start();
-	} // end of UISettings
+	}
 
 
 

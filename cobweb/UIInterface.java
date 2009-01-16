@@ -2,18 +2,18 @@ package cobweb;
 
 /**	The UIInterface is the "pipe" between the user interface and the simulation classes;
  it is also the top-level interface to the simulation.
- 
+
  The Driver (main in an application, or the applet) should create a derivative of
  UIInterface to initialize the system as appropriate for the context; a LocalUIInterface
  exists for a single application simulation, and a ClientInterface could be implemented
  to connect to a ServerInterface over TCP/IP.
- 
+
  By forcing all communication between the UI and the simulation into the pipe formed
  by this class, the seperation between the two modules is made manifest in the code,
- and practically speaking, the UIInterface can be implemented so as to allow for a 
+ and practically speaking, the UIInterface can be implemented so as to allow for a
  transparent TCP/IP layer, thereby allowing a client/server variant of Cobweb
  to be developed trivially.
- 
+
  Note that UIInterface is only an Interface; all UI and simulation code should be
  written in terms of this interface, and not a specific derivative.  However, the
  driver will need to create a subclass of UIInterface.  The driver should immediately
@@ -22,10 +22,13 @@ package cobweb;
  UIInterface theUI = new SpecificUIType(param, param, param);
  Thus the SpecificUIType is only used in the creation of the UIInterface, and is
  immediately forgotten, treated simply as a UIInterface from then on.
- 
- @see cobweb.LocalUIInterface	
+
+ @see cobweb.LocalUIInterface
  */
 
+import javax.swing.JTextField;
+
+import cobweb.LocalUIInterface.TickEventListener;
 import driver.Parser;
 
 public interface UIInterface {
@@ -37,7 +40,7 @@ public interface UIInterface {
 	public static interface UIClient {
 		/**
 		 * Notification that the UIInterface has new frame data.
-		 * 
+		 *
 		 * @param theInterface
 		 *            the UIInterface with new frame data
 		 */
@@ -56,13 +59,13 @@ public interface UIInterface {
 	 * Dispose of the simulation. Call this before disposing of the UI.
 	 */
 	public void killScheduler();
-	
-	
+
+
 	// $$$$$$ Get/Set Pause Button.  Mar 20
 	public driver.PauseButton getPauseButton() ;
-	
+
 	public void setPauseButton(driver.PauseButton pb);
-	
+
 
 	/**
 	 * Query the pause state of the simulation.
@@ -86,7 +89,7 @@ public interface UIInterface {
 	 * for the client to process the frame, while a negative refresh timeout
 	 * will cause the simulation to run without waiting for the client to handle
 	 * the frame data at all.
-	 * 
+	 *
 	 * @param tm
 	 *            the number of milliseconds to delay
 	 */
@@ -99,7 +102,7 @@ public interface UIInterface {
 	 * high value is useful in a simulation with little activity in a single
 	 * frame, or to speed up a simulation that is stalled on graphics
 	 * performance.
-	 * 
+	 *
 	 * @param frameSkip
 	 *            the number of frames to drop between refresh calls
 	 */
@@ -117,7 +120,7 @@ public interface UIInterface {
 
 	/**
 	 * Inform the UI of a new tile color array.
-	 * 
+	 *
 	 * @param tileColors
 	 *            a width * height array of tile colors.
 	 */
@@ -125,7 +128,7 @@ public interface UIInterface {
 
 	/**
 	 * Inform the UI of the visual state of an agent.
-	 * 
+	 *
 	 * @param agentColor
 	 *            the color of the agent.
 	 * @param position
@@ -145,7 +148,7 @@ public interface UIInterface {
 	/**
 	 * Inform the UI that new frame data is available. Calls getDrawInfo on the
 	 * environment to refresh the frame info for the UI.
-	 * 
+	 *
 	 * @param timeout
 	 *            the number of milliseconds to wait for completion of a draw
 	 *            call. Negative values mean don't wait, and a value of 0 means
@@ -155,7 +158,7 @@ public interface UIInterface {
 
 	/**
 	 * Display the most recent frame data.
-	 * 
+	 *
 	 * @param g
 	 *            Graphics to render to
 	 * @param tileWidth
@@ -206,12 +209,12 @@ public interface UIInterface {
 	 * set the tick number where the application will pause. tickfield obtained
 	 * from the user. See CobwebApplication
 	 */
-	public void setTickField(java.awt.TextField tickField);
+	public void setTickField(JTextField tickField);
 
 	/*
 	 * get the text field that holds the tick value
 	 */
-	public java.awt.TextField getTickField();
+	public JTextField getTickField();
 
 	/*
 	 * for interactive component selection : (int x, int y) location of the
@@ -236,4 +239,8 @@ public interface UIInterface {
 	public void addTextArea(java.awt.TextArea ta);
 
 	public void reset();
+
+	public void AddTickEventListener(TickEventListener listener);
+
+	public void RemoveTickEventListener(TickEventListener listener);
 }

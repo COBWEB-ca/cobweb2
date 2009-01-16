@@ -8,18 +8,18 @@ public class parseClass {
 	 * string indicate the end of the input, and a hashtable containing 1
 	 * dimensional arrays that can be arrays of anything (including arrays)
 	 * using strings as keys.
-	 * 
+	 *
 	 * The file is scanned for these keys, and for each one, parseLoad
 	 * determines what type of data is associated with that name and attemps to
 	 * read the next token of input as a value for that parameter. Unrecognized
 	 * strings or parameters not given the proper type of values will throw
 	 * exceptions.
-	 * 
+	 *
 	 * The special parameter is "Index" which can be used to specify what array
 	 * indices, if any, are used when the subsequent parameter are arrays (which
 	 * is the case with all agent-type dependant parameters).
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public static void parseLoad(java.io.Reader r, String endString,
 			java.util.Hashtable<String, Object> parseData) throws java.io.IOException,
@@ -28,13 +28,15 @@ public class parseClass {
 		java.io.StreamTokenizer inTokens = new java.io.StreamTokenizer(r);
 
 		int[] indexStore = new int[256];
-		for (int i = 0; i < 256; ++i)
+		for (int i = 0; i < 256; ++i) {
 			indexStore[i] = 0;
+		}
 
 		try {
 			while (true) {
-				if (inTokens.nextToken() != java.io.StreamTokenizer.TT_WORD)
+				if (inTokens.nextToken() != java.io.StreamTokenizer.TT_WORD) {
 					throw new java.io.IOException();
+				}
 
 				if (inTokens.sval.equalsIgnoreCase("Index")) {
 					for (int j = 0; inTokens.nextToken() == java.io.StreamTokenizer.TT_NUMBER
@@ -57,30 +59,34 @@ public class parseClass {
 					}
 
 					if (theDest.getClass().getComponentType().equals(int.class)) {
-						if (inTokens.nextToken() != java.io.StreamTokenizer.TT_NUMBER)
+						if (inTokens.nextToken() != java.io.StreamTokenizer.TT_NUMBER) {
 							throw new java.io.IOException(
 									"Expected number for " + varName);
+						}
 						java.lang.reflect.Array.setInt(theDest, idx,
 								(int) inTokens.nval);
 					} else if (theDest.getClass().getComponentType().equals(
 							long.class)) {
-						if (inTokens.nextToken() != java.io.StreamTokenizer.TT_NUMBER)
+						if (inTokens.nextToken() != java.io.StreamTokenizer.TT_NUMBER) {
 							throw new java.io.IOException(
 									"Expected number for " + varName);
+						}
 						java.lang.reflect.Array.setLong(theDest, idx,
 								(long) inTokens.nval);
 					} else if (theDest.getClass().getComponentType().equals(
 							float.class)) {
-						if (inTokens.nextToken() != java.io.StreamTokenizer.TT_NUMBER)
+						if (inTokens.nextToken() != java.io.StreamTokenizer.TT_NUMBER) {
 							throw new java.io.IOException(
 									"Expected number for " + varName);
+						}
 						java.lang.reflect.Array.setFloat(theDest, idx,
 								(float) inTokens.nval);
 					} else if (theDest.getClass().getComponentType().equals(
 							boolean.class)) {
-						if (inTokens.nextToken() != java.io.StreamTokenizer.TT_WORD)
+						if (inTokens.nextToken() != java.io.StreamTokenizer.TT_WORD) {
 							throw new java.io.IOException(
 									"Expected boolean for " + varName);
+						}
 						java.lang.reflect.Array.setBoolean(theDest, idx,
 								Boolean.valueOf(inTokens.sval).booleanValue());
 					} else {
@@ -100,27 +106,28 @@ public class parseClass {
 								break;
 							}
 						}
-						if (theCtor == null)
+						if (theCtor == null) {
 							throw new InstantiationError(
 									"No valid constructor found on the "
 											+ arrayDest[0].getClass().getName()
 											+ " class.");
-						else {
-							// the following code is a little hackish because
-							// java.io.StreamTokenizer was badly written (when
-							// in doubt, blame someone else)
-							if (inTokens.nextToken() == java.io.StreamTokenizer.TT_WORD)
-								arrayDest[idx] = theCtor
-										.newInstance(new Object[] { inTokens.sval });
-							else if (theDest.getClass().getComponentType()
-									.equals(Integer.class))
-								arrayDest[idx] = theCtor
-										.newInstance(new Object[] { Integer
-												.toString((int) inTokens.nval) });
-							else
-								arrayDest[idx] = theCtor
-										.newInstance(new Object[] { Double
-												.toString(inTokens.nval) });
+						}
+
+						// the following code is a little hackish because
+						// java.io.StreamTokenizer was badly written (when
+						// in doubt, blame someone else)
+						if (inTokens.nextToken() == java.io.StreamTokenizer.TT_WORD) {
+							arrayDest[idx] = theCtor
+									.newInstance(new Object[] { inTokens.sval });
+						} else if (theDest.getClass().getComponentType()
+								.equals(Integer.class)) {
+							arrayDest[idx] = theCtor
+									.newInstance(new Object[] { Integer
+											.toString((int) inTokens.nval) });
+						} else {
+							arrayDest[idx] = theCtor
+									.newInstance(new Object[] { Double
+											.toString(inTokens.nval) });
 						}
 
 					}
@@ -155,12 +162,12 @@ public class parseClass {
 	 * of value), an array of indices to use assuming the given objects are all
 	 * arrays, and finally the number of indices to use (indicating array
 	 * dimension)
-	 * 
+	 *
 	 * It outputs appropriate "Index" changes before parameters that need them,
 	 * and tries to output all of data in order of array dimension (a non-array
 	 * being considered an array of dimension 0) in order to minimize the number
 	 * of times "Index" must be used.
-	 * 
+	 *
 	 */
 	public static void parseSave(java.io.PrintWriter pw, Object[] saveArray,
 			String[] names, int[] indices, int indCount)
@@ -171,18 +178,20 @@ public class parseClass {
 
 		if (indCount > 0) {
 			pw.print("Index");
-			for (int i = 0; i < indCount; ++i)
+			for (int i = 0; i < indCount; ++i) {
 				pw.print(" " + indices[i]);
+			}
 			pw.println("");
 			pw.println("");
 		}
 
 		for (int i = 0; i < saveArray.length; i++) {
 
-			if (saveArray[i].getClass().isArray())
+			if (saveArray[i].getClass().isArray()) {
 				store[k++] = i;
-			else
+			} else {
 				pw.println(names[i] + " " + saveArray[i]);
+			}
 		}
 		pw.println("");
 
@@ -190,12 +199,15 @@ public class parseClass {
 
 			int l = 0;
 
-			for (int j = 0; j < k; ++j)
-				if (java.lang.reflect.Array.getLength(saveArray[store[j]]) > i)
+			for (int j = 0; j < k; ++j) {
+				if (java.lang.reflect.Array.getLength(saveArray[store[j]]) > i) {
 					store[l++] = store[j];
+				}
+			}
 
-			if ((k = l) == 0)
+			if ((k = l) == 0) {
 				break;
+			}
 
 			Object[] saveArrayElements = new Object[l];
 			String[] nameElements = new String[l];
