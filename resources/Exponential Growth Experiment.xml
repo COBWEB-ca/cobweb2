@@ -6,7 +6,7 @@
 	<Height>50</Height>
 	<wrap>false</wrap>
 	<PrisDilemma>false</PrisDilemma>
-	<randomStones>200</randomStones>
+	<randomStones>150</randomStones>
 	<maxFoodChance>0.01</maxFoodChance>
 	<keepOldAgents>false</keepOldAgents>
 	<spawnNewAgents>true</spawnNewAgents>

@@ -198,8 +198,8 @@ public class Parser {
 	 * agents.
 	 */
 	public String[][] genetic_sequence = { { "000111100001111000011110",
-			"000111100001111000011110", "000111100001111000011110",
-			"000111100001111000011110", "", "", "", "", "", "" } };
+		"000111100001111000011110", "000111100001111000011110",
+		"000111100001111000011110", "", "", "", "", "", "" } };
 
 	java.util.Hashtable<String, Object> parseData;
 
@@ -250,8 +250,7 @@ public class Parser {
 
 		int foodType = 0;
 		int agentType = 0;
-		NodeList project = domNode.getChildNodes(); // the project inside the
-													// document
+		NodeList project = domNode.getChildNodes(); // the project inside the document
 		String nodeName2;
 
 		NodeList nodeChildren = project.item(0).getChildNodes();
@@ -270,159 +269,108 @@ public class Parser {
 					} else if (nodeName2.equals("agent1gene1")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_1_ROW, GUI.GA_GENE_1_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
+								GUI.GA_AGENT_1_ROW, GUI.GA_GENE_1_COL); // Set the GUI GA table.
 						genetic_sequence[0][GA_AGENT_1] = nodeValue
-								+ genetic_sequence[0][GA_AGENT_1]
-										.substring(GA_START_OF_SECOND_GENE);
+						+ genetic_sequence[0][GA_AGENT_1].substring(GA_START_OF_SECOND_GENE);
 					} else if (nodeName2.equals("agent1gene2")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_1_ROW, GUI.GA_GENE_2_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
-						genetic_sequence[0][GA_AGENT_1] = genetic_sequence[0][GA_AGENT_1]
-								.substring(GA_START_OF_FIRST_GENE,
-										GA_START_OF_SECOND_GENE)
-								+ nodeValue
-								+ genetic_sequence[0][GA_AGENT_1]
-										.substring(GA_START_OF_THIRD_GENE);
+								GUI.GA_AGENT_1_ROW, GUI.GA_GENE_2_COL); // Set the GUI GA table.
+						genetic_sequence[0][GA_AGENT_1] =
+							genetic_sequence[0][GA_AGENT_1]
+							                    .substring(GA_START_OF_FIRST_GENE,
+							                    		GA_START_OF_SECOND_GENE)
+							                    		+ nodeValue
+							                    		+ genetic_sequence[0][GA_AGENT_1]
+							                    		                      .substring(GA_START_OF_THIRD_GENE);
 					} else if (nodeName2.equals("agent1gene3")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_1_ROW, GUI.GA_GENE_3_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
+								GUI.GA_AGENT_1_ROW, GUI.GA_GENE_3_COL); // Set the GUI GA table.
 						genetic_sequence[0][GA_AGENT_1] = genetic_sequence[0][GA_AGENT_1]
-								.substring(GA_START_OF_FIRST_GENE,
-										GA_START_OF_THIRD_GENE)
-								+ nodeValue;
+						                                                      .substring(GA_START_OF_FIRST_GENE,
+						                                                    		  GA_START_OF_THIRD_GENE)
+						                                                    		  + nodeValue;
 					} else if (nodeName2.equals("agent2gene1")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_2_ROW, GUI.GA_GENE_1_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
+								GUI.GA_AGENT_2_ROW, GUI.GA_GENE_1_COL); // Set the GUI GA table.
 						genetic_sequence[0][GA_AGENT_2] = nodeValue
-								+ genetic_sequence[0][GA_AGENT_2]
-										.substring(GA_START_OF_SECOND_GENE);
+						+ genetic_sequence[0][GA_AGENT_2]
+						                      .substring(GA_START_OF_SECOND_GENE);
 					} else if (nodeName2.equals("agent2gene2")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_2_ROW, GUI.GA_GENE_2_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
+								GUI.GA_AGENT_2_ROW, GUI.GA_GENE_2_COL); // Set the GUI GA table.
 						genetic_sequence[0][GA_AGENT_2] = genetic_sequence[0][GA_AGENT_2]
-								.substring(GA_START_OF_FIRST_GENE,
-										GA_START_OF_SECOND_GENE)
-								+ nodeValue
-								+ genetic_sequence[0][GA_AGENT_2]
-										.substring(GA_START_OF_THIRD_GENE);
+						                                                      .substring(GA_START_OF_FIRST_GENE,
+						                                                    		  GA_START_OF_SECOND_GENE)
+						                                                    		  + nodeValue
+						                                                    		  + genetic_sequence[0][GA_AGENT_2]
+						                                                    		                        .substring(GA_START_OF_THIRD_GENE);
 					} else if (nodeName2.equals("agent2gene3")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_2_ROW, GUI.GA_GENE_3_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
+								GUI.GA_AGENT_2_ROW, GUI.GA_GENE_3_COL); // Set the GUI GA table.
 						genetic_sequence[0][GA_AGENT_2] = genetic_sequence[0][GA_AGENT_2]
-								.substring(GA_START_OF_FIRST_GENE,
-										GA_START_OF_THIRD_GENE)
-								+ nodeValue;
+						                                                      .substring(GA_START_OF_FIRST_GENE,
+						                                                    		  GA_START_OF_THIRD_GENE)
+						                                                    		  + nodeValue;
 					} else if (nodeName2.equals("agent3gene1")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_3_ROW, GUI.GA_GENE_1_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
+								GUI.GA_AGENT_3_ROW, GUI.GA_GENE_1_COL); // Set the GUI GA table.
 						genetic_sequence[0][GA_AGENT_3] = nodeValue
-								+ genetic_sequence[0][GA_AGENT_3]
-										.substring(GA_START_OF_SECOND_GENE);
+						+ genetic_sequence[0][GA_AGENT_3]
+						                      .substring(GA_START_OF_SECOND_GENE);
 					} else if (nodeName2.equals("agent3gene2")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_3_ROW, GUI.GA_GENE_2_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
-						genetic_sequence[0][GA_AGENT_3] = genetic_sequence[0][GA_AGENT_3]
-								.substring(GA_START_OF_FIRST_GENE,
-										GA_START_OF_SECOND_GENE)
-								+ nodeValue
-								+ genetic_sequence[0][GA_AGENT_3]
-										.substring(GA_START_OF_THIRD_GENE);
+								GUI.GA_AGENT_3_ROW, GUI.GA_GENE_2_COL); // Set the GUI GA table.
+						genetic_sequence[0][GA_AGENT_3] =
+							genetic_sequence[0][GA_AGENT_3]
+							                    .substring(GA_START_OF_FIRST_GENE,
+							                    		GA_START_OF_SECOND_GENE)
+							                    		+ nodeValue
+							                    		+ genetic_sequence[0][GA_AGENT_3]
+							                    		                      .substring(GA_START_OF_THIRD_GENE);
 					} else if (nodeName2.equals("agent3gene3")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_3_ROW, GUI.GA_GENE_3_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
-						genetic_sequence[0][GA_AGENT_3] = genetic_sequence[0][GA_AGENT_3]
-								.substring(GA_START_OF_FIRST_GENE,
-										GA_START_OF_THIRD_GENE)
-								+ nodeValue;
+								GUI.GA_AGENT_3_ROW, GUI.GA_GENE_3_COL); // Set the GUI GA table.
+						genetic_sequence[0][GA_AGENT_3] =
+							genetic_sequence[0][GA_AGENT_3]
+							                    .substring(GA_START_OF_FIRST_GENE,
+							                    		GA_START_OF_THIRD_GENE)
+							                    		+ nodeValue;
 					} else if (nodeName2.equals("agent4gene1")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_4_ROW, GUI.GA_GENE_1_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
+								GUI.GA_AGENT_4_ROW, GUI.GA_GENE_1_COL); // Set the GUI GA table.
 						genetic_sequence[0][GA_AGENT_4] = nodeValue
-								+ genetic_sequence[0][GA_AGENT_4]
-										.substring(GA_START_OF_SECOND_GENE);
+						+ genetic_sequence[0][GA_AGENT_4]
+						                      .substring(GA_START_OF_SECOND_GENE);
 					} else if (nodeName2.equals("agent4gene2")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_4_ROW, GUI.GA_GENE_2_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
+								GUI.GA_AGENT_4_ROW, GUI.GA_GENE_2_COL); // Set the GUI GA table.
 						genetic_sequence[0][GA_AGENT_4] = genetic_sequence[0][GA_AGENT_4]
-								.substring(GA_START_OF_FIRST_GENE,
-										GA_START_OF_SECOND_GENE)
-								+ nodeValue
-								+ genetic_sequence[0][GA_AGENT_4]
-										.substring(GA_START_OF_THIRD_GENE);
+						                                                      .substring(GA_START_OF_FIRST_GENE,
+						                                                    		  GA_START_OF_SECOND_GENE)
+						                                                    		  + nodeValue
+						                                                    		  + genetic_sequence[0][GA_AGENT_4]
+						                                                    		                        .substring(GA_START_OF_THIRD_GENE);
 					} else if (nodeName2.equals("agent4gene3")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_AGENT_4_ROW, GUI.GA_GENE_3_COL); // Set
-																		// the
-																		// GUI
-																		// GA
-																		// table.
-						genetic_sequence[0][GA_AGENT_4] = genetic_sequence[0][GA_AGENT_4]
-								.substring(GA_START_OF_FIRST_GENE,
-										GA_START_OF_THIRD_GENE)
-								+ nodeValue;
+								GUI.GA_AGENT_4_ROW, GUI.GA_GENE_3_COL); // Set the GUI GA table.
+						genetic_sequence[0][GA_AGENT_4] =
+							genetic_sequence[0][GA_AGENT_4].substring(GA_START_OF_FIRST_GENE, GA_START_OF_THIRD_GENE)
+                        		  + nodeValue;
 					} else if (nodeName2.equals("linkedphenotype1")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_LINKED_PHENOTYPE_ROW, GUI.GA_GENE_1_COL); // Set
-																					// the
-																					// GUI
-																					// GA
-																					// table.
+								GUI.GA_LINKED_PHENOTYPE_ROW, GUI.GA_GENE_1_COL); // Set the GUI GA table.
 						try {
 							PhenotypeMaster.setLinkedAttributes(nodeValue,
 									PhenotypeMaster.RED_PHENOTYPE);
@@ -432,11 +380,7 @@ public class Parser {
 					} else if (nodeName2.equals("linkedphenotype2")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_LINKED_PHENOTYPE_ROW, GUI.GA_GENE_2_COL); // Set
-																					// the
-																					// GUI
-																					// GA
-																					// table.
+								GUI.GA_LINKED_PHENOTYPE_ROW, GUI.GA_GENE_2_COL); // Set the GUI GA table.
 						try {
 							PhenotypeMaster.setLinkedAttributes(nodeValue,
 									PhenotypeMaster.GREEN_PHENOTYPE);
@@ -446,11 +390,7 @@ public class Parser {
 					} else if (nodeName2.equals("linkedphenotype3")) {
 						nodeValue = getValue(value);
 						GUI.genetic_table.setValueAt(nodeValue,
-								GUI.GA_LINKED_PHENOTYPE_ROW, GUI.GA_GENE_3_COL); // Set
-																					// the
-																					// GUI
-																					// GA
-																					// table.
+								GUI.GA_LINKED_PHENOTYPE_ROW, GUI.GA_GENE_3_COL); // Set the GUI GA table.
 						try {
 							PhenotypeMaster.setLinkedAttributes(nodeValue,
 									PhenotypeMaster.BLUE_PHENOTYPE);
@@ -474,16 +414,21 @@ public class Parser {
 						boolean state = false;
 						if (getValue(value).equals("true")) {
 							state = true;
+							GATracker.setTrackGeneStatusDistribution(state);
+
 						}
-						GATracker.setTrackGeneStatusDistribution(state);
-						GUI.track_gene_status_distribution.setSelected(state);
+						if (GUI.track_gene_status_distribution != null) {
+							GUI.track_gene_status_distribution.setSelected(state);
+						}
 					} else if (nodeName2.equals("trackgenevaluedistribution")) {
 						boolean state = false;
 						if (getValue(value).equals("true")) {
 							state = true;
+							GATracker.setTrackGeneValueDistribution(state);
 						}
-						GATracker.setTrackGeneValueDistribution(state);
-						GUI.track_gene_value_distribution.setSelected(state);
+						if (GUI.track_gene_value_distribution != null) {
+							GUI.track_gene_value_distribution.setSelected(state);
+						}
 					} else if (nodeName2.equals("chartupdatefrequency")) {
 						nodeValue = getValue(value);
 						try {
@@ -561,9 +506,9 @@ public class Parser {
 					PrisDilemma[0] = true;
 				} else {
 					PrisDilemma[0] = false;
-				// System.out.print("in nodename set: Value of PrisDilemma
-				// is....");
-				// System.out.println("PrisDilemma: "+PrisDilemma[0]);
+					// System.out.print("in nodename set: Value of PrisDilemma
+					// is....");
+					// System.out.println("PrisDilemma: "+PrisDilemma[0]);
 				}
 			}
 			if (nodeName2.equals("FoodWeb")) {
@@ -720,7 +665,7 @@ public class Parser {
 						NodeList value = nodeChildren2.item(k).getChildNodes();
 						nodeValue = getValue(value);
 						foodRate[0][foodType] = Float.valueOf(nodeValue)
-								.floatValue();
+						.floatValue();
 					}
 					if (nodeName2.equals("FoodGrow")) {
 						NodeList value = nodeChildren2.item(k).getChildNodes();
@@ -731,13 +676,13 @@ public class Parser {
 						NodeList value = nodeChildren2.item(k).getChildNodes();
 						nodeValue = getValue(value);
 						foodDeplete[0][foodType] = Float.valueOf(nodeValue)
-								.floatValue();
+						.floatValue();
 					}
 					if (nodeName2.equals("DepleteTimeSteps")) {
 						NodeList value = nodeChildren2.item(k).getChildNodes();
 						nodeValue = getValue(value);
 						depleteTimeSteps[0][foodType] = Integer
-								.parseInt(nodeValue);
+						.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("DraughtPeriod")) {
 						NodeList value = nodeChildren2.item(k).getChildNodes();
@@ -771,8 +716,7 @@ public class Parser {
 					if (nodeName2.equals("MutationRate")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						mutationRate[0][agentType] = Float.valueOf(nodeValue)
-								.floatValue();
+						mutationRate[0][agentType] = Float.valueOf(nodeValue).floatValue();
 					}
 					if (nodeName2.equals("InitEnergy")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
@@ -787,8 +731,7 @@ public class Parser {
 					if (nodeName2.equals("OtherFoodEnergy")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						otherFoodEnergy[0][agentType] = Integer
-								.parseInt(nodeValue);
+						otherFoodEnergy[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("BreedEnergy")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
@@ -798,8 +741,7 @@ public class Parser {
 					if (nodeName2.equals("pregnancyPeriod")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						pregnancyPeriod[0][agentType] = Integer
-								.parseInt(nodeValue);
+						pregnancyPeriod[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("StepEnergy")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
@@ -809,20 +751,17 @@ public class Parser {
 					if (nodeName2.equals("StepRockEnergy")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						stepRockEnergy[0][agentType] = Integer
-								.parseInt(nodeValue);
+						stepRockEnergy[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("TurnRightEnergy")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						turnRightEnergy[0][agentType] = Integer
-								.parseInt(nodeValue);
+						turnRightEnergy[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("TurnLeftEnergy")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						turnLeftEnergy[0][agentType] = Integer
-								.parseInt(nodeValue);
+						turnLeftEnergy[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("MemoryBits")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
@@ -837,46 +776,39 @@ public class Parser {
 					if (nodeName2.equals("StepAgentEnergy")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						stepAgentEnergy[0][agentType] = Integer
-								.parseInt(nodeValue);
+						stepAgentEnergy[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("communicationBits")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						communicationBits[0][agentType] = Integer
-								.parseInt(nodeValue);
+						communicationBits[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("sexualPregnancyPeriod")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						sexualPregnancyPeriod[0][agentType] = Integer
-								.parseInt(nodeValue);
+						sexualPregnancyPeriod[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("breedSimMin")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						breedSimMin[0][agentType] = Float.valueOf(nodeValue)
-								.floatValue();
+						breedSimMin[0][agentType] = Float.valueOf(nodeValue).floatValue();
 					}
 					if (nodeName2.equals("sexualBreedChance")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						sexualBreedChance[0][agentType] = Float.valueOf(
-								nodeValue).floatValue();
+						sexualBreedChance[0][agentType] = Float.valueOf(nodeValue).floatValue();
 					}
 					if (nodeName2.equals("asexualBreedChance")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						asexualBreedChance[0][agentType] = Float.valueOf(
-								nodeValue).floatValue();
+						asexualBreedChance[0][agentType] = Float.valueOf(nodeValue).floatValue();
 					}
 					// AGING
 
 					if (nodeName2.equals("agingMode")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						agingMode[0][agentType] = (nodeValue.equals("true") ? true
-								: false);
+						agingMode[0][agentType] = (nodeValue.equals("true") ? true : false);
 					}
 					if (nodeName2.equals("agingLimit")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
@@ -886,8 +818,7 @@ public class Parser {
 					if (nodeName2.equals("agingRate")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						agingRate[0][agentType] = Float.valueOf(nodeValue)
-								.floatValue();
+						agingRate[0][agentType] = Float.valueOf(nodeValue).floatValue();
 					}
 					// END OF AGING
 					// WASTE
@@ -915,8 +846,7 @@ public class Parser {
 					if (nodeName2.equals("wasteRate")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						wasteRate[0][agentType] = Float.valueOf(nodeValue)
-								.floatValue();
+						wasteRate[0][agentType] = Float.valueOf(nodeValue).floatValue();
 					}
 					if (nodeName2.equals("wasteInit")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
@@ -957,27 +887,24 @@ public class Parser {
 					if (nodeName2.equals("broadcastFixedRange")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						broadcastFixedRange[0][agentType] = Integer
-								.parseInt(nodeValue);
+						broadcastFixedRange[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("broadcastEnergyMin")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						broadcastEnergyMin[0][agentType] = Integer
-								.parseInt(nodeValue);
+						broadcastEnergyMin[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					if (nodeName2.equals("broadcastEnergyCost")) {
 						NodeList value = nodeChildren3.item(k).getChildNodes();
 						nodeValue = getValue(value);
-						broadcastEnergyCost[0][agentType] = Integer
-								.parseInt(nodeValue);
+						broadcastEnergyCost[0][agentType] = Integer.parseInt(nodeValue);
 					}
 					// END OF BROADCASTING PARAMS
 
 					if (nodeName2.equals("foodweb")) {
 
 						NodeList nodeChildren4 = nodeChildren3.item(k)
-								.getChildNodes();
+						.getChildNodes();
 						counta = 0;
 						countf = 0;
 
@@ -986,8 +913,7 @@ public class Parser {
 							for (int i = 0; i < nodeChildren4.getLength(); i++) {
 
 								if ((nodeName2).equals("agent" + i)) {
-									NodeList value = nodeChildren4.item(p)
-											.getChildNodes();
+									NodeList value = nodeChildren4.item(p).getChildNodes();
 									nodeValue = getValue(value);
 									if (nodeValue.equals("true")) {
 
@@ -996,8 +922,7 @@ public class Parser {
 									}
 								}
 								if (nodeName2.equals("food" + i)) {
-									NodeList value = nodeChildren4.item(p)
-											.getChildNodes();
+									NodeList value = nodeChildren4.item(p).getChildNodes();
 									nodeValue = getValue(value);
 
 									if (nodeValue.equals("true")) {

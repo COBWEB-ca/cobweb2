@@ -63,7 +63,7 @@ public class Cobweb2Applet extends JApplet {
 		getContentPane().setLayout(new BorderLayout());
 
 		experements.put("Baseline", "baseline 2008.xml");
-		experements.put("Boom and Bust", "boom and bust 2.xml");
+		experements.put("Boom and Bust", "boom and bust 3.xml");
 		experements.put("Exponential Growth", "Exponential Growth Experiment.xml");
 		experements.put("Central Place", "central place 1.xml");
 		experements.put("Cheaters vs Cooperators", "cheaters vs cooperators.xml");
@@ -107,9 +107,6 @@ public class Cobweb2Applet extends JApplet {
 
 		expselector.addActionListener(new ExpSelectorListener());
 
-//		controls.setComponentZOrder(expselector, 1);
-//		controls.setComponentZOrder(statsButton, 2);
-
 		loadSimulation(currentexp);
 
 	}
@@ -121,8 +118,8 @@ public class Cobweb2Applet extends JApplet {
 		 */
 		public void actionPerformed(ActionEvent e) {
 			JComboBox cb = (JComboBox)e.getSource();
-	        String expname = (String)cb.getSelectedItem();
-	        loadSimulation(expname);
+			String expname = (String)cb.getSelectedItem();
+			loadSimulation(expname);
 		}
 
 	}
@@ -147,8 +144,6 @@ public class Cobweb2Applet extends JApplet {
 		//FIX: DisplayPanel is buggy, so we have to hide and show it for it to redraw
 		ui.setVisible(false);
 		getContentPane().add(ui, BorderLayout.CENTER);
-//		getContentPane().setComponentZOrder(ui, 0);
-//		getContentPane().setComponentZOrder(controls, 1);
 
 		ui.setVisible(true);
 		statsUpdater = new StatsUpdater();
@@ -201,18 +196,18 @@ public class Cobweb2Applet extends JApplet {
 		public void TickPerformed(long currentTick) {
 
 
-				EnvironmentStats stats = ui.getStatistics();
-				long agentCount = 0;
-				for (long count : stats.agentCounts) {
-					agentCount += count;
-				}
-				long foodCount = 0;
-				for (long count : stats.foodCounts) {
-					foodCount += count;
-				}
+			EnvironmentStats stats = ui.getStatistics();
+			long agentCount = 0;
+			for (long count : stats.agentCounts) {
+				agentCount += count;
+			}
+			long foodCount = 0;
+			for (long count : stats.foodCounts) {
+				foodCount += count;
+			}
 
-				agentData.add(currentTick, agentCount);
-				foodData.add(currentTick, foodCount);
+			agentData.add(currentTick, agentCount);
+			foodData.add(currentTick, foodCount);
 
 			if (frame++ == frameskip) {
 				frame = 0;

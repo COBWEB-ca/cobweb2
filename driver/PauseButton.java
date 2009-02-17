@@ -2,8 +2,7 @@ package driver;
 
 import javax.swing.JButton;
 
-public class PauseButton extends JButton implements
-		java.awt.event.ActionListener {
+public class PauseButton extends JButton implements java.awt.event.ActionListener {
 	private cobweb.UIInterface uiPipe;
 
 	public PauseButton(cobweb.UIInterface theUI) {
@@ -43,7 +42,7 @@ public class PauseButton extends JButton implements
 		else
 			uiPipe.pause();
 		updateLabel();
-		*/
+		 */
 	}
 
 	public static final long serialVersionUID = 0xE55CC6E3B8B5824DL;

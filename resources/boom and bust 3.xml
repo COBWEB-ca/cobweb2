@@ -7,13 +7,15 @@
 	<wrap>true</wrap>
 	<PrisDilemma>false</PrisDilemma>
 	<randomStones>0</randomStones>
-	<maxFoodChance>0.8</maxFoodChance>
+	<maxFoodChance>0.1</maxFoodChance>
 	<keepOldAgents>false</keepOldAgents>
 	<spawnNewAgents>true</spawnNewAgents>
 	<keepOldArray>false</keepOldArray>
 	<dropNewFood>true</dropNewFood>
 	<randomSeed>0</randomSeed>
 	<newColorizer>true</newColorizer>
+	<keepOldWaste>false</keepOldWaste>
+	<keepOldPackets>false</keepOldPackets>
 	<numColor>3</numColor>
 	<colorSelectSize>3</colorSelectSize>
 	<reColorTimeStep>300</reColorTimeStep>
@@ -23,55 +25,55 @@
 	<food_bias>false</food_bias>
 <food>
 	<Index>0</Index>
-	<Food>20</Food>
+	<Food>50</Food>
 	<FoodRate>0.0</FoodRate>
-	<FoodGrow>5</FoodGrow>
-	<FoodDeplete>0.8</FoodDeplete>
+	<FoodGrow>3</FoodGrow>
+	<FoodDeplete>0.0</FoodDeplete>
 	<DepleteTimeSteps>40</DepleteTimeSteps>
 	<DraughtPeriod>0</DraughtPeriod>
 	<FoodMode>0</FoodMode>
 </food>
 <food>
 	<Index>1</Index>
-	<Food>20</Food>
+	<Food>50</Food>
 	<FoodRate>0.0</FoodRate>
-	<FoodGrow>5</FoodGrow>
-	<FoodDeplete>0.8</FoodDeplete>
+	<FoodGrow>3</FoodGrow>
+	<FoodDeplete>0.0</FoodDeplete>
 	<DepleteTimeSteps>40</DepleteTimeSteps>
 	<DraughtPeriod>0</DraughtPeriod>
 	<FoodMode>0</FoodMode>
 </food>
 <food>
 	<Index>2</Index>
-	<Food>20</Food>
+	<Food>50</Food>
 	<FoodRate>0.0</FoodRate>
-	<FoodGrow>5</FoodGrow>
-	<FoodDeplete>0.8</FoodDeplete>
+	<FoodGrow>3</FoodGrow>
+	<FoodDeplete>0.0</FoodDeplete>
 	<DepleteTimeSteps>40</DepleteTimeSteps>
 	<DraughtPeriod>0</DraughtPeriod>
 	<FoodMode>0</FoodMode>
 </food>
 <food>
 	<Index>3</Index>
-	<Food>20</Food>
+	<Food>50</Food>
 	<FoodRate>0.0</FoodRate>
-	<FoodGrow>5</FoodGrow>
-	<FoodDeplete>0.8</FoodDeplete>
+	<FoodGrow>3</FoodGrow>
+	<FoodDeplete>0.0</FoodDeplete>
 	<DepleteTimeSteps>40</DepleteTimeSteps>
 	<DraughtPeriod>0</DraughtPeriod>
 	<FoodMode>0</FoodMode>
 </food>
 <agent>
 	<Index>0</Index>
-	<Agents>40</Agents>
+	<Agents>20</Agents>
 	<MutationRate>0.05</MutationRate>
 	<InitEnergy>50</InitEnergy>
 	<FoodEnergy>30</FoodEnergy>
 	<OtherFoodEnergy>20</OtherFoodEnergy>
-	<BreedEnergy>50</BreedEnergy>
+	<BreedEnergy>30</BreedEnergy>
 	<pregnancyPeriod>0</pregnancyPeriod>
-	<StepEnergy>5</StepEnergy>
-	<StepRockEnergy>0</StepRockEnergy>
+	<StepEnergy>2</StepEnergy>
+	<StepRockEnergy>2</StepRockEnergy>
 	<TurnRightEnergy>1</TurnRightEnergy>
 	<TurnLeftEnergy>1</TurnLeftEnergy>
 	<MemoryBits>0</MemoryBits>
@@ -82,9 +84,22 @@
 	<breedSimMin>0.0</breedSimMin>
 	<sexualBreedChance>1.0</sexualBreedChance>
 	<asexualBreedChance>1.0</asexualBreedChance>
-	<useAging>false</useAging>
-	<ageHorizon>0</ageHorizon>
-	<ageRate>0.0</ageRate>
+	<agingMode>false</agingMode>
+	<agingLimit>0</agingLimit>
+	<agingRate>0.0</agingRate>
+	<wasteMode>false</wasteMode>
+	<wastePen>0</wastePen>
+	<wasteGain>0</wasteGain>
+	<wasteLoss>0</wasteLoss>
+	<wasteRate>0.0</wasteRate>
+	<wasteInit>0</wasteInit>
+	<pdTitForTat>false</pdTitForTat>
+	<pdCoopProb>0</pdCoopProb>
+	<broadcastMode>false</broadcastMode>
+	<broadcastEnergyBased>false</broadcastEnergyBased>
+	<broadcastFixedRange>0</broadcastFixedRange>
+	<broadcastEnergyMin>0</broadcastEnergyMin>
+	<broadcastEnergyCost>0</broadcastEnergyCost>
 <foodweb>
 	<agent1>false</agent1>
 	<agent2>false</agent2>
@@ -98,15 +113,15 @@
 </agent>
 <agent>
 	<Index>1</Index>
-	<Agents>40</Agents>
+	<Agents>20</Agents>
 	<MutationRate>0.05</MutationRate>
 	<InitEnergy>50</InitEnergy>
 	<FoodEnergy>30</FoodEnergy>
 	<OtherFoodEnergy>20</OtherFoodEnergy>
-	<BreedEnergy>50</BreedEnergy>
+	<BreedEnergy>30</BreedEnergy>
 	<pregnancyPeriod>0</pregnancyPeriod>
-	<StepEnergy>5</StepEnergy>
-	<StepRockEnergy>0</StepRockEnergy>
+	<StepEnergy>2</StepEnergy>
+	<StepRockEnergy>2</StepRockEnergy>
 	<TurnRightEnergy>1</TurnRightEnergy>
 	<TurnLeftEnergy>1</TurnLeftEnergy>
 	<MemoryBits>0</MemoryBits>
@@ -117,9 +132,22 @@
 	<breedSimMin>0.0</breedSimMin>
 	<sexualBreedChance>1.0</sexualBreedChance>
 	<asexualBreedChance>1.0</asexualBreedChance>
-	<useAging>false</useAging>
-	<ageHorizon>0</ageHorizon>
-	<ageRate>0.0</ageRate>
+	<agingMode>false</agingMode>
+	<agingLimit>0</agingLimit>
+	<agingRate>0.0</agingRate>
+	<wasteMode>false</wasteMode>
+	<wastePen>0</wastePen>
+	<wasteGain>0</wasteGain>
+	<wasteLoss>0</wasteLoss>
+	<wasteRate>0.0</wasteRate>
+	<wasteInit>0</wasteInit>
+	<pdTitForTat>false</pdTitForTat>
+	<pdCoopProb>0</pdCoopProb>
+	<broadcastMode>false</broadcastMode>
+	<broadcastEnergyBased>false</broadcastEnergyBased>
+	<broadcastFixedRange>0</broadcastFixedRange>
+	<broadcastEnergyMin>0</broadcastEnergyMin>
+	<broadcastEnergyCost>0</broadcastEnergyCost>
 <foodweb>
 	<agent1>false</agent1>
 	<agent2>false</agent2>
@@ -133,15 +161,15 @@
 </agent>
 <agent>
 	<Index>2</Index>
-	<Agents>40</Agents>
+	<Agents>20</Agents>
 	<MutationRate>0.05</MutationRate>
 	<InitEnergy>50</InitEnergy>
 	<FoodEnergy>30</FoodEnergy>
 	<OtherFoodEnergy>20</OtherFoodEnergy>
-	<BreedEnergy>50</BreedEnergy>
+	<BreedEnergy>30</BreedEnergy>
 	<pregnancyPeriod>0</pregnancyPeriod>
-	<StepEnergy>5</StepEnergy>
-	<StepRockEnergy>0</StepRockEnergy>
+	<StepEnergy>2</StepEnergy>
+	<StepRockEnergy>2</StepRockEnergy>
 	<TurnRightEnergy>1</TurnRightEnergy>
 	<TurnLeftEnergy>1</TurnLeftEnergy>
 	<MemoryBits>0</MemoryBits>
@@ -152,9 +180,22 @@
 	<breedSimMin>0.0</breedSimMin>
 	<sexualBreedChance>1.0</sexualBreedChance>
 	<asexualBreedChance>1.0</asexualBreedChance>
-	<useAging>false</useAging>
-	<ageHorizon>0</ageHorizon>
-	<ageRate>0.0</ageRate>
+	<agingMode>false</agingMode>
+	<agingLimit>0</agingLimit>
+	<agingRate>0.0</agingRate>
+	<wasteMode>false</wasteMode>
+	<wastePen>0</wastePen>
+	<wasteGain>0</wasteGain>
+	<wasteLoss>0</wasteLoss>
+	<wasteRate>0.0</wasteRate>
+	<wasteInit>0</wasteInit>
+	<pdTitForTat>false</pdTitForTat>
+	<pdCoopProb>0</pdCoopProb>
+	<broadcastMode>false</broadcastMode>
+	<broadcastEnergyBased>false</broadcastEnergyBased>
+	<broadcastFixedRange>0</broadcastFixedRange>
+	<broadcastEnergyMin>0</broadcastEnergyMin>
+	<broadcastEnergyCost>0</broadcastEnergyCost>
 <foodweb>
 	<agent1>false</agent1>
 	<agent2>false</agent2>
@@ -168,15 +209,15 @@
 </agent>
 <agent>
 	<Index>3</Index>
-	<Agents>40</Agents>
+	<Agents>20</Agents>
 	<MutationRate>0.05</MutationRate>
 	<InitEnergy>50</InitEnergy>
 	<FoodEnergy>30</FoodEnergy>
 	<OtherFoodEnergy>20</OtherFoodEnergy>
-	<BreedEnergy>50</BreedEnergy>
+	<BreedEnergy>30</BreedEnergy>
 	<pregnancyPeriod>0</pregnancyPeriod>
-	<StepEnergy>5</StepEnergy>
-	<StepRockEnergy>0</StepRockEnergy>
+	<StepEnergy>2</StepEnergy>
+	<StepRockEnergy>2</StepRockEnergy>
 	<TurnRightEnergy>1</TurnRightEnergy>
 	<TurnLeftEnergy>1</TurnLeftEnergy>
 	<MemoryBits>0</MemoryBits>
@@ -187,9 +228,22 @@
 	<breedSimMin>0.0</breedSimMin>
 	<sexualBreedChance>1.0</sexualBreedChance>
 	<asexualBreedChance>1.0</asexualBreedChance>
-	<useAging>false</useAging>
-	<ageHorizon>0</ageHorizon>
-	<ageRate>0.0</ageRate>
+	<agingMode>false</agingMode>
+	<agingLimit>0</agingLimit>
+	<agingRate>0.0</agingRate>
+	<wasteMode>false</wasteMode>
+	<wastePen>0</wastePen>
+	<wasteGain>0</wasteGain>
+	<wasteLoss>0</wasteLoss>
+	<wasteRate>0.0</wasteRate>
+	<wasteInit>0</wasteInit>
+	<pdTitForTat>false</pdTitForTat>
+	<pdCoopProb>0</pdCoopProb>
+	<broadcastMode>false</broadcastMode>
+	<broadcastEnergyBased>false</broadcastEnergyBased>
+	<broadcastFixedRange>0</broadcastFixedRange>
+	<broadcastEnergyMin>0</broadcastEnergyMin>
+	<broadcastEnergyCost>0</broadcastEnergyCost>
 <foodweb>
 	<agent1>false</agent1>
 	<agent2>false</agent2>
@@ -201,4 +255,27 @@
 	<food4>true</food4>
 </foodweb>
 </agent>
+<pd><temptation>0</temptation>
+<reward>0</reward>
+<punishment>0</punishment><sucker>0</sucker>
+</pd>
+<ga><agent1gene1>00011110</agent1gene1>
+<agent1gene2>00011110</agent1gene2>
+<agent1gene3>00011110</agent1gene3>
+<agent2gene1>00011110</agent2gene1>
+<agent2gene2>00011110</agent2gene2>
+<agent2gene3>00011110</agent2gene3>
+<agent3gene1>00011110</agent3gene1>
+<agent3gene2>00011110</agent3gene2>
+<agent3gene3>00011110</agent3gene3>
+<agent4gene1>00011110</agent4gene1>
+<agent4gene2>00011110</agent4gene2>
+<agent4gene3>00011110</agent4gene3>
+<linkedphenotype1>None</linkedphenotype1>
+<linkedphenotype2>None</linkedphenotype2>
+<linkedphenotype3>None</linkedphenotype3>
+<meiosismode>Gene Swapping</meiosismode>
+<trackgenestatusdistribution>false</trackgenestatusdistribution>
+<trackgenevaluedistribution>false</trackgenevaluedistribution>
+<chartupdatefrequency>1</chartupdatefrequency></ga>
 </inputData>
