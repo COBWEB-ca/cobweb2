@@ -13,13 +13,24 @@ import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FileDialog;
 import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Label;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.Panel;
 import java.awt.TextArea;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,7 +53,7 @@ import javax.swing.WindowConstants;
 import cobweb.LocalUIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
 
-public class CobwebApplication extends java.awt.Frame {
+public class CobwebApplication extends Frame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -92,13 +103,13 @@ public class CobwebApplication extends java.awt.Frame {
 
 	public JTextField tickField;
 
-	private final java.awt.MenuItem stoneMenu;
+	private final MenuItem stoneMenu;
 
-	private final java.awt.MenuItem observeMenu;
+	private final MenuItem observeMenu;
 
-	private final java.awt.Menu foodMenu;
+	private final Menu foodMenu;
 
-	private final java.awt.Menu agentMenu;
+	private final Menu agentMenu;
 
 	private final CobwebEventListener theListener;
 
@@ -147,14 +158,14 @@ public class CobwebApplication extends java.awt.Frame {
 		if (cobweb.globals.usingTextWindow == true) {
 			textArea = new TextArea(GREETINGS, 40, // Height
 					48, // Width, $$$$$ was 53.  Mar 14
-					java.awt.TextArea.SCROLLBARS_VERTICAL_ONLY);
+					TextArea.SCROLLBARS_VERTICAL_ONLY);
 			textWindow = new Window(this);
 		}
 
 
-		addWindowListener(new java.awt.event.WindowAdapter() {
+		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(java.awt.event.WindowEvent e) {
+			public void windowClosing(WindowEvent e) {
 				CobwebApplication.this.quitApplication();
 			}
 			// These events control the visibility of our output window (Pierre)
@@ -189,7 +200,7 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 		});
 
-		setLayout(new java.awt.BorderLayout());
+		setLayout(new BorderLayout());
 		setSize(580, 650);
 
 		// Create the various widgits to make the application go.
@@ -198,105 +209,105 @@ public class CobwebApplication extends java.awt.Frame {
 		theListener = new CobwebEventListener();
 
 		// Build the menu items
-		java.awt.MenuItem openMenu = new java.awt.MenuItem("Open");
+		MenuItem openMenu = new MenuItem("Open");
 		openMenu.setActionCommand("Open");
 		openMenu.addActionListener(theListener);
 
 		// $$$$$$ Add "Set Default Data" menu.  Feb 21
-		java.awt.MenuItem setMenu = new java.awt.MenuItem("Set Default Data");
+		MenuItem setMenu = new MenuItem("Set Default Data");
 		setMenu.setActionCommand("Set Default Data");
 		setMenu.addActionListener(theListener);
 
 		// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4
-		java.awt.MenuItem defaultMenu = new java.awt.MenuItem("Retrieve Default Data");
+		MenuItem defaultMenu = new MenuItem("Retrieve Default Data");
 		defaultMenu.setActionCommand("Retrieve Default Data");
 		defaultMenu.addActionListener(theListener);
 		// $$$$$$ Add "Modify Current Data" menu.  Feb 12
-		java.awt.MenuItem currentDataMenu = new java.awt.MenuItem("Modify Current Data");
+		MenuItem currentDataMenu = new MenuItem("Modify Current Data");
 		currentDataMenu.setActionCommand("Modify Current Data");
 		currentDataMenu.addActionListener(theListener);
 
-		java.awt.MenuItem NewDataFileMenu = new java.awt.MenuItem(
+		MenuItem NewDataFileMenu = new MenuItem(
 				"Create New Data");
 		NewDataFileMenu.setActionCommand("Create New Data");
 		NewDataFileMenu.addActionListener(theListener);
-		java.awt.MenuItem MultFileMenu = new java.awt.MenuItem(
+		MenuItem MultFileMenu = new MenuItem(
 				"Set Multiple Files");
 		MultFileMenu.setActionCommand("Set Multiple Files");
 		MultFileMenu.addActionListener(theListener);
-		java.awt.MenuItem modifyMenu = new java.awt.MenuItem("Modify This File");
+		MenuItem modifyMenu = new MenuItem("Modify This File");
 		modifyMenu.setActionCommand("Modify This File");
 		modifyMenu.addActionListener(theListener);
-		java.awt.MenuItem saveMenu = new java.awt.MenuItem("Save");
+		MenuItem saveMenu = new MenuItem("Save");
 		saveMenu.setActionCommand("Save");
 		saveMenu.addActionListener(theListener);
-		java.awt.MenuItem logMenu = new java.awt.MenuItem("Log");
+		MenuItem logMenu = new MenuItem("Log");
 		logMenu.setActionCommand("Log");
 		logMenu.addActionListener(theListener);
-		//java.awt.MenuItem trackAgentMenu = new java.awt.MenuItem("Track Agent");
+		//MenuItem trackAgentMenu = new MenuItem("Track Agent");
 		//trackAgentMenu.setActionCommand("Track Agent");
 		//trackAgentMenu.addActionListener(theListener);
-		java.awt.MenuItem quitMenu = new java.awt.MenuItem("Quit");
+		MenuItem quitMenu = new MenuItem("Quit");
 		quitMenu.setActionCommand("Quit");
 		quitMenu.addActionListener(theListener);
-		java.awt.MenuItem reportMenu = new java.awt.MenuItem("Report");
+		MenuItem reportMenu = new MenuItem("Report");
 		reportMenu.setActionCommand("Report");
 		reportMenu.addActionListener(theListener);
 
-		java.awt.MenuItem aboutMenu = new java.awt.MenuItem("About");
+		MenuItem aboutMenu = new MenuItem("About");
 		aboutMenu.setActionCommand("About");
 		aboutMenu.addActionListener(theListener);
-		java.awt.MenuItem creditsMenu = new java.awt.MenuItem("Credits");
+		MenuItem creditsMenu = new MenuItem("Credits");
 		creditsMenu.setActionCommand("Credits");
 		creditsMenu.addActionListener(theListener);
 
 		/*** $$$$$$ Cancel textWindow  Apr 22*/
 		// $$$$$$ Add "Show/Hide Info" menu.  Mar 14
-		java.awt.MenuItem showInfoMenu = null;
+		MenuItem showInfoMenu = null;
 		if (cobweb.globals.usingTextWindow == true) {
-			showInfoMenu = new java.awt.MenuItem("Show/Hide Info");
+			showInfoMenu = new MenuItem("Show/Hide Info");
 			showInfoMenu.setActionCommand("Show/Hide Info");
 			showInfoMenu.addActionListener(theListener);
 		}
 
-		observeMenu = new java.awt.MenuItem("Observation Mode");
+		observeMenu = new MenuItem("Observation Mode");
 		observeMenu.setActionCommand("Observation Mode");
 		observeMenu.addActionListener(theListener);
 
-		stoneMenu = new java.awt.MenuItem("Select Stones");
+		stoneMenu = new MenuItem("Select Stones");
 		stoneMenu.setActionCommand("Select Stones");
 		stoneMenu.addActionListener(theListener);
 
-		foodMenu = new java.awt.Menu("Select Food");
-		agentMenu = new java.awt.Menu("Select Agents");
+		foodMenu = new Menu("Select Food");
+		agentMenu = new Menu("Select Agents");
 
-		java.awt.MenuItem removeStones = new java.awt.MenuItem(
+		MenuItem removeStones = new MenuItem(
 				"Remove All Stones");
 		removeStones.setActionCommand("Remove All Stones");
 		removeStones.addActionListener(theListener);
 
-		java.awt.MenuItem removeFood = new java.awt.MenuItem("Remove All Food");
+		MenuItem removeFood = new MenuItem("Remove All Food");
 		removeFood.setActionCommand("Remove All Food");
 		removeFood.addActionListener(theListener);
 
-		java.awt.MenuItem removeAgents = new java.awt.MenuItem(
+		MenuItem removeAgents = new MenuItem(
 				"Remove All Agents");
 		removeAgents.setActionCommand("Remove All Agents");
 		removeAgents.addActionListener(theListener);
 
 		// $$$$$$ Added on Feb 29
-		java.awt.MenuItem removeWaste = new java.awt.MenuItem(
+		MenuItem removeWaste = new MenuItem(
 				"Remove All Waste");
 		removeWaste.setActionCommand("Remove All Waste");
 		removeWaste.addActionListener(theListener);
 
-		java.awt.MenuItem removeAll = new java.awt.MenuItem("Remove All");
+		MenuItem removeAll = new MenuItem("Remove All");
 		removeAll.setActionCommand("Remove All");
 		removeAll.addActionListener(theListener);
 
 
 		// Assemble the items into menus
-		java.awt.Menu EditMenu = new java.awt.Menu("Edit");
+		Menu EditMenu = new Menu("Edit");
 		EditMenu.add(observeMenu);
 		EditMenu.add(stoneMenu);
 		EditMenu.add(agentMenu);
@@ -308,7 +319,7 @@ public class CobwebApplication extends java.awt.Frame {
 		EditMenu.add(removeWaste);  // $$$$$$ added on Feb 29
 		EditMenu.add(removeAll);
 
-		java.awt.Menu fileMenu = new java.awt.Menu("File");
+		Menu fileMenu = new Menu("File");
 		fileMenu.add(openMenu);
 		fileMenu.add(NewDataFileMenu);
 		fileMenu.add(MultFileMenu);
@@ -330,7 +341,7 @@ public class CobwebApplication extends java.awt.Frame {
 		fileMenu.add("-");
 		fileMenu.add(quitMenu);
 
-		java.awt.Menu helpMenu = new java.awt.Menu("Help");
+		Menu helpMenu = new Menu("Help");
 
 		/*** $$$$$$ Cancel textWindow  Apr 22*/
 		if (cobweb.globals.usingTextWindow == true) {
@@ -344,7 +355,7 @@ public class CobwebApplication extends java.awt.Frame {
 		helpMenu.add(creditsMenu);
 
 		// Assemble the menus into a menu bar
-		java.awt.MenuBar myMenuBar = new java.awt.MenuBar();
+		MenuBar myMenuBar = new MenuBar();
 		myMenuBar.add(fileMenu);
 		myMenuBar.add(EditMenu);
 		myMenuBar.add(helpMenu);
@@ -361,9 +372,9 @@ public class CobwebApplication extends java.awt.Frame {
 			textWindow.add(textArea, "North"); // $$$$$$ add "North" on Mar 25
 
 			// $$$$$$ Added on Mar 25
-			hide = new java.awt.Button("Hide");
-			hide.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
+			hide = new Button("Hide");
+			hide.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
 					textWindow.setVisible(false);
 					textWindowHide = true; // $$$$$$ (Mar 29)  Apr 22
 					if (uiPipe == null) {
@@ -378,13 +389,13 @@ public class CobwebApplication extends java.awt.Frame {
 			size_x = 400;// 80*6;
 			size_y = 650;// 40*11;  // $$$$$$ was "600".  Mar 25
 			try {
-				text_x = (java.awt.Toolkit.getDefaultToolkit().getScreenSize()).width
+				text_x = (Toolkit.getDefaultToolkit().getScreenSize()).width
 						- size_x;
 			} catch (Exception e) {
 				text_x = 0;
 			}
 			try {
-				text_y = (java.awt.Toolkit.getDefaultToolkit().getScreenSize()).height
+				text_y = (Toolkit.getDefaultToolkit().getScreenSize()).height
 						- size_y;
 			} catch (Exception e) {
 				text_y = 0;
@@ -527,19 +538,19 @@ public class CobwebApplication extends java.awt.Frame {
 			stepButton.setUI(uiPipe);
 		}
 
-		java.awt.MenuItem foodtype[] = new java.awt.MenuItem[uiPipe
+		MenuItem foodtype[] = new MenuItem[uiPipe
 				.countAgentTypes()];
-		java.awt.MenuItem agentype[] = new java.awt.MenuItem[uiPipe
+		MenuItem agentype[] = new MenuItem[uiPipe
 				.countAgentTypes()];
 		foodMenu.removeAll();
 		agentMenu.removeAll();
 		for (int i = 0; i < uiPipe.countAgentTypes(); i++) {
-			foodtype[i] = new java.awt.MenuItem("Food Type " + (i + 1));
+			foodtype[i] = new MenuItem("Food Type " + (i + 1));
 			foodtype[i].setActionCommand("Food Type " + (i + 1));
 			foodtype[i].addActionListener(theListener);
 			foodMenu.add(foodtype[i]);
 
-			agentype[i] = new java.awt.MenuItem("Agent Type " + (i + 1));
+			agentype[i] = new MenuItem("Agent Type " + (i + 1));
 			agentype[i].setActionCommand("Agent Type " + (i + 1));
 			agentype[i].addActionListener(theListener);
 			agentMenu.add(agentype[i]);
@@ -553,7 +564,7 @@ public class CobwebApplication extends java.awt.Frame {
 		}
 
 
-		tickField.addFocusListener(new java.awt.event.FocusAdapter(){
+		tickField.addFocusListener(new FocusAdapter(){
 			@Override
 			public void focusLost(FocusEvent e) {
 				tickField.repaint();
@@ -652,8 +663,8 @@ public class CobwebApplication extends java.awt.Frame {
 		System.exit(0);
 	}
 
-	private class CobwebEventListener implements java.awt.event.ActionListener {
-		public void actionPerformed(java.awt.event.ActionEvent e) {
+	private class CobwebEventListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
 
 			if (e.getActionCommand().compareTo("Open") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
@@ -875,8 +886,8 @@ public class CobwebApplication extends java.awt.Frame {
 	}
 
 	public void openFileDialog() {
-		java.awt.FileDialog theDialog = new java.awt.FileDialog(GUI.frame,  // $$$$$$ modified from "this".  Feb 29
-				"Open a State File", java.awt.FileDialog.LOAD);
+		FileDialog theDialog = new FileDialog(GUI.frame,  // $$$$$$ modified from "this".  Feb 29
+				"Open a State File", FileDialog.LOAD);
 		theDialog.setVisible(true);
 		String directory = theDialog.getDirectory();
 		String file = theDialog.getFile();
@@ -997,8 +1008,8 @@ public class CobwebApplication extends java.awt.Frame {
 		}
 
 		if ( (df.exists() == false) || (df.canWrite() == true) ) {
-			java.awt.FileDialog setDialog = new java.awt.FileDialog(GUI.frame,   // $$$$$$ modified from "this".  Feb 29
-					"Set Default Data", java.awt.FileDialog.LOAD);
+			FileDialog setDialog = new FileDialog(GUI.frame,   // $$$$$$ modified from "this".  Feb 29
+					"Set Default Data", FileDialog.LOAD);
 			setDialog.setVisible(true);
 
 			// $$$$$$ The following codes modified on Feb 22
@@ -1149,8 +1160,8 @@ public class CobwebApplication extends java.awt.Frame {
 
 
 	public void saveFileDialog() {
-		java.awt.FileDialog theDialog = new java.awt.FileDialog(GUI.frame,    // $$$$$$ modified from "this".  Feb 29
-				"Choose a file to save state to", java.awt.FileDialog.SAVE);
+		FileDialog theDialog = new FileDialog(GUI.frame,    // $$$$$$ modified from "this".  Feb 29
+				"Choose a file to save state to", FileDialog.SAVE);
 		theDialog.setVisible(true);
 		//String savingFileName = "";
 		if (theDialog.getFile() != null) {
@@ -1176,8 +1187,8 @@ public class CobwebApplication extends java.awt.Frame {
 	}
 
 	public void logFileDialog() {
-		java.awt.FileDialog theDialog = new java.awt.FileDialog(this,    // $$$$$$ modified from "this".  Feb 29
-				"Choose a file to save log to", java.awt.FileDialog.SAVE);
+		FileDialog theDialog = new FileDialog(this,    // $$$$$$ modified from "this".  Feb 29
+				"Choose a file to save log to", FileDialog.SAVE);
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
 			logFile(theDialog.getDirectory() + theDialog.getFile());
@@ -1185,8 +1196,8 @@ public class CobwebApplication extends java.awt.Frame {
 	}
 
 	public void reportDialog() {
-		java.awt.FileDialog theDialog = new java.awt.FileDialog(this,    // $$$$$$ modified from "this".  Feb 29
-				"Choose a file to save report to", java.awt.FileDialog.SAVE);
+		FileDialog theDialog = new FileDialog(this,    // $$$$$$ modified from "this".  Feb 29
+				"Choose a file to save report to", FileDialog.SAVE);
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
 			reportFile(theDialog.getDirectory() + theDialog.getFile());
@@ -1197,9 +1208,9 @@ public class CobwebApplication extends java.awt.Frame {
 	public void trackAgentFileDialog() {
 		boolean isTrackAgentUsed = false; // $$$$$$ added on Feb 22
 		if (isTrackAgentUsed == true) {
-			java.awt.FileDialog theDialog = new java.awt.FileDialog(GUI.frame,    // $$$$$$ modified from "this".  Feb 29
+			FileDialog theDialog = new FileDialog(GUI.frame,    // $$$$$$ modified from "this".  Feb 29
 					"Choose a file to save Track Agent report to",
-					java.awt.FileDialog.SAVE);
+					FileDialog.SAVE);
 			theDialog.setVisible(true);
 			if (theDialog.getFile() != null)
 				trackAgentFile(theDialog.getDirectory() + theDialog.getFile());
@@ -1213,21 +1224,21 @@ public class CobwebApplication extends java.awt.Frame {
 	}
 	*/
 	public void aboutDialog() {
-		final javax.swing.JDialog whatDialog = new javax.swing.JDialog(GUI.frame,  // $$$$$$ change from java.awt.Dialog mult.  Feb 18
+		final javax.swing.JDialog whatDialog = new javax.swing.JDialog(GUI.frame,  // $$$$$$ change from Dialog mult.  Feb 18
 				"About Cobweb", true);								   // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
 		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
-		java.awt.Panel info = new java.awt.Panel();
-		info.add(new java.awt.Label("Cobweb 2003/2004"));
-		info.add(new java.awt.Label(""));
-		info.add(new java.awt.Label("is a product of"));
-		info.add(new java.awt.Label("Environment Canada"));
+		JPanel info = new JPanel();
+		info.add(new Label("Cobweb 2003/2004"));
+		info.add(new Label(""));
+		info.add(new Label("is a product of"));
+		info.add(new Label("Environment Canada"));
 
-		java.awt.Panel term = new java.awt.Panel();
-		java.awt.Button close = new java.awt.Button("Close");
+		Panel term = new Panel();
+		Button close = new Button("Close");
 		term.add(close);
 
-		close.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		close.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				whatDialog.setVisible(false);
 			}
 		});
@@ -1239,28 +1250,28 @@ public class CobwebApplication extends java.awt.Frame {
 	}
 
 	public void creditsDialog() {
-		final javax.swing.JDialog theDialog = new javax.swing.JDialog(GUI.frame, "Credits",  // $$$$$$ change from java.awt.Dialog mult.  Feb 18
+		final javax.swing.JDialog theDialog = new javax.swing.JDialog(GUI.frame, "Credits",  // $$$$$$ change from Dialog mult.  Feb 18
 				true);								  				  // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
 		theDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
 		@SuppressWarnings("unused")
-		java.awt.Panel info = new java.awt.Panel();
-		java.awt.Panel credit = new java.awt.Panel();
-		java.awt.Button brad = new java.awt.Button("Brad Bass, PhD");
-		java.awt.Button jeff = new java.awt.Button("Jeff Hill");
-		java.awt.Button jin = new java.awt.Button("Jin Soo Kang");
-		credit.add(new java.awt.Label("Coordinator"));
+		Panel info = new Panel();
+		Panel credit = new Panel();
+		Button brad = new Button("Brad Bass, PhD");
+		Button jeff = new Button("Jeff Hill");
+		Button jin = new Button("Jin Soo Kang");
+		credit.add(new Label("Coordinator"));
 		credit.add(brad);
-		credit.add(new java.awt.Label("_______________"));
-		credit.add(new java.awt.Label("Programmers"));
+		credit.add(new Label("_______________"));
+		credit.add(new Label("Programmers"));
 		credit.add(jeff);
 		credit.add(jin);
 
-		java.awt.Panel term = new java.awt.Panel();
-		java.awt.Button close = new java.awt.Button("Close");
+		Panel term = new Panel();
+		Button close = new Button("Close");
 		term.add(close);
 
-		brad.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		brad.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				String[] S = { "Brad Bass, PhD",
 						"Adaptations and Impacts Research Group",
 						"Environment Canada at Univ of Toronto",
@@ -1273,8 +1284,8 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 		});
 
-		jeff.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		jeff.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				String[] S = { "Main Structural Programming By", "",
 						"Jeff Hill", "oni1@home.com" };
 
@@ -1282,8 +1293,8 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 		});
 
-		jin.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		jin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				String[] S = { "Update & Additional Programming By", "",
 						"Jin Soo Kang", "Undergraduate, Computer Science",
 						"University of Toronto", "jin.kang@utoronto.ca",
@@ -1293,8 +1304,8 @@ public class CobwebApplication extends java.awt.Frame {
 			}
 		});
 
-		close.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		close.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				theDialog.setVisible(false);
 			}
 		});
@@ -1311,25 +1322,25 @@ public class CobwebApplication extends java.awt.Frame {
 		final javax.swing.JDialog creditDialog = new javax.swing.JDialog(parentDialog,  // $$$$$$  change from "this" to parentDialog.  Feb 22
 				"Click on Close to continue", true);
 
-		java.awt.Panel credit = new java.awt.Panel();
+		Panel credit = new Panel();
 		for (int i = 0; i < S.length; ++i) {
-			credit.add(new java.awt.Label(S[i]), "Center");
+			credit.add(new Label(S[i]), "Center");
 		}
 
-		java.awt.Panel term = new java.awt.Panel();
+		Panel term = new Panel();
 		/* new */
 		// $$$$$$ Silence the unused "Open" button.  Feb 22
-		//java.awt.Button choosefile = new java.awt.Button("Open");
+		//Button choosefile = new Button("Open");
 		//term.add(choosefile);
-		java.awt.Button close = new java.awt.Button("Close");
+		Button close = new Button("Close");
 		term.add(close);
 		/* new */
-		//choosefile.addActionListener(new java.awt.event.ActionListener() {
-		//	public void actionPerformed(java.awt.event.ActionEvent evt) { /* openFileDialog() ; */
+		//choosefile.addActionListener(new event.ActionListener() {
+		//	public void actionPerformed(event.ActionEvent evt) { /* openFileDialog() ; */
 		//	}
 		//});
-		close.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
+		close.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
 				creditDialog.setVisible(false);
 			}
 		});
@@ -1345,7 +1356,7 @@ public class CobwebApplication extends java.awt.Frame {
 	private void setMultFilesDialog(int length, int width) {
 		prsNames = new Parser[maxfiles];
 		pauseAt = new int[maxfiles];
-		final javax.swing.JDialog mult = new javax.swing.JDialog(this,  // $$$$$$ change from java.awt.Dialog mult.  Feb 14
+		final javax.swing.JDialog mult = new javax.swing.JDialog(this,  // $$$$$$ change from Dialog mult.  Feb 14
 				"Multiple File Setting", false);				 // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
 		mult.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 14
 		final JTextField jtf = new JTextField(20);

@@ -9,22 +9,25 @@ public class SimpleAgent extends cobweb.Agent implements
 	private GeneticCode genetic_code;
 
 	/** Returns the genetic code of the agent. Default is 24 bit. */
+	@Override
 	public GeneticCode getGeneticCode() {
 		return genetic_code;
 	}
 
 	/** Returns the genetic sequence of the agent. Default is 24 bit. */
+	@Override
 	public String getGeneticSequence() {
 		return genetic_code.getGeneticInfo();
 	}
 
+	@Override
 	public void getDrawInfo(cobweb.UIInterface theUI) {
 		theUI.newAgent(java.awt.Color.red, java.awt.Color.black,
 				new java.awt.Point(getPosition().v[0], getPosition().v[1]),
 				new java.awt.Point(facing.v[0], facing.v[1]));
 	}
 
-	private static class SimpleController implements cobweb.Agent.Controller {
+	private static class SimpleController implements cobweb.Controller {
 		public void addClientAgent(cobweb.Agent a) {
 		}
 
@@ -44,13 +47,16 @@ public class SimpleAgent extends cobweb.Agent implements
 		}
 	}
 
+	@Override
 	public void setColor(java.awt.Color c) {
 	}
 
+	@Override
 	public java.awt.Color getColor() {
 		return java.awt.Color.black;
 	}
 
+	@Override
 	public double similarity(cobweb.Agent other) {
 		if (other instanceof SimpleAgent) {
 			return 1.0;
@@ -101,14 +107,17 @@ public class SimpleAgent extends cobweb.Agent implements
 		super(pos, new SimpleController());
 	}
 
+	@Override
 	public int getAgentPDAction() {
 		return 0;
 	}
 
+	@Override
 	public int getAgentPDStrategy() {
 		return 0;
 	}
 
+	@Override
 	public double similarity(int other) {
 		return 0.0;
 	}

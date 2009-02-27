@@ -13,24 +13,27 @@ import ga.GeneticCodeException;
 import ga.PhenotypeMaster;
 
 import java.awt.BorderLayout;
-import java.awt.Button;
-import java.awt.Checkbox;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FileDialog;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Label;
-import java.awt.TextField;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -58,28 +61,28 @@ import javax.swing.table.TableColumnModel;
 public class GUI extends JPanel implements ActionListener {
 
 	final String TickScheduler = "cobweb.TickScheduler";
-	TextField Width;
-	TextField Height;
-	Checkbox keepOldAgents;
-	Checkbox spawnNewAgents;
-	Checkbox keepOldArray;
-	Checkbox dropNewFood;
-	Checkbox ColorCodedAgents;
-	Checkbox newColorizer;
-	Checkbox keepOldWaste;
-	Checkbox keepOldPackets;
-	Checkbox wrap;
-	Checkbox flexibility;
-	Checkbox PrisDilemma;
-	Checkbox FoodWeb;
-	TextField numColor;
-	TextField colorSelectSize;
-	TextField reColorTimeStep;
-	TextField colorizerMode;
-	TextField RandomSeed;
-	TextField randomStones;
-	TextField maxFoodChance;
-	TextField memory_size;
+	JTextField Width;
+	JTextField Height;
+	JCheckBox keepOldAgents;
+	JCheckBox spawnNewAgents;
+	JCheckBox keepOldArray;
+	JCheckBox dropNewFood;
+	JCheckBox ColorCodedAgents;
+	JCheckBox newColorizer;
+	JCheckBox keepOldWaste;
+	JCheckBox keepOldPackets;
+	JCheckBox wrap;
+	JCheckBox flexibility;
+	JCheckBox PrisDilemma;
+	JCheckBox FoodWeb;
+	JTextField numColor;
+	JTextField colorSelectSize;
+	JTextField reColorTimeStep;
+	JTextField colorizerMode;
+	JTextField RandomSeed;
+	JTextField randomStones;
+	JTextField maxFoodChance;
+	JTextField memory_size;
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -98,11 +101,11 @@ public class GUI extends JPanel implements ActionListener {
 	JList mutable_phenotypes;
 
 	/** The TextFields and Buttons of the Genetic Algorithm tab. */
-	JButton link_gene_1 = new JButton("Link to Gene 1.");
+	JButton link_gene_1 = new JButton("Link to Gene 1");
 
-	JButton link_gene_2 = new JButton("Link to Gene 2.");
+	JButton link_gene_2 = new JButton("Link to Gene 2");
 
-	JButton link_gene_3 = new JButton("Link to Gene 3.");
+	JButton link_gene_3 = new JButton("Link to Gene 3");
 
 	public static String[] meiosis_mode_list = {"Colour Averaging",
 	"Random Recombination", "Gene Swapping"};
@@ -211,19 +214,19 @@ public class GUI extends JPanel implements ActionListener {
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////
 
-	JTable table1;
+	JTable resourceParamTable;
 
-	JTable table2;
+	JTable agentParamTable;
 
-	JTable table3;
+	JTable foodTable;
 
 	JTable tablePD;
 
 	JTabbedPane tabbedPane;
 
-	static Button close;
+	static JButton close;
 
-	static Button save;
+	static JButton save;
 
 	public Object[][] inputArray;
 
@@ -258,9 +261,35 @@ public class GUI extends JPanel implements ActionListener {
 		super();
 		CA = null;
 	}
+
+	private static String[] agentParamNames = { "Initial Num. of Agents", "Mutation Rate",
+		"Initial Energy", "Favourite Food Energy", "Other Food Energy",
+		"Breed Energy", "Pregnancy Period - 1 parent",
+		"Step Energy Loss", "Step Rock Energy Loss",
+		"Turn Right Energy Loss", "Turn Left Energy Loss",
+		"Memory Bits", "Min. Communication Similarity",
+		"Step Agent Energy Loss", "Communication Bits",
+		"Pregnancy Period - 2 parents", "Min. Breed Similarity",
+		"2 parents Breed Chance", "1 parent Breed Chance",
+		"Aging Mode", "Aging Limit", "Aging Rate", "Waste Mode",
+		"Step Waste Energy Loss", "Energy gain Limit",
+		"Energy usage Limit", "Waste Half-life Rate",
+		"Initial Waste Quantity", "PD Tit for Tat",
+		"PD Cooperation Probability", "Broadcast Mode",
+		"Broadcast range energy-based", "Broadcast fixed range",
+		"Broadcast Minimum Energy", "Broadcast Energy Cost" };
+
+	private static String[] foodNames = { "Agent Type 1", "Agent Type 2", "Agent Type 3",
+		"Agent Type 4", "Food Type 1", "Food Type 2", "Food Type 3",
+		"Food Type 4", };
+
+	private static String[] PDrownames = { "Temptation", "Reward", "Punishment",
+		"Sucker's Payoff" };
+
 	// GUI Special Constructor
 	public GUI(CobwebApplication ca, String filename) {
 		super();
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
 		CA = ca;
 		datafile = filename;
@@ -268,41 +297,198 @@ public class GUI extends JPanel implements ActionListener {
 
 		/* Environment panel - composed of 4 panels */
 
-		JComponent panel1 = new JPanel(new GridLayout(3, 2));
+		JComponent envPanel = setupEnvPanel();
+
+
+		row = resParamNames.length;
+
+		row2 = agentParamNames.length;
+
+		row3 = foodNames.length;
+
+		rowpd = PDrownames.length;
+
+		/*
+		 * check filename, if file name exists and has a correct format set the
+		 * values from the file filename
+		 */
+
+		controllerPanel = new AIPanel();
+
+
+		File f = new File(datafile);
+
+		if (f.exists()) {
+			try {
+				p = new Parser(datafile);
+				loadfromParser(p);
+			} catch (Throwable e) {
+				e.printStackTrace();
+				setDefault();
+			}
+		} else {
+			setDefault();
+		}
+
+
+		tabbedPane = new JTabbedPane();
+
+		tabbedPane.addTab("Environment", envPanel);
+
+		/* Resources panel */
+		JComponent resourcePanel = setupResourcePanel();
+		tabbedPane.addTab("Resources", resourcePanel);
+
+		/* Agents' panel */
+		JComponent agentPanel = setupAgentPanel();
+		tabbedPane.addTab("Agents", agentPanel);
+
+		JComponent foodPanel = setupFoodPanel();
+		tabbedPane.addTab("Food Web", foodPanel);
+
+		JComponent panelPD = setupPDpannel();
+		tabbedPane.addTab("PD Options", panelPD);
+
+		JComponent panelGA = setupGApannel();
+		tabbedPane.addTab("Genetic Algorithm", panelGA);
+
+		tabbedPane.addTab("AI", controllerPanel);
+
+
+		close = new JButton("OK");
+		close.setMaximumSize(new Dimension(80, 20));
+		close.addActionListener(new OkButtonListener());
+
+		save = new JButton("Save As...");
+		save.setMaximumSize(new Dimension(80, 20));
+		save.addActionListener(new SaveAsButtonListener());
+
+		JPanel buttons = new JPanel();
+		buttons.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		buttons.add(save);
+		buttons.add(close);
+
+		// Add the tabbed pane to this panel.
+		add(tabbedPane, BorderLayout.CENTER);
+		add(buttons, BorderLayout.SOUTH);
+		this.setPreferredSize(new Dimension(700, 570));
+	}
+
+	SettingsPanel controllerPanel;
+
+
+	private static final String[] AI_LIST = {
+		"cwcore.GeneticController",
+		"cwcore.LinearWeightsController"
+	};
+
+	private class AIPanel extends SettingsPanel {
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = 6045306756522429063L;
+
+
+		CardLayout cl = new CardLayout();
+		JPanel inner = new JPanel();
+
+		JComboBox aiSwitch;
+
+
+
+		public AIPanel() {
+			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			inner.setLayout(cl);
+
+			SettingsPanel GenPanel = new SettingsPanel() {
+				/**
+				 *
+				 */
+				private static final long serialVersionUID = 1139521733160862828L;
+
+				{
+					this.add(new JLabel("Nothing to configure"));
+				}
+
+				@Override
+				public void readFromParser(Parser p) {
+				}
+
+				@Override
+				public void writeXML(Writer out) throws IOException {
+				}
+
+			};
+			inner.add(GenPanel, AI_LIST[0]);
+
+			SettingsPanel LWpanel = new LinearAIGUI();
+			inner.add(LWpanel, AI_LIST[1]);
+
+			aiSwitch = new JComboBox(AI_LIST);
+			aiSwitch.setEditable(false);
+			aiSwitch.addItemListener(new ItemListener() {
+				public void itemStateChanged(ItemEvent e) {
+					cl.show(inner, (String)e.getItem());
+				}
+			});
+
+			add(aiSwitch);
+			add(inner);
+		}
+
+		@Override
+		public void readFromParser(Parser p) {
+			aiSwitch.setSelectedItem(p.ControllerName);
+			((SettingsPanel)inner.getComponent(aiSwitch.getSelectedIndex())).readFromParser(p);
+		}
+
+		@Override
+		public void writeXML(Writer out) throws IOException {
+			out.write("\t<ControllerName>" + aiSwitch.getSelectedItem() + "</ControllerName>\n");
+			out.write("\t<ControllerConfig>");
+			SettingsPanel contConf = (SettingsPanel)inner.getComponent(aiSwitch.getSelectedIndex());
+			contConf.writeXML(out);
+			out.write("</ControllerConfig>\n");
+		}
+
+
+	}
+
+
+	private JComponent setupEnvPanel() {
+		JComponent envPanel = new JPanel(new GridLayout(3, 2));
 
 		/* Environment Settings */
 		JPanel panel11 = new JPanel();
-		panel11.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.blue), "Grid Settings"));
+		setMyBorder(panel11, "Grid Settings");
 		JPanel labelPane = new JPanel(new GridLayout(3, 1));
 
-		labelPane.add(new Label("Width"));
-		labelPane.add(new Label("Height"));
-		labelPane.add(new Label("Wrap"));
+		labelPane.add(new JLabel("Width"));
+		labelPane.add(new JLabel("Height"));
+		labelPane.add(new JLabel("Wrap"));
 		JPanel fieldPane = new JPanel(new GridLayout(3, 1));
 
-		Width = new TextField(3);
-		Height = new TextField(3);
-		wrap = new Checkbox("");
+		Width = new JTextField(3);
+		Height = new JTextField(3);
+		wrap = new JCheckBox("");
 		fieldPane.add(Width, "North");
 		fieldPane.add(Height, "North");
 		fieldPane.add(wrap, "North");
 
 		panel11.add(labelPane, BorderLayout.WEST);
 		panel11.add(fieldPane, BorderLayout.EAST);
-		panel1.add(panel11, "WEST");
+		envPanel.add(panel11, "WEST");
 
 		JPanel panel15 = new JPanel();
-		panel15.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.blue), "Prisoner's Dilemma Options"));
+		setMyBorder(panel15, "Prisoner's Dilemma Options");
 		labelPane = new JPanel(new GridLayout(3, 1));
-		labelPane.add(new Label("Prisoner's Game"));
-		labelPane.add(new Label("Memory Size"));
-		labelPane.add(new Label("Energy Based"));
+		labelPane.add(new JLabel("Prisoner's Game"));
+		labelPane.add(new JLabel("Memory Size"));
+		labelPane.add(new JLabel("Energy Based"));
 
-		PrisDilemma = new Checkbox("");
-		memory_size = new TextField(3);
-		flexibility = new Checkbox("");
+		PrisDilemma = new JCheckBox("");
+		memory_size = new JTextField(3);
+		flexibility = new JCheckBox("");
 		fieldPane = new JPanel(new GridLayout(3, 1));
 
 		fieldPane.add(PrisDilemma, "North");
@@ -311,29 +497,27 @@ public class GUI extends JPanel implements ActionListener {
 
 		panel15.add(labelPane, BorderLayout.WEST);
 		panel15.add(fieldPane, BorderLayout.EAST);
-		panel1.add(panel15, "WEST");
+		envPanel.add(panel15, "WEST");
 
 		/* Colour Settings */
 		JPanel panel12 = new JPanel();
-		panel12.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.blue),
-				"Environment Transition Settings"));
+		setMyBorder(panel12, "Environment Transition Settings");
 		labelPane = new JPanel(new GridLayout(6, 1));
-		labelPane.add(new Label("Keep Old Agents"));
-		labelPane.add(new Label("Spawn New Agents"));
-		labelPane.add(new Label("Keep Old Array"));
-		labelPane.add(new Label("New Colorizer"));
-		labelPane.add(new Label("Keep Old Waste"));
-		labelPane.add(new Label("Keep Old Packets"));
+		labelPane.add(new JLabel("Keep Old Agents"));
+		labelPane.add(new JLabel("Spawn New Agents"));
+		labelPane.add(new JLabel("Keep Old Array"));
+		labelPane.add(new JLabel("New Colorizer"));
+		labelPane.add(new JLabel("Keep Old Waste"));
+		labelPane.add(new JLabel("Keep Old Packets"));
 
 		fieldPane = new JPanel(new GridLayout(6, 1));
-		keepOldAgents = new Checkbox("");
-		spawnNewAgents = new Checkbox("");
-		keepOldArray = new Checkbox("");
-		ColorCodedAgents = new Checkbox("");
-		newColorizer = new Checkbox("", true);
-		keepOldWaste = new Checkbox("", true);
-		keepOldPackets = new Checkbox("", true);
+		keepOldAgents = new JCheckBox("");
+		spawnNewAgents = new JCheckBox("");
+		keepOldArray = new JCheckBox("");
+		ColorCodedAgents = new JCheckBox("");
+		newColorizer = new JCheckBox("", true);
+		keepOldWaste = new JCheckBox("", true);
+		keepOldPackets = new JCheckBox("", true);
 
 		fieldPane.add(keepOldAgents, "North");
 		fieldPane.add(spawnNewAgents, "North");
@@ -344,26 +528,26 @@ public class GUI extends JPanel implements ActionListener {
 
 		panel12.add(labelPane, BorderLayout.WEST);
 		panel12.add(fieldPane, BorderLayout.EAST);
-		panel1.add(panel12);
+		envPanel.add(panel12);
 
 		/* Options */
 		JPanel panel13 = new JPanel();
-		panel13.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.blue), "Colour Settings"));
+		String title = "Colour Settings";
+		setMyBorder(panel13, title);
 		labelPane = new JPanel(new GridLayout(5, 1));
 
-		labelPane.add(new Label("No. of Colors"));
-		labelPane.add(new Label("Color Select Size"));
-		labelPane.add(new Label("Recolor Time Step"));
-		labelPane.add(new Label("Colorizer Mode"));
-		labelPane.add(new Label("Color Coded Agents"));
+		labelPane.add(new JLabel("No. of Colors"));
+		labelPane.add(new JLabel("Color Select Size"));
+		labelPane.add(new JLabel("Recolor Time Step"));
+		labelPane.add(new JLabel("Colorizer Mode"));
+		labelPane.add(new JLabel("Color Coded Agents"));
 
 		fieldPane = new JPanel(new GridLayout(5, 1));
 
-		numColor = new TextField(3);
-		colorSelectSize = new TextField(3);
-		reColorTimeStep = new TextField(3);
-		colorizerMode = new TextField(3);
+		numColor = new JTextField(3);
+		colorSelectSize = new JTextField(3);
+		reColorTimeStep = new JTextField(3);
+		colorizerMode = new JTextField(3);
 
 		fieldPane.add(numColor, "North");
 		fieldPane.add(colorSelectSize, "North");
@@ -373,35 +557,33 @@ public class GUI extends JPanel implements ActionListener {
 
 		panel13.add(labelPane, BorderLayout.WEST);
 		panel13.add(fieldPane, BorderLayout.CENTER);
-		panel1.add(panel13, "EAST");
+		envPanel.add(panel13, "EAST");
 
 		/* Random variables */
 		JPanel panel14 = new JPanel();
-		panel14.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.blue), "Random Variables"));
+		setMyBorder(panel14, "Random Variables");
 		labelPane = new JPanel(new GridLayout(2, 1));
-		labelPane.add(new Label("Random Seed"));
-		labelPane.add(new Label("Random Stones no."));
+		labelPane.add(new JLabel("Random Seed"));
+		labelPane.add(new JLabel("Random Stones no."));
 		fieldPane = new JPanel(new GridLayout(2, 1));
-		RandomSeed = new TextField(3);
-		randomStones = new TextField(3);
+		RandomSeed = new JTextField(3);
+		randomStones = new JTextField(3);
 
 		fieldPane.add(RandomSeed, "North");
 		fieldPane.add(randomStones, "North");
 
 		panel14.add(labelPane, BorderLayout.WEST);
 		panel14.add(fieldPane, BorderLayout.EAST);
-		panel1.add(panel14, "EAST");
+		envPanel.add(panel14, "EAST");
 
 		JPanel panel16 = new JPanel();
-		panel16.setBorder(BorderFactory.createTitledBorder(BorderFactory
-				.createLineBorder(Color.blue), "General Food Variables"));
+		setMyBorder(panel16, "General Food Variables");
 		labelPane = new JPanel(new GridLayout(2, 1));
-		labelPane.add(new Label("Drop New Food"));
-		labelPane.add(new Label("Max Food Chance"));
+		labelPane.add(new JLabel("Drop New Food"));
+		labelPane.add(new JLabel("Max Food Chance"));
 
-		dropNewFood = new Checkbox("");
-		maxFoodChance = new TextField(3);
+		dropNewFood = new JCheckBox("");
+		maxFoodChance = new JTextField(3);
 
 		fieldPane = new JPanel(new GridLayout(2, 1));
 		fieldPane.add(dropNewFood, "North");
@@ -409,158 +591,98 @@ public class GUI extends JPanel implements ActionListener {
 
 		panel16.add(labelPane, BorderLayout.WEST);
 		panel16.add(fieldPane, BorderLayout.EAST);
-		panel1.add(panel16, "EAST");
+		envPanel.add(panel16, "EAST");
+		return envPanel;
+	}
 
-		String[] rownames = { "Initial Food Amount", "Food Rate",
-				"Growth Rate", "Depletion Rate", "Depletion Steps",
-				"Draught period", "Food Mode" };
-		row = rownames.length;
-		String[] rownames2 = { "Initial Num. of Agents", "Mutation Rate",
-				"Initial Energy", "Favourite Food Energy", "Other Food Energy",
-				"Breed Energy", "Pregnancy Period - 1 parent",
-				"Step Energy Loss", "Step Rock Energy Loss",
-				"Turn Right Energy Loss", "Turn Left Energy Loss",
-				"Memory Bits", "Min. Communication Similarity",
-				"Step Agent Energy Loss", "Communication Bits",
-				"Pregnancy Period - 2 parents", "Min. Breed Similarity",
-				"2 parents Breed Chance", "1 parent Breed Chance",
-				"Aging Mode", "Aging Limit", "Aging Rate", "Waste Mode",
-				"Step Waste Energy Loss", "Energy gain Limit",
-				"Energy usage Limit", "Waste Half-life Rate",
-				"Initial Waste Quantity", "PD Tit for Tat",
-				"PD Cooperation Probability", "Broadcast Mode",
-				"Broadcast range energy-based", "Broadcast fixed range",
-				"Broadcast Minimum Energy", "Broadcast Energy Cost" };
 
-		row2 = rownames2.length;
-		String[] rownames3 = { "Agent Type 1", "Agent Type 2", "Agent Type 3",
-				"Agent Type 4", "Food Type 1", "Food Type 2", "Food Type 3",
-				"Food Type 4", };
+	private void setMyBorder(JComponent panel13, String title) {
+		panel13.setBorder(BorderFactory.createTitledBorder(BorderFactory
+				.createLineBorder(Color.blue), title));
+	}
 
-		row3 = rownames3.length;
+	private static String[] resParamNames = { "Initial Food Amount", "Food Rate",
+		"Growth Rate", "Depletion Rate", "Depletion Steps",
+		"Draught period", "Food Mode" };
 
-		String[] PDrownames = { "Temptation", "Reward", "Punishment",
-				"Sucker's Payoff" };
-		rowpd = PDrownames.length;
+	private JComponent setupResourcePanel() {
 
-		/*
-		 * check filename, if file name exists and has a correct format set the
-		 * values from the file filename
-		 */
-
-		File f = new File(datafile);  // $$$$$  a new file named as datafile will be automatically created
-									  //          after click "OK" button, line 590 write the file.  Jan 24
-		// $$$$$$ delete temporary file "default_data_(reserved).temp", for "Default" button (and "Retrieve Default Data" menu).  Jan 31
-		//if ( datafile.equals( (CobwebApplication.DEFAULT_DATA_FILE_NAME + TEMPORARY_FILE_SUFFIX) ) ) {
-		//	f.deleteOnExit();
-			//f.delete();
-		//}
-		if (f.exists()) {
-			try {
-				p = new Parser(datafile);
-				loadfromParser(p);
-			} catch (Throwable e) {
-				setDefault();
-			}
-		} else {
-			setDefault();
-		}
-
-		/* Resources panel */
-		JComponent panel2 = new JPanel();
-		table1 = new JTable(new MyTableModel(rownames, data1.length, data1));
-		table1.setPreferredScrollableViewportSize(new Dimension(500, 300));
-		table1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		TableColumnModel colModel = table1.getColumnModel();
+		JComponent resourcePanel = new JPanel();
+		resourceParamTable = new JTable(new MyTableModel(resParamNames, data1.length, data1));
+		TableColumnModel colModel = resourceParamTable.getColumnModel();
 		// Get the column at index pColumn, and set its preferred width.
 		colModel.getColumn(0).setPreferredWidth(120);
+		System.out.println(colModel.getColumn(0).getHeaderValue());
 
-		for (int i = 1; i < data1.length + 1; i++) {
-			colModel.getColumn(i).setPreferredWidth(60);
-		}
+		JScrollPane resourceScroll = new JScrollPane(resourceParamTable);
+		resourcePanel.setLayout(new BoxLayout(resourcePanel, BoxLayout.X_AXIS));
+		setMyBorder(resourcePanel, "Resource Parameters");
+		resourcePanel.add(resourceScroll);
+		return resourcePanel;
+	}
 
-		// Create the scroll pane and add the table to it.
-		JScrollPane scrollPane1 = new JScrollPane(table1);
-		scrollPane1.setPreferredSize(new Dimension(420, 300));
-		table1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		// Add the scroll pane to this panel.
 
-		panel2.add(scrollPane1, BorderLayout.CENTER);
+	private JComponent setupAgentPanel() {
+		JComponent agentPanel = new JPanel();
+		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
+		setMyBorder(agentPanel, "Agent Parameters");
 
-		/* Agents' panel */
+		agentParamTable = new JTable(new MyTableModel(agentParamNames, data2.length, data2));
 
-		JComponent panel3 = new JPanel();
-		// tabbedPane.addTab("Agents", panel3);
-
-		table2 = new JTable(new MyTableModel(rownames2, data2.length, data2));
-
-		table2.setPreferredScrollableViewportSize(new Dimension(800, 300));
-		// table2.getModel().addTableModelListener(model);
-
-		// Create the scroll pane and add the table to it.
-		JScrollPane scrollPane2 = new JScrollPane(table2);
-		scrollPane2.setPreferredSize(new Dimension(400, 300));
-		table2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-
-		TableColumnModel colModel2 = table2.getColumnModel();
+		TableColumnModel agParamColModel = agentParamTable.getColumnModel();
 		// Get the column at index pColumn, and set its preferred width.
-		colModel2.getColumn(0).setPreferredWidth(175);
+		agParamColModel.getColumn(0).setPreferredWidth(200);
 
-		for (int i = 1; i < data2.length + 1; i++) {
-			colModel2.getColumn(i).setPreferredWidth(50);
-		}
-
+		JScrollPane agentScroll = new JScrollPane(agentParamTable);
 		// Add the scroll pane to this panel.
-		panel3.add(scrollPane2, BorderLayout.CENTER);
+		agentPanel.add(agentScroll);
+		return agentPanel;
+	}
 
-		JComponent panel5 = new JPanel();
+
+	private JComponent setupFoodPanel() {
+		JComponent foodPanel = new JPanel();
 		// tabbedPane.addTab("Agents", panel3);
 
-		table3 = new JTable(new MyTableModel2(rownames3, data3.length, data3));
+		foodTable = new JTable(new MyTableModel2(foodNames, data3.length, data3));
 
-		table3.setPreferredScrollableViewportSize(new Dimension(800, 300));
+		//table3.setPreferredScrollableViewportSize(new Dimension(800, 300));
 		// table2.getModel().addTableModelListener(model);
 
 		// Create the scroll pane and add the table to it.
-		JScrollPane scrollPane3 = new JScrollPane(table3);
-		scrollPane3.setPreferredSize(new Dimension(400, 300));
-		table3.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		JScrollPane foodScroll = new JScrollPane(foodTable);
+		//scrollPane3.setPreferredSize(new Dimension(400, 300));
+		//table3.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
-		panel5.add(scrollPane3, BorderLayout.CENTER);
+		foodPanel.setLayout(new BoxLayout(foodPanel, BoxLayout.X_AXIS));
+		setMyBorder(foodPanel, "Food Parameters");
+		foodPanel.add(foodScroll);
+		return foodPanel;
+	}
 
-		// Toolkit toolkit = Toolkit.getDefaultToolkit();
-		// ImageIcon icon = new
-		// ImageIcon((toolkit.createImage("images/sesame.GIF")).getScaledInstance(30,30,10)
-		// );
 
-		tabbedPane = new JTabbedPane();
-
-		tabbedPane.addTab("Environment", panel1);
-		tabbedPane.addTab("Resources", panel2);
-		tabbedPane.addTab("Agents", panel3);
-		tabbedPane.addTab("Food Web", panel5);
-
-		/***********************************************************************
-		 * /* Prisoners' Dilemma (PD) options and payoff matrix added as a
-		 * separate tab
-		 */
+	private JComponent setupPDpannel() {
 		JComponent panelPD = new JPanel();
 
 		tablePD = new JTable(new PDTable(PDrownames, PDdata));
-		tablePD.setPreferredScrollableViewportSize(new Dimension(800, 300));
+		//tablePD.setPreferredScrollableViewportSize(new Dimension(800, 300));
 		JScrollPane scrollPanePD = new JScrollPane(tablePD);
 		// Create the scroll pane and add the table to it.
-		scrollPanePD.setPreferredSize(new Dimension(400, 150));
-		tablePD.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-		(tablePD.getColumnModel()).getColumn(0).setPreferredWidth(200);
+		//scrollPanePD.setPreferredSize(new Dimension(400, 150));
+		//tablePD.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		//(tablePD.getColumnModel()).getColumn(0).setPreferredWidth(200);
 
 		panelPD.add(scrollPanePD, BorderLayout.CENTER);
-		tabbedPane.addTab("PD Options", panelPD);
-		/** **************************************************************************************************** */
-		/** ************************************************************************************* */
-		// GA interface implementation in Panel 6.
 
-		JComponent panelGA = new JPanel(new BorderLayout());
+		panelPD.setLayout(new BoxLayout(panelPD, BoxLayout.X_AXIS));
+		setMyBorder(panelPD, "Prisoner's Dilemma Parameters");
+		return panelPD;
+	}
+
+
+	private JComponent setupGApannel() {
+		JComponent panelGA = new JPanel();
+		panelGA.setLayout(new BoxLayout(panelGA, BoxLayout.Y_AXIS));
 		DefaultListModel mutable_list_model = new DefaultListModel();
 		for (String element : PhenotypeMaster.mutable) {
 			mutable_list_model.addElement(element);
@@ -569,27 +691,24 @@ public class GUI extends JPanel implements ActionListener {
 		mutable_phenotypes = new JList(mutable_list_model);
 		mutable_phenotypes
 				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		mutable_phenotypes.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		mutable_phenotypes.setLayoutOrientation(JList.VERTICAL_WRAP);
 		mutable_phenotypes.setVisibleRowCount(-1);
 		JScrollPane phenotypeScroller = new JScrollPane(mutable_phenotypes);
-		phenotypeScroller.setPreferredSize(new Dimension(150, 260));
+		phenotypeScroller.setPreferredSize(new Dimension(150, 200));
 
 		// Set the default selected item as the previously selected item.
 		meiosis_mode.setSelectedIndex(GeneticCode.meiosis_mode_index);
 
 		JPanel gene_1 = new JPanel();
 		gene_1.add(link_gene_1);
-		gene_1.setPreferredSize(new Dimension(150, 100));
 
 		JPanel gene_2 = new JPanel();
 		gene_2.add(link_gene_2);
-		gene_2.setPreferredSize(new Dimension(150, 100));
 
 		JPanel gene_3 = new JPanel();
 		gene_3.add(link_gene_3);
-		gene_3.setPreferredSize(new Dimension(150, 100));
 
-		JPanel gene_info_display = new JPanel();
+		JPanel gene_info_display = new JPanel(new BorderLayout());
 
 		gene_info_display.add(gene_1, BorderLayout.WEST);
 		gene_info_display.add(gene_2, BorderLayout.CENTER);
@@ -617,11 +736,20 @@ public class GUI extends JPanel implements ActionListener {
 
 		gene_info_display.add(ga_combined_panel, BorderLayout.SOUTH);
 
-		JScrollPane genetic_table_scroller = new JScrollPane(genetic_table);
-		genetic_table_scroller.setPreferredSize(new Dimension(150, 260));
-		panelGA.add(genetic_table_scroller, BorderLayout.CENTER);
-		panelGA.add(gene_info_display, BorderLayout.SOUTH);
-		panelGA.add(phenotypeScroller, BorderLayout.NORTH);
+		genetic_table.setPreferredScrollableViewportSize(new Dimension(150, 160));
+		genetic_table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+		setMyBorder(phenotypeScroller, "Agent Parameter Selection");
+
+		panelGA.add(phenotypeScroller);
+
+		JScrollPane geneScroll = new JScrollPane(genetic_table);
+
+		setMyBorder(geneScroll, "Gene Bindings");
+
+		panelGA.add(geneScroll);
+
+		panelGA.add(gene_info_display);
 
 		/** Listeners of JButtons, JComboBoxes, and JCheckBoxes */
 		link_gene_1.addActionListener(this);
@@ -632,165 +760,8 @@ public class GUI extends JPanel implements ActionListener {
     	track_gene_value_distribution.addActionListener(this);
     	chart_update_frequency.addActionListener(this);
 
-		tabbedPane.addTab("Genetic Algorithm", panelGA);
-
-		/** ************************************************************************************* */
-
-		/**
-		 * ***************************************************************************************************.
-		 *  /* "OK" button
-		 */
-		close = new java.awt.Button("OK");
-		close.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-
-			/*	$$$$$$  Invalidate the below codes and use the help
-			 *  $$$$$$    method checkValidityOfGAInput instead.  Feb 1
-				Pattern pattern = Pattern.compile("^[01]{8}$");
-				Matcher matcher;
-
-				boolean correct_input = true;
-
-				// $$$$$$  added on Jan 23  $$$$$  not perfect since the dialog won't popup until hit "OK"
-				updateTable(genetic_table);
-
-				for (int i = GA_AGENT_1_ROW; i < GA_AGENT_1_ROW + GA_NUM_AGENT_TYPES; i++) {
-					for (int j = GA_GENE_1_COL; j < GA_GENE_1_COL + GA_NUM_GENES; j++) {
-						matcher = pattern.matcher((String) genetic_table.getValueAt(i,j));
-						if (!matcher.find()) {
-							correct_input = false;
-							JOptionPane.showMessageDialog(GUI.this,
-							"GA: All genes must be binary and 8-bit long");
-							break;
-						}
-					}
-					if (!correct_input) {
-						break;
-					}
-				}
-			*/
-				// $$$$$$ check validity of genetic table input.  Feb 1
-				boolean correct_GA_input;
-				correct_GA_input = checkValidityOfGAInput();
-
-				// Save the chart update frequency
-				try {
-					int freq = Integer.parseInt(chart_update_frequency.getText());
-					if (freq <= 0) { // Non-positive integers
-						GAChartOutput.update_frequency = 1;
-					} else { // Valid input
-						GAChartOutput.update_frequency = freq;
-					}
-				} catch (NumberFormatException e) { // Invalid input
-					GAChartOutput.update_frequency = 1;
-				}
-
-				if ( (checkHeightLessThanWidth() != false) && (correct_GA_input != false) ) {
-
-					//checkRandomSeedValidity(); // $$$$$$ added on Feb 18
-					// $$$$$$ Change the above code as follows on Feb 25
-					if (CA.randomSeedReminder == 0) {
-						CA.randomSeedReminder = checkRandomSeedStatus();
-					}
-					/*
-					 * this fragment of code is necessary to update the last cell of
-					 * the table before saving it
-					 */
-					updateTable(table1);
-					updateTable(table2);
-					updateTable(table3);
-					updateTable(tablePD); // $$$$$$ Jan 25
-
-					/* write UI info to xml file */
-					try {
-						write(datafile);  // $$$$$ write attributes showed in the "Test Data" window into the file "datafile".   Jan 24
-					} catch (java.io.IOException e) {
-					}
-
-					/* create a new parser for the xml file */
-					try {
-						p = new Parser(datafile);
-					} catch (FileNotFoundException ex) {
-						// TODO Auto-generated catch block
-						ex.printStackTrace();
-					}
-					CA.openFile(p);
-					if (!datafile.equals(CA.getCurrentFile())) {CA.setCurrentFile(datafile);}  // $$$$$$ added on Mar 14
-					frame.setVisible(false);
-					frame.dispose(); // $$$$$$ added on Feb 28
-					// $$$$$$ Added on Mar 14
-					if (CA.getUI() != null) {
-						if(CA.isInvokedByModify() == false) {
-							CA.getUI().reset();   // reset tick
-							//CA.refresh(CA.getUI());
-							//if (CA.tickField != null && !CA.tickField.getText().equals("")) {CA.tickField.setText("");}    // $$$$$$ Mar 17
-						}
-						CA.getUI().refresh(1);
-
-						/*** $$$$$$ Cancel textWindow  Apr 22*/
-						if (cobweb.globals.usingTextWindow == true) {
-							// $$$$$$ Reset the output window, specially for Linux.  Mar 29
-							if (CA.textArea.getText().endsWith(CobwebApplication.GREETINGS) == false) {
-								CA.textArea.setText(CobwebApplication.GREETINGS);
-							}
-						}
-
-					}
-				}
-			}
-		});
-
-		save = new java.awt.Button("Save");
-		save.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				// $$$$$$ check validity of genetic table input.  Feb 1
-
-				// Save the chart update frequency
-				try {
-					int freq = Integer.parseInt(chart_update_frequency.getText());
-					if (freq <= 0) { // Non-positive integers
-						GAChartOutput.update_frequency = 1;
-					} else { // Valid input
-						GAChartOutput.update_frequency = freq;
-					}
-				} catch (NumberFormatException f) { // Invalid input
-					GAChartOutput.update_frequency = 1;
-				}
-
-				boolean correct_GA_input;
-				correct_GA_input = checkValidityOfGAInput();
-
-				// $$$$$$ Implement "Save" only if GA input is correct
-				if ( (checkHeightLessThanWidth() != false) && (correct_GA_input != false) ) { // modified on Feb 21
-
-					//checkRandomSeedValidity();	// $$$$$$ added on Feb 22
-					// $$$$$$ Change the above code as follows on Feb 25
-					if (CA.randomSeedReminder == 0) {
-						CA.randomSeedReminder = checkRandomSeedStatus();
-					}
-
-					updateTable(table1);
-					updateTable(table2);
-					updateTable(table3);
-					updateTable(tablePD); // $$$$$$ Jan 25
-					//updateTable(genetic_table);  // $$$$$$ Jan 25 $$$$$$ genetic_table already updated by checkValidityOfGAInput(). Feb 22
-					openFileDialog();
-
-
-
-				}
-			}
-		});
-
-		JPanel buttons = new JPanel();
-		buttons.setLayout(new BorderLayout());
-		buttons.add(save, BorderLayout.WEST);
-		buttons.add(new JLabel(" "));
-		buttons.add(close, BorderLayout.EAST);
-
-		// Add the tabbed pane to this panel.
-		add(tabbedPane);
-		add(buttons, BorderLayout.SOUTH);
+    	setMyBorder(panelGA, "Genetic Algorithm Parameters");
+		return panelGA;
 	}
 
 	// $$$$$$  Check the validity of genetic_table input, used by "OK" and "Save" buttons.  Feb 1
@@ -871,7 +842,7 @@ public class GUI extends JPanel implements ActionListener {
 
 	// $$$$$$ This openFileDialog method is invoked by pressing the "Save" button
 	public void openFileDialog() {
-		java.awt.FileDialog theDialog = new java.awt.FileDialog(frame,
+		FileDialog theDialog = new FileDialog(frame,
 				"Choose a file to save state to", java.awt.FileDialog.SAVE);
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
@@ -942,6 +913,123 @@ public class GUI extends JPanel implements ActionListener {
 
 	public Parser getParser() {
 		return p;
+	}
+
+	private final class SaveAsButtonListener implements
+			java.awt.event.ActionListener {
+		public void actionPerformed(java.awt.event.ActionEvent e) {
+			// $$$$$$ check validity of genetic table input.  Feb 1
+
+			// Save the chart update frequency
+			try {
+				int freq = Integer.parseInt(chart_update_frequency.getText());
+				if (freq <= 0) { // Non-positive integers
+					GAChartOutput.update_frequency = 1;
+				} else { // Valid input
+					GAChartOutput.update_frequency = freq;
+				}
+			} catch (NumberFormatException f) { // Invalid input
+				GAChartOutput.update_frequency = 1;
+			}
+
+			boolean correct_GA_input;
+			correct_GA_input = checkValidityOfGAInput();
+
+			// $$$$$$ Implement "Save" only if GA input is correct
+			if ( (checkHeightLessThanWidth() != false) && (correct_GA_input != false) ) { // modified on Feb 21
+
+				//checkRandomSeedValidity();	// $$$$$$ added on Feb 22
+				// $$$$$$ Change the above code as follows on Feb 25
+				if (CA.randomSeedReminder == 0) {
+					CA.randomSeedReminder = checkRandomSeedStatus();
+				}
+
+				updateTable(resourceParamTable);
+				updateTable(agentParamTable);
+				updateTable(foodTable);
+				updateTable(tablePD); // $$$$$$ Jan 25
+				//updateTable(genetic_table);  // $$$$$$ Jan 25 $$$$$$ genetic_table already updated by checkValidityOfGAInput(). Feb 22
+				openFileDialog();
+
+
+
+			}
+		}
+	}
+
+	private final class OkButtonListener implements ActionListener {
+		public void actionPerformed(java.awt.event.ActionEvent evt) {
+
+			// $$$$$$ check validity of genetic table input.  Feb 1
+			boolean correct_GA_input;
+			correct_GA_input = checkValidityOfGAInput();
+
+			// Save the chart update frequency
+			try {
+				int freq = Integer.parseInt(chart_update_frequency.getText());
+				if (freq <= 0) { // Non-positive integers
+					GAChartOutput.update_frequency = 1;
+				} else { // Valid input
+					GAChartOutput.update_frequency = freq;
+				}
+			} catch (NumberFormatException e) { // Invalid input
+				GAChartOutput.update_frequency = 1;
+			}
+
+			if ( (checkHeightLessThanWidth() != false) && (correct_GA_input != false) ) {
+
+				//checkRandomSeedValidity(); // $$$$$$ added on Feb 18
+				// $$$$$$ Change the above code as follows on Feb 25
+				if (CA.randomSeedReminder == 0) {
+					CA.randomSeedReminder = checkRandomSeedStatus();
+				}
+				/*
+				 * this fragment of code is necessary to update the last cell of
+				 * the table before saving it
+				 */
+				updateTable(resourceParamTable);
+				updateTable(agentParamTable);
+				updateTable(foodTable);
+				updateTable(tablePD); // $$$$$$ Jan 25
+
+				/* write UI info to xml file */
+				try {
+					write(datafile);  // $$$$$ write attributes showed in the "Test Data" window into the file "datafile".   Jan 24
+				} catch (java.io.IOException e) {
+					throw new RuntimeException(e);
+				}
+
+				/* create a new parser for the xml file */
+				try {
+					p = new Parser(datafile);
+				} catch (FileNotFoundException ex) {
+					// TODO Auto-generated catch block
+					ex.printStackTrace();
+				}
+				CA.openFile(p);
+				if (!datafile.equals(CA.getCurrentFile())) {CA.setCurrentFile(datafile);}  // $$$$$$ added on Mar 14
+				frame.setVisible(false);
+				frame.dispose(); // $$$$$$ added on Feb 28
+				// $$$$$$ Added on Mar 14
+				if (CA.getUI() != null) {
+					if(CA.isInvokedByModify() == false) {
+						CA.getUI().reset();   // reset tick
+						//CA.refresh(CA.getUI());
+						//if (CA.tickField != null && !CA.tickField.getText().equals("")) {CA.tickField.setText("");}    // $$$$$$ Mar 17
+					}
+					CA.getUI().refresh(1);
+
+					/*** $$$$$$ Cancel textWindow  Apr 22*/
+					if (cobweb.globals.usingTextWindow == true) {
+						// $$$$$$ Reset the output window, specially for Linux.  Mar 29
+						if (CA.textArea.getText().endsWith(CobwebApplication.GREETINGS) == false) {
+							CA.textArea.setText(CobwebApplication.GREETINGS);
+						}
+					}
+
+				}
+			}
+		}
 	}
 
 	class PDTable extends AbstractTableModel {
@@ -1167,8 +1255,6 @@ public class GUI extends JPanel implements ActionListener {
 		@SuppressWarnings("unused")
 		private String[] rowNames;
 
-		private final int numTypes = 0;
-
 		MyTableModel2(String rownames[], int numcol, Object data[][]) {
 			super(rownames, numcol, data);
 		}
@@ -1200,26 +1286,26 @@ public class GUI extends JPanel implements ActionListener {
 		frame.getContentPane().add(newContentPane/* new GUI(ca, datafile) */,
 				BorderLayout.CENTER);
 		// Display the window.
-
 		frame.pack();
 		frame.setVisible(true);
+		frame.validate();
 	}
 
 	public void setDefault() {
 		Width.setText("20");
-		wrap.setState(false);
+		wrap.setSelected(false);
 		Height.setText(Width.getText()); // $$$$$$ change to make Width == Height.  Feb 20
 		memory_size.setText("10");
-		flexibility.setState(false);
-		PrisDilemma.setState(false);
-		keepOldAgents.setState(false);
-		spawnNewAgents.setState(true);
-		keepOldArray.setState(false);
-		dropNewFood.setState(true);
-		ColorCodedAgents.setState(true);
-		newColorizer.setState(true);
-		keepOldWaste.setState(false); // $$$$$$ change from true to false for retrievable experiments.  Feb 20
-		keepOldPackets.setState(true);
+		flexibility.setSelected(false);
+		PrisDilemma.setSelected(false);
+		keepOldAgents.setSelected(false);
+		spawnNewAgents.setSelected(true);
+		keepOldArray.setSelected(false);
+		dropNewFood.setSelected(true);
+		ColorCodedAgents.setSelected(true);
+		newColorizer.setSelected(true);
+		keepOldWaste.setSelected(false); // $$$$$$ change from true to false for retrievable experiments.  Feb 20
+		keepOldPackets.setSelected(true);
 		numColor.setText("3");
 		colorSelectSize.setText("3");
 		reColorTimeStep.setText("300");
@@ -1540,14 +1626,16 @@ public class GUI extends JPanel implements ActionListener {
 		PDdata[1][0] = Array.get(p.getfromHashTable("reward"), 0);
 		PDdata[2][0] = Array.get(p.getfromHashTable("punishment"), 0);
 		PDdata[3][0] = Array.get(p.getfromHashTable("sucker"), 0);
+
+		controllerPanel.readFromParser(p);
 	}
 
-	private void setTextField(TextField fieldName, Object value) {
+	private void setTextField(JTextField fieldName, Object value) {
 		fieldName.setText(value.toString());
 	}
 
-	private void setCheckBoxState(Checkbox boxName, Object state) {
-		boxName.setState(((Boolean) state).booleanValue());
+	private void setCheckBoxState(JCheckBox boxName, Object state) {
+		boxName.setSelected(((Boolean) state).booleanValue());
 	}
 
 	private void setTableData(Object data[][], Object rowdata, int row) {
@@ -1595,7 +1683,7 @@ public class GUI extends JPanel implements ActionListener {
 	}
 
 	/**
-	 * Writes the information stored in this tree to an XML file, comforming to
+	 * Writes the information stored in this tree to an XML file, conforming to
 	 * the rules of our spec.
 	 *
 	 * @param fileName
@@ -1614,6 +1702,8 @@ public class GUI extends JPanel implements ActionListener {
 
 				out.write("\t" + "<scheduler>" + TickScheduler + "</scheduler>"
 						+ "\n");
+
+				controllerPanel.writeXML(out);
 				// out.write("\t" + "<ComplexEnvironment>" + new
 				// Integer(ComplexEnvironment.getText()) +
 				// "</ComplexEnvironment>" + "\n");
@@ -1621,10 +1711,10 @@ public class GUI extends JPanel implements ActionListener {
 						+ "\n");
 				out.write("\t" + "<Height>" + Height.getText() + "</Height>"
 						+ "\n");
-				out.write("\t" + "<wrap>" + new Boolean(wrap.getState())
+				out.write("\t" + "<wrap>" + new Boolean(wrap.isSelected())
 						+ "</wrap>" + "\n");
 				out.write("\t" + "<PrisDilemma>"
-						+ new Boolean(PrisDilemma.getState())
+						+ new Boolean(PrisDilemma.isSelected())
 						+ "</PrisDilemma>" + "\n");
 				out.write("\t" + "<randomStones>"
 						+ new Integer(randomStones.getText())
@@ -1633,28 +1723,28 @@ public class GUI extends JPanel implements ActionListener {
 						+ new Float(maxFoodChance.getText())
 						+ "</maxFoodChance>" + "\n");
 				out.write("\t" + "<keepOldAgents>"
-						+ new Boolean(keepOldAgents.getState())
+						+ new Boolean(keepOldAgents.isSelected())
 						+ "</keepOldAgents>" + "\n");
 				out.write("\t" + "<spawnNewAgents>"
-						+ new Boolean(spawnNewAgents.getState())
+						+ new Boolean(spawnNewAgents.isSelected())
 						+ "</spawnNewAgents>" + "\n");
 				out.write("\t" + "<keepOldArray>"
-						+ new Boolean(keepOldArray.getState())
+						+ new Boolean(keepOldArray.isSelected())
 						+ "</keepOldArray>" + "\n");
 				out.write("\t" + "<dropNewFood>"
-						+ new Boolean(dropNewFood.getState())
+						+ new Boolean(dropNewFood.isSelected())
 						+ "</dropNewFood>" + "\n");
 				out.write("\t" + "<randomSeed>"
 						+ new Integer(RandomSeed.getText()) + "</randomSeed>"
 						+ "\n");
 				out.write("\t" + "<newColorizer>"
-						+ new Boolean(newColorizer.getState())
+						+ new Boolean(newColorizer.isSelected())
 						+ "</newColorizer>" + "\n");
 				out.write("\t" + "<keepOldWaste>"
-						+ new Boolean(keepOldWaste.getState())
+						+ new Boolean(keepOldWaste.isSelected())
 						+ "</keepOldWaste>" + "\n");
 				out.write("\t" + "<keepOldPackets>"
-						+ new Boolean(keepOldPackets.getState())
+						+ new Boolean(keepOldPackets.isSelected())
 						+ "</keepOldPackets>" + "\n");
 				out.write("\t" + "<numColor>" + new Integer(numColor.getText())
 						+ "</numColor>" + "\n");
@@ -1668,17 +1758,17 @@ public class GUI extends JPanel implements ActionListener {
 						+ new Integer(colorizerMode.getText())
 						+ "</colorizerMode>" + "\n");
 				out.write("\t" + "<ColorCodedAgents>"
-						+ new Boolean(ColorCodedAgents.getState())
+						+ new Boolean(ColorCodedAgents.isSelected())
 						+ "</ColorCodedAgents>" + "\n");
 				out.write("\t" + "<memorySize>"
 						+ new Integer(memory_size.getText()) + "</memorySize>"
 						+ "\n");
 				out.write("\t" + "<food_bias>"
-						+ new Boolean(flexibility.getState()) + "</food_bias>"
+						+ new Boolean(flexibility.isSelected()) + "</food_bias>"
 						+ "\n");
 
-				writeHelperFood(out, table1.getColumnCount());
-				writeHelperAgents(out, table2.getColumnCount());
+				writeHelperFood(out, resourceParamTable.getColumnCount());
+				writeHelperAgents(out, agentParamTable.getColumnCount());
 				writeHelperPDOptions(out);
 				writeHelperGA(out);
 				out.write("</inputData>");
@@ -1686,7 +1776,7 @@ public class GUI extends JPanel implements ActionListener {
 				out.close();
 			}
 		} catch (IOException e) {
-			return false;
+			throw new RuntimeException(e);
 		}
 		return true;
 	}
@@ -1701,20 +1791,20 @@ public class GUI extends JPanel implements ActionListener {
 				// write the node info for the current node
 				out.write("<food>" + "\n");
 				out.write("\t" + "<Index>" + (type - 1) + "</Index>" + "\n");
-				out.write("\t" + "<Food>" + table1.getValueAt(0, type)
+				out.write("\t" + "<Food>" + resourceParamTable.getValueAt(0, type)
 						+ "</Food>" + "\n");
-				out.write("\t" + "<FoodRate>" + table1.getValueAt(1, type)
+				out.write("\t" + "<FoodRate>" + resourceParamTable.getValueAt(1, type)
 						+ "</FoodRate>" + "\n");
-				out.write("\t" + "<FoodGrow>" + table1.getValueAt(2, type)
+				out.write("\t" + "<FoodGrow>" + resourceParamTable.getValueAt(2, type)
 						+ "</FoodGrow>" + "\n");
-				out.write("\t" + "<FoodDeplete>" + table1.getValueAt(3, type)
+				out.write("\t" + "<FoodDeplete>" + resourceParamTable.getValueAt(3, type)
 						+ "</FoodDeplete>" + "\n");
 				out.write("\t" + "<DepleteTimeSteps>"
-						+ table1.getValueAt(4, type) + "</DepleteTimeSteps>"
+						+ resourceParamTable.getValueAt(4, type) + "</DepleteTimeSteps>"
 						+ "\n");
-				out.write("\t" + "<DraughtPeriod>" + table1.getValueAt(5, type)
+				out.write("\t" + "<DraughtPeriod>" + resourceParamTable.getValueAt(5, type)
 						+ "</DraughtPeriod>" + "\n");
-				out.write("\t" + "<FoodMode>" + table1.getValueAt(6, type)
+				out.write("\t" + "<FoodMode>" + resourceParamTable.getValueAt(6, type)
 						+ "</FoodMode>" + "\n");
 				out.write("</food>" + "\n");
 			} catch (IOException e) {
@@ -1732,92 +1822,92 @@ public class GUI extends JPanel implements ActionListener {
 				// write the node info for the current node
 				out.write("<agent>" + "\n");
 				out.write("\t" + "<Index>" + (type - 1) + "</Index>" + "\n");
-				out.write("\t" + "<Agents>" + table2.getValueAt(0, type)
+				out.write("\t" + "<Agents>" + agentParamTable.getValueAt(0, type)
 						+ "</Agents>" + "\n");
-				out.write("\t" + "<MutationRate>" + table2.getValueAt(1, type)
+				out.write("\t" + "<MutationRate>" + agentParamTable.getValueAt(1, type)
 						+ "</MutationRate>" + "\n");
-				out.write("\t" + "<InitEnergy>" + table2.getValueAt(2, type)
+				out.write("\t" + "<InitEnergy>" + agentParamTable.getValueAt(2, type)
 						+ "</InitEnergy>" + "\n");
-				out.write("\t" + "<FoodEnergy>" + table2.getValueAt(3, type)
+				out.write("\t" + "<FoodEnergy>" + agentParamTable.getValueAt(3, type)
 						+ "</FoodEnergy>" + "\n");
 				out.write("\t" + "<OtherFoodEnergy>"
-						+ table2.getValueAt(4, type) + "</OtherFoodEnergy>"
+						+ agentParamTable.getValueAt(4, type) + "</OtherFoodEnergy>"
 						+ "\n");
-				out.write("\t" + "<BreedEnergy>" + table2.getValueAt(5, type)
+				out.write("\t" + "<BreedEnergy>" + agentParamTable.getValueAt(5, type)
 						+ "</BreedEnergy>" + "\n");
 				out.write("\t" + "<pregnancyPeriod>"
-						+ table2.getValueAt(6, type) + "</pregnancyPeriod>"
+						+ agentParamTable.getValueAt(6, type) + "</pregnancyPeriod>"
 						+ "\n");
-				out.write("\t" + "<StepEnergy>" + table2.getValueAt(7, type)
+				out.write("\t" + "<StepEnergy>" + agentParamTable.getValueAt(7, type)
 						+ "</StepEnergy>" + "\n");
 				out.write("\t" + "<StepRockEnergy>"
-						+ table2.getValueAt(8, type) + "</StepRockEnergy>"
+						+ agentParamTable.getValueAt(8, type) + "</StepRockEnergy>"
 						+ "\n");
 				out.write("\t" + "<TurnRightEnergy>"
-						+ table2.getValueAt(9, type) + "</TurnRightEnergy>"
+						+ agentParamTable.getValueAt(9, type) + "</TurnRightEnergy>"
 						+ "\n");
 				out.write("\t" + "<TurnLeftEnergy>"
-						+ table2.getValueAt(10, type) + "</TurnLeftEnergy>"
+						+ agentParamTable.getValueAt(10, type) + "</TurnLeftEnergy>"
 						+ "\n");
-				out.write("\t" + "<MemoryBits>" + table2.getValueAt(11, type)
+				out.write("\t" + "<MemoryBits>" + agentParamTable.getValueAt(11, type)
 						+ "</MemoryBits>" + "\n");
-				out.write("\t" + "<commSimMin>" + table2.getValueAt(12, type)
+				out.write("\t" + "<commSimMin>" + agentParamTable.getValueAt(12, type)
 						+ "</commSimMin>" + "\n");
 				out.write("\t" + "<StepAgentEnergy>"
-						+ table2.getValueAt(13, type) + "</StepAgentEnergy>"
+						+ agentParamTable.getValueAt(13, type) + "</StepAgentEnergy>"
 						+ "\n");
 				out.write("\t" + "<communicationBits>"
-						+ table2.getValueAt(14, type) + "</communicationBits>"
+						+ agentParamTable.getValueAt(14, type) + "</communicationBits>"
 						+ "\n");
 				out.write("\t" + "<sexualPregnancyPeriod>"
-						+ table2.getValueAt(15, type)
+						+ agentParamTable.getValueAt(15, type)
 						+ "</sexualPregnancyPeriod>" + "\n");
-				out.write("\t" + "<breedSimMin>" + table2.getValueAt(16, type)
+				out.write("\t" + "<breedSimMin>" + agentParamTable.getValueAt(16, type)
 						+ "</breedSimMin>" + "\n");
 				out.write("\t" + "<sexualBreedChance>"
-						+ table2.getValueAt(17, type) + "</sexualBreedChance>"
+						+ agentParamTable.getValueAt(17, type) + "</sexualBreedChance>"
 						+ "\n");
 				out.write("\t" + "<asexualBreedChance>"
-						+ table2.getValueAt(18, type) + "</asexualBreedChance>"
+						+ agentParamTable.getValueAt(18, type) + "</asexualBreedChance>"
 						+ "\n");
-				out.write("\t" + "<agingMode>" + table2.getValueAt(19, type)
+				out.write("\t" + "<agingMode>" + agentParamTable.getValueAt(19, type)
 						+ "</agingMode>" + "\n");
-				out.write("\t" + "<agingLimit>" + table2.getValueAt(20, type)
+				out.write("\t" + "<agingLimit>" + agentParamTable.getValueAt(20, type)
 						+ "</agingLimit>" + "\n");
-				out.write("\t" + "<agingRate>" + table2.getValueAt(21, type)
+				out.write("\t" + "<agingRate>" + agentParamTable.getValueAt(21, type)
 						+ "</agingRate>" + "\n");
-				out.write("\t" + "<wasteMode>" + table2.getValueAt(22, type)
+				out.write("\t" + "<wasteMode>" + agentParamTable.getValueAt(22, type)
 						+ "</wasteMode>" + "\n");
-				out.write("\t" + "<wastePen>" + table2.getValueAt(23, type)
+				out.write("\t" + "<wastePen>" + agentParamTable.getValueAt(23, type)
 						+ "</wastePen>" + "\n");
-				out.write("\t" + "<wasteGain>" + table2.getValueAt(24, type)
+				out.write("\t" + "<wasteGain>" + agentParamTable.getValueAt(24, type)
 						+ "</wasteGain>" + "\n");
-				out.write("\t" + "<wasteLoss>" + table2.getValueAt(25, type)
+				out.write("\t" + "<wasteLoss>" + agentParamTable.getValueAt(25, type)
 						+ "</wasteLoss>" + "\n");
-				out.write("\t" + "<wasteRate>" + table2.getValueAt(26, type)
+				out.write("\t" + "<wasteRate>" + agentParamTable.getValueAt(26, type)
 						+ "</wasteRate>" + "\n");
-				out.write("\t" + "<wasteInit>" + table2.getValueAt(27, type)
+				out.write("\t" + "<wasteInit>" + agentParamTable.getValueAt(27, type)
 						+ "</wasteInit>" + "\n");
-				out.write("\t" + "<pdTitForTat>" + table2.getValueAt(28, type)
+				out.write("\t" + "<pdTitForTat>" + agentParamTable.getValueAt(28, type)
 						+ "</pdTitForTat>" + "\n");
-				out.write("\t" + "<pdCoopProb>" + table2.getValueAt(29, type)
+				out.write("\t" + "<pdCoopProb>" + agentParamTable.getValueAt(29, type)
 						+ "</pdCoopProb>" + "\n");
 				out.write("\t" + "<broadcastMode>"
-						+ table2.getValueAt(30, type) + "</broadcastMode>"
+						+ agentParamTable.getValueAt(30, type) + "</broadcastMode>"
 						+ "\n");
 				out.write("\t" + "<broadcastEnergyBased>"
-						+ table2.getValueAt(31, type)
+						+ agentParamTable.getValueAt(31, type)
 						+ "</broadcastEnergyBased>" + "\n");
 				out.write("\t" + "<broadcastFixedRange>"
-						+ table2.getValueAt(32, type)
+						+ agentParamTable.getValueAt(32, type)
 						+ "</broadcastFixedRange>" + "\n");
 				out.write("\t" + "<broadcastEnergyMin>"
-						+ table2.getValueAt(33, type) + "</broadcastEnergyMin>"
+						+ agentParamTable.getValueAt(33, type) + "</broadcastEnergyMin>"
 						+ "\n");
 				out.write("\t" + "<broadcastEnergyCost>"
-						+ table2.getValueAt(34, type)
+						+ agentParamTable.getValueAt(34, type)
 						+ "</broadcastEnergyCost>" + "\n");
-				writeHelperFoodWeb(out, type, table1.getColumnCount(), table2
+				writeHelperFoodWeb(out, type, resourceParamTable.getColumnCount(), agentParamTable
 						.getColumnCount());
 				out.write("</agent>" + "\n");
 			} catch (IOException e) {
@@ -1834,12 +1924,12 @@ public class GUI extends JPanel implements ActionListener {
 			out.write("<foodweb>" + "\n");
 			for (int i = 1; i < num_agentypes; i++) {
 				out.write("\t" + "<agent" + i + ">"
-						+ table3.getValueAt(i - 1, type) + "</agent" + i + ">"
+						+ foodTable.getValueAt(i - 1, type) + "</agent" + i + ">"
 						+ "\n");
 			}
 			for (int i = 1; i < num_foodtypes; i++) {
 				out.write("\t" + "<food" + i + ">"
-						+ table3.getValueAt((num_agentypes + i) - 2, type)
+						+ foodTable.getValueAt((num_agentypes + i) - 2, type)
 						+ "</food" + i + ">" + "\n");
 			}
 			out.write("</foodweb>" + "\n");

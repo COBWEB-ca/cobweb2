@@ -1,18 +1,19 @@
 package cwcore;
 
-import cwcore.ComplexEnvironment.CommManager;
-import cwcore.ComplexEnvironment.CommPacket;
-import cwcore.ComplexEnvironment;
+import ga.GATracker;
 import ga.GeneticCode;
 import ga.GeneticCodeException;
 import ga.PhenotypeMaster;
-import ga.GATracker;
 
 import java.awt.Color;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
 
-import cobweb.Agent;
 import cobweb.globals;
+import cwcore.ComplexEnvironment.CommManager;
+import cwcore.ComplexEnvironment.CommPacket;
+import driver.ControllerFactory;
 
 public class ComplexAgent extends cobweb.Agent implements
 		cobweb.TickScheduler.Client {
@@ -82,12 +83,14 @@ public class ComplexAgent extends cobweb.Agent implements
 	}
 
 	// private long id;
+	@Override
 	public String getID() {
 		return "" + id;
 	}
 
 	private int agentType;
 
+	@Override
 	public int type() {
 		return agentType;
 	}
@@ -96,6 +99,7 @@ public class ComplexAgent extends cobweb.Agent implements
 	private int energy;
 
 	// return agent's energy
+	@Override
 	public int getEnergy() {
 		return energy;
 	}
@@ -119,11 +123,13 @@ public class ComplexAgent extends cobweb.Agent implements
 	private GeneticCode genetic_code;
 
 	/** Returns the genetic code of the agent. Default is 24 bit. */
+	@Override
 	public GeneticCode getGeneticCode() {
 		return genetic_code;
 	}
 
 	/** Returns the genetic sequence of the agent. Default is 24 bit. */
+	@Override
 	public String getGeneticSequence() {
 		return genetic_code.getGeneticInfo();
 	}
@@ -166,12 +172,14 @@ public class ComplexAgent extends cobweb.Agent implements
 	private float agingRate = 1;
 	private long birthTick = 0;
 
+	@Override
 	public long birthday() {
 		return birthTick;
 	}
 
 	private long age = 0;
 
+	@Override
 	public long age() {
 		return age;
 	}
@@ -274,6 +282,7 @@ public class ComplexAgent extends cobweb.Agent implements
 
 	private static cobweb.ColorLookup colorMap = new cobweb.TypeColorEnumeration();
 
+	@Override
 	public void die() {
 		GATracker.removeAgent(this); // Remove this agent from the
 										// GATracker's list of agent (presumably
@@ -286,6 +295,7 @@ public class ComplexAgent extends cobweb.Agent implements
 	}
 
 	// get agent's drawing information given the UI
+	@Override
 	public void getDrawInfo(cobweb.UIInterface theUI) {
 		java.awt.Color stratColor;
 
@@ -311,32 +321,7 @@ public class ComplexAgent extends cobweb.Agent implements
 		}
 	}
 
-	// simple controller class
-	@SuppressWarnings("unused")
-	private static class SimpleController implements cobweb.Agent.Controller {
-		public void addClientAgent(cobweb.Agent a) {
-		}
-
-		public void removeClientAgent(cobweb.Agent a) {
-		}
-
-		public void controlAgent(cobweb.Agent baseAgent) {
-			ComplexAgent theAgent = (ComplexAgent) baseAgent;
-			switch ((int) theAgent.look()) {
-				case ComplexEnvironment.FLAG_STONE:
-					theAgent.turnLeft();
-					break;
-				case ComplexEnvironment.FLAG_WASTE:
-					theAgent.turnRight();
-					break;
-				case ComplexEnvironment.FLAG_FOOD:
-				default:
-					theAgent.step();
-			}
-		}
-	}
-
-	private static class lookPair {
+	static class lookPair {
 		public lookPair(int d, int t) {
 			dist = d;
 			type = t;
@@ -358,6 +343,7 @@ public class ComplexAgent extends cobweb.Agent implements
 	 * return the measure of similiarity between this agent and the 'other'
 	 * ranging from 0.0 to 1.0 (identical)
 	 */
+	@Override
 	public double similarity(cobweb.Agent other) {
 		if (!(other instanceof ComplexAgent))
 			return 0.0;
@@ -368,245 +354,57 @@ public class ComplexAgent extends cobweb.Agent implements
 			.similarity((LinearWeightsController) other.getController());
 	}
 
+	@Override
 	public double similarity(int other) {
 		return 0.5; //((GeneticController) controller).similarity(other);
 	}
 
+	@Override
 	public void setColor(java.awt.Color c) {
 		color = c;
 	}
 
+	@Override
 	public java.awt.Color getColor() {
 		return color;
 	}
 
-	private static class GeneticController implements cobweb.Agent.Controller {
-		BehaviorArray ga;
-		int memorySize;
-		int commSize;
-
-		public void addClientAgent(cobweb.Agent a) {
-		}
-
-		public void removeClientAgent(cobweb.Agent a) {
-		}
-
-		// for asexual reproduction
-		public GeneticController(GeneticController parent, float mutationRate) {
-			ga = (BehaviorArray) (parent.ga.copy(mutationRate));
-			memorySize = parent.memorySize;
-		}
-
-		// sexual reproduction
-		public GeneticController(GeneticController parent,
-				GeneticController parent2, float mutationRate) {
-			ga = (BehaviorArray) (parent.ga.splice(parent2.ga)
-					.copy(mutationRate));
-			memorySize = parent.memorySize;
-		}
-
-		// return the measure of similiarity between this agent and the 'other'
-		// ranging from 0.0 to 1.0 (identical)
-		public double similarity(GeneticController other) {
-			return ga.similarity(other.ga);
-		}
-
-		public double similarity(int other) {
-			return ga.similarity(other);
-		}
-
-		// Creating genetic code from scratch
-		public GeneticController(int memory, int comm) {
-			memorySize = memory;
-			commSize = comm;
-			int[] outputArray = { OUTPUT_BITS, memorySize, commSize, 1 };
-			ga = new BehaviorArray(INPUT_BITS + memorySize + commSize,
-					outputArray);
-			ga.init();
-		}
-
-		// initialize behaviour array and memory
-		public GeneticController(BehaviorArray g, int memory) {
-			memorySize = memory;
-			ga = g;
-		}
-
-		public static final int INPUT_BITS = 8;
-		public static final int OUTPUT_BITS = 2;
-		public static final int ENERGY_THRESHOLD = 160;
-
-		public void controlAgent(cobweb.Agent baseAgent) {
-			ComplexAgent theAgent = (ComplexAgent) baseAgent;
-
-			BitField inputCode = new BitField();
-
-			if (theAgent.energy > ENERGY_THRESHOLD)
-				inputCode.add(3, 2);
-			else
-				inputCode.add((int) ((double) theAgent.energy
-						/ (ENERGY_THRESHOLD) * 4.0), 2);
-
-			inputCode.add(theAgent.getIntFacing(), 2);
-
-			lookPair get = theAgent.distanceLook();
-			int type = get.getType();
-			int dist = get.getDist();
-			inputCode.add(type, 2);
-			inputCode.add(dist, 2);
-
-			inputCode.add(theAgent.memoryBuffer, memorySize);
-			inputCode.add(theAgent.commInbox, commSize);
-
-			int[] outputArray = ga.getOutput(inputCode.intValue());
-
-			int actionCode = outputArray[0];
-			theAgent.memoryBuffer = outputArray[1];
-			theAgent.commOutbox = outputArray[2];
-			theAgent.asexFlag = outputArray[3] != 0;
-
-			theAgent.commInbox = 0;
-
-			switch (actionCode) {
-				case 0:
-					theAgent.turnLeft();
-					break;
-				case 1:
-					theAgent.turnRight();
-					break;
-				case 2:
-				case 3:
-					theAgent.step();
-			}
-		}
-
-		public GeneticController splice(GeneticController other) {
-			return new GeneticController((BehaviorArray) ga
-					.splice(((GeneticController) other).ga), memorySize);
-		}
-
+	public long getAge() {
+		return age;
 	}
 
-	private static class LinearWeightsController implements cobweb.Agent.Controller {
-
-		public static final int ENERGY_THRESHOLD = 160;
-		
-		private double[][] weights = new double[12][6];
-		
-		private int memSize;
-		private int commSize;
-		
-		public LinearWeightsController(int memSize, int commSize) {
-			this.memSize = memSize;
-			this.commSize = commSize;
-			
-			for (int i = 0; i < weights.length; i++)
-				for (int j = 0; j < weights[i].length; j++)
-					weights[i][j] = globals.random.nextDouble() * 4.0 - 2.0;
-
-		}
-		
-		public LinearWeightsController(LinearWeightsController p, float mutation){
-			for (int i = 0; i < weights.length; i++)
-				for (int j = 0; j < weights[i].length; j++)
-					weights[i][j] = p.weights[i][j] 
-		                            + (globals.random.nextDouble() - 0.5) * mutation;
-		}
-		
-		public LinearWeightsController(LinearWeightsController p1, LinearWeightsController p2, float mutation) {
-			for (int i = 0; i < weights.length; i++)
-				for (int j = 0; j < weights[i].length; j++)
-					weights[i][j] = (globals.random.nextBoolean() ? p1.weights[i][j] : p2.weights[i][j]) 
-									+ (globals.random.nextDouble() - 0.5) * mutation;
-		}
-		
-		/* (non-Javadoc)
-		 * @see cobweb.Agent.Controller#addClientAgent(cobweb.Agent)
-		 */
-		public void addClientAgent(Agent theAgent) {}
-
-		/* (non-Javadoc)
-		 * @see cobweb.Agent.Controller#controlAgent(cobweb.Agent)
-		 */
-		public void controlAgent(Agent theAgent) {
-			ComplexAgent agent;
-			if (theAgent instanceof ComplexAgent) {
-				agent = (ComplexAgent)theAgent;
-			} else {
-				return;
-			}
-			lookPair get = agent.distanceLook();
-			int type = get.getType();
-			int dist = get.getDist();
-			double variables[] = { 
-					  1.0 
-					, ((double) agent.energy / (ENERGY_THRESHOLD))
-					, type == ComplexEnvironment.FLAG_AGENT ? (4.0 - dist) / 4.0 : 0
-					, type == ComplexEnvironment.FLAG_FOOD ? (4.0 - dist) / 4.0 : 0
-					, type == ComplexEnvironment.FLAG_STONE ? (4.0 - dist) / 4.0 : 0
-					, type == ComplexEnvironment.FLAG_WASTE ? (4.0 - dist) / 4.0 : 0
-					, Math.atan2(agent.facing.v[0], agent.facing.v[1]) / Math.PI
-					, (double)agent.breedEnergy / ENERGY_THRESHOLD
-					, (double)agent.commInbox / (1 << commSize - 1)
-					, (double)agent.age / 100.0
-					, (double)agent.memoryBuffer / (1 << memSize - 1)
-					, globals.random.nextDouble() - 0.5
-			};
-			
-			
-			double memout = 0.0;
-			double commout = 0.0;
-			double left = 0.0;
-			double right = 0.0;
-			double step = 0.0;
-			double asexflag = 0.0;
-			for (int eq = 0; eq < 6; eq++) {
-				double res = 0.0;
-				for (int v = 0; v < 11; v++) {
-					res += weights[v][eq] * variables[v];
-				}
-				
-				if (eq == 0)
-					memout = res;
-				else if (eq == 1)
-					commout = res;
-				else if (eq == 2)
-					left = res;
-				else if (eq == 3)
-					right = res;
-				else if (eq == 4)
-					step = res;
-				else if (eq == 5)
-					asexflag = res;
-			}
-			
-			agent.memoryBuffer = (int) memout;
-			agent.commOutbox = (int) commout;
-			agent.asexFlag = asexflag > 0.5;
-			if (right > left && right > step)
-				agent.turnRight();
-			else if (left > right && left > step)
-				agent.turnLeft();
-			else
-				agent.step();
-		}
-
-		public double similarity(LinearWeightsController other) {
-			int diff = 0;
-			for (int i = 0; i < weights.length; i++) {
-				for (int j = 0; j < weights[i].length; j++) {
-					diff += this.weights[i][j]*this.weights[i][j] - other.weights[i][j]*other.weights[i][j];
-				}
-			}
-			return Math.max(0, (100.0 - diff) /  100.0);
-		}
-		
-		/* (non-Javadoc)
-		 * @see cobweb.Agent.Controller#removeClientAgent(cobweb.Agent)
-		 */
-		public void removeClientAgent(Agent theAgent) {}
-		
+	public int getCommInbox() {
+		return commInbox;
 	}
-	
+
+	public void setCommInbox(int commInbox) {
+		this.commInbox = commInbox;
+	}
+
+	public int getCommOutbox() {
+		return commOutbox;
+	}
+
+	public void setCommOutbox(int commOutbox) {
+		this.commOutbox = commOutbox;
+	}
+
+	public int getMemoryBuffer() {
+		return memoryBuffer;
+	}
+
+	public void setMemoryBuffer(int memoryBuffer) {
+		this.memoryBuffer = memoryBuffer;
+	}
+
+	public boolean isAsexFlag() {
+		return asexFlag;
+	}
+
+	public void setAsexFlag(boolean asexFlag) {
+		this.asexFlag = asexFlag;
+	}
+
 	@SuppressWarnings("unused")
 	private static long groupLastPolled = 1;
 
@@ -889,8 +687,8 @@ public class ComplexAgent extends cobweb.Agent implements
 				 * Apr 18 if (pdTitForTat) { // remove this if-block later
 				 * //agentPDStrategy = 1; Strategy = "TitForTat"; } else {
 				 * //agentPDStrategy = 0; Strategy = "Probability"; }
-				 * 
-				 * 
+				 *
+				 *
 				 * String adjStrategy = null; // $$$$$ this String used to be
 				 * used for the Output Window's updating. Apr 18 if
 				 * (adjacentAgent.pdTitForTat) { // remove this if-block later
@@ -903,7 +701,7 @@ public class ComplexAgent extends cobweb.Agent implements
 				 * TODO The ability for the PD game to contend for the Get the
 				 * food tiles immediately around each agents: . . . . . . . . . . . . . . . . . . .
 				 * X X X X . . . > < . . -> . X > < X . . . . . . . . X X X X . . . . . . . . . . . . .
-				 * 
+				 *
 				 * (including the two under the agents!)
 				 */
 
@@ -1036,7 +834,7 @@ public class ComplexAgent extends cobweb.Agent implements
 				 * adjacentAgent.energy; // _wasteGain += adjacentAgent.energy;
 				 * if(agentPDAction == 0) cooperate = true; else cooperate =
 				 * false;
-				 * 
+				 *
 				 * if (adjacentAgent.energy > energy && food_bias){ tempt =
 				 * true; if (agentPDAction == 0){ cooperate = true; float rnd =
 				 * cobweb.globals.random.nextFloat(); if (rnd > 0.8) cooperate =
@@ -1064,7 +862,7 @@ public class ComplexAgent extends cobweb.Agent implements
 				 * photo_memory[photo_num % memory_size] = othersID; } }
 				 * if(photo_num % memory_size == 0){ photo_num = 0; }
 				 * photo_num++;
-				 * 
+				 *
 				 */
 			}
 			energy -= stepAgentEnergy;
@@ -1133,8 +931,8 @@ public class ComplexAgent extends cobweb.Agent implements
 
 	private boolean canEat(ComplexAgent adjacentAgent) {
 		boolean caneat = false;
-		for (int i = 0; i < agentstoeat.length; i++) {
-			if (agentstoeat[i] == adjacentAgent.getAgentType()) {
+		for (int element : agentstoeat) {
+			if (element == adjacentAgent.getAgentType()) {
 				caneat = true;
 			}
 		}
@@ -1146,8 +944,8 @@ public class ComplexAgent extends cobweb.Agent implements
 
 	private boolean canEat(cobweb.Environment.Location destPos) {
 		boolean caneat = false;
-		for (int i = 0; i < plantstoeat.length; i++) {
-			if (plantstoeat[i] == ComplexEnvironment.getFoodType(destPos))
+		for (int element : plantstoeat) {
+			if (element == ComplexEnvironment.getFoodType(destPos))
 				caneat = true;
 		}
 		return caneat;
@@ -1449,12 +1247,9 @@ public class ComplexAgent extends cobweb.Agent implements
 	// Constructor with two parents
 	ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent,
 			ComplexAgent parent2, int strat) {
-		super(pos, 
-				new GeneticController((GeneticController) parent.controller,
-				(GeneticController) parent2.controller, parent.mutationRate)
-				//new LinearWeightsController((LinearWeightsController) parent.controller,
-				//(LinearWeightsController) parent2.controller, parent.mutationRate)
-		);
+		super(pos,
+				ControllerFactory.createFromParents(
+						parent.getController(), parent2.getController(), parent.mutationRate));
 		InitFacing();
 
 		try {
@@ -1486,10 +1281,9 @@ public class ComplexAgent extends cobweb.Agent implements
 
 	// Constructor with a parent; standard asexual copy
 	ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
-		super(pos, 
-				//new LinearWeightsController((LinearWeightsController) parent.controller
-				new GeneticController((GeneticController) parent.controller
-						, parent.mutationRate));
+		super(pos,
+				ControllerFactory.createFromParent(
+						parent.getController(), parent.mutationRate));
 		InitFacing();
 		try {
 			genetic_code = new GeneticCode(parent.getGeneticSequence());
@@ -1573,11 +1367,8 @@ public class ComplexAgent extends cobweb.Agent implements
 			int lastPDMove, // Remember the opponent's move in the last game
 			String genetic_sequence) { // The genetic sequence of agent.
 
-		super(pos, 
-				new GeneticController(memoryB, commB)
-				//new LinearWeightsController(memoryB, commB)
-		);
-		
+		super(pos, ControllerFactory.createNew(memoryB, commB));
+
 		InitFacing();
 		try {
 			genetic_code = new GeneticCode(genetic_sequence); // Initialize
@@ -1795,10 +1586,12 @@ public class ComplexAgent extends cobweb.Agent implements
 		broadcastEnergyCost = (Integer) mutables.get("Broadcast Energy Cost");
 	}
 
+	@Override
 	public int getAgentPDAction() {
 		return agentPDAction;
 	}
 
+	@Override
 	public int getAgentPDStrategy() {
 		return agentPDStrategy;
 	}

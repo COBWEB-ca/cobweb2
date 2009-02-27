@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import cobweb.Environment;
 import cobweb.TickScheduler;
+import driver.ControllerFactory;
 import driver.Parser;
 
 public class ComplexEnvironment extends Environment implements
@@ -19,7 +20,7 @@ public class ComplexEnvironment extends Environment implements
 
 	@SuppressWarnings("unused")
 	private final String filePath = "report.xls"; // default report file path; may change in future
-	
+
 	public static final int FLAG_STONE = 1;
 
 	public static final int FLAG_FOOD = 2;
@@ -37,7 +38,7 @@ public class ComplexEnvironment extends Environment implements
 	public static int PD_PAYOFF_TEMPTATION;
 
 	public static int PD_PAYOFF_PUNISHMENT;
-	
+
 	public static final int AGENT_TYPES = 4;
 
 	public static final List<CommPacket> currentPackets = new ArrayList<CommPacket>();
@@ -55,6 +56,8 @@ public class ComplexEnvironment extends Environment implements
 	 * All variables that will by referenced by the parser must be declared as
 	 * 1-sized arrays as all of the following are.
 	 */
+
+	private String controllerName;
 
 	private int[] w = new int[1];
 
@@ -224,6 +227,7 @@ public class ComplexEnvironment extends Environment implements
 		return colorizer;
 	}
 
+	@Override
 	protected void finalize() throws Throwable {
 		if (logStream != null)
 			logStream.close();
@@ -242,17 +246,18 @@ public class ComplexEnvironment extends Environment implements
 					"Error parsing ComplexEnvironment parameters.");
 		}
 	}
-	
+
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
 		ComplexAgent.setDefaultMutableParams(mutationRate[0], initEnergy[0], foodEnergy[0], otherFoodEnergy[0],
-		breedEnergy[0], pregnancyPeriod[0], stepEnergy[0], stepRockEnergy[0], turnRightEnergy[0], 
+		breedEnergy[0], pregnancyPeriod[0], stepEnergy[0], stepRockEnergy[0], turnRightEnergy[0],
 		turnLeftEnergy[0], commSimMin[0], stepAgentEnergy[0], sexualPregnancyPeriod[0], breedSimMin[0],
 		sexualBreedChance[0], asexualBreedChance[0], agingLimit[0], agingRate[0], pdCoopProb[0],
-		broadcastFixedRange[0], broadcastEnergyMin[0], broadcastEnergyCost[0]);		                    
+		broadcastFixedRange[0], broadcastEnergyMin[0], broadcastEnergyCost[0]);
 	}
-	
-	
+
+
+	@Override
 	public void load(cobweb.Scheduler s, Parser p/* java.io.Reader r */)
 			throws java.io.IOException {
 		// sFlag stores whether or not we are using a new scheduler
@@ -273,6 +278,7 @@ public class ComplexEnvironment extends Environment implements
 		 * allocate space to store the parameter for each type
 		 */
 
+		controllerName = p.ControllerName;
 		agentTypeCount = p.ComplexEnvironment[0];
 		w[0] = p.Width[0];
 		h[0] = p.Height[0];
@@ -349,7 +355,7 @@ public class ComplexEnvironment extends Environment implements
 		PD_PAYOFF_PUNISHMENT = p.punishment[0];
 
 		setDefaultMutableAgentParam();
-		
+
 		for (int i = 0; i < draught_period[0].length; i++) {
 			// draught_period[0][i] = 10;
 			draughtdays[i] = 0;
@@ -377,7 +383,7 @@ public class ComplexEnvironment extends Environment implements
 		 */
 		/**
 		 * If the random seed is set to 0 in the data file, it means we use the
-		 * system time instead 
+		 * system time instead
 		 */
 		// $$$$$ This means setting Random Seed to zero would get non-repeatable results.  Apr 19
 		if (randomSeed[0] == 0)
@@ -597,13 +603,20 @@ public class ComplexEnvironment extends Environment implements
 		}
 		// spawn new random agents for each type
 		if (spawnNewAgents[0]) {
+			try {
+				ControllerFactory.Init(controllerName);
+			} catch (ClassNotFoundException ex) {
+				throw new RuntimeException(ex);
+			} catch (NoSuchMethodException ex) {
+				throw new RuntimeException(ex);
+			}
 			int action = -1;  // $$$$$ -1: not play Prisoner's Dilemma
 			for (int i = 0; i < agents[0].length; ++i) {
-			    double coopProb = pdCoopProb[0][i]/100.0d; // static value for now $$$$$$ added for the below else block.  Apr 18
-			    
+				double coopProb = pdCoopProb[0][i]/100.0d; // static value for now $$$$$$ added for the below else block.  Apr 18
+
 			    lastPDMove[0][i] = -1; // $$$$$$ initial for the new agents.  Apr 18
 			    if (pdTitForTat[0][i]) { agentPDStrategy[0][i] = 1;}     // $$$$$$ if tit-for-tat, then agentPDStrategy == 1.  Apr 18
-			    
+
 				for (int j = 0; j < agents[0][i]; ++j) {
 					if (prisDilemma[0]) {
 						if (pdTitForTat[0][i]) {
@@ -683,6 +696,7 @@ public class ComplexEnvironment extends Environment implements
 	}
 
 	/* JUST ADDED */
+	@Override
 	public void selectStones(int x, int y, cobweb.UIInterface theUI) {
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
@@ -705,6 +719,7 @@ public class ComplexEnvironment extends Environment implements
 		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
 	}
 
+	@Override
 	public void selectFood(int x, int y, int type, cobweb.UIInterface theUI) {
 
 		cobweb.Environment.Location l;
@@ -727,6 +742,7 @@ public class ComplexEnvironment extends Environment implements
 		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
 	}
 
+	@Override
 	public void selectAgent(int x, int y, int type, cobweb.UIInterface theUI) {
 		int action = -1;  // $$$$$ -1: not play Prisoner's Dilemma
 		cobweb.Environment.Location l;
@@ -743,12 +759,12 @@ public class ComplexEnvironment extends Environment implements
 					// System.out.println("in select agent: Value of PrisDilemma
 					// is true");
 					// System.out.println("PrisDilemma: "+prisDilemma[0]);
-					
+
 					action = 0;
-					
+
 					lastPDMove[0][agentType] = -1;  // &&&&&& initial for this new agent.  Apr 18
 				    if (pdTitForTat[0][agentType]) { agentPDStrategy[0][agentType] = 1;}     // $$$$$$ if tit-for-tat, then agentPDStrategy == 1.  Apr 18
-					
+
 					// $$$$$$ using Coop Probability instead of random boolean.  Apr 18
 					/*
 					java.util.Random generator = new java.util.Random();
@@ -760,7 +776,7 @@ public class ComplexEnvironment extends Environment implements
 				    float rnd = cobweb.globals.random.nextFloat();
 				    //System.out.println("rnd: " + rnd);
 				    //System.out.println("coopProb: " + coopProb);
-				    
+
 				    if (rnd > coopProb) action = 1; // agent defects depending on probability
 				}
 				// spammy
@@ -810,6 +826,7 @@ public class ComplexEnvironment extends Environment implements
 	 * mode -1: remove stones mode -2: remove food mode -3: remove agents mode
 	 * -4: remove waste
 	 */
+	@Override
 	public void remove(int mode, cobweb.UIInterface ui) {
 		Location currentPos = getLocation(0, 0);
 		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
@@ -851,6 +868,7 @@ public class ComplexEnvironment extends Environment implements
 	 * save copies all current parsable parameters, and their values, to the
 	 * specified writer
 	 */
+	@Override
 	public void save(java.io.Writer w) {
 		java.io.PrintWriter pw = new java.io.PrintWriter(w);
 		pw.println(this.getClass().getName() + " " + agentTypeCount);
@@ -934,7 +952,7 @@ public class ComplexEnvironment extends Environment implements
 									.nextInt(locations.size() + 1), currentPos);
 					}
 
-				int foodToDeplete = (int) ((float) locations.size() * foodDeplete[0][i]);
+				int foodToDeplete = (int) (locations.size() * foodDeplete[0][i]);
 
 				for (int j = 0; j < foodToDeplete; ++j) {
 					Location loc = locations.remove(locations.size() - 1);
@@ -1083,6 +1101,7 @@ public class ComplexEnvironment extends Environment implements
 
 	private static cobweb.ColorLookup colorMap = new cobweb.TypeColorEnumeration();
 
+	@Override
 	public void setclick(int click) {
 		clickcount = click;
 	}
@@ -1090,6 +1109,7 @@ public class ComplexEnvironment extends Environment implements
 	// private static java.awt.Color brown = new java.awt.Color(102, 31, 0);
 	private static java.awt.Color brown = new java.awt.Color(204, 102, 0);
 
+	@Override
 	public void fillTileColors(java.awt.Color[] tileColors) {
 		Location currentPos = getLocation(0, 0);
 		int tileIndex = 0;
@@ -1108,6 +1128,7 @@ public class ComplexEnvironment extends Environment implements
 		}
 	}
 
+	@Override
 	public void log(java.io.Writer w) {
 		logStream = new java.io.PrintWriter(w, true);
 		writeLogTitles();
@@ -1118,6 +1139,7 @@ public class ComplexEnvironment extends Environment implements
 		ComplexAgent.tracked();
 	}
 
+	@Override
 	public void report(java.io.Writer w) {
 		java.io.PrintWriter pw = new java.io.PrintWriter(w, true);
 		printAgentInfo(pw);
@@ -1156,14 +1178,14 @@ public class ComplexEnvironment extends Environment implements
 		}
 		return totalEnergy;
 	}
-	
+
 	/* Return the average gene status of all 3 genes for all living agents */
 	private double[][] getAvgGeneStatus() {
 		double[][] avg_gene_status = new double[AGENT_TYPES][GeneticCode.NUM_GENES];
 		for (int i = 0; i < AGENT_TYPES; i++) {
 			for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
 				if (GATracker.total_agents[i] > 0) {
-					avg_gene_status[i][j] 
+					avg_gene_status[i][j]
 					  = new Double(Math.round( // Round this off to 4 decimal digits
 							  GATracker.total_gene_status[i][j]/GATracker.total_agents[i]*10000)
 							  )/10000;
@@ -1171,7 +1193,7 @@ public class ComplexEnvironment extends Environment implements
 					avg_gene_status[i][j] = -1;
 				}
 			}
-		}		
+		}
 		return avg_gene_status;
 	}
 
@@ -1268,7 +1290,7 @@ public class ComplexEnvironment extends Environment implements
 	public long getTickCount() {
 		return tickCount;
 	}
-	
+
 	/* $$$$$$ Set the current tick number, tickCount (long).  Apr 19*/
 	public void setTickCount(long tick) {
 		tickCount = tick;
@@ -1295,7 +1317,7 @@ public class ComplexEnvironment extends Environment implements
 		agentInfoVector.add(info);
 		return info;
 	}
-	
+
 	public int getInfoNum() {
 		return agentInfoVector.size();
 	}
@@ -1303,7 +1325,7 @@ public class ComplexEnvironment extends Environment implements
 	public void resetAgentInfo() {
 		agentInfoVector = new Vector<ComplexAgentInfo>();
 	}
-	
+
 	/**
 	 * Dump header for report file to path
 	 * @param filepath path to report file
@@ -1313,7 +1335,7 @@ public class ComplexEnvironment extends Environment implements
 		    FileWriter outFile = new FileWriter(filepath);
 		    BufferedWriter out = new BufferedWriter(outFile);
 		    StringBuffer buffer = new StringBuffer();
-		    
+
 			String agentInfoHeader = "Agent Number";
 			agentInfoHeader += "\tAgent Type";
 			agentInfoHeader += "\tBirth Tick";
@@ -1338,7 +1360,7 @@ public class ComplexEnvironment extends Environment implements
 	}
 	public void printAgentInfo(java.io.PrintWriter pw) {
 		ComplexAgentInfo.initStaticAgentInfo(agentTypeCount);
-		
+
 		// Concatenating the headers of the report file.
 		String agentInfoHeader = "Agent Number";
 		agentInfoHeader += "\tAgent Type";
@@ -1351,7 +1373,7 @@ public class ComplexEnvironment extends Environment implements
 		agentInfoHeader += "\tBlue Gene Value";
 		agentInfoHeader += "\tRed Gene Status";
 		agentInfoHeader += "\tGreen Gene Status";
-		agentInfoHeader += "\tBlue Gene Status";		
+		agentInfoHeader += "\tBlue Gene Status";
 		agentInfoHeader += "\tDirect Descendants";
 		agentInfoHeader += "\tTotal Descendants";
 		agentInfoHeader += "\tSexual Pregnancies";
@@ -1376,18 +1398,19 @@ public class ComplexEnvironment extends Environment implements
 		agentTypeHeaders += "\tAverage Blue Gene Status";
 
 		pw.println(agentTypeHeaders);
-		
+
 		// Prints out species-wise statistics of each agent type
 		for (int i = 0; i < AGENT_TYPES; i++) {
 			ComplexAgentInfo.printAgentsCountByType(pw,i); // Steps, deaths, births, etc.
 			pw.print("\n");
-		}							
+		}
 	}
 
 	/*
 	 * Write to Log file: FoodCount, AgentCount, Average Agent Energy and Agent
 	 * Energy at the most recent ticks ( by tick and by Agent/Food preference)
 	 */
+	@Override
 	public void writeLogEntry() {
 		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
 		double[][] avg_gene_status = getAvgGeneStatus();
@@ -1401,7 +1424,7 @@ public class ComplexEnvironment extends Environment implements
 				long agentEnergy = countAgentEnergy(i);
 				/*System.out
 						.println("************* Near Agent Count *************");*/
-				
+
 				int cheaters = (numAgentsStrat(i))[1];
 				int coops = (numAgentsStrat(i))[0];
 				logStream.print(tickCount);
@@ -1423,10 +1446,10 @@ public class ComplexEnvironment extends Environment implements
 				logStream.print("\t");
 				logStream.print(coops);
 				logStream.print("\t");
-				for (int j = 0; j < GeneticCode.NUM_GENES; j++) { 					
-					logStream.print(avg_gene_status[i][j]);			
+				for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
+					logStream.print(avg_gene_status[i][j]);
 					logStream.print("\t");
-				}	
+				}
 				// logStream.flush();
 			}
 			// print the TOTAL of FoodCount, AgentCount, Average Agent Energy
@@ -1438,7 +1461,7 @@ public class ComplexEnvironment extends Environment implements
 					.println("************* After Agent Count Call *************");*/
 			long agentEnergyAll = countAgentEnergy();
 			int total_cheaters = (numAgentsStrat())[1];
-			int total_coops = (numAgentsStrat())[0];			
+			int total_coops = (numAgentsStrat())[0];
 			logStream.print(tickCount);
 			logStream.print("\t");
 			logStream.print(countFoodTiles());
@@ -1451,7 +1474,7 @@ public class ComplexEnvironment extends Environment implements
 			logStream.print("\t");
 			logStream.print(total_cheaters);
 			logStream.print("\t");
-			logStream.print(total_coops);			
+			logStream.print(total_coops);
 			// logStream.print("\t");
 			logStream.print("\t\n");
 			// logStream.flush();
@@ -1483,6 +1506,7 @@ public class ComplexEnvironment extends Environment implements
 
 	private static final long WASTE_CODE = 4;
 
+	@Override
 	protected boolean testFlag(cobweb.Environment.Location l, int flag) {
 		switch (flag) {
 		case FLAG_STONE:
@@ -1501,6 +1525,7 @@ public class ComplexEnvironment extends Environment implements
 	 * the square is already occupied (for example, setFlag((0,0),FOOD,true)
 	 * does nothing when (0,0) is a stone
 	 */
+	@Override
 	protected void setFlag(cobweb.Environment.Location l, int flag,
 			boolean state) {
 		switch (flag) {
@@ -1540,27 +1565,33 @@ public class ComplexEnvironment extends Environment implements
 		}
 	}
 
+	@Override
 	public int getTypeCount() {
 
 		return agentTypeCount;
 	}
 
 	// Ignored; this model has no fields
+	@Override
 	protected int getField(cobweb.Environment.Location l, int field) {
 		return 0;
 	}
 
+	@Override
 	protected void setField(cobweb.Environment.Location l, int field, int value) {
 	}
 
+	@Override
 	public int getAxisCount() {
 		return 2;
 	}
 
+	@Override
 	public int getSize(int axis) {
 		return array.getSize(axis);
 	}
 
+	@Override
 	public boolean getAxisWrap(int axis) {
 		return wrapMap[0];
 	}
@@ -1661,9 +1692,9 @@ public class ComplexEnvironment extends Environment implements
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @return void
-		 * 
+		 *
 		 */
 		public CommPacket(int type, long dispatcherId, String content,
 				int energy, boolean energyBased, int fixedRange) {
@@ -1747,7 +1778,7 @@ public class ComplexEnvironment extends Environment implements
 		}
 
 		private int getRadius(int energy) {
-			return (int) energy / 10 + 1; // limiting minimum to 1 unit of
+			return energy / 10 + 1; // limiting minimum to 1 unit of
 											// radius
 		}
 
@@ -1766,7 +1797,7 @@ public class ComplexEnvironment extends Environment implements
 
 		/**
 		 * adds packets to the list of packets
-		 * 
+		 *
 		 * @param packet
 		 * @return void
 		 */
@@ -1778,7 +1809,7 @@ public class ComplexEnvironment extends Environment implements
 
 		/**
 		 * removes packets from the list of packets
-		 * 
+		 *
 		 * @param packet
 		 * @return void
 		 */
@@ -1809,7 +1840,7 @@ public class ComplexEnvironment extends Environment implements
 
 		/**
 		 * returns the packet with the specified ID
-		 * 
+		 *
 		 * @return CommPacket
 		 */
 		public CommPacket getPacket(int packetId) {
@@ -1855,6 +1886,7 @@ public class ComplexEnvironment extends Environment implements
 	 * This gets called when the user clicks on a tile without selecting outside
 	 * of edit mode
 	 */
+	@Override
 	public void observe(int x, int y, cobweb.UIInterface ui) {
 		cobweb.Environment.Location l = getUserDefinedLocation(x, y);
 		/* A tile can only consist of: STONE or WASTE or (FOOD|AGENT) */

@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -42,7 +43,11 @@ public class Parser {
 
 	public int agentType = 0;
 
-	public String TickScheduler;
+	public String TickScheduler = "cobweb.TickScheduler";
+
+	public String ControllerName = "cwcore.GeneticController";
+
+	public String ControllerConfig;
 
 	public int[] ComplexEnvironment = new int[1];
 
@@ -477,6 +482,16 @@ public class Parser {
 				NodeList value = nodeChildren.item(j).getChildNodes();
 				nodeValue = getValue(value);
 				TickScheduler = nodeValue;
+			}
+			if (nodeName2.equals("ControllerName")) {
+				NodeList value = nodeChildren.item(j).getChildNodes();
+				nodeValue = getValue(value);
+				ControllerName = nodeValue;
+			}
+			if (nodeName2.equals("ControllerConfig")) {
+				NodeList value = nodeChildren.item(j).getChildNodes();
+				nodeValue = getValue(value);
+				ControllerConfig = nodeValue;
 			}
 			if (nodeName2.equals("Width")) {
 				NodeList value = nodeChildren.item(j).getChildNodes();
@@ -954,8 +969,8 @@ public class Parser {
 	private String getValue(NodeList value) {
 		String nodeValue = "";
 		int c = 0;
-		while (value.item(c).getNodeType() != 3
-				|| (value.item(c).getNodeType() == 3 && value.item(c)
+		while (value.item(c).getNodeType() != Node.TEXT_NODE
+				|| (value.item(c).getNodeType() == Node.TEXT_NODE && value.item(c)
 						.getNodeValue().trim().length() == 0)) {
 			c++;
 		}
@@ -965,6 +980,7 @@ public class Parser {
 
 	public void fillHashTable() {
 		parseData.put("TickScheduler", TickScheduler);
+		parseData.put("ControllerName", ControllerName);
 		parseData.put("ComplexEnvironment", ComplexEnvironment);
 		parseData.put("width", Width);
 		parseData.put("height", Height);
