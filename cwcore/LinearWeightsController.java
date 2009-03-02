@@ -102,6 +102,9 @@ public class LinearWeightsController implements cobweb.Controller {
 	 */
 	public void addClientAgent(Agent theAgent) {}
 
+
+	private static final double UPDATE_RATE = 0.001;
+
 	/* (non-Javadoc)
 	 * @see cobweb.Agent.Controller#controlAgent(cobweb.Agent)
 	 */
@@ -141,8 +144,8 @@ public class LinearWeightsController implements cobweb.Controller {
 				res += weights[v][eq] * variables[v];
 			}
 
-			runningOutputMean[eq] *= 0.8;
-			runningOutputMean[eq] += 0.2 * res;
+			runningOutputMean[eq] *= 1 - UPDATE_RATE;
+			runningOutputMean[eq] += UPDATE_RATE * res;
 
 			if (eq == 0)
 				memout = res;

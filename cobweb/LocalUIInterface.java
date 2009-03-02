@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import cobweb.Environment.EnvironmentStats;
@@ -12,9 +13,9 @@ import driver.Parser;
 
 public class LocalUIInterface implements UIInterface,
 		cobweb.TickScheduler.Client {
-	private java.awt.TextArea textArea;
+	private JTextArea textArea;
 
-	public void addTextArea(java.awt.TextArea ta) {
+	public void addTextArea(JTextArea ta) {
 		textArea = ta;
 	}
 

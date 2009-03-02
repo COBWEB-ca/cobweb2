@@ -969,6 +969,9 @@ public class Parser {
 	private String getValue(NodeList value) {
 		String nodeValue = "";
 		int c = 0;
+		if (value.item(c) == null) {
+			return null;
+		}
 		while (value.item(c).getNodeType() != Node.TEXT_NODE
 				|| (value.item(c).getNodeType() == Node.TEXT_NODE && value.item(c)
 						.getNodeValue().trim().length() == 0)) {

@@ -26,6 +26,7 @@ package cobweb;
  @see cobweb.LocalUIInterface
  */
 
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import cobweb.LocalUIInterface.TickEventListener;
@@ -236,7 +237,7 @@ public interface UIInterface {
 
 	public void writeToTextWindow(String s);
 
-	public void addTextArea(java.awt.TextArea ta);
+	public void addTextArea(JTextArea ta);
 
 	public void reset();
 

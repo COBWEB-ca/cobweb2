@@ -10,24 +10,18 @@ package driver;
 import ga.GeneticCode;
 
 import java.awt.BorderLayout;
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
-import java.awt.Frame;
-import java.awt.Label;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -41,19 +35,26 @@ import java.io.IOException;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import cobweb.LocalUIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
 
-public class CobwebApplication extends Frame {
+public class CobwebApplication extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
@@ -63,11 +64,11 @@ public class CobwebApplication extends Frame {
 		+ "====================\n"
 		+ "This text area is for information output only.\n"
 		+ "Send us any errors/suggestions please!\n\n";
-	TextArea textArea;
+	JTextArea textArea;
 
 	private Window textWindow;
 	private boolean textWindowHide = false;  // $$$$$$ indicating whether the output window is chosen to show.  (Mar 29)  Apr 22
-	private Button hide; // $$$$$$ Mar 25
+	private JButton hide; // $$$$$$ Mar 25
 
 	private final int maxfiles = 100;
 
@@ -103,13 +104,13 @@ public class CobwebApplication extends Frame {
 
 	public JTextField tickField;
 
-	private final MenuItem stoneMenu;
+	private JMenuItem stoneMenu;
 
-	private final MenuItem observeMenu;
+	private JMenuItem observeMenu;
 
-	private final Menu foodMenu;
+	private JMenu foodMenu;
 
-	private final Menu agentMenu;
+	private JMenu agentMenu;
 
 	private final CobwebEventListener theListener;
 
@@ -153,12 +154,9 @@ public class CobwebApplication extends Frame {
 	CobwebApplication(String[] param) {
 		super("Cobweb Application");
 
-
 		/*** $$$$$$ For cancelling the output info text window, remove some codes in the field to the below block.  Apr 22*/
 		if (cobweb.globals.usingTextWindow == true) {
-			textArea = new TextArea(GREETINGS, 40, // Height
-					48, // Width, $$$$$ was 53.  Mar 14
-					TextArea.SCROLLBARS_VERTICAL_ONLY);
+			textArea = new JTextArea(GREETINGS, 40, 48);
 			textWindow = new Window(this);
 		}
 
@@ -208,159 +206,9 @@ public class CobwebApplication extends Frame {
 		// A listener, to process events
 		theListener = new CobwebEventListener();
 
-		// Build the menu items
-		MenuItem openMenu = new MenuItem("Open");
-		openMenu.setActionCommand("Open");
-		openMenu.addActionListener(theListener);
+		JMenuBar myMenuBar = makeMenuBar();
 
-		// $$$$$$ Add "Set Default Data" menu.  Feb 21
-		MenuItem setMenu = new MenuItem("Set Default Data");
-		setMenu.setActionCommand("Set Default Data");
-		setMenu.addActionListener(theListener);
-
-		// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4
-		MenuItem defaultMenu = new MenuItem("Retrieve Default Data");
-		defaultMenu.setActionCommand("Retrieve Default Data");
-		defaultMenu.addActionListener(theListener);
-		// $$$$$$ Add "Modify Current Data" menu.  Feb 12
-		MenuItem currentDataMenu = new MenuItem("Modify Current Data");
-		currentDataMenu.setActionCommand("Modify Current Data");
-		currentDataMenu.addActionListener(theListener);
-
-		MenuItem NewDataFileMenu = new MenuItem(
-				"Create New Data");
-		NewDataFileMenu.setActionCommand("Create New Data");
-		NewDataFileMenu.addActionListener(theListener);
-		MenuItem MultFileMenu = new MenuItem(
-				"Set Multiple Files");
-		MultFileMenu.setActionCommand("Set Multiple Files");
-		MultFileMenu.addActionListener(theListener);
-		MenuItem modifyMenu = new MenuItem("Modify This File");
-		modifyMenu.setActionCommand("Modify This File");
-		modifyMenu.addActionListener(theListener);
-		MenuItem saveMenu = new MenuItem("Save");
-		saveMenu.setActionCommand("Save");
-		saveMenu.addActionListener(theListener);
-		MenuItem logMenu = new MenuItem("Log");
-		logMenu.setActionCommand("Log");
-		logMenu.addActionListener(theListener);
-		//MenuItem trackAgentMenu = new MenuItem("Track Agent");
-		//trackAgentMenu.setActionCommand("Track Agent");
-		//trackAgentMenu.addActionListener(theListener);
-		MenuItem quitMenu = new MenuItem("Quit");
-		quitMenu.setActionCommand("Quit");
-		quitMenu.addActionListener(theListener);
-		MenuItem reportMenu = new MenuItem("Report");
-		reportMenu.setActionCommand("Report");
-		reportMenu.addActionListener(theListener);
-
-		MenuItem aboutMenu = new MenuItem("About");
-		aboutMenu.setActionCommand("About");
-		aboutMenu.addActionListener(theListener);
-		MenuItem creditsMenu = new MenuItem("Credits");
-		creditsMenu.setActionCommand("Credits");
-		creditsMenu.addActionListener(theListener);
-
-		/*** $$$$$$ Cancel textWindow  Apr 22*/
-		// $$$$$$ Add "Show/Hide Info" menu.  Mar 14
-		MenuItem showInfoMenu = null;
-		if (cobweb.globals.usingTextWindow == true) {
-			showInfoMenu = new MenuItem("Show/Hide Info");
-			showInfoMenu.setActionCommand("Show/Hide Info");
-			showInfoMenu.addActionListener(theListener);
-		}
-
-		observeMenu = new MenuItem("Observation Mode");
-		observeMenu.setActionCommand("Observation Mode");
-		observeMenu.addActionListener(theListener);
-
-		stoneMenu = new MenuItem("Select Stones");
-		stoneMenu.setActionCommand("Select Stones");
-		stoneMenu.addActionListener(theListener);
-
-		foodMenu = new Menu("Select Food");
-		agentMenu = new Menu("Select Agents");
-
-		MenuItem removeStones = new MenuItem(
-				"Remove All Stones");
-		removeStones.setActionCommand("Remove All Stones");
-		removeStones.addActionListener(theListener);
-
-		MenuItem removeFood = new MenuItem("Remove All Food");
-		removeFood.setActionCommand("Remove All Food");
-		removeFood.addActionListener(theListener);
-
-		MenuItem removeAgents = new MenuItem(
-				"Remove All Agents");
-		removeAgents.setActionCommand("Remove All Agents");
-		removeAgents.addActionListener(theListener);
-
-		// $$$$$$ Added on Feb 29
-		MenuItem removeWaste = new MenuItem(
-				"Remove All Waste");
-		removeWaste.setActionCommand("Remove All Waste");
-		removeWaste.addActionListener(theListener);
-
-		MenuItem removeAll = new MenuItem("Remove All");
-		removeAll.setActionCommand("Remove All");
-		removeAll.addActionListener(theListener);
-
-
-		// Assemble the items into menus
-		Menu EditMenu = new Menu("Edit");
-		EditMenu.add(observeMenu);
-		EditMenu.add(stoneMenu);
-		EditMenu.add(agentMenu);
-		EditMenu.add(foodMenu);
-		EditMenu.add("-");
-		EditMenu.add(removeStones);
-		EditMenu.add(removeFood);
-		EditMenu.add(removeAgents);
-		EditMenu.add(removeWaste);  // $$$$$$ added on Feb 29
-		EditMenu.add(removeAll);
-
-		Menu fileMenu = new Menu("File");
-		fileMenu.add(openMenu);
-		fileMenu.add(NewDataFileMenu);
-		fileMenu.add(MultFileMenu);
-		fileMenu.add(modifyMenu);
-
-		// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4
-		fileMenu.add(defaultMenu);
-		// $$$$$$ Add "Modify Current Data" menu.  Feb 12
-		fileMenu.add(currentDataMenu);
-		// $$$$$$ Add "Set Default Data" menu.  Feb 21
-		fileMenu.add("-");
-		fileMenu.add(setMenu);
-
-		fileMenu.add("-");
-		fileMenu.add(saveMenu);
-		fileMenu.add(reportMenu);
-		fileMenu.add(logMenu);
-		//fileMenu.add(trackAgentMenu);
-		fileMenu.add("-");
-		fileMenu.add(quitMenu);
-
-		Menu helpMenu = new Menu("Help");
-
-		/*** $$$$$$ Cancel textWindow  Apr 22*/
-		if (cobweb.globals.usingTextWindow == true) {
-			// $$$$$$ Add "Show/Hide Info" menu.  Mar 14
-			helpMenu.add(showInfoMenu);
-			helpMenu.add("-");
-		}
-
-		helpMenu.add(aboutMenu);
-		//helpMenu.add("-");  // $$$$$$ silenced on Mar 28
-		helpMenu.add(creditsMenu);
-
-		// Assemble the menus into a menu bar
-		MenuBar myMenuBar = new MenuBar();
-		myMenuBar.add(fileMenu);
-		myMenuBar.add(EditMenu);
-		myMenuBar.add(helpMenu);
-
-		setMenuBar(myMenuBar);
+		setJMenuBar(myMenuBar);
 
 		setVisible(true);
 
@@ -372,7 +220,7 @@ public class CobwebApplication extends Frame {
 			textWindow.add(textArea, "North"); // $$$$$$ add "North" on Mar 25
 
 			// $$$$$$ Added on Mar 25
-			hide = new Button("Hide");
+			hide = new JButton("Hide");
 			hide.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					textWindow.setVisible(false);
@@ -408,6 +256,184 @@ public class CobwebApplication extends Frame {
 		}
 
 	}
+	private JMenuBar makeMenuBar() {
+		// Build the menu items
+		JMenuItem openMenu = new JMenuItem("Open");
+		openMenu.setActionCommand("Open");
+		openMenu.addActionListener(theListener);
+
+		// $$$$$$ Add "Set Default Data" menu.  Feb 21
+		JMenuItem setMenu = new JMenuItem("Set Default Data");
+		setMenu.setActionCommand("Set Default Data");
+		setMenu.addActionListener(theListener);
+
+		// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4
+		JMenuItem defaultMenu = new JMenuItem("Retrieve Default Data");
+		defaultMenu.setActionCommand("Retrieve Default Data");
+		defaultMenu.addActionListener(theListener);
+		// $$$$$$ Add "Modify Current Data" menu.  Feb 12
+		JMenuItem currentDataMenu = new JMenuItem("Modify Current Data");
+		currentDataMenu.setActionCommand("Modify Current Data");
+		currentDataMenu.addActionListener(theListener);
+
+		JMenuItem NewDataFileMenu = new JMenuItem(
+				"Create New Data");
+		NewDataFileMenu.setActionCommand("Create New Data");
+		NewDataFileMenu.addActionListener(theListener);
+		JMenuItem MultFileMenu = new JMenuItem(
+				"Set Multiple Files");
+		MultFileMenu.setActionCommand("Set Multiple Files");
+		MultFileMenu.addActionListener(theListener);
+		JMenuItem modifyMenu = new JMenuItem("Modify This File");
+		modifyMenu.setActionCommand("Modify This File");
+		modifyMenu.addActionListener(theListener);
+		JMenuItem saveMenu = new JMenuItem("Save");
+		saveMenu.setActionCommand("Save");
+		saveMenu.addActionListener(theListener);
+		JMenuItem logMenu = new JMenuItem("Log");
+		logMenu.setActionCommand("Log");
+		logMenu.addActionListener(theListener);
+		//JMenuItem trackAgentMenu = new JMenuItem("Track Agent");
+		//trackAgentMenu.setActionCommand("Track Agent");
+		//trackAgentMenu.addActionListener(theListener);
+		JMenuItem quitMenu = new JMenuItem("Quit");
+		quitMenu.setActionCommand("Quit");
+		quitMenu.addActionListener(theListener);
+		JMenuItem reportMenu = new JMenuItem("Report");
+		reportMenu.setActionCommand("Report");
+		reportMenu.addActionListener(theListener);
+
+		JMenuItem aboutMenu = new JMenuItem("About");
+		aboutMenu.setActionCommand("About");
+		aboutMenu.addActionListener(theListener);
+		JMenuItem creditsMenu = new JMenuItem("Credits");
+		creditsMenu.setActionCommand("Credits");
+		creditsMenu.addActionListener(theListener);
+
+		/*** $$$$$$ Cancel textWindow  Apr 22*/
+		// $$$$$$ Add "Show/Hide Info" menu.  Mar 14
+		JMenuItem showInfoMenu = null;
+		if (cobweb.globals.usingTextWindow == true) {
+			showInfoMenu = new JMenuItem("Show/Hide Info");
+			showInfoMenu.setActionCommand("Show/Hide Info");
+			showInfoMenu.addActionListener(theListener);
+		}
+
+		observeMenu = new JMenuItem("Observation Mode");
+		observeMenu.setActionCommand("Observation Mode");
+		observeMenu.addActionListener(theListener);
+
+		stoneMenu = new JMenuItem("Select Stones");
+		stoneMenu.setActionCommand("Select Stones");
+		stoneMenu.addActionListener(theListener);
+
+		foodMenu = new JMenu("Select Food");
+		agentMenu = new JMenu("Select Agents");
+
+		JMenuItem removeStones = new JMenuItem(
+				"Remove All Stones");
+		removeStones.setActionCommand("Remove All Stones");
+		removeStones.addActionListener(theListener);
+
+		JMenuItem removeFood = new JMenuItem("Remove All Food");
+		removeFood.setActionCommand("Remove All Food");
+		removeFood.addActionListener(theListener);
+
+		JMenuItem removeAgents = new JMenuItem(
+				"Remove All Agents");
+		removeAgents.setActionCommand("Remove All Agents");
+		removeAgents.addActionListener(theListener);
+
+		// $$$$$$ Added on Feb 29
+		JMenuItem removeWaste = new JMenuItem(
+				"Remove All Waste");
+		removeWaste.setActionCommand("Remove All Waste");
+		removeWaste.addActionListener(theListener);
+
+		JMenuItem removeAll = new JMenuItem("Remove All");
+		removeAll.setActionCommand("Remove All");
+		removeAll.addActionListener(theListener);
+
+
+		// Assemble the items into menus
+		JMenu EditMenu = new JMenu("Edit");
+		EditMenu.add(observeMenu);
+		EditMenu.add(stoneMenu);
+		EditMenu.add(agentMenu);
+		EditMenu.add(foodMenu);
+		EditMenu.add(new JSeparator());
+		EditMenu.add(removeStones);
+		EditMenu.add(removeFood);
+		EditMenu.add(removeAgents);
+		EditMenu.add(removeWaste);  // $$$$$$ added on Feb 29
+		EditMenu.add(removeAll);
+
+		JMenu fileMenu = new JMenu("File");
+		fileMenu.add(openMenu);
+		fileMenu.add(NewDataFileMenu);
+		fileMenu.add(MultFileMenu);
+		fileMenu.add(modifyMenu);
+
+		// $$$$$$ Add "Retrieve Default Data" menu.  Feb 4
+		fileMenu.add(defaultMenu);
+		// $$$$$$ Add "Modify Current Data" menu.  Feb 12
+		fileMenu.add(currentDataMenu);
+		// $$$$$$ Add "Set Default Data" menu.  Feb 21
+		fileMenu.add(new JSeparator());
+		fileMenu.add(setMenu);
+
+		fileMenu.add(new JSeparator());
+		fileMenu.add(saveMenu);
+		fileMenu.add(reportMenu);
+		fileMenu.add(logMenu);
+		//fileMenu.add(trackAgentMenu);
+		fileMenu.add(new JSeparator());
+		fileMenu.add(quitMenu);
+
+		JMenu helpMenu = new JMenu("Help");
+
+		/*** $$$$$$ Cancel textWindow  Apr 22*/
+		if (cobweb.globals.usingTextWindow == true) {
+			// $$$$$$ Add "Show/Hide Info" menu.  Mar 14
+			helpMenu.add(showInfoMenu);
+			helpMenu.add(new JSeparator());
+		}
+
+		helpMenu.add(aboutMenu);
+		//helpMenu.add(new JSeparator());  // $$$$$$ silenced on Mar 28
+		helpMenu.add(creditsMenu);
+
+		JMenu viewMenu = new JMenu("View");
+		JCheckBoxMenuItem viewLinearAI = new JCheckBoxMenuItem("AI Weight Stats", false);
+
+		viewLinearAI.addItemListener(new ItemListener() {
+
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					aiGraph = new LinearAIGraph();
+					aiGraph.pack();
+					aiGraph.setVisible(true);
+				} else if (e.getStateChange() == ItemEvent.DESELECTED) {
+					aiGraph.setVisible(false);
+					aiGraph.setEnabled(false);
+					aiGraph = null;
+				}
+			}
+		});
+		viewMenu.add(viewLinearAI);
+
+		// Assemble the menus into a menu bar
+		JMenuBar myMenuBar = new JMenuBar();
+		myMenuBar.add(fileMenu);
+		myMenuBar.add(EditMenu);
+		myMenuBar.add(viewMenu);
+		myMenuBar.add(helpMenu);
+		return myMenuBar;
+	}
+
+	private JFrame aiGraph;
+
+	private boolean showAiStats = false;
 
 	// $$$$$$ get UI.  Mar 14
 	public cobweb.UIInterface getUI() {
@@ -526,31 +552,19 @@ public class CobwebApplication extends Frame {
 			pauseButton.setUI(uiPipe);
 		}
 
-		if (stepButton == null) {
-			pauseButton = new PauseButton(uiPipe);
-			controls.add(pauseButton);
-			stepButton = new StepButton(uiPipe);
-			controls.add(stepButton);
-			controls.add(new JLabel("   Adjust Speed:"));
-			MyScrollbar sb = new MyScrollbar(uiPipe);
-			controls.add(sb);
-		} else {
-			stepButton.setUI(uiPipe);
-		}
-
-		MenuItem foodtype[] = new MenuItem[uiPipe
+		JMenuItem foodtype[] = new JMenuItem[uiPipe
 				.countAgentTypes()];
-		MenuItem agentype[] = new MenuItem[uiPipe
+		JMenuItem agentype[] = new JMenuItem[uiPipe
 				.countAgentTypes()];
 		foodMenu.removeAll();
 		agentMenu.removeAll();
 		for (int i = 0; i < uiPipe.countAgentTypes(); i++) {
-			foodtype[i] = new MenuItem("Food Type " + (i + 1));
+			foodtype[i] = new JMenuItem("Food Type " + (i + 1));
 			foodtype[i].setActionCommand("Food Type " + (i + 1));
 			foodtype[i].addActionListener(theListener);
 			foodMenu.add(foodtype[i]);
 
-			agentype[i] = new MenuItem("Agent Type " + (i + 1));
+			agentype[i] = new JMenuItem("Agent Type " + (i + 1));
 			agentype[i].setActionCommand("Agent Type " + (i + 1));
 			agentype[i].addActionListener(theListener);
 			agentMenu.add(agentype[i]);
@@ -1228,13 +1242,13 @@ public class CobwebApplication extends Frame {
 				"About Cobweb", true);								   // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
 		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
 		JPanel info = new JPanel();
-		info.add(new Label("Cobweb 2003/2004"));
-		info.add(new Label(""));
-		info.add(new Label("is a product of"));
-		info.add(new Label("Environment Canada"));
+		info.add(new JLabel("Cobweb 2003/2004"));
+		info.add(new JLabel(""));
+		info.add(new JLabel("is a product of"));
+		info.add(new JLabel("Environment Canada"));
 
-		Panel term = new Panel();
-		Button close = new Button("Close");
+		JPanel term = new JPanel();
+		JButton close = new JButton("Close");
 		term.add(close);
 
 		close.addActionListener(new ActionListener() {
@@ -1254,20 +1268,20 @@ public class CobwebApplication extends Frame {
 				true);								  				  // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows.  Feb 22
 		theDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);  // $$$$$$ added on Feb 18
 		@SuppressWarnings("unused")
-		Panel info = new Panel();
-		Panel credit = new Panel();
-		Button brad = new Button("Brad Bass, PhD");
-		Button jeff = new Button("Jeff Hill");
-		Button jin = new Button("Jin Soo Kang");
-		credit.add(new Label("Coordinator"));
+		JPanel info = new JPanel();
+		JPanel credit = new JPanel();
+		JButton brad = new JButton("Brad Bass, PhD");
+		JButton jeff = new JButton("Jeff Hill");
+		JButton jin = new JButton("Jin Soo Kang");
+		credit.add(new JLabel("Coordinator"));
 		credit.add(brad);
-		credit.add(new Label("_______________"));
-		credit.add(new Label("Programmers"));
+		credit.add(new JLabel("_______________"));
+		credit.add(new JLabel("Programmers"));
 		credit.add(jeff);
 		credit.add(jin);
 
-		Panel term = new Panel();
-		Button close = new Button("Close");
+		JPanel term = new JPanel();
+		JButton close = new JButton("Close");
 		term.add(close);
 
 		brad.addActionListener(new ActionListener() {
@@ -1322,17 +1336,17 @@ public class CobwebApplication extends Frame {
 		final javax.swing.JDialog creditDialog = new javax.swing.JDialog(parentDialog,  // $$$$$$  change from "this" to parentDialog.  Feb 22
 				"Click on Close to continue", true);
 
-		Panel credit = new Panel();
+		JPanel credit = new JPanel();
 		for (int i = 0; i < S.length; ++i) {
-			credit.add(new Label(S[i]), "Center");
+			credit.add(new JLabel(S[i]), "Center");
 		}
 
-		Panel term = new Panel();
+		JPanel term = new JPanel();
 		/* new */
 		// $$$$$$ Silence the unused "Open" button.  Feb 22
 		//Button choosefile = new Button("Open");
 		//term.add(choosefile);
-		Button close = new Button("Close");
+		JButton close = new JButton("Close");
 		term.add(close);
 		/* new */
 		//choosefile.addActionListener(new event.ActionListener() {
@@ -1362,7 +1376,7 @@ public class CobwebApplication extends Frame {
 		final JTextField jtf = new JTextField(20);
 		final JTextField num_ticks = new JTextField(6);
 		num_ticks.setText("100");
-		final TextArea fnames = new TextArea(4, 35);
+		final JTextArea fnames = new JTextArea(4, 35);
 		fnames.setEditable(false);
 
 		JButton b0 = new JButton("Browse");
