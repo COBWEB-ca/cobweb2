@@ -14,6 +14,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -26,6 +27,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -53,8 +55,9 @@ import javax.swing.WindowConstants;
 
 import cobweb.LocalUIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
+import cobweb.UIInterface.UIClient;
 
-public class CobwebApplication extends JFrame {
+public class CobwebApplication extends JFrame implements UIClient {
 
 	private static final long serialVersionUID = 1L;
 
@@ -150,6 +153,9 @@ public class CobwebApplication extends JFrame {
 					"\n                  Any modification of this data file will be neither implemented nor saved.");
 		}
 	}
+
+	private boolean clipped = false;
+
 	// constructor
 	CobwebApplication(String[] param) {
 		super("Cobweb Application");
@@ -160,6 +166,17 @@ public class CobwebApplication extends JFrame {
 			textWindow = new Window(this);
 		}
 
+		addWindowStateListener(new WindowStateListener() {
+
+			public void windowStateChanged(WindowEvent e) {
+				if (e.getNewState() == Frame.NORMAL) {
+					clipped = false;
+				} else {
+					clipped = true;
+				}
+			}
+
+		});
 
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -433,8 +450,6 @@ public class CobwebApplication extends JFrame {
 
 	private JFrame aiGraph;
 
-	private boolean showAiStats = false;
-
 	// $$$$$$ get UI.  Mar 14
 	public cobweb.UIInterface getUI() {
 		return uiPipe;
@@ -466,31 +481,27 @@ public class CobwebApplication extends JFrame {
 	}
 
 	public void refresh(cobweb.UIInterface theUIInterface) {
-		// Don't repaint the whole frame; that causes overdraw (white flash)
-		if (displayPanel != null) {
+		if (displayPanel != null && pauseButton != null && stepButton != null) {
 			displayPanel.repaint();
-		}
-		if (pauseButton != null) {
 			pauseButton.repaint();
-		}
-		pauseButton.updateLabel();
-		if (stepButton != null) {
 			stepButton.repaint();
-		//if (tickField != null && !tickField.getText().equals("")) {tickField.setText("");}  // $$$$$$ reset tickField.  Mar 14
+		}
+		if (clipped) {
+
 		}
 	}
 
 	public void openMultFiles(Parser p[], int time[], int numfiles) {
-		uiPipe = new cobweb.LocalUIInterface(new CobwebUIClient(), p, time,
+		uiPipe = new cobweb.LocalUIInterface(this, p, time,
 				numfiles);
 		UIsettings();
 	}
 
 	public void openFile(Parser p) {
 		if (uiPipe != null) {
-			uiPipe.load(new CobwebUIClient(), p);
+			uiPipe.load(this, p);
 		} else {
-			uiPipe = new LocalUIInterface(new CobwebUIClient(), p);
+			uiPipe = new LocalUIInterface(this, p);
 			UIsettings();
 		}
 		//this.toFront(); // $$$$$$ added for CA frame going to front when anytime this method is called.  Feb 22
@@ -891,13 +902,6 @@ public class CobwebApplication extends JFrame {
 		}
 	}
 
-	private class CobwebUIClient implements cobweb.UIInterface.UIClient {
-		public void refresh(cobweb.UIInterface theUI) {
-			CobwebApplication.this.displayPanel.repaint();
-			CobwebApplication.this.pauseButton.repaint();
-			CobwebApplication.this.stepButton.repaint();
-		}
-	}
 
 	public void openFileDialog() {
 		FileDialog theDialog = new FileDialog(GUI.frame,  // $$$$$$ modified from "this".  Feb 29
@@ -1735,6 +1739,9 @@ public class CobwebApplication extends JFrame {
 
 		in.close();
 		out.close();
+	}
+	public boolean isClipped() {
+		return clipped;
 	}
 
 } // CobwebApplication

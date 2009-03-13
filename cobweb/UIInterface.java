@@ -26,9 +26,12 @@ package cobweb;
  @see cobweb.LocalUIInterface
  */
 
+import java.util.List;
+
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import cobweb.Environment.Location;
 import cobweb.LocalUIInterface.TickEventListener;
 import driver.Parser;
 
@@ -46,6 +49,8 @@ public interface UIInterface {
 		 *            the UIInterface with new frame data
 		 */
 		public void refresh(UIInterface theInterface);
+
+		public boolean isClipped();
 	}
 
 	/**
@@ -126,6 +131,8 @@ public interface UIInterface {
 	 *            a width * height array of tile colors.
 	 */
 	public void newTileColors(int width, int height, java.awt.Color[] tileColors);
+
+	public void newPath(List<Location> path);
 
 	/**
 	 * Inform the UI of the visual state of an agent.

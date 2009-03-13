@@ -10,8 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import cobweb.Agent;
+import cobweb.ColorLookup;
 import cobweb.Environment;
 import cobweb.TickScheduler;
+import cobweb.TypeColorEnumeration;
+import cobweb.UIInterface;
 import driver.ControllerFactory;
 import driver.Parser;
 
@@ -223,6 +227,8 @@ public class ComplexEnvironment extends Environment implements
 
 	private Colorizer colorizer;
 
+	private int foodTypeCount;
+
 	public Colorizer getColorizer() {
 		return colorizer;
 	}
@@ -279,7 +285,8 @@ public class ComplexEnvironment extends Environment implements
 		 */
 
 		controllerName = p.ControllerName;
-		agentTypeCount = p.ComplexEnvironment[0];
+		agentTypeCount = p.AgentCount[0];
+		foodTypeCount = p.FoodCount[0];
 		w[0] = p.Width[0];
 		h[0] = p.Height[0];
 		randomStones[0] = p.randomStones[0];
@@ -765,13 +772,7 @@ public class ComplexEnvironment extends Environment implements
 					lastPDMove[0][agentType] = -1;  // &&&&&& initial for this new agent.  Apr 18
 				    if (pdTitForTat[0][agentType]) { agentPDStrategy[0][agentType] = 1;}     // $$$$$$ if tit-for-tat, then agentPDStrategy == 1.  Apr 18
 
-					// $$$$$$ using Coop Probability instead of random boolean.  Apr 18
-					/*
-					java.util.Random generator = new java.util.Random();
-					boolean choose = generator.nextBoolean();
-					if (choose == true) {
-						action = 1;
-					}*/
+
 					double coopProb = pdCoopProb[0][agentType]/100.0d; // static value for now $$$$$$ added for the below else block.
 				    float rnd = cobweb.globals.random.nextFloat();
 				    //System.out.println("rnd: " + rnd);
@@ -1049,7 +1050,7 @@ public class ComplexEnvironment extends Environment implements
 							 * pick randomly from all the types else {
 							 */
 							growMe = cobweb.globals.random
-									.nextInt(agentTypeCount);
+									.nextInt(foodTypeCount);
 							// }
 
 							// finally, we grow food according to a certain
@@ -1071,7 +1072,7 @@ public class ComplexEnvironment extends Environment implements
 		}
 
 		// Air-drop food into the environment
-		for (int i = 0; i < foodRate.length; ++i) {
+		for (int i = 0; i < foodRate[0].length; ++i) {
 			if (draughtdays[i] == 0) {
 
 				float foodDrop = foodRate[0][i];
@@ -1097,17 +1098,20 @@ public class ComplexEnvironment extends Environment implements
 				draughtdays[i]--;
 			}
 		}
+
+		if (observedAgent != null && !observedAgent.isAlive()) {
+			observedAgent = null;
+		}
 	}
 
-	private static cobweb.ColorLookup colorMap = new cobweb.TypeColorEnumeration();
+	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	@Override
 	public void setclick(int click) {
 		clickcount = click;
 	}
 
-	// private static java.awt.Color brown = new java.awt.Color(102, 31, 0);
-	private static java.awt.Color brown = new java.awt.Color(204, 102, 0);
+	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
 
 	@Override
 	public void fillTileColors(java.awt.Color[] tileColors) {
@@ -1118,7 +1122,7 @@ public class ComplexEnvironment extends Environment implements
 				if (currentPos.testFlag(FLAG_STONE))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
 				else if (currentPos.testFlag(FLAG_WASTE))
-					tileColors[tileIndex++] = brown;
+					tileColors[tileIndex++] = wasteColor;
 				else if (currentPos.testFlag(FLAG_FOOD)) {
 					tileColors[tileIndex++] = colorMap.getColor(
 							getFoodType(currentPos), 0 /* agentTypeCount */);
@@ -1880,7 +1884,7 @@ public class ComplexEnvironment extends Environment implements
 		foodarray[l.v[0]][l.v[1]] = i;
 	}
 
-	// public cobweb.driver.CobwebApplication app;
+	private Agent observedAgent = null;
 
 	/*
 	 * This gets called when the user clicks on a tile without selecting outside
@@ -1890,44 +1894,7 @@ public class ComplexEnvironment extends Environment implements
 	public void observe(int x, int y, cobweb.UIInterface ui) {
 		cobweb.Environment.Location l = getUserDefinedLocation(x, y);
 		/* A tile can only consist of: STONE or WASTE or (FOOD|AGENT) */
-		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
-			ui
-					.writeToTextWindow("There is a stone at (" + x + "," + y
-							+ ").\n");
-		} else if (l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
-			ui
-					.writeToTextWindow("There is a waste at (" + x + "," + y
-							+ "):\n");
-			ui.writeToTextWindow("  Amount left: "
-					+ ("" + (wastearray[x][y].getAmount(getTickCount())))
-							.substring(0, 5) + "\n");
-		} else {
-			boolean occupied = false;
-			if (l.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-				occupied = true;
-				ui.writeToTextWindow("There is food at (" + x + "," + y
-						+ ") of type " + (getFoodType(l) + 1) + ".\n");
-			}
-			if (l.getAgent() != null) {
-				cobweb.Agent a = l.getAgent();
-				occupied = true;
-				ui.writeToTextWindow("There is an agent at (" + x + "," + y
-						+ "):\n");
-				ui.writeToTextWindow("  ID: " + (a.getID()) + "\n");
-				ui.writeToTextWindow("  Type: " + (a.type() + 1) + "\n");
-				ui.writeToTextWindow("  Energy: " + a.getEnergy() + "\n");
-				ui.writeToTextWindow("  Red: " + a.getGeneticCode().getGeneticColour()[GeneticCode.RED_PIXEL_COLUMN] + "\n");
-				ui.writeToTextWindow("  Green: " + a.getGeneticCode().getGeneticColour()[GeneticCode.GREEN_PIXEL_COLUMN] + "\n");
-				ui.writeToTextWindow("  Blue: " + a.getGeneticCode().getGeneticColour()[GeneticCode.BLUE_PIXEL_COLUMN] + "\n");
-				if (a.age() > 0)
-					ui.writeToTextWindow("  Age: " + a.age() + " (Born on "
-							+ a.birthday() + ").\n");
-			}
-			if (!occupied) {
-				ui.writeToTextWindow("There is an empty tile on (" + x + ","
-						+ y + ").\n");
-			}
-		}
+		observedAgent = l.getAgent();
 	}
 
 	@Override
@@ -1942,4 +1909,18 @@ public class ComplexEnvironment extends Environment implements
 		stats.timestep = this.getTickCount();
 		return stats;
 	}
+
+	@Override
+	protected void getDrawInfo(UIInterface theUI) {
+		super.getDrawInfo(theUI);
+		for (Agent a : agentTable.values()) {
+			a.getDrawInfo(theUI);
+		}
+
+		if (observedAgent != null) {
+			theUI.newPath(((ComplexAgent)observedAgent).getInfo().getPathHistory());
+		}
+
+	}
+
 }

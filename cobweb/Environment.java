@@ -5,21 +5,21 @@ import driver.Parser;
 /**
  * The Environment class represents the simulation world; a collection of
  * locations with state, each of which may contain an agent.
- * 
+ *
  * The Environment class is designed to handle an arbitrary number of
  * dimensions, although the UIInterface is somewhat tied to two dimensions for
  * display purposes.
- * 
+ *
  * All access to the internal data of the Environment is done through an
  * accessor class, Environment.Location. The practical upshot of this is that
  * the Environment internals may be implemented in C or C++ using JNI, while the
  * Java code still has a nice java flavoured interface to the data.
- * 
+ *
  * Another advantage of the accessor model is that the internal data need not be
  * in a format that is reasonable for external access. An array of longs where
  * bitfields represent the location states makes sense in this context, because
  * the accessors allow friendly access to this state information.
- * 
+ *
  * Furthermore, the accessor is designed to be quite general; there should be no
  * need to subclass Environment.Location for a specific Environment
  * implementation. A number of constants should be defined in an Environment
@@ -40,13 +40,13 @@ public abstract class Environment {
 
 	/** Dimensionality independant notion of a direction */
 	public static class Direction implements Comparable<Direction> {
-		 
+
 		public int[] v;
- 
+
 		public Direction(int[] initV) {
 			v = initV;
 		}
- 
+
 		public Direction(int dim) {
 			v = new int[dim];
 		}
@@ -56,7 +56,7 @@ public abstract class Environment {
 		 * In 1 dimension this just compares the values of the single dimension
 		 * In 2 dimensions, it arranges vectors clock-wise
 		 */
- 
+
 		public int compareTo(Direction other) {
 			if (this.v.length != other.v.length){
 				throw new IllegalArgumentException("Other Direction of unequal dimention");
@@ -71,31 +71,32 @@ public abstract class Environment {
 					determinant = 360;
 				return determinant;
 			}
-			else { 
-			throw new IllegalArgumentException("Can't compare Directions with dimention greater than 2"); 
-			} 
-		}
- 		 
-		/** 
-		 * Directions are equal when all their elements of v vector equal 
-		 * @param other Direction to compare to 
-		 * @return true when directions equivalent 
-		 */ 
-		public boolean equals(Direction other ) { 
-			if (this.v.length != other.v.length){ 
-				throw new IllegalArgumentException("Other Direction of unequal dimention");
-			}			 
-			for (int x = 0; x < v.length; x++) { 
-				if (this.v[x] != other.v[x]) 
-                    return false; 
+			else {
+			throw new IllegalArgumentException("Can't compare Directions with dimention greater than 2");
 			}
-			return true; 
-		} 	
+		}
+
+		/**
+		 * Directions are equal when all their elements of v vector equal
+		 * @param other Direction to compare to
+		 * @return true when directions equivalent
+		 */
+		public boolean equals(Direction other ) {
+			if (this.v.length != other.v.length){
+				throw new IllegalArgumentException("Other Direction of unequal dimention");
+			}
+			for (int x = 0; x < v.length; x++) {
+				if (this.v[x] != other.v[x])
+                    return false;
+			}
+			return true;
+		}
 		/** Required for Comparable, just XOR all vector elements and shift
-		the result at each XOR */ 
+		the result at each XOR */
+		@Override
 		public int hashCode() {
 			int hash = 0;
-			for (int i : this.v) 
+			for (int i : this.v)
 				hash = (hash << 13 + hash >> 19) ^ i;
 			return hash;
 		}
@@ -312,6 +313,7 @@ public abstract class Environment {
 		}
 
 		// Support for containers...
+		@Override
 		public int hashCode() {
 			int code = 0;
 			for (int i = 0; i < v.length; ++i)
@@ -319,6 +321,7 @@ public abstract class Environment {
 			return code;
 		}
 
+		@Override
 		public boolean equals(Object other) {
 			if (!(other instanceof Location))
 				return false;
@@ -329,6 +332,18 @@ public abstract class Environment {
 				if (v[i] != lOther.v[i])
 					return false;
 			return true;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder out = new StringBuilder("(");
+			for (int i = 0 ; i < v.length - 1; i++) {
+				out.append(v[i]);
+				out.append(",");
+			}
+			out.append(v[v.length - 1]);
+			out.append(")");
+			return out.toString();
 		}
 	}
 
@@ -362,15 +377,12 @@ public abstract class Environment {
 	}
 
 	/** Called by the UIInterface to get the frame data for the Environment. */
-	void getDrawInfo(UIInterface theUI) {
+	protected void getDrawInfo(UIInterface theUI) {
 		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X)
 				* getSize(AXIS_Y)];
 		fillTileColors(tileColors);
 		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
 
-		for (java.util.Enumeration<Agent> e = agentTable.elements(); e
-				.hasMoreElements();)
-			e.nextElement().getDrawInfo(theUI);
 	}
 
 	/**
@@ -489,7 +501,7 @@ public abstract class Environment {
 		return agentTable.values();
 	}
 
-	private java.util.Hashtable<Location, Agent> agentTable = new java.util.Hashtable<Location, Agent>();
+	protected java.util.Hashtable<Location, Agent> agentTable = new java.util.Hashtable<Location, Agent>();
 
 	public abstract void setclick(int count);
 
@@ -504,13 +516,13 @@ public abstract class Environment {
 	public static cobweb.UIInterface getUIPipe() {
 		return myUI;
 	}
-	
+
 	public class EnvironmentStats {
 		public long[] agentCounts;
 		public long[] foodCounts;
 		public long timestep;
-		
+
 	}
-	
+
 	public abstract EnvironmentStats getStatistics();
 }

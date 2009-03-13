@@ -1,7 +1,7 @@
 package cobweb;
 
-import java.awt.*;
-import java.awt.color.*;
+import java.awt.Color;
+import java.awt.color.ColorSpace;
 
 public class TypeColorEnumeration implements ColorLookup {
 
@@ -20,6 +20,12 @@ public class TypeColorEnumeration implements ColorLookup {
 			return table[index];
 		else
 			return Color.black;
+	}
+
+	private static TypeColorEnumeration instance = new TypeColorEnumeration();
+
+	public static TypeColorEnumeration getInstance() {
+		return instance;
 	}
 
 }

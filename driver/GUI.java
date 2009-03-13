@@ -49,9 +49,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
+
+import cobweb.TypeColorEnumeration;
 
 /**
  * Simulation configuration dialog
@@ -230,22 +234,14 @@ public class GUI extends JPanel implements ActionListener {
 
 	public Object[][] inputArray;
 
-	public Object[][] data1;
+	public Object[][] foodData;
 
-	public Object[][] data2;
+	public Object[][] agentData;
 
-	public Object[][] data3;
+	public Object[][] foodwebData;
 
 	public Object[][] PDdata = { { null, null }, { null, null },
 			{ null, null }, { null, null } };
-
-	int row;
-
-	int row2;
-
-	int row3;
-
-	int rowpd;
 
 	static JFrame frame;
 
@@ -255,7 +251,9 @@ public class GUI extends JPanel implements ActionListener {
 
 	private static String datafile;
 
-	int types;
+	public static int numAgentTypes;
+
+	public static int numFoodTypes;
 
 	public GUI() {
 		super();
@@ -279,10 +277,6 @@ public class GUI extends JPanel implements ActionListener {
 		"Broadcast range energy-based", "Broadcast fixed range",
 		"Broadcast Minimum Energy", "Broadcast Energy Cost" };
 
-	private static String[] foodNames = { "Agent Type 1", "Agent Type 2", "Agent Type 3",
-		"Agent Type 4", "Food Type 1", "Food Type 2", "Food Type 3",
-		"Food Type 4", };
-
 	private static String[] PDrownames = { "Temptation", "Reward", "Punishment",
 		"Sucker's Payoff" };
 
@@ -299,14 +293,6 @@ public class GUI extends JPanel implements ActionListener {
 
 		JComponent envPanel = setupEnvPanel();
 
-
-		row = resParamNames.length;
-
-		row2 = agentParamNames.length;
-
-		row3 = foodNames.length;
-
-		rowpd = PDrownames.length;
 
 		/*
 		 * check filename, if file name exists and has a correct format set the
@@ -608,11 +594,13 @@ public class GUI extends JPanel implements ActionListener {
 	private JComponent setupResourcePanel() {
 
 		JComponent resourcePanel = new JPanel();
-		resourceParamTable = new JTable(new MyTableModel(resParamNames, data1.length, data1));
+		resourceParamTable = new JTable(new MyTableModel(resParamNames, foodData.length, foodData));
 		TableColumnModel colModel = resourceParamTable.getColumnModel();
 		// Get the column at index pColumn, and set its preferred width.
 		colModel.getColumn(0).setPreferredWidth(120);
 		System.out.println(colModel.getColumn(0).getHeaderValue());
+
+		colorHeaders(resourceParamTable, 1);
 
 		JScrollPane resourceScroll = new JScrollPane(resourceParamTable);
 		resourcePanel.setLayout(new BoxLayout(resourcePanel, BoxLayout.X_AXIS));
@@ -627,11 +615,13 @@ public class GUI extends JPanel implements ActionListener {
 		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
 		setMyBorder(agentPanel, "Agent Parameters");
 
-		agentParamTable = new JTable(new MyTableModel(agentParamNames, data2.length, data2));
+		agentParamTable = new JTable(new MyTableModel(agentParamNames, agentData.length, agentData));
 
 		TableColumnModel agParamColModel = agentParamTable.getColumnModel();
 		// Get the column at index pColumn, and set its preferred width.
 		agParamColModel.getColumn(0).setPreferredWidth(200);
+
+		colorHeaders(agentParamTable, 1);
 
 		JScrollPane agentScroll = new JScrollPane(agentParamTable);
 		// Add the scroll pane to this panel.
@@ -644,20 +634,36 @@ public class GUI extends JPanel implements ActionListener {
 		JComponent foodPanel = new JPanel();
 		// tabbedPane.addTab("Agents", panel3);
 
-		foodTable = new JTable(new MyTableModel2(foodNames, data3.length, data3));
+		String[] foodNames = new String[numAgentTypes + numFoodTypes];
+		for (int i = 0; i < numAgentTypes; i++) {
+			foodNames[i] = "Agent " + i;
+		}
+		for (int i = 0; i < numFoodTypes; i++) {
+			foodNames[i + numAgentTypes] = "Food " + i;
+		}
 
-		//table3.setPreferredScrollableViewportSize(new Dimension(800, 300));
-		// table2.getModel().addTableModelListener(model);
+		foodTable = new JTable(new MyTableModel2(foodNames, foodwebData.length, foodwebData));
+
+		colorHeaders(foodTable, 1);
 
 		// Create the scroll pane and add the table to it.
 		JScrollPane foodScroll = new JScrollPane(foodTable);
-		//scrollPane3.setPreferredSize(new Dimension(400, 300));
-		//table3.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		foodPanel.setLayout(new BoxLayout(foodPanel, BoxLayout.X_AXIS));
 		setMyBorder(foodPanel, "Food Parameters");
 		foodPanel.add(foodScroll);
 		return foodPanel;
+	}
+
+
+	private void colorHeaders(JTable ft, int shift) {
+		TypeColorEnumeration tc = TypeColorEnumeration.getInstance();
+		for (int t = 0; t < numAgentTypes; t++) {
+			DefaultTableCellRenderer r = new DefaultTableCellRenderer();
+			r.setBackground(tc.getColor(t, 0));
+			ft.getColumnModel().getColumn(t + shift).setHeaderRenderer(r);
+			LookAndFeel.installBorder(ft.getTableHeader(), "TableHeader.cellBorder");
+		}
 	}
 
 
@@ -1328,7 +1334,7 @@ public class GUI extends JPanel implements ActionListener {
 				{ new Integer(20), new Double(0.5), new Integer(5),
 						new Double(0.9), new Integer(40), new Integer(0),
 						new Integer(0) } };
-		data1 = temp1;
+		foodData = temp1;
 
 		/* AGENTS INFO */
 		Object[][] temp2 = { { new Integer(20), /* Initial num of agents */
@@ -1472,7 +1478,7 @@ public class GUI extends JPanel implements ActionListener {
 		new Integer(100), /* Broadcast Minimum Energy */
 		new Integer(40) } /* Broadcast Energy Cost */
 		};
-		data2 = temp2;
+		agentData = temp2;
 
 		/* FOOD WEB */
 		Object[][] temp3 = {
@@ -1488,7 +1494,7 @@ public class GUI extends JPanel implements ActionListener {
 				{ new Boolean(false), new Boolean(false), new Boolean(false),
 						new Boolean(false), new Boolean(true),
 						new Boolean(true), new Boolean(true), new Boolean(true) } };
-		data3 = temp3;
+		foodwebData = temp3;
 
 		Object[][] tempPD = { { new Integer(8), null },
 				{ new Integer(6), null }, { new Integer(3), null },
@@ -1497,11 +1503,13 @@ public class GUI extends JPanel implements ActionListener {
 	}
 
 	private void loadfromParser(Parser p) {
-		types = ((Integer) (Array.get(p.getfromHashTable("ComplexEnvironment"),
+		numAgentTypes = ((Integer) (Array.get(p.getfromHashTable("AgentCount"),
 				0))).intValue();
-		data1 = new Object[types][row];
-		data2 = new Object[types][row2];
-		data3 = new Object[types][row3];
+		numFoodTypes = ((Integer) (Array.get(p.getfromHashTable("FoodCount"),
+				0))).intValue();
+		foodData = new Object[numFoodTypes][resParamNames.length];
+		agentData = new Object[numAgentTypes][agentParamNames.length];
+		foodwebData = new Object[numFoodTypes][numAgentTypes + numFoodTypes];
 		// PDdata = new Object[4][2];
 		setTextField(Width, Array.get(p.getfromHashTable("width"), 0));
 		setTextField(Height, Array.get(p.getfromHashTable("height"), 0));
@@ -1543,81 +1551,81 @@ public class GUI extends JPanel implements ActionListener {
 		setTextField(maxFoodChance, Array.get(p
 				.getfromHashTable("maxfoodchance"), 0));
 
-		setTableData(data1, Array.get(p.getfromHashTable("food"), 0), 1);
-		setTableData(data1, Array.get(p.getfromHashTable("foodrate"), 0), 2);
-		setTableData(data1, Array.get(p.getfromHashTable("foodgrow"), 0), 3);
-		setTableData(data1, Array.get(p.getfromHashTable("fooddeplete"), 0), 4);
-		setTableData(data1, Array
+		setTableData(foodData, Array.get(p.getfromHashTable("food"), 0), 1);
+		setTableData(foodData, Array.get(p.getfromHashTable("foodrate"), 0), 2);
+		setTableData(foodData, Array.get(p.getfromHashTable("foodgrow"), 0), 3);
+		setTableData(foodData, Array.get(p.getfromHashTable("fooddeplete"), 0), 4);
+		setTableData(foodData, Array
 				.get(p.getfromHashTable("depletetimesteps"), 0), 5);
-		setTableData(data1, Array.get(p.getfromHashTable("DraughtPeriod"), 0),
+		setTableData(foodData, Array.get(p.getfromHashTable("DraughtPeriod"), 0),
 				6);
-		setTableData(data1, Array.get(p.getfromHashTable("foodmode"), 0), 7);
+		setTableData(foodData, Array.get(p.getfromHashTable("foodmode"), 0), 7);
 
-		setTableData(data2, Array.get(p.getfromHashTable("agents"), 0), 1);
-		setTableData(data2, Array.get(p.getfromHashTable("mutationrate"), 0), 2);
-		setTableData(data2, Array.get(p.getfromHashTable("initenergy"), 0), 3);
-		setTableData(data2, Array.get(p.getfromHashTable("foodenergy"), 0), 4);
-		setTableData(data2,
+		setTableData(agentData, Array.get(p.getfromHashTable("agents"), 0), 1);
+		setTableData(agentData, Array.get(p.getfromHashTable("mutationrate"), 0), 2);
+		setTableData(agentData, Array.get(p.getfromHashTable("initenergy"), 0), 3);
+		setTableData(agentData, Array.get(p.getfromHashTable("foodenergy"), 0), 4);
+		setTableData(agentData,
 				Array.get(p.getfromHashTable("otherfoodenergy"), 0), 5);
-		setTableData(data2, Array.get(p.getfromHashTable("breedenergy"), 0), 6);
-		setTableData(data2,
+		setTableData(agentData, Array.get(p.getfromHashTable("breedenergy"), 0), 6);
+		setTableData(agentData,
 				Array.get(p.getfromHashTable("pregnancyperiod"), 0), 7);
 
-		setTableData(data2, Array.get(p.getfromHashTable("stepenergy"), 0), 8);
-		setTableData(data2, Array.get(p.getfromHashTable("steprockenergy"), 0),
+		setTableData(agentData, Array.get(p.getfromHashTable("stepenergy"), 0), 8);
+		setTableData(agentData, Array.get(p.getfromHashTable("steprockenergy"), 0),
 				9);
-		setTableData(data2,
+		setTableData(agentData,
 				Array.get(p.getfromHashTable("turnrightenergy"), 0), 10);
-		setTableData(data2, Array.get(p.getfromHashTable("turnleftenergy"), 0),
+		setTableData(agentData, Array.get(p.getfromHashTable("turnleftenergy"), 0),
 				11);
-		setTableData(data2, Array.get(p.getfromHashTable("memorybits"), 0), 12);
-		setTableData(data2, Array.get(p.getfromHashTable("commsimmin"), 0), 13);
-		setTableData(data2,
+		setTableData(agentData, Array.get(p.getfromHashTable("memorybits"), 0), 12);
+		setTableData(agentData, Array.get(p.getfromHashTable("commsimmin"), 0), 13);
+		setTableData(agentData,
 				Array.get(p.getfromHashTable("stepagentenergy"), 0), 14);
-		setTableData(data2, Array.get(p.getfromHashTable("communicationbits"),
+		setTableData(agentData, Array.get(p.getfromHashTable("communicationbits"),
 				0), 15);
-		setTableData(data2, Array.get(p
+		setTableData(agentData, Array.get(p
 				.getfromHashTable("sexualpregnancyperiod"), 0), 16);
-		setTableData(data2, Array.get(p.getfromHashTable("breedsimmin"), 0), 17);
-		setTableData(data2, Array.get(p.getfromHashTable("sexualbreedchance"),
+		setTableData(agentData, Array.get(p.getfromHashTable("breedsimmin"), 0), 17);
+		setTableData(agentData, Array.get(p.getfromHashTable("sexualbreedchance"),
 				0), 18);
-		setTableData(data2, Array.get(p.getfromHashTable("asexualbreedchance"),
+		setTableData(agentData, Array.get(p.getfromHashTable("asexualbreedchance"),
 				0), 19);
 
-		setTableData(data2, Array.get(p.getfromHashTable("agingMode"), 0), 20);
-		setTableData(data2, Array.get(p.getfromHashTable("agingLimit"), 0), 21);
-		setTableData(data2, Array.get(p.getfromHashTable("agingRate"), 0), 22);
+		setTableData(agentData, Array.get(p.getfromHashTable("agingMode"), 0), 20);
+		setTableData(agentData, Array.get(p.getfromHashTable("agingLimit"), 0), 21);
+		setTableData(agentData, Array.get(p.getfromHashTable("agingRate"), 0), 22);
 
-		setTableData(data2, Array.get(p.getfromHashTable("wasteMode"), 0), 23);
-		setTableData(data2, Array.get(p.getfromHashTable("wastePen"), 0), 24);
-		setTableData(data2, Array.get(p.getfromHashTable("wasteGain"), 0), 25);
-		setTableData(data2, Array.get(p.getfromHashTable("wasteLoss"), 0), 26);
-		setTableData(data2, Array.get(p.getfromHashTable("wasteRate"), 0), 27);
-		setTableData(data2, Array.get(p.getfromHashTable("wasteInit"), 0), 28);
-		setTableData(data2, Array.get(p.getfromHashTable("pdTitForTat"), 0), 29);
-		setTableData(data2, Array.get(p.getfromHashTable("pdCoopProb"), 0), 30);
-		setTableData(data2, Array.get(p.getfromHashTable("broadcastMode"), 0),
+		setTableData(agentData, Array.get(p.getfromHashTable("wasteMode"), 0), 23);
+		setTableData(agentData, Array.get(p.getfromHashTable("wastePen"), 0), 24);
+		setTableData(agentData, Array.get(p.getfromHashTable("wasteGain"), 0), 25);
+		setTableData(agentData, Array.get(p.getfromHashTable("wasteLoss"), 0), 26);
+		setTableData(agentData, Array.get(p.getfromHashTable("wasteRate"), 0), 27);
+		setTableData(agentData, Array.get(p.getfromHashTable("wasteInit"), 0), 28);
+		setTableData(agentData, Array.get(p.getfromHashTable("pdTitForTat"), 0), 29);
+		setTableData(agentData, Array.get(p.getfromHashTable("pdCoopProb"), 0), 30);
+		setTableData(agentData, Array.get(p.getfromHashTable("broadcastMode"), 0),
 				31);
-		setTableData(data2, Array.get(p
+		setTableData(agentData, Array.get(p
 				.getfromHashTable("broadcastEnergyBased"), 0), 32);
-		setTableData(data2, Array.get(
+		setTableData(agentData, Array.get(
 				p.getfromHashTable("broadcastFixedRange"), 0), 33);
-		setTableData(data2, Array.get(p.getfromHashTable("broadcastEnergyMin"),
+		setTableData(agentData, Array.get(p.getfromHashTable("broadcastEnergyMin"),
 				0), 34);
-		setTableData(data2, Array.get(
+		setTableData(agentData, Array.get(
 				p.getfromHashTable("broadcastEnergyCost"), 0), 35);
-		setTableHelper(data3);
+		setTableHelper(foodwebData);
 
-		for (int i = 0; i < data3.length; i++) {
+		for (int i = 0; i < foodwebData.length; i++) {
 			int j;
-			for (j = 0; j < data3.length; j++) {
-				setTableData_agents2eat(data3, Array.get(p
+			for (j = 0; j < foodwebData.length; j++) {
+				setTableData_agents2eat(foodwebData, Array.get(p
 						.getfromHashTable("agents2eat"), i), j, i);
 			}
-			for (int k = 0; k < data3.length; k++) {
+			for (int k = 0; k < foodwebData.length; k++) {
 				// setTableData2(data3,
 				// Array.get(p.getfromHashTable("plants2eat"), i),k+j, i);
-				setTableData_plants2eat(data3, Array.get(p
+				setTableData_plants2eat(foodwebData, Array.get(p
 						.getfromHashTable("plants2eat"), i), k, i);
 			}
 		}
@@ -1667,14 +1675,14 @@ public class GUI extends JPanel implements ActionListener {
 
 		int k = ((Integer) Array.get(coldata, j)).intValue();
 		if (k > -1) {
-			data[i][k + data3.length] = new Boolean(true);
+			data[i][k + foodwebData.length] = new Boolean(true);
 
 		}
 
 	}
 
-	private void setTableHelper(Object data[][]) {
 
+	private void setTableHelper(Object data[][]) {
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[i].length; j++) {
 				data[i][j] = new Boolean(false);

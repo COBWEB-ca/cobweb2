@@ -1,13 +1,22 @@
 package cobweb;
 
+import ga.GATracker;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import cobweb.Environment.EnvironmentStats;
+import cobweb.Environment.Location;
 import cwcore.ComplexEnvironment;
 import driver.Parser;
 
@@ -27,7 +36,6 @@ public class LocalUIInterface implements UIInterface,
 	 * Start the simulation. Calls startScheduler on the scheduler.
 	 */
 	public void start() {
-		theScheduler.startScheduler();
 	}
 
 	/**
@@ -77,8 +85,11 @@ public class LocalUIInterface implements UIInterface,
 		theScheduler.setSchedulerFrameSkip(frameSkip);
 	}
 
+	long delay = 0;
+
 	public void slowDown(long time) {
-		theScheduler.setSleep(time);
+		delay = time;
+		theScheduler.setSleep(delay);
 	}
 
 	/**
@@ -120,7 +131,7 @@ public class LocalUIInterface implements UIInterface,
 	 *            complete. Negative values mean don't wait, and a value of 0
 	 *            means wait indefinately.
 	 */
-	public void refresh(long timeout) {
+	public synchronized void refresh(long timeout) {
 		theEnvironment.getDrawInfo(this);
 		theDrawingInfo = newDrawingInfo;
 		newDrawingInfo = null;
@@ -130,11 +141,7 @@ public class LocalUIInterface implements UIInterface,
 			// a race condition between the UI thread that refreshes and this
 			// thread
 			// which waits for the refresh.
-			if (timeout >= 0) {
-				waitForRefresh(timeout);
-			} else {
-				theClient.refresh(this);
-			}
+			waitForRefresh(timeout);
 		}
 	}
 
@@ -148,7 +155,7 @@ public class LocalUIInterface implements UIInterface,
 	 * @param tileHeight
 	 *            height, in pixels, of a single tile
 	 */
-	public void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
+	public synchronized void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
 		if (theDrawingInfo != null) {
 			theDrawingInfo.draw(g, tileWidth, tileHeight);
 		}
@@ -274,7 +281,7 @@ public class LocalUIInterface implements UIInterface,
 	public int updateclick(int x, int y, int mode, int type) {
 		switch (mode) {
 		case 0: // no mode selected. i.e., we want to see this specific tile
-			if (cobweb.globals.usingTextWindow == true) {theEnvironment.observe(x, y, this);} 	/*** $$$$$$ Cancel textWindow  Apr 22*/
+			theEnvironment.observe(x, y, this);
 			break;
 		case 1:
 			theEnvironment.selectStones(x, y, this);
@@ -335,7 +342,9 @@ public class LocalUIInterface implements UIInterface,
 		java.awt.Color[] tileColors;
 
 		/** Linked list of AgentDrawInfo for the display of agents. */
-		AgentDrawInfo agents;
+		List<AgentDrawInfo> agents;
+
+		List<PathDrawInfo> paths;
 
 		/**
 		 * Construct a DrawInfo width specific width, height and tile colors.
@@ -347,7 +356,8 @@ public class LocalUIInterface implements UIInterface,
 			height = h;
 			tickCount = initTickCount;
 			tileColors = tiles;
-			agents = null;
+			agents = new LinkedList<AgentDrawInfo>();
+			paths = new LinkedList<PathDrawInfo>();
 		}
 
 		/** Get the tick count. */
@@ -361,17 +371,88 @@ public class LocalUIInterface implements UIInterface,
 			for (int y = 0; y < height; ++y) {
 				for (int x = 0; x < width; ++x) {
 					g.setColor(tileColors[tileIndex++]);
-					g.fillRect(x * tileWidth, y * tileHeight, tileWidth,
-							tileHeight);
-
-					g.setColor(java.awt.Color.black);
-					g.drawRect(x * tileWidth, y * tileHeight, tileWidth,
-							tileHeight);
+					g.fillRect(x * tileWidth + 1, y * tileHeight + 1, tileWidth - 1,
+							tileHeight - 1);
 				}
 			}
-			if (agents != null) {
-				agents.draw(g, tileWidth, tileHeight);
+			g.setColor(java.awt.Color.black);
+			for (int y = 0; y <= height; y++) {
+				g.drawLine(0, y * tileHeight, tileWidth * width, y * tileHeight);
 			}
+			for (int x = 0; x <= width; x++) {
+				g.drawLine(x * tileWidth, 0, x * tileWidth, tileHeight * height);
+			}
+
+			for (AgentDrawInfo a : agents) {
+				a.draw(g, tileWidth, tileHeight);
+			}
+
+			for (PathDrawInfo path : paths) {
+				path.draw(g, tileWidth, tileHeight);
+			}
+		}
+	}
+
+	private static class PathDrawInfo {
+
+		public static PathDrawInfo pathDraw;
+
+		private final List<Location> path;
+
+		public PathDrawInfo(List<Location> path) {
+			this.path = path;
+		}
+
+		public void draw(Graphics g, int tileWidth, int tileHeight) {
+			Iterator<Location> itr = new LinkedList<Location>(path).iterator();
+			if (!itr.hasNext()) {
+				return;
+			}
+			Location p1;
+			Location p2 = itr.next();
+			Color o = g.getColor();
+
+			int alpha = 63;
+
+			int increment = 192 / path.size();
+
+			while (itr.hasNext()) {
+				g.setColor(new Color(0, 0, 255, alpha));
+				p1 = p2;
+				p2 = itr.next();
+				int x = Math.min(p1.v[0], p2.v[0]);
+				int y = Math.min(p1.v[1], p2.v[1]);
+				int w = Math.abs(p1.v[0] - p2.v[0]);
+				int h = Math.abs(p1.v[1] - p2.v[1]);
+
+				if (w > 1 || h > 1) {
+					continue;
+				}
+
+				int stripwidth = (tileWidth -  tileWidth * 4 / 5) + 1;
+				int stripheight = (tileHeight -  tileHeight * 4 / 5) + 1;
+
+				x = x * tileWidth + tileWidth * 2 / 5;
+				y = y * tileHeight + tileHeight * 2 / 5;
+				w = w * tileWidth + stripwidth;
+				h = h * tileHeight + stripheight ;
+
+				if (p1.v[0] - p2.v[0] > 0) {
+					w -= stripwidth;
+					x += stripwidth;
+				} else if (p1.v[0] - p2.v[0] < 0) {
+					w -= stripwidth;
+				} else if (p1.v[1] - p2.v[1] > 0) {
+					h -= stripheight;
+					y += stripheight;
+				} else if (p1.v[1] - p2.v[1] < 0) {
+					h -= stripheight;
+				}
+
+				g.fillRect(x, y, w, h);
+				alpha += increment;
+			}
+			g.setColor(o);
 		}
 	}
 
@@ -399,13 +480,9 @@ public class LocalUIInterface implements UIInterface,
 		 */
 		java.awt.Point facing;
 
-		/** Next element in the linked list */
-		AgentDrawInfo next;
-
 		/** Construct an AgentDrawInfo, linked to nxt, with specified properties. */
-		AgentDrawInfo(AgentDrawInfo nxt, java.awt.Color c, java.awt.Color t,
+		AgentDrawInfo(java.awt.Color c, java.awt.Color t,
 				java.awt.Color strat, java.awt.Point p, java.awt.Point f) {
-			next = nxt;
 			color = c;
 			type = t;
 			action = strat;
@@ -452,9 +529,6 @@ public class LocalUIInterface implements UIInterface,
 				g.setColor(action);
 				g.drawPolygon(xPts, yPts, 3);
 			}
-			if (next != null) {
-				next.draw(g, tileWidth, tileHeight);
-			}
 		}
 	}
 
@@ -467,21 +541,23 @@ public class LocalUIInterface implements UIInterface,
 
 	}
 
+	public synchronized void newPath(List<Location> path) {
+		newDrawingInfo.paths.add(new PathDrawInfo(path));
+	}
+
 	/**
 	 * Notify the UI of agent drawing information.
 	 */
 	public void newAgent(java.awt.Color agentColor,
 			java.awt.Color strategyColor, java.awt.Point position,
 			java.awt.Point facing) {
-		newDrawingInfo.agents = new AgentDrawInfo(newDrawingInfo.agents,
-				agentColor, agentColor, strategyColor, position, facing);
+		newDrawingInfo.agents.add(new AgentDrawInfo(agentColor, agentColor, strategyColor, position, facing));
 	}
 
 	public void newAgent(java.awt.Color agentColor, java.awt.Color typeColor,
 			java.awt.Color strategyColor, java.awt.Point position,
 			java.awt.Point facing) {
-		newDrawingInfo.agents = new AgentDrawInfo(newDrawingInfo.agents,
-				agentColor, typeColor, strategyColor, position, facing);
+		newDrawingInfo.agents.add(new AgentDrawInfo(agentColor, typeColor, strategyColor, position, facing));
 	}
 
 	/**
@@ -501,7 +577,6 @@ public class LocalUIInterface implements UIInterface,
 	public LocalUIInterface(UIClient client, Parser p) {
 		load(client, p);
 		currentParser = p;
-		theScheduler.addSchedulerClient(this);
 	}
 
 	public LocalUIInterface(UIInterface.UIClient client, Parser p[],
@@ -511,8 +586,6 @@ public class LocalUIInterface implements UIInterface,
 		pauseAt = time;
 		parsedfiles = p;
 		loadNewDataFile(0);
-		theScheduler.addSchedulerClient(this);
-
 	}
 
 	private void loadNewDataFile(int n) {
@@ -535,16 +608,26 @@ public class LocalUIInterface implements UIInterface,
 		theClient = client;
 		InitScheduler(p.TickScheduler, p);
 		InitEnvironment("cwcore.ComplexEnvironment", p);
+		theScheduler.addSchedulerClient(this);
+
+		GATracker.initializeGAInfoOutput();
+		theScheduler.setSleep(delay);
+
+		theScheduler.startScheduler();
+		tickNotification(0);
 	}
 
 	private void InitEnvironment(String environmentName, Parser p) {
 		try {
-			if (theEnvironment != null
-					&& theEnvironment.getClass().getName().equals(
-							environmentName)) {
-				//System.out.println("Environment matched\n");  // $$$$$$ silenced on Apr 22
-				theEnvironment.load(theScheduler, p);
-				return;
+
+			if (theEnvironment != null) {
+				try {
+					theEnvironment.load(theScheduler, p);
+					return;
+				}
+				catch (IOException ex) {
+					throw new InstantiationException("Can't reload environment");
+				}
 			}
 			Class<?> environmentClass = Class.forName(environmentName);
 			// Use reflection to find a constructor taking a Scheduler parameter
@@ -581,8 +664,6 @@ public class LocalUIInterface implements UIInterface,
 		} catch (java.lang.reflect.InvocationTargetException e) {
 			throw new InstantiationError(e.getTargetException().toString());
 		} catch (ClassNotFoundException e) {
-			throw new InstantiationError(e.toString());
-		} catch (java.io.IOException e) {
 			throw new InstantiationError(e.toString());
 		}
 		Environment.setUIPipe(this);
@@ -634,11 +715,8 @@ public class LocalUIInterface implements UIInterface,
 																 */) {
 		//System.out.println("Scheduler name = " + theScheduler);  // $$$$$$ silenced on Apr 22
 		try {
-			if (theScheduler != null
-					&& theScheduler.getClass().getName().equals(schedulerName)) {
-				//System.out.println("Scheduler matched\n");   // $$$$$$ silenced on Apr 22
-				theScheduler.loadScheduler(this, p /* fileIn */);
-				return;
+			if (theScheduler != null){
+				theScheduler.killScheduler();
 			}
 
 			Class<?> schedulerClass = Class.forName(schedulerName);
@@ -696,14 +774,16 @@ public class LocalUIInterface implements UIInterface,
 	 * @see cobweb.LocalUIInterface#refresh
 	 */
 	private synchronized void waitForRefresh(long timeout) {
-		theClient.refresh(this);
-		try {
-			if (timeout == 0) {
-				wait();
-			} else {
-				wait(timeout);
+		if (!theClient.isClipped()) {
+			theClient.refresh(this);
+			try {
+				if (timeout == 0) {
+					wait();
+				} else {
+					wait(timeout);
+				}
+			} catch (InterruptedException e) {
 			}
-		} catch (InterruptedException e) {
 		}
 	}
 

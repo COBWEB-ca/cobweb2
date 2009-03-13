@@ -29,8 +29,15 @@ public abstract class Agent {
 	 */
 	public void die() {
 		position.setAgent(null);
+		alive = false;
 		controller.removeClientAgent(this);
 		position.getEnvironment().getScheduler().removeSchedulerClient(this);
+	}
+
+	private boolean alive = true;
+
+	public boolean isAlive() {
+		return alive;
 	}
 
 	/**
@@ -74,7 +81,7 @@ public abstract class Agent {
 											// controller
 		position.setAgent(this);
 		position.getEnvironment().getScheduler().addSchedulerClient(this);
-		id =  globals.random.nextLong(); //(new java.util.Random()).nextLong();
+		id =  globals.random.nextLong();
 	}
 
 	protected Environment.Location position;

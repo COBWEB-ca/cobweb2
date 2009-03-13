@@ -49,7 +49,9 @@ public class Parser {
 
 	public String ControllerConfig;
 
-	public int[] ComplexEnvironment = new int[1];
+	public int[] AgentCount = new int[1];
+
+	public int[] FoodCount = new int[1];
 
 	public int[] Width = new int[1];
 
@@ -954,7 +956,8 @@ public class Parser {
 				agentType++;
 			}
 		}// for
-		ComplexEnvironment[0] = agentType;
+		AgentCount[0] = agentType;
+		FoodCount[0] = foodType;
 		fillHashTable();
 	} // parser
 
@@ -984,7 +987,8 @@ public class Parser {
 	public void fillHashTable() {
 		parseData.put("TickScheduler", TickScheduler);
 		parseData.put("ControllerName", ControllerName);
-		parseData.put("ComplexEnvironment", ComplexEnvironment);
+		parseData.put("AgentCount", AgentCount);
+		parseData.put("FoodCount", FoodCount);
 		parseData.put("width", Width);
 		parseData.put("height", Height);
 		parseData.put("wrap", wrap);

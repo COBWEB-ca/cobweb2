@@ -2,6 +2,7 @@ package ga;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 
@@ -13,10 +14,13 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import cobweb.ColorLookup;
+import cobweb.TypeColorEnumeration;
 import cwcore.ComplexEnvironment;
+import driver.GUI;
 
 
 public class GAChartOutput implements ActionListener {
@@ -56,6 +60,8 @@ public class GAChartOutput implements ActionListener {
 	/** Update frequency of chart (time step per update) */
 	public static int update_frequency = 1;
 
+	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
+
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 
 			/* Give focus to the gene_status_distribution plot and remove
@@ -65,7 +71,6 @@ public class GAChartOutput implements ActionListener {
 			chart_display_frame.getContentPane()
 			.add(gene_status_distribution_panel, BorderLayout.CENTER);
 			chart_display_frame.setName("Genotype-Phenotype Correlation Value Distribution");
-			chart_display_frame.pack();
 			chart_display_frame.setVisible(true);
 			current_display = gene_status_distribution_panel;
 
@@ -76,7 +81,6 @@ public class GAChartOutput implements ActionListener {
 			chart_display_frame.getContentPane()
 			.add(gene_value_distribution_panel, BorderLayout.CENTER);
 			chart_display_frame.setName("Genotype Value Distribution");
-			chart_display_frame.pack();
 			chart_display_frame.setVisible(true);
 			current_display = gene_value_distribution_panel;
 		}
@@ -84,7 +88,11 @@ public class GAChartOutput implements ActionListener {
 
 	/** Initialize the plots that display GA outputs*/
 	public void initPlots() {
-		chart_display_frame = new JFrame();
+		if (chart_display_frame != null) {
+			chart_display_frame.dispose();
+			chart_display_frame = null;
+		}
+		chart_display_frame = new JFrame("Gene Statistics");
 		JPanel button_panel = new JPanel();
 
 		// If we are tracking the gene value distribution
@@ -108,7 +116,7 @@ public class GAChartOutput implements ActionListener {
 		}
 
 		chart_display_frame.getContentPane().add(button_panel, BorderLayout.SOUTH);
-		chart_display_frame.pack();
+		chart_display_frame.setSize(new Dimension(900, 460));
 		chart_display_frame.setVisible(true);
 	}
 
@@ -119,7 +127,7 @@ public class GAChartOutput implements ActionListener {
 		for (int i = 0; i < GeneticCode.NUM_GENES; i++) {
 			gene_status_distribution_data[i] = new DefaultXYDataset();
 			gene_status_distribution_chart[i] = ChartFactory.createXYAreaChart(
-		             "Distribution of Genotype-Phenotype Correlation of Gene #" + (i+1) + " Among Agents",
+		             "Distribution of Genotype-Phenotype Correlation of Gene #" + (i+1),
 		             "Geneotype-Phenotype Correlation Value", "Number of Agents",
 		             gene_status_distribution_data[i], PlotOrientation.VERTICAL,
 		             true,    // legend?
@@ -127,7 +135,12 @@ public class GAChartOutput implements ActionListener {
 		             false    // URLs?
 		         );
 
-	        ChartPanel cp = new ChartPanel(gene_status_distribution_chart[i]);
+			XYItemRenderer renderer = gene_status_distribution_chart[i].getXYPlot().getRenderer();
+			for (int agent = 0; agent < GUI.numAgentTypes; agent++) {
+				renderer.setSeriesPaint(agent, colorMap.getColor(agent, 0));
+			}
+
+			ChartPanel cp = new ChartPanel(gene_status_distribution_chart[i]);
 	        gene_status_distribution_panel.add(cp);
 	        gene_status_distribution_chart[i].addChangeListener(cp);
 		}
@@ -141,19 +154,25 @@ public class GAChartOutput implements ActionListener {
 		chart_display_frame.setName("Genotype Value Distribution");
 		gene_value_distribution_panel = new JPanel(new GridLayout(1,GeneticCode.NUM_GENES));
 		for (int i = 0; i < GeneticCode.NUM_GENES; i++) {
-		gene_value_distribution_data[i] = new DefaultXYDataset();
-		gene_value_distribution_chart[i] = ChartFactory.createXYAreaChart(
-				"Distribution of Gene #" + (i+1) + " Value Among Agents",
-	             "Genotype Value", "Number of Agents",
-	             gene_value_distribution_data[i], PlotOrientation.VERTICAL,
-	             true,    // legend?
-	             true,    // tooltips?
-	             false    // URLs?
-	         );
+			gene_value_distribution_data[i] = new DefaultXYDataset();
+			gene_value_distribution_chart[i] = ChartFactory.createXYAreaChart(
+					"Distribution of Gene #" + (i+1) + " Value",
+		             "Genotype Value", "Number of Agents",
+		             gene_value_distribution_data[i], PlotOrientation.VERTICAL,
+		             true,    // legend?
+		             true,    // tooltips?
+		             false    // URLs?
+		         );
 
-        ChartPanel cp = new ChartPanel(gene_value_distribution_chart[i]);
-        gene_value_distribution_panel.add(cp);
-        gene_value_distribution_chart[i].addChangeListener(cp);
+			XYItemRenderer renderer = gene_value_distribution_chart[i].getXYPlot().getRenderer();
+			for (int agent = 0; agent < GUI.numAgentTypes; agent++) {
+				renderer.setSeriesPaint(agent, colorMap.getColor(agent, 0));
+			}
+
+
+	        ChartPanel cp = new ChartPanel(gene_value_distribution_chart[i]);
+	        gene_value_distribution_panel.add(cp);
+	        gene_value_distribution_chart[i].addChangeListener(cp);
 		}
 		chart_display_frame.getContentPane().add(gene_value_distribution_panel, BorderLayout.CENTER);
 		current_display = gene_value_distribution_panel;
@@ -179,31 +198,32 @@ public class GAChartOutput implements ActionListener {
 
 	/** Update the gene_status_distribution data */
 	public static void updateGeneStatusDistributionData(double[][][] y_vector) {
-		for (int i = 0; i < ComplexEnvironment.AGENT_TYPES; i++) {
-			for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
+		for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
+			for (int i = 0; i < ComplexEnvironment.AGENT_TYPES; i++) {
 				double[][] new_data = {gene_status_distribution_range, y_vector[i][j]};
-				String key = "Agent Type " + (i+1);
+				String key = "Agent " + (i+1);
 				gene_status_distribution_data[j].addSeries(key, new_data);
-
-				// Set an upper bound for the y-axis
-				((XYPlot) gene_status_distribution_chart[j].getPlot()).getRangeAxis().setUpperBound(
-						new Double(grid_width*grid_height)/4);
 			}
+
+			// Set an upper bound for the y-axis
+//			gene_status_distribution_chart[j].getXYPlot().getRangeAxis().setUpperBound(
+//					(double)grid_width*grid_height/4);
 		}
 	}
 
 	/** Update the gene_value_distribution data */
 	public static void updateGeneValueDistributionData(double[][][] y_vector) {
-		for (int i = 0; i < ComplexEnvironment.AGENT_TYPES; i++) {
-			for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
+		for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
+			for (int i = 0; i < ComplexEnvironment.AGENT_TYPES; i++) {
 				double[][] new_data = {gene_value_distribution_range, y_vector[i][j]};
-				String key = "Agent Type " + (i+1);
+				String key = "Agent " + (i+1);
 				gene_value_distribution_data[j].addSeries(key, new_data);
 
-				// Set an upper bound for the y-axis
-				((XYPlot) gene_value_distribution_chart[j].getPlot()).getRangeAxis().setUpperBound(
-						new Double(grid_width*grid_height)/4);
 			}
+			// Set an upper bound for the y-axis
+//			gene_value_distribution_chart[j].getXYPlot().getRangeAxis().setUpperBound(
+//					(double)grid_width*grid_height/4);
+
 		}
 	}
 }

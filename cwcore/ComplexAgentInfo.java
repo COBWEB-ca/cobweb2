@@ -1,29 +1,36 @@
 /*  $$$$$:  Comments by Liang
- * 
+ *
  *  $$$$$$: Codes modified and/or added by Liang
  */
 
 package cwcore;
 
-import java.text.DecimalFormat;
-import java.io.*;
 import ga.GeneticCode;
 import ga.GeneticCodeException;
 
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.util.LinkedList;
+import java.util.List;
+
+import cobweb.Environment.Location;
+
 public class ComplexAgentInfo {
+
+	public static final int MAX_PATH_HISTORY = 64;
 
 	/** Stores the genetic code. */
 	private String genes;
 
 	/** The gene status of the agent. Default is 1. */
-  
+
 	private double[] gene_status = {1,1,1};
-  
+
 	/** Returns the status of each gene. */
   	public double[] getGeneStatus() {
   		return gene_status;
   	}
-	
+
 	public ComplexAgentInfo(int num, int type, long birth, int strat) {
 		agentType = type;
 		agentNumber = num;
@@ -56,6 +63,17 @@ public class ComplexAgentInfo {
 
 	public void addStep() {
 		++countSteps;
+	}
+
+	public void addPathStep(Location loc) {
+		path.add(loc);
+		if (path.size() > MAX_PATH_HISTORY) {
+			path.remove(0);
+		}
+	}
+
+	public List<Location> getPathHistory() {
+		return path;
 	}
 
 	public void addTurn() {
@@ -282,11 +300,11 @@ public class ComplexAgentInfo {
 		} else {
 			aliveAgentsofType[agentType]++;
 		}
-		
+
 		// $$$$$$ The following line is added to format the genetic code output for correctly reporting and showing by MS Excel.  Feb 5
 		String genesString = genes.substring(0, 8) + " " + genes.substring(8, 16) +  " " + genes.substring(16, 24);
 		pw.print("\t" + genesString); // $$$$$$ Pass the reformed genetic code "geensString" instead of "genes".  Feb 5
-		
+
 		// Output the values of each gene and their status
 		try {
 			pw.print("\t" + GeneticCode.byteToInt(genes.substring(0, 8)));
@@ -330,7 +348,7 @@ public class ComplexAgentInfo {
 			pw.println("\t" + stepsAgentsofType[i]);
 		}
 	}
-	
+
 	/** Prints the species-wise statistics of an agent type. Intended to replace printAgentsCount() */
 	public static void printAgentsCountByType(java.io.PrintWriter pw, int type) {
 		pw.print((type + 1)); // $$$$$$ change from "i" to "(i + 1)".  Apr 3
@@ -345,7 +363,7 @@ public class ComplexAgentInfo {
 	public void setDeath(long death) {
 		deathTick = death;
 	}
-	
+
 	public long getDeathTick() {
 		return deathTick;
 	}
@@ -358,14 +376,14 @@ public class ComplexAgentInfo {
 	public int getAgentNumber() {
 		return agentNumber;
 	}
-	
+
 	public void setStrategy(int strat) {
 		action = strat;
 	}
 
 	/** Sets the genetic code and gene stati. */
 	public void setGeneticCode(String geneticCode, int[] gene_values) {
-		genes = geneticCode;		  
+		genes = geneticCode;
 	    for (int i = 0; i < GeneticCode.NUM_GENES; i++) {
 	    	gene_status[i] = 2*Math.abs(Math.sin(gene_values[i]*Math.PI/180));
 	    }
@@ -409,6 +427,8 @@ public class ComplexAgentInfo {
 
 	private int countTurns;
 
+	private List<Location> path = new LinkedList<Location>();
+
 	private int countAgentBumps;
 
 	private int countRockBumps;
@@ -416,7 +436,7 @@ public class ComplexAgentInfo {
 	private int agentNumber;
 
 	private int agentType;
-	
+
 	public int getAgentType() {
 		return agentType;
 	}

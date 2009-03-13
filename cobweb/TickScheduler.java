@@ -2,7 +2,11 @@ package cobweb;
 
 import ga.GATracker;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cwcore.ComplexEnvironment.CommManager;
 import driver.Parser;
@@ -34,7 +38,7 @@ public class TickScheduler extends Thread implements Scheduler {
 
 	private UIInterface theUI;
 
-	private final java.util.Vector<Client> clientV = new java.util.Vector<Client>();
+	private final Set<Client> clientV = new LinkedHashSet<Client>();
 
 	public boolean isSchedulerPaused() {
 		return bPaused;
@@ -54,6 +58,7 @@ public class TickScheduler extends Thread implements Scheduler {
 		if (!isAlive()) {
 			start();
 		}
+		notifyAll();
 	}
 
 	public synchronized void killScheduler() {
@@ -73,11 +78,11 @@ public class TickScheduler extends Thread implements Scheduler {
 	// Client management
 
 	public synchronized void addSchedulerClient(Object theClient) {
-		clientV.addElement((Client)theClient);
+		clientV.add((Client)theClient);
 	}
 
 	public synchronized void removeSchedulerClient(Object theClient) {
-		clientV.removeElement(theClient);
+		clientV.remove(theClient);
 	}
 
 	// Parameters
@@ -121,12 +126,7 @@ public class TickScheduler extends Thread implements Scheduler {
 	}
 
 	private synchronized void doTick() {
-		while (bPaused && !bDone) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-			}
-		}
+
 		CommManager commManager = new CommManager();
 		commManager.decrementPersistence();
 		commManager.unblockBroadcast();
@@ -148,13 +148,6 @@ public class TickScheduler extends Thread implements Scheduler {
 		}
 
 
-
-		// start doing something
-		try {
-			Thread.sleep(slowdown);
-		} catch (InterruptedException e) {
-			//e.printStackTrace();
-		}
 		// carry on doing something
 	}
 
@@ -164,30 +157,56 @@ public class TickScheduler extends Thread implements Scheduler {
 		long frameCount = 0;
 		// Forever...
 
+		try {
+			while (!bDone) {
+				cwcore.ComplexAgent.dumpData(tickCount);
+				cwcore.ComplexAgent.clearData();
 
-		while (!bDone) {
-			cwcore.ComplexAgent.dumpData(tickCount);
-			cwcore.ComplexAgent.clearData();
+				if (bPaused && !bDone) {
+					try {
+						myWait(20);
+					} catch (InterruptedException e) {
+					}
+				} else {
+					doTick();
 
-			if (tickCount == 0) {
-				GATracker.initializeGAInfoOutput();
-			}
+					if (theUI.getTick() != 0 && getTime() == theUI.getTick()) {
+						pauseScheduler();
+						try {
+							theUI.refresh(refreshTimeout);
+						} catch (Exception ex) {
+							Logger.getLogger(this.getClass().getName()).log(Level.WARNING, ex.toString());
+						}
+						// System.out.println("Value is: "+bPaused);
+					}
+				}
 
-			doTick();
+				if (frameCount >= frameSkip) {
+					frameCount = 0;
+					theUI.refresh(refreshTimeout);
+				} else {
+					++frameCount;
+				}
+				//yield();
 
-			if (frameCount >= frameSkip) {
-				frameCount = 0;
-				theUI.refresh(refreshTimeout);
-			} else {
-				++frameCount;
-			}
-			yield();
-			if (theUI.getTick() != 0 && getTime() == theUI.getTick()) {
-				pauseScheduler();
-				theUI.refresh(refreshTimeout);
-				// System.out.println("Value is: "+bPaused);
+
+				// start doing something
+				try {
+					if (!bPaused && slowdown > 0) {
+						myWait(slowdown);
+					}
+				} catch (InterruptedException e) {
+					//e.printStackTrace();
+				}
 			}
 		}
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	private synchronized void myWait(long time) throws InterruptedException {
+		wait(time);
 	}
 
 	public long getTime() {

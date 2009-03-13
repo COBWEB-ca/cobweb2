@@ -121,14 +121,14 @@ public class LinearWeightsController implements cobweb.Controller {
 		double variables[] = {
 				  1.0
 				, ((double) agent.getEnergy() / (ENERGY_THRESHOLD))
-				, type == ComplexEnvironment.FLAG_AGENT ? (4.0 - dist) / 4.0 : 0
-				, type == ComplexEnvironment.FLAG_FOOD ? (4.0 - dist) / 4.0 : 0
+				, type == ComplexEnvironment.FLAG_AGENT ? (ComplexAgent.LOOK_DISTANCE - dist) / (double)ComplexAgent.LOOK_DISTANCE : 0
+				, type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist) / (double)ComplexAgent.LOOK_DISTANCE : 0
 				, type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? (4.0 - dist) / 4.0 : 0
 				, agent.getIntFacing() / 2
 				, (double)agent.getMemoryBuffer() / (1 << memSize - 1)
 				, (double)agent.getCommInbox() / (1 << commSize - 1)
 				, Math.max(agent.getAge() / 100.0, 2)
-				, globals.random.nextDouble() - 0.5
+				, globals.random.nextGaussian()
 		};
 
 
@@ -140,6 +140,7 @@ public class LinearWeightsController implements cobweb.Controller {
 		double asexflag = 0.0;
 		for (int eq = 0; eq < OUTPUT_COUNT; eq++) {
 			double res = 0.0;
+			variables[9] = globals.random.nextGaussian();
 			for (int v = 0; v < INPUT_COUNT; v++) {
 				res += weights[v][eq] * variables[v];
 			}
@@ -164,6 +165,11 @@ public class LinearWeightsController implements cobweb.Controller {
 		agent.setMemoryBuffer((int) memout);
 		agent.setCommOutbox((int) commout);
 		agent.setAsexFlag( asexflag > 0.50 );
+
+//		if (agent.canEat(agent.getPosition())) {
+//			agent.eat(agent.getPosition());
+//		}
+
 		if (right > left && right > step)
 			agent.turnRight();
 		else if (left > right && left > step)

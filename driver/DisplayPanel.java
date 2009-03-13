@@ -65,6 +65,7 @@ public class DisplayPanel extends JPanel {
 	}
 
 
+
 	void setupOffscreen() {
 		offscreenGraphics = null;
 		offscreenImage = null;

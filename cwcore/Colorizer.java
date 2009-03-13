@@ -82,9 +82,6 @@ public class Colorizer {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private static cobweb.ColorLookup colorMap = new cobweb.GAColorEnumeration();
-
 	public void colorAgent(cobweb.Agent agent) {
 		int[] agent_rgb_colour_values = agent.getGeneticCode()
 				.getGeneticColour();

@@ -6,10 +6,13 @@ import ga.GeneticCodeException;
 import ga.PhenotypeMaster;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import cobweb.ColorLookup;
+import cobweb.TypeColorEnumeration;
 import cobweb.globals;
 import cwcore.ComplexEnvironment.CommManager;
 import cwcore.ComplexEnvironment.CommPacket;
@@ -212,7 +215,7 @@ public class ComplexAgent extends cobweb.Agent implements
 
 	private ComplexAgent breedPartner;
 
-	private java.awt.Color color;
+	private Color color;
 
 	private boolean asexFlag;
 
@@ -234,18 +237,11 @@ public class ComplexAgent extends cobweb.Agent implements
 			return 0.0;
 		Double age = new Double(currTick - birthTick);
 		if (tracked && log)
-			info
-					.useExtraEnergy(
-							agentType,
-							Math
-									.min(
-											Math.max(0, energy),
-											(int) (agingRate
-													* (Math
-															.tan(((age
-																	.doubleValue() / agingLimit) * 89.99)
-																	* Math.PI
-																	/ 180)) + 0.5)));
+			info.useExtraEnergy(
+				agentType,
+				Math.min(Math.max(0, energy),
+				(int) (agingRate * (Math.tan(((age.doubleValue() / agingLimit) * 89.99)
+						* Math.PI / 180)) + 0.5)));
 		return Math.min(Math.max(0, energy), agingRate
 				* (Math.tan(((age.doubleValue() / agingLimit) * 89.99)
 						* Math.PI / 180)));
@@ -280,16 +276,15 @@ public class ComplexAgent extends cobweb.Agent implements
 		writer = w;
 	}
 
-	private static cobweb.ColorLookup colorMap = new cobweb.TypeColorEnumeration();
+	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	@Override
 	public void die() {
+		super.die();
 		GATracker.removeAgent(this); // Remove this agent from the
 										// GATracker's list of agent (presumably
 										// all living agents)
-		position.setAgent(null);
-		controller.removeClientAgent(this);
-		position.getEnvironment().getScheduler().removeSchedulerClient(this);
+
 		info.setDeath(((ComplexEnvironment) position.getEnvironment())
 				.getTickCount());
 	}
@@ -297,27 +292,27 @@ public class ComplexAgent extends cobweb.Agent implements
 	// get agent's drawing information given the UI
 	@Override
 	public void getDrawInfo(cobweb.UIInterface theUI) {
-		java.awt.Color stratColor;
+		Color stratColor;
 
 		// is agents action is 1, it's a cheater therefore it's
 		// graphical representation will a have red boundary
 		if (agentPDAction == 1) {
-			stratColor = java.awt.Color.red;
+			stratColor = Color.red;
 		} else {
 			// cooperator, black boundary
-			stratColor = java.awt.Color.black;
+			stratColor = Color.black;
 		}
 		// based on agent type
 		if (colorful) {
 			theUI.newAgent(getColor(), colorMap.getColor(agentType, 1),
-					stratColor, new java.awt.Point(getPosition().v[0],
-							getPosition().v[1]), new java.awt.Point(
+					stratColor, new Point(getPosition().v[0],
+							getPosition().v[1]), new Point(
 							facing.v[0], facing.v[1]));
 		} else {
 
-			theUI.newAgent(java.awt.Color.red, stratColor, new java.awt.Point(
+			theUI.newAgent(Color.red, stratColor, new Point(
 					getPosition().v[0], getPosition().v[1]),
-					new java.awt.Point(facing.v[0], facing.v[1]));
+					new Point(facing.v[0], facing.v[1]));
 		}
 	}
 
@@ -360,12 +355,12 @@ public class ComplexAgent extends cobweb.Agent implements
 	}
 
 	@Override
-	public void setColor(java.awt.Color c) {
+	public void setColor(Color c) {
 		color = c;
 	}
 
 	@Override
-	public java.awt.Color getColor() {
+	public Color getColor() {
 		return color;
 	}
 
@@ -473,9 +468,11 @@ public class ComplexAgent extends cobweb.Agent implements
 		return 0;
 	}
 
+	public static final int LOOK_DISTANCE = 4;
+
 	public lookPair distanceLook() {
 		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
-		for (int dist = 0; dist < 4; ++dist) {
+		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
 
 			// We are looking at the wall
 			if (destPos == null)
@@ -486,7 +483,7 @@ public class ComplexAgent extends cobweb.Agent implements
 				return new lookPair(dist, ComplexEnvironment.FLAG_STONE);
 
 			// If there's another agent there, then return that it's a stone...
-			if (destPos.getAgent() != null)
+			if (destPos.getAgent() != null && destPos.getAgent() != this)
 				return new lookPair(dist, ComplexEnvironment.FLAG_AGENT);
 
 			// If there's food there, return the food...
@@ -498,7 +495,7 @@ public class ComplexAgent extends cobweb.Agent implements
 
 			destPos = destPos.getAdjacent(facing);
 		}
-		return new lookPair(3, 0);
+		return new lookPair(LOOK_DISTANCE, 0);
 	}
 
 	boolean canStep() {
@@ -575,8 +572,6 @@ public class ComplexAgent extends cobweb.Agent implements
 					// parent's strategy
 					int childStrategy = -1;
 					if (this.agentPDAction != -1) {
-						// java.util.Random generator = new java.util.Random();
-						// boolean choose = generator.nextBoolean();
 						boolean choose = globals.random.nextBoolean();
 						if (choose) {
 							childStrategy = this.agentPDAction;
@@ -599,10 +594,11 @@ public class ComplexAgent extends cobweb.Agent implements
 			_wasteLoss -= stepEnergy;
 			info.useStepEnergy(agentType, stepEnergy);
 			info.addStep();
+			info.addPathStep(this.getPosition());
 
-			// two agents meet
 		} else if ((adjAgent = getAdjacentAgent()) != null
 				&& adjAgent instanceof ComplexAgent) {
+			// two agents meet
 
 			ComplexAgent adjacentAgent = (ComplexAgent) adjAgent;
 
@@ -942,7 +938,7 @@ public class ComplexAgent extends cobweb.Agent implements
 		return caneat;
 	}
 
-	private boolean canEat(cobweb.Environment.Location destPos) {
+	public boolean canEat(cobweb.Environment.Location destPos) {
 		boolean caneat = false;
 		for (int element : plantstoeat) {
 			if (element == ComplexEnvironment.getFoodType(destPos))
@@ -1029,7 +1025,7 @@ public class ComplexAgent extends cobweb.Agent implements
 		}
 	}
 
-	private void eat(cobweb.Environment.Location destPos) {
+	public void eat(cobweb.Environment.Location destPos) {
 		// Eat first before we can produce waste, of course.
 		destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 		// Gain Energy according to the food type.

@@ -11,7 +11,7 @@ public class MyScrollbar extends JScrollBar implements
 	private final cobweb.UIInterface uiPipe;
 	private final Dimension d = new Dimension(70, 18); // $$$$$ you can generate any size you want.  Apr 3
 
-	private static final int SCROLLBAR_TICKS = 10;
+	private static final int SCROLLBAR_TICKS = 11;
 
 	public MyScrollbar(cobweb.UIInterface theUI) {
 		uiPipe = theUI;
@@ -22,7 +22,11 @@ public class MyScrollbar extends JScrollBar implements
 	}
 
 	public void adjustmentValueChanged(AdjustmentEvent e) {
-		int delay = (SCROLLBAR_TICKS - getValue()) * SCROLLBAR_TICKS;
+		int delay = 0;
+		int d1 = SCROLLBAR_TICKS - getValue();
+		if (d1 != 0) {
+			delay = 1 << (d1 - 1);
+		}
 		uiPipe.slowDown(delay);
 	}
 

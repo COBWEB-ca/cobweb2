@@ -12,8 +12,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import cobweb.LocalUIInterface;
+import cobweb.UIInterface;
 import cobweb.Environment.EnvironmentStats;
 import cobweb.LocalUIInterface.TickEventListener;
+import cobweb.UIInterface.UIClient;
 
 /**
  *
@@ -21,7 +23,7 @@ import cobweb.LocalUIInterface.TickEventListener;
  * @author igor
  *
  */
-public class SimulatorUI extends JPanel {
+public class SimulatorUI extends JPanel implements UIClient {
 	private static final long serialVersionUID = 2671092780367865697L;
 
 	private final LocalUIInterface uiPipe;
@@ -46,7 +48,7 @@ public class SimulatorUI extends JPanel {
 
 
 	public SimulatorUI(Parser p) {
-		uiPipe = new LocalUIInterface(new CobwebUIClient(), p);
+		uiPipe = new LocalUIInterface(this, p);
 		setLayout(new BorderLayout());
 
 		setupUI();
@@ -143,10 +145,12 @@ public class SimulatorUI extends JPanel {
 		uiPipe.start();
 	}
 
+	public boolean isClipped() {
+		return false;
+	}
 
-
-	private class CobwebUIClient implements cobweb.UIInterface.UIClient {
-		public void refresh(cobweb.UIInterface theUI) {
+	public void refresh(UIInterface theInterface) {
+		if (displayPanel != null && pauseButton != null && stepButton != null) {
 			displayPanel.repaint();
 			pauseButton.repaint();
 			stepButton.repaint();
