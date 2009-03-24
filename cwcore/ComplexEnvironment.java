@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
@@ -543,8 +544,10 @@ public class ComplexEnvironment extends Environment implements
 			}
 		} else {
 			// if keepOldAgents is false then we want to kill all of the agents
-			for (java.util.Enumeration<cobweb.Agent> e = getAgents(); e.hasMoreElements();) {
-				e.nextElement().die();
+			for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
+				if (a.isAlive()) {
+					a.die();
+				}
 			}
 			// This second line may seem redundant, but it fact its not.
 			// By reseting the hashtable, we remove a bit of non-determinance
@@ -704,7 +707,7 @@ public class ComplexEnvironment extends Environment implements
 
 	/* JUST ADDED */
 	@Override
-	public void selectStones(int x, int y, cobweb.UIInterface theUI) {
+	public synchronized void selectStones(int x, int y, cobweb.UIInterface theUI) {
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
 		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
@@ -727,7 +730,7 @@ public class ComplexEnvironment extends Environment implements
 	}
 
 	@Override
-	public void selectFood(int x, int y, int type, cobweb.UIInterface theUI) {
+	public synchronized void selectFood(int x, int y, int type, cobweb.UIInterface theUI) {
 
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
@@ -750,7 +753,7 @@ public class ComplexEnvironment extends Environment implements
 	}
 
 	@Override
-	public void selectAgent(int x, int y, int type, cobweb.UIInterface theUI) {
+	public synchronized void selectAgent(int x, int y, int type, cobweb.UIInterface theUI) {
 		int action = -1;  // $$$$$ -1: not play Prisoner's Dilemma
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
@@ -1911,7 +1914,7 @@ public class ComplexEnvironment extends Environment implements
 	}
 
 	@Override
-	protected void getDrawInfo(UIInterface theUI) {
+	protected synchronized void getDrawInfo(UIInterface theUI) {
 		super.getDrawInfo(theUI);
 		for (Agent a : agentTable.values()) {
 			a.getDrawInfo(theUI);

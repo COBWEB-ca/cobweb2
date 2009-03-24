@@ -50,6 +50,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
+import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -446,87 +447,83 @@ public class GUI extends JPanel implements ActionListener {
 
 		/* Environment Settings */
 		JPanel panel11 = new JPanel();
-		setMyBorder(panel11, "Grid Settings");
-		JPanel labelPane = new JPanel(new GridLayout(3, 1));
+		makeGroupPanel(panel11, "Grid Settings");
+		JPanel fieldPane = new JPanel();
 
-		labelPane.add(new JLabel("Width"));
-		labelPane.add(new JLabel("Height"));
-		labelPane.add(new JLabel("Wrap"));
-		JPanel fieldPane = new JPanel(new GridLayout(3, 1));
+		fieldPane.add(new JLabel("Width"));
+		fieldPane.add(Width = new JTextField(3));
 
-		Width = new JTextField(3);
-		Height = new JTextField(3);
-		wrap = new JCheckBox("");
-		fieldPane.add(Width, "North");
-		fieldPane.add(Height, "North");
-		fieldPane.add(wrap, "North");
+		fieldPane.add(new JLabel("Height"));
+		fieldPane.add(Height = new JTextField(3));
 
-		panel11.add(labelPane, BorderLayout.WEST);
-		panel11.add(fieldPane, BorderLayout.EAST);
-		envPanel.add(panel11, "WEST");
+		fieldPane.add(new JLabel("Wrap"));
+		fieldPane.add(wrap = new JCheckBox(""));
+
+		panel11.add(fieldPane);
+
+		makeOptionsTable(fieldPane, 3);
+
+
+		envPanel.add(panel11);
 
 		JPanel panel15 = new JPanel();
-		setMyBorder(panel15, "Prisoner's Dilemma Options");
-		labelPane = new JPanel(new GridLayout(3, 1));
-		labelPane.add(new JLabel("Prisoner's Game"));
-		labelPane.add(new JLabel("Memory Size"));
-		labelPane.add(new JLabel("Energy Based"));
+		makeGroupPanel(panel15, "Prisoner's Dilemma Options");
 
 		PrisDilemma = new JCheckBox("");
 		memory_size = new JTextField(3);
 		flexibility = new JCheckBox("");
 		fieldPane = new JPanel(new GridLayout(3, 1));
 
-		fieldPane.add(PrisDilemma, "North");
-		fieldPane.add(memory_size, "North");
-		fieldPane.add(flexibility, "North");
+		fieldPane.add(new JLabel("Prisoner's Game"));
+		fieldPane.add(PrisDilemma);
 
-		panel15.add(labelPane, BorderLayout.WEST);
-		panel15.add(fieldPane, BorderLayout.EAST);
+		fieldPane.add(new JLabel("Memory Size"));
+		fieldPane.add(memory_size);
+
+		fieldPane.add(new JLabel("Energy Based"));
+		fieldPane.add(flexibility);
+
+		makeOptionsTable(fieldPane, 3);
+
+
+		panel15.add(fieldPane);
 		envPanel.add(panel15, "WEST");
 
 		/* Colour Settings */
 		JPanel panel12 = new JPanel();
-		setMyBorder(panel12, "Environment Transition Settings");
-		labelPane = new JPanel(new GridLayout(6, 1));
-		labelPane.add(new JLabel("Keep Old Agents"));
-		labelPane.add(new JLabel("Spawn New Agents"));
-		labelPane.add(new JLabel("Keep Old Array"));
-		labelPane.add(new JLabel("New Colorizer"));
-		labelPane.add(new JLabel("Keep Old Waste"));
-		labelPane.add(new JLabel("Keep Old Packets"));
+		//panel12.setLayout(new BoxLayout(panel12, BoxLayout.Y_AXIS));
+		makeGroupPanel(panel12, "Environment Transition Settings");
 
-		fieldPane = new JPanel(new GridLayout(6, 1));
-		keepOldAgents = new JCheckBox("");
-		spawnNewAgents = new JCheckBox("");
-		keepOldArray = new JCheckBox("");
+		fieldPane = new JPanel();
+
+		fieldPane.add(new JLabel("Keep Old Agents"));
+		fieldPane.add(keepOldAgents = new JCheckBox(""));
+
+		fieldPane.add(new JLabel("Spawn New Agents"));
+		fieldPane.add(spawnNewAgents = new JCheckBox(""));
+
+		fieldPane.add(new JLabel("Keep Old Array"));
+		fieldPane.add(keepOldArray = new JCheckBox(""));
+
+		fieldPane.add(new JLabel("New Colorizer"));
+		fieldPane.add(newColorizer = new JCheckBox("", true));
+
+		fieldPane.add(new JLabel("Keep Old Waste"));
+		fieldPane.add(keepOldWaste = new JCheckBox("", true));
+
+		fieldPane.add(new JLabel("Keep Old Packets"));
+		fieldPane.add(keepOldPackets = new JCheckBox("", true));
+		makeOptionsTable(fieldPane, 6);
+
 		ColorCodedAgents = new JCheckBox("");
-		newColorizer = new JCheckBox("", true);
-		keepOldWaste = new JCheckBox("", true);
-		keepOldPackets = new JCheckBox("", true);
 
-		fieldPane.add(keepOldAgents, "North");
-		fieldPane.add(spawnNewAgents, "North");
-		fieldPane.add(keepOldArray, "North");
-		fieldPane.add(newColorizer, "North");
-		fieldPane.add(keepOldWaste, "North");
-		fieldPane.add(keepOldPackets, "North");
-
-		panel12.add(labelPane, BorderLayout.WEST);
-		panel12.add(fieldPane, BorderLayout.EAST);
+		panel12.add(fieldPane);
 		envPanel.add(panel12);
 
 		/* Options */
 		JPanel panel13 = new JPanel();
 		String title = "Colour Settings";
-		setMyBorder(panel13, title);
-		labelPane = new JPanel(new GridLayout(5, 1));
-
-		labelPane.add(new JLabel("No. of Colors"));
-		labelPane.add(new JLabel("Color Select Size"));
-		labelPane.add(new JLabel("Recolor Time Step"));
-		labelPane.add(new JLabel("Colorizer Mode"));
-		labelPane.add(new JLabel("Color Coded Agents"));
+		makeGroupPanel(panel13, title);
 
 		fieldPane = new JPanel(new GridLayout(5, 1));
 
@@ -535,54 +532,67 @@ public class GUI extends JPanel implements ActionListener {
 		reColorTimeStep = new JTextField(3);
 		colorizerMode = new JTextField(3);
 
+		fieldPane.add(new JLabel("No. of Colors"));
 		fieldPane.add(numColor, "North");
+		fieldPane.add(new JLabel("Color Select Size"));
 		fieldPane.add(colorSelectSize, "North");
+		fieldPane.add(new JLabel("Recolor Time Step"));
 		fieldPane.add(reColorTimeStep, "North");
+		fieldPane.add(new JLabel("Colorizer Mode"));
 		fieldPane.add(colorizerMode, "North");
+		fieldPane.add(new JLabel("Color Coded Agents"));
 		fieldPane.add(ColorCodedAgents, "North");
 
-		panel13.add(labelPane, BorderLayout.WEST);
-		panel13.add(fieldPane, BorderLayout.CENTER);
-		envPanel.add(panel13, "EAST");
+		panel13.add(fieldPane);
+		makeOptionsTable(fieldPane, 5);
+
+		envPanel.add(panel13);
 
 		/* Random variables */
 		JPanel panel14 = new JPanel();
-		setMyBorder(panel14, "Random Variables");
-		labelPane = new JPanel(new GridLayout(2, 1));
-		labelPane.add(new JLabel("Random Seed"));
-		labelPane.add(new JLabel("Random Stones no."));
+		makeGroupPanel(panel14, "Random Variables");
 		fieldPane = new JPanel(new GridLayout(2, 1));
+
 		RandomSeed = new JTextField(3);
 		randomStones = new JTextField(3);
 
+		fieldPane.add(new JLabel("Random Seed"));
 		fieldPane.add(RandomSeed, "North");
+		fieldPane.add(new JLabel("Random Stones no."));
 		fieldPane.add(randomStones, "North");
 
-		panel14.add(labelPane, BorderLayout.WEST);
 		panel14.add(fieldPane, BorderLayout.EAST);
-		envPanel.add(panel14, "EAST");
+		makeOptionsTable(fieldPane, 2);
+
+		envPanel.add(panel14);
 
 		JPanel panel16 = new JPanel();
-		setMyBorder(panel16, "General Food Variables");
-		labelPane = new JPanel(new GridLayout(2, 1));
-		labelPane.add(new JLabel("Drop New Food"));
-		labelPane.add(new JLabel("Max Food Chance"));
+		makeGroupPanel(panel16, "General Food Variables");
 
 		dropNewFood = new JCheckBox("");
 		maxFoodChance = new JTextField(3);
 
 		fieldPane = new JPanel(new GridLayout(2, 1));
+		fieldPane.add(new JLabel("Drop New Food"));
 		fieldPane.add(dropNewFood, "North");
+		fieldPane.add(new JLabel("Max Food Chance"));
 		fieldPane.add(maxFoodChance, "North");
 
-		panel16.add(labelPane, BorderLayout.WEST);
 		panel16.add(fieldPane, BorderLayout.EAST);
+		makeOptionsTable(fieldPane, 2);
+
 		envPanel.add(panel16, "EAST");
 		return envPanel;
 	}
 
 
-	private void setMyBorder(JComponent panel13, String title) {
+	private void makeOptionsTable(JPanel fieldPane, int items) {
+		fieldPane.setLayout(new SpringLayout());
+		SpringUtilities.makeCompactGrid(fieldPane, items, 2, 0, 0, 8, 0);
+	}
+
+
+	private void makeGroupPanel(JComponent panel13, String title) {
 		panel13.setBorder(BorderFactory.createTitledBorder(BorderFactory
 				.createLineBorder(Color.blue), title));
 	}
@@ -604,7 +614,7 @@ public class GUI extends JPanel implements ActionListener {
 
 		JScrollPane resourceScroll = new JScrollPane(resourceParamTable);
 		resourcePanel.setLayout(new BoxLayout(resourcePanel, BoxLayout.X_AXIS));
-		setMyBorder(resourcePanel, "Resource Parameters");
+		makeGroupPanel(resourcePanel, "Resource Parameters");
 		resourcePanel.add(resourceScroll);
 		return resourcePanel;
 	}
@@ -613,7 +623,7 @@ public class GUI extends JPanel implements ActionListener {
 	private JComponent setupAgentPanel() {
 		JComponent agentPanel = new JPanel();
 		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
-		setMyBorder(agentPanel, "Agent Parameters");
+		makeGroupPanel(agentPanel, "Agent Parameters");
 
 		agentParamTable = new JTable(new MyTableModel(agentParamNames, agentData.length, agentData));
 
@@ -650,7 +660,7 @@ public class GUI extends JPanel implements ActionListener {
 		JScrollPane foodScroll = new JScrollPane(foodTable);
 
 		foodPanel.setLayout(new BoxLayout(foodPanel, BoxLayout.X_AXIS));
-		setMyBorder(foodPanel, "Food Parameters");
+		makeGroupPanel(foodPanel, "Food Parameters");
 		foodPanel.add(foodScroll);
 		return foodPanel;
 	}
@@ -681,7 +691,7 @@ public class GUI extends JPanel implements ActionListener {
 		panelPD.add(scrollPanePD, BorderLayout.CENTER);
 
 		panelPD.setLayout(new BoxLayout(panelPD, BoxLayout.X_AXIS));
-		setMyBorder(panelPD, "Prisoner's Dilemma Parameters");
+		makeGroupPanel(panelPD, "Prisoner's Dilemma Parameters");
 		return panelPD;
 	}
 
@@ -745,13 +755,13 @@ public class GUI extends JPanel implements ActionListener {
 		genetic_table.setPreferredScrollableViewportSize(new Dimension(150, 160));
 		genetic_table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-		setMyBorder(phenotypeScroller, "Agent Parameter Selection");
+		makeGroupPanel(phenotypeScroller, "Agent Parameter Selection");
 
 		panelGA.add(phenotypeScroller);
 
 		JScrollPane geneScroll = new JScrollPane(genetic_table);
 
-		setMyBorder(geneScroll, "Gene Bindings");
+		makeGroupPanel(geneScroll, "Gene Bindings");
 
 		panelGA.add(geneScroll);
 
@@ -766,7 +776,7 @@ public class GUI extends JPanel implements ActionListener {
     	track_gene_value_distribution.addActionListener(this);
     	chart_update_frequency.addActionListener(this);
 
-    	setMyBorder(panelGA, "Genetic Algorithm Parameters");
+    	makeGroupPanel(panelGA, "Genetic Algorithm Parameters");
 		return panelGA;
 	}
 

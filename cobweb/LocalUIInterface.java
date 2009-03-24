@@ -404,7 +404,7 @@ public class LocalUIInterface implements UIInterface,
 		}
 
 		public void draw(Graphics g, int tileWidth, int tileHeight) {
-			Iterator<Location> itr = new LinkedList<Location>(path).iterator();
+			Iterator<Location> itr = path.iterator();
 			if (!itr.hasNext()) {
 				return;
 			}
@@ -548,13 +548,13 @@ public class LocalUIInterface implements UIInterface,
 	/**
 	 * Notify the UI of agent drawing information.
 	 */
-	public void newAgent(java.awt.Color agentColor,
+	public synchronized void newAgent(java.awt.Color agentColor,
 			java.awt.Color strategyColor, java.awt.Point position,
 			java.awt.Point facing) {
 		newDrawingInfo.agents.add(new AgentDrawInfo(agentColor, agentColor, strategyColor, position, facing));
 	}
 
-	public void newAgent(java.awt.Color agentColor, java.awt.Color typeColor,
+	public synchronized void newAgent(java.awt.Color agentColor, java.awt.Color typeColor,
 			java.awt.Color strategyColor, java.awt.Point position,
 			java.awt.Point facing) {
 		newDrawingInfo.agents.add(new AgentDrawInfo(agentColor, typeColor, strategyColor, position, facing));
@@ -607,10 +607,13 @@ public class LocalUIInterface implements UIInterface,
 	public void load(UIInterface.UIClient client, Parser p) {
 		theClient = client;
 		InitScheduler(p.TickScheduler, p);
+
 		InitEnvironment("cwcore.ComplexEnvironment", p);
-		theScheduler.addSchedulerClient(this);
 
 		GATracker.initializeGAInfoOutput();
+
+		theScheduler.addSchedulerClient(this);
+
 		theScheduler.setSleep(delay);
 
 		theScheduler.startScheduler();
@@ -662,7 +665,7 @@ public class LocalUIInterface implements UIInterface,
 		} catch (IllegalAccessException e) {
 			throw new InstantiationError(e.toString());
 		} catch (java.lang.reflect.InvocationTargetException e) {
-			throw new InstantiationError(e.getTargetException().toString());
+			throw new RuntimeException(e);
 		} catch (ClassNotFoundException e) {
 			throw new InstantiationError(e.toString());
 		}

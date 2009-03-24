@@ -24,10 +24,16 @@ public abstract class Agent {
 		position = newPos;
 	}
 
+	StackTraceElement[] firstDeath;
+
 	/**
 	 * Removes this Agent from the Environment.
 	 */
 	public void die() {
+		if (!alive) {
+			throw new RuntimeException("Already dead!");
+		}
+		firstDeath = Thread.currentThread().getStackTrace();
 		position.setAgent(null);
 		alive = false;
 		controller.removeClientAgent(this);

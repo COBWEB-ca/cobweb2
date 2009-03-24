@@ -133,6 +133,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 	int modifyingDefaultDataReminder = 0; // $$$$$$  added for openCurrentFile() method.  Mar 25
 
 	public static void main(String[] param) {
+		MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
+		Thread.setDefaultUncaughtExceptionHandler(handler);
+
 		CA = new CobwebApplication(param);
 		if (param.length > 0) {
 			CA.inputFile = param[0];
@@ -485,9 +488,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 			displayPanel.repaint();
 			pauseButton.repaint();
 			stepButton.repaint();
-		}
-		if (clipped) {
-
 		}
 	}
 

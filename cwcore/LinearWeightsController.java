@@ -80,9 +80,22 @@ public class LinearWeightsController implements cobweb.Controller {
 		LinearWeightsController pa = (LinearWeightsController) p;
 		for (int i = 0; i < weights.length; i++)
 			for (int j = 0; j < weights[i].length; j++)
-				weights[i][j] = pa.weights[i][j]
-	                            + (globals.random.nextDouble() - 0.5) * mutation;
+				weights[i][j] = pa.weights[i][j];
+
+		mutate(mutation);
 	}
+
+	private void mutate(float mutation) {
+		mutationCounter += INPUT_COUNT * OUTPUT_COUNT * mutation;
+		while (mutationCounter > 1) {
+			int i = globals.random.nextInt(weights.length);
+			int j = globals.random.nextInt(weights[i].length);
+			weights[i][j] += globals.random.nextGaussian() * 0.5;
+			mutationCounter -= 1;
+		}
+	}
+
+	private static float mutationCounter = 0;;
 
 	public LinearWeightsController(Controller p1, Controller p2, float mutation) {
 		if (!(p1 instanceof LinearWeightsController) || !(p2 instanceof LinearWeightsController)) {
@@ -93,8 +106,9 @@ public class LinearWeightsController implements cobweb.Controller {
 
 		for (int i = 0; i < weights.length; i++)
 			for (int j = 0; j < weights[i].length; j++)
-				weights[i][j] = (globals.random.nextBoolean() ? pa1.weights[i][j] : pa2.weights[i][j])
-								+ globals.random.nextGaussian() * mutation;
+				weights[i][j] = (globals.random.nextBoolean() ? pa1.weights[i][j] : pa2.weights[i][j]);
+
+		mutate(mutation);
 	}
 
 	/* (non-Javadoc)
@@ -145,7 +159,7 @@ public class LinearWeightsController implements cobweb.Controller {
 				res += weights[v][eq] * variables[v];
 			}
 
-			runningOutputMean[eq] *= 1 - UPDATE_RATE;
+			runningOutputMean[eq] *= (1 - UPDATE_RATE);
 			runningOutputMean[eq] += UPDATE_RATE * res;
 
 			if (eq == 0)

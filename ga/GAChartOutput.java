@@ -196,6 +196,9 @@ public class GAChartOutput implements ActionListener {
 		}
 	}
 
+	public static void InitData() {
+	}
+
 	/** Update the gene_status_distribution data */
 	public static void updateGeneStatusDistributionData(double[][][] y_vector) {
 		for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
@@ -204,10 +207,6 @@ public class GAChartOutput implements ActionListener {
 				String key = "Agent " + (i+1);
 				gene_status_distribution_data[j].addSeries(key, new_data);
 			}
-
-			// Set an upper bound for the y-axis
-//			gene_status_distribution_chart[j].getXYPlot().getRangeAxis().setUpperBound(
-//					(double)grid_width*grid_height/4);
 		}
 	}
 
@@ -220,10 +219,6 @@ public class GAChartOutput implements ActionListener {
 				gene_value_distribution_data[j].addSeries(key, new_data);
 
 			}
-			// Set an upper bound for the y-axis
-//			gene_value_distribution_chart[j].getXYPlot().getRangeAxis().setUpperBound(
-//					(double)grid_width*grid_height/4);
-
 		}
 	}
 }

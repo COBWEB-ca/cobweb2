@@ -164,7 +164,7 @@ public class TickScheduler extends Thread implements Scheduler {
 
 				if (bPaused && !bDone) {
 					try {
-						myWait(20);
+						myWait(100);
 					} catch (InterruptedException e) {
 					}
 				} else {

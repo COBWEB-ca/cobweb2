@@ -414,6 +414,10 @@ public class ComplexAgent extends cobweb.Agent implements
 	}
 
 	public void tickNotification(long tick) {
+		if (!isAlive()) {
+			return;
+		}
+
 		/* The current tick */
 		currTick = tick;
 
