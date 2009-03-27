@@ -1,5 +1,6 @@
 package driver;
 
+import java.awt.Image;
 import java.awt.event.ComponentEvent;
 
 import javax.swing.JPanel;
@@ -30,8 +31,15 @@ public class DisplayPanel extends JPanel {
 				DisplayPanel.this.setupOffscreen();
 			}
 
-		});
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				super.componentMoved(e);
+				DisplayPanel.this.setupOffscreen();
+			}
 
+
+		});
 	}
 
 	public void setUI(cobweb.UIInterface ui) {
@@ -56,6 +64,10 @@ public class DisplayPanel extends JPanel {
 	@Override
 	public void paint(java.awt.Graphics g) {
 		super.paint(g);
+//		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+//		GraphicsConfiguration gc = ge.getDefaultScreenDevice().getDefaultConfiguration();
+		//  offscreenImage.validate(gc) != VolatileImage.IMAGE_OK
+
 		if (offscreenImage == null || tileWidth == 0 || mapWidth != getWidthInTiles()
 				|| mapHeight != getHeightInTiles() || tileHeight == 0) {
 			setupOffscreen();
@@ -73,6 +85,7 @@ public class DisplayPanel extends JPanel {
 		if (size.width <= 0 || size.height <= 0) {
 			return;
 		}
+
 		offscreenImage = createImage(size.width, size.height);
 		offscreenGraphics = offscreenImage.getGraphics();
 		offscreenGraphics.setColor(java.awt.Color.white);
@@ -119,7 +132,7 @@ public class DisplayPanel extends JPanel {
 		return borderWidth;
 	}
 
-	private java.awt.Image offscreenImage;
+	private Image offscreenImage;
 
 	private java.awt.Graphics offscreenGraphics;
 

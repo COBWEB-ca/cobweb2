@@ -172,10 +172,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 		addWindowStateListener(new WindowStateListener() {
 
 			public void windowStateChanged(WindowEvent e) {
-				if (e.getNewState() == Frame.NORMAL) {
-					clipped = false;
-				} else {
+				if ((e.getNewState() & Frame.ICONIFIED) != 0) {
 					clipped = true;
+				} else {
+					clipped = false;
 				}
 			}
 
