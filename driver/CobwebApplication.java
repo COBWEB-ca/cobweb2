@@ -150,7 +150,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 		// $$$$$$ Added to check if the new data file is hidden.  Feb 22
 		File inf = new File(CA.inputFile);
-		if ( inf.isHidden() != false  || ((inf.exists() != false) && (inf.canWrite() == false)) ){
+		if ( inf.isHidden() || (inf.exists()  && !inf.canWrite()) ){
 			JOptionPane.showMessageDialog(GUI.frame,
 					"Caution:  The initial data file \"" + CA.inputFile + "\" is NOT allowed to be modified.\n" +
 					"\n                  Any modification of this data file will be neither implemented nor saved.");
@@ -498,11 +498,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	public void openFile(Parser p) {
-		if (uiPipe != null) {
-			uiPipe.load(this, p);
-		} else {
+		if (uiPipe == null) {
 			uiPipe = new LocalUIInterface(this, p);
 			UIsettings();
+		} else {
+			uiPipe.load(this, p);
+			displayPanel.setUI(uiPipe);
 		}
 		//this.toFront(); // $$$$$$ added for CA frame going to front when anytime this method is called.  Feb 22
 	}
@@ -526,7 +527,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		uiPipe.setRefreshTimeout(100);
 		uiPipe.setFrameSkip(0);
 		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(uiPipe, 10, 10);
+			displayPanel = new DisplayPanel(uiPipe);
 		} else {
 			displayPanel.setUI(uiPipe);
 		}

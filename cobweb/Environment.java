@@ -471,7 +471,7 @@ public abstract class Environment {
 	// The implementation uses a hashtable to store agents, as we assume there
 	// are many
 	// more locations than agents.
-	private synchronized final Agent getAgent(Location l) {
+	private Agent getAgent(Location l) {
 		return agentTable.get(l);
 	}
 

@@ -21,9 +21,6 @@ public class TickScheduler extends Thread implements Scheduler {
 
 	private volatile boolean bDone = true; // Thread.stop() is unsafe
 
-	// Thread code; implementation details
-	public java.util.Timer timer;
-
 	private long refreshTimeout = 0;
 
 	private long frameSkip = 0;
@@ -116,9 +113,9 @@ public class TickScheduler extends Thread implements Scheduler {
 	 * UIInterface; look at the LocalUIInterface for an implementation example.
 	 */
 	public TickScheduler(UIInterface ui, Parser p) {
+		this.setName("TickScheduler");
 		bDone = false;
 		loadScheduler(ui, p);
-		timer = new java.util.Timer();
 	}
 
 	public void setSleep(long time) {
@@ -157,56 +154,36 @@ public class TickScheduler extends Thread implements Scheduler {
 		long frameCount = 0;
 		// Forever...
 
-		try {
-			while (!bDone) {
-				cwcore.ComplexAgent.dumpData(tickCount);
-				cwcore.ComplexAgent.clearData();
+		while (!bDone) {
+			cwcore.ComplexAgent.dumpData(tickCount);
+			cwcore.ComplexAgent.clearData();
 
-				if (bPaused && !bDone) {
-					try {
-						myWait(100);
-					} catch (InterruptedException e) {
-					}
-				} else {
-					doTick();
+			if (bPaused && !bDone) {
+				myWait(100);
+			} else {
+				doTick();
 
-					if (theUI.getTick() != 0 && getTime() == theUI.getTick()) {
-						pauseScheduler();
-						try {
-							theUI.refresh(refreshTimeout);
-						} catch (Exception ex) {
-							Logger.getLogger(this.getClass().getName()).log(Level.WARNING, ex.toString());
-						}
-						// System.out.println("Value is: "+bPaused);
-					}
+				if (theUI.getTick() != 0 && getTime() == theUI.getTick()) {
+					pauseScheduler();
 				}
-
-				if (frameCount >= frameSkip) {
-					frameCount = 0;
-					theUI.refresh(refreshTimeout);
-				} else {
-					++frameCount;
-				}
-				//yield();
-
-
-				// start doing something
-				try {
-					if (!bPaused && slowdown > 0) {
-						myWait(slowdown);
-					}
-				} catch (InterruptedException e) {
-					//e.printStackTrace();
-				}
+				theUI.refresh(refreshTimeout);
 			}
-		}
-		catch (Exception ex) {
-			throw new RuntimeException(ex);
+
+
+
+			// start doing something
+			if (!bPaused && slowdown > 0) {
+				myWait(slowdown);
+			}
 		}
 	}
 
-	private synchronized void myWait(long time) throws InterruptedException {
-		wait(time);
+	private synchronized void myWait(long time) {
+		try {
+			wait(time);
+		} catch (InterruptedException ex) {
+			Logger.getAnonymousLogger().log(Level.INFO, "that's weird", ex);
+		}
 	}
 
 	public long getTime() {

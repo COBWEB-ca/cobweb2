@@ -60,7 +60,7 @@ public class Cobweb2Applet extends JApplet {
 
 		setSize(580,660);
 
-		getContentPane().setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 
 		experements.put("Baseline", "baseline 2008.xml");
 		experements.put("Boom and Bust", "boom and bust 3.xml");
@@ -102,7 +102,7 @@ public class Cobweb2Applet extends JApplet {
 
 
 
-		getContentPane().add(controls, BorderLayout.NORTH);
+		add(controls, BorderLayout.NORTH);
 		expselector.setVisible(true);
 
 		expselector.addActionListener(new ExpSelectorListener());
@@ -132,7 +132,7 @@ public class Cobweb2Applet extends JApplet {
 		if (ui != null) {
 
 			ui.RemoveTickEventListener(statsUpdater);
-			getContentPane().remove(ui);
+			remove(ui);
 		}
 
 
@@ -143,7 +143,7 @@ public class Cobweb2Applet extends JApplet {
 
 		//FIX: DisplayPanel is buggy, so we have to hide and show it for it to redraw
 		ui.setVisible(false);
-		getContentPane().add(ui, BorderLayout.CENTER);
+		add(ui, BorderLayout.CENTER);
 
 		ui.setVisible(true);
 		statsUpdater = new StatsUpdater();

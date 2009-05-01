@@ -100,11 +100,7 @@ public class LocalUIInterface implements UIInterface,
 	 */
 
 	public int getWidth() {
-		if (theDrawingInfo == null) {
-			return 0;
-		} else {
-			return theDrawingInfo.width;
-		}
+		return theEnvironment.getSize(0);
 	}
 
 	/**
@@ -114,11 +110,7 @@ public class LocalUIInterface implements UIInterface,
 	 *         of the frame data.
 	 */
 	public int getHeight() {
-		if (theDrawingInfo == null) {
-			return 0;
-		} else {
-			return theDrawingInfo.height;
-		}
+		return theEnvironment.getSize(1);
 	}
 
 	/**
@@ -131,7 +123,7 @@ public class LocalUIInterface implements UIInterface,
 	 *            complete. Negative values mean don't wait, and a value of 0
 	 *            means wait indefinately.
 	 */
-	public synchronized void refresh(long timeout) {
+	public void refresh(long timeout) {
 		theEnvironment.getDrawInfo(this);
 		theDrawingInfo = newDrawingInfo;
 		newDrawingInfo = null;
@@ -766,7 +758,7 @@ public class LocalUIInterface implements UIInterface,
 	 *
 	 * @see cobweb.LocalUIInterface#draw
 	 */
-	private synchronized void doRefreshNotification() {
+	private void doRefreshNotification() {
 		notifyAll();
 	}
 

@@ -53,7 +53,6 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 		setupUI();
 
-		this.add(displayPanel);
 	}
 
 	public EnvironmentStats getStatistics() {
@@ -69,7 +68,7 @@ public class SimulatorUI extends JPanel implements UIClient {
 		uiPipe.setRefreshTimeout(100);
 		uiPipe.setFrameSkip(0);
 		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(uiPipe, 10, 10);
+			displayPanel = new DisplayPanel(uiPipe);
 		} else {
 			displayPanel.setUI(uiPipe);
 		}

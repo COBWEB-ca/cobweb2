@@ -3,7 +3,10 @@
  */
 package driver;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,11 +32,33 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 
 		StringBuilder sb = new StringBuilder();
 
-		sb.append("Exception in thread " + thread.getName() + " " + ex.getClass().getName() + newLine);
-		for (StackTraceElement s : ex.getStackTrace()) {
-			sb.append("\tat " + s.getClassName() + "(" + s.getFileName() + ":" + s.getLineNumber() + ")" + newLine);
+		sb.append("Exception in thread " + thread.getName() + newLine);
+		exceptionToString(ex, sb);
+
+		try {
+			FileWriter fw = new FileWriter("cobweb_errors.log", true);
+			fw.write(Calendar.getInstance().toString() + newLine);
+			fw.write(sb.toString());
+			fw.write(newLine);
+			fw.close();
+		} catch (IOException ex1) {
+			// TODO Auto-generated catch block
+			ex1.printStackTrace();
 		}
-		JOptionPane.showMessageDialog(null, sb.toString());
+
+
+		JOptionPane.showMessageDialog(null, "Oh no! You crashed COBWEB!" + newLine + sb.toString());
+	}
+
+	private void exceptionToString(Throwable ex, StringBuilder sb) {
+		sb.append(ex.toString() + newLine);
+		for (StackTraceElement s : ex.getStackTrace()) {
+			sb.append("\tat " + s.getClassName() + "." + s.getMethodName() + "(" + s.getFileName() + ":" + s.getLineNumber() + ")" + newLine);
+		}
+		if (ex.getCause() != null) {
+			sb.append("Caused by: " + newLine);
+			exceptionToString(ex.getCause(), sb);
+		}
 	}
 
 }

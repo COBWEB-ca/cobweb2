@@ -3,8 +3,6 @@ package cwcore;
 import ga.GATracker;
 import ga.GeneticCode;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -919,6 +917,199 @@ public class ComplexEnvironment extends Environment implements
 			// colorizerMode[0] );
 			colorizer.reColorAgents(getAgentCollection(), colorizerMode[0]);
 		}
+		updateWaste();
+
+		// for each agent type, we test to see if its deplete time step has
+		// come, and if so deplete the food random
+		// by the appropriate percentage
+		for (int i = 0; i < agentTypeCount; ++i) {
+			if (foodDeplete[0][i] != 0.0f && foodGrow[0][i] > 0
+					&& (tickCount % depleteTimeSteps[0][i]) == 0) {
+				depleteFood(i);
+			}
+		}
+
+		boolean shouldGrow = false;
+		for (int i = 0; i < agentTypeCount; ++i) {
+			if (foodGrow[0][i] > 0) {
+				shouldGrow = true;
+				break;
+			}
+		}
+
+		// if no food is growing (total == 0) this loop is not nessesary
+		if (shouldGrow) {
+			growFood();
+		}
+
+		// Air-drop food into the environment
+		for (int i = 0; i < foodRate[0].length; ++i) {
+			if (draughtdays[i] == 0) {
+				dropFood(i);
+			} else {
+				draughtdays[i]--;
+			}
+		}
+
+		if (observedAgent != null && !observedAgent.isAlive()) {
+			observedAgent = null;
+		}
+	}
+
+	private void dropFood(int type) {
+		float foodDrop = foodRate[0][type];
+		while (cobweb.globals.random.nextFloat() < foodDrop) {
+			--foodDrop;
+			cobweb.Environment.Location l;
+			int j = 0;
+			do {
+				++j;
+				l = getRandomLocation();
+
+			} while (j < foodGrow[0][type]
+					&& (l.testFlag(ComplexEnvironment.FLAG_STONE)
+							|| l.testFlag(ComplexEnvironment.FLAG_FOOD)
+							|| l
+									.testFlag(ComplexEnvironment.FLAG_WASTE) || l
+							.getAgent() != null));
+
+			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+			setFoodType(l, type);
+		}
+	}
+
+	private void growFood() {
+		// create a new ArrayEnvironment and a new food type array
+		cobweb.ArrayEnvironment newArray = new cobweb.ArrayEnvironment(
+				array.getSize(AXIS_X), array.getSize(AXIS_Y));
+		int[][] newFoodArray = new int[w[0]][h[0]];
+		// loop through all positions
+		Location currentPos = getLocation(0, 0);
+		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
+			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
+				// if theres a stone or already food, we simply copy the
+				// information from the old arrays to the new ones
+				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD)
+						|| currentPos
+								.testFlag(ComplexEnvironment.FLAG_WASTE)
+						|| currentPos
+								.testFlag(ComplexEnvironment.FLAG_STONE)) {
+					newArray.setLocationBits(currentPos, array
+							.getLocationBits(currentPos));
+					newFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
+				}
+				// otherwise, we want to see if we should grow food here
+				else {
+
+					// the following code block tests all adjacent squares
+					// to this one and counts how many have food
+					// as well how many of each food type exist
+
+					double foodCount = 0;
+					int mostFood[] = new int[agentTypeCount];
+					for (int i = 0; i < agentTypeCount; ++i)
+						mostFood[i] = 0;
+
+					Location checkPos = currentPos
+							.getAdjacent(DIRECTION_NORTH);
+					if (checkPos != null
+							&& checkPos
+									.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+						++foodCount;
+						++mostFood[getFoodType(checkPos)];
+					}
+					checkPos = currentPos.getAdjacent(DIRECTION_SOUTH);
+					if (checkPos != null
+							&& checkPos
+									.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+						++foodCount;
+						++mostFood[getFoodType(checkPos)];
+					}
+					checkPos = currentPos.getAdjacent(DIRECTION_EAST);
+					if (checkPos != null
+							&& checkPos
+									.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+						++foodCount;
+						++mostFood[getFoodType(checkPos)];
+					}
+					checkPos = currentPos.getAdjacent(DIRECTION_WEST);
+					if (checkPos != null
+							&& checkPos
+									.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+						++foodCount;
+						++mostFood[getFoodType(checkPos)];
+					}
+
+					// and if we have found any adjacent food, theres a
+					// chance we want to grow food here
+					if (foodCount > 0) {
+
+						int max = 0;
+						int growMe;
+
+						// find the food that exists in the largest quantity
+						for (int i = 1; i < mostFood.length; ++i)
+							if (mostFood[i] > mostFood[max])
+								max = i;
+
+						// give the max food an extra chance to be chosen
+						/*
+						 * if( maxFoodChance[0] >
+						 * cobweb.globals.random.nextFloat() ) { growMe =
+						 * max; } //if not the max food, then we want to
+						 * pick randomly from all the types else {
+						 */
+						growMe = cobweb.globals.random
+								.nextInt(foodTypeCount);
+						// }
+
+						// finally, we grow food according to a certain
+						// amount of random chance
+						if (foodCount * foodGrow[0][growMe] > 100 * cobweb.globals.random
+								.nextFloat()) {
+							newArray.setLocationBits(currentPos, FOOD_CODE);
+							// setFoodType (currentPos, growMe);
+							newFoodArray[currentPos.v[0]][currentPos.v[1]] = growMe;
+						}
+					}
+				}
+
+			}
+		}
+		// The tile array we've just computed becomes the current tile array
+		array = newArray;
+		foodarray = newFoodArray;
+	}
+
+	private void depleteFood(int type) {
+		// the algorithm for randomly selecting the food cells to delete
+		// is as follows:
+		// We iterate through all of the cells and the location of each
+		// one containing food type i is added to
+		// a random position in our vector. We then calculate exactly
+		// how many food items we need to destroy, say N,
+		// and we destroy the food at the positions occupying the last N
+		// spots in our vector
+		Vector<Location> locations = new Vector<Location>();
+		for (int x = 0; x < getSize(AXIS_X); ++x)
+			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+				Location currentPos = getLocation(x, y);
+				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD)
+						&& getFoodType(currentPos) == type)
+					locations.add(cobweb.globals.random
+							.nextInt(locations.size() + 1), currentPos);
+			}
+
+		int foodToDeplete = (int) (locations.size() * foodDeplete[0][type]);
+
+		for (int j = 0; j < foodToDeplete; ++j) {
+			Location loc = locations.remove(locations.size() - 1);
+			loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+		}
+		draughtdays[type] = draught_period[0][type];
+	}
+
+	private void updateWaste() {
 		for (int i = 0; i < wastearray[0].length; i++) {
 			for (int j = 0; j < wastearray[1].length; j++) {
 				Location l = getLocation(i, j);
@@ -930,180 +1121,6 @@ public class ComplexEnvironment extends Environment implements
 														// and not deleting
 				}
 			}
-		}
-
-		// for each agent type, we test to see if its deplete time step has
-		// come, and if so deplete the food random
-		// by the appropriate percentage
-		for (int i = 0; i < agentTypeCount; ++i) {
-			if (foodDeplete[0][i] != 0.0f && foodGrow[0][i] > 0
-					&& (tickCount % depleteTimeSteps[0][i]) == 0) {
-				// the algorithm for randomly selecting the food cells to delete
-				// is as follows:
-				// We iterate through all of the cells and the location of each
-				// one containing food type i is added to
-				// a random position in our vector. We then calculate exactly
-				// how many food items we need to destroy, say N,
-				// and we destroy the food at the positions occupying the last N
-				// spots in our vector
-				Vector<Location> locations = new Vector<Location>();
-				for (int x = 0; x < getSize(AXIS_X); ++x)
-					for (int y = 0; y < getSize(AXIS_Y); ++y) {
-						Location currentPos = getLocation(x, y);
-						if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD)
-								&& getFoodType(currentPos) == i)
-							locations.add(cobweb.globals.random
-									.nextInt(locations.size() + 1), currentPos);
-					}
-
-				int foodToDeplete = (int) (locations.size() * foodDeplete[0][i]);
-
-				for (int j = 0; j < foodToDeplete; ++j) {
-					Location loc = locations.remove(locations.size() - 1);
-					loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-				}
-				draughtdays[i] = draught_period[0][i];
-			}
-		}
-
-		int total = 0;
-		for (int i = 0; i < agentTypeCount; ++i)
-			total += foodGrow[0][i];
-
-		// if no food is growing (total == 0) this loop is not nessesary
-		if (total > 0) {
-			// create a new ArrayEnvironment and a new food type array
-			cobweb.ArrayEnvironment newArray = new cobweb.ArrayEnvironment(
-					array.getSize(AXIS_X), array.getSize(AXIS_Y));
-			int[][] newFoodArray = new int[w[0]][h[0]];
-			// loop through all positions
-			Location currentPos = getLocation(0, 0);
-			for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
-				for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
-					// if theres a stone or already food, we simply copy the
-					// information from the old arrays to the new ones
-					if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD)
-							|| currentPos
-									.testFlag(ComplexEnvironment.FLAG_WASTE)
-							|| currentPos
-									.testFlag(ComplexEnvironment.FLAG_STONE)) {
-						newArray.setLocationBits(currentPos, array
-								.getLocationBits(currentPos));
-						newFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
-					}
-					// otherwise, we want to see if we should grow food here
-					else {
-
-						// the following code block tests all adjacent squares
-						// to this one and counts how many have food
-						// as well how many of each food type exist
-
-						double foodCount = 0;
-						int mostFood[] = new int[agentTypeCount];
-						for (int i = 0; i < agentTypeCount; ++i)
-							mostFood[i] = 0;
-
-						Location checkPos = currentPos
-								.getAdjacent(DIRECTION_NORTH);
-						if (checkPos != null
-								&& checkPos
-										.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-							++foodCount;
-							++mostFood[getFoodType(checkPos)];
-						}
-						checkPos = currentPos.getAdjacent(DIRECTION_SOUTH);
-						if (checkPos != null
-								&& checkPos
-										.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-							++foodCount;
-							++mostFood[getFoodType(checkPos)];
-						}
-						checkPos = currentPos.getAdjacent(DIRECTION_EAST);
-						if (checkPos != null
-								&& checkPos
-										.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-							++foodCount;
-							++mostFood[getFoodType(checkPos)];
-						}
-						checkPos = currentPos.getAdjacent(DIRECTION_WEST);
-						if (checkPos != null
-								&& checkPos
-										.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-							++foodCount;
-							++mostFood[getFoodType(checkPos)];
-						}
-
-						// and if we have found any adjacent food, theres a
-						// chance we want to grow food here
-						if (foodCount > 0) {
-
-							int max = 0;
-							int growMe;
-
-							// find the food that exists in the largest quantity
-							for (int i = 1; i < mostFood.length; ++i)
-								if (mostFood[i] > mostFood[max])
-									max = i;
-
-							// give the max food an extra chance to be chosen
-							/*
-							 * if( maxFoodChance[0] >
-							 * cobweb.globals.random.nextFloat() ) { growMe =
-							 * max; } //if not the max food, then we want to
-							 * pick randomly from all the types else {
-							 */
-							growMe = cobweb.globals.random
-									.nextInt(foodTypeCount);
-							// }
-
-							// finally, we grow food according to a certain
-							// amount of random chance
-							if (foodCount * foodGrow[0][growMe] > 100 * cobweb.globals.random
-									.nextFloat()) {
-								newArray.setLocationBits(currentPos, FOOD_CODE);
-								// setFoodType (currentPos, growMe);
-								newFoodArray[currentPos.v[0]][currentPos.v[1]] = growMe;
-							}
-						}
-					}
-
-				}
-			}
-			// The tile array we've just computed becomes the current tile array
-			array = newArray;
-			foodarray = newFoodArray;
-		}
-
-		// Air-drop food into the environment
-		for (int i = 0; i < foodRate[0].length; ++i) {
-			if (draughtdays[i] == 0) {
-
-				float foodDrop = foodRate[0][i];
-				while (cobweb.globals.random.nextFloat() < foodDrop) {
-					--foodDrop;
-					cobweb.Environment.Location l;
-					int j = 0;
-					do {
-						++j;
-						l = getRandomLocation();
-
-					} while (j < foodGrow[0][i]
-							&& (l.testFlag(ComplexEnvironment.FLAG_STONE)
-									|| l.testFlag(ComplexEnvironment.FLAG_FOOD)
-									|| l
-											.testFlag(ComplexEnvironment.FLAG_WASTE) || l
-									.getAgent() != null));
-
-					l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-					setFoodType(l, i);
-				}
-			} else {
-				draughtdays[i]--;
-			}
-		}
-
-		if (observedAgent != null && !observedAgent.isAlive()) {
-			observedAgent = null;
 		}
 	}
 
@@ -1149,7 +1166,9 @@ public class ComplexEnvironment extends Environment implements
 	@Override
 	public void report(java.io.Writer w) {
 		java.io.PrintWriter pw = new java.io.PrintWriter(w, true);
+
 		printAgentInfo(pw);
+
 	}
 
 	/* Return foodCount (long) of all types of food */
@@ -1337,10 +1356,8 @@ public class ComplexEnvironment extends Environment implements
 	 * Dump header for report file to path
 	 * @param filepath path to report file
 	 */
-	public void printAgentHeader(String filepath) {
+	public void printAgentHeader(java.io.PrintWriter pw) {
 		try {
-		    FileWriter outFile = new FileWriter(filepath);
-		    BufferedWriter out = new BufferedWriter(outFile);
 		    StringBuffer buffer = new StringBuffer();
 
 			String agentInfoHeader = "Agent Number";
@@ -1359,7 +1376,7 @@ public class ComplexEnvironment extends Environment implements
 			agentInfoHeader += "\tStrategy";
 			buffer.append(agentInfoHeader);
 			buffer.append("\n");
-			out.write(buffer.toString());
+			pw.write(buffer.toString());
 		}
 		catch(Exception e) {
 			System.err.println("Error: " + e.getMessage());

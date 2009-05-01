@@ -1,9 +1,10 @@
 package driver;
 
-import java.awt.Image;
+import java.awt.Insets;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 /**
  * DisplayPanel is a Panel derivative useful for displaying a cobweb simulation.
@@ -12,87 +13,37 @@ import javax.swing.JPanel;
  * required in Cobweb, but it does automate display handling. Future
  * enhancement: implement a ScrollingDisplayPanel for large simulations.
  */
-public class DisplayPanel extends JPanel {
+public class DisplayPanel extends JComponent implements ComponentListener {
 
-	public DisplayPanel(cobweb.UIInterface ui, int borderW, int borderH) {
+	public DisplayPanel(cobweb.UIInterface ui) {
 		theUI = ui;
-		borderWidth = borderW;
-		borderHeight = borderH;
-		addComponentListener(new java.awt.event.ComponentAdapter() {
-			@Override
-			public void componentResized(java.awt.event.ComponentEvent evt) {
-				super.componentResized(evt);
-				DisplayPanel.this.setupOffscreen();
-			}
-
-			@Override
-			public void componentShown(ComponentEvent arg0) {
-				super.componentShown(arg0);
-				DisplayPanel.this.setupOffscreen();
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				// TODO Auto-generated method stub
-				super.componentMoved(e);
-				DisplayPanel.this.setupOffscreen();
-			}
-
-
-		});
+		addComponentListener(this);
 	}
 
 	public void setUI(cobweb.UIInterface ui) {
 		theUI = ui;
-		setupOffscreen();
-		addComponentListener(new java.awt.event.ComponentAdapter() {
-			@Override
-			public void componentResized(java.awt.event.ComponentEvent evt) {
-				super.componentResized(evt);
-				DisplayPanel.this.setupOffscreen();
-			}
-
-			@Override
-			public void componentShown(ComponentEvent arg0) {
-				super.componentShown(arg0);
-				DisplayPanel.this.setupOffscreen();
-			}
-		});
-
+		updateScale();
 	}
 
 	@Override
-	public void paint(java.awt.Graphics g) {
-		super.paint(g);
-//		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-//		GraphicsConfiguration gc = ge.getDefaultScreenDevice().getDefaultConfiguration();
-		//  offscreenImage.validate(gc) != VolatileImage.IMAGE_OK
+	public void paintComponent(java.awt.Graphics g) {
+		super.paintComponent(g);
 
-		if (offscreenImage == null || tileWidth == 0 || mapWidth != getWidthInTiles()
-				|| mapHeight != getHeightInTiles() || tileHeight == 0) {
-			setupOffscreen();
-		}
-		theUI.draw(offscreenGraphics, tileWidth, tileHeight);
-		g.drawImage(offscreenImage, 0, 0, null);
+		g.translate(borderWidth, borderHeight);
+		theUI.draw(g, tileWidth, tileHeight);
 	}
 
+	private static final int MY_BORDER = 8;
 
-
-	void setupOffscreen() {
-		offscreenGraphics = null;
-		offscreenImage = null;
+	void updateScale() {
 		java.awt.Dimension size = getSize();
 		if (size.width <= 0 || size.height <= 0) {
 			return;
 		}
 
-		offscreenImage = createImage(size.width, size.height);
-		offscreenGraphics = offscreenImage.getGraphics();
-		offscreenGraphics.setColor(java.awt.Color.white);
-		offscreenGraphics.fillRect(0, 0, size.width, size.height);
-		offscreenGraphics.translate(borderWidth, borderHeight);
-		size.width -= 2 * borderWidth;
-		size.height -= (2 * borderHeight);
+		Insets ins = getInsets();
+		size.width -= ins.left + ins.right + MY_BORDER;
+		size.height -= ins.top + ins.bottom + MY_BORDER;
 
 		mapWidth = theUI.getWidth();
 		mapHeight = theUI.getHeight();
@@ -102,6 +53,12 @@ public class DisplayPanel extends JPanel {
 		if (mapHeight != 0) {
 			tileHeight = size.height / mapHeight;
 		}
+		borderWidth = (size.width - tileWidth * theUI.getWidth() + MY_BORDER) / 2;
+		borderHeight = (size.height - tileHeight * theUI.getHeight() + MY_BORDER) / 2;
+
+		this.repaint();
+//		tileWidth = Math.min(tileWidth, tileHeight);
+//		tileHeight = tileWidth;
 	}
 
 	/*
@@ -132,10 +89,6 @@ public class DisplayPanel extends JPanel {
 		return borderWidth;
 	}
 
-	private Image offscreenImage;
-
-	private java.awt.Graphics offscreenGraphics;
-
 	private int tileWidth = 0;
 
 	private int tileHeight = 0;
@@ -151,4 +104,21 @@ public class DisplayPanel extends JPanel {
 	cobweb.UIInterface theUI;
 
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
+
+
+	public void componentResized(ComponentEvent e) {
+		updateScale();
+	}
+
+	public void componentHidden(ComponentEvent e) {
+		// nothing
+	}
+
+	public void componentShown(ComponentEvent e) {
+		// nothing
+	}
+
+	public void componentMoved(ComponentEvent e) {
+		// nothing
+	}
 }

@@ -229,7 +229,7 @@ public class GUI extends JPanel implements ActionListener {
 
 	JTabbedPane tabbedPane;
 
-	static JButton close;
+	static JButton ok;
 
 	static JButton save;
 
@@ -342,9 +342,9 @@ public class GUI extends JPanel implements ActionListener {
 		tabbedPane.addTab("AI", controllerPanel);
 
 
-		close = new JButton("OK");
-		close.setMaximumSize(new Dimension(80, 20));
-		close.addActionListener(new OkButtonListener());
+		ok = new JButton("OK");
+		ok.setMaximumSize(new Dimension(80, 20));
+		ok.addActionListener(new OkButtonListener());
 
 		save = new JButton("Save As...");
 		save.setMaximumSize(new Dimension(80, 20));
@@ -353,7 +353,7 @@ public class GUI extends JPanel implements ActionListener {
 		JPanel buttons = new JPanel();
 		buttons.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		buttons.add(save);
-		buttons.add(close);
+		buttons.add(ok);
 
 		// Add the tabbed pane to this panel.
 		add(tabbedPane, BorderLayout.CENTER);
@@ -533,15 +533,15 @@ public class GUI extends JPanel implements ActionListener {
 		colorizerMode = new JTextField(3);
 
 		fieldPane.add(new JLabel("No. of Colors"));
-		fieldPane.add(numColor, "North");
+		fieldPane.add(numColor);
 		fieldPane.add(new JLabel("Color Select Size"));
-		fieldPane.add(colorSelectSize, "North");
+		fieldPane.add(colorSelectSize);
 		fieldPane.add(new JLabel("Recolor Time Step"));
-		fieldPane.add(reColorTimeStep, "North");
+		fieldPane.add(reColorTimeStep);
 		fieldPane.add(new JLabel("Colorizer Mode"));
-		fieldPane.add(colorizerMode, "North");
+		fieldPane.add(colorizerMode);
 		fieldPane.add(new JLabel("Color Coded Agents"));
-		fieldPane.add(ColorCodedAgents, "North");
+		fieldPane.add(ColorCodedAgents);
 
 		panel13.add(fieldPane);
 		makeOptionsTable(fieldPane, 5);
@@ -557,9 +557,9 @@ public class GUI extends JPanel implements ActionListener {
 		randomStones = new JTextField(3);
 
 		fieldPane.add(new JLabel("Random Seed"));
-		fieldPane.add(RandomSeed, "North");
+		fieldPane.add(RandomSeed);
 		fieldPane.add(new JLabel("Random Stones no."));
-		fieldPane.add(randomStones, "North");
+		fieldPane.add(randomStones);
 
 		panel14.add(fieldPane, BorderLayout.EAST);
 		makeOptionsTable(fieldPane, 2);
@@ -574,14 +574,16 @@ public class GUI extends JPanel implements ActionListener {
 
 		fieldPane = new JPanel(new GridLayout(2, 1));
 		fieldPane.add(new JLabel("Drop New Food"));
-		fieldPane.add(dropNewFood, "North");
-		fieldPane.add(new JLabel("Max Food Chance"));
-		fieldPane.add(maxFoodChance, "North");
+		fieldPane.add(dropNewFood);
+
+		//UNUSED: See ComplexEnvironment.growFood()
+		//fieldPane.add(new JLabel("Max Food Chance"));
+		//fieldPane.add(maxFoodChance);
 
 		panel16.add(fieldPane, BorderLayout.EAST);
-		makeOptionsTable(fieldPane, 2);
+		makeOptionsTable(fieldPane, 1);
 
-		envPanel.add(panel16, "EAST");
+		envPanel.add(panel16);
 		return envPanel;
 	}
 
@@ -592,8 +594,8 @@ public class GUI extends JPanel implements ActionListener {
 	}
 
 
-	private void makeGroupPanel(JComponent panel13, String title) {
-		panel13.setBorder(BorderFactory.createTitledBorder(BorderFactory
+	private void makeGroupPanel(JComponent target, String title) {
+		target.setBorder(BorderFactory.createTitledBorder(BorderFactory
 				.createLineBorder(Color.blue), title));
 	}
 
@@ -1298,13 +1300,12 @@ public class GUI extends JPanel implements ActionListener {
 		// Create and set up the content pane.
 
 		JComponent newContentPane = new GUI(ca, filename);
-		newContentPane.setOpaque(true); // content panes must be opaque
-		frame.getContentPane().add(newContentPane/* new GUI(ca, datafile) */,
-				BorderLayout.CENTER);
+		frame.add(newContentPane);
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
-		frame.validate();
+		frame.getRootPane().setDefaultButton(ok);
+		//frame.validate();
 	}
 
 	public void setDefault() {

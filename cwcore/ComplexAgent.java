@@ -235,15 +235,15 @@ public class ComplexAgent extends cobweb.Agent implements
 	private double energyPenalty(boolean log) {
 		if (!agingMode)
 			return 0.0;
-		Double age = new Double(currTick - birthTick);
+		double age = currTick - birthTick;
 		if (tracked && log)
 			info.useExtraEnergy(
 				agentType,
 				Math.min(Math.max(0, energy),
-				(int) (agingRate * (Math.tan(((age.doubleValue() / agingLimit) * 89.99)
+				(int) (agingRate * (Math.tan(((age / agingLimit) * 89.99)
 						* Math.PI / 180)) + 0.5)));
 		return Math.min(Math.max(0, energy), agingRate
-				* (Math.tan(((age.doubleValue() / agingLimit) * 89.99)
+				* (Math.tan(((age / agingLimit) * 89.99)
 						* Math.PI / 180)));
 	}
 
@@ -601,7 +601,7 @@ public class ComplexAgent extends cobweb.Agent implements
 			info.addPathStep(this.getPosition());
 
 		} else if ((adjAgent = getAdjacentAgent()) != null
-				&& adjAgent instanceof ComplexAgent) {
+				&& adjAgent instanceof ComplexAgent && ((ComplexAgent) adjAgent).info != null) {
 			// two agents meet
 
 			ComplexAgent adjacentAgent = (ComplexAgent) adjAgent;
@@ -622,7 +622,7 @@ public class ComplexAgent extends cobweb.Agent implements
 			// scan the memory array, is the 'other' agents ID is found in the
 			// array, then
 			// choose not to have a transaction with him.
-			for (int i = 0; i < photo_num; i++) {
+			for (int i = 0; i < memory_size; i++) {
 				if (photo_memory[i] == othersID) {
 					want2meet = false;
 				}
@@ -663,207 +663,7 @@ public class ComplexAgent extends cobweb.Agent implements
 			// meet
 			if (!pregnant && want2meet && adjacentAgent.want2meet) {
 
-				// cobweb.UIInterface ui = ComplexEnvironment.getUIPipe(); //
-				// $$$$$$ this silenced line was for writing PD info into the
-				// output window. Apr 22
-
-				// int strat = 0; // $$$$$$ silenced on Apr 22
-
-				playPD();
-				adjacentAgent.playPD();
-
-				lastPDMove = adjacentAgent.agentPDAction; // Adjacent Agent's
-															// action
-				// is assigned to last move
-				// memory of the agent
-				adjacentAgent.lastPDMove = agentPDAction; // Agent's action is
-				// assigned to the last move
-				// memory of the adjacent agent
-
-				/**
-				 * *** $$$$$$ This silenced block was used for updating PD info
-				 * in the output window. Apr 22 String Strategy = null; // $$$$$
-				 * this String used to be used for the Output Window's updating.
-				 * Apr 18 if (pdTitForTat) { // remove this if-block later
-				 * //agentPDStrategy = 1; Strategy = "TitForTat"; } else {
-				 * //agentPDStrategy = 0; Strategy = "Probability"; }
-				 *
-				 *
-				 * String adjStrategy = null; // $$$$$ this String used to be
-				 * used for the Output Window's updating. Apr 18 if
-				 * (adjacentAgent.pdTitForTat) { // remove this if-block later
-				 * //adjacentAgent.agentPDStrategy = 1; adjStrategy =
-				 * "TitForTat"; } else { //adjacentAgent.agentPDStrategy = 0;
-				 * adjStrategy = "Probability"; }
-				 */
-
-				/*
-				 * TODO The ability for the PD game to contend for the Get the
-				 * food tiles immediately around each agents: . . . . . . . . . . . . . . . . . . .
-				 * X X X X . . . > < . . -> . X > < X . . . . . . . . X X X X . . . . . . . . . . . . .
-				 *
-				 * (including the two under the agents!)
-				 */
-
-				/* 0 = cooperate. 1 = defect */
-
-				/*
-				 * Payoff Matrix: 0 0 => 5 5 0 1 => 2 8 1 0 => 8 2 1 1 => 3 3
-				 */
-
-				@SuppressWarnings("unused")
-				final int PD_STATIC_PAYOFF = 0;
-
-				final int PD_COOPERATE = 0;
-				final int PD_DEFECT = 1;
-
-				/*
-				 * ui.writeToTextWindow("PD triggered between agents
-				 * ("+position.v[0]+","+position.v[1]+") and ("+
-				 * adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+"):\n");
-				 */
-
-				/* REWARD */
-				if (agentPDAction == PD_COOPERATE
-						&& adjacentAgent.agentPDAction == PD_COOPERATE) {
-					energy += ComplexEnvironment.PD_PAYOFF_REWARD;
-					adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_REWARD;
-
-					/*
-					 * ui.writeToTextWindow(" Agent "+getID()+"
-					 * ("+position.v[0]+","+position.v[1]+") COOPERATED and
-					 * gained "+ComplexEnvironment.PD_PAYOFF_REWARD+" energy
-					 * unit(s)\n"); ui.writeToTextWindow(" Type: "+(type()+1)+"
-					 * Strategy: "+Strategy+"\n"); ui.writeToTextWindow(" Agent
-					 * "+(adjacentAgent.getID())+"
-					 * ("+adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+")
-					 * COOPERATED and gained
-					 * "+ComplexEnvironment.PD_PAYOFF_REWARD+" energy
-					 * unit(s)\n"); ui.writeToTextWindow(" Type:
-					 * "+(adjacentAgent.type()+1)+" Strategy:
-					 * "+adjStrategy+"\n");
-					 */
-
-					/* SUCKER */
-				} else if (agentPDAction == PD_COOPERATE
-						&& adjacentAgent.agentPDAction == PD_DEFECT) {
-					energy += ComplexEnvironment.PD_PAYOFF_SUCKER;
-					adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_TEMPTATION;
-
-					/*
-					 * ui.writeToTextWindow(" Agent "+getID()+"
-					 * ("+position.v[0]+","+position.v[1]+") COOPERATED and
-					 * gained "+ComplexEnvironment.PD_PAYOFF_SUCKER+" energy
-					 * unit(s)\n"); ui.writeToTextWindow(" Type: "+(type()+1)+"
-					 * Strategy: "+Strategy+"\n"); ui.writeToTextWindow(" Agent
-					 * "+(adjacentAgent.getID())+"
-					 * ("+adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+")
-					 * DEFECTED and gained
-					 * "+ComplexEnvironment.PD_PAYOFF_TEMPTATION+" energy
-					 * unit(s)\n"); ui.writeToTextWindow(" Type:
-					 * "+(adjacentAgent.type()+1)+" Strategy:
-					 * "+adjStrategy+"\n");
-					 */
-
-					photo_memory[photo_num % memory_size] = othersID;
-
-					broadcastCheating(getPosition());
-					/* TEMPTATION */
-				} else if (agentPDAction == PD_DEFECT
-						&& adjacentAgent.agentPDAction == PD_COOPERATE) {
-					energy += ComplexEnvironment.PD_PAYOFF_TEMPTATION;
-					adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_SUCKER;
-
-					/*
-					 * ui.writeToTextWindow(" Agent "+getID()+"
-					 * ("+position.v[0]+","+position.v[1]+") DEFECTED and gained
-					 * "+ComplexEnvironment.PD_PAYOFF_TEMPTATION+" energy
-					 * unit(s)\n"); ui.writeToTextWindow(" Type: "+(type()+1)+"
-					 * Strategy: "+Strategy+"\n"); ui.writeToTextWindow(" Agent
-					 * "+(adjacentAgent.getID())+"
-					 * ("+adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+")
-					 * COOPERATED and gained
-					 * "+ComplexEnvironment.PD_PAYOFF_SUCKER+" energy
-					 * unit(s)\n"); ui.writeToTextWindow(" Type:
-					 * "+(adjacentAgent.type()+1)+" Strategy:
-					 * "+adjStrategy+"\n");
-					 */
-					/* PUNISHMENT */
-				} else if (agentPDAction == PD_DEFECT
-						&& adjacentAgent.agentPDAction == PD_DEFECT) {
-					energy += ComplexEnvironment.PD_PAYOFF_PUNISHMENT;
-					adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_PUNISHMENT; // $$$$$$
-																						// change
-																						// from
-																						// "adjacentAgent.energy
-																						// +=
-																						// 3;"
-																						// (3???)
-																						// to
-					// "adjacentAgent.energy +=
-					// ComplexEnvironment.PD_PAYOFF_PUNISHMENT;" Apr 22
-					/*
-					 * ui.writeToTextWindow(" Agent "+getID()+"
-					 * ("+position.v[0]+","+position.v[1]+") DEFECTED and gained
-					 * "+ComplexEnvironment.PD_PAYOFF_PUNISHMENT+" energy
-					 * unit(s)\n"); ui.writeToTextWindow(" Type: "+(type()+1)+"
-					 * Strategy: "+Strategy+"\n"); ui.writeToTextWindow(" Agent
-					 * "+(adjacentAgent.getID())+"
-					 * ("+adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+")
-					 * DEFECTED and gained
-					 * "+ComplexEnvironment.PD_PAYOFF_PUNISHMENT+" energy
-					 * unit(s)\n"); ui.writeToTextWindow(" Type:
-					 * "+(adjacentAgent.type()+1)+" Strategy:
-					 * "+adjStrategy+"\n");
-					 */
-
-					photo_memory[photo_num % memory_size] = othersID;
-
-					broadcastCheating(getPosition());
-				}
-
-				if (photo_num % memory_size == 0) {
-					photo_num = 0;
-				}
-
-				photo_num++;
-
-				/*
-				 * boolean tempt = false; // energy of both agents is summed up
-				 * for the transaction int Epool = energy +
-				 * adjacentAgent.energy; // _wasteGain += adjacentAgent.energy;
-				 * if(agentPDAction == 0) cooperate = true; else cooperate =
-				 * false;
-				 *
-				 * if (adjacentAgent.energy > energy && food_bias){ tempt =
-				 * true; if (agentPDAction == 0){ cooperate = true; float rnd =
-				 * cobweb.globals.random.nextFloat(); if (rnd > 0.8) cooperate =
-				 * false; }else if(agentPDAction == 1){ cooperate = false; float
-				 * rnd = cobweb.globals.random.nextFloat(); if (rnd > 0.8)
-				 * cooperate = true; } } // if agent is a cooperator if
-				 * (cooperate ){ // both cooperate
-				 * if(adjacentAgent.agentPDAction == 0){ energy =
-				 * (int)(Epool/2); if ((energy - adjacentAgent.energy) >
-				 * (int)(Epool/2)) { _wasteLoss -= ((energy -
-				 * adjacentAgent.energy) - (int)(Epool/2));
-				 * info.useOthers(agentType, ((energy - adjacentAgent.energy) -
-				 * (int)(Epool/2))); } else { _wasteGain -= (int)(Epool/2) -
-				 * (energy - adjacentAgent.energy) ; info.addOthers(agentType,
-				 * ((energy - adjacentAgent.energy) - (int)(Epool/2))); } }else{
-				 * energy -= (int)(energy/2); _wasteLoss -= (int)(energy/2);
-				 * info.useOthers(agentType, (int)(energy/2)); //remeber the
-				 * cheater photo_memory[photo_num % memory_size] = othersID; } }
-				 * else if(!cooperate){ if(adjacentAgent.agentPDAction == 0){
-				 * energy += (int)((adjacentAgent.energy)/2); _wasteGain -=
-				 * (int)(adjacentAgent.energy/2); info.addOthers(agentType,
-				 * (int)(adjacentAgent.energy/2)); }else{ energy -=
-				 * (int)(energy*(0.75)); _wasteLoss -= (int)(energy*0.75);
-				 * info.useOthers(agentType, (int)(energy*0.75));
-				 * photo_memory[photo_num % memory_size] = othersID; } }
-				 * if(photo_num % memory_size == 0){ photo_num = 0; }
-				 * photo_num++;
-				 *
-				 */
+				playPDonStep(adjacentAgent, othersID);
 			}
 			energy -= stepAgentEnergy;
 			energy -= energyPenalty(true);
@@ -872,7 +672,7 @@ public class ComplexAgent extends cobweb.Agent implements
 			info.addAgentBump();
 		} // end of two agents meet
 
-		else {
+		else { // Bumps into rock
 			energy -= stepRockEnergy;
 			energy -= energyPenalty(true);
 			_wasteLoss -= stepRockEnergy;
@@ -891,6 +691,210 @@ public class ComplexAgent extends cobweb.Agent implements
 		if (pregnant) {
 			pregPeriod--;
 		}
+	}
+
+	private void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
+		// cobweb.UIInterface ui = ComplexEnvironment.getUIPipe(); //
+		// $$$$$$ this silenced line was for writing PD info into the
+		// output window. Apr 22
+
+		// int strat = 0; // $$$$$$ silenced on Apr 22
+
+		playPD();
+		adjacentAgent.playPD();
+
+		lastPDMove = adjacentAgent.agentPDAction; // Adjacent Agent's
+													// action
+		// is assigned to last move
+		// memory of the agent
+		adjacentAgent.lastPDMove = agentPDAction; // Agent's action is
+		// assigned to the last move
+		// memory of the adjacent agent
+
+		/**
+		 * *** $$$$$$ This silenced block was used for updating PD info
+		 * in the output window. Apr 22 String Strategy = null; // $$$$$
+		 * this String used to be used for the Output Window's updating.
+		 * Apr 18 if (pdTitForTat) { // remove this if-block later
+		 * //agentPDStrategy = 1; Strategy = "TitForTat"; } else {
+		 * //agentPDStrategy = 0; Strategy = "Probability"; }
+		 *
+		 *
+		 * String adjStrategy = null; // $$$$$ this String used to be
+		 * used for the Output Window's updating. Apr 18 if
+		 * (adjacentAgent.pdTitForTat) { // remove this if-block later
+		 * //adjacentAgent.agentPDStrategy = 1; adjStrategy =
+		 * "TitForTat"; } else { //adjacentAgent.agentPDStrategy = 0;
+		 * adjStrategy = "Probability"; }
+		 */
+
+		/*
+		 * TODO The ability for the PD game to contend for the Get the
+		 * food tiles immediately around each agents: . . . . . . . . . . . . . . . . . . .
+		 * X X X X . . . > < . . -> . X > < X . . . . . . . . X X X X . . . . . . . . . . . . .
+		 *
+		 * (including the two under the agents!)
+		 */
+
+		/* 0 = cooperate. 1 = defect */
+
+		/*
+		 * Payoff Matrix: 0 0 => 5 5 0 1 => 2 8 1 0 => 8 2 1 1 => 3 3
+		 */
+
+		@SuppressWarnings("unused")
+		final int PD_STATIC_PAYOFF = 0;
+
+		final int PD_COOPERATE = 0;
+		final int PD_DEFECT = 1;
+
+		/*
+		 * ui.writeToTextWindow("PD triggered between agents
+		 * ("+position.v[0]+","+position.v[1]+") and ("+
+		 * adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+"):\n");
+		 */
+
+		/* REWARD */
+		if (agentPDAction == PD_COOPERATE
+				&& adjacentAgent.agentPDAction == PD_COOPERATE) {
+			energy += ComplexEnvironment.PD_PAYOFF_REWARD;
+			adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_REWARD;
+
+			/*
+			 * ui.writeToTextWindow(" Agent "+getID()+"
+			 * ("+position.v[0]+","+position.v[1]+") COOPERATED and
+			 * gained "+ComplexEnvironment.PD_PAYOFF_REWARD+" energy
+			 * unit(s)\n"); ui.writeToTextWindow(" Type: "+(type()+1)+"
+			 * Strategy: "+Strategy+"\n"); ui.writeToTextWindow(" Agent
+			 * "+(adjacentAgent.getID())+"
+			 * ("+adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+")
+			 * COOPERATED and gained
+			 * "+ComplexEnvironment.PD_PAYOFF_REWARD+" energy
+			 * unit(s)\n"); ui.writeToTextWindow(" Type:
+			 * "+(adjacentAgent.type()+1)+" Strategy:
+			 * "+adjStrategy+"\n");
+			 */
+
+			/* SUCKER */
+		} else if (agentPDAction == PD_COOPERATE
+				&& adjacentAgent.agentPDAction == PD_DEFECT) {
+			energy += ComplexEnvironment.PD_PAYOFF_SUCKER;
+			adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_TEMPTATION;
+
+			/*
+			 * ui.writeToTextWindow(" Agent "+getID()+"
+			 * ("+position.v[0]+","+position.v[1]+") COOPERATED and
+			 * gained "+ComplexEnvironment.PD_PAYOFF_SUCKER+" energy
+			 * unit(s)\n"); ui.writeToTextWindow(" Type: "+(type()+1)+"
+			 * Strategy: "+Strategy+"\n"); ui.writeToTextWindow(" Agent
+			 * "+(adjacentAgent.getID())+"
+			 * ("+adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+")
+			 * DEFECTED and gained
+			 * "+ComplexEnvironment.PD_PAYOFF_TEMPTATION+" energy
+			 * unit(s)\n"); ui.writeToTextWindow(" Type:
+			 * "+(adjacentAgent.type()+1)+" Strategy:
+			 * "+adjStrategy+"\n");
+			 */
+
+			photo_memory[photo_num] = othersID;
+
+			broadcastCheating(getPosition());
+			/* TEMPTATION */
+		} else if (agentPDAction == PD_DEFECT
+				&& adjacentAgent.agentPDAction == PD_COOPERATE) {
+			energy += ComplexEnvironment.PD_PAYOFF_TEMPTATION;
+			adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_SUCKER;
+
+			/*
+			 * ui.writeToTextWindow(" Agent "+getID()+"
+			 * ("+position.v[0]+","+position.v[1]+") DEFECTED and gained
+			 * "+ComplexEnvironment.PD_PAYOFF_TEMPTATION+" energy
+			 * unit(s)\n"); ui.writeToTextWindow(" Type: "+(type()+1)+"
+			 * Strategy: "+Strategy+"\n"); ui.writeToTextWindow(" Agent
+			 * "+(adjacentAgent.getID())+"
+			 * ("+adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+")
+			 * COOPERATED and gained
+			 * "+ComplexEnvironment.PD_PAYOFF_SUCKER+" energy
+			 * unit(s)\n"); ui.writeToTextWindow(" Type:
+			 * "+(adjacentAgent.type()+1)+" Strategy:
+			 * "+adjStrategy+"\n");
+			 */
+			/* PUNISHMENT */
+		} else if (agentPDAction == PD_DEFECT
+				&& adjacentAgent.agentPDAction == PD_DEFECT) {
+			energy += ComplexEnvironment.PD_PAYOFF_PUNISHMENT;
+			adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_PUNISHMENT; // $$$$$$
+																				// change
+																				// from
+																				// "adjacentAgent.energy
+																				// +=
+																				// 3;"
+																				// (3???)
+																				// to
+			// "adjacentAgent.energy +=
+			// ComplexEnvironment.PD_PAYOFF_PUNISHMENT;" Apr 22
+			/*
+			 * ui.writeToTextWindow(" Agent "+getID()+"
+			 * ("+position.v[0]+","+position.v[1]+") DEFECTED and gained
+			 * "+ComplexEnvironment.PD_PAYOFF_PUNISHMENT+" energy
+			 * unit(s)\n"); ui.writeToTextWindow(" Type: "+(type()+1)+"
+			 * Strategy: "+Strategy+"\n"); ui.writeToTextWindow(" Agent
+			 * "+(adjacentAgent.getID())+"
+			 * ("+adjacentAgent.getPosition().v[0]+","+adjacentAgent.getPosition().v[1]+")
+			 * DEFECTED and gained
+			 * "+ComplexEnvironment.PD_PAYOFF_PUNISHMENT+" energy
+			 * unit(s)\n"); ui.writeToTextWindow(" Type:
+			 * "+(adjacentAgent.type()+1)+" Strategy:
+			 * "+adjStrategy+"\n");
+			 */
+
+			photo_memory[photo_num] = othersID;
+
+			broadcastCheating(getPosition());
+		}
+
+		photo_num++;
+
+		if (photo_num >= memory_size) {
+			photo_num = 0;
+		}
+
+		/*
+		 * boolean tempt = false; // energy of both agents is summed up
+		 * for the transaction int Epool = energy +
+		 * adjacentAgent.energy; // _wasteGain += adjacentAgent.energy;
+		 * if(agentPDAction == 0) cooperate = true; else cooperate =
+		 * false;
+		 *
+		 * if (adjacentAgent.energy > energy && food_bias){ tempt =
+		 * true; if (agentPDAction == 0){ cooperate = true; float rnd =
+		 * cobweb.globals.random.nextFloat(); if (rnd > 0.8) cooperate =
+		 * false; }else if(agentPDAction == 1){ cooperate = false; float
+		 * rnd = cobweb.globals.random.nextFloat(); if (rnd > 0.8)
+		 * cooperate = true; } } // if agent is a cooperator if
+		 * (cooperate ){ // both cooperate
+		 * if(adjacentAgent.agentPDAction == 0){ energy =
+		 * (int)(Epool/2); if ((energy - adjacentAgent.energy) >
+		 * (int)(Epool/2)) { _wasteLoss -= ((energy -
+		 * adjacentAgent.energy) - (int)(Epool/2));
+		 * info.useOthers(agentType, ((energy - adjacentAgent.energy) -
+		 * (int)(Epool/2))); } else { _wasteGain -= (int)(Epool/2) -
+		 * (energy - adjacentAgent.energy) ; info.addOthers(agentType,
+		 * ((energy - adjacentAgent.energy) - (int)(Epool/2))); } }else{
+		 * energy -= (int)(energy/2); _wasteLoss -= (int)(energy/2);
+		 * info.useOthers(agentType, (int)(energy/2)); //remeber the
+		 * cheater photo_memory[photo_num % memory_size] = othersID; } }
+		 * else if(!cooperate){ if(adjacentAgent.agentPDAction == 0){
+		 * energy += (int)((adjacentAgent.energy)/2); _wasteGain -=
+		 * (int)(adjacentAgent.energy/2); info.addOthers(agentType,
+		 * (int)(adjacentAgent.energy/2)); }else{ energy -=
+		 * (int)(energy*(0.75)); _wasteLoss -= (int)(energy*0.75);
+		 * info.useOthers(agentType, (int)(energy*0.75));
+		 * photo_memory[photo_num % memory_size] = othersID; } }
+		 * if(photo_num % memory_size == 0){ photo_num = 0; }
+		 * photo_num++;
+		 *
+		 */
 	}
 
 	/**
@@ -1089,7 +1093,7 @@ public class ComplexAgent extends cobweb.Agent implements
 	boolean checkCredibility(long agentId) {
 		// check if dispatcherId is in list
 		// if (agentId != null) {
-		for (int i = 0; i < photo_num; i++) {
+		for (int i = 0; i < memory_size; i++) {
 			if (photo_memory[i] == agentId) {
 				return false;
 			}
@@ -1135,7 +1139,7 @@ public class ComplexAgent extends cobweb.Agent implements
 			e.printStackTrace();
 			System.out.println("Exception in receiveCheatingBroadcast()");
 		}
-		photo_memory[photo_num % memory_size] = cheaterId;
+		photo_memory[photo_num] = cheaterId;
 	}
 
 	void receiveBroadcast() {
