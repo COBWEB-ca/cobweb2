@@ -1309,6 +1309,8 @@ public class GUI extends JPanel implements ActionListener {
 	}
 
 	public void setDefault() {
+		numAgentTypes = 4;
+		numFoodTypes = 4;
 		Width.setText("20");
 		wrap.setSelected(false);
 		Height.setText(Width.getText()); // $$$$$$ change to make Width == Height.  Feb 20
