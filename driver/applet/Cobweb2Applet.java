@@ -41,7 +41,6 @@ public class Cobweb2Applet extends JApplet {
 	 *
 	 */
 	private static final long serialVersionUID = 3127350835002502812L;
-	String asdf;
 
 	Map<String, String> experements = new LinkedHashMap<String, String>();
 

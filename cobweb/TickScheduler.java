@@ -166,7 +166,10 @@ public class TickScheduler extends Thread implements Scheduler {
 				if (theUI.getTick() != 0 && getTime() == theUI.getTick()) {
 					pauseScheduler();
 				}
-				theUI.refresh(refreshTimeout);
+				if (frameCount >= frameSkip) {
+					theUI.refresh(refreshTimeout);
+					frameCount = 0;
+				}
 			}
 
 

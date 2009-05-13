@@ -4,8 +4,8 @@
 package driver;
 
 import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,13 +37,14 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 
 		try {
 			FileWriter fw = new FileWriter("cobweb_errors.log", true);
-			fw.write(Calendar.getInstance().toString() + newLine);
+			String date = DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
+			fw.write(date + newLine);
 			fw.write(sb.toString());
 			fw.write(newLine);
 			fw.close();
-		} catch (IOException ex1) {
+		} catch (Exception ex1) {
 			// TODO Auto-generated catch block
-			ex1.printStackTrace();
+			logger.log(Level.SEVERE, "Can't write error log", ex1);
 		}
 
 

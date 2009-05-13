@@ -1298,8 +1298,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 						"33 Willcocks Street", "Toronto, Ont M5S 3E8 CANADA",
 						"TEL: (416) 978-6285  FAX: (416) 978-3884",
 						"brad.bass@ec.gc.ca" };
-
-				CobwebApplication.this.creditDialog(theDialog, S, 300, 300); // $$$$$$  change from "this" to parentDialog.  Feb 22
+				creditDialog(theDialog, S, 300, 300);
 			}
 		});
 
