@@ -61,13 +61,13 @@ public class Cobweb2Applet extends JApplet {
 
 		setLayout(new BorderLayout());
 
-		experements.put("Baseline", "baseline 2008.xml");
-		experements.put("Boom and Bust", "boom and bust 3.xml");
+		experements.put("Baseline 2009", "baseline 2009.xml");
+		experements.put("Boom and Bust", "boom and bust 2 applet.xml");
 		experements.put("Exponential Growth", "Exponential Growth Experiment.xml");
-		experements.put("Central Place", "central place 1.xml");
+		experements.put("Central Place", "central place applet.xml");
 		experements.put("Cheaters vs Cooperators", "cheaters vs cooperators.xml");
 
-		currentexp = "Baseline";
+		currentexp = "Baseline 2009";
 
 		controls = new JPanel();
 

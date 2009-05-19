@@ -2,6 +2,8 @@
 
 <inputData>
 	<scheduler>cobweb.TickScheduler</scheduler>
+	<ControllerName>cwcore.GeneticController</ControllerName>
+	<ControllerConfig></ControllerConfig>
 	<Width>35</Width>
 	<Height>35</Height>
 	<wrap>false</wrap>
@@ -14,6 +16,8 @@
 	<dropNewFood>true</dropNewFood>
 	<randomSeed>0</randomSeed>
 	<newColorizer>true</newColorizer>
+	<keepOldWaste>false</keepOldWaste>
+	<keepOldPackets>false</keepOldPackets>
 	<numColor>4</numColor>
 	<colorSelectSize>4</colorSelectSize>
 	<reColorTimeStep>300</reColorTimeStep>
@@ -82,9 +86,22 @@
 	<breedSimMin>0.0</breedSimMin>
 	<sexualBreedChance>0.5</sexualBreedChance>
 	<asexualBreedChance>0.5</asexualBreedChance>
-	<useAging>false</useAging>
-	<ageHorizon>0</ageHorizon>
-	<ageRate>0.0</ageRate>
+	<agingMode>false</agingMode>
+	<agingLimit>0</agingLimit>
+	<agingRate>0.0</agingRate>
+	<wasteMode>false</wasteMode>
+	<wastePen>0</wastePen>
+	<wasteGain>0</wasteGain>
+	<wasteLoss>0</wasteLoss>
+	<wasteRate>0.0</wasteRate>
+	<wasteInit>0</wasteInit>
+	<pdTitForTat>false</pdTitForTat>
+	<pdCoopProb>50</pdCoopProb>
+	<broadcastMode>false</broadcastMode>
+	<broadcastEnergyBased>false</broadcastEnergyBased>
+	<broadcastFixedRange>0</broadcastFixedRange>
+	<broadcastEnergyMin>0</broadcastEnergyMin>
+	<broadcastEnergyCost>0</broadcastEnergyCost>
 <foodweb>
 	<agent1>false</agent1>
 	<agent2>false</agent2>
@@ -117,9 +134,22 @@
 	<breedSimMin>0.0</breedSimMin>
 	<sexualBreedChance>0.5</sexualBreedChance>
 	<asexualBreedChance>0.5</asexualBreedChance>
-	<useAging>false</useAging>
-	<ageHorizon>0</ageHorizon>
-	<ageRate>0.0</ageRate>
+	<agingMode>false</agingMode>
+	<agingLimit>0</agingLimit>
+	<agingRate>0.0</agingRate>
+	<wasteMode>false</wasteMode>
+	<wastePen>0</wastePen>
+	<wasteGain>0</wasteGain>
+	<wasteLoss>0</wasteLoss>
+	<wasteRate>0.0</wasteRate>
+	<wasteInit>0</wasteInit>
+	<pdTitForTat>false</pdTitForTat>
+	<pdCoopProb>50</pdCoopProb>
+	<broadcastMode>false</broadcastMode>
+	<broadcastEnergyBased>false</broadcastEnergyBased>
+	<broadcastFixedRange>0</broadcastFixedRange>
+	<broadcastEnergyMin>0</broadcastEnergyMin>
+	<broadcastEnergyCost>0</broadcastEnergyCost>
 <foodweb>
 	<agent1>false</agent1>
 	<agent2>false</agent2>
@@ -152,9 +182,22 @@
 	<breedSimMin>0.0</breedSimMin>
 	<sexualBreedChance>0.5</sexualBreedChance>
 	<asexualBreedChance>0.5</asexualBreedChance>
-	<useAging>false</useAging>
-	<ageHorizon>0</ageHorizon>
-	<ageRate>0.0</ageRate>
+	<agingMode>false</agingMode>
+	<agingLimit>0</agingLimit>
+	<agingRate>0.0</agingRate>
+	<wasteMode>false</wasteMode>
+	<wastePen>0</wastePen>
+	<wasteGain>0</wasteGain>
+	<wasteLoss>0</wasteLoss>
+	<wasteRate>0.0</wasteRate>
+	<wasteInit>0</wasteInit>
+	<pdTitForTat>false</pdTitForTat>
+	<pdCoopProb>50</pdCoopProb>
+	<broadcastMode>false</broadcastMode>
+	<broadcastEnergyBased>false</broadcastEnergyBased>
+	<broadcastFixedRange>0</broadcastFixedRange>
+	<broadcastEnergyMin>0</broadcastEnergyMin>
+	<broadcastEnergyCost>0</broadcastEnergyCost>
 <foodweb>
 	<agent1>false</agent1>
 	<agent2>false</agent2>
@@ -187,9 +230,22 @@
 	<breedSimMin>0.0</breedSimMin>
 	<sexualBreedChance>0.5</sexualBreedChance>
 	<asexualBreedChance>0.5</asexualBreedChance>
-	<useAging>false</useAging>
-	<ageHorizon>0</ageHorizon>
-	<ageRate>0.0</ageRate>
+	<agingMode>false</agingMode>
+	<agingLimit>0</agingLimit>
+	<agingRate>0.0</agingRate>
+	<wasteMode>false</wasteMode>
+	<wastePen>0</wastePen>
+	<wasteGain>0</wasteGain>
+	<wasteLoss>0</wasteLoss>
+	<wasteRate>0.0</wasteRate>
+	<wasteInit>0</wasteInit>
+	<pdTitForTat>false</pdTitForTat>
+	<pdCoopProb>50</pdCoopProb>
+	<broadcastMode>false</broadcastMode>
+	<broadcastEnergyBased>false</broadcastEnergyBased>
+	<broadcastFixedRange>0</broadcastFixedRange>
+	<broadcastEnergyMin>0</broadcastEnergyMin>
+	<broadcastEnergyCost>0</broadcastEnergyCost>
 <foodweb>
 	<agent1>false</agent1>
 	<agent2>false</agent2>
@@ -201,4 +257,27 @@
 	<food4>true</food4>
 </foodweb>
 </agent>
+<pd><temptation>0</temptation>
+<reward>0</reward>
+<punishment>0</punishment><sucker>0</sucker>
+</pd>
+<ga><agent1gene1>00011110</agent1gene1>
+<agent1gene2>00011110</agent1gene2>
+<agent1gene3>00011110</agent1gene3>
+<agent2gene1>00011110</agent2gene1>
+<agent2gene2>00011110</agent2gene2>
+<agent2gene3>00011110</agent2gene3>
+<agent3gene1>00011110</agent3gene1>
+<agent3gene2>00011110</agent3gene2>
+<agent3gene3>00011110</agent3gene3>
+<agent4gene1>00011110</agent4gene1>
+<agent4gene2>00011110</agent4gene2>
+<agent4gene3>00011110</agent4gene3>
+<linkedphenotype1>None</linkedphenotype1>
+<linkedphenotype2>None</linkedphenotype2>
+<linkedphenotype3>None</linkedphenotype3>
+<meiosismode>Colour Averaging</meiosismode>
+<trackgenestatusdistribution>false</trackgenestatusdistribution>
+<trackgenevaluedistribution>false</trackgenevaluedistribution>
+<chartupdatefrequency>1</chartupdatefrequency></ga>
 </inputData>
