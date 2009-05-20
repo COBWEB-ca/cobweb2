@@ -358,7 +358,7 @@ public class GUI extends JPanel implements ActionListener {
 		// Add the tabbed pane to this panel.
 		add(tabbedPane, BorderLayout.CENTER);
 		add(buttons, BorderLayout.SOUTH);
-		this.setPreferredSize(new Dimension(718, 479));
+		this.setPreferredSize(new Dimension(718, 513));
 	}
 
 	SettingsPanel controllerPanel;
