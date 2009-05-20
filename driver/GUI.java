@@ -358,7 +358,7 @@ public class GUI extends JPanel implements ActionListener {
 		// Add the tabbed pane to this panel.
 		add(tabbedPane, BorderLayout.CENTER);
 		add(buttons, BorderLayout.SOUTH);
-		this.setPreferredSize(new Dimension(700, 570));
+		this.setPreferredSize(new Dimension(718, 479));
 	}
 
 	SettingsPanel controllerPanel;
@@ -443,7 +443,8 @@ public class GUI extends JPanel implements ActionListener {
 
 
 	private JComponent setupEnvPanel() {
-		JComponent envPanel = new JPanel(new GridLayout(3, 2));
+		JComponent envPanel = new JPanel();
+		envPanel.setLayout(new SpringLayout());
 
 		/* Environment Settings */
 		JPanel panel11 = new JPanel();
@@ -472,6 +473,9 @@ public class GUI extends JPanel implements ActionListener {
 		PrisDilemma = new JCheckBox("");
 		memory_size = new JTextField(3);
 		flexibility = new JCheckBox("");
+
+
+
 		fieldPane = new JPanel(new GridLayout(3, 1));
 
 		fieldPane.add(new JLabel("Prisoner's Game"));
@@ -584,6 +588,9 @@ public class GUI extends JPanel implements ActionListener {
 		makeOptionsTable(fieldPane, 1);
 
 		envPanel.add(panel16);
+
+		SpringUtilities.makeCompactGrid(envPanel, 3, 2, 0, 0, 0, 0);
+
 		return envPanel;
 	}
 
@@ -648,10 +655,10 @@ public class GUI extends JPanel implements ActionListener {
 
 		String[] foodNames = new String[numAgentTypes + numFoodTypes];
 		for (int i = 0; i < numAgentTypes; i++) {
-			foodNames[i] = "Agent " + i;
+			foodNames[i] = "Agent " + (i + 1);
 		}
 		for (int i = 0; i < numFoodTypes; i++) {
-			foodNames[i + numAgentTypes] = "Food " + i;
+			foodNames[i + numAgentTypes] = "Food " + (i + 1);
 		}
 
 		foodTable = new JTable(new MyTableModel2(foodNames, foodwebData.length, foodwebData));
