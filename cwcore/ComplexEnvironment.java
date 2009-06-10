@@ -1154,7 +1154,7 @@ public class ComplexEnvironment extends Environment implements
 
 	@Override
 	public void log(java.io.Writer w) {
-		logStream = new java.io.PrintWriter(w, true);
+		logStream = new java.io.PrintWriter(w, false);
 		writeLogTitles();
 	}
 
@@ -1165,10 +1165,9 @@ public class ComplexEnvironment extends Environment implements
 
 	@Override
 	public void report(java.io.Writer w) {
-		java.io.PrintWriter pw = new java.io.PrintWriter(w, true);
+		java.io.PrintWriter pw = new java.io.PrintWriter(w, false);
 
 		printAgentInfo(pw);
-
 	}
 
 	/* Return foodCount (long) of all types of food */
@@ -1436,75 +1435,75 @@ public class ComplexEnvironment extends Environment implements
 	 */
 	@Override
 	public void writeLogEntry() {
+		if (logStream == null) {
+			return;
+		}
+
 		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
 		double[][] avg_gene_status = getAvgGeneStatus();
-		if (logStream != null) {
-			setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick.  Apr 19
-			// For this tick: print FoodCount, AgentCount, Average Agent Energy
-			// and Agent Energy for EACH AGENT TYPE
-			for (int i = 0; i < agentTypeCount; i++) {
 
-				long agentCount = countAgents(i);
-				long agentEnergy = countAgentEnergy(i);
-				/*System.out
-						.println("************* Near Agent Count *************");*/
+		setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick.  Apr 19
+		// For this tick: print FoodCount, AgentCount, Average Agent Energy
+		// and Agent Energy for EACH AGENT TYPE
+		for (int i = 0; i < agentTypeCount; i++) {
 
-				int cheaters = (numAgentsStrat(i))[1];
-				int coops = (numAgentsStrat(i))[0];
-				logStream.print(tickCount);
-				logStream.print("\t");
-				logStream.print(countFoodTiles(i));
-				logStream.print("\t");
-				logStream.print(agentCount);
-				logStream.print("\t");
-				// Format Average agentEnergy to 3 decimal places
-				if (agentCount != 0)
-					logStream.print(z
-							.format(((float) agentEnergy) / agentCount));
-				else
-				logStream.print("00.000");
-				logStream.print("\t");
-				logStream.print(agentEnergy);
-				logStream.print("\t");
-				logStream.print(cheaters);
-				logStream.print("\t");
-				logStream.print(coops);
-				logStream.print("\t");
-				for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
-					logStream.print(avg_gene_status[i][j]);
-					logStream.print("\t");
-				}
-				// logStream.flush();
-			}
-			// print the TOTAL of FoodCount, AgentCount, Average Agent Energy
-			// and Agent Energy at a certain tick
+			long agentCount = countAgents(i);
+			long agentEnergy = countAgentEnergy(i);
 			/*System.out
-					.println("************* Before Agent Count Call *************");*/
-			long agentCountAll = countAgents();
-			/*System.out
-					.println("************* After Agent Count Call *************");*/
-			long agentEnergyAll = countAgentEnergy();
-			int total_cheaters = (numAgentsStrat())[1];
-			int total_coops = (numAgentsStrat())[0];
+					.println("************* Near Agent Count *************");*/
+
+			int cheaters = (numAgentsStrat(i))[1];
+			int coops = (numAgentsStrat(i))[0];
 			logStream.print(tickCount);
-			logStream.print("\t");
-			logStream.print(countFoodTiles());
-			logStream.print("\t");
-			logStream.print(agentCountAll);
-			logStream.print("\t");
-			logStream.print(z.format(((float) agentEnergyAll) / agentCountAll));
-			logStream.print("\t");
-			logStream.print(agentEnergyAll);
-			logStream.print("\t");
-			logStream.print(total_cheaters);
-			logStream.print("\t");
-			logStream.print(total_coops);
-			// logStream.print("\t");
-			logStream.print("\t\n");
+			logStream.print('\t');
+			logStream.print(countFoodTiles(i));
+			logStream.print('\t');
+			logStream.print(agentCount);
+			logStream.print('\t');
+			// Format Average agentEnergy to 3 decimal places
+			if (agentCount != 0)
+				logStream.print(z
+						.format(((float) agentEnergy) / agentCount));
+			else
+			logStream.print("00.000");
+			logStream.print('\t');
+			logStream.print(agentEnergy);
+			logStream.print('\t');
+			logStream.print(cheaters);
+			logStream.print('\t');
+			logStream.print(coops);
+			logStream.print('\t');
+			for (int j = 0; j < GeneticCode.NUM_GENES; j++) {
+				logStream.print(avg_gene_status[i][j]);
+				logStream.print('\t');
+			}
 			// logStream.flush();
-			// logStream.println();
-			logStream.flush();
 		}
+		// print the TOTAL of FoodCount, AgentCount, Average Agent Energy
+		// and Agent Energy at a certain tick
+		/*System.out
+				.println("************* Before Agent Count Call *************");*/
+		long agentCountAll = countAgents();
+		/*System.out
+				.println("************* After Agent Count Call *************");*/
+		long agentEnergyAll = countAgentEnergy();
+		int total_cheaters = (numAgentsStrat())[1];
+		int total_coops = (numAgentsStrat())[0];
+		logStream.print(tickCount);
+		logStream.print('\t');
+		logStream.print(countFoodTiles());
+		logStream.print('\t');
+		logStream.print(agentCountAll);
+		logStream.print('\t');
+		logStream.print(z.format(((float) agentEnergyAll) / agentCountAll));
+		logStream.print('\t');
+		logStream.print(agentEnergyAll);
+		logStream.print('\t');
+		logStream.print(total_cheaters);
+		logStream.print('\t');
+		logStream.print(total_coops);
+		logStream.println('\t');
+		//logStream.flush();
 	}
 
 	/* Return the number of agents (int) for a certain agentType (int) */

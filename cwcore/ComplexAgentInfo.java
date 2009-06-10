@@ -205,7 +205,7 @@ public class ComplexAgentInfo {
 	public static void dumpGroupData(long tick, java.io.Writer www) {
 		if (!groupDataStreamInit) {
 			try {
-				group_out = new java.io.PrintWriter(www, true);
+				group_out = new java.io.PrintWriter(www, false);
 				groupDataStreamInit = true;
 			} catch (Exception e) {
 			}

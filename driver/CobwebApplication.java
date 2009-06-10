@@ -29,10 +29,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -1729,17 +1730,27 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	// $$$$$$ A file copy method.  Feb 11
 	public static void copyFile(String src, String dest)  throws IOException {
-		FileReader in = new FileReader(src);
-		FileWriter out = new FileWriter(dest);
-		int c;
+		File sourceFile = new File(src);
+		File destFile = new File(dest);
 
-		while ((c = in.read()) != -1) {
-			out.write(c);
+		if(!destFile.exists())
+			destFile.createNewFile();
+
+		FileChannel source = null;
+		FileChannel destination = null;
+		try {
+			source = new FileInputStream(sourceFile).getChannel();
+			destination = new FileOutputStream(destFile).getChannel();
+			destination.transferFrom(source, 0, source.size());
 		}
-
-		in.close();
-		out.close();
+		finally {
+			if(source != null)
+				source.close();
+			if(destination != null)
+				destination.close();
+		}
 	}
+
 	public boolean isClipped() {
 		return clipped;
 	}

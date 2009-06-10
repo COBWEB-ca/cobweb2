@@ -35,18 +35,23 @@ public class SimpleEnvironment extends cobweb.Environment implements
 		}
 	}
 
+	@Override
 	public void selectStones(int x, int y, cobweb.UIInterface ui) {
 	}
 
+	@Override
 	public void selectFood(int x, int y, int type, cobweb.UIInterface theUI) {
 	}
 
+	@Override
 	public void selectAgent(int x, int y, int type, cobweb.UIInterface theUI) {
 	}
 
+	@Override
 	public void remove(int mode, cobweb.UIInterface ui) {
 	}
 
+	@Override
 	public void save(java.io.Writer w) {
 		java.io.PrintWriter pw = new java.io.PrintWriter(w);
 		pw.println(this.getClass().getName());
@@ -54,13 +59,16 @@ public class SimpleEnvironment extends cobweb.Environment implements
 		pw.flush();
 	}
 
+	@Override
 	public void log(java.io.Writer w) {
-		logStream = new java.io.PrintWriter(w, true);
+		logStream = new java.io.PrintWriter(w, false);
 	}
 
+	@Override
 	public void report(java.io.Writer w) {
 	}
 
+	@Override
 	public void writeLogEntry() {
 		if (logStream != null) {
 			logStream.println("A tick has passed.");
@@ -74,6 +82,7 @@ public class SimpleEnvironment extends cobweb.Environment implements
 	public void writeTrackAgentEntry() {
 	}
 
+	@Override
 	public void load(cobweb.Scheduler s, Parser p/* java.io.Reader r */)
 			throws java.io.IOException {
 
@@ -121,10 +130,12 @@ public class SimpleEnvironment extends cobweb.Environment implements
 
 	}
 
+	@Override
 	public int getAxisCount() {
 		return 2;
 	}
 
+	@Override
 	public int getSize(int axis) {
 		switch (axis) {
 		case AXIS_X:
@@ -136,6 +147,7 @@ public class SimpleEnvironment extends cobweb.Environment implements
 		}
 	}
 
+	@Override
 	public boolean getAxisWrap(int axis) {
 		return false;
 	}
@@ -144,6 +156,7 @@ public class SimpleEnvironment extends cobweb.Environment implements
 	public void tickNotification(long tick) {
 	}
 
+	@Override
 	public void fillTileColors(java.awt.Color[] tileColors) {
 		Location currentPos = getLocation(0, 0);
 		int tileIndex = 0;
@@ -158,6 +171,7 @@ public class SimpleEnvironment extends cobweb.Environment implements
 	}
 
 	// Hidden implementation stuff...
+	@Override
 	protected boolean testFlag(cobweb.Environment.Location l, int flag) {
 		switch (flag) {
 		case FLAG_STONE:
@@ -167,6 +181,7 @@ public class SimpleEnvironment extends cobweb.Environment implements
 		}
 	}
 
+	@Override
 	protected void setFlag(cobweb.Environment.Location l, int flag,
 			boolean state) {
 		switch (flag) {
@@ -180,15 +195,18 @@ public class SimpleEnvironment extends cobweb.Environment implements
 		}
 	}
 
+	@Override
 	public int getTypeCount() {
 		return 0;
 	}
 
 	// Ignored; this model has no fields
+	@Override
 	protected int getField(cobweb.Environment.Location l, int field) {
 		return 0;
 	}
 
+	@Override
 	protected void setField(cobweb.Environment.Location l, int field, int value) {
 	}
 
@@ -211,9 +229,11 @@ public class SimpleEnvironment extends cobweb.Environment implements
 
 	private java.io.PrintWriter logStream;
 
+	@Override
 	public void setclick(int i) {
 	}
 
+	@Override
 	public void observe(int x, int y, cobweb.UIInterface ui) {
 	}
 
