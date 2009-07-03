@@ -251,4 +251,7 @@ public interface UIInterface {
 	public void AddTickEventListener(TickEventListener listener);
 
 	public void RemoveTickEventListener(TickEventListener listener);
+
+	public void setRunnable(boolean ready);
+	public boolean isRunnable();
 }

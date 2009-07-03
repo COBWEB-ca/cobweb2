@@ -27,8 +27,7 @@ public class PauseButton extends JButton implements java.awt.event.ActionListene
 	}
 
 	public void actionPerformed(java.awt.event.ActionEvent e) {
-		// $$$$$$ Modified on Mar 14
-		if (GUI.frame == null || GUI.frame.isVisible() == false) {
+		if (uiPipe.isRunnable()) {
 			if (uiPipe.isPaused()) {
 				uiPipe.resume();
 			} else {
@@ -36,13 +35,6 @@ public class PauseButton extends JButton implements java.awt.event.ActionListene
 			}
 			updateLabel();
 		}
-		/*  $$$$$ Original code
-		if (uiPipe.isPaused())
-			uiPipe.resume();
-		else
-			uiPipe.pause();
-		updateLabel();
-		 */
 	}
 
 	public static final long serialVersionUID = 0xE55CC6E3B8B5824DL;

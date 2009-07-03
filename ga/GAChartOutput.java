@@ -20,7 +20,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 import cobweb.ColorLookup;
 import cobweb.TypeColorEnumeration;
 import cwcore.ComplexEnvironment;
-import driver.GUI;
+import driver.config.GUI;
 
 
 public class GAChartOutput implements ActionListener {

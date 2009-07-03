@@ -553,13 +553,9 @@ public class ComplexAgent extends cobweb.Agent implements
 					_wasteLoss -= initEnergy;
 					info.useOthers(agentType, initEnergy);
 
-				} else if (!pregnant
-						&& asexFlag
-						&& energy >= breedEnergy
-						&& asexualBreedChance != 0.0
-						&& cobweb.globals.random.nextFloat() < asexualBreedChance) {
-					pregPeriod = pregnancyPeriod;
-					pregnant = true;
+				} else {
+					if (!pregnant)
+						tryAsexBreed();
 				}
 			}
 
@@ -1180,19 +1176,10 @@ public class ComplexAgent extends cobweb.Agent implements
 		energy -= energyPenalty(true);
 		_wasteLoss -= turnRightEnergy;
 		info.useTurning(agentType, turnRightEnergy);
-		if (energy <= 0)
-			die();
-		if (!pregnant && asexFlag && energy >= breedEnergy
-				&& asexualBreedChance != 0.0
-				&& cobweb.globals.random.nextFloat() < asexualBreedChance) {
-			pregPeriod = pregnancyPeriod;
-			pregnant = true;
-		}
-		if (pregnant) {
-			pregPeriod--;
-		}
 		info.addTurn();
+		afterTurnAction();
 	}
+
 
 	void turnLeft() {
 		cobweb.Environment.Direction newFacing = new cobweb.Environment.Direction(
@@ -1203,20 +1190,28 @@ public class ComplexAgent extends cobweb.Agent implements
 		energy -= turnLeftEnergy;
 		energy -= energyPenalty(true);
 		_wasteLoss -= turnLeftEnergy;
-		;
 		info.useTurning(agentType, turnLeftEnergy);
+		info.addTurn();
+		afterTurnAction();
+	}
+
+	private void afterTurnAction() {
 		if (energy <= 0)
 			die();
-		if (!pregnant && asexFlag && energy >= breedEnergy
+		if (!pregnant)
+			tryAsexBreed();
+		if (pregnant) {
+			pregPeriod--;
+		}
+	}
+
+	private void tryAsexBreed() {
+		if (asexFlag && energy >= breedEnergy
 				&& asexualBreedChance != 0.0
 				&& cobweb.globals.random.nextFloat() < asexualBreedChance) {
 			pregPeriod = pregnancyPeriod;
 			pregnant = true;
 		}
-		if (pregnant) {
-			pregPeriod--;
-		}
-		info.addTurn();
 	}
 
 	// Provide a random facing for the agent.

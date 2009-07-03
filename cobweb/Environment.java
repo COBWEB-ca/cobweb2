@@ -347,13 +347,6 @@ public abstract class Environment {
 		}
 	}
 
-	/** Constructs an Environment associated with a Scheduler. */
-	protected Environment(Scheduler s) {
-		/*
-		 * this is gone for a reason!!! if (s != null) { theScheduler = s;
-		 * s.addSchedulerClient(this); }
-		 */
-	}
 
 	/** @return the dimensionality of this Environment. */
 	public abstract int getAxisCount();

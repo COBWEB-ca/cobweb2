@@ -87,8 +87,18 @@ public abstract class Agent {
 											// controller
 		position.setAgent(this);
 		position.getEnvironment().getScheduler().addSchedulerClient(this);
-		id =  globals.random.nextLong();
+
+		id = makeID();
 	}
+
+	private static int makeID() {
+		if (nextID == Integer.MAX_VALUE) {
+			nextID = 0;
+		}
+		return nextID++;
+	}
+
+	private static int nextID = 0;
 
 	protected Environment.Location position;
 

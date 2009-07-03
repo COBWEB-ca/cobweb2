@@ -37,7 +37,7 @@ public class SimpleAgent extends cobweb.Agent implements
 		public void controlAgent(cobweb.Agent baseAgent) {
 
 			SimpleAgent theAgent = (SimpleAgent) baseAgent;
-			float rnd = cobweb.globals.random.nextFloat();
+			float rnd = cobweb.globals.behaviorRandom.nextFloat();
 			if (rnd > 0.85)
 				theAgent.turnLeft();
 			else if (rnd > 0.7)

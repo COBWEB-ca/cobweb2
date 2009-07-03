@@ -28,12 +28,12 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 	@Override
 	public void paintComponent(java.awt.Graphics g) {
 		super.paintComponent(g);
-
 		g.translate(borderWidth, borderHeight);
 		theUI.draw(g, tileWidth, tileHeight);
+		g.translate(-borderWidth, -borderHeight);
 	}
 
-	private static final int MY_BORDER = 8;
+	private static final int PADDING = 4;
 
 	void updateScale() {
 		java.awt.Dimension size = getSize();
@@ -42,8 +42,8 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 		}
 
 		Insets ins = getInsets();
-		size.width -= ins.left + ins.right + MY_BORDER;
-		size.height -= ins.top + ins.bottom + MY_BORDER;
+		size.width -= ins.left + ins.right + PADDING;
+		size.height -= ins.top + ins.bottom + PADDING;
 
 		mapWidth = theUI.getWidth();
 		mapHeight = theUI.getHeight();
@@ -53,12 +53,12 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 		if (mapHeight != 0) {
 			tileHeight = size.height / mapHeight;
 		}
-		borderWidth = (size.width - tileWidth * theUI.getWidth() + MY_BORDER) / 2;
-		borderHeight = (size.height - tileHeight * theUI.getHeight() + MY_BORDER) / 2;
+		tileWidth = Math.min(tileWidth, tileHeight);
+		tileHeight = tileWidth;
+		borderWidth = (size.width - tileWidth * theUI.getWidth() + PADDING) / 2;
+		borderHeight = (size.height - tileHeight * theUI.getHeight() + PADDING) / 2;
 
 		this.repaint();
-//		tileWidth = Math.min(tileWidth, tileHeight);
-//		tileHeight = tileWidth;
 	}
 
 	/*

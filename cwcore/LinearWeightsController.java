@@ -88,9 +88,9 @@ public class LinearWeightsController implements cobweb.Controller {
 	private void mutate(float mutation) {
 		mutationCounter += INPUT_COUNT * OUTPUT_COUNT * mutation;
 		while (mutationCounter > 1) {
-			int i = globals.random.nextInt(weights.length);
-			int j = globals.random.nextInt(weights[i].length);
-			weights[i][j] += globals.random.nextGaussian() * 0.5;
+			int i = globals.behaviorRandom.nextInt(weights.length);
+			int j = globals.behaviorRandom.nextInt(weights[i].length);
+			weights[i][j] += globals.behaviorRandom.nextGaussian() * 0.5;
 			mutationCounter -= 1;
 		}
 	}
@@ -104,9 +104,15 @@ public class LinearWeightsController implements cobweb.Controller {
 		LinearWeightsController pa1 = (LinearWeightsController) p1;
 		LinearWeightsController pa2 = (LinearWeightsController) p2;
 
-		for (int i = 0; i < weights.length; i++)
-			for (int j = 0; j < weights[i].length; j++)
-				weights[i][j] = (globals.random.nextBoolean() ? pa1.weights[i][j] : pa2.weights[i][j]);
+		for (int i = 0; i < weights.length; i++) {
+			for (int j = 0; j < weights[i].length; j++) {
+				if (globals.behaviorRandom.nextBoolean()) {
+					weights[i][j] = pa1.weights[i][j];
+				} else {
+					weights[i][j] = pa2.weights[i][j];
+				}
+			}
+		}
 
 		mutate(mutation);
 	}
@@ -142,7 +148,7 @@ public class LinearWeightsController implements cobweb.Controller {
 				, (double)agent.getMemoryBuffer() / (1 << memSize - 1)
 				, (double)agent.getCommInbox() / (1 << commSize - 1)
 				, Math.max(agent.getAge() / 100.0, 2)
-				, globals.random.nextGaussian()
+				, globals.behaviorRandom.nextGaussian()
 		};
 
 
@@ -154,7 +160,7 @@ public class LinearWeightsController implements cobweb.Controller {
 		double asexflag = 0.0;
 		for (int eq = 0; eq < OUTPUT_COUNT; eq++) {
 			double res = 0.0;
-			variables[9] = globals.random.nextGaussian();
+			variables[9] = globals.behaviorRandom.nextGaussian();
 			for (int v = 0; v < INPUT_COUNT; v++) {
 				res += weights[v][eq] * variables[v];
 			}

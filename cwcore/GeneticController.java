@@ -110,6 +110,7 @@ public class GeneticController implements cobweb.Controller {
 			case 3:
 				theAgent.step();
 		}
+
 	}
 
 	public GeneticController splice(GeneticController other) {

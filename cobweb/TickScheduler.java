@@ -175,7 +175,7 @@ public class TickScheduler extends Thread implements Scheduler {
 
 
 			// start doing something
-			if (!bPaused && slowdown > 0) {
+			if (!bPaused && slowdown != 0) {
 				myWait(slowdown);
 			}
 		}

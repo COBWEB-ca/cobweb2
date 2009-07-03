@@ -1,6 +1,6 @@
 package ga;
 
-/** The class that handles the core functionality of the 
+/** The class that handles the core functionality of the
  * genetic algorithm. Aside from storing the actual
  * genetic sequence, it harbours a variety of operations
  * that analyses and changes the genetic sequence in
@@ -46,7 +46,7 @@ public class GeneticCode {
 
 	/** Number of genes in genome.  */
 	public static final int NUM_GENES = 3;
-	
+
 	/**
 	 * The genetic code of an agent represented by a bit String of 0's and 1's
 	 * with length specified by NUM_BITS (Default is 24).
@@ -70,10 +70,10 @@ public class GeneticCode {
 	 *                           fragment of each parent.
 	 * "Gene Swapping" -> Two genes are taken from one parent
 	 *                    and one gene is taken from the
-	 *                    other parent.                    
+	 *                    other parent.
 	 */
 	public static String meiosis_mode = "Colour Averaging";
-	
+
 	/* The numerical representation of meiosis_mode variable.
 	 * 0 = Colour Averaging (Default)
 	 * 1 = Random Recombination
@@ -82,13 +82,13 @@ public class GeneticCode {
 	public static int meiosis_mode_index = 0;
 	// $$$$$$ add constant DEFAULT_MEIOSIS_MODE_INDEX.  Jan 31
 	public static final int DEFAULT_MEIOSIS_MODE_INDEX = 0;
-	
+
 	/**
 	 * Constructor method of the GeneticCode object. Takes in a string of binary
 	 * digits of length equivalent to NUM_BITS and stores it in the instance
 	 * global variable "genes". Throws GeneticCodeException if the input's
 	 * length is not equivalent to NUM_BITS.
-	 * 
+	 *
 	 * @param bits
 	 *            The bit string to be used as the genetic sequence.
 	 * @throws GeneticCodeException
@@ -109,7 +109,7 @@ public class GeneticCode {
 	 * "BITS_PER_COLOUR" of bits starting at bit number "STARTING_BIT_RED" in
 	 * "genes" will represent the red colour value. Likewise for green and blue.
 	 * This method is privately called exclusively by the constructor.
-	 * 
+	 *
 	 * @throws GeneticCodeException
 	 */
 	private void obtainGeneticColour() throws GeneticCodeException {
@@ -129,7 +129,7 @@ public class GeneticCode {
 	 * Converts a bit string into an decimal integer value. The bit string can
 	 * be of length 0 to 9. GeneticCodeException is thrown if "bit" exceeds
 	 * maximum length or is not a binary string.
-	 * 
+	 *
 	 * @param bit
 	 *            A string of binary number to be converted into a decimal
 	 *            integer
@@ -164,7 +164,7 @@ public class GeneticCode {
 	 * Converts a decimal integer "value" to a binary string. The bit string can
 	 * be of length 0 to 9. GeneticCodeException is thrown if "length" > 9 or if
 	 * integer is not representable by a bit string of specified length.
-	 * 
+	 *
 	 * @param value
 	 *            A decimal integer.
 	 * @param length
@@ -195,7 +195,7 @@ public class GeneticCode {
 
 	/**
 	 * Returns the rgb colour associated to global instance variable "genes".
-	 * 
+	 *
 	 * @return An int array that stores the rgb colour.
 	 */
 	public int[] getGeneticColour() {
@@ -204,7 +204,7 @@ public class GeneticCode {
 
 	/**
 	 * Returns the bit string that stores the genetic code.
-	 * 
+	 *
 	 * @return A bit string that stores the genetic code.
 	 */
 	public String getGeneticInfo() {
@@ -217,9 +217,9 @@ public class GeneticCode {
 	 * the number of identical digits they have and does not take into account
 	 * of frame-shifts. Throws an exception if inputs are not identical in
 	 * length or are inappropriate.
-	 * 
+	 *
 	 * This operation does not check for non-binary numeric strings.
-	 * 
+	 *
 	 * @param genes1
 	 *            An input bit string.
 	 * @param genes2
@@ -273,13 +273,13 @@ public class GeneticCode {
 		}
 	return new_genes;
 	}
-		
-	
+
+
 	/**
 	 * Creates a new bit string based on two parent bit strings, "genes1" and
 	 * "genes2". The new string is the binary representation of the parents'
 	 * average decimal rgb values (Preliminary decision).
-	 * 
+	 *
 	 * @param genes1
 	 *            A parent of the new bit string.
 	 * @param genes2
@@ -314,12 +314,12 @@ public class GeneticCode {
 		}
 		return new_genes;
 	}
-	
+
 	/**
 	 * Creates a new bit string based on two parent bit strings, "genes1" and
 	 * "genes2". The new string is the combination of one fragment
-	 * from each parent (total length is still 24). 
-	 * 
+	 * from each parent (total length is still 24).
+	 *
 	 * @param genes1
 	 *            A parent of the new bit string.
 	 * @param genes2
@@ -336,8 +336,8 @@ public class GeneticCode {
 			 * after that are from second parent.
 			 */
 			int position = cobweb.globals.random.nextInt(NUM_BITS);
-			new_genes = genes1.substring(0,position) 
-				+ genes2.substring(position);			
+			new_genes = genes1.substring(0,position)
+				+ genes2.substring(position);
 		} catch (StringIndexOutOfBoundsException e) { // Throw exception if
 														// inputs are not of
 														// same length
@@ -350,13 +350,13 @@ public class GeneticCode {
 		}
 		return new_genes;
 	}
-	
+
 	/**
 	 * Creates a new bit string based on two parent bit strings, "genes1" and
 	 * "genes2". Each gene encoded in the new string will be randomly
 	 * taken from one of the parents. A minimum of one gene must be
-	 * inherited from each parent.   
-	 * 
+	 * inherited from each parent.
+	 *
 	 * @param genes1
 	 *            A parent of the new bit string.
 	 * @param genes2
@@ -369,10 +369,10 @@ public class GeneticCode {
 		String new_genes = "";
 		try {
 			int PARENT1 = 0;
-			
+
 			int parent1_contribution = 0;
 			int parent2_contribution = 0;
-			
+
 			/* Randomly chooses a contributing parent for each
 			 * gene and keeps track of how many genes are
 			 * derived from each parent.
@@ -386,10 +386,10 @@ public class GeneticCode {
 					parent2_contribution++;
 				}
 			}
-			
+
 			/* If one parent is not genetically contributing
 			 * to the child's genetic code, sub in this
-			 * parent's (blue-linked) third gene. 
+			 * parent's (blue-linked) third gene.
 			 */
 			if (parent1_contribution > 2) {
 				new_genes = new_genes.substring(0, STARTING_BIT_BLUE)
@@ -413,7 +413,7 @@ public class GeneticCode {
 
 	/**
 	 * Mutates a bit string "genes" at a random bit and returns it.
-	 * 
+	 *
 	 * @param seq
 	 *            The bit string to be mutated.
 	 * @param position

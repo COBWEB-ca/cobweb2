@@ -34,6 +34,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -57,6 +59,7 @@ import javax.swing.WindowConstants;
 import cobweb.LocalUIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
 import cobweb.UIInterface.UIClient;
+import driver.config.GUI;
 
 public class CobwebApplication extends JFrame implements UIClient {
 
@@ -64,7 +67,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	static CobwebApplication CA;
 	// $$$$$$ Add a greeting string for the textWindow.  Mar 25
-	static final String GREETINGS = "Welcome to COBWEB 2\n"
+	public static final String GREETINGS =
+		  "Welcome to COBWEB 2\n"
 		+ "====================\n"
 		+ "This text area is for information output only.\n"
 		+ "Send us any errors/suggestions please!\n\n";
@@ -160,15 +164,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private boolean clipped = false;
 
+	Logger myLogger = Logger.getLogger("COBWEB2");
+
 	// constructor
 	CobwebApplication(String[] param) {
 		super("Cobweb Application");
 
 		/*** $$$$$$ For cancelling the output info text window, remove some codes in the field to the below block.  Apr 22*/
-		if (cobweb.globals.usingTextWindow == true) {
-			textArea = new JTextArea(GREETINGS, 40, 48);
-			textWindow = new Window(this);
-		}
+		myLogger.info(GREETINGS);
 
 		addWindowStateListener(new WindowStateListener() {
 
@@ -490,6 +493,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			pauseButton.repaint();
 			stepButton.repaint();
 		}
+
 	}
 
 	public void openMultFiles(Parser p[], int time[], int numfiles) {
@@ -644,11 +648,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 			// $$$$$ The following line used to be the original code.  Feb 22
 			copyFile(getCurrentFile(), savingFile); // $$$$$$ modified on Mar 14
 			}
-		} catch (Throwable e) {
+		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this,  // $$$$$$ added on Apr 22
-					"Save failed: " + e.getMessage(),
+					"Save failed: " + ex.getMessage(),
 					"Warning", JOptionPane.WARNING_MESSAGE);
-			if (cobweb.globals.usingTextWindow == true) {textArea.append("Save failed:" + e.getMessage());} 	/*** $$$$$$ Cancel textWindow  Apr 22*/
+			if (cobweb.globals.usingTextWindow == true) {textArea.append("Save failed:" + ex.getMessage());} 	/*** $$$$$$ Cancel textWindow  Apr 22*/
 		}
 	}
 
@@ -656,11 +660,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if (uiPipe != null) {
 			try {
 				uiPipe.log(filePath);
-			} catch (Throwable e) {
+			} catch (Exception ex) {
+				myLogger.log(Level.WARNING, "Cannot save log file", ex);
 				JOptionPane.showMessageDialog(this,  // $$$$$$ added on Apr 22
-						"Log failed: " + e.getMessage(),
+						"Log failed: " + ex.getMessage(),
 						"Warning", JOptionPane.WARNING_MESSAGE);
-				if (cobweb.globals.usingTextWindow == true) {textArea.append("Log failed:" + e.getMessage());} 	/*** $$$$$$ Cancel textWindow  Apr 22*/
+
 			}
 		}
 	}
@@ -669,11 +674,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if (uiPipe != null) {
 			try {
 				uiPipe.report(filePath);
-			} catch (Throwable e) {
+			} catch (Exception ex) {
+				myLogger.log(Level.WARNING, "Cannot save report file", ex);
 				JOptionPane.showMessageDialog(this,  // $$$$$$ added on Apr 22
-						"Report failed: " + e.getMessage(),
+						"Report failed: " + ex.getMessage(),
 						"Warning", JOptionPane.WARNING_MESSAGE);
-				if (cobweb.globals.usingTextWindow == true) {textArea.append("Report failed:" + e.getMessage());} 	/*** $$$$$$ Cancel textWindow  Apr 22*/
+
 			}
 		}
 	}
@@ -978,7 +984,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			// $$$$$$ Copy default_data_(reserved).xml to the temporary file.  Feb 11
 			try {
 				copyFile(defaultData, tempDefaultData);
-			} catch (Throwable te) {
+			} catch (Exception ex) {
 				isTheFirstFashion = false;
 			}
 		}
@@ -1043,15 +1049,15 @@ public class CobwebApplication extends JFrame implements UIClient {
 					try {
 						copyFile(chosenFile, defaultData);
 						//df.setReadOnly(); // $$$$$$ disallow write again
-					} catch (Throwable te) {
+					} catch (Exception ex) {
 						JOptionPane.showMessageDialog(setDialog,
 								"Fail to set default data!\n" +
-								"\nPossible cause(s): " + te.getMessage(),
+								"\nPossible cause(s): " + ex.getMessage(),
 								"Warning", JOptionPane.WARNING_MESSAGE);
 
 						/*** $$$$$$ Cancel textWindow  Apr 22*/
 						if (cobweb.globals.usingTextWindow == true) {
-							textArea.append("Set default data failed: " + te.getMessage());
+							textArea.append("Set default data failed: " + ex.getMessage());
 						}
 
 						//df.delete(); // $$$$$ do not need to keep the file default_data_(reserved).xml any more
@@ -1123,12 +1129,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if (getCurrentFile().equals(CURRENT_DATA_FILE_NAME + TEMPORARY_FILE_SUFFIX)) {
 			try {
 				copyFile(getCurrentFile(), midFile);
-			} catch (Throwable te) {
+			} catch (Exception ex) {
 				// $$$$$$ added on Feb 21
 				JOptionPane.showMessageDialog(this,  // $$$$$$ modified from "this".  Feb 29
-						"Modify this file failed: " + te.getMessage(),
+						"Modify this file failed: " + ex.getMessage(),
 						"Warning", JOptionPane.WARNING_MESSAGE);
-				if (cobweb.globals.usingTextWindow == true) {textArea.append("Modify this file failed: " + te.getMessage());} /*** $$$$$$ Cancel textWindow  Apr 22*/
+				if (cobweb.globals.usingTextWindow == true) {textArea.append("Modify this file failed: " + ex.getMessage());} /*** $$$$$$ Cancel textWindow  Apr 22*/
 			}
 			setCurrentFile(midFile);
 		}
@@ -1167,12 +1173,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if (midFile.equals(currentData) == false) { // $$$$$ if not accessed by choosing "Modify Current Data" menu
 			try {
 				copyFile(midFile, currentData);
-			} catch (Throwable te) {
+			} catch (Exception ex) {
+				myLogger.log(Level.CONFIG, "Cannot openCurrentData()", ex);
 				// $$$$$$ added on Feb 21
 				JOptionPane.showMessageDialog(this,  // $$$$$$ modified from "this".  Feb 29
-						"Modify current data failed: " + te.getMessage(),
+						"Modify current data failed: " + ex.getMessage(),
 						"Warning", JOptionPane.WARNING_MESSAGE);
-				if (cobweb.globals.usingTextWindow == true) {textArea.append("Modify current data failed: " + te.getMessage());} /*** $$$$$$ Cancel textWindow  Apr 22*/
 			}
 		}
 		GUI.createAndShowGUI(CA, currentData);

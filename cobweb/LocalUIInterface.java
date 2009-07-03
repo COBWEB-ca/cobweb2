@@ -4,7 +4,6 @@ import ga.GATracker;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -363,11 +362,12 @@ public class LocalUIInterface implements UIInterface,
 			for (int y = 0; y < height; ++y) {
 				for (int x = 0; x < width; ++x) {
 					g.setColor(tileColors[tileIndex++]);
-					g.fillRect(x * tileWidth + 1, y * tileHeight + 1, tileWidth - 1,
-							tileHeight - 1);
+					g.fillRect(
+							x * tileWidth + 1, y * tileHeight + 1,
+							tileWidth - 1, tileHeight - 1);
 				}
 			}
-			g.setColor(java.awt.Color.black);
+			g.setColor(COLOR_GRIDLINES);
 			for (int y = 0; y <= height; y++) {
 				g.drawLine(0, y * tileHeight, tileWidth * width, y * tileHeight);
 			}
@@ -384,6 +384,8 @@ public class LocalUIInterface implements UIInterface,
 			}
 		}
 	}
+
+	private static final Color COLOR_GRIDLINES = Color.lightGray;
 
 	private static class PathDrawInfo {
 
@@ -457,7 +459,7 @@ public class LocalUIInterface implements UIInterface,
 	 */
 	private static class AgentDrawInfo {
 		/** Solid color of the agent. */
-		java.awt.Color color;
+		java.awt.Color agentColor;
 
 		java.awt.Color type;
 
@@ -475,25 +477,22 @@ public class LocalUIInterface implements UIInterface,
 		/** Construct an AgentDrawInfo, linked to nxt, with specified properties. */
 		AgentDrawInfo(java.awt.Color c, java.awt.Color t,
 				java.awt.Color strat, java.awt.Point p, java.awt.Point f) {
-			color = c;
+			agentColor = c;
 			type = t;
 			action = strat;
 			position = p;
 			facing = f;
 		}
 
-		void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
-			g.setColor(color);
+		void draw(Graphics g, int tileWidth, int tileHeight) {
+			g.setColor(agentColor);
 			int topLeftX = position.x * tileWidth;
 			int topLeftY = position.y * tileHeight;
 
-			if (facing.x == 0 && facing.y == 0) {
-				// No facing; draw an oval
-				g.fillOval(topLeftX, topLeftY, tileWidth, tileHeight);
-			} else {
+			if (facing.x != 0 || facing.y != 0) {
 				int[] xPts = null;
 				int[] yPts = null;
-				int deltaX = tileWidth / 2;
+				int deltaX = tileWidth  / 2;
 				int deltaY = tileHeight / 2;
 				int centerX = topLeftX + deltaX;
 				int centerY = topLeftY + deltaY;
@@ -516,10 +515,15 @@ public class LocalUIInterface implements UIInterface,
 				}
 				g.fillPolygon(xPts, yPts, 3);
 				g.setColor(type);
-				g.fillOval(topLeftX + tileWidth / 3 + 1, topLeftY + tileHeight
-						/ 3 + 1, tileWidth / 3, tileHeight / 3);
+				g.fillOval(
+						topLeftX + tileWidth  / 3,
+						topLeftY + tileHeight / 3,
+						tileWidth  / 3,
+						tileHeight / 3);
 				g.setColor(action);
 				g.drawPolygon(xPts, yPts, 3);
+			} else {
+				g.fillOval(topLeftX, topLeftY, tileWidth, tileHeight);
 			}
 		}
 	}
@@ -614,52 +618,21 @@ public class LocalUIInterface implements UIInterface,
 
 	private void InitEnvironment(String environmentName, Parser p) {
 		try {
-
-			if (theEnvironment != null) {
-				try {
-					theEnvironment.load(theScheduler, p);
-					return;
-				}
-				catch (IOException ex) {
-					throw new InstantiationException("Can't reload environment");
-				}
-			}
-			Class<?> environmentClass = Class.forName(environmentName);
-			// Use reflection to find a constructor taking a Scheduler parameter
-			// and a Reader
-			Constructor<?> environmentCtor = null;
-			{
-				Constructor<?>[] environmentCtors = environmentClass
-						.getConstructors();
-
-				for (int i = 0; i < environmentCtors.length; ++i) {
-					Class<?>[] params = environmentCtors[i].getParameterTypes();
-
-					if (params != null && params.length == 2
-							&& params[0].getName().equals("cobweb.Scheduler")
-							&& params[1].getName().equals("driver.Parser")) {
-						environmentCtor = environmentCtors[i];
-						break;
-					}
+			if (theEnvironment == null) {
+				Class<?> environmentClass = Class.forName(environmentName);
+				// Use reflection to find a constructor taking a Scheduler parameter
+				// and a Reader
+				Constructor<?> environmentCtor = environmentClass.getConstructor();
+				if (environmentCtor == null) {
+					throw new InstantiationError(
+							"No valid constructor found on environment class.");
+				} else {
+					theEnvironment = (Environment) environmentCtor.newInstance();
 				}
 			}
-			if (environmentCtor == null) {
-				throw new InstantiationError(
-						"No valid constructor found on environment class.");
-			} else {
-				theEnvironment = (Environment) environmentCtor
-						.newInstance(new Object[] { theScheduler, p });
-			}
-		} catch (SecurityException e) {
-			throw new InstantiationError(e.toString());
-		} catch (InstantiationException e) {
-			throw new InstantiationError(e.toString());
-		} catch (IllegalAccessException e) {
-			throw new InstantiationError(e.toString());
-		} catch (java.lang.reflect.InvocationTargetException e) {
-			throw new RuntimeException(e);
-		} catch (ClassNotFoundException e) {
-			throw new InstantiationError(e.toString());
+			theEnvironment.load(theScheduler, p);
+		} catch (Exception ex) {
+			throw new RuntimeException("Can't InitEnvironment", ex);
 		}
 		Environment.setUIPipe(this);
 	}
@@ -833,5 +806,15 @@ public class LocalUIInterface implements UIInterface,
 
 	public EnvironmentStats getStatistics() {
 		return theEnvironment.getStatistics();
+	}
+
+	private boolean runnable = false;
+
+	public boolean isRunnable() {
+		return runnable;
+	}
+
+	public void setRunnable(boolean ready) {
+		this.runnable = ready;
 	}
 }

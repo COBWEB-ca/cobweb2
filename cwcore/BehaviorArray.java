@@ -124,7 +124,7 @@ public class BehaviorArray {
 	public void init() {
 
 		for (int i = 0; i < totalInts; ++i) {
-			array[i] = cobweb.globals.random.nextInt();
+			array[i] = cobweb.globals.behaviorRandom.nextInt();
 		}
 
 	}
@@ -154,7 +154,7 @@ public class BehaviorArray {
 		 */
 		for (int i = 0;;) {
 
-			int r = cobweb.globals.random.nextInt(size);
+			int r = cobweb.globals.behaviorRandom.nextInt(size);
 			if (boolArray[r] == false) {
 				boolArray[r] = true;
 				if (++i == size >> 1) {

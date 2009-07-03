@@ -6,16 +6,6 @@ public class SimpleEnvironment extends cobweb.Environment implements
 		cobweb.TickScheduler.Client {
 	public static final int FLAG_STONE = 1;
 
-	public SimpleEnvironment(cobweb.Scheduler s, Parser p/* java.io.Reader r */) {
-		super(s);
-		try {
-			load(s, p);
-		} catch (java.io.IOException e) {
-			throw new InstantiationError(
-					"Error parsing Simple Environment parameters.");
-		}
-	}
-
 	private void initEnvironment(int stoneCount, int agentCount) {
 		// System.out.println("************* Inside InitEnv *************");
 		for (int i = 0; i < stoneCount; ++i) {

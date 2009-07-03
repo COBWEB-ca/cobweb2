@@ -31,7 +31,7 @@ public class StepButton extends JButton implements
 
 	// $$$$$$ Modified on Mar 14
 	public void actionPerformed(java.awt.event.ActionEvent e) {
-		if  (GUI.frame == null || GUI.frame.isVisible() == false) {
+		if  (uiPipe.isRunnable()) {
 			java.lang.Long stepTime = uiPipe.getTime();
 			stepTime++;
 			JTextField textStepTime = uiPipe.getTickField();
@@ -43,16 +43,6 @@ public class StepButton extends JButton implements
 				uiPipe.pause();
 			}
 		}
-		/* $$$$$ Original code.  Mar 14
-		java.lang.Long stepTime = uiPipe.getTime();
-		stepTime++;
-		java.awt.TextField textStepTime = uiPipe.getTickField();
-		textStepTime.setText(stepTime.toString());
-		if (uiPipe.isPaused())
-			uiPipe.resume();
-		else
-			uiPipe.pause();
-		*/
 	}
 
 	public static final long serialVersionUID = 0xD4B844C0AA5E3991L;

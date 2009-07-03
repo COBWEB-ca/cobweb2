@@ -102,7 +102,7 @@ public class TraitArray implements InnateArray {
 		 * relatively useless for now.
 		 */
 		for (int i = 0; i < this.size(); i++) {
-			array[i] = new Integer(cobweb.globals.random.nextInt());
+			array[i] = new Integer(cobweb.globals.behaviorRandom.nextInt());
 		}
 	}
 
@@ -112,7 +112,7 @@ public class TraitArray implements InnateArray {
 	 */
 	public InnateArray splice(InnateArray other) {
 		/* change of plans: gets all of one parents info */
-		if (cobweb.globals.random.nextFloat() < .5) {
+		if (cobweb.globals.behaviorRandom.nextFloat() < .5) {
 			return (InnateArray) this.clone();
 		} else {
 			return (InnateArray) other.clone();

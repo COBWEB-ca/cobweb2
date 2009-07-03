@@ -12,6 +12,7 @@ import java.util.Vector;
 import cobweb.Agent;
 import cobweb.ColorLookup;
 import cobweb.Environment;
+import cobweb.RandomNoGenerator;
 import cobweb.TickScheduler;
 import cobweb.TypeColorEnumeration;
 import cobweb.UIInterface;
@@ -50,6 +51,8 @@ public class ComplexEnvironment extends Environment implements
 	private long tickCount = 0;
 
 	private int agentTypeCount = 0;
+
+	private static RandomNoGenerator environmentRandom;
 
 	public int getAgentTypes() {
 		return agentTypeCount;
@@ -233,23 +236,9 @@ public class ComplexEnvironment extends Environment implements
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
+	protected void finalize() {
 		if (logStream != null)
 			logStream.close();
-	}
-
-	public ComplexEnvironment(cobweb.Scheduler s, Parser p) {
-		super(s);
-
-		w[0] = 0;
-		h[0] = 0;
-
-		try {
-			load(s, p);
-		} catch (java.io.IOException e) {
-			throw new InstantiationError(
-					"Error parsing ComplexEnvironment parameters.");
-		}
 	}
 
 	/** Sets the default mutable variables of each agent type. */
@@ -283,6 +272,357 @@ public class ComplexEnvironment extends Environment implements
 		 * allocate space to store the parameter for each type
 		 */
 
+		copyParamsFromParser(p);
+
+		setDefaultMutableAgentParam();
+
+		for (int i = 0; i < draught_period[0].length; i++) {
+			// draught_period[0][i] = 10;
+			draughtdays[i] = 0;
+		}
+
+		/**
+		 * initArray is a useful utility that resizes an array to the given
+		 * indices and copies over any old data that still falls within the new
+		 * boundries. We use it to preserve the old agent-type dependant
+		 * parameters while possibly making room for new ones.
+		 */
+		int[] indices = { 1, agentTypeCount };
+		for (int i = 0; i < agentTypeCountDependents.length; ++i) {
+			cobweb.ArrayUtilities.initArray(agentTypeCountDependents[i],
+					indices, 0);
+		}
+		/** calls the parsing utility with our parsing hash-table parseData */
+		/**
+		 * try { cobweb.parseClass.parseLoad(r, "ComplexEnvironment.End",
+		 * parseData); } catch (java.io.IOException e) { throw new
+		 * java.io.IOException(); } catch (ArrayIndexOutOfBoundsException e) {
+		 * throw new InstantiationError("Array out of bounds problem encountered
+		 * while parsing ComplexEnvironment parameters. Most likely, the number
+		 * of agents was not specified properly."); }
+		 */
+		/**
+		 * If the random seed is set to 0 in the data file, it means we use the
+		 * system time instead
+		 */
+		// $$$$$ This means setting Random Seed to zero would get non-repeatable results.  Apr 19
+
+
+		if (randomSeed[0] == 0)
+			randomSeed[0] = System.currentTimeMillis();
+
+		cobweb.globals.random = new RandomNoGenerator(randomSeed[0]);
+		environmentRandom = cobweb.globals.random;
+		cobweb.globals.behaviorRandom = new RandomNoGenerator(42);
+
+
+		if (keepOldArray[0]) {
+			int[] boardIndices = { w[0], h[0] };
+			array = new cobweb.ArrayEnvironment(w[0], h[0], array);
+			foodarray = (int[][]) cobweb.ArrayUtilities.initArray(foodarray, boardIndices, 0);
+		} else {
+			array = new cobweb.ArrayEnvironment(w[0], h[0]);
+			foodarray = new int[w[0]][h[0]];
+		}
+
+		if (wastearray == null || !keepOldWaste[0]) {
+			loadNewWaste();
+		}
+		else {
+			loadOldWaste();
+		}
+
+		loadFoodMode();
+
+		if (keepOldAgents[0]) {
+			loadOldAgents(sFlag, oldH, oldW);
+		} else {
+			killOldAgents();
+		}
+
+
+		if (keepOldPackets[0]) {
+			// keep commPackets.list
+		}
+
+		// add a random amount of new stones
+		for (int i = 0; i < randomStones[0]; ++i) {
+			cobweb.Environment.Location l;
+			int tries = 0;
+			do {
+				l = getRandomLocation();
+			} while ((tries++ < 100)
+					&& ((l.testFlag(ComplexEnvironment.FLAG_STONE) || l
+							.testFlag(ComplexEnvironment.FLAG_WASTE)) && l
+							.getAgent() == null));
+			if (tries < 100)
+				l.setFlag(ComplexEnvironment.FLAG_STONE, true);
+		}
+
+		// add random amounts of new food for each type
+		if (dropNewFood[0]) {
+			loadNewFood();
+		}
+
+		try {
+			ControllerFactory.Init(controllerName);
+		} catch (ClassNotFoundException ex) {
+			throw new RuntimeException(ex);
+		}
+
+		//spawn new random agents for each type
+		if (spawnNewAgents[0]) {
+			loadNewAgents();
+		}
+		// reinitialize the colorizer
+		if (newColorizer[0] == true || colorizer == null) {
+			colorizer = new Colorizer(numColor[0], colorSelectSize[0],
+					colorizerMode[0]);
+
+			colorizer.reColorAgents(getAgentCollection(), 1);
+
+		}
+	}
+
+	private void loadNewFood() {
+		for (int i = 0; i < food[0].length; ++i) {
+			for (int j = 0; j < food[0][i]; ++j) {
+				cobweb.Environment.Location l;
+				int tries = 0;
+				do {
+					l = getRandomLocation();
+				} while ((tries++ < 100)
+						&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l
+								.testFlag(ComplexEnvironment.FLAG_WASTE)));
+				if (tries < 100)
+					l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+				setFoodType(l, i);
+			}
+		}
+	}
+
+	private void loadOldWaste() {
+		Waste[][] oldWasteArray = wastearray;
+		wastearray = new Waste[w[0]][h[0]];
+
+		int height = Math.min(w[0], oldWasteArray.length);
+		int width = Math.min(h[0], oldWasteArray[0].length);
+		for (int i = 0; i < width; i++)
+			for (int j = 0; j < height; j++)
+				wastearray[i][j] = oldWasteArray[i][j];
+
+		// Add in-bounds old waste to the new scheduler and update new
+		// constants
+		for (Location currentPos = getLocation(0, 0); currentPos.v[1] < h[0]; ++currentPos.v[1]) {
+			for (currentPos.v[0] = 0; currentPos.v[0] < w[0]; ++currentPos.v[0]) {
+				if (wastearray[currentPos.v[0]][currentPos.v[1]] != null) {
+					currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
+					currentPos.setFlag(ComplexEnvironment.FLAG_WASTE, true);
+				}
+			}
+		}
+	}
+
+	private void loadNewWaste() {
+		wastearray = new Waste[w[0]][h[0]];
+
+		for (Location pos = getLocation(0, 0); pos.v[1] < h[0]; pos.v[1]++)
+			for (pos.v[0] = 0; pos.v[0] < w[0]; pos.v[0]++)
+				pos.setFlag(FLAG_WASTE, false);
+	}
+
+	private void loadNewAgents() {
+		int action = -1;  // $$$$$ -1: not play Prisoner's Dilemma
+		for (int i = 0; i < agents[0].length; ++i) {
+			double coopProb = pdCoopProb[0][i]/100.0d; // static value for now $$$$$$ added for the below else block.  Apr 18
+
+		    lastPDMove[0][i] = -1; // $$$$$$ initial for the new agents.  Apr 18
+		    if (pdTitForTat[0][i]) { agentPDStrategy[0][i] = 1;}     // $$$$$$ if tit-for-tat, then agentPDStrategy == 1.  Apr 18
+
+			for (int j = 0; j < agents[0][i]; ++j) {
+				if (prisDilemma[0]) {
+					if (pdTitForTat[0][i]) {
+						action = 0; // spawn cooperating agent
+					} else {
+						// $$$$$$ change from the first silent line to the following three.  Apr 18
+						//action = 1;
+						action = 0;
+					    float rnd = cobweb.globals.behaviorRandom.nextFloat();
+					    //System.out.println("rnd: " + rnd);
+					    //System.out.println("coopProb: " + coopProb);
+					    if (rnd > coopProb) action = 1; // agent defects depending on probability
+					}
+
+				}
+
+				cobweb.Environment.Location l;
+				int tries = 0;
+				do {
+					l = getRandomLocation();
+				} while ((tries++ < 100) && ((l.getAgent() != null) // don't
+																	// spawn
+																	// on
+																	// top
+																	// of
+																	// agents
+						|| l.testFlag(ComplexEnvironment.FLAG_STONE) // nor
+																		// on
+																		// stone
+																		// tiles
+				|| l.testFlag(ComplexEnvironment.FLAG_WASTE))); // nor on
+																// waste
+																// tiles
+				if (tries < 100) {
+					int agentType = i;
+					new ComplexAgent(agentType, l, action, memory[0],
+							foodBstrat[0], initEnergy[0][i],
+							foodEnergy[0][i], otherFoodEnergy[0][i],
+							breedEnergy[0][i], pregnancyPeriod[0][i],
+							stepEnergy[0][i], stepRockEnergy[0][i],
+							turnRightEnergy[0][i], turnLeftEnergy[0][i],
+							mutationRate[0][i], colorful[0],
+							memoryBits[0][i], commSimMin[0][i],
+							stepAgentEnergy[0][i], sexualBreedChance[0][i],
+							asexualBreedChance[0][i], breedSimMin[0][i],
+							sexualPregnancyPeriod[0][i],
+							communicationBits[0][i], agingMode[0][i],
+							agingLimit[0][i], agingRate[0][i],
+							wasteMode[0][i], wastePen[0][i],
+							wasteGain[0][i], wasteLoss[0][i],
+							wasteRate[0][i], wasteInit[0][i],
+							pdTitForTat[0][i], pdCoopProb[0][i],
+							broadcastMode[0][i],
+							broadcastEnergyBased[0][i],
+							broadcastFixedRange[0][i],
+							broadcastEnergyMin[0][i],
+							broadcastEnergyCost[0][i], plants2eat[i],
+							agents2eat[i], agentPDStrategy[0][i],   // Tit-for-tat or probability based
+							agentPDAction[0][i], // The agent's action;  1 == cheater, else cooperator
+							lastPDMove[0][i], // Remember the opponent's
+												// move in the last game
+							genetic_sequence[0][i]); // Default genetic
+														// sequence of agent
+														// type
+				}
+			}
+		}
+	}
+
+	private void killOldAgents() {
+		// if keepOldAgents is false then we want to kill all of the agents
+		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
+			if (a.isAlive()) {
+				a.die();
+			}
+		}
+		// This second line may seem redundant, but it fact its not.
+		// By reseting the hashtable, we remove a bit of non-determinance
+		// due to the way
+		// hashtable is implemented. If you remove this line, the coloring
+		// will not be entirely consistant
+		// between simulation runs based on the same seed and parameters (a
+		// bad thing)
+		clearAgents();
+	}
+
+	private void loadOldAgents(boolean sFlag, int oldH, int oldW) {
+		// Add in-bounds old agents to the new scheduler and update new
+		// constants
+		Location currentPos = getLocation(0, 0);
+		for (; currentPos.v[1] < h[0]; ++currentPos.v[1]) {
+			for (currentPos.v[0] = 0; currentPos.v[0] < w[0]; ++currentPos.v[0]) {
+				if (currentPos.getAgent() != null) {
+					// we only need to add the agent if the scheduler is
+					// new, otherwise we assume it already belongs to the
+					// scheduler
+					if (sFlag) {
+						getScheduler().addSchedulerClient(
+								currentPos.getAgent());
+					}
+					int theType = ((ComplexAgent) currentPos.getAgent())
+							.getAgentType();
+					((ComplexAgent) currentPos.getAgent()).setConstants(
+							theType, ((ComplexAgent) currentPos.getAgent())
+									.getAgentPDAction(), memory[0],
+							foodBstrat[0], initEnergy[0][theType],
+							foodEnergy[0][theType],
+							otherFoodEnergy[0][theType],
+							breedEnergy[0][theType],
+							pregnancyPeriod[0][theType],
+							stepEnergy[0][theType],
+							stepRockEnergy[0][theType],
+							turnRightEnergy[0][theType],
+							turnLeftEnergy[0][theType],
+							mutationRate[0][theType], colorful[0],
+							commSimMin[0][theType],
+							stepAgentEnergy[0][theType],
+							sexualBreedChance[0][theType],
+							asexualBreedChance[0][theType],
+							breedSimMin[0][theType],
+							sexualPregnancyPeriod[0][theType],
+							agingMode[0][theType], agingLimit[0][theType],
+							agingRate[0][theType], wasteMode[0][theType],
+							wastePen[0][theType], wasteGain[0][theType],
+							wasteLoss[0][theType], wasteRate[0][theType],
+							wasteInit[0][theType], pdTitForTat[0][theType],
+							pdCoopProb[0][theType],
+							broadcastMode[0][theType],
+							broadcastEnergyBased[0][theType],
+							broadcastFixedRange[0][theType],
+							broadcastEnergyMin[0][theType],
+							broadcastEnergyCost[0][theType],
+							plants2eat[theType], agents2eat[theType],
+							agentPDStrategy[0][theType],  // Tit-for-tat or probability based
+							agentPDAction[0][theType], // The agent's action; 1 == cheater, else cooperator
+													   //  $$$$$ this parameter seems useless, there is another PDaction parameter above already.  Apr 18
+							lastPDMove[0][theType], // Remember the
+													// opponent's move in
+													// the last game
+							genetic_sequence[0][theType]); // Default
+															// genetic
+															// sequence of
+															// agent type
+				}
+			}
+		}
+		// Remove agents that have fallen out of bounds
+		for (currentPos.v[1] = 0; currentPos.v[1] < oldH; ++currentPos.v[1]) {
+			for (currentPos.v[0] = w[0]; currentPos.v[0] < oldW; ++currentPos.v[0]) {
+				if (currentPos.getAgent() != null)
+					currentPos.getAgent().die();
+			}
+		}
+		for (currentPos.v[1] = h[0]; currentPos.v[1] < oldH; ++currentPos.v[1]) {
+			for (currentPos.v[0] = 0; currentPos.v[0] < oldW
+					&& currentPos.v[0] < w[0]; ++currentPos.v[0]) {
+				if (currentPos.getAgent() != null)
+					currentPos.getAgent().die();
+			}
+		}
+	}
+
+	private void loadFoodMode() {
+		for (int i = 0; i < mode[0].length; ++i) {
+			switch (mode[0][i]) {
+
+			case 1:
+				foodDeplete[0][i] = environmentRandom.nextFloat() * 0.2f + 0.3f;
+				depleteTimeSteps[0][i] = environmentRandom.nextIntRange(20,
+						40);
+				break;
+
+			default:
+				if (foodDeplete[0][i] < 0.0f || foodDeplete[0][i] > 1.0f)
+					foodDeplete[0][i] = environmentRandom.nextFloat();
+				if (depleteTimeSteps[0][i] <= 0)
+					depleteTimeSteps[0][i] = environmentRandom.nextInt(100) + 1;
+				break;
+			}
+		}
+	}
+
+	private void copyParamsFromParser(Parser p) {
 		controllerName = p.ControllerName;
 		agentTypeCount = p.AgentCount[0];
 		foodTypeCount = p.FoodCount[0];
@@ -359,348 +699,6 @@ public class ComplexEnvironment extends Environment implements
 		PD_PAYOFF_TEMPTATION = p.temptation[0];
 		PD_PAYOFF_SUCKER = p.sucker[0];
 		PD_PAYOFF_PUNISHMENT = p.punishment[0];
-
-		setDefaultMutableAgentParam();
-
-		for (int i = 0; i < draught_period[0].length; i++) {
-			// draught_period[0][i] = 10;
-			draughtdays[i] = 0;
-		}
-
-		/**
-		 * initArray is a useful utility that resizes an array to the given
-		 * indices and copies over any old data that still falls within the new
-		 * boundries. We use it to preserve the old agent-type dependant
-		 * parameters while possibly making room for new ones.
-		 */
-		int[] indices = { 1, agentTypeCount };
-		for (int i = 0; i < agentTypeCountDependents.length; ++i) {
-			cobweb.ArrayUtilities.initArray(agentTypeCountDependents[i],
-					indices, 0);
-		}
-		/** calls the parsing utility with our parsing hash-table parseData */
-		/**
-		 * try { cobweb.parseClass.parseLoad(r, "ComplexEnvironment.End",
-		 * parseData); } catch (java.io.IOException e) { throw new
-		 * java.io.IOException(); } catch (ArrayIndexOutOfBoundsException e) {
-		 * throw new InstantiationError("Array out of bounds problem encountered
-		 * while parsing ComplexEnvironment parameters. Most likely, the number
-		 * of agents was not specified properly."); }
-		 */
-		/**
-		 * If the random seed is set to 0 in the data file, it means we use the
-		 * system time instead
-		 */
-		// $$$$$ This means setting Random Seed to zero would get non-repeatable results.  Apr 19
-		if (randomSeed[0] == 0)
-			randomSeed[0] = System.currentTimeMillis();
-
-		cobweb.globals.random = new cobweb.RandomNoGenerator(randomSeed[0]);
-
-		int[] boardIndices = { w[0], h[0] };
-
-		if (keepOldArray[0]) {
-			array = new cobweb.ArrayEnvironment(w[0], h[0]); // X_Axis =
-																// width, Y_Axis
-																// = height
-			array = new cobweb.ArrayEnvironment(w[0], h[0], array); // X_Axis =
-																	// width,
-																	// Y_Axis =
-																	// height
-			foodarray = (int[][]) cobweb.ArrayUtilities.initArray(foodarray,
-					boardIndices, 0); // width then height
-		} else {
-			array = new cobweb.ArrayEnvironment(w[0], h[0]); // X_Axis =
-																// width, Y_Axis
-																// = height
-			foodarray = new int[w[0]][h[0]]; // width then height
-		}
-		/*
-		 * Initialize the waste array too. Initially there is 0 waste to start
-		 * with
-		 */
-		if (!keepOldWaste[0] | (wastearray == null)) {
-			wastearray = new Waste[w[0]][h[0]];
-		} else {
-			Waste[][] oldWasteArray = wastearray;
-			wastearray = new Waste[w[0]][h[0]];
-			// System.out.println("oldWasteArray: "+oldWasteArray.length);
-			// System.out.println("oldWasteArray:
-			// "+oldWasteArray[oldWasteArray.length-1].length);
-			// System.out.println("wastearray: "+wastearray.length);
-			// System.out.println("wastearray:
-			// "+wastearray[wastearray.length-1].length);
-			// System.out.println("h[0]: "+h[0]);
-			// System.out.println("w[0]: "+w[0]);
-			int height;
-			int width;
-			if (oldWasteArray.length <= w[0])
-				width = oldWasteArray.length;
-			else
-				width = w[0];
-			if (oldWasteArray[oldWasteArray.length - 1].length <= h[0])
-				height = oldWasteArray[oldWasteArray.length - 1].length;
-			else
-				height = h[0];
-
-			for (int i = 0; i < width; i++)
-				for (int j = 0; j < height; j++)
-					wastearray[i][j] = oldWasteArray[i][j];
-		}
-		for (int i = 0; i < mode[0].length; ++i) {
-			switch (mode[0][i]) {
-
-			case 1:
-				foodDeplete[0][i] = cobweb.globals.random.nextFloat() * 0.2f + 0.3f;
-				depleteTimeSteps[0][i] = cobweb.globals.random.nextIntRange(20,
-						40);
-				break;
-
-			default:
-				if (foodDeplete[0][i] < 0.0f || foodDeplete[0][i] > 1.0f)
-					foodDeplete[0][i] = cobweb.globals.random.nextFloat();
-				if (depleteTimeSteps[0][i] <= 0)
-					depleteTimeSteps[0][i] = cobweb.globals.random.nextInt(100) + 1;
-				break;
-			}
-		}
-
-		if (keepOldAgents[0]) {
-
-			// Add in-bounds old agents to the new scheduler and update new
-			// constants
-			Location currentPos = getLocation(0, 0);
-			for (; currentPos.v[1] < h[0]; ++currentPos.v[1]) {
-				for (currentPos.v[0] = 0; currentPos.v[0] < w[0]; ++currentPos.v[0]) {
-					if (currentPos.getAgent() != null) {
-						// we only need to add the agent if the scheduler is
-						// new, otherwise we assume it already belongs to the
-						// scheduler
-						if (sFlag) {
-							getScheduler().addSchedulerClient(
-									currentPos.getAgent());
-						}
-						int theType = ((ComplexAgent) currentPos.getAgent())
-								.getAgentType();
-						((ComplexAgent) currentPos.getAgent()).setConstants(
-								theType, ((ComplexAgent) currentPos.getAgent())
-										.getAgentPDAction(), memory[0],
-								foodBstrat[0], initEnergy[0][theType],
-								foodEnergy[0][theType],
-								otherFoodEnergy[0][theType],
-								breedEnergy[0][theType],
-								pregnancyPeriod[0][theType],
-								stepEnergy[0][theType],
-								stepRockEnergy[0][theType],
-								turnRightEnergy[0][theType],
-								turnLeftEnergy[0][theType],
-								mutationRate[0][theType], colorful[0],
-								commSimMin[0][theType],
-								stepAgentEnergy[0][theType],
-								sexualBreedChance[0][theType],
-								asexualBreedChance[0][theType],
-								breedSimMin[0][theType],
-								sexualPregnancyPeriod[0][theType],
-								agingMode[0][theType], agingLimit[0][theType],
-								agingRate[0][theType], wasteMode[0][theType],
-								wastePen[0][theType], wasteGain[0][theType],
-								wasteLoss[0][theType], wasteRate[0][theType],
-								wasteInit[0][theType], pdTitForTat[0][theType],
-								pdCoopProb[0][theType],
-								broadcastMode[0][theType],
-								broadcastEnergyBased[0][theType],
-								broadcastFixedRange[0][theType],
-								broadcastEnergyMin[0][theType],
-								broadcastEnergyCost[0][theType],
-								plants2eat[theType], agents2eat[theType],
-								agentPDStrategy[0][theType],  // Tit-for-tat or probability based
-								agentPDAction[0][theType], // The agent's action; 1 == cheater, else cooperator
-														   //  $$$$$ this parameter seems useless, there is another PDaction parameter above already.  Apr 18
-								lastPDMove[0][theType], // Remember the
-														// opponent's move in
-														// the last game
-								genetic_sequence[0][theType]); // Default
-																// genetic
-																// sequence of
-																// agent type
-					}
-				}
-			}
-			// Remove agents that have fallen out of bounds
-			for (currentPos.v[1] = 0; currentPos.v[1] < oldH; ++currentPos.v[1]) {
-				for (currentPos.v[0] = w[0]; currentPos.v[0] < oldW; ++currentPos.v[0]) {
-					if (currentPos.getAgent() != null)
-						currentPos.getAgent().die();
-				}
-			}
-			for (currentPos.v[1] = h[0]; currentPos.v[1] < oldH; ++currentPos.v[1]) {
-				for (currentPos.v[0] = 0; currentPos.v[0] < oldW
-						&& currentPos.v[0] < w[0]; ++currentPos.v[0]) {
-					if (currentPos.getAgent() != null)
-						currentPos.getAgent().die();
-				}
-			}
-		} else {
-			// if keepOldAgents is false then we want to kill all of the agents
-			for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
-				if (a.isAlive()) {
-					a.die();
-				}
-			}
-			// This second line may seem redundant, but it fact its not.
-			// By reseting the hashtable, we remove a bit of non-determinance
-			// due to the way
-			// hashtable is implemented. If you remove this line, the coloring
-			// will not be entirely consistant
-			// between simulation runs based on the same seed and parameters (a
-			// bad thing)
-			clearAgents();
-		}
-
-		if (keepOldWaste[0]) {
-			// Add in-bounds old waste to the new scheduler and update new
-			// constants
-			Location currentPos = getLocation(0, 0);
-			for (; currentPos.v[1] < h[0]; ++currentPos.v[1]) {
-				for (currentPos.v[0] = 0; currentPos.v[0] < w[0]; ++currentPos.v[0]) {
-					if (wastearray[currentPos.v[0]][currentPos.v[1]] != null) {
-						currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-						currentPos
-								.setFlag(ComplexEnvironment.FLAG_STONE, false);
-						currentPos.setFlag(ComplexEnvironment.FLAG_WASTE, true);
-					}
-
-				}
-			}
-		}
-
-		if (keepOldPackets[0]) {
-			// keep commPackets.list
-		}
-
-		// add a random amount of new stones
-		for (int i = 0; i < randomStones[0]; ++i) {
-			cobweb.Environment.Location l;
-			int tries = 0;
-			do {
-				l = getRandomLocation();
-			} while ((tries++ < 100)
-					&& ((l.testFlag(ComplexEnvironment.FLAG_STONE) || l
-							.testFlag(ComplexEnvironment.FLAG_WASTE)) && l
-							.getAgent() == null));
-			if (tries < 100)
-				l.setFlag(ComplexEnvironment.FLAG_STONE, true);
-		}
-
-		// add random amounts of new food for each type
-		if (dropNewFood[0]) {
-			for (int i = 0; i < food[0].length; ++i) {
-				for (int j = 0; j < food[0][i]; ++j) {
-					cobweb.Environment.Location l;
-					int tries = 0;
-					do {
-						l = getRandomLocation();
-					} while ((tries++ < 100)
-							&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l
-									.testFlag(ComplexEnvironment.FLAG_WASTE)));
-					if (tries < 100)
-						l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-					setFoodType(l, i);
-				}
-			}
-		}
-		// spawn new random agents for each type
-		if (spawnNewAgents[0]) {
-			try {
-				ControllerFactory.Init(controllerName);
-			} catch (ClassNotFoundException ex) {
-				throw new RuntimeException(ex);
-			} catch (NoSuchMethodException ex) {
-				throw new RuntimeException(ex);
-			}
-			int action = -1;  // $$$$$ -1: not play Prisoner's Dilemma
-			for (int i = 0; i < agents[0].length; ++i) {
-				double coopProb = pdCoopProb[0][i]/100.0d; // static value for now $$$$$$ added for the below else block.  Apr 18
-
-			    lastPDMove[0][i] = -1; // $$$$$$ initial for the new agents.  Apr 18
-			    if (pdTitForTat[0][i]) { agentPDStrategy[0][i] = 1;}     // $$$$$$ if tit-for-tat, then agentPDStrategy == 1.  Apr 18
-
-				for (int j = 0; j < agents[0][i]; ++j) {
-					if (prisDilemma[0]) {
-						if (pdTitForTat[0][i]) {
-							action = 0; // spawn cooperating agent
-						} else {
-							// $$$$$$ change from the first silent line to the following three.  Apr 18
-							//action = 1;
-							action = 0;
-						    float rnd = cobweb.globals.random.nextFloat();
-						    //System.out.println("rnd: " + rnd);
-						    //System.out.println("coopProb: " + coopProb);
-						    if (rnd > coopProb) action = 1; // agent defects depending on probability
-						}
-
-					}
-
-					cobweb.Environment.Location l;
-					int tries = 0;
-					do {
-						l = getRandomLocation();
-					} while ((tries++ < 100) && ((l.getAgent() != null) // don't
-																		// spawn
-																		// on
-																		// top
-																		// of
-																		// agents
-							|| l.testFlag(ComplexEnvironment.FLAG_STONE) // nor
-																			// on
-																			// stone
-																			// tiles
-					|| l.testFlag(ComplexEnvironment.FLAG_WASTE))); // nor on
-																	// waste
-																	// tiles
-					if (tries < 100) {
-						int agentType = i;
-						new ComplexAgent(agentType, l, action, memory[0],
-								foodBstrat[0], initEnergy[0][i],
-								foodEnergy[0][i], otherFoodEnergy[0][i],
-								breedEnergy[0][i], pregnancyPeriod[0][i],
-								stepEnergy[0][i], stepRockEnergy[0][i],
-								turnRightEnergy[0][i], turnLeftEnergy[0][i],
-								mutationRate[0][i], colorful[0],
-								memoryBits[0][i], commSimMin[0][i],
-								stepAgentEnergy[0][i], sexualBreedChance[0][i],
-								asexualBreedChance[0][i], breedSimMin[0][i],
-								sexualPregnancyPeriod[0][i],
-								communicationBits[0][i], agingMode[0][i],
-								agingLimit[0][i], agingRate[0][i],
-								wasteMode[0][i], wastePen[0][i],
-								wasteGain[0][i], wasteLoss[0][i],
-								wasteRate[0][i], wasteInit[0][i],
-								pdTitForTat[0][i], pdCoopProb[0][i],
-								broadcastMode[0][i],
-								broadcastEnergyBased[0][i],
-								broadcastFixedRange[0][i],
-								broadcastEnergyMin[0][i],
-								broadcastEnergyCost[0][i], plants2eat[i],
-								agents2eat[i], agentPDStrategy[0][i],   // Tit-for-tat or probability based
-								agentPDAction[0][i], // The agent's action;  1 == cheater, else cooperator
-								lastPDMove[0][i], // Remember the opponent's
-													// move in the last game
-								genetic_sequence[0][i]); // Default genetic
-															// sequence of agent
-															// type
-					}
-				}
-			}
-		}
-		// reinitialize the colorizer
-		if (newColorizer[0] == true || colorizer == null) {
-			colorizer = new Colorizer(numColor[0], colorSelectSize[0],
-					colorizerMode[0]);
-
-			colorizer.reColorAgents(getAgentCollection(), 1);
-
-		}
 	}
 
 	/* JUST ADDED */
@@ -775,7 +773,7 @@ public class ComplexEnvironment extends Environment implements
 
 
 					double coopProb = pdCoopProb[0][agentType]/100.0d; // static value for now $$$$$$ added for the below else block.
-				    float rnd = cobweb.globals.random.nextFloat();
+				    float rnd = cobweb.globals.behaviorRandom.nextFloat();
 				    //System.out.println("rnd: " + rnd);
 				    //System.out.println("coopProb: " + coopProb);
 
@@ -958,7 +956,7 @@ public class ComplexEnvironment extends Environment implements
 
 	private void dropFood(int type) {
 		float foodDrop = foodRate[0][type];
-		while (cobweb.globals.random.nextFloat() < foodDrop) {
+		while (environmentRandom.nextFloat() < foodDrop) {
 			--foodDrop;
 			cobweb.Environment.Location l;
 			int j = 0;
@@ -1059,14 +1057,12 @@ public class ComplexEnvironment extends Environment implements
 						 * max; } //if not the max food, then we want to
 						 * pick randomly from all the types else {
 						 */
-						growMe = cobweb.globals.random
-								.nextInt(foodTypeCount);
+						growMe = environmentRandom.nextInt(foodTypeCount);
 						// }
 
 						// finally, we grow food according to a certain
 						// amount of random chance
-						if (foodCount * foodGrow[0][growMe] > 100 * cobweb.globals.random
-								.nextFloat()) {
+						if (foodCount * foodGrow[0][growMe] > 100 * environmentRandom.nextFloat()) {
 							newArray.setLocationBits(currentPos, FOOD_CODE);
 							// setFoodType (currentPos, growMe);
 							newFoodArray[currentPos.v[0]][currentPos.v[1]] = growMe;
@@ -1096,8 +1092,7 @@ public class ComplexEnvironment extends Environment implements
 				Location currentPos = getLocation(x, y);
 				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD)
 						&& getFoodType(currentPos) == type)
-					locations.add(cobweb.globals.random
-							.nextInt(locations.size() + 1), currentPos);
+					locations.add(environmentRandom.nextInt(locations.size() + 1), currentPos);
 			}
 
 		int foodToDeplete = (int) (locations.size() * foodDeplete[0][type]);

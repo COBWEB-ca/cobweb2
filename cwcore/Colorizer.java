@@ -58,7 +58,7 @@ public class Colorizer {
 
 		for (int i = 0; i < MAsize; ++i) {
 
-			modelArray[i] = array[cobweb.globals.random.nextInt(array.length)];
+			modelArray[i] = array[cobweb.globals.notusedRandom.nextInt(array.length)];
 
 		}
 	}
