@@ -1,4 +1,4 @@
-package cwcore;
+package cwcore.legacy;
 
 public interface InnateArray extends Comparable<InnateArray>, Cloneable {
 	/*

@@ -229,7 +229,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 
 	long myClock = -1;
 
-	long delay = 0;
+	long delay = 1;
 
 	private static final Color COLOR_GRIDLINES = Color.lightGray;
 

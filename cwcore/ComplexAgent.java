@@ -765,7 +765,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return 0.5; // ((GeneticController) controller).similarity(other);
 	}
 
-	void step() {
+	public void step() {
 		cobweb.Agent adjAgent;
 		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
 
@@ -953,7 +953,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	void turnLeft() {
+	public void turnLeft() {
 		cobweb.Environment.Direction newFacing = new cobweb.Environment.Direction(2);
 		newFacing.v[0] = facing.v[1];
 		newFacing.v[1] = -facing.v[0];
@@ -965,7 +965,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		afterTurnAction();
 	}
 
-	void turnRight() {
+	public void turnRight() {
 		cobweb.Environment.Direction newFacing = new cobweb.Environment.Direction(2);
 		newFacing.v[0] = -facing.v[1];
 		newFacing.v[1] = facing.v[0];

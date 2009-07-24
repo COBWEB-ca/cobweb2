@@ -98,7 +98,7 @@ public class SimulatorUI extends JPanel implements UIClient {
 			stepButton = new StepButton(uiPipe);
 			controls.add(stepButton);
 			controls.add(new JLabel(" Speed:"));
-			MyScrollbar sb = new MyScrollbar(uiPipe);
+			SpeedBar sb = new SpeedBar(uiPipe);
 			controls.add(sb);
 		} else {
 			pauseButton.setUI(uiPipe);
@@ -110,7 +110,7 @@ public class SimulatorUI extends JPanel implements UIClient {
 			stepButton = new StepButton(uiPipe);
 			controls.add(stepButton);
 			controls.add(new JLabel("   Adjust Speed:"));
-			MyScrollbar sb = new MyScrollbar(uiPipe);
+			SpeedBar sb = new SpeedBar(uiPipe);
 			controls.add(sb);
 		} else {
 			stepButton.setUI(uiPipe);

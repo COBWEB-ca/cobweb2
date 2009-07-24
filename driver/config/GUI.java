@@ -58,7 +58,7 @@ public class GUI extends JFrame {
 			updateTable(agentParamTable);
 			updateTable(foodTable);
 			updateTable(tablePD);
-			geneticPage.validateUI();
+			//geneticPage.validateUI();
 
 
 			/* write UI info to xml file */

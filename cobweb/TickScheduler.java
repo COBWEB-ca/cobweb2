@@ -34,7 +34,7 @@ public class TickScheduler extends Thread implements Scheduler {
 
 	private long tickCount = 0;
 
-	private long slowdown = 0;
+	private long slowdown = 1;
 
 	private UIInterface theUI;
 

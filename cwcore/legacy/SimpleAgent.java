@@ -1,4 +1,4 @@
-package cwcore;
+package cwcore.legacy;
 
 import cobweb.Point2D;
 

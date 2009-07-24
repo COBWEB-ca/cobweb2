@@ -1,10 +1,12 @@
 /**
  *
  */
-package cwcore;
+package cwcore.legacy;
 
 import cobweb.Controller;
 import cobweb.params.CobwebParam;
+import cwcore.ComplexAgent;
+import cwcore.ComplexEnvironment;
 
 class SimpleController implements cobweb.Controller {
 	/**

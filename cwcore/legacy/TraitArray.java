@@ -1,4 +1,5 @@
-package cwcore;
+package cwcore.legacy;
+
 
 /* TraitArray encompasses the features of an autonomous agent that are
  * constanat within the lifetime of a single agent and represent what

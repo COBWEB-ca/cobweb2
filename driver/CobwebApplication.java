@@ -1495,7 +1495,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			stepButton = new StepButton(uiPipe);
 			controls.add(stepButton);
 			controls.add(new JLabel("   Adjust Speed:"));
-			MyScrollbar sb = new MyScrollbar(uiPipe);
+			SpeedBar sb = new SpeedBar(uiPipe);
 			controls.add(sb);
 		} else {
 			pauseButton.setUI(uiPipe);
