@@ -3,12 +3,14 @@
  */
 package driver;
 
-import java.io.FileWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.text.DateFormat;
-import java.util.Calendar;
+import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
 
 import javax.swing.JOptionPane;
 
@@ -21,34 +23,41 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 	private static final String newLine = System.getProperty("line.separator");
 	private static final Logger logger = Logger.getLogger("COBWEB2");
 
+	public MyUncaughtExceptionHandler() {
+		Handler fh;
+		try {
+			fh = new StreamHandler(new FileOutputStream("cobweb_errors.log", true), new SimpleFormatter());
+			fh.setLevel(Level.WARNING);
+			logger.addHandler(fh);
+		} catch (FileNotFoundException ex) {
+			logger.log(Level.SEVERE, "Cannot open file log!", ex);
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Thread.UncaughtExceptionHandler#uncaughtException(java.lang.Thread, java.lang.Throwable)
 	 */
 	public void uncaughtException(Thread thread, Throwable ex) {
-		if (thread.getName().contains("AWT-EventQueue")) {
-			//return;
+		if (ex instanceof CobwebUserException) {
+			((CobwebUserException) ex).notifyUser();
+			return;
 		}
+
 		logger.log(Level.SEVERE, "Uncaught Exception in thread " + thread.getName(), ex);
+		for (int depth = 0; depth < 2; depth++) {
+			if (depth >= ex.getStackTrace().length)
+				break;
+			if (ex.getStackTrace()[depth].getClassName().equals("org.jfree.data.xy.DefaultXYDataset"))
+				return;
+		}
 
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("Exception in thread " + thread.getName() + newLine);
 		exceptionToString(ex, sb, "");
 
-		try {
-			FileWriter fw = new FileWriter("cobweb_errors.log", true);
-			String date = DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime());
-			fw.write(date + newLine);
-			fw.write(sb.toString());
-			fw.write(newLine);
-			fw.close();
-		} catch (Exception ex1) {
-			// TODO Auto-generated catch block
-			logger.log(Level.SEVERE, "Can't write error log", ex1);
-		}
-
-
-		JOptionPane.showMessageDialog(null, "Oh no! You crashed COBWEB!" + newLine + sb.toString());
+		JOptionPane.showMessageDialog(null, "Oh no! You crashed COBWEB!" + newLine + sb.toString()
+				, "Unexpected Error", JOptionPane.ERROR_MESSAGE);
 	}
 
 	private void exceptionToString(Throwable ex, StringBuilder sb, String indent) {

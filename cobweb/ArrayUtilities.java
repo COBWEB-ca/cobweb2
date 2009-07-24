@@ -1,88 +1,54 @@
 package cobweb;
 
+import java.lang.reflect.Array;
 
 public class ArrayUtilities {
 
 	/**
-	 * initArray takes an array given as an argument, an array of dimensions,
-	 * and counter indicated the what dimension in the array of dimensions
-	 * should be used first.
-	 * 
-	 * It returns a possibly new array that has the dimensions specified by the
-	 * second parameter and all of the old data from the array given as a
-	 * parameter (that fits).
-	 * 
+	 * initArray takes an array given as an argument, an array of dimensions, and counter indicated the what dimension
+	 * in the array of dimensions should be used first.
+	 *
+	 * It returns a possibly new array that has the dimensions specified by the second parameter and all of the old data
+	 * from the array given as a parameter (that fits).
+	 *
 	 * Essentially, it is a utility for resizing arrays
+	 *
+	 * @param <T> Array type
 	 */
 
-	public static Object initArray(Object targetArray, int[] indices,
-			int iElement) {
+	public static <T> T resizeArray(T original, int... newsize) {
+//		if (original == null) {
+//			return null;
+//		}
+		if (!original.getClass().isArray()) {
+			return original;
+		}
 
-		if (iElement >= indices.length)
-			return targetArray;
+		int originalLen = Array.getLength(original);
+		int newLen = newsize[0];
+		T result = original;
+		Class<?> innerType = original.getClass().getComponentType();
 
-		Object tmp = targetArray;
-		if (java.lang.reflect.Array.getLength(targetArray) != indices[iElement]) {
+		if (originalLen != newLen) {
+			@SuppressWarnings("unchecked")
+			T uncheckedResult = (T) Array.newInstance(innerType, newLen);
+			result = uncheckedResult;
+			System.arraycopy(original, 0, result, 0, Math.min(originalLen, newLen));
+		}
 
-			targetArray = java.lang.reflect.Array.newInstance(targetArray
-					.getClass().getComponentType(), indices[iElement]);
-
-			if (targetArray.getClass().getComponentType().equals(int.class)) {
-				for (int i = 0; i < java.lang.reflect.Array
-						.getLength(targetArray)
-						&& i < java.lang.reflect.Array.getLength(tmp); ++i) {
-					java.lang.reflect.Array.setInt(targetArray, i,
-							java.lang.reflect.Array.getInt(tmp, i));
+		if (innerType.isArray()) {
+			for (int i = 0; i < Array.getLength(result); ++i) {
+				if (Array.get(result, i) == null) {
+					Array.set(result, i, Array.newInstance(innerType.getComponentType(), newsize[1]));
 				}
-			} else if (targetArray.getClass().getComponentType().equals(
-					long.class)) {
-				for (int i = 0; i < java.lang.reflect.Array
-						.getLength(targetArray)
-						&& i < java.lang.reflect.Array.getLength(tmp); ++i) {
-					java.lang.reflect.Array.setLong(targetArray, i,
-							java.lang.reflect.Array.getLong(tmp, i));
-				}
-			} else if (targetArray.getClass().getComponentType().equals(
-					float.class)) {
-				for (int i = 0; i < java.lang.reflect.Array
-						.getLength(targetArray)
-						&& i < java.lang.reflect.Array.getLength(tmp); ++i) {
-					java.lang.reflect.Array.setFloat(targetArray, i,
-							java.lang.reflect.Array.getFloat(tmp, i));
-				}
-			} else if (targetArray.getClass().getComponentType().equals(
-					boolean.class)) {
-				for (int i = 0; i < java.lang.reflect.Array
-						.getLength(targetArray)
-						&& i < java.lang.reflect.Array.getLength(tmp); ++i) {
-					java.lang.reflect.Array.setBoolean(targetArray, i,
-							java.lang.reflect.Array.getBoolean(tmp, i));
-				}
-			} else { // its a non-primitive
-				for (int i = 0; i < java.lang.reflect.Array
-						.getLength(targetArray)
-						&& i < java.lang.reflect.Array.getLength(tmp); ++i) {
-					java.lang.reflect.Array.set(targetArray, i,
-							java.lang.reflect.Array.get(tmp, i));
-				}
+				int[] otherSizes = new int[newsize.length - 1];
+				System.arraycopy(newsize, 1, otherSizes, 0, otherSizes.length);
+				Object temp = resizeArray(Array.get(result, i), otherSizes);
+				Array.set(result, i, temp);
 			}
 		}
 
-		if (targetArray.getClass().getComponentType().isArray()) {
-
-			Object[] theDest = (Object[]) targetArray;
-
-			for (int i = 0; i < theDest.length; ++i) {
-
-				if (theDest[i] == null) {
-					theDest[i] = java.lang.reflect.Array.newInstance(theDest
-							.getClass().getComponentType().getComponentType(),
-							indices[iElement + 1]);
-				}// else
-				theDest[i] = initArray(theDest[i], indices, iElement + 1);
-			}
-		}
-
-		return targetArray;
+		return result;
 	}
+
 }

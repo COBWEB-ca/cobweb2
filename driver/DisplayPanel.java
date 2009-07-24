@@ -3,8 +3,10 @@ package driver;
 import java.awt.Insets;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 /**
  * DisplayPanel is a Panel derivative useful for displaying a cobweb simulation.
@@ -105,6 +107,17 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 
+	public void repaintNow() {
+		repaint();
+		// Wait for displayPanel to repaint
+		if (!SwingUtilities.isEventDispatchThread()) {
+			try {
+				SwingUtilities.invokeAndWait(null);
+			} catch (InterruptedException ex) {
+			} catch (InvocationTargetException ex) {
+			}
+		}
+	}
 
 	public void componentResized(ComponentEvent e) {
 		updateScale();

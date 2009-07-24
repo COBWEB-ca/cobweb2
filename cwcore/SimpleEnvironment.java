@@ -74,7 +74,7 @@ public class SimpleEnvironment extends cobweb.Environment implements
 
 	@Override
 	public void load(cobweb.Scheduler s, Parser p/* java.io.Reader r */)
-			throws java.io.IOException {
+			throws IllegalArgumentException {
 
 		if (s != theScheduler) {
 			theScheduler = s;
@@ -89,9 +89,9 @@ public class SimpleEnvironment extends cobweb.Environment implements
 		int stoneCount = 20;
 		int agentCount = 10;
 
-		width = p.Width[0];
-		height = p.Height[0];
-		stoneCount = p.randomStones[0];
+		width = p.getEnvParams().width;
+		height = p.getEnvParams().height;
+		stoneCount = p.getEnvParams().initialStones;
 		/***********************************************************************
 		 * java.io.StreamTokenizer inTokens = new java.io.StreamTokenizer(r);
 		 * boolean done = false; while (!done) { if (inTokens.nextToken() !=
@@ -229,7 +229,6 @@ public class SimpleEnvironment extends cobweb.Environment implements
 
 	@Override
 	public EnvironmentStats getStatistics() {
-		// TODO Auto-generated method stub
 		return null;
 	};
 }

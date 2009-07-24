@@ -1,172 +1,23 @@
-/*  $$$$$:  Comments by Liang
- *
- *  $$$$$$: Codes modified and/or added by Liang
+/*
+ * $$$$$: Comments by Liang $$$$$$: Codes modified and/or added by Liang
  */
 
 package cwcore;
-
-import ga.GeneticCode;
-import ga.GeneticCodeException;
 
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import cobweb.Environment.Location;
 
 public class ComplexAgentInfo {
 
-	public static final int MAX_PATH_HISTORY = 64;
-
-	/** Stores the genetic code. */
-	private String genes;
+	public static final int MAX_PATH_HISTORY = 32;
 
 	/** The gene status of the agent. Default is 1. */
-
-	private double[] gene_status = {1,1,1};
-
-	/** Returns the status of each gene. */
-  	public double[] getGeneStatus() {
-  		return gene_status;
-  	}
-
-	public ComplexAgentInfo(int num, int type, long birth, int strat) {
-		agentType = type;
-		agentNumber = num;
-		birthTick = birth;
-		action = strat;
-	}
-
-	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1,
-			ComplexAgentInfo p2, int strat) {
-		agentType = type;
-		agentNumber = num;
-		birthTick = birth;
-		parent1 = p1;
-		parent2 = p2;
-		action = strat;
-	}
-
-	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1,
-			int strat) {
-		agentType = type;
-		agentNumber = num;
-		birthTick = birth;
-		parent1 = p1;
-		action = strat;
-	}
-
-	public void addDirectChild() {
-		++directChildren;
-	}
-
-	public void addStep() {
-		++countSteps;
-	}
-
-	public void addPathStep(Location loc) {
-		path.add(loc);
-		if (path.size() > MAX_PATH_HISTORY) {
-			path.remove(0);
-		}
-	}
-
-	public List<Location> getPathHistory() {
-		return path;
-	}
-
-	public void addTurn() {
-		++countTurns;
-	}
-
-	public void addAgentBump() {
-		++countAgentBumps;
-	}
-
-	public void addRockBump() {
-		++countRockBumps;
-	}
-
-	public void addSexPreg() {
-		++sexualPregs;
-	}
-
-	public void ate(int agentType) {
-		eatenAgentsofType[agentType]++;
-	}
-
-	/**
-	 * This method should be called prior to calling the printInfo method. This
-	 * method will initializes the static array. Should be called once not in a
-	 * loop.
-	 */
-
-	public static void initStaticAgentInfo(int agenttypes) {
-		if (alreadyInitialized) {
-			System.out.println("ComplexAgentInfo::initStaticAgentInfo("
-					+ agenttypes + ")"
-					+ " ComplexAgentInfo::alreadyInitialized = "
-					+ alreadyInitialized);
-			return;
-		}
-		System.out.println("ComplexAgentInfo::initStaticAgentInfo("
-				+ agenttypes + ")" + " ComplexAgentInfo::alreadyInitialized = "
-				+ alreadyInitialized);
-		alreadyInitialized = true;
-
-		agentTypes = agenttypes;
-		deadAgentsofType = new int[agentTypes];
-		aliveAgentsofType = new int[agentTypes];
-		sexAgentsofType = new int[agentTypes];
-		asexAgentsofType = new int[agentTypes];
-		offspringsAgentsofType = new int[agentTypes];
-		stepsAgentsofType = new int[agentTypes];
-		totalsAgentsofType = new int[agentTypes];
-		stepslivedAgentsofType = new int[agentTypes];
-		eatenAgentsofType = new int[agentTypes];
-	}
-
-	public static void resetGroupData() {
-		for (int i = 0; i < MAX_NUM_OF_AGENTS; i++) {
-			energies[i] = 0;
-			foodEnergies[i] = 0;
-			stepEnergies[i] = 0;
-			agentBumpEnergies[i] = 0;
-			rockBumpEnergies[i] = 0;
-			liveCount[i] = 0;
-			otherEnergySources[i] = 0;
-			cannibalEnergies[i] = 0;
-			turningEnergies[i] = 0;
-			otherEnergySinks[i] = 0;
-			agentAgingEnergies[i] = 0;
-		}
-	}
-
-	/* emulating C's printf() fcn */
-	private static String paddMe(int i, int pad) {
-		String tmp = i + "";
-		return paddMe(tmp, pad);
-	}
-
-	private static String paddMe(long i, int pad) {
-		String tmp = i + "";
-		return paddMe(tmp, pad);
-	}
-
-	private static String paddMe(String s, int pad) {
-		return paddMe(s, pad, ' ');
-	}
-
-	/* Allows custom padding. */
-	private static String paddMe(String s, int pad, char cpad) {
-		String ret = "";
-		for (; pad >= s.length(); pad--) {
-			ret += cpad;
-		}
-		ret += s;
-		return ret;
-	}
 
 	/* Formatting variables. The WIDTH of certain columns */
 	final static int W_TICK = 6;
@@ -201,13 +52,35 @@ public class ComplexAgentInfo {
 
 	private static boolean groupDataStreamInit = false;
 
+	static int agentTypes = 0; // total agent types
+
+	static int[] deadAgentsofType; // numbers of agents dead of type i.
+
+	// This is initialized in printAgent method.
+	static int[] aliveAgentsofType;
+
+	static int[] sexAgentsofType;
+
+	static int[] asexAgentsofType;
+
+	static int[] offspringsAgentsofType;
+
+	static int[] stepsAgentsofType;
+
+	static int[] totalsAgentsofType;
+
+	static int[] stepslivedAgentsofType;
+
+	static int[] eatenAgentsofType;
+
 	/* Dumps the group data */
 	public static void dumpGroupData(long tick, java.io.Writer www) {
 		if (!groupDataStreamInit) {
 			try {
 				group_out = new java.io.PrintWriter(www, false);
 				groupDataStreamInit = true;
-			} catch (Exception e) {
+			} catch (Exception ex) {
+				Logger.getLogger("COBWEB2").log(Level.WARNING, "exception", ex);
 			}
 		} else {
 			try {
@@ -257,8 +130,7 @@ public class ComplexAgentInfo {
 					group_out.print(paddMe(liveCount[i], W_POP));
 					group_out.print(paddMe(foodEnergies[i], W_FEED));
 					group_out.print(paddMe(cannibalEnergies[i], W_CANN));
-					group_out
-							.print(paddMe(otherEnergySources[i], W_OTHER_GAIN));
+					group_out.print(paddMe(otherEnergySources[i], W_OTHER_GAIN));
 					group_out.print(paddMe(energies[i], W_ENERGY));
 					group_out.print(paddMe(stepEnergies[i], W_MOVE));
 					group_out.print(paddMe(agentBumpEnergies[i], W_AGENT));
@@ -269,77 +141,68 @@ public class ComplexAgentInfo {
 				}
 				group_out.println();
 				group_out.flush();
-			} catch (Exception e) {
-				System.err.println("dumpGroupInfo failure: " + e);
+			} catch (Exception ex) {
+				Logger.getLogger("COBWEB2").log(Level.WARNING, "exception", ex);
 			}
 		}
 	}
 
-	public void printInfo(java.io.PrintWriter pw) {
-		pw.print(agentNumber);
-		pw.print("\t" + (agentType + 1));  // $$$$$$ change from "agentType" to "(agentType + 1)".  Apr 3
-		pw.print("\t" + birthTick);
-		if (parent1 == null && parent2 == null) {
-			asexAgentsofType[agentType]++;
-			pw.print("\tRandomly generated");
-		} else if (parent2 == null) {
-			asexAgentsofType[agentType]++;
-			offspringsAgentsofType[parent1.agentType]++;
-			pw.print("\tAsexual, from agent " + parent1.agentNumber);
-		} else {
-			pw.print("\tSexual, from Mother: " + parent1.agentNumber
-					+ ", Father: " + parent2.agentNumber);
-			sexAgentsofType[agentType]++;
-			offspringsAgentsofType[parent1.agentType]++;
-			offspringsAgentsofType[parent2.agentType]++;
-		}
-		pw.print("\t" + deathTick);
-		if (deathTick != -1) {
-			stepslivedAgentsofType[agentType] += (deathTick - birthTick);
-			deadAgentsofType[agentType]++;
-		} else {
-			aliveAgentsofType[agentType]++;
-		}
+	/**
+	 * This method should be called prior to calling the printInfo method. This method will initializes the static
+	 * array. Should be called once not in a loop.
+	 */
 
-		// $$$$$$ The following line is added to format the genetic code output for correctly reporting and showing by MS Excel.  Feb 5
-		String genesString = genes.substring(0, 8) + " " + genes.substring(8, 16) +  " " + genes.substring(16, 24);
-		pw.print("\t" + genesString); // $$$$$$ Pass the reformed genetic code "geensString" instead of "genes".  Feb 5
-
-		// Output the values of each gene and their status
-		try {
-			pw.print("\t" + GeneticCode.byteToInt(genes.substring(0, 8)));
-			pw.print("\t" + GeneticCode.byteToInt(genes.substring(8, 16)));
-			pw.print("\t" + GeneticCode.byteToInt(genes.substring(16, 24)));
-			pw.print("\t" + gene_status[0]);
-			pw.print("\t" + gene_status[1]);
-			pw.print("\t" + gene_status[2]);
-		} catch (GeneticCodeException e) {
-			System.err.println("ComplexAgeintInfo: Invalid gene format.");
+	public static void initStaticAgentInfo(int agenttypes) {
+		if (alreadyInitialized) {
+			System.out.println("ComplexAgentInfo::initStaticAgentInfo(" + agenttypes + ")"
+					+ " ComplexAgentInfo::alreadyInitialized = " + alreadyInitialized);
+			return;
 		}
-		pw.print("\t" + directChildren);
-		pw.print("\t" + totalChildren);
-		pw.print("\t" + sexualPregs);
+		System.out.println("ComplexAgentInfo::initStaticAgentInfo(" + agenttypes + ")"
+				+ " ComplexAgentInfo::alreadyInitialized = " + alreadyInitialized);
+		alreadyInitialized = true;
 
-		int total = countSteps + countTurns + countAgentBumps + countRockBumps;
-		totalsAgentsofType[agentType] += total;
-		stepsAgentsofType[agentType] += countSteps;
-		DecimalFormat dform = new DecimalFormat("###.##%");
-		pw.print("\t" + dform.format((double) (countSteps) / total));
-		pw.print("\t" + dform.format((double) (countTurns) / total));
-		pw.print("\t" + dform.format((double) (countAgentBumps) / total));
-		pw.print("\t" + dform.format((double) (countRockBumps) / total));
+		agentTypes = agenttypes;
+		deadAgentsofType = new int[agentTypes];
+		aliveAgentsofType = new int[agentTypes];
+		sexAgentsofType = new int[agentTypes];
+		asexAgentsofType = new int[agentTypes];
+		offspringsAgentsofType = new int[agentTypes];
+		stepsAgentsofType = new int[agentTypes];
+		totalsAgentsofType = new int[agentTypes];
+		stepslivedAgentsofType = new int[agentTypes];
+		eatenAgentsofType = new int[agentTypes];
+	}
 
-		if (action == 0) {
-			pw.println("\tcooperator");
-		} else {
-			pw.println("\tcheater");
+	/* emulating C's printf() fcn */
+	private static String paddMe(int i, int pad) {
+		String tmp = i + "";
+		return paddMe(tmp, pad);
+	}
+
+	private static String paddMe(long i, int pad) {
+		String tmp = i + "";
+		return paddMe(tmp, pad);
+	}
+
+	private static String paddMe(String s, int pad) {
+		return paddMe(s, pad, ' ');
+	}
+
+	/* Allows custom padding. */
+	private static String paddMe(String s, int pad, char cpad) {
+		String ret = "";
+		for (; pad >= s.length(); pad--) {
+			ret += cpad;
 		}
+		ret += s;
+		return ret;
 	}
 
 	/******* Defunct */
 	public static void printAgentsCount(java.io.PrintWriter pw) {
 		for (int i = 0; i < agentTypes; i++) {
-			pw.print((i + 1)); // $$$$$$ change from "i" to "(i + 1)".  Apr 3
+			pw.print((i + 1)); // $$$$$$ change from "i" to "(i + 1)". Apr 3
 			pw.print("\t" + deadAgentsofType[i]);
 			pw.print("\t" + aliveAgentsofType[i]);
 			pw.print("\t" + offspringsAgentsofType[i]);
@@ -351,7 +214,7 @@ public class ComplexAgentInfo {
 
 	/** Prints the species-wise statistics of an agent type. Intended to replace printAgentsCount() */
 	public static void printAgentsCountByType(java.io.PrintWriter pw, int type) {
-		pw.print((type + 1)); // $$$$$$ change from "i" to "(i + 1)".  Apr 3
+		pw.print((type + 1)); // $$$$$$ change from "i" to "(i + 1)". Apr 3
 		pw.print("\t" + deadAgentsofType[type]);
 		pw.print("\t" + aliveAgentsofType[type]);
 		pw.print("\t" + offspringsAgentsofType[type]);
@@ -360,58 +223,21 @@ public class ComplexAgentInfo {
 		pw.print("\t" + stepsAgentsofType[type]);
 	}
 
-	public void setDeath(long death) {
-		deathTick = death;
+	public static void resetGroupData() {
+		for (int i = 0; i < MAX_NUM_OF_AGENTS; i++) {
+			energies[i] = 0;
+			foodEnergies[i] = 0;
+			stepEnergies[i] = 0;
+			agentBumpEnergies[i] = 0;
+			rockBumpEnergies[i] = 0;
+			liveCount[i] = 0;
+			otherEnergySources[i] = 0;
+			cannibalEnergies[i] = 0;
+			turningEnergies[i] = 0;
+			otherEnergySinks[i] = 0;
+			agentAgingEnergies[i] = 0;
+		}
 	}
-
-	public long getDeathTick() {
-		return deathTick;
-	}
-
-	public int getTypeNum() {
-		return agentTypes;
-
-	}
-
-	public int getAgentNumber() {
-		return agentNumber;
-	}
-
-	public void setStrategy(int strat) {
-		action = strat;
-	}
-
-	/** Sets the genetic code and gene stati. */
-	public void setGeneticCode(String geneticCode, int[] gene_values) {
-		genes = geneticCode;
-	    for (int i = 0; i < GeneticCode.NUM_GENES; i++) {
-	    	gene_status[i] = 2*Math.abs(Math.sin(gene_values[i]*Math.PI/180));
-	    }
-	}
-
-
-	// The static variables to keep track of the agents produced so far.
-
-	static int agentTypes = 0; // total agent types
-
-	static int[] deadAgentsofType; // numbers of agents dead of type i.
-
-	// This is initialized in printAgent method.
-	static int[] aliveAgentsofType;
-
-	static int[] sexAgentsofType;
-
-	static int[] asexAgentsofType;
-
-	static int[] offspringsAgentsofType;
-
-	static int[] stepsAgentsofType;
-
-	static int[] totalsAgentsofType;
-
-	static int[] stepslivedAgentsofType;
-
-	static int[] eatenAgentsofType;
 
 	private int action = 0;
 
@@ -433,13 +259,11 @@ public class ComplexAgentInfo {
 
 	private int countRockBumps;
 
+	// The static variables to keep track of the agents produced so far.
+
 	private int agentNumber;
 
 	private int agentType;
-
-	public int getAgentType() {
-		return agentType;
-	}
 
 	private int sexualPregs;
 
@@ -479,6 +303,42 @@ public class ComplexAgentInfo {
 
 	private static int[] agentAgingEnergies = new int[MAX_NUM_OF_AGENTS];
 
+	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, ComplexAgentInfo p2, int strat) {
+		agentType = type;
+		agentNumber = num;
+		birthTick = birth;
+		parent1 = p1;
+		parent2 = p2;
+		action = strat;
+	}
+
+	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, int strat) {
+		agentType = type;
+		agentNumber = num;
+		birthTick = birth;
+		parent1 = p1;
+		action = strat;
+	}
+
+	public ComplexAgentInfo(int num, int type, long birth, int strat) {
+		agentType = type;
+		agentNumber = num;
+		birthTick = birth;
+		action = strat;
+	}
+
+	public void addAgentBump() {
+		++countAgentBumps;
+	}
+
+	public void addCannibalism(int type, int val) {
+		cannibalEnergies[type] += val;
+	}
+
+	public void addDirectChild() {
+		++directChildren;
+	}
+
 	/* Total energy per agent type */
 	public void addEnergy(int type, int val) {
 		energies[type] += val;
@@ -494,8 +354,110 @@ public class ComplexAgentInfo {
 		otherEnergySources[type] += val;
 	}
 
-	public void addCannibalism(int type, int val) {
-		cannibalEnergies[type] += val;
+	public void addPathStep(Location loc) {
+		path.add(loc);
+		if (path.size() > MAX_PATH_HISTORY) {
+			path.remove(0);
+		}
+	}
+
+	public void addRockBump() {
+		++countRockBumps;
+	}
+
+	public void addSexPreg() {
+		++sexualPregs;
+	}
+
+	public void addStep() {
+		++countSteps;
+	}
+
+	public void addTurn() {
+		++countTurns;
+	}
+
+	/* Keep a total tally of the living agents */
+	public void alive(int type) {
+		liveCount[type]++;
+	}
+
+	public void ate(int agentType) {
+		eatenAgentsofType[agentType]++;
+	}
+
+	public int getAgentNumber() {
+		return agentNumber;
+	}
+
+	public int getAgentType() {
+		return agentType;
+	}
+
+	public long getDeathTick() {
+		return deathTick;
+	}
+
+	public List<Location> getPathHistory() {
+		return path;
+	}
+
+	public int getTypeNum() {
+		return agentTypes;
+
+	}
+
+	public void printInfo(java.io.PrintWriter pw) {
+		pw.print(agentNumber);
+		pw.print("\t" + (agentType + 1)); // $$$$$$ change from "agentType" to "(agentType + 1)". Apr 3
+		pw.print("\t" + birthTick);
+		if (parent1 == null && parent2 == null) {
+			asexAgentsofType[agentType]++;
+			pw.print("\tRandomly generated");
+		} else if (parent2 == null) {
+			asexAgentsofType[agentType]++;
+			offspringsAgentsofType[parent1.agentType]++;
+			pw.print("\tAsexual, from agent " + parent1.agentNumber);
+		} else {
+			pw.print("\tSexual, from Mother: " + parent1.agentNumber + ", Father: " + parent2.agentNumber);
+			sexAgentsofType[agentType]++;
+			offspringsAgentsofType[parent1.agentType]++;
+			offspringsAgentsofType[parent2.agentType]++;
+		}
+		pw.print("\t" + deathTick);
+		if (deathTick != -1) {
+			stepslivedAgentsofType[agentType] += (deathTick - birthTick);
+			deadAgentsofType[agentType]++;
+		} else {
+			aliveAgentsofType[agentType]++;
+		}
+
+		pw.print("\t" + directChildren);
+		pw.print("\t" + totalChildren);
+		pw.print("\t" + sexualPregs);
+
+		int total = countSteps + countTurns + countAgentBumps + countRockBumps;
+		totalsAgentsofType[agentType] += total;
+		stepsAgentsofType[agentType] += countSteps;
+		DecimalFormat dform = new DecimalFormat("###.##%");
+		pw.print("\t" + dform.format((double) (countSteps) / total));
+		pw.print("\t" + dform.format((double) (countTurns) / total));
+		pw.print("\t" + dform.format((double) (countAgentBumps) / total));
+		pw.print("\t" + dform.format((double) (countRockBumps) / total));
+
+		if (action == 0) {
+			pw.println("\tcooperator");
+		} else {
+			pw.println("\tcheater");
+		}
+	}
+
+	public void setDeath(long death) {
+		deathTick = death;
+	}
+
+	public void setStrategy(int strat) {
+		action = strat;
 	}
 
 	/* useXXX == energy consumed for XXX */
@@ -503,16 +465,8 @@ public class ComplexAgentInfo {
 		agentBumpEnergies[type] += val;
 	}
 
-	public void useStepEnergy(int type, int val) {
-		stepEnergies[type] += val;
-	}
-
-	public void useRockBumpEnergy(int type, int val) {
-		rockBumpEnergies[type] += val;
-	}
-
-	public void useTurning(int type, int val) {
-		turningEnergies[type] += val;
+	public void useExtraEnergy(int type, int val) {
+		agentAgingEnergies[type] += val;
 	}
 
 	/* Other sources including energy gained from the agent strategy */
@@ -520,13 +474,16 @@ public class ComplexAgentInfo {
 		otherEnergySinks[type] += val;
 	}
 
-	public void useExtraEnergy(int type, int val) {
-		agentAgingEnergies[type] += val;
+	public void useRockBumpEnergy(int type, int val) {
+		rockBumpEnergies[type] += val;
 	}
 
-	/* Keep a total tally of the living agents */
-	public void alive(int type) {
-		liveCount[type]++;
+	public void useStepEnergy(int type, int val) {
+		stepEnergies[type] += val;
+	}
+
+	public void useTurning(int type, int val) {
+		turningEnergies[type] += val;
 	}
 
 }

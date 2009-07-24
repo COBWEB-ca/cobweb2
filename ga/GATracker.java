@@ -1,10 +1,11 @@
 package ga;
 
-import cwcore.ComplexAgent;
-import cwcore.ComplexEnvironment;
+import cobweb.TickScheduler.Client;
 
 
-public class GATracker {
+public class GATracker implements Client {
+
+
 
 	/** The size of distribution of gene status. 91 given our |2sin(x)| function */
 	public static final int GENE_STATUS_DISTRIBUTION_SIZE = 91;
@@ -13,78 +14,76 @@ public class GATracker {
 	public static final int GENE_VALUE_DISTRIBUTION_SIZE = 256;
 
 	/** Number of agents stored in GATracker's 'agents' */
-	public static int[] total_agents = new int[ComplexEnvironment.AGENT_TYPES];;
+	public int[] total_agents;
 
 	/** The sum of specific gene status numbers over particular agent types. */
-	public static double[][] total_gene_status = new double[ComplexEnvironment.AGENT_TYPES][GeneticCode.NUM_GENES];
+	public double[][] total_gene_status;
 
 	/** The distribution of the status of a specific gene over particular agent types. */
-	private static double[][][] gene_status_distribution = new double [ComplexEnvironment.AGENT_TYPES][GeneticCode.NUM_GENES][GENE_STATUS_DISTRIBUTION_SIZE];
+	private double[][][] gene_status_distribution;
 
 	/** The distribution of the value of a specific gene over particular agent types. */
-	private static double[][][] gene_value_distribution = new double [ComplexEnvironment.AGENT_TYPES][GeneticCode.NUM_GENES][GENE_VALUE_DISTRIBUTION_SIZE];
+	private double[][][] gene_value_distribution;
 
 	/** Which GA-info type to track/print. */
-	private static boolean track_gene_status_distribution = false;
-	private static boolean track_gene_value_distribution = false;
+	private boolean track_gene_value_distribution;
 
-	/** The seed used by the program. */
-	public static long seed;
+	private GAChartOutput charOutput;
+
+	private int typeCount;
+
+	private int geneCount;
+
+	public GATracker(int agentTypes, int geneNo, boolean track) {
+		typeCount = agentTypes;
+		geneCount = geneNo;
+		total_agents = new int[typeCount];
+		total_gene_status = new double[typeCount][geneCount];
+		gene_status_distribution = new double [typeCount][geneCount][GENE_STATUS_DISTRIBUTION_SIZE];
+		gene_value_distribution =  new double [typeCount][geneCount][GENE_VALUE_DISTRIBUTION_SIZE];
+		track_gene_value_distribution = track;
+
+
+		if (track_gene_value_distribution) {
+			charOutput = new GAChartOutput(typeCount, geneCount);
+			// Initialize chart output
+			charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
+			plotGeneValueDistribution(0);
+		}
+	}
 
 	/** Adds an agent. */
-	public static void addAgent(ComplexAgent ca) {
-		for (int i = 0; i < GeneticCode.NUM_GENES; i++) {
-			double gene_status = ca.getInfo().getGeneStatus()[i];
-			int gene_value = ca.getGeneticCode().getGeneticColour()[i];
-			total_gene_status[ca.getInfo().getAgentType()][i] += gene_status;
-			gene_status_distribution[ca.getInfo().getAgentType()][i][geneStatusHash(gene_value)]++;
-			gene_value_distribution[ca.getInfo().getAgentType()][i][gene_value]++;
+	public void addAgent(int type, GeneticCode genes) {
+		for (int i = 0; i < geneCount; i++) {
+			total_gene_status[type][i] += genes.getStatus(i);
+			gene_status_distribution[type][i][geneStatusHash(genes.getValue(i))]++;
+			gene_value_distribution[type][i][genes.getValue(i)]++;
 		}
-		total_agents[ca.getInfo().getAgentType()]++;
-
+		total_agents[type]++;
 	}
 
 	/** Removes an agent. */
-	public static void removeAgent(ComplexAgent ca) {
-		for (int i = 0; i < GeneticCode.NUM_GENES; i++) {
-			double gene_status = ca.getInfo().getGeneStatus()[i];
-			int gene_value = ca.getGeneticCode().getGeneticColour()[i];
-			total_gene_status[ca.getInfo().getAgentType()][i] -= gene_status;
-			gene_status_distribution[ca.getInfo().getAgentType()][i][geneStatusHash(gene_value)]--;
-			gene_value_distribution[ca.getInfo().getAgentType()][i][gene_value]--;
+	public void removeAgent(int type, GeneticCode genes) {
+		for (int i = 0; i < geneCount; i++) {
+			total_gene_status[type][i] -= genes.getStatus(i);
+			gene_status_distribution[type][i][geneStatusHash(genes.getValue(i))]--;
+			gene_value_distribution[type][i][genes.getValue(i)]--;
 		}
-		total_agents[ca.getInfo().getAgentType()]--;
+		total_agents[type]--;
 	}
 
 	/** Calculates GA info and prints them if appropriate. */
-	public static void printGAInfo(long time_step) {
-		if (track_gene_status_distribution) {
-			plotGeneStatusDistribution(time_step);
-		}
-
-		if (track_gene_value_distribution) {
-			plotGeneValueDistribution(time_step);
-		}
-	}
-
-	/** Plot the gene status distribution of all agent types for a certain time step. */
-	private static void plotGeneStatusDistribution(long time_step) {
-		// Update the chart according to update frequency
-		if (time_step % GAChartOutput.update_frequency == 0) {
-			GAChartOutput.updateGeneStatusDistributionData(gene_status_distribution);
-		}
+	public void printGAInfo(long time_step) {
+		plotGeneValueDistribution(time_step);
 	}
 
 	/** Plot the gene value distribution of all agent types for a certain time step. */
-	private static void plotGeneValueDistribution(long time_step) {
-		// Update the chart according to update frequency
-		if (time_step % GAChartOutput.update_frequency == 0) {
-			GAChartOutput.updateGeneValueDistributionData(gene_value_distribution);
-		}
+	private void plotGeneValueDistribution(long time_step) {
+		charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
 	}
 
 	/** Gets the appropriate index of a gene of a specific value in a gene status distribution hash table (or array). */
-	public static int geneStatusHash(int gene_value) {
+	public int geneStatusHash(int gene_value) {
 		int index;
 		if (gene_value > 90) {
 			index = Math.abs(180 - gene_value);
@@ -94,64 +93,20 @@ public class GATracker {
 		return index;
 	}
 
-	/** Changes the current state of 'track_gene_status_distribution' and return the altered state. */
-	public static boolean negateTrackGeneStatusDistribution() {
-		if (track_gene_status_distribution) {
-			track_gene_status_distribution = false;
-		} else {
-			track_gene_status_distribution = true;
-		}
-		return track_gene_status_distribution;
-	}
-
-	/** Returns the current state of 'track_gene_status_distribution'. */
-	public static boolean getTrackGeneStatusDistribution() {
-		return track_gene_status_distribution;
-	}
-
-	/** Sets the state of 'track_gene_status_distribution'. */
-	public static void setTrackGeneStatusDistribution(boolean state) {
-		track_gene_status_distribution = state;
-	}
-
-	/** Changes the current state of 'track_gene_value_distribution' and return the altered state. */
-	public static boolean negateTrackGeneValueDistribution() {
-		if (track_gene_value_distribution) {
-			track_gene_value_distribution = false;
-		} else {
-			track_gene_value_distribution = true;
-		}
-		return track_gene_value_distribution;
-	}
-
-
 	/** Returns the current state of 'track_gene_value_distribution'. */
-	public static boolean getTrackGeneValueDistribution() {
+	public boolean getTrackGeneValueDistribution() {
 		return track_gene_value_distribution;
 	}
 
 	/** Sets the state of 'track_gene_value_distribution'. */
-	public static void setTrackGeneValueDistribution(boolean state) {
+	public void setTrackGeneValueDistribution(boolean state) {
 		track_gene_value_distribution = state;
 	}
 
-	/** Initialize the output of GA info. i.e. Setting up output streams and naming headers in files */
-	public static void initializeGAInfoOutput() {
-
-		GAChartOutput gco = new GAChartOutput();
-		if (track_gene_status_distribution || track_gene_value_distribution) {
-			gco.initPlots();
-		}
-		if (track_gene_status_distribution) {
-			// Initialize chart output
-			GAChartOutput.updateGeneStatusDistributionData(gene_status_distribution);
-			plotGeneStatusDistribution(0);
-		}
-
+	public void tickNotification(long time) {
+		/* If program is set to track GA info, then print them. */
 		if (track_gene_value_distribution) {
-			// Initialize chart output
-			GAChartOutput.updateGeneValueDistributionData(gene_value_distribution);
-			plotGeneValueDistribution(0);
+			printGAInfo(time);
 		}
 	}
 

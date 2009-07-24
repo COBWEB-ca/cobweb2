@@ -1,57 +1,49 @@
 package driver;
 
-import java.lang.reflect.Constructor;
-
 import cobweb.Controller;
+import cobweb.params.CobwebParam;
 
 public class ControllerFactory {
 
-	private static Constructor<? extends Controller> emptyConstructor;
+	private static Class<? extends Controller> controllerClass;
 
-	private static Constructor<? extends Controller> asexualConstructor;
-
-	private static Constructor<? extends Controller> sexualConstructor;
+	private static CobwebParam params;
 
 
-	public static void Init(Class<? extends Controller> controllerClass) throws NoSuchMethodException {
-		emptyConstructor = controllerClass.getConstructor(int.class, int.class);
-		asexualConstructor = controllerClass.getConstructor(Controller.class, float.class);
-		sexualConstructor = controllerClass.getConstructor(Controller.class, Controller.class, float.class);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static void Init(String controllerName) throws ClassNotFoundException  {
-		Class<? extends Controller> aiClass;
-		aiClass = (Class<? extends Controller>) Class.forName(controllerName);
-		try {
-			Init(aiClass);
-		} catch (NoSuchMethodException ex) {
-			throw new ClassNotFoundException(controllerName + " Doesn't support all the constructors");
-		}
+	public static void Init(String controllerName, CobwebParam cobwebParams) throws ClassNotFoundException  {
+		@SuppressWarnings("unchecked")
+		Class<? extends Controller> c = (Class<? extends Controller>) Class.forName(controllerName);
+		controllerClass = c;
+		params = cobwebParams;
 	}
 
 	public static Controller createNew(int memory, int comm) {
+		Controller c = newInstance();
+		c.setupFromEnvironment(memory, comm, params);
+		return c;
+	}
+
+	private static Controller newInstance() {
 		try {
-			return emptyConstructor.newInstance(memory, comm);
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
+			Controller c = ControllerFactory.controllerClass.newInstance();
+			return c;
+		} catch (InstantiationException ex) {
+			throw new RuntimeException("Unable to instantiate controller", ex);
+		} catch (IllegalAccessException ex) {
+			throw new RuntimeException("Unable to instantiate controller", ex);
 		}
 	}
 
 	public static Controller createFromParent(Controller p, float mutation) {
-		try {
-			return asexualConstructor.newInstance(p, mutation);
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
+		Controller c = newInstance();
+		c.setupFromParent(p, mutation);
+		return c;
 	}
 
 	public static Controller createFromParents(Controller p1, Controller p2, float mutation) {
-		try {
-			return sexualConstructor.newInstance(p1, p2, mutation);
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
+		Controller c = newInstance();
+		c.setupFromParents(p1, p2, mutation);
+		return c;
 	}
 
 }

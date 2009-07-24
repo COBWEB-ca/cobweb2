@@ -1,50 +1,15 @@
 package cwcore;
 
-import ga.GeneticCode;
+import cobweb.Point2D;
 
 public class SimpleAgent extends cobweb.Agent implements
 		cobweb.TickScheduler.Client {
 
-	/** The genetic code of the agent. Default is 24 bit. */
-	private GeneticCode genetic_code;
-
-	/** Returns the genetic code of the agent. Default is 24 bit. */
-	@Override
-	public GeneticCode getGeneticCode() {
-		return genetic_code;
-	}
-
-	/** Returns the genetic sequence of the agent. Default is 24 bit. */
-	@Override
-	public String getGeneticSequence() {
-		return genetic_code.getGeneticInfo();
-	}
-
 	@Override
 	public void getDrawInfo(cobweb.UIInterface theUI) {
 		theUI.newAgent(java.awt.Color.red, java.awt.Color.black,
-				new java.awt.Point(getPosition().v[0], getPosition().v[1]),
-				new java.awt.Point(facing.v[0], facing.v[1]));
-	}
-
-	private static class SimpleController implements cobweb.Controller {
-		public void addClientAgent(cobweb.Agent a) {
-		}
-
-		public void removeClientAgent(cobweb.Agent a) {
-		}
-
-		public void controlAgent(cobweb.Agent baseAgent) {
-
-			SimpleAgent theAgent = (SimpleAgent) baseAgent;
-			float rnd = cobweb.globals.behaviorRandom.nextFloat();
-			if (rnd > 0.85)
-				theAgent.turnLeft();
-			else if (rnd > 0.7)
-				theAgent.turnRight();
-			else
-				theAgent.step();
-		}
+				new Point2D(getPosition().v[0], getPosition().v[1]),
+				new Point2D(facing.v[0], facing.v[1]));
 	}
 
 	@Override

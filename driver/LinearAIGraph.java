@@ -45,44 +45,36 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 	}
 
 	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+		// Nothing
 	}
 
 	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+		// Nothing
 	}
 
 	public void windowClosing(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+		// Nothing
 	}
 
 	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+		// Nothing
 	}
 
 	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+		// Nothing
 	}
 
 	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+		// Nothing
 	}
 
 	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
-
+		// Nothing
 	}
 
 	public void actionPerformed(ActionEvent arg0) {
 		double data[] = LinearWeightsController.getRunningOutputMean();
 		for (int i = 0; i < LinearWeightsController.OUTPUT_COUNT; i++) {
-
 			catd.setValue(data[i], LinearWeightsController.outputNames[i], "");
 		}
 	}

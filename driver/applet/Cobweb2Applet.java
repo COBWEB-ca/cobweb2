@@ -124,7 +124,8 @@ public class Cobweb2Applet extends JApplet {
 	}
 
 	/**
-	 * @param expname
+	 * Sets up known simulation by name
+	 * @param expname Experiment name
 	 */
 	private void loadSimulation(String expname) {
 		this.currentexp = expname;

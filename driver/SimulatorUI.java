@@ -30,9 +30,11 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 	public void AddTickEventListener(TickEventListener listener) {
 		uiPipe.AddTickEventListener(listener);
+		uiPipe.setRunnable(true);
 	}
 
 	public void RemoveTickEventListener(TickEventListener listener) {
+		uiPipe.setRunnable(false);
 		uiPipe.RemoveTickEventListener(listener);
 	}
 
@@ -52,7 +54,6 @@ public class SimulatorUI extends JPanel implements UIClient {
 		setLayout(new BorderLayout());
 
 		setupUI();
-
 	}
 
 	public EnvironmentStats getStatistics() {
@@ -65,7 +66,6 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 		JPanel controls = new JPanel();
 
-		uiPipe.setRefreshTimeout(100);
 		uiPipe.setFrameSkip(0);
 		if (displayPanel == null) {
 			displayPanel = new DisplayPanel(uiPipe);
@@ -116,7 +116,7 @@ public class SimulatorUI extends JPanel implements UIClient {
 			stepButton.setUI(uiPipe);
 		}
 
-		uiPipe.setTickField(tickField);
+		uiPipe.setTimeStopField(tickField);
 
 		AddTickEventListener(new TickEventListener() {
 
@@ -144,15 +144,12 @@ public class SimulatorUI extends JPanel implements UIClient {
 		uiPipe.start();
 	}
 
-	public boolean isClipped() {
-		return false;
-	}
-
-	public void refresh(UIInterface theInterface) {
-		if (displayPanel != null && pauseButton != null && stepButton != null) {
-			displayPanel.repaint();
-			pauseButton.repaint();
-			stepButton.repaint();
+	public void refresh(UIInterface theInterface, boolean wait) {
+		if (displayPanel != null) {
+			if (wait)
+				displayPanel.repaintNow();
+			else
+				displayPanel.repaint();
 		}
 	}
 }

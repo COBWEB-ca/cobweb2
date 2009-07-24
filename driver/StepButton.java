@@ -32,9 +32,9 @@ public class StepButton extends JButton implements
 	// $$$$$$ Modified on Mar 14
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 		if  (uiPipe.isRunnable()) {
-			java.lang.Long stepTime = uiPipe.getTime();
+			java.lang.Long stepTime = uiPipe.getCurrentTime();
 			stepTime++;
-			JTextField textStepTime = uiPipe.getTickField();
+			JTextField textStepTime = uiPipe.getTimeStopField();
 			textStepTime.setText(stepTime.toString());
 
 			if (uiPipe.isPaused()) {

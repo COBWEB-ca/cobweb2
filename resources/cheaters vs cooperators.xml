@@ -12,7 +12,7 @@
 	<maxFoodChance>0.8</maxFoodChance>
 	<keepOldAgents>false</keepOldAgents>
 	<spawnNewAgents>true</spawnNewAgents>
-	<keepOldArray>true</keepOldArray>
+	<keepOldArray>false</keepOldArray>
 	<dropNewFood>true</dropNewFood>
 	<randomSeed>0</randomSeed>
 	<newColorizer>true</newColorizer>

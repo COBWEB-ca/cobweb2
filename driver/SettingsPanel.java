@@ -1,8 +1,6 @@
 package driver;
 
 import java.awt.LayoutManager;
-import java.io.IOException;
-import java.io.Writer;
 
 import javax.swing.JPanel;
 
@@ -32,7 +30,7 @@ public abstract class SettingsPanel extends JPanel  {
 		super(layout);
 	}
 
-	public abstract void writeXML(Writer out) throws IOException;
+	public abstract void bindToParser(Parser p);
 
-	public abstract void readFromParser(Parser p);
+	//public abstract void writeToParser(Parser p);
 }

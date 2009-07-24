@@ -58,10 +58,8 @@ public class TraitArray implements InnateArray {
 	public Object clone() {
 		try {
 			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			System.out.println("ERROR: " + this.getClass().getName()
-					+ " does not support cloneability.");
-			return null;
+		} catch (CloneNotSupportedException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 

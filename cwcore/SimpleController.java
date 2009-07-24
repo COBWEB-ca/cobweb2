@@ -1,9 +1,17 @@
 /**
- * 
+ *
  */
 package cwcore;
 
-@SuppressWarnings("unused") class SimpleController implements cobweb.Controller {
+import cobweb.Controller;
+import cobweb.params.CobwebParam;
+
+class SimpleController implements cobweb.Controller {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -5220765303102095303L;
+
 	public void addClientAgent(cobweb.Agent a) {
 	}
 
@@ -23,5 +31,26 @@ package cwcore;
 			default:
 				theAgent.step();
 		}
+	}
+
+
+	public void setupFromEnvironment(int memory, int comm, CobwebParam params) {
+	}
+
+	public void setupFromParent(Controller parent, float mutationRate) {
+	}
+
+	public void setupFromParents(Controller parent1, Controller parent2, float mutationRate) {
+	}
+
+
+	SimpleControllerParams params;
+
+	public CobwebParam getParams() {
+		return params;
+	}
+
+	public void setParams(CobwebParam params) {
+		this.params = (SimpleControllerParams) params;
 	}
 }

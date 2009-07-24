@@ -4,9 +4,15 @@
 package cwcore;
 
 import cobweb.Controller;
+import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.lookPair;
 
 public class GeneticController implements cobweb.Controller {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 8777222590971142868L;
+
 	BehaviorArray ga;
 	int memorySize;
 	int commSize;
@@ -17,29 +23,36 @@ public class GeneticController implements cobweb.Controller {
 	public void removeClientAgent(cobweb.Agent a) {
 	}
 
-	// for asexual reproduction
-	public GeneticController(Controller parent, float mutationRate) {
-		if (!(parent instanceof GeneticController)) {
+	/** sexual reproduction
+	 * @param parent1 first parent
+	 * @param parent2 second parent
+	 * @param mutationRate mutation rate
+	 */
+	public void setupFromParents(Controller parent1, Controller parent2, float mutationRate) {
+		if (!(parent1 instanceof GeneticController) || !(parent2 instanceof GeneticController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");
 		}
-		GeneticController p = (GeneticController) parent;
-		ga = p.ga.copy(mutationRate);
-		memorySize = p.memorySize;
-	}
 
-	// sexual reproduction
-	public GeneticController(Controller parent, Controller parent2, float mutationRate) {
-		if (!(parent instanceof GeneticController) || !(parent2 instanceof GeneticController)) {
-			throw new RuntimeException("Parent's controller type must match the child's");
-		}
-		GeneticController p = (GeneticController) parent;
+		GeneticController p = (GeneticController) parent1;
 		GeneticController p2 = (GeneticController) parent2;
 		ga = p.ga.splice(p2.ga).copy(mutationRate);
 		memorySize = p.memorySize;
 	}
 
-	// return the measure of similiarity between this agent and the 'other'
-	// ranging from 0.0 to 1.0 (identical)
+	public void setupFromParent(Controller parent, float mutationRate) {
+		if (!(parent instanceof GeneticController)) {
+			throw new RuntimeException("Parent's controller type must match the child's");
+		}
+
+		GeneticController p = (GeneticController) parent;
+		ga = p.ga.copy(mutationRate);
+		memorySize = p.memorySize;
+	}
+
+	/** return the measure of similiarity between this agent and the 'other'
+	 ranging from 0.0 to 1.0 (identical)
+
+	 */
 	public double similarity(GeneticController other) {
 		return ga.similarity(other.ga);
 	}
@@ -48,18 +61,26 @@ public class GeneticController implements cobweb.Controller {
 		return ga.similarity(other);
 	}
 
-	// Creating genetic code from scratch
-	public GeneticController(int memory, int comm) {
+	public GeneticController() {
+
+	}
+
+	/** Creating genetic code from scratch
+	 *
+	 * @param memory memory size in bits
+	 * @param comm communication packet size in bits
+	 */
+	public void setupFromEnvironment(int memory, int comm, CobwebParam params) {
 		memorySize = memory;
 		commSize = comm;
+		this.params = (GeneticControllerParams) params;
 		int[] outputArray = { OUTPUT_BITS, memorySize, commSize, 1 };
 		ga = new BehaviorArray(INPUT_BITS + memorySize + commSize,
 				outputArray);
 		ga.init();
 	}
 
-	// initialize behaviour array and memory
-	public GeneticController(BehaviorArray g, int memory) {
+	private GeneticController(BehaviorArray g, int memory) {
 		memorySize = memory;
 		ga = g;
 	}
@@ -116,5 +137,11 @@ public class GeneticController implements cobweb.Controller {
 	public GeneticController splice(GeneticController other) {
 		return new GeneticController(ga.splice(other.ga), memorySize);
 	}
+
+	public CobwebParam getParams() {
+		return params;
+	}
+
+	private GeneticControllerParams params;
 
 }

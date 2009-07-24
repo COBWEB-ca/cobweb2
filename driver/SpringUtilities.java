@@ -174,19 +174,13 @@ public class SpringUtilities {
     public static void makeCompactGrid(Container parent,
                                        int rows, int cols,
                                        int initialX, int initialY,
-                                       int xPad, int yPad) {
-        SpringLayout layout;
-        try {
-            layout = (SpringLayout)parent.getLayout();
-        } catch (ClassCastException exc) {
-            System.err.println("The first argument to makeCompactGrid must use SpringLayout.");
-            return;
-        }
+                                       int xPad, int yPad, int minCellWidth, int minCellHeight) {
+        SpringLayout layout = (SpringLayout)parent.getLayout();
 
         //Align all cells in each column and make them the same width.
         Spring x = Spring.constant(initialX);
         for (int c = 0; c < cols; c++) {
-            Spring width = Spring.constant(0);
+            Spring width = Spring.constant(minCellWidth);
             for (int r = 0; r < rows; r++) {
                 width = Spring.max(width,
                                    getConstraintsForCell(r, c, parent, cols).
@@ -204,7 +198,7 @@ public class SpringUtilities {
         //Align all cells in each row and make them the same height.
         Spring y = Spring.constant(initialY);
         for (int r = 0; r < rows; r++) {
-            Spring height = Spring.constant(0);
+            Spring height = Spring.constant(minCellHeight);
             for (int c = 0; c < cols; c++) {
                 height = Spring.max(height,
                                     getConstraintsForCell(r, c, parent, cols).
