@@ -23,24 +23,24 @@ public class FoodwebParams implements CobwebParam {
 	@ConfDisplayName("Food ")
 	public boolean[] canEatFood;
 
-	private final ComplexEnvironmentParams env;
+	private final AgentFoodCountable env;
 
 	private static final Pattern AgentN = Pattern.compile("agent(\\d+)");
 	private static final Pattern FoodN = Pattern.compile("food(\\d+)");
 
-	public FoodwebParams(ComplexEnvironmentParams env) {
+	public FoodwebParams(AgentFoodCountable env) {
 		this.env = env;
 
-		canEatFood = new boolean[env.foodTypeCount];
-		canEatAgent = new boolean[env.agentTypeCount];
+		canEatFood = new boolean[env.getFoodTypes()];
+		canEatAgent = new boolean[env.getAgentTypes()];
 		for (int i = 0; i < canEatFood.length; i++) {
 			canEatFood[i] = true;
 		}
 	}
 
 	public void loadConfig(Node root) throws IllegalArgumentException {
-		canEatFood = new boolean[env.foodTypeCount];
-		canEatAgent = new boolean[env.agentTypeCount];
+		canEatFood = new boolean[env.getFoodTypes()];
+		canEatAgent = new boolean[env.getAgentTypes()];
 
 		NodeList nodes = root.getChildNodes();
 
@@ -59,12 +59,12 @@ public class FoodwebParams implements CobwebParam {
 	}
 
 	public void saveConfig(Node root, Document document) {
-		for (int agent = 0; agent < env.agentTypeCount; agent++) {
+		for (int agent = 0; agent < env.getAgentTypes(); agent++) {
 			Node n = document.createElement("agent" + (agent + 1));
 			n.setTextContent(Boolean.toString(canEatAgent[agent]));
 			root.appendChild(n);
 		}
-		for (int food = 0; food < env.foodTypeCount; food++) {
+		for (int food = 0; food < env.getFoodTypes(); food++) {
 			Node n = document.createElement("food" + (food + 1));
 			n.setTextContent(Boolean.toString(canEatFood[food]));
 			root.appendChild(n);

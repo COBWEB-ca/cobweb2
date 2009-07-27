@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import cobweb.params.ConfDisplayName;
+import cobweb.params.ReflectionUtil;
 import cwcore.AgentSimularityCalculator;
 import cwcore.ComplexAgent;
 import cwcore.complexParams.SpawnMutator;
@@ -49,29 +50,15 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 			float coefficient = gc.getStatus(i);
 
 			// Get instance variable linked to attribute in agent
-			try {
-				Object o;
-				o = pheno.field.get(agent.params);
+			ReflectionUtil.multiplyField(agent.params, pheno.field, coefficient);
 
-				// Modify the value according to the coefficient.
-				if (o instanceof Float) {
-					float value = ((Float) o).floatValue();
-					pheno.field.setFloat(agent.params, value * coefficient);
-				} else if (o instanceof Integer) {
-					double value = ((Integer) o).doubleValue();
-					pheno.field.setInt(agent.params, (int) Math.round(value * coefficient));
-				} else {
-					throw new IllegalArgumentException("Unknown phenotype field type");
-				}
-			} catch (IllegalAccessException ex) {
-				throw new RuntimeException("Cannot access field: " + pheno.field.toString(), ex);
-			}
 
 		}
 		Color col = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), colValues, 1);
 		agent.setColor(col);
 		tracker.addAgent(agent.type(), getGene(agent));
 	}
+
 
 	private GeneticCode getGene(ComplexAgent agent) {
 		GeneticCode gc = genes.get(agent);
@@ -120,8 +107,10 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 				break;
 		}
 
-		if (cobweb.globals.random.nextFloat() < parent1.params.mutationRate) {
-			genetic_code.mutate(cobweb.globals.random.nextInt(params.geneCount * params.geneLength));
+		if (genetic_code.getNumGenes() > 0) {
+			if (cobweb.globals.random.nextFloat() < parent1.params.mutationRate) {
+				genetic_code.mutate(cobweb.globals.random.nextInt(params.geneCount * params.geneLength));
+			}
 		}
 
 		genes.put(agent, genetic_code);

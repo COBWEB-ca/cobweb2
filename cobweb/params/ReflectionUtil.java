@@ -1,5 +1,7 @@
 package cobweb.params;
 
+import java.lang.reflect.Field;
+
 public class ReflectionUtil {
 
 	public static final Object stringToBoxed(Class<?> t, String strVal) {
@@ -23,5 +25,26 @@ public class ReflectionUtil {
 			return strVal;
 		}
 		throw new IllegalArgumentException("Can't parse non-primitive type: " + t.getCanonicalName());
+	}
+
+
+	public static void multiplyField(Object object, Field field, float factor) {
+		try {
+			Object o;
+			o = field.get(object);
+
+			// Modify the value according to the coefficient.
+			if (o instanceof Float) {
+				float value = ((Float) o).floatValue();
+				field.setFloat(object, value * factor);
+			} else if (o instanceof Integer) {
+				double value = ((Integer) o).doubleValue();
+				field.setInt(object, (int) Math.round(value * factor));
+			} else {
+				throw new IllegalArgumentException("Unknown phenotype field type");
+			}
+		} catch (IllegalAccessException ex) {
+			throw new RuntimeException("Cannot access field: " + field.toString(), ex);
+		}
 	}
 }

@@ -13,8 +13,10 @@ import cobweb.TypeColorEnumeration;
 import cobweb.Environment.Location;
 import cwcore.ComplexEnvironment.CommManager;
 import cwcore.ComplexEnvironment.CommPacket;
-import cwcore.complexParams.SpawnMutator;
+import cwcore.complexParams.AgentMutator;
 import cwcore.complexParams.ComplexAgentParams;
+import cwcore.complexParams.ContactMutator;
+import cwcore.complexParams.SpawnMutator;
 import driver.ControllerFactory;
 
 public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client {
@@ -136,22 +138,29 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
+	private static Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
+
 	private static final cobweb.Direction[] dirList = { cobweb.Environment.DIRECTION_NORTH,
 			cobweb.Environment.DIRECTION_SOUTH, cobweb.Environment.DIRECTION_WEST, cobweb.Environment.DIRECTION_EAST,
 			cobweb.Environment.DIRECTION_NORTHEAST, cobweb.Environment.DIRECTION_SOUTHEAST,
 			cobweb.Environment.DIRECTION_NORTHWEST, cobweb.Environment.DIRECTION_SOUTHWEST };
 
-	public static void addMutator(SpawnMutator mutator) {
-		mutators.add(mutator);
+	public static void addMutator(AgentMutator mutator) {
+		if (mutator instanceof SpawnMutator)
+			spawnMutators.add((SpawnMutator) mutator);
+
+		if (mutator instanceof ContactMutator)
+			contactMutators.add((ContactMutator) mutator);
 	}
 
 	public static void clearMutators() {
-		mutators.clear();
+		spawnMutators.clear();
+		contactMutators.clear();
 	}
 
 	private cobweb.Direction facing = cobweb.Environment.DIRECTION_NORTH;
 
-	private static Set<SpawnMutator> mutators = new LinkedHashSet<SpawnMutator>();
+	private static Set<SpawnMutator> spawnMutators = new LinkedHashSet<SpawnMutator>();
 
 	/**
 	 * Constructor with two parents
@@ -169,7 +178,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		copyConstants(parent1);
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent1.info, parent2.info, strat);
 
-		for (SpawnMutator mutator : mutators)
+		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this, parent1, parent2);
 	}
 
@@ -187,7 +196,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		copyConstants(parent);
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent.info, strat);
 
-		for (SpawnMutator mutator : mutators)
+		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this, parent);
 	}
 
@@ -208,7 +217,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, doCheat);
 
-		for (SpawnMutator mutator : mutators)
+		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this);
 	}
 
@@ -312,7 +321,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public void die() {
 		super.die();
 
-		for (SpawnMutator mutator : mutators) {
+		for (SpawnMutator mutator : spawnMutators) {
 			mutator.onDeath(this);
 		}
 
@@ -784,6 +793,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			ComplexAgent adjacentAgent = (ComplexAgent) adjAgent;
 
+
+			for (ContactMutator mut : contactMutators) {
+				mut.bump(this, adjacentAgent);
+			}
+
 			if (canEat(adjacentAgent)) {
 				eat(adjacentAgent);
 			}
@@ -832,6 +846,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			wasteCounterLoss -= params.stepAgentEnergy;
 			info.useAgentBumpEnergy(agentType, params.stepAgentEnergy);
 			info.addAgentBump();
+
 		} // end of two agents meet
 		else if ((destPos != null) && destPos.testFlag(ComplexEnvironment.FLAG_WASTE)) {
 			// Bumps into waste
@@ -1004,7 +1019,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public static Iterable<String> logDataTotal() {
 		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : mutators) {
+		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logDataTotal())
 				blah.add(s);
 		}
@@ -1013,7 +1028,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public static Iterable<String> logHederTotal() {
 		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : mutators) {
+		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logHeaderTotal())
 				blah.add(s);
 		}
@@ -1022,7 +1037,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public static Collection<String> logHederAgent() {
 		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : mutators) {
+		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logHeadersAgent())
 				blah.add(s);
 		}
@@ -1031,7 +1046,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public static Collection<String> logDataAgent(int i) {
 		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : mutators) {
+		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logDataAgent(i))
 				blah.add(s);
 		}

@@ -217,7 +217,6 @@ public class EnvironmentConfigPage implements ConfigPage {
 	}
 
 	public void validateUI() throws IllegalArgumentException {
-		params.width = Integer.parseInt(Width.getText());
 
 	}
 

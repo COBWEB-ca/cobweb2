@@ -19,6 +19,7 @@ import cobweb.Environment.EnvironmentStats;
 import cobweb.Environment.Location;
 import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;
+import disease.DiseaseMutator;
 import driver.Parser;
 
 public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Client {
@@ -465,18 +466,25 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		theClient = client;
 		InitScheduler(p.getEnvParams().schedulerName, p);
 
-		if (gm == null) {
-			gm = new GeneticsMutator();
-			ComplexAgent.addMutator(gm);
-			ComplexAgent.setSimularityCalc(gm);
+		if (geneticMutator == null) {
+			geneticMutator = new GeneticsMutator();
+			ComplexAgent.addMutator(geneticMutator);
+			ComplexAgent.setSimularityCalc(geneticMutator);
 		}
-		gm.setParams(p.getGeneticParams(), p.getEnvParams().agentTypeCount);
+		if (diseaseMutator == null) {
+			diseaseMutator = new DiseaseMutator();
+			ComplexAgent.addMutator(diseaseMutator);
+		}
+
+		geneticMutator.setParams(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
+
+		diseaseMutator.setParams(p.getDiseaseParams(), p.getEnvParams().getAgentTypes());
 
 		InitEnvironment("cwcore.ComplexEnvironment", p);
 
 
 		theScheduler.addSchedulerClient(this);
-		theScheduler.addSchedulerClient(gm.getTracker());
+		theScheduler.addSchedulerClient(geneticMutator.getTracker());
 
 		theScheduler.setSleep(delay);
 
@@ -484,7 +492,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		tickNotification(0);
 	}
 
-	GeneticsMutator gm;
+	private GeneticsMutator geneticMutator;
+	private DiseaseMutator diseaseMutator;
 
 	private void loadNewDataFile(int n) {
 		// System.out.println("Loading new file " + n); // $$$$$$ silenced on Apr 22

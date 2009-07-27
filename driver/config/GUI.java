@@ -204,8 +204,8 @@ public class GUI extends JFrame {
 			setDefault();
 		}
 
-		numAgentTypes = p.getEnvParams().agentTypeCount;
-		numFoodTypes = p.getEnvParams().agentTypeCount;
+		numAgentTypes = p.getEnvParams().getAgentTypes();
+		numFoodTypes = p.getEnvParams().getFoodTypes();
 
 		tabbedPane = new JTabbedPane();
 
@@ -226,7 +226,7 @@ public class GUI extends JFrame {
 		JComponent panelPD = setupPDpannel();
 		tabbedPane.addTab("PD Options", panelPD);
 
-		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().agentTypeCount);
+		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
 		JComponent panelGA = geneticPage.getPanel();
 		tabbedPane.addTab("Genetic Algorithm", panelGA);
 
@@ -372,8 +372,8 @@ public class GUI extends JFrame {
 
 		foodTable = new MixedValueJTable();
 
-		FoodwebParams[] foodweb = new FoodwebParams[p.getEnvParams().agentTypeCount];
-		for (int i = 0; i < p.getEnvParams().agentTypeCount; i++) {
+		FoodwebParams[] foodweb = new FoodwebParams[p.getEnvParams().getAgentTypes()];
+		for (int i = 0; i < p.getEnvParams().getAgentTypes(); i++) {
 			foodweb[i] = p.getAgentParams()[i].foodweb;
 		}
 		foodTable.setModel(new ConfigTableModel(foodweb, "Agent "));

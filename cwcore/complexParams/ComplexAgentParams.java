@@ -195,7 +195,7 @@ public class ComplexAgentParams extends AbstractReflectionParams implements Clon
 		}
 	}
 
-	public ComplexAgentParams(ComplexEnvironmentParams env) {
+	public ComplexAgentParams(AgentFoodCountable env) {
 		initialAgents = 20;
 		mutationRate = 0.05f;
 		initEnergy = 100;

@@ -12,7 +12,7 @@ import cobweb.params.ConfXMLTag;
 import cwcore.GeneticController;
 import cwcore.GeneticControllerParams;
 
-public class ComplexEnvironmentParams extends AbstractReflectionParams {
+public class ComplexEnvironmentParams extends AbstractReflectionParams implements AgentFoodCountable {
 	/**
 	 *
 	 */
@@ -133,6 +133,13 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams {
 	}
 
 
+	public int getAgentTypes() {
+		return agentTypeCount;
+	}
+
+	public int getFoodTypes() {
+		return foodTypeCount;
+	}
 
 
 }

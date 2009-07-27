@@ -500,7 +500,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	public int getAgentTypes() {
-		return data.agentTypeCount;
+		return data.getAgentTypes();
 	}
 
 	@Override
@@ -566,7 +566,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	public int getTypeCount() {
 
-		return data.agentTypeCount;
+		return data.getAgentTypes();
 	}
 
 	private void growFood() {
@@ -593,8 +593,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					// as well how many of each food type exist
 
 					double foodCount = 0;
-					int mostFood[] = new int[data.foodTypeCount];
-					for (int i = 0; i < data.agentTypeCount; ++i)
+					int mostFood[] = new int[data.getFoodTypes()];
+					for (int i = 0; i < data.getAgentTypes(); ++i)
 						mostFood[i] = 0;
 
 					Location checkPos = currentPos.getAdjacent(DIRECTION_NORTH);
@@ -635,7 +635,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 						if (data.likeFoodProb >= cobweb.globals.random.nextFloat()) {
 							growingType = max;
 						} else {
-							growingType = environmentRandom.nextInt(data.foodTypeCount);
+							growingType = environmentRandom.nextInt(data.getFoodTypes());
 						}
 
 						// finally, we grow food according to a certain
@@ -698,11 +698,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		setDefaultMutableAgentParam();
 
-		draughtdays = new int[data.foodTypeCount];
-		for (int i = 0; i < data.foodTypeCount; i++) {
-			// draught_period[i] = 10;
-			draughtdays[i] = 0;
-		}
 
 		/**
 		 * If the random seed is set to 0 in the data file, it means we use the system time instead
@@ -773,7 +768,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	private void loadFoodMode() {
-		for (int i = 0; i < data.foodTypeCount; ++i) {
+		draughtdays = new int[data.getFoodTypes()];
+		for (int i = 0; i < data.getFoodTypes(); ++i) {
+			draughtdays[i] = 0;
 			if (foodData[i].depleteRate < 0.0f || foodData[i].depleteRate > 1.0f)
 				foodData[i].depleteRate = environmentRandom.nextFloat();
 			if (foodData[i].depleteTime <= 0)
@@ -783,7 +780,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private void loadNewAgents() {
 		int doCheat = -1; // $$$$$ -1: not play Prisoner's Dilemma
-		for (int i = 0; i < data.agentTypeCount; ++i) {
+		for (int i = 0; i < data.getAgentTypes(); ++i) {
 			double coopProb = agentData[i].pdCoopProb / 100.0d; // static value for now $$$$$$ added for the below else
 																// block.
 			// Apr 18
@@ -833,7 +830,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	private void loadNewFood() {
-		for (int i = 0; i < data.foodTypeCount; ++i) {
+		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			for (int j = 0; j < foodData[i].initial; ++j) {
 				cobweb.Environment.Location l;
 				int tries = 0;
@@ -998,7 +995,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	public void printAgentInfo(java.io.PrintWriter pw) {
-		ComplexAgentInfo.initStaticAgentInfo(data.agentTypeCount);
+		ComplexAgentInfo.initStaticAgentInfo(data.getAgentTypes());
 
 		// Concatenating the headers of the report file.
 		String agentInfoHeader = "Agent Number";
@@ -1039,7 +1036,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		pw.println(agentTypeHeaders);
 
 		// Prints out species-wise statistics of each agent type
-		for (int i = 0; i < data.agentTypeCount; i++) {
+		for (int i = 0; i < data.getAgentTypes(); i++) {
 			ComplexAgentInfo.printAgentsCountByType(pw, i); // Steps, deaths, births, etc.
 			pw.print("\n");
 		}
@@ -1117,7 +1114,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		l = getUserDefinedLocation(x, y);
 		if (l.getAgent() != null && l.getAgent().type() == type) { // &&&&&& add " && l.getAgent().type() == type" Apr 3
 			l.getAgent().die();
-		} else if (type < data.agentTypeCount) {
+		} else if (type < data.getAgentTypes()) {
 			if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
 					&& !l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
 				int agentType = type;
@@ -1294,7 +1291,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// for each agent type, we test to see if its deplete time step has
 		// come, and if so deplete the food random
 		// by the appropriate percentage
-		for (int i = 0; i < data.agentTypeCount; ++i) {
+		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			if (foodData[i].depleteRate != 0.0f && foodData[i].growRate > 0
 					&& (tickCount % foodData[i].depleteTime) == 0) {
 				depleteFood(i);
@@ -1302,7 +1299,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 
 		boolean shouldGrow = false;
-		for (int i = 0; i < data.agentTypeCount; ++i) {
+		for (int i = 0; i < data.getAgentTypes(); ++i) {
 			if (foodData[i].growRate > 0) {
 				shouldGrow = true;
 				break;
@@ -1315,7 +1312,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 
 		// Air-drop food into the environment
-		for (int i = 0; i < data.foodTypeCount; ++i) {
+		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			if (foodData[i].draughtPeriod == 0) {
 				dropFood(i);
 			} else {
@@ -1358,7 +1355,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick. Apr 19
 		// For this tick: print FoodCount, AgentCount, Average Agent Energy
 		// and Agent Energy for EACH AGENT TYPE
-		for (int i = 0; i < data.agentTypeCount; i++) {
+		for (int i = 0; i < data.getAgentTypes(); i++) {
 
 			long agentCount = countAgents(i);
 			long agentEnergy = countAgentEnergy(i);
@@ -1424,7 +1421,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	/* Write the Log titles to the file,(called by log (java.io.Writer w)) */
 	public void writeLogTitles() {
 		if (logStream != null) {
-			for (int i = 0; i < data.agentTypeCount; i++) {
+			for (int i = 0; i < data.getAgentTypes(); i++) {
 				// logStream.print("\t\t" + "Type" + (i + 1) + "\t\t\t\t"); // $$$$$ why this format?
 				logStream.print("\t" + "Type" + (i + 1) + "\t\t\t\t\t\t"); // $$$$$$ change to this on Apr 19
 				for (int z = 0; z < ComplexAgent.logHederAgent().size(); z++)
@@ -1433,7 +1430,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			// logStream.print("\t\t\t" + "Total For all Agent types" + "\t\t"); // $$$$$ why this format?
 			logStream.print("\t" + "Total for all Agent Types"); // $$$$$$ change to this on Apr 19
 			logStream.println();
-			for (int i = 0; i < data.agentTypeCount; i++) {
+			for (int i = 0; i < data.getAgentTypes(); i++) {
 
 				logStream.print("Tick\t");
 				logStream.print("FoodCount\t");

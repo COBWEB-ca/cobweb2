@@ -17,8 +17,8 @@ import cobweb.params.AbstractReflectionParams;
 import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfXMLTag;
+import cwcore.complexParams.AgentFoodCountable;
 import cwcore.complexParams.ComplexAgentParams;
-import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.GeneMutatable;
 
 
@@ -177,7 +177,7 @@ public class GeneticParams extends AbstractReflectionParams {
 	@ConfXMLTag("chartupdatefrequency")
 	public int updateFrequency;
 
-	private ComplexEnvironmentParams env;
+	private AgentFoodCountable env;
 
 
 	/**
@@ -194,7 +194,7 @@ public class GeneticParams extends AbstractReflectionParams {
 
 		phenotype = new Phenotype[geneCount];
 
-		geneValues = new String[env.agentTypeCount][geneCount];
+		geneValues = new String[env.getAgentTypes()][geneCount];
 
 		NodeList nodes = root.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -226,7 +226,7 @@ public class GeneticParams extends AbstractReflectionParams {
 			root.appendChild(n);
 		}
 
-		for (int agent = 0; agent < env.agentTypeCount; agent++) {
+		for (int agent = 0; agent < env.getAgentTypes(); agent++) {
 			for (int gene = 0; gene < geneCount; gene++) {
 				Node n = document.createElement(String.format("agent%dgene%d", agent + 1, gene + 1));
 				n.setTextContent(geneValues[agent][gene]);
@@ -236,7 +236,7 @@ public class GeneticParams extends AbstractReflectionParams {
 	}
 
 
-	public GeneticParams(ComplexEnvironmentParams env) {
+	public GeneticParams(AgentFoodCountable env) {
 		this.env = env;
 		geneCount = 3;
 		geneLength = 8;
@@ -247,8 +247,8 @@ public class GeneticParams extends AbstractReflectionParams {
 		meiosisMode = new MeiosisModeParam();
 		trackValues = false;
 
-		geneValues = new String[env.agentTypeCount][geneCount];
-		for (int i = 0; i < env.agentTypeCount; i++)
+		geneValues = new String[env.getAgentTypes()][geneCount];
+		for (int i = 0; i < env.getAgentTypes(); i++)
 			for (int j = 0; j < geneCount; j++)
 				geneValues[i][j] = "00011110";
 		updateFrequency = 10;

@@ -28,6 +28,7 @@ import org.xml.sax.SAXException;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
+import disease.DiseaseParams;
 
 public class Parser {
 	private String fileName = null;
@@ -57,20 +58,26 @@ public class Parser {
 	public Parser() {
 		envParams = new ComplexEnvironmentParams();
 
-		agentParams = new ComplexAgentParams[envParams.agentTypeCount];
-		for (int i = 0; i < envParams.agentTypeCount; i++) {
+		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
+		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			agentParams[i] = new ComplexAgentParams(envParams);
 			agentParams[i].type = i;
 		}
 
-		foodParams = new ComplexFoodParams[envParams.foodTypeCount];
-		for (int i = 0; i < envParams.foodTypeCount; i++) {
+		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
+		for (int i = 0; i < envParams.getFoodTypes(); i++) {
 			foodParams[i] = new ComplexFoodParams();
 			foodParams[i].type = i;
 		}
 
 		geneticParams = new GeneticParams(envParams);
-		
+
+		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
+		for (int i = 0; i < envParams.getAgentTypes(); i++) {
+			diseaseParams[i] = new DiseaseParams(envParams);
+			diseaseParams[i].type = i;
+		}
+
 		try {
 			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 		} catch (ParserConfigurationException ex) {
@@ -107,8 +114,9 @@ public class Parser {
 
 		envParams.loadConfig(root);
 
-		agentParams = new ComplexAgentParams[envParams.agentTypeCount];
-		foodParams = new ComplexFoodParams[envParams.foodTypeCount];
+		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
+		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
+		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
 
 		geneticParams = new GeneticParams(envParams);
 
@@ -136,12 +144,34 @@ public class Parser {
 				if (p.type < 0)
 					p.type = food++;
 				foodParams[p.type] = p;
+			} else if (nodeName.equals("disease")) {
+				parseDiseaseParams(node);
 			}
+		}
+	}
+
+	private void parseDiseaseParams(Node root) {
+		NodeList nodes = root.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node n = nodes.item(i);
+			DiseaseParams dp = new DiseaseParams(envParams);
+			dp.loadConfig(n);
+			diseaseParams[i] = dp;
+		}
+		for (int i = nodes.getLength(); i < diseaseParams.length; i++) {
+			DiseaseParams dp = new DiseaseParams(envParams);
+			diseaseParams[i] = dp;
 		}
 	}
 
 	private ComplexAgentParams[] agentParams;
 	private ComplexFoodParams[] foodParams;
+
+	private DiseaseParams[] diseaseParams;
+
+	public DiseaseParams[] getDiseaseParams() {
+		return diseaseParams;
+	}
 
 	public GeneticParams getGeneticParams() {
 		return geneticParams;
@@ -178,22 +208,31 @@ public class Parser {
 		Node root = d.createElement("inputData");
 
 		envParams.saveConfig(root, d);
-		for (int i = 0; i < envParams.agentTypeCount; i++) {
+		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			Node node = d.createElement("agent");
 			agentParams[i].saveConfig(node, d);
 			root.appendChild(node);
 		}
 
-		for (int i = 0; i < envParams.foodTypeCount; i++) {
+		for (int i = 0; i < envParams.getFoodTypes(); i++) {
 			Node node = d.createElement("food");
 			foodParams[i].saveConfig(node, d);
 			root.appendChild(node);
 		}
-		
+
 		Node ga = d.createElement("ga");
 		geneticParams.saveConfig(ga, d);
 
 		root.appendChild(ga);
+
+		Node disease = d.createElement("disease");
+		for (DiseaseParams diseaseParam : diseaseParams) {
+			Node node = d.createElement("agent");
+			diseaseParam.saveConfig(node, d);
+			disease.appendChild(node);
+		}
+		root.appendChild(disease);
+
 		d.appendChild(root);
 
 		Source s = new DOMSource(d);

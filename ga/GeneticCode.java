@@ -14,6 +14,10 @@ public class GeneticCode {
 
 	private int bytes;
 
+	public int getNumGenes() {
+		return bytes;
+	}
+
 	public GeneticCode(int bytes) {
 		this.bytes = bytes;
 		genes = new BitSet(bytes * 8);
@@ -77,6 +81,9 @@ public class GeneticCode {
 			if (gc1.genes.get(i) == gc2.genes.get(i))
 				similarity_number++;
 		}
+		if (maxLen == 0)
+			return 1;
+
 		return similarity_number / maxLen;
 	}
 
