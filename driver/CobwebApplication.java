@@ -1013,10 +1013,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	public void refresh(UIInterface theUIInterface, boolean wait) {
 		if (displayPanel != null) {
-			if (wait)
-				displayPanel.repaintNow();
-			else
-				displayPanel.repaint();
+			displayPanel.refresh(wait);
 		}
 	}
 
@@ -1548,5 +1545,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 		validate();
 		uiPipe.start();
 	} // end of UISettings
+
+	@Override
+	public boolean isReadyToRefresh() {
+		return displayPanel != null && displayPanel.isReadyToRefresh();
+	}
 
 } // CobwebApplication

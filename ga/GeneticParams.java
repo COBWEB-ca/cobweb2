@@ -193,7 +193,7 @@ public class GeneticParams extends AbstractReflectionParams implements CobwebPar
 
 		for (int agent = 0; agent < env.agentTypeCount; agent++) {
 			for (int gene = 0; gene < geneCount; gene++) {
-				Node n = document.createElement(String.format("agent%dgene%d", agent, gene));
+				Node n = document.createElement(String.format("agent%dgene%d", agent + 1, gene + 1));
 				n.setTextContent(geneValues[agent][gene]);
 				root.appendChild(n);
 			}
@@ -211,6 +211,11 @@ public class GeneticParams extends AbstractReflectionParams implements CobwebPar
 			phenotype[i] = new Phenotype();
 		meiosisMode = new MeiosisModeParam();
 		trackValues = false;
+		
+		geneValues = new String[env.agentTypeCount][geneCount];
+		for (int i = 0; i < env.agentTypeCount; i++)
+			for (int j = 0; j < geneCount; j++)
+				geneValues[i][j] = "00011110";
 		updateFrequency = 10;
 	}
 

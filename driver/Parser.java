@@ -69,6 +69,8 @@ public class Parser {
 			foodParams[i].type = i;
 		}
 
+		geneticParams = new GeneticParams(envParams);
+		
 		try {
 			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 		} catch (ParserConfigurationException ex) {
@@ -187,8 +189,12 @@ public class Parser {
 			foodParams[i].saveConfig(node, d);
 			root.appendChild(node);
 		}
-		d.appendChild(root);
+		
+		Node ga = d.createElement("ga");
+		geneticParams.saveConfig(ga, d);
 
+		root.appendChild(ga);
+		d.appendChild(root);
 
 		Source s = new DOMSource(d);
 

@@ -60,7 +60,7 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 		borderWidth = (size.width - tileWidth * theUI.getWidth() + PADDING) / 2;
 		borderHeight = (size.height - tileHeight * theUI.getHeight() + PADDING) / 2;
 
-		this.repaint();
+		this.refresh(false);
 	}
 
 	/*
@@ -107,16 +107,51 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 
-	public void repaintNow() {
-		repaint();
-		// Wait for displayPanel to repaint
-		if (!SwingUtilities.isEventDispatchThread()) {
-			try {
-				SwingUtilities.invokeAndWait(null);
-			} catch (InterruptedException ex) {
-			} catch (InvocationTargetException ex) {
+	private boolean donePainting = true;
+	
+	private final Runnable markReadyRefresh = new Runnable() {
+		public void run() {
+			donePainting = true;
+		}
+	};
+	
+	/**
+	 * Refreshes the display grid
+	 * @param wait wait for repaint to finish before returning?
+	 */
+	public void refresh(boolean wait) {
+		if (wait) {
+			donePainting = false;
+			repaint();
+			// Wait for displayPanel to repaint
+			if (SwingUtilities.isEventDispatchThread()) {
+				// When we are in the Swing thread, repaint() executes synchronously
+				donePainting = true;
+			} else {
+				// Otherwise we need to wait for Swing thread to finish the repaint
+				try {
+					SwingUtilities.invokeAndWait(markReadyRefresh);
+				} catch (InterruptedException ex) {
+					donePainting = true;
+				} catch (InvocationTargetException ex) {
+					donePainting = true;
+				}
 			}
 		}
+		else if (donePainting) {
+			// Start painting a new frame without waiting
+			donePainting = false;
+			repaint();
+			SwingUtilities.invokeLater(markReadyRefresh);
+		}
+	}
+	
+	/**
+	 * Is the display grid done repainting since the last refresh(false) ?
+	 * @return true when repaint is done
+	 */
+	public boolean isReadyToRefresh() {
+		return donePainting;
 	}
 
 	public void componentResized(ComponentEvent e) {

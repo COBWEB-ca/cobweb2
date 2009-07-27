@@ -34,9 +34,13 @@ public class GATracker implements Client {
 
 	private int geneCount;
 
-	public GATracker(int agentTypes, int geneNo, boolean track) {
+	private int update_frequency;
+
+	public GATracker(int agentTypes, int geneNo, boolean track, int update_frequency) {
 		typeCount = agentTypes;
 		geneCount = geneNo;
+		this.update_frequency = update_frequency;
+		frameskip = update_frequency;
 		total_agents = new int[typeCount];
 		total_gene_status = new double[typeCount][geneCount];
 		gene_status_distribution = new double [typeCount][geneCount][GENE_STATUS_DISTRIBUTION_SIZE];
@@ -76,10 +80,15 @@ public class GATracker implements Client {
 	public void printGAInfo(long time_step) {
 		plotGeneValueDistribution(time_step);
 	}
-
+	private int frameskip;
+	
 	/** Plot the gene value distribution of all agent types for a certain time step. */
 	private void plotGeneValueDistribution(long time_step) {
-		charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
+		if (frameskip-- <= 0) {
+			
+			charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
+			frameskip = update_frequency;
+		}
 	}
 
 	/** Gets the appropriate index of a gene of a specific value in a gene status distribution hash table (or array). */

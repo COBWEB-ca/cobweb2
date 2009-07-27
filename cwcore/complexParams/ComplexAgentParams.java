@@ -30,6 +30,7 @@ public class ComplexAgentParams extends AbstractReflectionParams implements Cobw
 
 	@ConfDisplayName("Other food energy")
 	@ConfXMLTag("OtherFoodEnergy")
+	@GeneMutatable
 	public int otherFoodEnergy;
 
 	@ConfDisplayName("Breed energy")

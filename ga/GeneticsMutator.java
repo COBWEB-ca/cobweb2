@@ -17,7 +17,7 @@ public class GeneticsMutator implements AgentParamsMutator, AgentSimularityCalcu
 
 	public GeneticsMutator(GeneticParams params, int agentCount) {
 		this.params = params;
-		this.tracker = new GATracker(agentCount, params.geneCount, params.trackValues);
+		this.tracker = new GATracker(agentCount, params.geneCount, params.trackValues, params.updateFrequency);
 	}
 
 	private GATracker tracker;
@@ -25,7 +25,7 @@ public class GeneticsMutator implements AgentParamsMutator, AgentSimularityCalcu
 	public GATracker getTracker() {
 		return tracker;
 	}
-
+	
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
 		GeneticCode genetic_code = null;
 		switch(params.meiosisMode.mode) {
@@ -61,6 +61,9 @@ public class GeneticsMutator implements AgentParamsMutator, AgentSimularityCalcu
 
 	public void onSpawn(ComplexAgent agent) {
 		GeneticCode genetic_code = new GeneticCode(params.geneCount);
+		for (int i = 0; i < params.geneCount; i++) {
+			genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.type()][i], 0);
+		}
 		genes.put(agent, genetic_code);
 		mutateAgentAttributes(agent);
 	}
@@ -111,7 +114,8 @@ public class GeneticsMutator implements AgentParamsMutator, AgentSimularityCalcu
 	}
 
 	public void onDeath(ComplexAgent agent) {
-		tracker.removeAgent(agent.type(), genes.get(agent));
+		if (genes.containsKey(agent))
+			tracker.removeAgent(agent.type(), genes.get(agent));
 	}
 
 	public float similarity(ComplexAgent a1, ComplexAgent a2) {

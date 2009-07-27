@@ -146,10 +146,12 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 	public void refresh(UIInterface theInterface, boolean wait) {
 		if (displayPanel != null) {
-			if (wait)
-				displayPanel.repaintNow();
-			else
-				displayPanel.repaint();
+			displayPanel.refresh(wait);
 		}
 	}
+	
+	@Override
+	public boolean isReadyToRefresh() {
+		return displayPanel != null && displayPanel.isReadyToRefresh();
+	}	
 }

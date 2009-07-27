@@ -12,6 +12,8 @@ public class SpeedBar extends JScrollBar implements
 	private final cobweb.UIInterface uiPipe;
 	private final Dimension d = new Dimension(70, 18); // $$$$$ you can generate any size you want.  Apr 3
 
+	private final Color original;
+
 	private static final int SCROLLBAR_TICKS = 11;
 
 	public SpeedBar(cobweb.UIInterface theUI) {
@@ -29,15 +31,13 @@ public class SpeedBar extends JScrollBar implements
 		if (d1 != 0) {
 			delay = 1 << (d1 - 1);
 		}
-		uiPipe.slowDown(delay);
 		if (delay == 0) {
-			this.setBackground(Color.red);
+			this.setBackground(Color.yellow);
 		} else {
 			this.setBackground(original);
 		}
+		uiPipe.slowDown(delay);
 	}
-
-	private Color original;
 
 	public static final long serialVersionUID = 0xD5E78F1D65B18165L;
 }

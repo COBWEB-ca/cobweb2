@@ -97,7 +97,7 @@ public class GAChartOutput implements ActionListener {
 
 			XYItemRenderer renderer = gene_status_distribution_chart[i].getXYPlot().getRenderer();
 
-			for (int agent = 0; agent < gene_status_distribution_data[i].getSeriesCount(); agent++) {
+			for (int agent = 0; agent < numAgentTypes; agent++) {
 				renderer.setSeriesPaint(agent, colorMap.getColor(agent, 0));
 			}
 
@@ -125,6 +125,8 @@ public class GAChartOutput implements ActionListener {
 		gene_status_distribution_data  = new DefaultXYDataset[geneCount];
 		gene_value_distribution_data = new DefaultXYDataset[geneCount];
 
+		chart_display_frame = new JFrame();
+		
 		chart_display_frame.setName("Genotype Value Distribution");
 		gene_value_distribution_panel = new JPanel(new GridLayout(1,geneCount));
 		for (int i = 0; i < geneCount; i++) {
@@ -139,7 +141,7 @@ public class GAChartOutput implements ActionListener {
 		         );
 
 			XYItemRenderer renderer = gene_value_distribution_chart[i].getXYPlot().getRenderer();
-			for (int agent = 0; agent < gene_value_distribution_data[i].getSeriesCount(); agent++) {
+			for (int agent = 0; agent < numAgentTypes; agent++) {
 				renderer.setSeriesPaint(agent, colorMap.getColor(agent, 0));
 			}
 
@@ -160,7 +162,7 @@ public class GAChartOutput implements ActionListener {
 		JPanel button_panel = new JPanel();
 
 		// If we are tracking the gene status distribution
-			initGeneStatusDistributionPlot();
+		initGeneStatusDistributionPlot();
 
 		// Initialize button
 		gene_status_distribution_button.addActionListener(this);
@@ -194,21 +196,16 @@ public class GAChartOutput implements ActionListener {
 	public void InitData() {
 	}
 
-	int frameskip = 0;
-
 	/** Update the gene_status_distribution data */
 	public void updateGeneStatusDistributionData(double[][][] value, double[][][] status) {
-		if (frameskip-- <= 0) {
-			for (int j = 0; j < geneCount; j++) {
-				for (int i = 0; i < numAgentTypes; i++) {
-					double[][] new_status = {gene_status_distribution_range, value[i][j]};
-					String key = "Agent " + (i+1);
-					gene_status_distribution_data[j].addSeries(key, new_status);
-					double[][] new_values = {gene_value_distribution_range, status[i][j]};
-					gene_value_distribution_data[j].addSeries(key, new_values);
-				}
+		for (int j = 0; j < geneCount; j++) {
+			for (int i = 0; i < numAgentTypes; i++) {
+				double[][] new_status = {gene_status_distribution_range, status[i][j]};
+				String key = "Agent " + (i+1);
+				gene_status_distribution_data[j].addSeries(key, new_status);
+				double[][] new_values = {gene_value_distribution_range, value[i][j]};
+				gene_value_distribution_data[j].addSeries(key, new_values);
 			}
-			frameskip = update_frequency;
 		}
 	}
 }

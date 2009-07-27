@@ -12,5 +12,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="driver.CobwebApplication"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cobweb2"/>
-<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="C:\Users\Igor\Desktop\Cobweb2-svn"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx512m"/>
 </launchConfiguration>

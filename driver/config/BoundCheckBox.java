@@ -3,21 +3,37 @@ package driver.config;
 import java.lang.reflect.Field;
 
 import javax.swing.JCheckBox;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import cobweb.params.ConfDisplayName;
 
-public class BoundCheckBox extends JCheckBox implements ChangeListener, FieldBoundComponent  {
+public class BoundCheckBox extends JCheckBox implements FieldBoundComponent {
 
-	/**
-	 *
-	 */
+	private class BoundButtonModel extends ToggleButtonModel {
+		private static final long serialVersionUID = -5478297230476196970L;
+
+		@Override
+		public boolean isSelected() {
+			try {
+				return field.getBoolean(obj);
+			} catch (IllegalAccessException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+
+		@Override
+		public void setSelected(boolean b) {
+			try {
+				field.setBoolean(obj, b);
+			} catch (IllegalAccessException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+	}
+
 	private static final long serialVersionUID = -4621056922233460755L;
-
-
 	private final Object obj;
 	private final Field field;
+
 	private final String label;
 
 	public BoundCheckBox(Object obj, String fieldName) {
@@ -27,25 +43,12 @@ public class BoundCheckBox extends JCheckBox implements ChangeListener, FieldBou
 		} catch (NoSuchFieldException ex) {
 			throw new RuntimeException(ex);
 		}
+		setModel(new BoundButtonModel());
 		this.label = field.getAnnotation(ConfDisplayName.class).value();
-		try {
-			this.setSelected(field.getBoolean(obj));
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException(ex);
-		}
-		this.addChangeListener(this);
 	}
 
 	@Override
 	public String getLabel() {
 		return label;
-	}
-
-	public void stateChanged(ChangeEvent evt) {
-		try {
-			field.setBoolean(obj, isSelected());
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+	};
 }

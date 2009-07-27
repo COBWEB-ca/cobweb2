@@ -79,7 +79,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 				}
 				g.fillPolygon(xPts, yPts, 3);
 				g.setColor(type);
-				g.fillOval(topLeftX + tileWidth / 3, topLeftY + tileHeight / 3, tileWidth / 3, tileHeight / 3);
+				g.fillOval(topLeftX + tileWidth / 3, topLeftY + tileHeight / 3, tileWidth / 3 + 1, tileHeight / 3 + 1);
 				g.setColor(action);
 				g.drawPolygon(xPts, yPts, 3);
 			} else {
@@ -167,7 +167,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		private final List<Location> path;
 
 		public PathDrawInfo(List<Location> path) {
-			this.path = path;
+			this.path = new LinkedList<Location>(path);
 		}
 
 		public void draw(Graphics g, int tileWidth, int tileHeight) {
@@ -404,6 +404,13 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 			throw new RuntimeException("Can't InitEnvironment", ex);
 		}
 		Environment.setUIPipe(this);
+		updateEnvironmentDrawInfo();
+	}
+
+	private void updateEnvironmentDrawInfo() {
+		theEnvironment.getDrawInfo(this);
+		theDrawingInfo = newDrawingInfo;
+		newDrawingInfo = null;
 	}
 
 	/**
@@ -532,14 +539,13 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 	 * @param wait Wait for refresh?
 	 */
 	public void refresh(boolean wait) {
-		theEnvironment.getDrawInfo(this);
-		theDrawingInfo = newDrawingInfo;
-		newDrawingInfo = null;
-		if (theClient != null) {
-			// Wait for refresh calls theClient.refresh... if it didn't we'd have a race condition between
-			// the UI thread that refreshes and this thread which waits for the refresh.
-			theClient.refresh(this, wait);
-		}
+		if (theClient == null || !theClient.isReadyToRefresh())
+			return;
+		
+		updateEnvironmentDrawInfo();
+		// Wait for refresh calls theClient.refresh... if it didn't we'd have a race condition between
+		// the UI thread that refreshes and this thread which waits for the refresh.
+		theClient.refresh(this, wait);
 	}
 
 	public void removeComponents(int mode) {

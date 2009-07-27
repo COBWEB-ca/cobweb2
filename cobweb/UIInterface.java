@@ -42,6 +42,8 @@ public interface UIInterface {
 		 * @param theInterface the UIInterface with new frame data
 		 */
 		public void refresh(UIInterface theInterface, boolean wait);
+		
+		public boolean isReadyToRefresh();
 	}
 
 	public void AddTickEventListener(TickEventListener listener);

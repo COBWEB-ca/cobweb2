@@ -44,7 +44,7 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 		}
 
 		logger.log(Level.SEVERE, "Uncaught Exception in thread " + thread.getName(), ex);
-		for (int depth = 0; depth < 2; depth++) {
+		for (int depth = 0; depth < 4; depth++) {
 			if (depth >= ex.getStackTrace().length)
 				break;
 			if (ex.getStackTrace()[depth].getClassName().equals("org.jfree.data.xy.DefaultXYDataset"))

@@ -226,9 +226,9 @@ public class GUI extends JFrame {
 		JComponent panelPD = setupPDpannel();
 		tabbedPane.addTab("PD Options", panelPD);
 
-//		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().agentTypeCount);
-//		JComponent panelGA = geneticPage.getPanel();
-//		tabbedPane.addTab("Genetic Algorithm", panelGA);
+		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().agentTypeCount);
+		JComponent panelGA = geneticPage.getPanel();
+		tabbedPane.addTab("Genetic Algorithm", panelGA);
 
 		controllerPanel = new AIPanel();
 		controllerPanel.bindToParser(p);
