@@ -20,6 +20,8 @@ public class TickScheduler extends Thread implements Scheduler {
 	public static interface Client {
 		/** Notification of a tick. */
 		public void tickNotification(long time);
+
+		public void tickZero();
 	}
 
 	private volatile boolean bPaused = true;
@@ -122,10 +124,10 @@ public class TickScheduler extends Thread implements Scheduler {
 
 	@Override
 	public void run() {
-		theUI.refresh(true);
+		doZeroTick();
 		long frameCount = 0;
-		// Forever...
 
+		// Main loop
 		while (!bDone) {
 			cwcore.ComplexAgent.dumpData(tickCount);
 			cwcore.ComplexAgent.clearData();
@@ -148,6 +150,12 @@ public class TickScheduler extends Thread implements Scheduler {
 			if (!bPaused && slowdown != 0) {
 				myWait(slowdown);
 			}
+		}
+	}
+
+	private void doZeroTick() {
+		for (Client client : new Vector<Client>(clientV)) {
+			client.tickZero();
 		}
 	}
 

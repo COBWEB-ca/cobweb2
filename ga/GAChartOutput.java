@@ -81,14 +81,14 @@ public class GAChartOutput implements ActionListener {
 	}
 
 	/** Initialize a chart representation of gene status distribution among agents. */
-	public void initGeneStatusDistributionPlot() {
+	public void initGeneStatusDistributionPlot(String[] names) {
 		chart_display_frame.setName("Genotype-Phenotype Correlation Value Distribution");
 		gene_status_distribution_panel = new JPanel(new GridLayout(1,geneCount));
 		for (int i = 0; i < geneCount; i++) {
 			gene_status_distribution_data[i] = new DefaultXYDataset();
 			gene_status_distribution_chart[i] = ChartFactory.createXYAreaChart(
-		             "Distribution of Genotype-Phenotype Correlation of Gene #" + (i+1),
-		             "Geneotype-Phenotype Correlation Value", "Number of Agents",
+		             "Gene " + (i+1) + " : " + names[i],
+		             "Phenotype Multiplier", "Number of Agents",
 		             gene_status_distribution_data[i], PlotOrientation.VERTICAL,
 		             true,    // legend?
 		             true,    // tooltips?
@@ -115,7 +115,7 @@ public class GAChartOutput implements ActionListener {
 	private int geneCount;
 
 
-	public GAChartOutput(int agents, int genes) {
+	public GAChartOutput(int agents, int genes, String[] names) {
 		numAgentTypes = agents;
 		geneCount = genes;
 
@@ -126,14 +126,14 @@ public class GAChartOutput implements ActionListener {
 		gene_value_distribution_data = new DefaultXYDataset[geneCount];
 
 		chart_display_frame = new JFrame();
-		
+
 		chart_display_frame.setName("Genotype Value Distribution");
 		gene_value_distribution_panel = new JPanel(new GridLayout(1,geneCount));
 		for (int i = 0; i < geneCount; i++) {
 			gene_value_distribution_data[i] = new DefaultXYDataset();
 			gene_value_distribution_chart[i] = ChartFactory.createXYAreaChart(
-					"Distribution of Gene #" + (i+1) + " Value",
-		             "Genotype Value", "Number of Agents",
+					"Gene " + (i+1) + " : " + names[i],
+		             "Gene Value", "Number of Agents",
 		             gene_value_distribution_data[i], PlotOrientation.VERTICAL,
 		             true,    // legend?
 		             true,    // tooltips?
@@ -162,7 +162,7 @@ public class GAChartOutput implements ActionListener {
 		JPanel button_panel = new JPanel();
 
 		// If we are tracking the gene status distribution
-		initGeneStatusDistributionPlot();
+		initGeneStatusDistributionPlot(names);
 
 		// Initialize button
 		gene_status_distribution_button.addActionListener(this);
@@ -207,5 +207,6 @@ public class GAChartOutput implements ActionListener {
 				gene_value_distribution_data[j].addSeries(key, new_values);
 			}
 		}
+		chart_display_frame.repaint();
 	}
 }

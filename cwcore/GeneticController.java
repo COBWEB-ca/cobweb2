@@ -65,11 +65,6 @@ public class GeneticController implements cobweb.Controller {
 
 	}
 
-	/** Creating genetic code from scratch
-	 *
-	 * @param memory memory size in bits
-	 * @param comm communication packet size in bits
-	 */
 	public void setupFromEnvironment(int memory, int comm, CobwebParam params) {
 		memorySize = memory;
 		commSize = comm;
@@ -77,7 +72,7 @@ public class GeneticController implements cobweb.Controller {
 		int[] outputArray = { OUTPUT_BITS, memorySize, commSize, 1 };
 		ga = new BehaviorArray(INPUT_BITS + memorySize + commSize,
 				outputArray);
-		ga.init();
+		ga.randomInit(this.params.randomSeed);
 	}
 
 	private GeneticController(BehaviorArray g, int memory) {

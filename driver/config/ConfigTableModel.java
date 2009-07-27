@@ -65,6 +65,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 	}
 
+
 	private class MyField {
 		public MyField(Field f) {
 			field = f;

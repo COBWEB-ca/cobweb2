@@ -39,7 +39,7 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 				if (t.isPrimitive() || t.equals(String.class)) {
 					f.set(obj, ReflectionUtil.stringToBoxed(t, strVal));
 
-				} else if (isCobwebParam(t)) {
+				} else if (CobwebParam.class.isAssignableFrom(t)) {
 					ConfDynamicInstance din = f.getAnnotation(ConfDynamicInstance.class);
 					if (din != null) {
 						CobwebParam inner = din.value().newInstance().instantiate(obj);
@@ -58,21 +58,6 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 		}
 	}
 
-
-	private static boolean isCobwebParam(Class<?> t) {
-		if (t.equals(CobwebParam.class))
-			return true;
-
-		for (Class<?> iface : t.getInterfaces()) {
-			if (iface.equals(CobwebParam.class)) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-
 	private static void saveTaggedFields(CobwebParam obj, Node config, Document doc) {
 		Class<?> T = obj.getClass();
 
@@ -89,7 +74,7 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 				if (t.isPrimitive() || t.equals(String.class)) {
 					value = f.get(obj).toString();
 
-				} else if (isCobwebParam(t)) {
+				} else if (CobwebParam.class.isAssignableFrom(t)) {
 					CobwebParam inner = (CobwebParam) f.get(obj);
 					inner.saveConfig(tag, doc);
 

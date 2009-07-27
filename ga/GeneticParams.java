@@ -22,7 +22,7 @@ import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.GeneMutatable;
 
 
-public class GeneticParams extends AbstractReflectionParams implements CobwebParam {
+public class GeneticParams extends AbstractReflectionParams {
 	/**
 	 *
 	 */
@@ -46,7 +46,6 @@ public class GeneticParams extends AbstractReflectionParams implements CobwebPar
 		private static Iterable<Field> bindables = new LinkedList<Field>() {
 			private static final long serialVersionUID = -6369342528741543712L;
 			{
-				this.add(null);
 				for (Field f: ComplexAgentParams.class.getFields()) {
 					if (f.getAnnotation(GeneMutatable.class) == null)
 						continue;
@@ -57,6 +56,31 @@ public class GeneticParams extends AbstractReflectionParams implements CobwebPar
 
 		public static Iterable<Field> getBindables() {
 			return bindables;
+		}
+
+		public Phenotype(){
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Phenotype) {
+				Phenotype p = (Phenotype) obj;
+				if (p.field == null && this.field == null) return true;
+				if (p.field == null || this.field == null) return false;
+				return p.field.equals(this.field);
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return field.hashCode();
+		}
+
+		public Phenotype(Field f) {
+			if (f.getAnnotation(GeneMutatable.class) == null || f.getAnnotation(ConfDisplayName.class) == null)
+				throw new IllegalArgumentException("Field must be labeled as @GeneMutatable and have a @ConfDisplayName");
+			this.field = f;
 		}
 
 		public void loadConfig(Node root) throws IllegalArgumentException {
@@ -76,6 +100,14 @@ public class GeneticParams extends AbstractReflectionParams implements CobwebPar
 				}
 			}
 			throw new IllegalArgumentException("Cannot match Phenotype '" + value + "' to any field");
+		}
+
+		@Override
+		public String toString() {
+			if (field == null)
+				return "[No phenotype]";
+			else
+				return field.getAnnotation(ConfDisplayName.class).value();
 		}
 
 		public void saveConfig(Node root, Document document) {
@@ -148,7 +180,10 @@ public class GeneticParams extends AbstractReflectionParams implements CobwebPar
 	private ComplexEnvironmentParams env;
 
 
-	String[][] geneValues;
+	/**
+	 * geneValues[agent][gene]
+	 */
+	public String[][] geneValues;
 
 	private static final Pattern geneValRE = Pattern.compile("agent(\\d+)gene(\\d+)");
 	private static final Pattern phenotypeRE = Pattern.compile("linkedphenotype(\\d+)");
@@ -211,7 +246,7 @@ public class GeneticParams extends AbstractReflectionParams implements CobwebPar
 			phenotype[i] = new Phenotype();
 		meiosisMode = new MeiosisModeParam();
 		trackValues = false;
-		
+
 		geneValues = new String[env.agentTypeCount][geneCount];
 		for (int i = 0; i < env.agentTypeCount; i++)
 			for (int j = 0; j < geneCount; j++)

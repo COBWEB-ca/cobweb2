@@ -5,13 +5,16 @@ import ga.GeneticParams.Phenotype;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Field;
 import java.text.NumberFormat;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractListModel;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -21,136 +24,233 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableColumnModel;
 
-import cobweb.params.ConfDisplayName;
+import driver.CobwebUserException;
 
 public class GeneticConfigPage implements ConfigPage {
-	private class myActionListener implements ActionListener {
-		public void actionPerformed(java.awt.event.ActionEvent e) {
-			if (e.getSource().equals(link_gene_1)) {
-			} else if (e.getSource().equals(link_gene_2)) {
-			} else if (e.getSource().equals(link_gene_3)) {
-			} else if (e.getSource().equals(meiosis_mode)) {
+
+	private static class ListManipulator<T> extends AbstractListModel {
+		private static final long serialVersionUID = 6521578944695127260L;
+
+		List<T> items;
+
+		public ListManipulator(List<T> list) {
+			items = list;
+		}
+
+		public void addItem(T item) {
+			items.add(item);
+			fireIntervalAdded(this, items.size() - 1, items.size() - 1);
+		}
+
+		@Override
+		public Object getElementAt(int index) {
+			return items.get(index);
+		}
+
+		@Override
+		public int getSize() {
+			return items.size();
+		}
+
+		public T removeItem(T item) {
+			int index = items.indexOf(item);
+			fireIntervalRemoved(this, index, index);
+			items.remove(item);
+			return item;
+		}
+
+		public T removeItem(int index) {
+			return items.remove(index);
+		}
+
+		public int length() {
+			return items.size();
+		}
+	}
+
+	/**
+	 * Default genes. <code>default.get(gene)[agent] = x;</code>
+	 */
+	List<int[]> defaults = new LinkedList<int[]>();
+
+	private class GenesTableModel extends AbstractTableModel {
+
+		private static final long serialVersionUID = 8849213073862759751L;
+
+		@Override
+		public int getColumnCount() {
+			return 1 + agentTypes;
+		}
+
+		@Override
+		public int getRowCount() {
+			return phenosUsed.size();
+		}
+
+		@Override
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			// TODO Auto-generated method stub
+			if ( columnIndex == 0) {
+				return phenosUsed.get(rowIndex).toString();
+			} else
+				return Integer.toString(defaults.get(rowIndex)[columnIndex - 1], 2);
+		}
+
+		@Override
+		public void setValueAt(Object value, int rowIndex, int columnIndex) {
+			if (columnIndex < 1)
+				throw new IllegalArgumentException("Cannot set that column");
+
+			if (value instanceof String) {
+				String s = (String) value;
+				if (!geneticStringPatern.matcher(s).matches()) {
+					throw new CobwebUserException("Please enter a binary string!");
+				}
+				int v = Integer.parseInt(s, 2);
+				defaults.get(rowIndex)[columnIndex - 1] = v;
 			}
+
+		}
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			return columnIndex != 0;
+		}
+
+		@Override
+		public String getColumnName(int column) {
+			if (column == 0)
+				return "Phenotype";
+			return "Agent " + column;
 		}
 	}
 
 	/** The list of mutable phenotypes shown on Genetic Algorithm tab. */
-	private JList mutable_phenotypes;
-	
-	/** The TextFields and Buttons of the Genetic Algorithm tab. */
-	private JButton link_gene_1 = new JButton("Link to Gene 1");
-	private JButton link_gene_2 = new JButton("Link to Gene 2");
-	private JButton link_gene_3 = new JButton("Link to Gene 3");
-
-	private JComboBox meiosis_mode;
-	
-	/** The TextFields that store the genetic bits of the agents. */
-	private JTable genetic_table;
-
-	/** Controls whether or not the distribution of gene value of an agent type is tracked and output. */
-	private BoundCheckBox track_gene_value_distribution;
-
-	/** The number of chart updates per time step. */
-	private BoundJFormattedTextField chart_update_frequency;
+	private JList listAvailable;
 
 	private JPanel myPanel;
 
-	static final Pattern geneticStringPatern = Pattern.compile("^[01]{8}$");
+	private static final Pattern geneticStringPatern = Pattern.compile("^[01]*$");
 
 	private GeneticParams params;
 
 	private int agentTypes;
 
+	private class AddListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			for (Object o : listAvailable.getSelectedValues()) {
+				Phenotype p = (Phenotype) o;
+				addGene(p);
+			}
+			modelSelected.fireTableDataChanged();
+		}
+	};
+
+	private class RemoveListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int[] z = listSelected.getSelectedRows();
+			for (int i = z.length - 1; i >= 0; i--) {
+				int o = z[i];
+				removeGene(phenosUsed.get(o));
+			}
+			modelSelected.fireTableDataChanged();
+		}
+	}
+
 	public GeneticConfigPage(GeneticParams params, int agentTypes) {
-		myPanel = new JPanel();
 		this.params = params;
 		this.agentTypes = agentTypes;
 
-		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+		myPanel = new JPanel();
+		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.X_AXIS));
+
 		JComponent phenotypeScroller = setupPhenotypeList();
-
-		
-		JPanel gene_1 = new JPanel();
-		gene_1.add(link_gene_1);
-
-		JPanel gene_2 = new JPanel();
-		gene_2.add(link_gene_2);
-
-		JPanel gene_3 = new JPanel();
-		gene_3.add(link_gene_3);
-		
-		JPanel gene_info_display = new JPanel(new BorderLayout());
-		gene_info_display.add(gene_1, BorderLayout.WEST);
-		gene_info_display.add(gene_2, BorderLayout.CENTER);
-		gene_info_display.add(gene_3, BorderLayout.EAST);
-		
-		
-		meiosis_mode = new JComboBox(new EnumComboBoxModel(this.params.meiosisMode, "mode"));
-
-		JPanel meiosis_mode_panel = new JPanel(new BorderLayout());
-		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
-		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);
-
-		track_gene_value_distribution = new BoundCheckBox(this.params, "trackValues");
-		track_gene_value_distribution.setText(track_gene_value_distribution.getLabel());
-		chart_update_frequency = new BoundJFormattedTextField(this.params, "updateFrequency", NumberFormat.getIntegerInstance());
-		chart_update_frequency.setColumns(4);
-		// Checkboxes and TextAreas
-		JPanel chart_update_frequency_panel = new JPanel();
-		chart_update_frequency_panel.add(new JLabel(chart_update_frequency.getLabel()));
-		chart_update_frequency_panel.add(chart_update_frequency);
-		JPanel gene_check_boxes = new JPanel(new BorderLayout());
-		gene_check_boxes.add(track_gene_value_distribution, BorderLayout.CENTER);
-		gene_check_boxes.add(chart_update_frequency_panel, BorderLayout.SOUTH);
-
-		// Combine Checkboxes and Dropdown menu
-		JPanel ga_combined_panel = new JPanel(new BorderLayout());
-		ga_combined_panel.add(meiosis_mode_panel, BorderLayout.EAST);
-		ga_combined_panel.add(gene_check_boxes, BorderLayout.WEST);
-
-		gene_info_display.add(ga_combined_panel, BorderLayout.SOUTH);
-
-//		genetic_table.setPreferredScrollableViewportSize(new Dimension(150, 160));
-//		genetic_table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-		GUI.makeGroupPanel(phenotypeScroller, "Agent Parameter Selection");
-
 		myPanel.add(phenotypeScroller);
 
-//		JScrollPane geneScroll = new JScrollPane(genetic_table);
+		JComponent phenoSelectedScroller = setupSelectedList();
 
-//		GUI.makeGroupPanel(geneScroll, "Gene Bindings");
-//
-//		myPanel.add(geneScroll);
+
+
+		JButton addPheno = new JButton("Add ^");
+		addPheno.addActionListener(new AddListener());
+		JButton remPheno = new JButton("Remove <");
+		remPheno.addActionListener(new RemoveListener());
+		JPanel buttons = new JPanel();
+		buttons.add(addPheno);
+		buttons.add(remPheno);
+
+		JPanel ga_combined_panel = new JPanel(new BorderLayout());
+
+		JPanel meiosis_mode_panel = makeMeiosisConfig();
+		JPanel updateConfig = makeUpdateConfig();
+
+		ga_combined_panel.add(meiosis_mode_panel, BorderLayout.NORTH);
+		ga_combined_panel.add(updateConfig, BorderLayout.SOUTH);
+		GUI.makeGroupPanel(ga_combined_panel, "Tracking");
+
+		JPanel gene_info_display = new JPanel();
+		gene_info_display.setLayout(new BoxLayout(gene_info_display, BoxLayout.Y_AXIS));
+		gene_info_display.add(phenoSelectedScroller);
+		gene_info_display.add(buttons);
+		gene_info_display.add(ga_combined_panel);
+
 
 		myPanel.add(gene_info_display);
-
-		/** Listeners of JButtons, JComboBoxes, and JCheckBoxes */
-		ActionListener listener = new myActionListener();
-		link_gene_1.addActionListener(listener);
-		link_gene_2.addActionListener(listener);
-		link_gene_3.addActionListener(listener);
 
 		GUI.makeGroupPanel(myPanel, "Genetic Algorithm Parameters");
 	}
 
-	private JScrollPane setupPhenotypeList() {
-		DefaultListModel mutable_list_model = new DefaultListModel();
-		for (Field element : Phenotype.getBindables()) {
-			if (element == null) {
-				mutable_list_model.addElement("[No Phenotype]");
-			} else {
-				mutable_list_model.addElement(element.getAnnotation(ConfDisplayName.class).value());
-			}
-		}
+	public void removeGene(Phenotype phenotype) {
+		phenosAvailable.addItem(phenotype);
+		int i = phenosUsed.indexOf(phenotype);
+		phenosUsed.remove(phenotype);
+		defaults.remove(i);
+	}
 
-		mutable_phenotypes = new JList(mutable_list_model);
-		mutable_phenotypes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		mutable_phenotypes.setLayoutOrientation(JList.VERTICAL_WRAP);
-		mutable_phenotypes.setVisibleRowCount(-1);
-		JScrollPane phenotypeScroller = new JScrollPane(mutable_phenotypes);
-		phenotypeScroller.setPreferredSize(new Dimension(150, 200));
+	public void addGene(Phenotype p) {
+		phenosUsed.add(phenosAvailable.removeItem(p));
+		int[] temp = new int[agentTypes];
+		for (int i = 0; i < temp.length; i++) {
+			temp[i] = 30;
+		}
+		defaults.add(temp);
+	}
+
+	private JTable listSelected;
+
+	private JComponent setupSelectedList() {
+		phenosUsed = new LinkedList<Phenotype>();
+
+		modelSelected = new GenesTableModel();
+		listSelected = new MixedValueJTable();
+
+		listSelected.setModel(modelSelected);
+
+		int j = 0;
+		for (Phenotype p : params.phenotype)
+			for (Phenotype p2 : new LinkedList<Phenotype>(phenoAvailable))
+				if (p.equals(p2)) {
+					addGene(p2);
+					for (int i = 0; i < agentTypes; i++) {
+						defaults.get(defaults.size() - 1)[i] = Integer.parseInt(params.geneValues[i][j], 2);
+					}
+					j++;
+				}
+
+		JScrollPane phenotypeScroller = new JScrollPane(listSelected);
+
+		TableColumnModel agParamColModel = listSelected.getColumnModel();
+
+		// Get the column at index pColumn, and set its preferred width.
+		agParamColModel.getColumn(0).setPreferredWidth(200);
+
+		GUI.colorHeaders(listSelected, true);
+
+		GUI.makeGroupPanel(phenotypeScroller, "Selected Phenotypes");
 		return phenotypeScroller;
 	}
 
@@ -158,8 +258,68 @@ public class GeneticConfigPage implements ConfigPage {
 		return myPanel;
 	}
 
+	private JPanel makeMeiosisConfig() {
+		JComboBox meiosis_mode = new JComboBox(new EnumComboBoxModel(this.params.meiosisMode, "mode"));
+		JPanel meiosis_mode_panel = new JPanel(new BorderLayout());
+		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
+		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);
+		return meiosis_mode_panel;
+	}
+
+	private JPanel makeUpdateConfig() {
+		BoundCheckBox track_gene_value_distribution = new BoundCheckBox(this.params, "trackValues");
+		track_gene_value_distribution.setText(track_gene_value_distribution.getLabel());
+
+		BoundJFormattedTextField chart_update_frequency = new BoundJFormattedTextField(this.params, "updateFrequency",
+				NumberFormat.getIntegerInstance());
+		chart_update_frequency.setColumns(4);
+
+		JPanel chart_update_frequency_panel = new JPanel();
+		chart_update_frequency_panel.add(new JLabel(chart_update_frequency.getLabel()));
+		chart_update_frequency_panel.add(chart_update_frequency);
+
+		JPanel gene_check_boxes = new JPanel(new BorderLayout());
+		gene_check_boxes.add(track_gene_value_distribution, BorderLayout.CENTER);
+		gene_check_boxes.add(chart_update_frequency_panel, BorderLayout.SOUTH);
+		return gene_check_boxes;
+	}
+
+	private ListManipulator<Phenotype> phenosAvailable;
+	private List<Phenotype> phenosUsed;
+
+	private GenesTableModel modelSelected;
+	List<Phenotype> phenoAvailable = new LinkedList<Phenotype>();
+
+	private JScrollPane setupPhenotypeList() {
+		for (Field element : Phenotype.getBindables()) {
+			Phenotype p = new Phenotype(element);
+			phenoAvailable.add(p);
+		}
+
+		phenosAvailable = new ListManipulator<Phenotype>(phenoAvailable);
+
+		listAvailable = new JList(phenosAvailable);
+		listAvailable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		listAvailable.setLayoutOrientation(JList.VERTICAL_WRAP);
+		listAvailable.setVisibleRowCount(-1);
+		JScrollPane phenotypeScroller = new JScrollPane(listAvailable);
+		phenotypeScroller.setPreferredSize(new Dimension(220, 500));
+
+		GUI.makeGroupPanel(phenotypeScroller, "Agent Parameter Selection");
+		return phenotypeScroller;
+	}
+
 	public void validateUI() throws IllegalArgumentException {
-		GUI.updateTable(genetic_table);
+		params.geneCount = phenosUsed.size();
+		params.phenotype = phenosUsed.toArray(new Phenotype[0]);
+
+		params.geneLength = 8;
+		params.geneValues = new String[agentTypes][params.geneCount];
+		for (int g = 0; g < params.geneCount; g++) {
+			for (int a = 0; a < agentTypes; a++) {
+				params.geneValues[a][g] = Integer.toString(defaults.get(g)[a], 2);
+			}
+		}
 
 	}
 

@@ -14,6 +14,7 @@ class MixedValueJTable extends JTable {
 
 	public MixedValueJTable() {
 		super();
+		this.getTableHeader().setReorderingAllowed(false);
 	}
 
 	@Override

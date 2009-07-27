@@ -4,12 +4,11 @@
 package cwcore.complexParams;
 
 import cobweb.params.AbstractReflectionParams;
-import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfXMLTag;
 
 
-public class ComplexFoodParams extends AbstractReflectionParams implements CobwebParam {
+public class ComplexFoodParams extends AbstractReflectionParams {
 	/**
 	 *
 	 */

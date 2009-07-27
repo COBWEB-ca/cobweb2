@@ -1,5 +1,6 @@
 package ga;
 
+import cobweb.ArrayUtilities;
 import cobweb.TickScheduler.Client;
 
 
@@ -36,24 +37,48 @@ public class GATracker implements Client {
 
 	private int update_frequency;
 
-	public GATracker(int agentTypes, int geneNo, boolean track, int update_frequency) {
+	public GATracker() {
+
+	}
+
+	public void setParams(int agentTypes, int geneNo, boolean track, int update_frequency, String[] names) {
 		typeCount = agentTypes;
 		geneCount = geneNo;
 		this.update_frequency = update_frequency;
-		frameskip = update_frequency;
-		total_agents = new int[typeCount];
-		total_gene_status = new double[typeCount][geneCount];
-		gene_status_distribution = new double [typeCount][geneCount][GENE_STATUS_DISTRIBUTION_SIZE];
-		gene_value_distribution =  new double [typeCount][geneCount][GENE_VALUE_DISTRIBUTION_SIZE];
+		frameskip = 0;
+
+		if (total_agents == null) {
+			total_agents = new int[typeCount];
+		} else if (total_agents.length != typeCount) {
+			total_agents = ArrayUtilities.resizeArray(total_agents, typeCount);
+		}
+
+		if (total_gene_status == null) {
+			total_gene_status = new double[typeCount][geneCount];
+		} else if (total_gene_status.length != typeCount || total_gene_status[0].length != geneCount) {
+			total_gene_status = ArrayUtilities.resizeArray(total_gene_status, typeCount, geneCount);
+		}
+
+		if (gene_status_distribution == null) {
+			gene_status_distribution = new double [typeCount][geneCount][GENE_STATUS_DISTRIBUTION_SIZE];
+		} else if (gene_status_distribution.length != typeCount || gene_status_distribution[0].length != geneCount) {
+			gene_status_distribution = ArrayUtilities.resizeArray(gene_status_distribution, typeCount, geneCount, GENE_STATUS_DISTRIBUTION_SIZE);
+		}
+
+		if (gene_value_distribution == null) {
+			gene_value_distribution =  new double [typeCount][geneCount][GENE_VALUE_DISTRIBUTION_SIZE];
+		} else if (gene_value_distribution.length != typeCount || gene_value_distribution[0].length != geneCount) {
+			gene_value_distribution = ArrayUtilities.resizeArray(gene_value_distribution, typeCount, geneCount, GENE_VALUE_DISTRIBUTION_SIZE);
+		}
 		track_gene_value_distribution = track;
 
-
 		if (track_gene_value_distribution) {
-			charOutput = new GAChartOutput(typeCount, geneCount);
+			charOutput = new GAChartOutput(typeCount, geneCount, names);
 			// Initialize chart output
 			charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
 			plotGeneValueDistribution(0);
 		}
+		frameskip = 0;
 	}
 
 	/** Adds an agent. */
@@ -81,11 +106,11 @@ public class GATracker implements Client {
 		plotGeneValueDistribution(time_step);
 	}
 	private int frameskip;
-	
+
 	/** Plot the gene value distribution of all agent types for a certain time step. */
 	private void plotGeneValueDistribution(long time_step) {
 		if (frameskip-- <= 0) {
-			
+
 			charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
 			frameskip = update_frequency;
 		}
@@ -117,6 +142,15 @@ public class GATracker implements Client {
 		if (track_gene_value_distribution) {
 			printGAInfo(time);
 		}
+	}
+
+	@Override
+	public void tickZero() {
+		tickNotification(0);
+	}
+
+	public double getAvgStatus(int agentType, int geneType) {
+		return total_gene_status[agentType][geneType] / total_agents[agentType];
 	}
 
 }

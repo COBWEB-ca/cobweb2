@@ -126,6 +126,32 @@ public class LinearWeightsController implements cobweb.Controller {
 			agent.step();
 	}
 
+	public CobwebParam getParams() {
+		return params;
+	}
+
+	private void mutate(float mutation) {
+		mutationCounter += INPUT_COUNT * OUTPUT_COUNT * mutation;
+		while (mutationCounter > 1) {
+			int i = globals.behaviorRandom.nextInt(params.data.length);
+			int j = globals.behaviorRandom.nextInt(params.data[i].length);
+			params.data[i][j] += globals.behaviorRandom.nextGaussian() * 0.5;
+			mutationCounter -= 1;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see cobweb.Agent.Controller#removeClientAgent(cobweb.Agent)
+	 */
+	public void removeClientAgent(Agent theAgent) {
+		// Nothing
+	}
+
+	public void setParams(CobwebParam params) {
+		this.params = (LinearWeightsControllerParams) params;
+	}
+
 	public void setupFromEnvironment(int memSize, int commSize, CobwebParam params) {
 		this.params = (LinearWeightsControllerParams) params;
 		this.memSize = memSize;
@@ -160,32 +186,6 @@ public class LinearWeightsController implements cobweb.Controller {
 		}
 
 		mutate(mutation);
-	}
-
-	public CobwebParam getParams() {
-		return params;
-	}
-
-	private void mutate(float mutation) {
-		mutationCounter += INPUT_COUNT * OUTPUT_COUNT * mutation;
-		while (mutationCounter > 1) {
-			int i = globals.behaviorRandom.nextInt(params.data.length);
-			int j = globals.behaviorRandom.nextInt(params.data[i].length);
-			params.data[i][j] += globals.behaviorRandom.nextGaussian() * 0.5;
-			mutationCounter -= 1;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see cobweb.Agent.Controller#removeClientAgent(cobweb.Agent)
-	 */
-	public void removeClientAgent(Agent theAgent) {
-		// Nothing
-	}
-
-	public void setParams(CobwebParam params) {
-		this.params = (LinearWeightsControllerParams) params;
 	}
 
 	public double similarity(LinearWeightsController other) {

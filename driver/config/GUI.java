@@ -58,7 +58,7 @@ public class GUI extends JFrame {
 			updateTable(agentParamTable);
 			updateTable(foodTable);
 			updateTable(tablePD);
-			//geneticPage.validateUI();
+			geneticPage.validateUI();
 
 
 			/* write UI info to xml file */
@@ -356,8 +356,8 @@ public class GUI extends JFrame {
 		// Get the column at index pColumn, and set its preferred width.
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 
-		colorHeaders(agentParamTable, true);
 
+		colorHeaders(agentParamTable, true);
 		JScrollPane agentScroll = new JScrollPane(agentParamTable);
 		// Add the scroll pane to this panel.
 		agentPanel.add(agentScroll);

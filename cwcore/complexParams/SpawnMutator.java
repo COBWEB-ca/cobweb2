@@ -2,7 +2,7 @@ package cwcore.complexParams;
 
 import cwcore.ComplexAgent;
 
-public interface AgentParamsMutator {
+public interface SpawnMutator extends AgentMutator {
 	public void onSpawn(ComplexAgent agent);
 
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent);

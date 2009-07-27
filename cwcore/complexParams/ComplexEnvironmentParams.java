@@ -12,7 +12,7 @@ import cobweb.params.ConfXMLTag;
 import cwcore.GeneticController;
 import cwcore.GeneticControllerParams;
 
-public class ComplexEnvironmentParams extends AbstractReflectionParams implements CobwebParam {
+public class ComplexEnvironmentParams extends AbstractReflectionParams {
 	/**
 	 *
 	 */

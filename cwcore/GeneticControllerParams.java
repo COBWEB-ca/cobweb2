@@ -4,7 +4,6 @@
 package cwcore;
 
 import cobweb.params.AbstractReflectionParams;
-import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfXMLTag;
 
@@ -12,7 +11,7 @@ import cobweb.params.ConfXMLTag;
  * Parameters for GeneticController
  *
  */
-public class GeneticControllerParams extends AbstractReflectionParams implements CobwebParam {
+public class GeneticControllerParams extends AbstractReflectionParams {
 
 	private static final long serialVersionUID = -1252142643022378114L;
 

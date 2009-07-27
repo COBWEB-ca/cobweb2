@@ -1,11 +1,10 @@
 package cwcore.complexParams;
 
 import cobweb.params.AbstractReflectionParams;
-import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfXMLTag;
 
-public class PDParams extends AbstractReflectionParams implements CobwebParam {
+public class PDParams extends AbstractReflectionParams {
 
 	private static final long serialVersionUID = 1380425322335531943L;
 

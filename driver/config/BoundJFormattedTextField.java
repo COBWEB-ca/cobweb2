@@ -49,12 +49,16 @@ public class BoundJFormattedTextField extends JFormattedTextField implements Fie
 				out = value;
 			} else if (value instanceof Double) {
 				Double d = (Double) value;
-				if (field.getType().equals(float.class)) {
+				if (field.getType().equals(double.class)) {
+					out = d;
+				} else if (field.getType().equals(float.class)) {
 					out = d.floatValue();
 				}
 			} else if (value instanceof Long) {
 				Long l = (Long) value;
-				if (field.getType().equals(int.class)) {
+				if (field.getType().equals(long.class)) {
+					out = l;
+				} else if (field.getType().equals(int.class)) {
 					out = l.intValue();
 				} else if (field.getType().equals(float.class)) {
 					out = l.floatValue();

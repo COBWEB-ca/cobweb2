@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package driver.config;
 
@@ -13,7 +13,7 @@ class EnumComboBoxModel extends DefaultComboBoxModel {
 	Object[] values;
 	Field field;
 	Object obj;
-	
+
 	public EnumComboBoxModel(Object obj, String fieldName) {
 		try {
 			this.field = obj.getClass().getField(fieldName);
@@ -23,11 +23,11 @@ class EnumComboBoxModel extends DefaultComboBoxModel {
 		Class<?> type = field.getType();
 		if (!type.isEnum())
 			throw new IllegalArgumentException("Field must be an enum");
-		
+
 		this.obj = obj;
 		values = type.getEnumConstants();
 	}
-	
+
 	@Override
 	public Object getSelectedItem() {
 		try {

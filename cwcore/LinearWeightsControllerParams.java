@@ -10,11 +10,18 @@ import cobweb.params.CobwebParam;
 
 public class LinearWeightsControllerParams implements CobwebParam {
 
-
 	private static final long serialVersionUID = 8856565519749448009L;
 
-
 	public double[][] data = new double[LinearWeightsController.INPUT_COUNT][LinearWeightsController.OUTPUT_COUNT];
+
+	public LinearWeightsControllerParams copy() {
+		LinearWeightsControllerParams p = new LinearWeightsControllerParams();
+		p.data = new double[data.length][data[0].length];
+		for (int i = 0; i < p.data.length; i++)
+			for (int j = 0; j < p.data[i].length; j++)
+				p.data[i][j] = data[i][j];
+		return p;
+	}
 
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		try {
@@ -42,18 +49,10 @@ public class LinearWeightsControllerParams implements CobwebParam {
 			data[i][j] = Double.parseDouble(e);
 			if (++j >= data[i].length) {
 				j = 0;
-				if (++i >= data.length) return;
+				if (++i >= data.length)
+					return;
 			}
 		}
-	}
-
-	public LinearWeightsControllerParams copy() {
-		LinearWeightsControllerParams p = new LinearWeightsControllerParams();
-		p.data = new double[data.length][data[0].length];
-		for (int i = 0; i < p.data.length; i++)
-			for (int j = 0; j < p.data[i].length; j++)
-				p.data[i][j] = data[i][j];
-		return p;
 	}
 
 	public void saveConfig(Node root, Document document) {

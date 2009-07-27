@@ -4,12 +4,11 @@
 package cwcore.complexParams;
 
 import cobweb.params.AbstractReflectionParams;
-import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfXMLTag;
 
 
-public class ComplexAgentParams extends AbstractReflectionParams implements CobwebParam, Cloneable {
+public class ComplexAgentParams extends AbstractReflectionParams implements Cloneable {
 
 	/**
 	 *
@@ -187,8 +186,6 @@ public class ComplexAgentParams extends AbstractReflectionParams implements Cobw
 	@ConfXMLTag("foodweb")
 	public FoodwebParams foodweb;
 
-	private ComplexEnvironmentParams environmentParams;
-
 	@Override
 	public Object clone() {
 		try {
@@ -199,7 +196,6 @@ public class ComplexAgentParams extends AbstractReflectionParams implements Cobw
 	}
 
 	public ComplexAgentParams(ComplexEnvironmentParams env) {
-		this.environmentParams = env;
 		initialAgents = 20;
 		mutationRate = 0.05f;
 		initEnergy = 100;
@@ -225,6 +221,6 @@ public class ComplexAgentParams extends AbstractReflectionParams implements Cobw
 		wasteDecay = 0.5f;
 
 		type = -1;
-		foodweb = new FoodwebParams(environmentParams);
+		foodweb = new FoodwebParams(env);
 	}
 }

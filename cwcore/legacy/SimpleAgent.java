@@ -53,7 +53,7 @@ public class SimpleAgent extends cobweb.Agent implements
 	}
 
 	void turnRight() {
-		cobweb.Environment.Direction newFacing = new cobweb.Environment.Direction(
+		cobweb.Direction newFacing = new cobweb.Direction(
 				2);
 		newFacing.v[0] = -facing.v[1];
 		newFacing.v[1] = facing.v[0];
@@ -61,7 +61,7 @@ public class SimpleAgent extends cobweb.Agent implements
 	}
 
 	void turnLeft() {
-		cobweb.Environment.Direction newFacing = new cobweb.Environment.Direction(
+		cobweb.Direction newFacing = new cobweb.Direction(
 				2);
 		newFacing.v[0] = facing.v[1];
 		newFacing.v[1] = -facing.v[0];
@@ -87,5 +87,10 @@ public class SimpleAgent extends cobweb.Agent implements
 		return 0.0;
 	}
 
-	private cobweb.Environment.Direction facing = cobweb.Environment.DIRECTION_NORTH;
+	private cobweb.Direction facing = cobweb.Environment.DIRECTION_NORTH;
+
+	@Override
+	public void tickZero() {
+
+	}
 }

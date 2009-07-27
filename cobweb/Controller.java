@@ -37,6 +37,7 @@ public interface Controller {
 	 * Sets controller up based on environment parameters
 	 * @param memoryBits memory size
 	 * @param commBits communication size
+	 * @param params other parameters
 	 */
 	public void setupFromEnvironment(int memoryBits, int commBits, CobwebParam params);
 

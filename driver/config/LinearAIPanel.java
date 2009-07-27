@@ -25,14 +25,14 @@ import driver.SettingsPanel;
  * @author Igor
  *
  */
-public class LinearAIGUI extends SettingsPanel {
+public class LinearAIPanel extends SettingsPanel {
 
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 5135067595194478959L;
 
-	public LinearAIGUI() {
+	public LinearAIPanel() {
 		super(true);
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
@@ -83,23 +83,19 @@ public class LinearAIGUI extends SettingsPanel {
 		}
 	}
 
-
-
-
 	@Override
 	public void bindToParser(Parser p) {
 		ComplexEnvironmentParams ep = p.getEnvParams();
-		if (!ep.controllerParams.getClass().equals(LinearWeightsControllerParams.class)) {
+		if (!(ep.controllerParams instanceof LinearWeightsControllerParams)) {
 			p.getEnvParams().controllerName = LinearWeightsController.class.getName();
-			p.getEnvParams().controllerParams = new LinearWeightsControllerParams();
+			if (params == null)
+				params = new LinearWeightsControllerParams();
+			p.getEnvParams().controllerParams = params;
+		} else {
+			params = (LinearWeightsControllerParams) p.getEnvParams().controllerParams;
 		}
 
-		params = (LinearWeightsControllerParams) ep.controllerParams;
-
-		if (scrollpane != null) {
-			this.remove(scrollpane);
-			scrollpane = null;
-		}
+		removeAll();
 
 		matrix = new JTable(new DoubleMatrixModel(LinearWeightsController.inputNames, LinearWeightsController.outputNames, params.data));
 

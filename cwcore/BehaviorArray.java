@@ -1,5 +1,7 @@
 package cwcore;
 
+import cobweb.RandomNoGenerator;
+
 /**
  * BehaviorArray is a class designed to take a collection of bits as input and for each permutation of those bits,
  * return a set of corresponding output bits. A set of output bits are stored for each permutation and thus the size of
@@ -237,11 +239,13 @@ public class BehaviorArray {
 
 	/**
 	 * fills the array with random bits one integer at a time
+	 * @param seed Random seed to use
 	 */
-	public void init() {
+	public void randomInit(long seed) {
 
+		RandomNoGenerator rng = new RandomNoGenerator(seed);
 		for (int i = 0; i < totalInts; ++i) {
-			array[i] = cobweb.globals.behaviorRandom.nextInt();
+			array[i] = rng.nextInt();
 		}
 
 	}

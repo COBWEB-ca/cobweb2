@@ -461,14 +461,16 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 	 * Initialize the specified environment class with state data read from the Reader. This is a private helper to the
 	 * LocalUIInterface constructor.
 	 */
-
 	public void load(UIInterface.UIClient client, Parser p) {
 		theClient = client;
 		InitScheduler(p.getEnvParams().schedulerName, p);
 
-		GeneticsMutator gm = new GeneticsMutator(p.getGeneticParams(), p.getEnvParams().agentTypeCount);
-		ComplexAgent.addMutator(gm);
-		ComplexAgent.setSimularityCalc(gm);
+		if (gm == null) {
+			gm = new GeneticsMutator();
+			ComplexAgent.addMutator(gm);
+			ComplexAgent.setSimularityCalc(gm);
+		}
+		gm.setParams(p.getGeneticParams(), p.getEnvParams().agentTypeCount);
 
 		InitEnvironment("cwcore.ComplexEnvironment", p);
 
@@ -481,6 +483,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		theScheduler.startScheduler();
 		tickNotification(0);
 	}
+
+	GeneticsMutator gm;
 
 	private void loadNewDataFile(int n) {
 		// System.out.println("Loading new file " + n); // $$$$$$ silenced on Apr 22
@@ -541,7 +545,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 	public void refresh(boolean wait) {
 		if (theClient == null || !theClient.isReadyToRefresh())
 			return;
-		
+
 		updateEnvironmentDrawInfo();
 		// Wait for refresh calls theClient.refresh... if it didn't we'd have a race condition between
 		// the UI thread that refreshes and this thread which waits for the refresh.
@@ -720,5 +724,10 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 
 	public void writeOutput(String s) {
 		myLogger.info(s);
+	}
+
+	@Override
+	public void tickZero() {
+		refresh(true);
 	}
 }

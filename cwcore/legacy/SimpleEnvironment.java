@@ -230,5 +230,10 @@ public class SimpleEnvironment extends cobweb.Environment implements
 	@Override
 	public EnvironmentStats getStatistics() {
 		return null;
+	}
+
+	@Override
+	public void tickZero() {
+
 	};
 }

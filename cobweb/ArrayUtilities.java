@@ -5,17 +5,12 @@ import java.lang.reflect.Array;
 public class ArrayUtilities {
 
 	/**
-	 * initArray takes an array given as an argument, an array of dimensions, and counter indicated the what dimension
-	 * in the array of dimensions should be used first.
+	 * Resizes a given array to the given dimensions.
+	 * If a dimension is already the right size, it is re-used, otherwise a new array is created
 	 *
-	 * It returns a possibly new array that has the dimensions specified by the second parameter and all of the old data
-	 * from the array given as a parameter (that fits).
-	 *
-	 * Essentially, it is a utility for resizing arrays
-	 *
-	 * @param <T> Array type
+	 * @param original original array
+	 * @param newsize new dimensions of the array
 	 */
-
 	public static <T> T resizeArray(T original, int... newsize) {
 //		if (original == null) {
 //			return null;

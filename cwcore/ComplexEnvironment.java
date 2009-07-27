@@ -1,7 +1,6 @@
 package cwcore;
 
 import ga.GATracker;
-import ga.GeneticParams;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -24,6 +23,233 @@ import driver.Parser;
 
 public class ComplexEnvironment extends Environment implements TickScheduler.Client {
 
+	public static class CommManager {
+
+		private boolean broadcastBlocked = false;
+
+		/**
+		 * adds packets to the list of packets
+		 *
+		 * @param packet packet
+		 */
+		public void addPacketToList(CommPacket packet) {
+			if (!broadcastBlocked)
+				currentPackets.add(packet);
+			blockBroadcast();
+		}
+
+		public void blockBroadcast() {
+			broadcastBlocked = true;
+		}
+
+		// with every time step, the persistence of the packets should be
+		// decremented
+		public void decrementPersistence() {
+			int pValue;
+			for (int i = 0; i < currentPackets.size(); i++) {
+				pValue = --currentPackets.get(i).persistence;
+				if (pValue <= 0)
+					removePacketfromList(currentPackets.get(i));
+			}
+		}
+
+		/**
+		 * returns the packet with the specified ID
+		 *
+		 * @return CommPacket
+		 */
+		public CommPacket getPacket(int packetId) {
+			int i = 0;
+			while (packetId != (currentPackets.get(i)).packetId & i < currentPackets.size()) {
+				i++;
+			}
+			return currentPackets.get(i);
+		}
+
+		public boolean packetInRange(int range, cobweb.Environment.Location broadcastPos,
+				cobweb.Environment.Location position) {
+			if (Math.abs(position.v[0] - broadcastPos.v[0]) > range)
+				return false;
+			if (Math.abs(position.v[1] - broadcastPos.v[1]) > range)
+				return false;
+			return true;
+		}
+
+		/**
+		 * removes packets from the list of packets
+		 *
+		 * @param packet packet to remove
+		 */
+		public void removePacketfromList(CommPacket packet /* int packetId */) {
+			currentPackets.remove(/* getPacket(packetId) */packet);
+		}
+
+		public void unblockBroadcast() {
+			broadcastBlocked = false;
+		}
+
+	}
+
+	public static class CommPacket {
+
+		private static final int DEFAULT = 1;
+
+		public static final int FOOD = 1;
+
+		public static final int CHEATER = 2;
+
+		CommManager commManager = new CommManager();
+
+		private static int packetCounter;
+
+		private int packetId; // Unique ID for each communication packet
+
+		private int type; // Type of packet (Food or ). This is an enumerated
+		// number that can be extended
+
+		private long dispatcherId; // ID of sending agent (or entity)...could
+		// be modified to take an Object type
+
+		// According to this sender ID, other members may decide whether or not
+		// to accept this message
+		private String content; // Content of message. e.g. Cheater with ID 1234
+		// encountered...migth be enumerated
+
+		// e.g. Food found at location 34,43
+		private int radius; // Reach over the whole environment or just a
+		// certain neighborhood
+
+		private int persistence; // how many time steps should the packet
+
+		/**
+		 * Constructor
+		 *
+		 *
+		 */
+		public CommPacket(int type, long dispatcherId, String content, int energy, boolean energyBased, int fixedRange) {
+
+			this.packetId = ++packetCounter;
+			this.type = type;
+			this.dispatcherId = dispatcherId;
+			this.content = content; // could be a message or an enumerated type
+			// depending on the type
+			if (!energyBased)
+				this.radius = getRadius(energy);
+			else
+				this.radius = fixedRange;
+			this.persistence = DEFAULT;
+
+			// CommManager commManager = new CommManager();
+			commManager.addPacketToList(this);
+		}
+
+		// stay there. By default, a packet will
+		// persist for one time step (value 1)
+
+		public String getContent() {
+			return content;
+		}
+
+		public long getDispatcherId() {
+			return dispatcherId;
+		}
+
+		public int getPacketId() {
+			return packetId;
+		}
+
+		public int getPersistence() {
+			return persistence;
+		}
+
+		public int getRadius() {
+			return radius;
+		}
+
+		private int getRadius(int energy) {
+			return energy / 10 + 1; // limiting minimum to 1 unit of
+			// radius
+		}
+
+		public int getType() {
+			return type;
+		}
+
+		public void setContent(String content) {
+			this.content = content;
+		}
+
+		public void setDispatcherId(int dispatcherId) {
+			this.dispatcherId = dispatcherId;
+		}
+
+		public void setPacketId(int packetId) {
+			this.packetId = packetId;
+		}
+
+		public void setPersistence(int persistence) {
+			this.persistence = persistence;
+		}
+
+		public void setRadius(int radius) {
+			this.radius = radius;
+		}
+
+		public void setType(int type) {
+			this.type = type;
+		}
+	}
+
+	static class Waste {
+		private int initialWeight;
+
+		private long birthTick;
+
+		private float rate;
+
+		private double threshold;
+
+		private boolean valid;
+
+		@SuppressWarnings("unused")
+		private long lastAmount = 0;
+
+		public Waste(long birthTick, int weight, float rate) {
+			initialWeight = weight;
+			this.birthTick = birthTick;
+			this.rate = rate;
+			// to avoid recalculating every tick
+			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
+			// skinawy
+			this.valid = true;
+		}
+
+		/* Call me sparsely, especially when the age is really old */
+		public double getAmount(long tick) {
+			return initialWeight * Math.pow(Math.E, -1 * rate * (tick - birthTick));
+		}
+
+		public boolean isActive(long tick) {
+			if (!valid)
+				return false;
+			if (getAmount(tick) < threshold) {
+				valid = false;
+				return false;
+			}
+			return true;
+		}
+
+		public void reset(long birthTick, int weight, float rate) {
+			initialWeight = weight;
+			this.birthTick = birthTick;
+			this.rate = rate;
+			// to avoid recalculating every tick
+			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
+			// skinawy
+			valid = true;
+		}
+	}
+
 	public static final int FLAG_STONE = 1;
 
 	public static final int FLAG_FOOD = 2;
@@ -44,25 +270,228 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public static final List<CommPacket> currentPackets = new ArrayList<CommPacket>();
 
-	// Info for logfile
-	private long tickCount = 0;
-
-	private static RandomNoGenerator environmentRandom;
-
-	public int getAgentTypes() {
-		return data.agentTypeCount;
-	}
-
 	/*
 	 * All variables that will by referenced by the parser must be declared as 1-sized arrays as all of the following
 	 * are.
 	 */
 
+	// Info for logfile
+	private long tickCount = 0;
+
+	private static RandomNoGenerator environmentRandom;
+
 	private ComplexFoodParams foodData[];
 
 	private ComplexAgentParams agentData[];
 
-	private GeneticParams geneticData;
+	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
+
+	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
+
+	// Bitmasks for boolean states
+	private static final long MASK_TYPE = 15;
+
+	private static final long STONE_CODE = 1;
+
+	private static final long FOOD_CODE = 2;
+
+	private static final long WASTE_CODE = 4;
+
+	public static void addWaste(long tick, int x, int y, int val, float rate) {
+		if (wastearray[x][y] != null)
+			wastearray[x][y].reset(tick, val, rate);
+		else
+			wastearray[x][y] = new Waste(tick, val, rate);
+	}
+
+	// Returns current location's food type
+	public static int getFoodType(cobweb.Environment.Location l) {
+		return foodarray[l.v[0]][l.v[1]];
+	}
+
+	public static void trackAgent(java.io.Writer w) {
+		ComplexAgent.setPrintWriter(w);
+		ComplexAgent.tracked();
+	}
+
+	GATracker gaTracker;
+
+	private java.io.PrintWriter logStream;
+
+	@SuppressWarnings("unused")
+	private java.io.PrintWriter trackAgentStream;
+
+	private Vector<ComplexAgentInfo> agentInfoVector = new Vector<ComplexAgentInfo>();
+
+	private cobweb.ArrayEnvironment array;
+
+	/*
+	 * Waste tile array to store the data per waste tile. Needed to allow depletion of waste
+	 */
+	private static Waste[][] wastearray;
+
+	private ComplexEnvironmentParams data = new ComplexEnvironmentParams();
+
+	// Food array contains type and their locations
+	private static int[][] foodarray = new int[0][];
+
+	@SuppressWarnings("unused")
+	private int clickcount = 0;
+
+	private Agent observedAgent = null;
+
+	private int draughtdays[];
+
+	public ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
+		agentInfoVector.add(info);
+		return info;
+	}
+
+	public ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2, int action) {
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, p2, action));
+	}
+
+	public ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, int action) {
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, action));
+	}
+
+	public ComplexAgentInfo addAgentInfo(int agentT, int action) {
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, action));
+	}
+
+	private void copyParamsFromParser(Parser p) {
+		data = p.getEnvParams();
+
+		foodData = p.getFoodParams();
+
+		agentData = p.getAgentParams();
+
+		PD_PAYOFF_REWARD = data.pdParams.reward;
+		PD_PAYOFF_TEMPTATION = data.pdParams.temptation;
+		PD_PAYOFF_SUCKER = data.pdParams.sucker;
+		PD_PAYOFF_PUNISHMENT = data.pdParams.punishment;
+	}
+
+	/* Return totalEnergy of all agents */
+	private long countAgentEnergy() {
+		long totalEnergy = 0;
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
+		while (e.hasMoreElements()) {
+			ComplexAgent agent = (ComplexAgent) e.nextElement();
+			totalEnergy += agent.getEnergy();
+		}
+		return totalEnergy;
+	}
+
+	/* Return totalEnergy (long) for a certain agentType (int) */
+	private long countAgentEnergy(int agentType) {
+		long totalEnergy = 0;
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
+		while (e.hasMoreElements()) {
+			ComplexAgent agent = (ComplexAgent) e.nextElement();
+			if (agent.getAgentType() == agentType)
+				totalEnergy += agent.getEnergy();
+		}
+		return totalEnergy;
+	}
+
+	/* Return the number of agents (int) for a certain agentType (int) */
+	private int countAgents(int agentType) {
+		int agentCount = 0;
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
+		while (e.hasMoreElements()) {
+			ComplexAgent agent = (ComplexAgent) e.nextElement();
+			if (agent.getAgentType() == agentType)
+				agentCount++;
+		}
+		return agentCount;
+	}
+
+	/* Return foodCount (long) of all types of food */
+	private long countFoodTiles() {
+		long foodCount = 0;
+		Location currentPos = getLocation(0, 0);
+		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1])
+			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0])
+				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+					++foodCount;
+		return foodCount;
+	}
+
+	/* Return foodCount (long) for a specific foodType (int) */
+	private int countFoodTiles(int foodType) {
+		int foodCount = 0;
+		Location currentPos = getLocation(0, 0);
+		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1])
+			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0])
+				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+					if (getFoodType(currentPos) == foodType)
+						++foodCount;
+		return foodCount;
+	}
+
+	private void depleteFood(int type) {
+		// the algorithm for randomly selecting the food cells to delete
+		// is as follows:
+		// We iterate through all of the cells and the location of each
+		// one containing food type i is added to
+		// a random position in our vector. We then calculate exactly
+		// how many food items we need to destroy, say N,
+		// and we destroy the food at the positions occupying the last N
+		// spots in our vector
+		Vector<Location> locations = new Vector<Location>();
+		for (int x = 0; x < getSize(AXIS_X); ++x)
+			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+				Location currentPos = getLocation(x, y);
+				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
+					locations.add(environmentRandom.nextInt(locations.size() + 1), currentPos);
+			}
+
+		int foodToDeplete = (int) (locations.size() * foodData[type].depleteRate);
+
+		for (int j = 0; j < foodToDeplete; ++j) {
+			Location loc = locations.remove(locations.size() - 1);
+			loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+		}
+		foodData[type].draughtPeriod = foodData[type].draughtPeriod;
+	}
+
+	private void dropFood(int type) {
+		float foodDrop = foodData[type].dropRate;
+		while (environmentRandom.nextFloat() < foodDrop) {
+			--foodDrop;
+			cobweb.Environment.Location l;
+			int j = 0;
+			do {
+				++j;
+				l = getRandomLocation();
+
+			} while (j < foodData[type].growRate
+					&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_FOOD)
+							|| l.testFlag(ComplexEnvironment.FLAG_WASTE) || l.getAgent() != null));
+
+			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+			setFoodType(l, type);
+		}
+	}
+
+	@Override
+	public void fillTileColors(java.awt.Color[] tileColors) {
+		Location currentPos = getLocation(0, 0);
+		int tileIndex = 0;
+		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
+			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
+				if (currentPos.testFlag(FLAG_STONE))
+					tileColors[tileIndex++] = java.awt.Color.darkGray;
+				else if (currentPos.testFlag(FLAG_WASTE))
+					tileColors[tileIndex++] = wasteColor;
+				else if (currentPos.testFlag(FLAG_FOOD)) {
+					tileColors[tileIndex++] = colorMap.getColor(getFoodType(currentPos), 0 /* agentTypeCount */);
+				} else
+					tileColors[tileIndex++] = java.awt.Color.white;
+			}
+		}
+	}
 
 	@Override
 	protected void finalize() {
@@ -70,9 +499,179 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			logStream.close();
 	}
 
-	/** Sets the default mutable variables of each agent type. */
-	public void setDefaultMutableAgentParam() {
-		ComplexAgent.setDefaultMutableParams(agentData);
+	public int getAgentTypes() {
+		return data.agentTypeCount;
+	}
+
+	@Override
+	public int getAxisCount() {
+		return 2;
+	}
+
+	@Override
+	public boolean getAxisWrap(int axis) {
+		return data.wrapMap;
+	}
+
+	@Override
+	protected synchronized void getDrawInfo(UIInterface theUI) {
+		super.getDrawInfo(theUI);
+		for (Agent a : agentTable.values()) {
+			a.getDrawInfo(theUI);
+		}
+
+		if (observedAgent != null) {
+			theUI.newPath(((ComplexAgent) observedAgent).getInfo().getPathHistory());
+		}
+
+	}
+
+	// Ignored; this model has no fields
+	@Override
+	protected int getField(cobweb.Environment.Location l, int field) {
+		return 0;
+	}
+
+	public int getInfoNum() {
+		return agentInfoVector.size();
+	}
+
+	protected long getLocationBits(cobweb.Environment.Location l) {
+		return array.getLocationBits(l);
+	}
+
+	@Override
+	public int getSize(int axis) {
+		return array.getSize(axis);
+	}
+
+	@Override
+	public EnvironmentStats getStatistics() {
+		EnvironmentStats stats = new EnvironmentStats();
+		stats.agentCounts = new long[getAgentTypes()];
+		stats.foodCounts = new long[getAgentTypes()];
+		for (int i = 0; i < getAgentTypes(); i++) {
+			stats.agentCounts[i] = countAgents(i);
+			stats.foodCounts[i] = countFoodTiles(i);
+		}
+		stats.timestep = this.getTickCount();
+		return stats;
+	}
+
+	/* Return the current tick number, tickCount (long) */
+	public long getTickCount() {
+		return tickCount;
+	}
+
+	@Override
+	public int getTypeCount() {
+
+		return data.agentTypeCount;
+	}
+
+	private void growFood() {
+		// create a new ArrayEnvironment and a new food type array
+		cobweb.ArrayEnvironment newArray = new cobweb.ArrayEnvironment(array.getSize(AXIS_X), array.getSize(AXIS_Y));
+		int[][] newFoodArray = new int[data.width][data.height];
+		// loop through all positions
+		Location currentPos = getLocation(0, 0);
+		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
+			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
+				// if theres a stone or already food, we simply copy the
+				// information from the old arrays to the new ones
+				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD)
+						|| currentPos.testFlag(ComplexEnvironment.FLAG_WASTE)
+						|| currentPos.testFlag(ComplexEnvironment.FLAG_STONE)) {
+					newArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
+					newFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
+				}
+				// otherwise, we want to see if we should grow food here
+				else {
+
+					// the following code block tests all adjacent squares
+					// to this one and counts how many have food
+					// as well how many of each food type exist
+
+					double foodCount = 0;
+					int mostFood[] = new int[data.foodTypeCount];
+					for (int i = 0; i < data.agentTypeCount; ++i)
+						mostFood[i] = 0;
+
+					Location checkPos = currentPos.getAdjacent(DIRECTION_NORTH);
+					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+						++foodCount;
+						++mostFood[getFoodType(checkPos)];
+					}
+					checkPos = currentPos.getAdjacent(DIRECTION_SOUTH);
+					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+						++foodCount;
+						++mostFood[getFoodType(checkPos)];
+					}
+					checkPos = currentPos.getAdjacent(DIRECTION_EAST);
+					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+						++foodCount;
+						++mostFood[getFoodType(checkPos)];
+					}
+					checkPos = currentPos.getAdjacent(DIRECTION_WEST);
+					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+						++foodCount;
+						++mostFood[getFoodType(checkPos)];
+					}
+
+					// and if we have found any adjacent food, theres a
+					// chance we want to grow food here
+					if (foodCount > 0) {
+
+						int max = 0;
+						int growingType;
+
+						// find the food that exists in the largest quantity
+						for (int i = 1; i < mostFood.length; ++i)
+							if (mostFood[i] > mostFood[max])
+								max = i;
+
+						// give the max food an extra chance to be chosen
+
+						if (data.likeFoodProb >= cobweb.globals.random.nextFloat()) {
+							growingType = max;
+						} else {
+							growingType = environmentRandom.nextInt(data.foodTypeCount);
+						}
+
+						// finally, we grow food according to a certain
+						// amount of random chance
+						if (foodCount * foodData[growingType].growRate > 100 * environmentRandom.nextFloat()) {
+							newArray.setLocationBits(currentPos, FOOD_CODE);
+							// setFoodType (currentPos, growMe);
+							newFoodArray[currentPos.v[0]][currentPos.v[1]] = growingType;
+						}
+					}
+				}
+
+			}
+		}
+		// The tile array we've just computed becomes the current tile array
+		array = newArray;
+		foodarray = newFoodArray;
+	}
+
+	// Hidden implementation stuff...
+
+	private void killOldAgents() {
+		// if keepOldAgents is false then we want to kill all of the agents
+		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
+			if (a.isAlive()) {
+				a.die();
+			}
+		}
+		// This second line may seem redundant, but it fact its not.
+		// By reseting the hashtable, we remove a bit of non-determinance
+		// due to the way
+		// hashtable is implemented. If you remove this line, the coloring
+		// will not be entirely consistant
+		// between simulation runs based on the same seed and parameters (a
+		// bad thing)
+		clearAgents();
 	}
 
 	@Override
@@ -173,57 +772,20 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	private void loadNewFood() {
+	private void loadFoodMode() {
 		for (int i = 0; i < data.foodTypeCount; ++i) {
-			for (int j = 0; j < foodData[i].initial; ++j) {
-				cobweb.Environment.Location l;
-				int tries = 0;
-				do {
-					l = getRandomLocation();
-				} while ((tries++ < 100)
-						&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_WASTE)));
-				if (tries < 100)
-					l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-				setFoodType(l, i);
-			}
+			if (foodData[i].depleteRate < 0.0f || foodData[i].depleteRate > 1.0f)
+				foodData[i].depleteRate = environmentRandom.nextFloat();
+			if (foodData[i].depleteTime <= 0)
+				foodData[i].depleteTime = environmentRandom.nextInt(100) + 1;
 		}
-	}
-
-	private void loadOldWaste() {
-		Waste[][] oldWasteArray = wastearray;
-		wastearray = new Waste[data.width][data.height];
-
-		int width = Math.min(data.width, oldWasteArray.length);
-		int height = Math.min(data.height, oldWasteArray[0].length);
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < height; j++)
-				wastearray[i][j] = oldWasteArray[i][j];
-
-		// Add in-bounds old waste to the new scheduler and update new
-		// constants
-		for (Location currentPos = getLocation(0, 0); currentPos.v[1] < data.height; ++currentPos.v[1]) {
-			for (currentPos.v[0] = 0; currentPos.v[0] < data.width; ++currentPos.v[0]) {
-				if (wastearray[currentPos.v[0]][currentPos.v[1]] != null) {
-					currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-					currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
-					currentPos.setFlag(ComplexEnvironment.FLAG_WASTE, true);
-				}
-			}
-		}
-	}
-
-	private void loadNewWaste() {
-		wastearray = new Waste[data.width][data.height];
-
-		for (Location pos = getLocation(0, 0); pos.v[1] < data.height; pos.v[1]++)
-			for (pos.v[0] = 0; pos.v[0] < data.width; pos.v[0]++)
-				pos.setFlag(FLAG_WASTE, false);
 	}
 
 	private void loadNewAgents() {
 		int doCheat = -1; // $$$$$ -1: not play Prisoner's Dilemma
 		for (int i = 0; i < data.agentTypeCount; ++i) {
-			double coopProb = agentData[i].pdCoopProb / 100.0d; // static value for now $$$$$$ added for the below else block.
+			double coopProb = agentData[i].pdCoopProb / 100.0d; // static value for now $$$$$$ added for the below else
+																// block.
 			// Apr 18
 
 			for (int j = 0; j < agentData[i].initialAgents; ++j) {
@@ -270,21 +832,28 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	private void killOldAgents() {
-		// if keepOldAgents is false then we want to kill all of the agents
-		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
-			if (a.isAlive()) {
-				a.die();
+	private void loadNewFood() {
+		for (int i = 0; i < data.foodTypeCount; ++i) {
+			for (int j = 0; j < foodData[i].initial; ++j) {
+				cobweb.Environment.Location l;
+				int tries = 0;
+				do {
+					l = getRandomLocation();
+				} while ((tries++ < 100)
+						&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_WASTE)));
+				if (tries < 100)
+					l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+				setFoodType(l, i);
 			}
 		}
-		// This second line may seem redundant, but it fact its not.
-		// By reseting the hashtable, we remove a bit of non-determinance
-		// due to the way
-		// hashtable is implemented. If you remove this line, the coloring
-		// will not be entirely consistant
-		// between simulation runs based on the same seed and parameters (a
-		// bad thing)
-		clearAgents();
+	}
+
+	private void loadNewWaste() {
+		wastearray = new Waste[data.width][data.height];
+
+		for (Location pos = getLocation(0, 0); pos.v[1] < data.height; pos.v[1]++)
+			for (pos.v[0] = 0; pos.v[0] < data.width; pos.v[0]++)
+				pos.setFlag(FLAG_WASTE, false);
 	}
 
 	private void loadOldAgents(boolean sFlag, int oldH, int oldW) {
@@ -324,409 +893,25 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	private void loadFoodMode() {
-		for (int i = 0; i < data.foodTypeCount; ++i) {
-			if (foodData[i].depleteRate < 0.0f || foodData[i].depleteRate > 1.0f)
-				foodData[i].depleteRate = environmentRandom.nextFloat();
-			if (foodData[i].depleteTime <= 0)
-				foodData[i].depleteTime = environmentRandom.nextInt(100) + 1;
-		}
-	}
+	private void loadOldWaste() {
+		Waste[][] oldWasteArray = wastearray;
+		wastearray = new Waste[data.width][data.height];
 
-	private void copyParamsFromParser(Parser p) {
-		data = p.getEnvParams();
+		int width = Math.min(data.width, oldWasteArray.length);
+		int height = Math.min(data.height, oldWasteArray[0].length);
+		for (int i = 0; i < width; i++)
+			for (int j = 0; j < height; j++)
+				wastearray[i][j] = oldWasteArray[i][j];
 
-		foodData = p.getFoodParams();
-
-		agentData = p.getAgentParams();
-
-		geneticData = p.getGeneticParams();
-
-		PD_PAYOFF_REWARD = data.pdParams.reward;
-		PD_PAYOFF_TEMPTATION = data.pdParams.temptation;
-		PD_PAYOFF_SUCKER = data.pdParams.sucker;
-		PD_PAYOFF_PUNISHMENT = data.pdParams.punishment;
-	}
-
-	/* JUST ADDED */
-	@Override
-	public synchronized void selectStones(int x, int y, cobweb.UIInterface theUI) {
-		cobweb.Environment.Location l;
-		l = getUserDefinedLocation(x, y);
-		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
-			l.setFlag(ComplexEnvironment.FLAG_STONE, false);
-			theUI.writeOutput("Stone removed at location (" + x + "," + y + ")\n");
-		} else if (l.getAgent() == null && !l.testFlag(ComplexEnvironment.FLAG_FOOD)
-				&& !l.testFlag(ComplexEnvironment.FLAG_STONE)) {
-			l.setFlag(ComplexEnvironment.FLAG_STONE, true);
-			theUI.writeOutput("Stone added at location (" + x + "," + y + ")\n");
-		} else {
-			return;
-		}
-		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
-		fillTileColors(tileColors);
-		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
-	}
-
-	@Override
-	public synchronized void selectFood(int x, int y, int type, cobweb.UIInterface theUI) {
-
-		cobweb.Environment.Location l;
-		l = getUserDefinedLocation(x, y);
-		if (l.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(l) == type) { // $$$$$$ add
-			// " && getFoodType(l) == type" Apr
-			// 3
-			l.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-			theUI.writeOutput("Food removed at location (" + x + "," + y + "): type " + (type + 1) + "\n"); // $$$$$$
-			// change
-			// from
-			// "+ ")\n");"
-			// Apr
-			// 3
-		} else if (// l.getAgent() == null && // $$$$$$ silence this condition, the food would be added under the agent.
-		// Apr 3
-		!(l.testFlag(ComplexEnvironment.FLAG_FOOD)) && !(l.testFlag(ComplexEnvironment.FLAG_STONE))) {
-			theUI.writeOutput("Food added at location (" + x + "," + y + "): type " + (type + 1) + "\n");
-			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-			setFoodType(l, type);
-		}
-		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
-		fillTileColors(tileColors);
-		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
-	}
-
-	@Override
-	public synchronized void selectAgent(int x, int y, int type, cobweb.UIInterface theUI) {
-		int action = -1; // $$$$$ -1: not play Prisoner's Dilemma
-		cobweb.Environment.Location l;
-		l = getUserDefinedLocation(x, y);
-		if (l.getAgent() != null && l.getAgent().type() == type) { // &&&&&& add " && l.getAgent().type() == type" Apr 3
-			l.getAgent().die();
-			theUI.writeOutput("Agent removed at location (" + x + "," + y + "): type " + (type + 1) + "\n"); // $$$$$$
-			// added
-			// on
-			// Apr
-			// 3
-		} else if (type < data.agentTypeCount) {
-			if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
-				int agentType = type;
-				if (data.prisDilemma) {
-					// System.out.println("in select agent: Value of PrisDilemma
-					// is true");
-					// System.out.println("PrisDilemma: "+prisDilemma[0]);
-
-					action = 0;
-
-					double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static value for now $$$$$$ added for the
-					// below else block.
-					float rnd = cobweb.globals.behaviorRandom.nextFloat();
-					// System.out.println("rnd: " + rnd);
-					// System.out.println("coopProb: " + coopProb);
-
-					if (rnd > coopProb)
-						action = 1; // agent defects depending on probability
+		// Add in-bounds old waste to the new scheduler and update new
+		// constants
+		for (Location currentPos = getLocation(0, 0); currentPos.v[1] < data.height; ++currentPos.v[1]) {
+			for (currentPos.v[0] = 0; currentPos.v[0] < data.width; ++currentPos.v[0]) {
+				if (wastearray[currentPos.v[0]][currentPos.v[1]] != null) {
+					currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
+					currentPos.setFlag(ComplexEnvironment.FLAG_WASTE, true);
 				}
-				// spammy
-				// System.out.println("type "+agentType);
-				new ComplexAgent(agentType, l, action, agentData[agentType]); // Default genetic
-				// sequence of agent
-				// type
-				theUI
-						.writeOutput("Agent added at location (" + x + "," + y + "): type " + (agentType + 1)
-								+ "\n"); // $$$$$$ added on Apr 3
-			}
-		}
-	}
-
-	/*
-	 * Remove components from the environment mode 0 : remove all the components mode -1: remove stones mode -2: remove
-	 * food mode -3: remove agents mode -4: remove waste
-	 */
-	@Override
-	public void remove(int mode, cobweb.UIInterface ui) {
-		Location currentPos = getLocation(0, 0);
-		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
-			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
-				/*
-				 * To ensure everything works properly, we do the removal according to each component's behaviour. -
-				 * stone tiles cannot coexist with waste tiles nor food tiles and agent tiles. - waste tiles cannot
-				 * coexist with stone tiles nor food tiles and agent tiles. - an agent can be on top of an empty tile
-				 * and a food tile only - a food tile can exist on its own
-				 */
-				if (currentPos.testFlag(FLAG_STONE)) {
-					if ((mode == 0) || (mode == -1))
-						currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
-				} else if (currentPos.testFlag(FLAG_WASTE)) {
-					if ((mode == 0) || (mode == -4)) {
-						currentPos.setFlag(ComplexEnvironment.FLAG_WASTE, false);
-						wastearray[currentPos.v[0]][currentPos.v[1]] = null;
-					}
-				} else {
-					if (currentPos.testFlag(FLAG_FOOD)) {
-						if ((mode == 0) || (mode == -2))
-							currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-					}
-					if (currentPos.getAgent() != null) {
-						if ((mode == 0) || (mode == -3))
-							currentPos.getAgent().die();
-					}
-				}
-			}
-		}
-	}
-
-	/*
-	 * save copies all current parsable parameters, and their values, to the specified writer
-	 */
-	@Override
-	public void save(java.io.Writer w) {
-		/*
-		java.io.PrintWriter pw = new java.io.PrintWriter(w);
-		pw.println(this.getClass().getName() + " " + data.agentTypeCount);
-		pw.println("");
-
-		int[] indices = new int[512];
-
-		int length = parseData.size();
-		String[] names = new String[length];
-		Object[] saveArray = new Object[length];
-		java.util.Enumeration<String> nameList = parseData.keys();
-		java.util.Enumeration<Object> saveList = parseData.elements();
-
-		for (int i = 0; saveList.hasMoreElements() && nameList.hasMoreElements(); ++i) {
-			names[i] = nameList.nextElement();
-			saveArray[i] = java.lang.reflect.Array.get(saveList.nextElement(), 0);
-		}
-
-		try {
-			cobweb.parseClass.parseSave(pw, saveArray, names, indices, 0);
-		} catch (java.io.IOException e) {
-			// throw new java.io.IOException();
-		}
-
-		pw.println(this.getClass().getName() + ".End");
-		pw.println("");
-		pw.flush();
-		*/
-	}
-
-	/**
-	 * tickNotification is the method called by the scheduler each of its clients for every tick of the simulation. For
-	 * environment, tickNotification performs all of the per-tick tasks necessary for the environment to function
-	 * properly. These tasks include managing food depletion, food growth, and random food-"dropping".
-	 */
-	public void tickNotification(long tick) {
-
-		++tickCount;
-		updateWaste();
-
-		// for each agent type, we test to see if its deplete time step has
-		// come, and if so deplete the food random
-		// by the appropriate percentage
-		for (int i = 0; i < data.agentTypeCount; ++i) {
-			if (foodData[i].depleteRate != 0.0f && foodData[i].growRate > 0 && (tickCount % foodData[i].depleteTime) == 0) {
-				depleteFood(i);
-			}
-		}
-
-		boolean shouldGrow = false;
-		for (int i = 0; i < data.agentTypeCount; ++i) {
-			if (foodData[i].growRate > 0) {
-				shouldGrow = true;
-				break;
-			}
-		}
-
-		// if no food is growing (total == 0) this loop is not nessesary
-		if (shouldGrow) {
-			growFood();
-		}
-
-		// Air-drop food into the environment
-		for (int i = 0; i < data.foodTypeCount; ++i) {
-			if (foodData[i].draughtPeriod == 0) {
-				dropFood(i);
-			} else {
-				foodData[i].draughtPeriod--;
-			}
-		}
-
-		if (observedAgent != null && !observedAgent.isAlive()) {
-			observedAgent = null;
-		}
-	}
-
-	private void dropFood(int type) {
-		float foodDrop = foodData[type].dropRate;
-		while (environmentRandom.nextFloat() < foodDrop) {
-			--foodDrop;
-			cobweb.Environment.Location l;
-			int j = 0;
-			do {
-				++j;
-				l = getRandomLocation();
-
-			} while (j < foodData[type].growRate
-					&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_FOOD)
-							|| l.testFlag(ComplexEnvironment.FLAG_WASTE) || l.getAgent() != null));
-
-			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-			setFoodType(l, type);
-		}
-	}
-
-	private void growFood() {
-		// create a new ArrayEnvironment and a new food type array
-		cobweb.ArrayEnvironment newArray = new cobweb.ArrayEnvironment(array.getSize(AXIS_X), array.getSize(AXIS_Y));
-		int[][] newFoodArray = new int[data.width][data.height];
-		// loop through all positions
-		Location currentPos = getLocation(0, 0);
-		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
-			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
-				// if theres a stone or already food, we simply copy the
-				// information from the old arrays to the new ones
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD)
-						|| currentPos.testFlag(ComplexEnvironment.FLAG_WASTE)
-						|| currentPos.testFlag(ComplexEnvironment.FLAG_STONE)) {
-					newArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
-					newFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
-				}
-				// otherwise, we want to see if we should grow food here
-				else {
-
-					// the following code block tests all adjacent squares
-					// to this one and counts how many have food
-					// as well how many of each food type exist
-
-					double foodCount = 0;
-					int mostFood[] = new int[data.foodTypeCount];
-					for (int i = 0; i < data.agentTypeCount; ++i)
-						mostFood[i] = 0;
-
-					Location checkPos = currentPos.getAdjacent(DIRECTION_NORTH);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						++foodCount;
-						++mostFood[getFoodType(checkPos)];
-					}
-					checkPos = currentPos.getAdjacent(DIRECTION_SOUTH);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						++foodCount;
-						++mostFood[getFoodType(checkPos)];
-					}
-					checkPos = currentPos.getAdjacent(DIRECTION_EAST);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						++foodCount;
-						++mostFood[getFoodType(checkPos)];
-					}
-					checkPos = currentPos.getAdjacent(DIRECTION_WEST);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						++foodCount;
-						++mostFood[getFoodType(checkPos)];
-					}
-
-					// and if we have found any adjacent food, theres a
-					// chance we want to grow food here
-					if (foodCount > 0) {
-
-						int max = 0;
-						int growingType;
-
-						// find the food that exists in the largest quantity
-						for (int i = 1; i < mostFood.length; ++i)
-							if (mostFood[i] > mostFood[max])
-								max = i;
-
-						// give the max food an extra chance to be chosen
-
-
-						if( data.likeFoodProb >= cobweb.globals.random.nextFloat() ) {
-							growingType = max;
-						} else {
-							growingType = environmentRandom.nextInt(data.foodTypeCount);
-						}
-
-						// finally, we grow food according to a certain
-						// amount of random chance
-						if (foodCount * foodData[growingType].growRate > 100 * environmentRandom.nextFloat()) {
-							newArray.setLocationBits(currentPos, FOOD_CODE);
-							// setFoodType (currentPos, growMe);
-							newFoodArray[currentPos.v[0]][currentPos.v[1]] = growingType;
-						}
-					}
-				}
-
-			}
-		}
-		// The tile array we've just computed becomes the current tile array
-		array = newArray;
-		foodarray = newFoodArray;
-	}
-
-	private void depleteFood(int type) {
-		// the algorithm for randomly selecting the food cells to delete
-		// is as follows:
-		// We iterate through all of the cells and the location of each
-		// one containing food type i is added to
-		// a random position in our vector. We then calculate exactly
-		// how many food items we need to destroy, say N,
-		// and we destroy the food at the positions occupying the last N
-		// spots in our vector
-		Vector<Location> locations = new Vector<Location>();
-		for (int x = 0; x < getSize(AXIS_X); ++x)
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
-				Location currentPos = getLocation(x, y);
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
-					locations.add(environmentRandom.nextInt(locations.size() + 1), currentPos);
-			}
-
-		int foodToDeplete = (int) (locations.size() * foodData[type].depleteRate);
-
-		for (int j = 0; j < foodToDeplete; ++j) {
-			Location loc = locations.remove(locations.size() - 1);
-			loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-		}
-		foodData[type].draughtPeriod = foodData[type].draughtPeriod;
-	}
-
-	private void updateWaste() {
-		for (int i = 0; i < wastearray[0].length; i++) {
-			for (int j = 0; j < wastearray[1].length; j++) {
-				Location l = getLocation(i, j);
-				if (l.testFlag(ComplexEnvironment.FLAG_WASTE) == false)
-					continue;
-				if (!wastearray[i][j].isActive(getTickCount())) {
-					l.setFlag(ComplexEnvironment.FLAG_WASTE, false);
-					wastearray[l.v[0]][l.v[1]] = null; // consider deactivating
-					// and not deleting
-				}
-			}
-		}
-	}
-
-	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
-
-	@Override
-	public void setclick(int click) {
-		clickcount = click;
-	}
-
-	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
-
-	@Override
-	public void fillTileColors(java.awt.Color[] tileColors) {
-		Location currentPos = getLocation(0, 0);
-		int tileIndex = 0;
-		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
-			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
-				if (currentPos.testFlag(FLAG_STONE))
-					tileColors[tileIndex++] = java.awt.Color.darkGray;
-				else if (currentPos.testFlag(FLAG_WASTE))
-					tileColors[tileIndex++] = wasteColor;
-				else if (currentPos.testFlag(FLAG_FOOD)) {
-					tileColors[tileIndex++] = colorMap.getColor(getFoodType(currentPos), 0 /* agentTypeCount */);
-				} else
-					tileColors[tileIndex++] = java.awt.Color.white;
 			}
 		}
 	}
@@ -735,101 +920,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public void log(java.io.Writer w) {
 		logStream = new java.io.PrintWriter(w, false);
 		writeLogTitles();
-	}
-
-	public static void trackAgent(java.io.Writer w) {
-		ComplexAgent.setPrintWriter(w);
-		ComplexAgent.tracked();
-	}
-
-	@Override
-	public void report(java.io.Writer w) {
-		java.io.PrintWriter pw = new java.io.PrintWriter(w, false);
-
-		printAgentInfo(pw);
-	}
-
-	/* Return foodCount (long) of all types of food */
-	private long countFoodTiles() {
-		long foodCount = 0;
-		Location currentPos = getLocation(0, 0);
-		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1])
-			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0])
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
-					++foodCount;
-		return foodCount;
-	}
-
-	/* Return foodCount (long) for a specific foodType (int) */
-	private int countFoodTiles(int foodType) {
-		int foodCount = 0;
-		Location currentPos = getLocation(0, 0);
-		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1])
-			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0])
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
-					if (getFoodType(currentPos) == foodType)
-						++foodCount;
-		return foodCount;
-	}
-
-	/* Return totalEnergy of all agents */
-	private long countAgentEnergy() {
-		long totalEnergy = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
-			totalEnergy += agent.getEnergy();
-		}
-		return totalEnergy;
-	}
-
-	/* Return the average gene status of all 3 genes for all living agents */
-	private double[][] getAvgGeneStatus() {
-		double[][] avg_gene_status = new double[data.agentTypeCount][geneticData.geneCount];
-		for (int i = 0; i < data.agentTypeCount; i++) {
-			for (int j = 0; j < geneticData.geneCount; j++) {
-				if (gaTracker.total_agents[i] > 0) {
-					avg_gene_status[i][j] = new Double(Math.round( // Round this off to 4 decimal digits
-							gaTracker.total_gene_status[i][j] / gaTracker.total_agents[i] * 10000)) / 10000;
-				} else {
-					avg_gene_status[i][j] = -1;
-				}
-			}
-		}
-		return avg_gene_status;
-	}
-
-	GATracker gaTracker;
-
-	/* Return totalEnergy (long) for a certain agentType (int) */
-	private long countAgentEnergy(int agentType) {
-		long totalEnergy = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
-			if (agent.getAgentType() == agentType)
-				totalEnergy += agent.getEnergy();
-		}
-		return totalEnergy;
-	}
-
-	private int[] numAgentsStrat(int agentType) {
-		int stratArray[] = new int[2];
-		int cheaters = 0;
-		int coops = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
-			if (agent.getAgentType() == agentType && agent.getAgentPDAction() == 0) {
-				coops++;
-				stratArray[0] = coops;
-			} else if (agent.getAgentType() == agentType && agent.getAgentPDAction() == 1) {
-				cheaters++;
-				stratArray[1] = cheaters;
-			}
-
-		}
-		return stratArray;
 	}
 
 	private int[] numAgentsStrat() {
@@ -851,76 +941,33 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return stratArray;
 	}
 
-	/* Write the Log titles to the file,(called by log (java.io.Writer w)) */
-	public void writeLogTitles() {
-		if (logStream != null) {
-			for (int i = 0; i < data.agentTypeCount; i++) {
-				// logStream.print("\t\t" + "Type" + (i + 1) + "\t\t\t\t"); // $$$$$ why this format?
-				logStream.print("\t" + "Type" + (i + 1) + "\t\t\t\t\t\t\t\t\t"); // $$$$$$ change to this on Apr 19
+	private int[] numAgentsStrat(int agentType) {
+		int stratArray[] = new int[2];
+		int cheaters = 0;
+		int coops = 0;
+		java.util.Enumeration<cobweb.Agent> e = getAgents();
+		while (e.hasMoreElements()) {
+			ComplexAgent agent = (ComplexAgent) e.nextElement();
+			if (agent.getAgentType() == agentType && agent.getAgentPDAction() == 0) {
+				coops++;
+				stratArray[0] = coops;
+			} else if (agent.getAgentType() == agentType && agent.getAgentPDAction() == 1) {
+				cheaters++;
+				stratArray[1] = cheaters;
 			}
-			// logStream.print("\t\t\t" + "Total For all Agent types" + "\t\t"); // $$$$$ why this format?
-			logStream.print("\t" + "Total for all Agent Types"); // $$$$$$ change to this on Apr 19
-			logStream.println();
-			logStream.println(); // $$$$$$ add a new line. Apr 19
-			for (int i = 0; i < data.agentTypeCount; i++) {
 
-				logStream.print("Tick\t");
-				logStream.print("FoodCount\t");
-				logStream.print("AgentCount\t");
-				logStream.print("AveAgentEnergy\t");
-				logStream.print("AgentEnergy\t");
-				logStream.print("Num. Cheat\t");
-				logStream.print("Num. Coop\t");
-				logStream.print("AvgRedGeneState\t");
-				logStream.print("AvgGreenGeneState\t");
-				logStream.print("AvgBlueGeneState\t");
-			}
-			// One final round of output for total
-			logStream.print("Tick\t");
-			logStream.print("FoodCount\t");
-			logStream.print("AgentCount\t");
-			logStream.print("AveAgentEnergy\t");
-			logStream.print("AgentEnergy\t");
-			logStream.print("Num. Cheat\t");
-			logStream.print("Num. Coop\t");
-			logStream.println();
-			logStream.println();
 		}
+		return stratArray;
 	}
 
-	/* Return the current tick number, tickCount (long) */
-	public long getTickCount() {
-		return tickCount;
-	}
-
-	/* $$$$$$ Set the current tick number, tickCount (long). Apr 19 */
-	public void setTickCount(long tick) {
-		tickCount = tick;
-	}
-
-	public ComplexAgentInfo addAgentInfo(int agentT, int action) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, action));
-	}
-
-	public ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, int action) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, action));
-	}
-
-	public ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2, int action) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, p2, action));
-	}
-
-	public ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
-		agentInfoVector.add(info);
-		return info;
-	}
-
-	public int getInfoNum() {
-		return agentInfoVector.size();
-	}
-
-	public void resetAgentInfo() {
-		agentInfoVector = new Vector<ComplexAgentInfo>();
+	/*
+	 * This gets called when the user clicks on a tile without selecting outside of edit mode
+	 */
+	@Override
+	public void observe(int x, int y, cobweb.UIInterface ui) {
+		cobweb.Environment.Location l = getUserDefinedLocation(x, y);
+		/* A tile can only consist of: STONE or WASTE or (FOOD|AGENT) */
+		observedAgent = l.getAgent();
 	}
 
 	/**
@@ -999,119 +1046,171 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/*
-	 * Write to Log file: FoodCount, AgentCount, Average Agent Energy and Agent Energy at the most recent ticks ( by
-	 * tick and by Agent/Food preference)
+	 * Remove components from the environment mode 0 : remove all the components mode -1: remove stones mode -2: remove
+	 * food mode -3: remove agents mode -4: remove waste
 	 */
 	@Override
-	public void writeLogEntry() {
-		if (logStream == null) {
-			return;
-		}
-
-		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
-		double[][] avg_gene_status = getAvgGeneStatus();
-
-		setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick. Apr 19
-		// For this tick: print FoodCount, AgentCount, Average Agent Energy
-		// and Agent Energy for EACH AGENT TYPE
-		for (int i = 0; i < data.agentTypeCount; i++) {
-
-			long agentCount = countAgents(i);
-			long agentEnergy = countAgentEnergy(i);
-			/*
-			 * System.out .println("************* Near Agent Count *************");
-			 */
-
-			int cheaters = (numAgentsStrat(i))[1];
-			int coops = (numAgentsStrat(i))[0];
-			logStream.print(tickCount);
-			logStream.print('\t');
-			logStream.print(countFoodTiles(i));
-			logStream.print('\t');
-			logStream.print(agentCount);
-			logStream.print('\t');
-			// Format Average agentEnergy to 3 decimal places
-			if (agentCount != 0)
-				logStream.print(z.format(((float) agentEnergy) / agentCount));
-			else
-				logStream.print("00.000");
-			logStream.print('\t');
-			logStream.print(agentEnergy);
-			logStream.print('\t');
-			logStream.print(cheaters);
-			logStream.print('\t');
-			logStream.print(coops);
-			logStream.print('\t');
-			for (int j = 0; j < geneticData.geneCount; j++) {
-				logStream.print(avg_gene_status[i][j]);
-				logStream.print('\t');
+	public void remove(int mode, cobweb.UIInterface ui) {
+		Location currentPos = getLocation(0, 0);
+		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
+			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
+				/*
+				 * To ensure everything works properly, we do the removal according to each component's behaviour. -
+				 * stone tiles cannot coexist with waste tiles nor food tiles and agent tiles. - waste tiles cannot
+				 * coexist with stone tiles nor food tiles and agent tiles. - an agent can be on top of an empty tile
+				 * and a food tile only - a food tile can exist on its own
+				 */
+				if (currentPos.testFlag(FLAG_STONE)) {
+					if ((mode == 0) || (mode == -1))
+						currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
+				} else if (currentPos.testFlag(FLAG_WASTE)) {
+					if ((mode == 0) || (mode == -4)) {
+						currentPos.setFlag(ComplexEnvironment.FLAG_WASTE, false);
+						wastearray[currentPos.v[0]][currentPos.v[1]] = null;
+					}
+				} else {
+					if (currentPos.testFlag(FLAG_FOOD)) {
+						if ((mode == 0) || (mode == -2))
+							currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					}
+					if (currentPos.getAgent() != null) {
+						if ((mode == 0) || (mode == -3))
+							currentPos.getAgent().die();
+					}
+				}
 			}
-			// logStream.flush();
 		}
-		// print the TOTAL of FoodCount, AgentCount, Average Agent Energy
-		// and Agent Energy at a certain tick
-		/*
-		 * System.out .println("************* Before Agent Count Call *************");
-		 */
-		long agentCountAll = countAgents();
-		/*
-		 * System.out .println("************* After Agent Count Call *************");
-		 */
-		long agentEnergyAll = countAgentEnergy();
-		int total_cheaters = (numAgentsStrat())[1];
-		int total_coops = (numAgentsStrat())[0];
-		logStream.print(tickCount);
-		logStream.print('\t');
-		logStream.print(countFoodTiles());
-		logStream.print('\t');
-		logStream.print(agentCountAll);
-		logStream.print('\t');
-		logStream.print(z.format(((float) agentEnergyAll) / agentCountAll));
-		logStream.print('\t');
-		logStream.print(agentEnergyAll);
-		logStream.print('\t');
-		logStream.print(total_cheaters);
-		logStream.print('\t');
-		logStream.print(total_coops);
-		logStream.println('\t');
-		// logStream.flush();
 	}
-
-	/* Return the number of agents (int) for a certain agentType (int) */
-	private int countAgents(int agentType) {
-		int agentCount = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
-			if (agent.getAgentType() == agentType)
-				agentCount++;
-		}
-		return agentCount;
-	}
-
-	// Hidden implementation stuff...
-
-	// Bitmasks for boolean states
-	private static final long MASK_TYPE = 15;
-
-	private static final long STONE_CODE = 1;
-
-	private static final long FOOD_CODE = 2;
-
-	private static final long WASTE_CODE = 4;
 
 	@Override
-	protected boolean testFlag(cobweb.Environment.Location l, int flag) {
-		switch (flag) {
-			case FLAG_STONE:
-				return ((getLocationBits(l) & MASK_TYPE) == STONE_CODE);
-			case FLAG_FOOD:
-				return ((getLocationBits(l) & MASK_TYPE) == FOOD_CODE);
-			case FLAG_WASTE:
-				return ((getLocationBits(l) & MASK_TYPE) == WASTE_CODE);
-			default:
-				return false;
+	public void report(java.io.Writer w) {
+		java.io.PrintWriter pw = new java.io.PrintWriter(w, false);
+
+		printAgentInfo(pw);
+	}
+
+	public void resetAgentInfo() {
+		agentInfoVector = new Vector<ComplexAgentInfo>();
+	}
+
+	/*
+	 * save copies all current parsable parameters, and their values, to the specified writer
+	 */
+	@Override
+	public void save(java.io.Writer w) {
+		/*
+		 * java.io.PrintWriter pw = new java.io.PrintWriter(w); pw.println(this.getClass().getName() + " " +
+		 * data.agentTypeCount); pw.println(""); int[] indices = new int[512]; int length = parseData.size(); String[]
+		 * names = new String[length]; Object[] saveArray = new Object[length]; java.util.Enumeration<String> nameList =
+		 * parseData.keys(); java.util.Enumeration<Object> saveList = parseData.elements(); for (int i = 0;
+		 * saveList.hasMoreElements() && nameList.hasMoreElements(); ++i) { names[i] = nameList.nextElement();
+		 * saveArray[i] = java.lang.reflect.Array.get(saveList.nextElement(), 0); } try {
+		 * cobweb.parseClass.parseSave(pw, saveArray, names, indices, 0); } catch (java.io.IOException e) { // throw new
+		 * java.io.IOException(); } pw.println(this.getClass().getName() + ".End"); pw.println(""); pw.flush();
+		 */
+	}
+
+	@Override
+	public synchronized void selectAgent(int x, int y, int type, cobweb.UIInterface theUI) {
+		int action = -1; // $$$$$ -1: not play Prisoner's Dilemma
+		cobweb.Environment.Location l;
+		l = getUserDefinedLocation(x, y);
+		if (l.getAgent() != null && l.getAgent().type() == type) { // &&&&&& add " && l.getAgent().type() == type" Apr 3
+			l.getAgent().die();
+		} else if (type < data.agentTypeCount) {
+			if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
+					&& !l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
+				int agentType = type;
+				if (data.prisDilemma) {
+					// System.out.println("in select agent: Value of PrisDilemma
+					// is true");
+					// System.out.println("PrisDilemma: "+prisDilemma[0]);
+
+					action = 0;
+
+					double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static value for now $$$$$$ added for
+																				// the
+					// below else block.
+					float rnd = cobweb.globals.behaviorRandom.nextFloat();
+					// System.out.println("rnd: " + rnd);
+					// System.out.println("coopProb: " + coopProb);
+
+					if (rnd > coopProb)
+						action = 1; // agent defects depending on probability
+				}
+				// spammy
+				// System.out.println("type "+agentType);
+				new ComplexAgent(agentType, l, action, agentData[agentType]); // Default genetic
+				// sequence of agent
+				// type
+				theUI.writeOutput("Agent added at location (" + x + "," + y + "): type " + (agentType + 1) + "\n"); // $$$$$$
+																													// added
+																													// on
+																													// Apr
+																													// 3
+			}
 		}
+	}
+
+	@Override
+	public synchronized void selectFood(int x, int y, int type, cobweb.UIInterface theUI) {
+
+		cobweb.Environment.Location l;
+		l = getUserDefinedLocation(x, y);
+		if (l.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(l) == type) { // $$$$$$ add
+			// " && getFoodType(l) == type" Apr
+			// 3
+			l.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			theUI.writeOutput("Food removed at location (" + x + "," + y + "): type " + (type + 1) + "\n"); // $$$$$$
+			// change
+			// from
+			// "+ ")\n");"
+			// Apr
+			// 3
+		} else if (// l.getAgent() == null && // $$$$$$ silence this condition, the food would be added under the agent.
+		// Apr 3
+		!(l.testFlag(ComplexEnvironment.FLAG_FOOD)) && !(l.testFlag(ComplexEnvironment.FLAG_STONE))) {
+			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+			setFoodType(l, type);
+		}
+		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
+		fillTileColors(tileColors);
+		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
+	}
+
+	/* JUST ADDED */
+	@Override
+	public synchronized void selectStones(int x, int y, cobweb.UIInterface theUI) {
+		cobweb.Environment.Location l;
+		l = getUserDefinedLocation(x, y);
+		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
+			l.setFlag(ComplexEnvironment.FLAG_STONE, false);
+			theUI.writeOutput("Stone removed at location (" + x + "," + y + ")\n");
+		} else if (l.getAgent() == null && !l.testFlag(ComplexEnvironment.FLAG_FOOD)
+				&& !l.testFlag(ComplexEnvironment.FLAG_STONE)) {
+			l.setFlag(ComplexEnvironment.FLAG_STONE, true);
+		} else {
+			return;
+		}
+		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
+		fillTileColors(tileColors);
+		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
+	}
+
+	/* //[]SK */
+
+	@Override
+	public void setclick(int click) {
+		clickcount = click;
+	}
+
+	/** Sets the default mutable variables of each agent type. */
+	public void setDefaultMutableAgentParam() {
+		ComplexAgent.setDefaultMutableParams(agentData);
+	}
+
+	@Override
+	protected void setField(cobweb.Environment.Location l, int field, int value) {
 	}
 
 	/*
@@ -1154,351 +1253,215 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	@Override
-	public int getTypeCount() {
-
-		return data.agentTypeCount;
-	}
-
-	// Ignored; this model has no fields
-	@Override
-	protected int getField(cobweb.Environment.Location l, int field) {
-		return 0;
-	}
-
-	@Override
-	protected void setField(cobweb.Environment.Location l, int field, int value) {
-	}
-
-	@Override
-	public int getAxisCount() {
-		return 2;
-	}
-
-	@Override
-	public int getSize(int axis) {
-		return array.getSize(axis);
-	}
-
-	@Override
-	public boolean getAxisWrap(int axis) {
-		return data.wrapMap;
-	}
-
-	protected long getLocationBits(cobweb.Environment.Location l) {
-		return array.getLocationBits(l);
+	// Sets Food Type in foodarray [];
+	public void setFoodType(cobweb.Environment.Location l, int i) {
+		foodarray[l.v[0]][l.v[1]] = i;
 	}
 
 	protected void setLocationBits(cobweb.Environment.Location l, long bits) {
 		array.setLocationBits(l, bits);
 	}
 
-	private java.io.PrintWriter logStream;
+	/* $$$$$$ Set the current tick number, tickCount (long). Apr 19 */
+	public void setTickCount(long tick) {
+		tickCount = tick;
+	}
 
-	@SuppressWarnings("unused")
-	private java.io.PrintWriter trackAgentStream;
+	@Override
+	protected boolean testFlag(cobweb.Environment.Location l, int flag) {
+		switch (flag) {
+			case FLAG_STONE:
+				return ((getLocationBits(l) & MASK_TYPE) == STONE_CODE);
+			case FLAG_FOOD:
+				return ((getLocationBits(l) & MASK_TYPE) == FOOD_CODE);
+			case FLAG_WASTE:
+				return ((getLocationBits(l) & MASK_TYPE) == WASTE_CODE);
+			default:
+				return false;
+		}
+	}
 
-	private Vector<ComplexAgentInfo> agentInfoVector = new Vector<ComplexAgentInfo>();
+	/**
+	 * tickNotification is the method called by the scheduler each of its clients for every tick of the simulation. For
+	 * environment, tickNotification performs all of the per-tick tasks necessary for the environment to function
+	 * properly. These tasks include managing food depletion, food growth, and random food-"dropping".
+	 */
+	public void tickNotification(long tick) {
 
-	private cobweb.ArrayEnvironment array;
+		++tickCount;
+		updateWaste();
+
+		// for each agent type, we test to see if its deplete time step has
+		// come, and if so deplete the food random
+		// by the appropriate percentage
+		for (int i = 0; i < data.agentTypeCount; ++i) {
+			if (foodData[i].depleteRate != 0.0f && foodData[i].growRate > 0
+					&& (tickCount % foodData[i].depleteTime) == 0) {
+				depleteFood(i);
+			}
+		}
+
+		boolean shouldGrow = false;
+		for (int i = 0; i < data.agentTypeCount; ++i) {
+			if (foodData[i].growRate > 0) {
+				shouldGrow = true;
+				break;
+			}
+		}
+
+		// if no food is growing (total == 0) this loop is not nessesary
+		if (shouldGrow) {
+			growFood();
+		}
+
+		// Air-drop food into the environment
+		for (int i = 0; i < data.foodTypeCount; ++i) {
+			if (foodData[i].draughtPeriod == 0) {
+				dropFood(i);
+			} else {
+				foodData[i].draughtPeriod--;
+			}
+		}
+
+		if (observedAgent != null && !observedAgent.isAlive()) {
+			observedAgent = null;
+		}
+	}
+
+	private void updateWaste() {
+		for (int i = 0; i < wastearray[0].length; i++) {
+			for (int j = 0; j < wastearray[1].length; j++) {
+				Location l = getLocation(i, j);
+				if (l.testFlag(ComplexEnvironment.FLAG_WASTE) == false)
+					continue;
+				if (!wastearray[i][j].isActive(getTickCount())) {
+					l.setFlag(ComplexEnvironment.FLAG_WASTE, false);
+					wastearray[l.v[0]][l.v[1]] = null; // consider deactivating
+					// and not deleting
+				}
+			}
+		}
+	}
 
 	/*
-	 * Waste tile array to store the data per waste tile. Needed to allow depletion of waste
+	 * Write to Log file: FoodCount, AgentCount, Average Agent Energy and Agent Energy at the most recent ticks ( by
+	 * tick and by Agent/Food preference)
 	 */
-	private static Waste[][] wastearray;
-
-
-	static class Waste {
-		private int initialWeight;
-
-		private long birthTick;
-
-		private float rate;
-
-		private double threshold;
-
-		private boolean valid;
-
-		@SuppressWarnings("unused")
-		private long lastAmount = 0;
-
-		public Waste(long birthTick, int weight, float rate) {
-			initialWeight = weight;
-			this.birthTick = birthTick;
-			this.rate = rate;
-			// to avoid recalculating every tick
-			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
-			// skinawy
-			this.valid = true;
+	@Override
+	public void writeLogEntry() {
+		if (logStream == null) {
+			return;
 		}
 
-		public boolean isActive(long tick) {
-			if (!valid)
-				return false;
-			if (getAmount(tick) < threshold) {
-				valid = false;
-				return false;
-			}
-			return true;
-		}
+		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
 
-		/* Call me sparsely, especially when the age is really old */
-		public double getAmount(long tick) {
-			return initialWeight * Math.pow(Math.E, -1 * rate * (tick - birthTick));
-		}
+		setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick. Apr 19
+		// For this tick: print FoodCount, AgentCount, Average Agent Energy
+		// and Agent Energy for EACH AGENT TYPE
+		for (int i = 0; i < data.agentTypeCount; i++) {
 
-		public void reset(long birthTick, int weight, float rate) {
-			initialWeight = weight;
-			this.birthTick = birthTick;
-			this.rate = rate;
-			// to avoid recalculating every tick
-			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
-			// skinawy
-			valid = true;
-		}
-	}
+			long agentCount = countAgents(i);
+			long agentEnergy = countAgentEnergy(i);
+			/*
+			 * System.out .println("************* Near Agent Count *************");
+			 */
 
-	public static void addWaste(long tick, int x, int y, int val, float rate) {
-		if (wastearray[x][y] != null)
-			wastearray[x][y].reset(tick, val, rate);
-		else
-			wastearray[x][y] = new Waste(tick, val, rate);
-	}
-
-	/* //[]SK */
-
-	public static class CommPacket {
-
-		private static final int DEFAULT = 1;
-
-		public static final int FOOD = 1;
-
-		public static final int CHEATER = 2;
-
-		CommManager commManager = new CommManager();
-
-		/**
-		 * Constructor
-		 *
-		 *
-		 */
-		public CommPacket(int type, long dispatcherId, String content, int energy, boolean energyBased, int fixedRange) {
-
-			this.packetId = ++packetCounter;
-			this.type = type;
-			this.dispatcherId = dispatcherId;
-			this.content = content; // could be a message or an enumerated type
-			// depending on the type
-			if (!energyBased)
-				this.radius = getRadius(energy);
+			int cheaters = (numAgentsStrat(i))[1];
+			int coops = (numAgentsStrat(i))[0];
+			logStream.print(tickCount);
+			logStream.print('\t');
+			logStream.print(countFoodTiles(i));
+			logStream.print('\t');
+			logStream.print(agentCount);
+			logStream.print('\t');
+			// Format Average agentEnergy to 3 decimal places
+			if (agentCount != 0)
+				logStream.print(z.format(((float) agentEnergy) / agentCount));
 			else
-				this.radius = fixedRange;
-			this.persistence = DEFAULT;
+				logStream.print("00.000");
+			logStream.print('\t');
+			logStream.print(agentEnergy);
+			logStream.print('\t');
+			logStream.print(cheaters);
+			logStream.print('\t');
+			logStream.print(coops);
+			logStream.print('\t');
 
-			// CommManager commManager = new CommManager();
-			commManager.addPacketToList(this);
-		}
-
-		private static int packetCounter;
-
-		private int packetId; // Unique ID for each communication packet
-
-		private int type; // Type of packet (Food or ). This is an enumerated
-		// number that can be extended
-
-		private long dispatcherId; // ID of sending agent (or entity)...could
-		// be modified to take an Object type
-
-		// According to this sender ID, other members may decide whether or not
-		// to accept this message
-		private String content; // Content of message. e.g. Cheater with ID 1234
-		// encountered...migth be enumerated
-
-		// e.g. Food found at location 34,43
-		private int radius; // Reach over the whole environment or just a
-		// certain neighborhood
-
-		private int persistence; // how many time steps should the packet
-
-		// stay there. By default, a packet will
-		// persist for one time step (value 1)
-
-		public String getContent() {
-			return content;
-		}
-
-		public void setContent(String content) {
-			this.content = content;
-		}
-
-		public long getDispatcherId() {
-			return dispatcherId;
-		}
-
-		public void setDispatcherId(int dispatcherId) {
-			this.dispatcherId = dispatcherId;
-		}
-
-		public int getPacketId() {
-			return packetId;
-		}
-
-		public void setPacketId(int packetId) {
-			this.packetId = packetId;
-		}
-
-		public int getPersistence() {
-			return persistence;
-		}
-
-		public void setPersistence(int persistence) {
-			this.persistence = persistence;
-		}
-
-		public int getType() {
-			return type;
-		}
-
-		public void setType(int type) {
-			this.type = type;
-		}
-
-		private int getRadius(int energy) {
-			return energy / 10 + 1; // limiting minimum to 1 unit of
-			// radius
-		}
-
-		public int getRadius() {
-			return radius;
-		}
-
-		public void setRadius(int radius) {
-			this.radius = radius;
-		}
-	}
-
-	public static class CommManager {
-
-		private boolean broadcastBlocked = false;
-
-		/**
-		 * adds packets to the list of packets
-		 *
-		 * @param packet packet
-		 */
-		public void addPacketToList(CommPacket packet) {
-			if (!broadcastBlocked)
-				currentPackets.add(packet);
-			blockBroadcast();
-		}
-
-		/**
-		 * removes packets from the list of packets
-		 *
-		 * @param packet packet to remove
-		 */
-		public void removePacketfromList(CommPacket packet /* int packetId */) {
-			currentPackets.remove(/* getPacket(packetId) */packet);
-		}
-
-		// with every time step, the persistence of the packets should be
-		// decremented
-		public void decrementPersistence() {
-			int pValue;
-			for (int i = 0; i < currentPackets.size(); i++) {
-				pValue = --currentPackets.get(i).persistence;
-				if (pValue <= 0)
-					removePacketfromList(currentPackets.get(i));
+			for (String s : ComplexAgent.logDataAgent(i)) {
+				logStream.print(s);
+				logStream.print('\t');
 			}
 		}
-
-		public boolean packetInRange(int range, cobweb.Environment.Location broadcastPos,
-				cobweb.Environment.Location position) {
-			if (Math.abs(position.v[0] - broadcastPos.v[0]) > range)
-				return false;
-			if (Math.abs(position.v[1] - broadcastPos.v[1]) > range)
-				return false;
-			return true;
-		}
-
-		/**
-		 * returns the packet with the specified ID
-		 *
-		 * @return CommPacket
+		// print the TOTAL of FoodCount, AgentCount, Average Agent Energy
+		// and Agent Energy at a certain tick
+		/*
+		 * System.out .println("************* Before Agent Count Call *************");
 		 */
-		public CommPacket getPacket(int packetId) {
-			int i = 0;
-			while (packetId != (currentPackets.get(i)).packetId & i < currentPackets.size()) {
-				i++;
+		long agentCountAll = countAgents();
+		/*
+		 * System.out .println("************* After Agent Count Call *************");
+		 */
+		long agentEnergyAll = countAgentEnergy();
+		int total_cheaters = (numAgentsStrat())[1];
+		int total_coops = (numAgentsStrat())[0];
+		logStream.print(tickCount);
+		logStream.print('\t');
+		logStream.print(countFoodTiles());
+		logStream.print('\t');
+		logStream.print(agentCountAll);
+		logStream.print('\t');
+		logStream.print(z.format(((float) agentEnergyAll) / agentCountAll));
+		logStream.print('\t');
+		logStream.print(agentEnergyAll);
+		logStream.print('\t');
+		logStream.print(total_cheaters);
+		logStream.print('\t');
+		logStream.print(total_coops);
+		logStream.println('\t');
+		// logStream.flush();
+	}
+
+	/* Write the Log titles to the file,(called by log (java.io.Writer w)) */
+	public void writeLogTitles() {
+		if (logStream != null) {
+			for (int i = 0; i < data.agentTypeCount; i++) {
+				// logStream.print("\t\t" + "Type" + (i + 1) + "\t\t\t\t"); // $$$$$ why this format?
+				logStream.print("\t" + "Type" + (i + 1) + "\t\t\t\t\t\t"); // $$$$$$ change to this on Apr 19
+				for (int z = 0; z < ComplexAgent.logHederAgent().size(); z++)
+					logStream.print('\t');
 			}
-			return currentPackets.get(i);
+			// logStream.print("\t\t\t" + "Total For all Agent types" + "\t\t"); // $$$$$ why this format?
+			logStream.print("\t" + "Total for all Agent Types"); // $$$$$$ change to this on Apr 19
+			logStream.println();
+			for (int i = 0; i < data.agentTypeCount; i++) {
+
+				logStream.print("Tick\t");
+				logStream.print("FoodCount\t");
+				logStream.print("AgentCount\t");
+				logStream.print("AveAgentEnergy\t");
+				logStream.print("AgentEnergy\t");
+				logStream.print("Num. Cheat\t");
+				logStream.print("Num. Coop\t");
+				for (String s : ComplexAgent.logHederAgent()) {
+					logStream.print(s);
+					logStream.print('\t');
+				}
+			}
+			// One final round of output for total
+			logStream.print("Tick\t");
+			logStream.print("FoodCount\t");
+			logStream.print("AgentCount\t");
+			logStream.print("AveAgentEnergy\t");
+			logStream.print("AgentEnergy\t");
+			logStream.print("Num. Cheat\t");
+			logStream.print("Num. Coop\t");
+			logStream.println();
+			logStream.println();
 		}
-
-		public void blockBroadcast() {
-			broadcastBlocked = true;
-		}
-
-		public void unblockBroadcast() {
-			broadcastBlocked = false;
-		}
-
-	}
-
-	private ComplexEnvironmentParams data = new ComplexEnvironmentParams();
-
-	// Food array contains type and their locations
-	private static int[][] foodarray = new int[0][];
-
-	@SuppressWarnings("unused")
-	private int clickcount = 0;
-
-	// Returns current location's food type
-	public static int getFoodType(cobweb.Environment.Location l) {
-		return foodarray[l.v[0]][l.v[1]];
-	}
-
-	// Sets Food Type in foodarray [];
-	public void setFoodType(cobweb.Environment.Location l, int i) {
-		foodarray[l.v[0]][l.v[1]] = i;
-	}
-
-	private Agent observedAgent = null;
-
-	private int draughtdays[];
-
-	/*
-	 * This gets called when the user clicks on a tile without selecting outside of edit mode
-	 */
-	@Override
-	public void observe(int x, int y, cobweb.UIInterface ui) {
-		cobweb.Environment.Location l = getUserDefinedLocation(x, y);
-		/* A tile can only consist of: STONE or WASTE or (FOOD|AGENT) */
-		observedAgent = l.getAgent();
 	}
 
 	@Override
-	public EnvironmentStats getStatistics() {
-		EnvironmentStats stats = new EnvironmentStats();
-		stats.agentCounts = new long[getAgentTypes()];
-		stats.foodCounts = new long[getAgentTypes()];
-		for (int i = 0; i < getAgentTypes(); i++) {
-			stats.agentCounts[i] = countAgents(i);
-			stats.foodCounts[i] = countFoodTiles(i);
-		}
-		stats.timestep = this.getTickCount();
-		return stats;
-	}
-
-	@Override
-	protected synchronized void getDrawInfo(UIInterface theUI) {
-		super.getDrawInfo(theUI);
-		for (Agent a : agentTable.values()) {
-			a.getDrawInfo(theUI);
-		}
-
-		if (observedAgent != null) {
-			theUI.newPath(((ComplexAgent) observedAgent).getInfo().getPathHistory());
-		}
+	public void tickZero() {
 
 	}
 
