@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 
 import javax.swing.JTextField;
 
+import temperature.TemperatureMutator;
+
 import cobweb.Environment.EnvironmentStats;
 import cobweb.Environment.Location;
 import cwcore.ComplexAgent;
@@ -271,6 +273,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 
 	private boolean runnable = false;
 
+	private TemperatureMutator tempMutator;
+
 	/**
 	 * Construct a LocalUIInterface from a specified state file URL.
 	 *
@@ -475,10 +479,16 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 			diseaseMutator = new DiseaseMutator();
 			ComplexAgent.addMutator(diseaseMutator);
 		}
+		if (tempMutator == null) {
+			tempMutator = new TemperatureMutator();
+			ComplexAgent.addMutator(tempMutator);
+		}
 
 		geneticMutator.setParams(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
 
 		diseaseMutator.setParams(p.getDiseaseParams(), p.getEnvParams().getAgentTypes());
+		
+		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
 
 		InitEnvironment("cwcore.ComplexEnvironment", p);
 

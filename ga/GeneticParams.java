@@ -114,7 +114,7 @@ public class GeneticParams extends AbstractReflectionParams {
 		@Override
 		public String toString() {
 			if (field == null)
-				return "[No phenotype]";
+				return "[Not Bound]";
 			else
 				return field.getAnnotation(ConfDisplayName.class).value();
 		}
@@ -215,6 +215,8 @@ public class GeneticParams extends AbstractReflectionParams {
 		super.loadConfig(root);
 
 		phenotype = new Phenotype[geneCount];
+		for (int i = 0; i < geneCount; i++)
+			phenotype[i] = new Phenotype();
 
 		geneValues = new String[env.getAgentTypes()][geneCount];
 
@@ -233,6 +235,18 @@ public class GeneticParams extends AbstractReflectionParams {
 					int agent = Integer.parseInt(m.group(1)) - 1;
 					int gene = Integer.parseInt(m.group(2)) - 1;
 					geneValues[agent][gene] = n.getFirstChild().getNodeValue();
+				}
+			}
+		}
+		
+		for (int i = 0; i < geneCount; i++) {
+			if (phenotype[i].field == null) {
+				for (int j = i; j < geneCount - 1; j++) {
+					phenotype[i] = phenotype[i + 1];
+					for (int ag = 0; ag < env.getAgentTypes(); ag++) {
+						geneValues[ag][i] = geneValues[ag][i + 1];
+					}
+					geneCount--;
 				}
 			}
 		}
@@ -260,7 +274,7 @@ public class GeneticParams extends AbstractReflectionParams {
 
 	public GeneticParams(AgentFoodCountable env) {
 		this.env = env;
-		geneCount = 3;
+		geneCount = 0;
 		geneLength = 8;
 
 		phenotype = new Phenotype[geneCount];

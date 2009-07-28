@@ -85,8 +85,10 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
 		GeneticCode genetic_code = new GeneticCode(getGene(parent));
 
-		if (cobweb.globals.random.nextFloat() <= parent.params.mutationRate) {
-			genetic_code.mutate(cobweb.globals.random.nextInt(params.geneCount * params.geneLength));
+		if (params.geneCount > 0) {
+			if (cobweb.globals.random.nextFloat() <= parent.params.mutationRate) {
+				genetic_code.mutate(cobweb.globals.random.nextInt(params.geneCount * params.geneLength));
+			}
 		}
 
 		genes.put(agent, genetic_code);

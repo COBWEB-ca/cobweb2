@@ -54,7 +54,6 @@ public class DiseaseParams extends AbstractReflectionParams {
 	public DiseaseParams(AgentFoodCountable env) {
 		this.env = env;
 		transmitTo = new boolean[env.getAgentTypes()];
-		transmitTo[0] = true;
 		initialInfection = 0.0f;
 		contactTransmitRate = 0.5f;
 		childTransmitRate = 1;

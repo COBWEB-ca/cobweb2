@@ -37,6 +37,7 @@ final class GeneticAIPanel extends SettingsPanel {
 		BoundJFormattedTextField seed = new BoundJFormattedTextField(params, "randomSeed", NumberFormat
 				.getIntegerInstance());
 		this.removeAll();
+		seed.setColumns(5);
 		this.add(new JLabel(seed.getLabel()));
 		this.add(seed);
 	}

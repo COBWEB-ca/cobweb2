@@ -17,6 +17,7 @@ import cwcore.complexParams.AgentMutator;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ContactMutator;
 import cwcore.complexParams.SpawnMutator;
+import cwcore.complexParams.StepMutator;
 import driver.ControllerFactory;
 
 public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client {
@@ -139,6 +140,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	private static Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
+	
+	private static Set<StepMutator> stepMutators = new LinkedHashSet<StepMutator>();
 
 	private static final cobweb.Direction[] dirList = { cobweb.Environment.DIRECTION_NORTH,
 			cobweb.Environment.DIRECTION_SOUTH, cobweb.Environment.DIRECTION_WEST, cobweb.Environment.DIRECTION_EAST,
@@ -151,6 +154,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		if (mutator instanceof ContactMutator)
 			contactMutators.add((ContactMutator) mutator);
+		
+		if (mutator instanceof StepMutator)
+			stepMutators.add((StepMutator) mutator);
 	}
 
 	public static void clearMutators() {
@@ -731,6 +737,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
 
 		if (canStep()) {
+			
 			// Check for food...
 			cobweb.Environment.Location breedPos = null;
 			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
@@ -753,8 +760,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 						tryAsexBreed();
 				}
 			}
-
+			
+			for (StepMutator m : stepMutators)
+				m.onStep(this, getPosition(), destPos);
+			
 			move(destPos);
+			
 			if (breedPos != null) {
 
 				if (breedPartner == null) {
@@ -795,7 +806,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 
 			for (ContactMutator mut : contactMutators) {
-				mut.bump(this, adjacentAgent);
+				mut.onContact(this, adjacentAgent);
 			}
 
 			if (canEat(adjacentAgent)) {

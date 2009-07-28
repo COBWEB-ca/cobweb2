@@ -45,8 +45,6 @@ public class DiseaseConfigPage implements ConfigPage {
 	}
 
 	public void validateUI() throws IllegalArgumentException {
-		// TODO Auto-generated method stub
-
 	}
 
 }

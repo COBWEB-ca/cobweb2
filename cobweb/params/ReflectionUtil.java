@@ -47,4 +47,24 @@ public class ReflectionUtil {
 			throw new RuntimeException("Cannot access field: " + field.toString(), ex);
 		}
 	}
+	
+	public static void addField(Object object, Field field, float factor) {
+		try {
+			Object o;
+			o = field.get(object);
+
+			// Modify the value according to the coefficient.
+			if (o instanceof Float) {
+				float value = ((Float) o).floatValue();
+				field.setFloat(object, value + factor);
+			} else if (o instanceof Integer) {
+				double value = ((Integer) o).doubleValue();
+				field.setInt(object, (int) Math.round(value + factor));
+			} else {
+				throw new IllegalArgumentException("Unknown phenotype field type");
+			}
+		} catch (IllegalAccessException ex) {
+			throw new RuntimeException("Cannot access field: " + field.toString(), ex);
+		}
+	}
 }

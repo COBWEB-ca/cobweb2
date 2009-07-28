@@ -25,6 +25,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import temperature.TemperatureParams;
+
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
@@ -77,6 +79,8 @@ public class Parser {
 			diseaseParams[i] = new DiseaseParams(envParams);
 			diseaseParams[i].type = i;
 		}
+		
+		tempParams = new TemperatureParams(envParams);
 
 		try {
 			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -117,6 +121,10 @@ public class Parser {
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
 		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
 		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
+		for (int i = 0; i < envParams.getAgentTypes(); i++)
+			diseaseParams[i] = new DiseaseParams(envParams);
+		
+		tempParams = new TemperatureParams(envParams);
 
 		geneticParams = new GeneticParams(envParams);
 
@@ -146,6 +154,8 @@ public class Parser {
 				foodParams[p.type] = p;
 			} else if (nodeName.equals("disease")) {
 				parseDiseaseParams(node);
+			} else if (nodeName.equals("Temperature")) {
+				tempParams.loadConfig(node);
 			}
 		}
 	}
@@ -232,6 +242,10 @@ public class Parser {
 			disease.appendChild(node);
 		}
 		root.appendChild(disease);
+		
+		Node temp = d.createElement("Temperature");
+		tempParams.saveConfig(temp, d);
+		root.appendChild(temp);
 
 		d.appendChild(root);
 
@@ -250,6 +264,12 @@ public class Parser {
 		} catch (TransformerException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+	
+	private TemperatureParams tempParams;
+
+	public TemperatureParams getTempParams() {
+		return tempParams;
 	}
 
 } // Parser

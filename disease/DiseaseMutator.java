@@ -35,7 +35,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 		sickCount = new int[0];
 	}
 
-	public void bump(ComplexAgent bumper, ComplexAgent bumpee) {
+	public void onContact(ComplexAgent bumper, ComplexAgent bumpee) {
 		transmitBumpOneWay(bumper, bumpee);
 		transmitBumpOneWay(bumpee, bumper);
 	}

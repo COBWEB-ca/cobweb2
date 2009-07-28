@@ -821,7 +821,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				// tiles
 				if (tries < 100) {
 					int agentType = i;
-					new ComplexAgent(agentType, location, doCheat, agentData[agentType]); // Default genetic
+					new ComplexAgent(agentType, location, doCheat, (ComplexAgentParams)agentData[agentType].clone()); // Default genetic
 					// sequence of agent
 					// type
 				}
@@ -1137,7 +1137,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				}
 				// spammy
 				// System.out.println("type "+agentType);
-				new ComplexAgent(agentType, l, action, agentData[agentType]); // Default genetic
+				new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default genetic
 				// sequence of agent
 				// type
 				theUI.writeOutput("Agent added at location (" + x + "," + y + "): type " + (agentType + 1) + "\n"); // $$$$$$

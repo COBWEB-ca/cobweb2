@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import cobweb.params.AbstractReflectionParams;
 import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ReflectionUtil;
@@ -94,8 +93,8 @@ public class ConfigTableModel extends AbstractTableModel {
 
 	private List<String> rowNames = new ArrayList<String>();
 
-	public ConfigTableModel(AbstractReflectionParams data, String prefix) {
-		this(new AbstractReflectionParams[] { data }, prefix);
+	public ConfigTableModel(CobwebParam data, String prefix) {
+		this(new CobwebParam[] { data }, prefix);
 	}
 
 	private int columns;

@@ -228,7 +228,7 @@ public class GUI extends JFrame {
 
 		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
 		JComponent panelGA = geneticPage.getPanel();
-		tabbedPane.addTab("Genetic Algorithm", panelGA);
+		tabbedPane.addTab("Genetics", panelGA);
 
 		controllerPanel = new AIPanel();
 		controllerPanel.bindToParser(p);
@@ -236,6 +236,9 @@ public class GUI extends JFrame {
 		
 		DiseaseConfigPage diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), p.getEnvParams());
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
+		
+		TemperatureConfigPage tempPage = new TemperatureConfigPage(p.getTempParams());
+		tabbedPane.addTab("Temperature", tempPage.getPanel());
 
 		ok = new JButton("OK");
 		ok.setMaximumSize(new Dimension(80, 20));

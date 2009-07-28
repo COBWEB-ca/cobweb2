@@ -293,7 +293,7 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private JScrollPane setupPhenotypeList() {
 		phenoAvailable = new LinkedList<Phenotype>(new Phenotype().getPossibleValues());
-
+		phenoAvailable.remove(0);
 		phenosAvailable = new ListManipulator<Phenotype>(phenoAvailable);
 
 		listAvailable = new JList(phenosAvailable);
