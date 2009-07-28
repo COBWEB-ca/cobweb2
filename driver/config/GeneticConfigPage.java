@@ -7,7 +7,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Field;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
@@ -288,13 +287,12 @@ public class GeneticConfigPage implements ConfigPage {
 	private List<Phenotype> phenosUsed;
 
 	private GenesTableModel modelSelected;
+	
+	//TODO fix this weird selection process
 	List<Phenotype> phenoAvailable = new LinkedList<Phenotype>();
 
 	private JScrollPane setupPhenotypeList() {
-		for (Field element : Phenotype.getBindables()) {
-			Phenotype p = new Phenotype(element);
-			phenoAvailable.add(p);
-		}
+		phenoAvailable = new LinkedList<Phenotype>(new Phenotype().getPossibleValues());
 
 		phenosAvailable = new ListManipulator<Phenotype>(phenoAvailable);
 

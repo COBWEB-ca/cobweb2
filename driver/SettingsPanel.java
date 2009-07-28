@@ -31,6 +31,4 @@ public abstract class SettingsPanel extends JPanel  {
 	}
 
 	public abstract void bindToParser(Parser p);
-
-	//public abstract void writeToParser(Parser p);
 }

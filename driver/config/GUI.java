@@ -233,6 +233,9 @@ public class GUI extends JFrame {
 		controllerPanel = new AIPanel();
 		controllerPanel.bindToParser(p);
 		tabbedPane.addTab("AI", controllerPanel);
+		
+		DiseaseConfigPage diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), p.getEnvParams());
+		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
 		ok = new JButton("OK");
 		ok.setMaximumSize(new Dimension(80, 20));

@@ -56,7 +56,7 @@ public class ConfigTableModel extends AbstractTableModel {
 					len = Array.getLength(f.get(data[0]));
 					for (int i = 0; i < len; i++){
 						fields.add(new MyField(f, i));
-						rowNames.add(display.value() + (i + 1));
+						rowNames.add(display.value() + " " + (i + 1));
 					}
 				} catch (IllegalAccessException ex) {
 					throw new IllegalArgumentException("Unable to access field " + f.getName(), ex);

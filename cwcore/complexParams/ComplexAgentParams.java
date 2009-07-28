@@ -181,8 +181,6 @@ public class ComplexAgentParams extends AbstractReflectionParams implements Clon
 	@GeneMutatable
 	public int broadcastEnergyCost;
 
-	public String genetic_sequence = "001110010011100100111001";
-
 	@ConfXMLTag("foodweb")
 	public FoodwebParams foodweb;
 

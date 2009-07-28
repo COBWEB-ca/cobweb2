@@ -16,26 +16,10 @@ import cwcore.complexParams.AgentFoodCountable;
 
 public class DiseaseParams extends AbstractReflectionParams {
 
-	public static class DiseaseEffect extends AbstractReflectionParams {
-		private static final long serialVersionUID = -5869037647133878173L;
-
-		@ConfXMLTag("parameter")
-		@ConfDisplayName("Parameter")
-		public Phenotype param = new Phenotype();
-
-		@ConfXMLTag("factor")
-		@ConfDisplayName("Factor")
-		public float factor = 1;
-	}
-
 	private static final long serialVersionUID = 6866958975246266955L;
 
 	@ConfXMLTag("Index")
 	public int type;
-
-	@ConfXMLTag("effect")
-	@ConfDisplayName("Effect")
-	public DiseaseEffect effect;
 
 	@ConfXMLTag("initialInfection")
 	@ConfDisplayName("Initially infected fraction")
@@ -54,17 +38,27 @@ public class DiseaseParams extends AbstractReflectionParams {
 	@ConfXMLTag("childTransmitRate")
 	@ConfDisplayName("Child transmission rate")
 	public float childTransmitRate;
+	
+	@ConfXMLTag("parameter")
+	@ConfDisplayName("Parameter")
+	public Phenotype param;
+
+	@ConfXMLTag("factor")
+	@ConfDisplayName("Factor")
+	public float factor = 2;
 
 	private final AgentFoodCountable env;
+
+	private static final Pattern agentTransmit = Pattern.compile("^agent(\\d+)$");
 
 	public DiseaseParams(AgentFoodCountable env) {
 		this.env = env;
 		transmitTo = new boolean[env.getAgentTypes()];
 		transmitTo[0] = true;
-		effect = new DiseaseEffect();
-		initialInfection = 0.1f;
+		initialInfection = 0.0f;
 		contactTransmitRate = 0.5f;
 		childTransmitRate = 1;
+		this.param = new Phenotype();
 	}
 
 	@Override
@@ -94,8 +88,6 @@ public class DiseaseParams extends AbstractReflectionParams {
 		}
 	}
 
-	private static final Pattern agentTransmit = Pattern.compile("^agent(\\d+)$");
-
 	@Override
 	public void saveConfig(Node root, Document document) {
 		super.saveConfig(root, document);
@@ -106,6 +98,7 @@ public class DiseaseParams extends AbstractReflectionParams {
 			n.setTextContent(Boolean.toString(transmitTo[i]));
 			trans.appendChild(n);
 		}
+		root.appendChild(trans);
 
 	}
 

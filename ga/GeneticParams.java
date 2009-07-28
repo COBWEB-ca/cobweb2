@@ -4,6 +4,7 @@
 package ga;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
@@ -15,6 +16,7 @@ import org.w3c.dom.NodeList;
 
 import cobweb.params.AbstractReflectionParams;
 import cobweb.params.CobwebParam;
+import cobweb.params.CobwebSelectionParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfXMLTag;
 import cwcore.complexParams.AgentFoodCountable;
@@ -37,13 +39,13 @@ public class GeneticParams extends AbstractReflectionParams {
 	public int geneLength;
 
 
-	public static class Phenotype implements CobwebParam {
+	public static class Phenotype implements CobwebSelectionParam<Phenotype> {
 
 		private static final long serialVersionUID = -6142169580857190598L;
 
 		public Field field = null;
 
-		private static Iterable<Field> bindables = new LinkedList<Field>() {
+		private static Collection<Field> bindableFields = new LinkedList<Field>() {
 			private static final long serialVersionUID = -6369342528741543712L;
 			{
 				for (Field f: ComplexAgentParams.class.getFields()) {
@@ -53,10 +55,16 @@ public class GeneticParams extends AbstractReflectionParams {
 				}
 			}
 		};
-
-		public static Iterable<Field> getBindables() {
-			return bindables;
-		}
+		
+		private static Collection<Phenotype> bindables = new LinkedList<Phenotype>() {
+			private static final long serialVersionUID = -6369342528741543712L;
+			{
+				this.add(new Phenotype());
+				for (Field f: bindableFields) {
+					this.add(new Phenotype(f));
+				}
+			}
+		};
 
 		public Phenotype(){
 		}
@@ -78,14 +86,15 @@ public class GeneticParams extends AbstractReflectionParams {
 		}
 
 		public Phenotype(Field f) {
-			if (f.getAnnotation(GeneMutatable.class) == null || f.getAnnotation(ConfDisplayName.class) == null)
+			if (f != null && 
+					(f.getAnnotation(GeneMutatable.class) == null || f.getAnnotation(ConfDisplayName.class) == null))
 				throw new IllegalArgumentException("Field must be labeled as @GeneMutatable and have a @ConfDisplayName");
 			this.field = f;
 		}
 
 		public void loadConfig(Node root) throws IllegalArgumentException {
 			String value = root.getTextContent();
-			for (Field f : bindables) {
+			for (Field f : bindableFields) {
 				if (value.equals("None")) {
 					this.field = null;
 					return;
@@ -118,6 +127,19 @@ public class GeneticParams extends AbstractReflectionParams {
 				value = field.getAnnotation(ConfXMLTag.class).value();
 			}
 			root.setTextContent(value);
+		}
+
+		@Override
+		public Collection<Phenotype> getPossibleValues() {
+			return bindables;
+		}
+
+		@Override
+		public void setValue(Phenotype value) {
+			if (value instanceof Phenotype) {
+				Phenotype p = (Phenotype) value;
+				this.field = p.field;
+			}
 		}
 
 	}

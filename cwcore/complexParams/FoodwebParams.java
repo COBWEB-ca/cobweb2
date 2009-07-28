@@ -17,10 +17,10 @@ public class FoodwebParams implements CobwebParam {
 
 	private static final long serialVersionUID = 1380425322335531943L;
 
-	@ConfDisplayName("Agent ")
+	@ConfDisplayName("Agent")
 	public boolean[] canEatAgent;
 
-	@ConfDisplayName("Food ")
+	@ConfDisplayName("Food")
 	public boolean[] canEatFood;
 
 	private final AgentFoodCountable env;
