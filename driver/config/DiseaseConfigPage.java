@@ -22,18 +22,20 @@ public class DiseaseConfigPage implements ConfigPage {
 	
 	DiseaseParams[] params;
 
+	private JTable confTable;
+
 	public DiseaseConfigPage(DiseaseParams[] params, AgentFoodCountable env) {
 		this.params = params;
 		
 		ConfigTableModel ctm = new ConfigTableModel(params, "Agent");
-		JTable tab = new MixedValueJTable();
-		tab.setRowHeight(20);
-		tab.setModel(ctm);
-		JScrollPane sp = new JScrollPane(tab);
+		confTable = new MixedValueJTable();
+		confTable.setRowHeight(20);
+		confTable.setModel(ctm);
+		JScrollPane sp = new JScrollPane(confTable);
 		
 		GUI.makeGroupPanel(sp, "Disease Parameters");
-		GUI.colorHeaders(tab, true);
-		tab.getColumnModel().getColumn(0).setPreferredWidth(150);
+		GUI.colorHeaders(confTable, true);
+		confTable.getColumnModel().getColumn(0).setPreferredWidth(150);
 		
 		myPanel = new JPanel(new BorderLayout());
 		myPanel.add(sp);
@@ -45,6 +47,7 @@ public class DiseaseConfigPage implements ConfigPage {
 	}
 
 	public void validateUI() throws IllegalArgumentException {
+		GUI.updateTable(confTable);
 	}
 
 }

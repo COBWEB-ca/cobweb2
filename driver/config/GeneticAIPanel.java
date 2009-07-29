@@ -5,6 +5,7 @@ package driver.config;
 
 import java.text.NumberFormat;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import cwcore.GeneticController;
@@ -16,6 +17,7 @@ import driver.SettingsPanel;
 final class GeneticAIPanel extends SettingsPanel {
 	private static final long serialVersionUID = 1139521733160862828L;
 	private GeneticControllerParams params;
+	private BoundJFormattedTextField seed;
 
 	@Override
 	public void bindToParser(Parser p) {
@@ -34,11 +36,14 @@ final class GeneticAIPanel extends SettingsPanel {
 	}
 
 	private void updateBoxes() {
-		BoundJFormattedTextField seed = new BoundJFormattedTextField(params, "randomSeed", NumberFormat
+		seed = new BoundJFormattedTextField(params, "randomSeed", NumberFormat
 				.getIntegerInstance());
 		this.removeAll();
 		seed.setColumns(5);
 		this.add(new JLabel(seed.getLabel()));
 		this.add(seed);
+		JButton makeRandom = new JButton("Generate");
+		makeRandom.addActionListener(new SeedRandomListener(seed));
+		add(makeRandom);
 	}
 }

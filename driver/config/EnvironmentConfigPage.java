@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.text.NumberFormat;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -157,18 +158,22 @@ public class EnvironmentConfigPage implements ConfigPage {
 		/* Random variables */
 		JPanel panel14 = new JPanel();
 		GUI.makeGroupPanel(panel14, "Random Variables");
-		fieldPane = new JPanel(new GridLayout(2, 1));
-
-		randomSeed = new BoundJFormattedTextField(params, "randomSeed", NumberFormat.getIntegerInstance());
-		fieldPane.add(new JLabel(randomSeed.getLabel()));
-		fieldPane.add(randomSeed);
+		fieldPane = new JPanel(new GridLayout(3, 1));
 
 		initialStones = new BoundJFormattedTextField(params, "initialStones", NumberFormat.getIntegerInstance());
 		fieldPane.add(new JLabel(initialStones.getLabel()));
 		fieldPane.add(initialStones);
 
+		randomSeed = new BoundJFormattedTextField(params, "randomSeed", NumberFormat.getIntegerInstance());
+		JButton makeRandom = new JButton("Generate");
+		makeRandom.addActionListener(new SeedRandomListener(randomSeed));
+		fieldPane.add(new JLabel(randomSeed.getLabel()));
+		fieldPane.add(randomSeed);
+		fieldPane.add(new JPanel());
+		fieldPane.add(makeRandom);
+		
 		panel14.add(fieldPane, BorderLayout.EAST);
-		makeOptionsTable(fieldPane, 2);
+		makeOptionsTable(fieldPane, 3);
 
 		thePanel.add(panel14);
 

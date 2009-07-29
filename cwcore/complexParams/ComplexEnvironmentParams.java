@@ -67,7 +67,7 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	public boolean dropNewFood;
 
 	@ConfDisplayName("Keep old waste")
-	@ConfXMLTag("randomSeed")
+	@ConfXMLTag("keepOldWaste")
 	public boolean keepOldWaste;
 
 	@ConfDisplayName("Keep old agents")

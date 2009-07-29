@@ -59,6 +59,8 @@ public class GUI extends JFrame {
 			updateTable(foodTable);
 			updateTable(tablePD);
 			geneticPage.validateUI();
+			diseaseConfigPage.validateUI();
+			tempPage.validateUI();
 
 
 			/* write UI info to xml file */
@@ -103,6 +105,8 @@ public class GUI extends JFrame {
 				updateTable(foodTable);
 				updateTable(tablePD);
 				geneticPage.validateUI();
+				diseaseConfigPage.validateUI();
+				tempPage.validateUI();
 			} catch (IllegalArgumentException ex) {
 				throw new CobwebUserException("Parameter error: " + ex.getMessage(), ex);
 			}
@@ -171,6 +175,8 @@ public class GUI extends JFrame {
 	}
 
 	Logger myLogger = Logger.getLogger("COBWEB2");
+	private DiseaseConfigPage diseaseConfigPage;
+	private TemperatureConfigPage tempPage;
 
 	public GUI() {
 		super();
@@ -234,10 +240,10 @@ public class GUI extends JFrame {
 		controllerPanel.bindToParser(p);
 		tabbedPane.addTab("AI", controllerPanel);
 		
-		DiseaseConfigPage diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), p.getEnvParams());
+		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), p.getEnvParams());
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 		
-		TemperatureConfigPage tempPage = new TemperatureConfigPage(p.getTempParams());
+		tempPage = new TemperatureConfigPage(p.getTempParams());
 		tabbedPane.addTab("Temperature", tempPage.getPanel());
 
 		ok = new JButton("OK");

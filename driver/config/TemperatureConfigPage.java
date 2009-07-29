@@ -12,18 +12,20 @@ import temperature.TemperatureParams;
 public class TemperatureConfigPage implements ConfigPage {
 
 	private JPanel myPanel;
+	private JTable agentTable;
+	private JTable bandsConf;
 
 	public TemperatureConfigPage(TemperatureParams params) {
 		
 		ConfigTableModel ctm = new ConfigTableModel(params, "Temperature Parameters");
-		JTable tab = new MixedValueJTable();
-		tab.setModel(ctm);
-		JScrollPane sp = new JScrollPane(tab);
+		bandsConf = new MixedValueJTable();
+		bandsConf.setModel(ctm);
+		JScrollPane sp = new JScrollPane(bandsConf);
 		sp.setPreferredSize(new Dimension(200, 200));		
 		GUI.makeGroupPanel(sp, "Temperature Parameters");
 		
 		ConfigTableModel agentConf = new ConfigTableModel(params.agentParams, "Agent");
-		JTable agentTable = new MixedValueJTable();
+		agentTable = new MixedValueJTable();
 		agentTable.setModel(agentConf);
 		JScrollPane sp2 = new JScrollPane(agentTable);
 		GUI.makeGroupPanel(sp2, "Agent Preferences");
@@ -42,7 +44,8 @@ public class TemperatureConfigPage implements ConfigPage {
 
 	@Override
 	public void validateUI() throws IllegalArgumentException {
-
+		GUI.updateTable(this.bandsConf);
+		GUI.updateTable(agentTable);
 	}
 
 }
