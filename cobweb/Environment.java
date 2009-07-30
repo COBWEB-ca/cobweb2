@@ -104,17 +104,31 @@ public abstract class Environment {
 			// Too few is OK; 2D directions should work in 3D
 			if (d.v.length > v.length)
 				return null;
-			int[] newPos = new int[v.length];
-			int i = 0;
-			for (; i < d.v.length; ++i)
-				newPos[i] = v[i] + d.v[i];
-			for (; i < newPos.length; ++i)
-				newPos[i] = v[i];
-			Location retVal = new Location(newPos);
-			if (retVal.makeValid())
-				return retVal;
-			else
-				return null;
+
+			int x = v[AXIS_X] + d.v[AXIS_X];
+			int y = v[AXIS_Y] + d.v[AXIS_Y];
+
+			if (x < 0 || x >= getSize(AXIS_X)) {
+				if (getAxisWrap(AXIS_X))
+					x = (x + getSize(AXIS_X)) % getSize(AXIS_X);
+				else
+					return null;
+			}
+
+			if (y < 0 || y >= getSize(AXIS_Y)) {
+				if (getAxisWrap(AXIS_Y)) {
+					if (y < 0) {
+						y = 0;
+						x = (x + getSize(AXIS_X) / 2) % getSize(AXIS_X);
+					} else if (y >= getSize(AXIS_Y)) {
+						y = getSize(AXIS_Y) - 1;
+						x = (x + getSize(AXIS_X) / 2) % getSize(AXIS_X);
+					}
+				} else
+					return null;
+			}
+			Location retVal = getLocation(x, y);
+			return retVal;
 		}
 
 		/**
@@ -188,17 +202,6 @@ public abstract class Environment {
 			return true;
 		}
 
-		/** Make this location valid by wrapping, if allowed. */
-		public boolean makeValid() {
-			for (int i = 0; i < v.length; ++i) {
-				if (v[i] < 0 && Environment.this.getAxisWrap(i))
-					v[i] += Environment.this.getSize(i);
-				else if (v[i] >= Environment.this.getSize(i) && Environment.this.getAxisWrap(i))
-					v[i] -= Environment.this.getSize(i);
-			}
-			return isValid();
-		}
-
 		/**
 		 * Set the agent at this location. A location may only contain a single agent.
 		 */
@@ -241,7 +244,17 @@ public abstract class Environment {
 			out.append(")");
 			return out.toString();
 		}
+
+		public boolean checkFlip(Direction dir) {
+			int y = v[1] + dir.v[1];
+			return (y < 0 || y >= getSize(AXIS_Y)) && getAxisWrap(AXIS_Y);
+		}
+
 	}
+
+
+	private Location[][] locationCache;
+
 	/** Axis constants, to make dimensionality make sense */
 	public static final int AXIS_X = 0;
 
@@ -294,6 +307,8 @@ public abstract class Environment {
 	protected void clearAgents() {
 		agentTable.clear();
 		agentTable = new java.util.Hashtable<Location, Agent>();
+
+		Agent.resetIDSequence();
 	}
 
 	public int countAgents() {
@@ -337,18 +352,16 @@ public abstract class Environment {
 	/** Core implementation of getField; this is what could be accelerated in C++ */
 	protected abstract int getField(Location l, int field);
 
+	protected void setupLocationCache() {
+		locationCache = new Location[getSize(AXIS_X)][getSize(AXIS_Y)];
+	}
+
 	// Syntactic sugar for common cases
 	public Location getLocation(int x, int y) {
-		return getLocation(new int[] { x, y });
-	}
 
-	public Location getLocation(int x, int y, int z) {
-		return getLocation(new int[] { x, y, z });
-	}
-
-	/** @return the location at coordinates specified by axisPos */
-	public Location getLocation(int[] axisPos) {
-		return new Location(axisPos);
+		if (locationCache[x][y] == null)
+			locationCache[x][y] = new Location(new int[] { x, y });
+		return locationCache[x][y];
 	}
 
 	/** Returns a random location. */

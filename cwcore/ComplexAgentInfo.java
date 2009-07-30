@@ -241,9 +241,9 @@ public class ComplexAgentInfo {
 
 	private int action = 0;
 
-	private ComplexAgentInfo parent1;
+	private long parent1;
 
-	private ComplexAgentInfo parent2;
+	private long parent2;
 
 	private long birthTick;
 
@@ -307,8 +307,8 @@ public class ComplexAgentInfo {
 		agentType = type;
 		agentNumber = num;
 		birthTick = birth;
-		parent1 = p1;
-		parent2 = p2;
+		parent1 = p1 != null ? p1.agentNumber : -1;
+		parent2 = p2 != null ? p2.agentNumber : -1;
 		action = strat;
 	}
 
@@ -316,7 +316,7 @@ public class ComplexAgentInfo {
 		agentType = type;
 		agentNumber = num;
 		birthTick = birth;
-		parent1 = p1;
+		parent1 = p1 != null ? p1.agentNumber : -1;
 		action = strat;
 	}
 
@@ -411,18 +411,18 @@ public class ComplexAgentInfo {
 		pw.print(agentNumber);
 		pw.print("\t" + (agentType + 1)); // $$$$$$ change from "agentType" to "(agentType + 1)". Apr 3
 		pw.print("\t" + birthTick);
-		if (parent1 == null && parent2 == null) {
+		if (parent1 == -1 && parent2 == -1) {
 			asexAgentsofType[agentType]++;
 			pw.print("\tRandomly generated");
-		} else if (parent2 == null) {
+		} else if (parent2 == -1) {
 			asexAgentsofType[agentType]++;
-			offspringsAgentsofType[parent1.agentType]++;
-			pw.print("\tAsexual, from agent " + parent1.agentNumber);
+			offspringsAgentsofType[agentType]++;
+			pw.print("\tAsexual, from agent " + parent1);
 		} else {
-			pw.print("\tSexual, from Mother: " + parent1.agentNumber + ", Father: " + parent2.agentNumber);
+			pw.print("\tSexual, from Mother: " + parent1 + ", Father: " + parent2);
 			sexAgentsofType[agentType]++;
-			offspringsAgentsofType[parent1.agentType]++;
-			offspringsAgentsofType[parent2.agentType]++;
+			offspringsAgentsofType[agentType]++;
+			offspringsAgentsofType[agentType]++;
 		}
 		pw.print("\t" + deathTick);
 		if (deathTick != -1) {

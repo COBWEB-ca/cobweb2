@@ -140,7 +140,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	private static Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
-	
+
 	private static Set<StepMutator> stepMutators = new LinkedHashSet<StepMutator>();
 
 	private static final cobweb.Direction[] dirList = { cobweb.Environment.DIRECTION_NORTH,
@@ -154,7 +154,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		if (mutator instanceof ContactMutator)
 			contactMutators.add((ContactMutator) mutator);
-		
+
 		if (mutator instanceof StepMutator)
 			stepMutators.add((StepMutator) mutator);
 	}
@@ -252,7 +252,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	void broadcastFood(cobweb.Environment.Location loc) { // []SK
-		String message = loc.v[0] + "," + loc.v[1];
+		String message = loc.toString();
 		new CommPacket(CommPacket.FOOD, id, message, energy, params.broadcastEnergyBased, params.broadcastFixedRange);
 		// new CommPacket sent
 		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
@@ -275,8 +275,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return caneat;
 	}
 
-	boolean canStep() {
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
+	boolean mustFlip = false;
+
+	boolean canStep(Location destPos) {
 		// The position must be valid...
 		if (destPos == null)
 			return false;
@@ -734,10 +735,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public void step() {
 		cobweb.Agent adjAgent;
+		mustFlip = getPosition().checkFlip(facing);
 		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
 
-		if (canStep()) {
-			
+		if (canStep(destPos)) {
+
 			// Check for food...
 			cobweb.Environment.Location breedPos = null;
 			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
@@ -760,12 +762,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 						tryAsexBreed();
 				}
 			}
-			
+
 			for (StepMutator m : stepMutators)
 				m.onStep(this, getPosition(), destPos);
-			
+
 			move(destPos);
-			
+
 			if (breedPos != null) {
 
 				if (breedPartner == null) {
@@ -859,7 +861,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			info.addAgentBump();
 
 		} // end of two agents meet
-		else if ((destPos != null) && destPos.testFlag(ComplexEnvironment.FLAG_WASTE)) {
+		else if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_WASTE)) {
 			// Bumps into waste
 			energy -= params.wastePen;
 			wasteCounterLoss -= params.wastePen;
@@ -1062,5 +1064,20 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				blah.add(s);
 		}
 		return blah;
+	}
+
+	@Override
+	public void move(Location newPos) {
+		super.move(newPos);
+		if (mustFlip) {
+			if (facing.equals(ComplexEnvironment.DIRECTION_NORTH))
+				facing = ComplexEnvironment.DIRECTION_SOUTH;
+			else if (facing.equals(ComplexEnvironment.DIRECTION_SOUTH))
+				facing = ComplexEnvironment.DIRECTION_NORTH;
+			else if (facing.equals(ComplexEnvironment.DIRECTION_EAST))
+				facing = ComplexEnvironment.DIRECTION_WEST;
+			else if (facing.equals(ComplexEnvironment.DIRECTION_WEST))
+				facing = ComplexEnvironment.DIRECTION_EAST;
+		}
 	}
 }

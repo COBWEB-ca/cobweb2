@@ -8,13 +8,17 @@ package cobweb;
 public abstract class Agent {
 	private boolean alive = true;
 
-	private static int nextID = 0;
+	private static long nextID = 1;
 
-	private static int makeID() {
-		if ((nextID + 1) == Integer.MAX_VALUE) {
-			nextID = Integer.MIN_VALUE;
+	private static long makeID() {
+		if ((nextID + 1) == Long.MAX_VALUE) {
+			nextID = Long.MIN_VALUE;
 		}
 		return nextID++;
+	}
+
+	public static void resetIDSequence() {
+		nextID = 1;
 	}
 
 	protected Environment.Location position;

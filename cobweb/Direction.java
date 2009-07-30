@@ -9,6 +9,10 @@ public class Direction {
 		v = new int[dim];
 	}
 
+	public Direction(Direction dir) {
+		v = dir.v.clone();
+	}
+
 	public Direction(int[] initV) {
 		v = initV;
 	}

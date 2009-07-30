@@ -5,12 +5,12 @@ public class ArrayEnvironment {
 
 	private int height;
 
-	private long[][] locationBits;
+	private int[][] locationBits;
 
 	public ArrayEnvironment(int w, int h) {
 		width = w;
 		height = h;
-		locationBits = new long[w][h];
+		locationBits = new int[w][h];
 	}
 
 	public ArrayEnvironment(int w, int h, ArrayEnvironment a) {
@@ -23,11 +23,11 @@ public class ArrayEnvironment {
 		return 2;
 	}
 
-	public long[][] getBitArray() {
+	public int[][] getBitArray() {
 		return locationBits;
 	}
 
-	public long getLocationBits(cobweb.Environment.Location l) {
+	public int getLocationBits(cobweb.Environment.Location l) {
 		return locationBits[l.v[0]][l.v[1]];
 	}
 
@@ -42,7 +42,7 @@ public class ArrayEnvironment {
 		}
 	}
 
-	public void setLocationBits(cobweb.Environment.Location l, long bits) {
+	public void setLocationBits(cobweb.Environment.Location l, int bits) {
 		locationBits[l.v[0]][l.v[1]] = bits;
 	}
 }

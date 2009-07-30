@@ -148,10 +148,10 @@ public class SimpleEnvironment extends cobweb.Environment implements
 
 	@Override
 	public void fillTileColors(java.awt.Color[] tileColors) {
-		Location currentPos = getLocation(0, 0);
 		int tileIndex = 0;
-		for (; currentPos.v[1] < getSize(AXIS_Y); ++currentPos.v[1]) {
-			for (currentPos.v[0] = 0; currentPos.v[0] < getSize(AXIS_X); ++currentPos.v[0]) {
+		for (int x = 0; x < getSize(AXIS_Y); ++x) {
+			for (int y = 0; y < getSize(AXIS_X); ++y) {
+				Location currentPos = getLocation(x, y);
 				if (currentPos.testFlag(FLAG_STONE))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
 				else
