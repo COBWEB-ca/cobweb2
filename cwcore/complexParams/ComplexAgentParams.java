@@ -32,15 +32,20 @@ public class ComplexAgentParams extends AbstractReflectionParams implements Clon
 	@GeneMutatable
 	public int otherFoodEnergy;
 
+	@ConfDisplayName("Agent eating efficiency")
+	@ConfXMLTag("AgentFoodEnergyFraction")
+	@GeneMutatable
+	public float agentFoodEnergy;
+
 	@ConfDisplayName("Breed energy")
 	@ConfXMLTag("BreedEnergy")
 	@GeneMutatable
 	public int breedEnergy;
 
-	@ConfDisplayName("Pregnancy period")
+	@ConfDisplayName("Asexual pregnancy period")
 	@ConfXMLTag("pregnancyPeriod")
 	@GeneMutatable
-	public int pregnancyPeriod;
+	public int asexPregnancyPeriod;
 
 	@ConfDisplayName("Initial energy")
 	@ConfXMLTag("InitEnergy")
@@ -199,8 +204,9 @@ public class ComplexAgentParams extends AbstractReflectionParams implements Clon
 		initEnergy = 100;
 		foodEnergy = 100;
 		otherFoodEnergy = 25;
+		agentFoodEnergy = 1;
 		breedEnergy = 60;
-		pregnancyPeriod = 0;
+		asexPregnancyPeriod = 0;
 		stepEnergy = 1;
 		stepRockEnergy = 1;
 		turnRightEnergy = 1;

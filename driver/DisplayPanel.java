@@ -30,12 +30,12 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 	@Override
 	public void paintComponent(java.awt.Graphics g) {
 		super.paintComponent(g);
-		g.translate(borderWidth, borderHeight);
+		g.translate(borderWidth + 7, borderHeight);
 		theUI.draw(g, tileWidth, tileHeight);
-		g.translate(-borderWidth, -borderHeight);
+		g.translate(-borderWidth - 7, -borderHeight);
 	}
 
-	private static final int PADDING = 4;
+	private static final int PADDING = 19;
 
 	void updateScale() {
 		java.awt.Dimension size = getSize();
@@ -108,13 +108,13 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 
 	private boolean donePainting = true;
-	
+
 	private final Runnable markReadyRefresh = new Runnable() {
 		public void run() {
 			donePainting = true;
 		}
 	};
-	
+
 	/**
 	 * Refreshes the display grid
 	 * @param wait wait for repaint to finish before returning?
@@ -145,7 +145,7 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 			SwingUtilities.invokeLater(markReadyRefresh);
 		}
 	}
-	
+
 	/**
 	 * Is the display grid done repainting since the last refresh(false) ?
 	 * @return true when repaint is done

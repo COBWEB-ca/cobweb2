@@ -24,7 +24,7 @@ public class LinearWeightsController implements cobweb.Controller {
 	private static double[] runningOutputMean = new double[OUTPUT_COUNT];
 
 	public static final String[] inputNames = { "Constant", "Energy", "Distance to agent", "Distance to food",
-			"Distance to obsticle", "Direction", "Memory", "Communication", "Age", "Random" };
+			"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random" };
 
 	public static final String[] outputNames = { "Memory", "Communication", "Left", "Right", "Forward", "Asexual Breed" };
 

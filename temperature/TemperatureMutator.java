@@ -16,14 +16,14 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	private TemperatureParams params;
 
 	public TemperatureMutator() {
-		
+
 	}
-	
+
 	public void setParams(TemperatureParams params, AgentFoodCountable env) {
 		this.params = params;
-		
+
 	}
-	
+
 	private static final Collection<String> blank = new LinkedList<String>();
 
 	public Collection<String> logDataAgent(int agentType) {
@@ -48,16 +48,17 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	public void onSpawn(ComplexAgent agent) {
 		TemperatureAgentParams aPar = params.agentParams[agent.type()];
-		
+
 		float f = locToPenalty(agent.getPosition(), aPar);
 		if (aPar.parameter.field != null)
 			ReflectionUtil.addField(agent.params, aPar.parameter.field, f);
 	}
 
 	private float locToPenalty(Location l, TemperatureAgentParams aPar) {
-		int temp = getTemp(l);
-		int ptemp = aPar.preferedTemp;
-		int diff = Math.abs(temp - ptemp);
+		float temp = getTemp(l);
+		float ptemp = aPar.preferedTemp;
+		float diff = Math.abs(temp - ptemp);
+		diff = Math.max(diff - aPar.preferedTempRange, 0);
 		float f = diff * aPar.differenceFactor;
 		return f;
 	}
@@ -72,17 +73,17 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	public void onStep(ComplexAgent agent, Location to, Location from) {
 		TemperatureAgentParams aPar = params.agentParams[agent.type()];
-		
+
 		float toFactor = locToPenalty(to, aPar);
 		float fromFactor = locToPenalty(from, aPar);
-		
+
 		if (toFactor != fromFactor && aPar.parameter.field != null) {
 			ReflectionUtil.addField(agent.params, aPar.parameter.field, toFactor - fromFactor);
 		}
 	}
-	
-	private int getTemp(Location loc) {
-		int lat = loc.v[1] * 5 / loc.getEnvironment().getSize(Environment.AXIS_Y);
+
+	private float getTemp(Location loc) {
+		int lat = loc.v[1] * TemperatureParams.TEMPERATURE_BANDS / loc.getEnvironment().getSize(Environment.AXIS_Y);
 		return params.tempBands[lat];
 	}
 

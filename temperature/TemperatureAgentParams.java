@@ -11,12 +11,16 @@ public class TemperatureAgentParams extends AbstractReflectionParams {
 
 	@ConfXMLTag("PreferedTemp")
 	@ConfDisplayName("Prefered temperature")
-	public int preferedTemp;
-	
+	public float preferedTemp;
+
+	@ConfXMLTag("PreferedTempRange")
+	@ConfDisplayName("Prefered temperature range")
+	public float preferedTempRange;
+
 	@ConfXMLTag("DifferenceFactor")
 	@ConfDisplayName("Difference factor")
 	public float differenceFactor;
-	
+
 	@ConfXMLTag("Parameter")
 	@ConfDisplayName("Parameter")
 	public Phenotype parameter = new Phenotype();

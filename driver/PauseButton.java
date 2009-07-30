@@ -1,5 +1,7 @@
 package driver;
 
+import java.awt.Dimension;
+
 import javax.swing.JButton;
 
 public class PauseButton extends JButton implements java.awt.event.ActionListener {
@@ -9,6 +11,8 @@ public class PauseButton extends JButton implements java.awt.event.ActionListene
 		uiPipe = theUI;
 		updateLabel();
 		addActionListener(this);
+
+		setPreferredSize(new Dimension(63,26));
 	}
 
 	public void setUI(cobweb.UIInterface theUI) {
@@ -20,9 +24,9 @@ public class PauseButton extends JButton implements java.awt.event.ActionListene
 		//System.out
 		//		.println("-------------- UpdateLabel Called ----------------");  // $$$$$$ Used for testing purpose, silenced on Mar 10
 		if (uiPipe.isPaused()) {
-			setText("Resume");
+			setText("Start");
 		} else {
-			setText("Pause");
+			setText("Stop");
 		}
 	}
 

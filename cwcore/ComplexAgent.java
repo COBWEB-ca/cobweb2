@@ -379,9 +379,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	private void eat(ComplexAgent adjacentAgent) {
-		energy += adjacentAgent.energy;
-		wasteCounterGain -= adjacentAgent.energy;
-		info.addCannibalism(agentType, adjacentAgent.energy);
+		int gain = (int) (adjacentAgent.energy * params.agentFoodEnergy);
+		energy += gain;
+		wasteCounterGain -= gain;
+		info.addCannibalism(agentType, gain);
 		adjacentAgent.die();
 	}
 
@@ -929,7 +930,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private void tryAsexBreed() {
 		if (asexFlag && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
 				&& cobweb.globals.random.nextFloat() < params.asexualBreedChance) {
-			pregPeriod = params.pregnancyPeriod;
+			pregPeriod = params.asexPregnancyPeriod;
 			pregnant = true;
 		}
 	}

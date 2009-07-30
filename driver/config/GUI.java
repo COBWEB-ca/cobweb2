@@ -185,7 +185,7 @@ public class GUI extends JFrame {
 
 	// GUI Special Constructor
 	public GUI(CobwebApplication ca, String filename, boolean allowKeep) {
-		super("Test Data");
+		super("Simulation Settings");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel j = new JPanel();
@@ -239,10 +239,10 @@ public class GUI extends JFrame {
 		controllerPanel = new AIPanel();
 		controllerPanel.bindToParser(p);
 		tabbedPane.addTab("AI", controllerPanel);
-		
+
 		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), p.getEnvParams());
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
-		
+
 		tempPage = new TemperatureConfigPage(p.getTempParams());
 		tabbedPane.addTab("Temperature", tempPage.getPanel());
 

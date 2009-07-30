@@ -84,7 +84,7 @@ public class SimulatorUI extends JPanel implements UIClient {
 		}
 		if (tickField == null) {
 			controls.add(new JLabel("Stop at"));
-			tickField = new JTextField(8);
+			tickField = new JTextField(6);
 
 			controls.add(tickField);
 
@@ -149,9 +149,9 @@ public class SimulatorUI extends JPanel implements UIClient {
 			displayPanel.refresh(wait);
 		}
 	}
-	
+
 	@Override
 	public boolean isReadyToRefresh() {
 		return displayPanel != null && displayPanel.isReadyToRefresh();
-	}	
+	}
 }

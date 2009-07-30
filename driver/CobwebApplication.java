@@ -56,6 +56,10 @@ import driver.config.GUI;
 
 public class CobwebApplication extends JFrame implements UIClient {
 
+	private static final String MODIFY_THIS_FILE = "Modify Simulation File";
+
+	private static final String MODIFY_CURRENT_DATA = "Modify Simulation";
+
 	private class CobwebEventListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
@@ -81,7 +85,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				setInvokedByModify(false); // $$$$$$ added on Mar 14
 				CobwebApplication.this.retrieveDefaultData();
 				// $$$$$$ Added for "Modify Current Data" menu. Feb 12
-			} else if (e.getActionCommand().compareTo("Modify Current Data") == 0) {
+			} else if (e.getActionCommand().compareTo(MODIFY_CURRENT_DATA) == 0) {
 				pauseUI(); // $$$$$$ Feb 12
 				if (GUI.frame.isVisible() == true) {
 					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
@@ -100,7 +104,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				// "Cobweb Application" frame disables when ever "Test Data" window showing
 				setInvokedByModify(false); // $$$$$$ added on Mar 14
 				CobwebApplication.this.createNewData(); // $$$$$$ implemented on Mar 14
-			} else if (e.getActionCommand().compareTo("Modify This File") == 0) {
+			} else if (e.getActionCommand().compareTo(MODIFY_THIS_FILE) == 0) {
 				pauseUI(); // $$$$$$ Feb 12
 				if (GUI.frame.isVisible() == true) {
 					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
@@ -736,8 +740,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 		defaultMenu.setActionCommand("Retrieve Default Data");
 		defaultMenu.addActionListener(theListener);
 		// $$$$$$ Add "Modify Current Data" menu. Feb 12
-		JMenuItem currentDataMenu = new JMenuItem("Modify Current Data");
-		currentDataMenu.setActionCommand("Modify Current Data");
+		JMenuItem currentDataMenu = new JMenuItem(MODIFY_CURRENT_DATA);
+		currentDataMenu.setActionCommand(MODIFY_CURRENT_DATA);
 		currentDataMenu.addActionListener(theListener);
 
 		JMenuItem NewDataFileMenu = new JMenuItem("Create New Data");
@@ -746,8 +750,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 		JMenuItem MultFileMenu = new JMenuItem("Set Multiple Files");
 		MultFileMenu.setActionCommand("Set Multiple Files");
 		MultFileMenu.addActionListener(theListener);
-		JMenuItem modifyMenu = new JMenuItem("Modify This File");
-		modifyMenu.setActionCommand("Modify This File");
+		JMenuItem modifyMenu = new JMenuItem(MODIFY_THIS_FILE);
+		modifyMenu.setActionCommand(MODIFY_THIS_FILE);
 		modifyMenu.addActionListener(theListener);
 		JMenuItem saveMenu = new JMenuItem("Save");
 		saveMenu.setActionCommand("Save");

@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 import javax.swing.JTextField;
 
 import temperature.TemperatureMutator;
-
+import temperature.TemperatureParams;
 import cobweb.Environment.EnvironmentStats;
 import cobweb.Environment.Location;
 import cwcore.ComplexAgent;
@@ -131,6 +131,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 			paths = new LinkedList<PathDrawInfo>();
 		}
 
+		private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
+
 		/** Draw the tiles and the agents. */
 		void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
 			int tileIndex = 0;
@@ -154,6 +156,14 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 
 			for (PathDrawInfo path : paths) {
 				path.draw(g, tileWidth, tileHeight);
+			}
+
+			for (int y = 0; y < height; y++) {
+				int band = y * TemperatureParams.TEMPERATURE_BANDS / height;
+				g.setColor(colorMap.getColor(band + 0, 5));
+				for (int i = 0; i <= band; i++) {
+					g.drawLine(-3 - i * 3, y * tileHeight, -3 - i * 3, (y + 1) *tileHeight);
+				}
 			}
 		}
 
@@ -487,7 +497,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		geneticMutator.setParams(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
 
 		diseaseMutator.setParams(p.getDiseaseParams(), p.getEnvParams().getAgentTypes());
-		
+
 		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
 
 		InitEnvironment("cwcore.ComplexEnvironment", p);

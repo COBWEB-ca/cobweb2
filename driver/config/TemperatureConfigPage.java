@@ -16,27 +16,28 @@ public class TemperatureConfigPage implements ConfigPage {
 	private JTable bandsConf;
 
 	public TemperatureConfigPage(TemperatureParams params) {
-		
-		ConfigTableModel ctm = new ConfigTableModel(params, "Temperature Parameters");
+
+		ConfigTableModel ctm = new ConfigTableModel(params, "Temperature");
 		bandsConf = new MixedValueJTable();
 		bandsConf.setModel(ctm);
 		JScrollPane sp = new JScrollPane(bandsConf);
-		sp.setPreferredSize(new Dimension(200, 200));		
-		GUI.makeGroupPanel(sp, "Temperature Parameters");
-		
+		sp.setPreferredSize(new Dimension(200, 200));
+		GUI.makeGroupPanel(sp, "Environment Temperature");
+
 		ConfigTableModel agentConf = new ConfigTableModel(params.agentParams, "Agent");
 		agentTable = new MixedValueJTable();
 		agentTable.setModel(agentConf);
 		JScrollPane sp2 = new JScrollPane(agentTable);
 		GUI.makeGroupPanel(sp2, "Agent Preferences");
+		agentTable.getColumnModel().getColumn(0).setPreferredWidth(150);
 		GUI.colorHeaders(agentTable, true);
-		
+
 		myPanel = new JPanel(new BorderLayout());
 		myPanel.add(sp, BorderLayout.NORTH);
 		myPanel.add(sp2);
-		
+
 	}
-	
+
 	@Override
 	public JPanel getPanel() {
 		return myPanel;
