@@ -68,18 +68,18 @@ public class LinearAIPanel extends SettingsPanel {
 
 		@Override
 		public void setValueAt(Object value, int row, int column) {
-			Double v = new Double(0);
 			try {
+				Double v = new Double(0);
 				if (value instanceof String) {
-					v = Double.parseDouble((String)value);
-					data[row][column] = v;
+					v = new Double(Double.parseDouble((String)value));
+					data[row][column] = v.doubleValue();
 				} else if (value instanceof Double) {
-					v = ((Double)value).doubleValue();
+					v = ((Double)value);
 				}
+				super.setValueAt(v, row, column);
 			} catch (NumberFormatException ex) {
 				// Ignore bad value
 			}
-			super.setValueAt(v, row, column);
 		}
 	}
 

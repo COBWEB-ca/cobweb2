@@ -84,7 +84,6 @@ public class ComplexAgentInfo {
 			}
 		} else {
 			try {
-				int agentTypes = 4;
 				if (!headerPrinted) {
 					group_out.print(paddMe("", W_TICK));
 					// TITLE LINE 1
@@ -263,7 +262,7 @@ public class ComplexAgentInfo {
 
 	private int agentNumber;
 
-	private int agentType;
+	private int type;
 
 	private int sexualPregs;
 
@@ -304,7 +303,7 @@ public class ComplexAgentInfo {
 	private static int[] agentAgingEnergies = new int[MAX_NUM_OF_AGENTS];
 
 	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, ComplexAgentInfo p2, int strat) {
-		agentType = type;
+		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
 		parent1 = p1 != null ? p1.agentNumber : -1;
@@ -313,7 +312,7 @@ public class ComplexAgentInfo {
 	}
 
 	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, int strat) {
-		agentType = type;
+		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
 		parent1 = p1 != null ? p1.agentNumber : -1;
@@ -321,7 +320,7 @@ public class ComplexAgentInfo {
 	}
 
 	public ComplexAgentInfo(int num, int type, long birth, int strat) {
-		agentType = type;
+		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
 		action = strat;
@@ -331,7 +330,7 @@ public class ComplexAgentInfo {
 		++countAgentBumps;
 	}
 
-	public void addCannibalism(int type, int val) {
+	public void addCannibalism(int val) {
 		cannibalEnergies[type] += val;
 	}
 
@@ -340,17 +339,16 @@ public class ComplexAgentInfo {
 	}
 
 	/* Total energy per agent type */
-	public void addEnergy(int type, int val) {
+	public void addEnergy(int val) {
 		energies[type] += val;
 	}
 
-	/* addXXX == energy gained from XXX */
-	public void addFoodEnergy(int type, int val) {
+	public void addFoodEnergy(int val) {
 		foodEnergies[type] += val;
 	}
 
-	/* Other sources including energy gained from the agent strategy */
-	public void addOthers(int type, int val) {
+	/** Other sources including energy gained from the agent strategy */
+	public void addOthers(int val) {
 		otherEnergySources[type] += val;
 	}
 
@@ -378,7 +376,7 @@ public class ComplexAgentInfo {
 	}
 
 	/* Keep a total tally of the living agents */
-	public void alive(int type) {
+	public void alive() {
 		liveCount[type]++;
 	}
 
@@ -391,7 +389,7 @@ public class ComplexAgentInfo {
 	}
 
 	public int getAgentType() {
-		return agentType;
+		return type;
 	}
 
 	public long getDeathTick() {
@@ -409,27 +407,27 @@ public class ComplexAgentInfo {
 
 	public void printInfo(java.io.PrintWriter pw) {
 		pw.print(agentNumber);
-		pw.print("\t" + (agentType + 1)); // $$$$$$ change from "agentType" to "(agentType + 1)". Apr 3
+		pw.print("\t" + (type + 1)); // $$$$$$ change from "agentType" to "(agentType + 1)". Apr 3
 		pw.print("\t" + birthTick);
 		if (parent1 == -1 && parent2 == -1) {
-			asexAgentsofType[agentType]++;
+			asexAgentsofType[type]++;
 			pw.print("\tRandomly generated");
 		} else if (parent2 == -1) {
-			asexAgentsofType[agentType]++;
-			offspringsAgentsofType[agentType]++;
+			asexAgentsofType[type]++;
+			offspringsAgentsofType[type]++;
 			pw.print("\tAsexual, from agent " + parent1);
 		} else {
 			pw.print("\tSexual, from Mother: " + parent1 + ", Father: " + parent2);
-			sexAgentsofType[agentType]++;
-			offspringsAgentsofType[agentType]++;
-			offspringsAgentsofType[agentType]++;
+			sexAgentsofType[type]++;
+			offspringsAgentsofType[type]++;
+			offspringsAgentsofType[type]++;
 		}
 		pw.print("\t" + deathTick);
 		if (deathTick != -1) {
-			stepslivedAgentsofType[agentType] += (deathTick - birthTick);
-			deadAgentsofType[agentType]++;
+			stepslivedAgentsofType[type] += (deathTick - birthTick);
+			deadAgentsofType[type]++;
 		} else {
-			aliveAgentsofType[agentType]++;
+			aliveAgentsofType[type]++;
 		}
 
 		pw.print("\t" + directChildren);
@@ -437,8 +435,8 @@ public class ComplexAgentInfo {
 		pw.print("\t" + sexualPregs);
 
 		int total = countSteps + countTurns + countAgentBumps + countRockBumps;
-		totalsAgentsofType[agentType] += total;
-		stepsAgentsofType[agentType] += countSteps;
+		totalsAgentsofType[type] += total;
+		stepsAgentsofType[type] += countSteps;
 		DecimalFormat dform = new DecimalFormat("###.##%");
 		pw.print("\t" + dform.format((double) (countSteps) / total));
 		pw.print("\t" + dform.format((double) (countTurns) / total));
@@ -454,35 +452,35 @@ public class ComplexAgentInfo {
 
 	public void setDeath(long death) {
 		deathTick = death;
+		path = null;
 	}
 
 	public void setStrategy(int strat) {
 		action = strat;
 	}
 
-	/* useXXX == energy consumed for XXX */
-	public void useAgentBumpEnergy(int type, int val) {
+	public void useAgentBumpEnergy(int val) {
 		agentBumpEnergies[type] += val;
 	}
 
-	public void useExtraEnergy(int type, int val) {
+	public void useExtraEnergy(int val) {
 		agentAgingEnergies[type] += val;
 	}
 
 	/* Other sources including energy gained from the agent strategy */
-	public void useOthers(int type, int val) {
+	public void useOthers(int val) {
 		otherEnergySinks[type] += val;
 	}
 
-	public void useRockBumpEnergy(int type, int val) {
+	public void useRockBumpEnergy(int val) {
 		rockBumpEnergies[type] += val;
 	}
 
-	public void useStepEnergy(int type, int val) {
+	public void useStepEnergy(int val) {
 		stepEnergies[type] += val;
 	}
 
-	public void useTurning(int type, int val) {
+	public void useTurning(int val) {
 		turningEnergies[type] += val;
 	}
 

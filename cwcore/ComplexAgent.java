@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 import cobweb.ColorLookup;
+import cobweb.DrawingHandler;
+import cobweb.Environment;
 import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
 import cobweb.Environment.Location;
@@ -177,15 +179,20 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param strat PD strategy
 	 */
 	ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, int strat) {
-		super(pos, ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
+		super(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
 				parent1.params.mutationRate));
 		InitFacing();
 
 		copyConstants(parent1);
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent1.info, parent2.info, strat);
 
+		this.position = pos;
+		pos.setAgent(this);
+		pos.getEnvironment().getScheduler().addSchedulerClient(this);
+
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this, parent1, parent2);
+
 	}
 
 	/**
@@ -196,11 +203,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param strat PD strategy
 	 */
 	ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
-		super(pos, ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
+		super(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 		InitFacing();
 
 		copyConstants(parent);
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent.info, strat);
+
+		this.position = pos;
+		pos.setAgent(this);
+		pos.getEnvironment().getScheduler().addSchedulerClient(this);
 
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this, parent);
@@ -215,13 +226,17 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param agentData agent parameters
 	 */
 	public ComplexAgent(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
-		super(pos, ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		super(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		setConstants(doCheat, agentData);
 
 		InitFacing();
 
-		setConstants(doCheat, agentData);
 
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, doCheat);
+
+		this.position = pos;
+		pos.setAgent(this);
+		pos.getEnvironment().getScheduler().addSchedulerClient(this);
 
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this);
@@ -370,11 +385,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (ComplexEnvironment.getFoodType(destPos) == agentType) {
 			energy += params.foodEnergy;
 			wasteCounterGain -= params.foodEnergy;
-			info.addFoodEnergy(agentType, params.foodEnergy);
+			info.addFoodEnergy(params.foodEnergy);
 		} else {
 			energy += params.otherFoodEnergy;
 			wasteCounterGain -= params.otherFoodEnergy;
-			info.addOthers(agentType, params.otherFoodEnergy);
+			info.addOthers(params.otherFoodEnergy);
 		}
 	}
 
@@ -382,20 +397,21 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		int gain = (int) (adjacentAgent.energy * params.agentFoodEnergy);
 		energy += gain;
 		wasteCounterGain -= gain;
-		info.addCannibalism(agentType, gain);
+		info.addCannibalism(gain);
 		adjacentAgent.die();
 	}
 
 	private double energyPenalty(boolean log) {
 		if (!params.agingMode)
 			return 0.0;
-		double age = currTick - birthTick;
+		double tempAge = currTick - birthTick;
+		assert(tempAge == age);
 		if (tracked && log)
-			info.useExtraEnergy(agentType, Math.min(Math.max(0, energy), (int) (params.agingRate
-					* (Math.tan(((age / params.agingLimit) * 89.99) * Math.PI / 180)) + 0.5)));
+			info.useExtraEnergy(Math.min(Math.max(0, energy), (int) (params.agingRate
+					* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180)) + 0.5)));
 
 		return Math.min(Math.max(0, energy), params.agingRate
-				* (Math.tan(((age / params.agingLimit) * 89.99) * Math.PI / 180)));
+				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180)));
 	}
 
 	cobweb.Agent getAdjacentAgent() {
@@ -439,7 +455,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	// get agent's drawing information given the UI
 	@Override
-	public void getDrawInfo(cobweb.UIInterface theUI) {
+	public void getDrawInfo(DrawingHandler theUI) {
 		Color stratColor;
 
 		// is agents action is 1, it's a cheater therefore it's
@@ -619,8 +635,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * be useful in the future. This is only run when tracking is enabled.
 	 */
 	private void poll() {
-		info.addEnergy(agentType, energy);
-		info.alive(agentType);
+		info.addEnergy(energy);
+		info.alive();
 	}
 
 	void receiveBroadcast() {
@@ -631,8 +647,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		commPacket = ComplexEnvironment.currentPackets.get(checkforBroadcasts());
 		// check if dispatcherId is in list
-		if (checkCredibility(commPacket.getDispatcherId()))
-			;
+		// TODO what does this do?
+		checkCredibility(commPacket.getDispatcherId());
 
 		int type = commPacket.getType();
 		switch (type) {
@@ -698,12 +714,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 * cheater, else cooperator $$$$$ this parameter seems useless, there is another PDaction parameter above
 		 * already. Apr 18 lastPDMove = -1; // Remember the opponent's move in the last game
 		 */
-		this.agentPDStrategy = 0; // FIXME agentData.agentPDStrategy; // above all, sometimes a new
+		this.agentPDStrategy = 0; // FIXME agentData.agentPDStrategy;
+		// above all, sometimes a new
 		// agent need copy PDStrategy
 		// from its parent. See
 		// copyConstants( ComplexAgent p
 		// )
-		this.lastPDMove = 0; // FIXME agentData.lastPDMove; // "KeepOldAgents" need pass this
+		this.lastPDMove = 0; // FIXME agentData.lastPDMove;
+		// "KeepOldAgents" need pass this
 		// parameter. (as a reasonable side
 		// effect, the parameter of a parent
 		// would also pass to its child)
@@ -756,7 +774,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 					energy -= params.initEnergy;
 					energy -= energyPenalty(true);
 					wasteCounterLoss -= params.initEnergy;
-					info.useOthers(agentType, params.initEnergy);
+					info.useOthers(params.initEnergy);
 
 				} else {
 					if (!pregnant)
@@ -797,7 +815,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 			energy -= params.stepEnergy;
 			wasteCounterLoss -= params.stepEnergy;
-			info.useStepEnergy(agentType, params.stepEnergy);
+			info.useStepEnergy(params.stepEnergy);
 			info.addStep();
 			info.addPathStep(this.getPosition());
 
@@ -858,7 +876,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 			energy -= params.stepAgentEnergy;
 			wasteCounterLoss -= params.stepAgentEnergy;
-			info.useAgentBumpEnergy(agentType, params.stepAgentEnergy);
+			info.useAgentBumpEnergy(params.stepAgentEnergy);
 			info.addAgentBump();
 
 		} // end of two agents meet
@@ -866,13 +884,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			// Bumps into waste
 			energy -= params.wastePen;
 			wasteCounterLoss -= params.wastePen;
-			info.useRockBumpEnergy(agentType, params.wastePen);
+			info.useRockBumpEnergy(params.wastePen);
 			info.addRockBump();
 		} else {
 			// Rock bump
 			energy -= params.stepRockEnergy;
 			wasteCounterLoss -= params.stepRockEnergy;
-			info.useRockBumpEnergy(agentType, params.stepRockEnergy);
+			info.useRockBumpEnergy(params.stepRockEnergy);
 			info.addRockBump();
 		}
 		energy -= energyPenalty(true);
@@ -958,8 +976,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			cobweb.Environment.Location foo = getPosition().getAdjacent(dirList[i]);
 			if (foo == null)
 				continue;
-			// if (foo.equals(getPosition())) continue;
-			if (foo != null && foo.getAgent() == null && !foo.testFlag(ComplexEnvironment.FLAG_STONE)
+			if (foo.getAgent() == null && !foo.testFlag(ComplexEnvironment.FLAG_STONE)
 					&& !foo.testFlag(ComplexEnvironment.FLAG_WASTE) && !foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
 				foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 				foo.setFlag(ComplexEnvironment.FLAG_STONE, false);
@@ -980,12 +997,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				cobweb.Environment.Location foo = getPosition().getAdjacent(dirList[i]);
 				if (foo == null)
 					continue;
-				// if (foo.equals(getPosition())) continue;
-				if (foo != null &&
-				/* Hack: don't put a waste tile on top of an agent */
-				foo.getAgent() == null &&
-				/* Nuke a food pile */
-				foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+
+				if (foo.getAgent() == null && foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+					/* Hack: don't put a waste tile on top of an agent */
+					/* Nuke a food pile */
 					foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 					foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
 					ComplexEnvironment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
@@ -1004,7 +1019,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		facing = newFacing;
 		energy -= params.turnLeftEnergy;
 		wasteCounterLoss -= params.turnLeftEnergy;
-		info.useTurning(agentType, params.turnLeftEnergy);
+		info.useTurning(params.turnLeftEnergy);
 		info.addTurn();
 		afterTurnAction();
 	}
@@ -1016,7 +1031,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		facing = newFacing;
 		energy -= params.turnRightEnergy;
 		wasteCounterLoss -= params.turnRightEnergy;
-		info.useTurning(agentType, params.turnRightEnergy);
+		info.useTurning(params.turnRightEnergy);
 		info.addTurn();
 		afterTurnAction();
 	}
@@ -1026,9 +1041,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return agentType;
 	}
 
-	@Override
 	public void tickZero() {
-
+		// nothing
 	}
 
 	public static Iterable<String> logDataTotal() {
@@ -1071,14 +1085,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public void move(Location newPos) {
 		super.move(newPos);
 		if (mustFlip) {
-			if (facing.equals(ComplexEnvironment.DIRECTION_NORTH))
-				facing = ComplexEnvironment.DIRECTION_SOUTH;
-			else if (facing.equals(ComplexEnvironment.DIRECTION_SOUTH))
-				facing = ComplexEnvironment.DIRECTION_NORTH;
-			else if (facing.equals(ComplexEnvironment.DIRECTION_EAST))
-				facing = ComplexEnvironment.DIRECTION_WEST;
-			else if (facing.equals(ComplexEnvironment.DIRECTION_WEST))
-				facing = ComplexEnvironment.DIRECTION_EAST;
+			if (facing.equals(Environment.DIRECTION_NORTH))
+				facing = Environment.DIRECTION_SOUTH;
+			else if (facing.equals(Environment.DIRECTION_SOUTH))
+				facing = Environment.DIRECTION_NORTH;
+			else if (facing.equals(Environment.DIRECTION_EAST))
+				facing = Environment.DIRECTION_WEST;
+			else if (facing.equals(Environment.DIRECTION_WEST))
+				facing = Environment.DIRECTION_EAST;
 		}
 	}
 }

@@ -44,12 +44,10 @@ public class GeneticConfigPage implements ConfigPage {
 			fireIntervalAdded(this, items.size() - 1, items.size() - 1);
 		}
 
-		@Override
 		public Object getElementAt(int index) {
 			return items.get(index);
 		}
 
-		@Override
 		public int getSize() {
 			return items.size();
 		}
@@ -79,23 +77,19 @@ public class GeneticConfigPage implements ConfigPage {
 
 		private static final long serialVersionUID = 8849213073862759751L;
 
-		@Override
 		public int getColumnCount() {
 			return 1 + agentTypes;
 		}
 
-		@Override
 		public int getRowCount() {
 			return phenosUsed.size();
 		}
 
-		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			// TODO Auto-generated method stub
-			if ( columnIndex == 0) {
+			if ( columnIndex == 0)
 				return phenosUsed.get(rowIndex).toString();
-			} else
-				return Integer.toString(defaults.get(rowIndex)[columnIndex - 1], 2);
+
+			return Integer.toString(defaults.get(rowIndex)[columnIndex - 1], 2);
 		}
 
 		@Override
@@ -146,10 +140,9 @@ public class GeneticConfigPage implements ConfigPage {
 			}
 			modelSelected.fireTableDataChanged();
 		}
-	};
+	}
 
 	private class RemoveListener implements ActionListener {
-		@Override
 		public void actionPerformed(ActionEvent e) {
 			int[] z = listSelected.getSelectedRows();
 			for (int i = z.length - 1; i >= 0; i--) {
@@ -287,11 +280,11 @@ public class GeneticConfigPage implements ConfigPage {
 	private List<Phenotype> phenosUsed;
 
 	private GenesTableModel modelSelected;
-	
-	//TODO fix this weird selection process
+
 	List<Phenotype> phenoAvailable = new LinkedList<Phenotype>();
 
 	private JScrollPane setupPhenotypeList() {
+		//TODO fix this weird selection process
 		phenoAvailable = new LinkedList<Phenotype>(new Phenotype().getPossibleValues());
 		phenoAvailable.remove(0);
 		phenosAvailable = new ListManipulator<Phenotype>(phenoAvailable);

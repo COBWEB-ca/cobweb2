@@ -55,7 +55,7 @@ public class GeneticParams extends AbstractReflectionParams {
 				}
 			}
 		};
-		
+
 		private static Collection<Phenotype> bindables = new LinkedList<Phenotype>() {
 			private static final long serialVersionUID = -6369342528741543712L;
 			{
@@ -67,6 +67,7 @@ public class GeneticParams extends AbstractReflectionParams {
 		};
 
 		public Phenotype(){
+			// Nothing
 		}
 
 		@Override
@@ -86,7 +87,7 @@ public class GeneticParams extends AbstractReflectionParams {
 		}
 
 		public Phenotype(Field f) {
-			if (f != null && 
+			if (f != null &&
 					(f.getAnnotation(GeneMutatable.class) == null || f.getAnnotation(ConfDisplayName.class) == null))
 				throw new IllegalArgumentException("Field must be labeled as @GeneMutatable and have a @ConfDisplayName");
 			this.field = f;
@@ -115,8 +116,8 @@ public class GeneticParams extends AbstractReflectionParams {
 		public String toString() {
 			if (field == null)
 				return "[Not Bound]";
-			else
-				return field.getAnnotation(ConfDisplayName.class).value();
+
+			return field.getAnnotation(ConfDisplayName.class).value();
 		}
 
 		public void saveConfig(Node root, Document document) {
@@ -129,17 +130,13 @@ public class GeneticParams extends AbstractReflectionParams {
 			root.setTextContent(value);
 		}
 
-		@Override
 		public Collection<Phenotype> getPossibleValues() {
 			return bindables;
 		}
 
-		@Override
 		public void setValue(Phenotype value) {
-			if (value instanceof Phenotype) {
-				Phenotype p = (Phenotype) value;
-				this.field = p.field;
-			}
+			Phenotype p = value;
+			this.field = p.field;
 		}
 
 	}
@@ -238,7 +235,7 @@ public class GeneticParams extends AbstractReflectionParams {
 				}
 			}
 		}
-		
+
 		for (int i = 0; i < geneCount; i++) {
 			if (phenotype[i].field == null) {
 				for (int j = i; j < geneCount - 1; j++) {
@@ -264,7 +261,7 @@ public class GeneticParams extends AbstractReflectionParams {
 
 		for (int agent = 0; agent < env.getAgentTypes(); agent++) {
 			for (int gene = 0; gene < geneCount; gene++) {
-				Node n = document.createElement(String.format("agent%dgene%d", agent + 1, gene + 1));
+				Node n = document.createElement(String.format("agent%dgene%d", new Integer(agent + 1), new Integer(gene + 1)));
 				n.setTextContent(geneValues[agent][gene]);
 				root.appendChild(n);
 			}

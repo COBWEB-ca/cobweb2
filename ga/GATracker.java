@@ -38,7 +38,7 @@ public class GATracker implements Client {
 	private int update_frequency;
 
 	public GATracker() {
-
+		// Nothing
 	}
 
 	public void setParams(int agentTypes, int geneNo, boolean track, int update_frequency, String[] names) {
@@ -144,7 +144,6 @@ public class GATracker implements Client {
 		}
 	}
 
-	@Override
 	public void tickZero() {
 		tickNotification(0);
 	}

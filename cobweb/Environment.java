@@ -1,5 +1,6 @@
 package cobweb;
 
+import java.awt.Color;
 import java.util.Hashtable;
 
 import driver.Parser;
@@ -289,13 +290,13 @@ public abstract class Environment {
 
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 
-	private static cobweb.UIInterface myUI;
+	private static DrawingHandler myUI;
 
-	public static cobweb.UIInterface getUIPipe() {
+	public static DrawingHandler getUIPipe() {
 		return myUI;
 	}
 
-	public static void setUIPipe(cobweb.UIInterface ui) {
+	public static void setUIPipe(DrawingHandler ui) {
 		myUI = ui;
 	}
 
@@ -307,8 +308,6 @@ public abstract class Environment {
 	protected void clearAgents() {
 		agentTable.clear();
 		agentTable = new java.util.Hashtable<Location, Agent>();
-
-		Agent.resetIDSequence();
 	}
 
 	public int countAgents() {
@@ -318,7 +317,7 @@ public abstract class Environment {
 	/**
 	 * Called from getDrawInfo to allow implementations to fill the array of tile colors.
 	 */
-	protected abstract void fillTileColors(java.awt.Color[] tileColors);
+	protected abstract void fillTileColors(java.awt.Color[] tiles);
 
 	// The implementation uses a hashtable to store agents, as we assume there
 	// are many
@@ -342,12 +341,13 @@ public abstract class Environment {
 	public abstract boolean getAxisWrap(int axis);
 
 	/** Called by the UIInterface to get the frame data for the Environment. */
-	protected void getDrawInfo(UIInterface theUI) {
-		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
+	protected void getDrawInfo(DrawingHandler theUI) {
 		fillTileColors(tileColors);
 		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
 
 	}
+
+	private Color[] tileColors;
 
 	/** Core implementation of getField; this is what could be accelerated in C++ */
 	protected abstract int getField(Location l, int field);
@@ -395,14 +395,18 @@ public abstract class Environment {
 	}
 
 	/** Load from a stream <== new addition! */
-	public abstract void load(cobweb.Scheduler s, Parser p/* java.io.Reader r */) throws IllegalArgumentException;
+	public void load(Scheduler s, Parser p) throws IllegalArgumentException {
+		tileColors = new Color[p.getEnvParams().getWidth() * p.getEnvParams().getHeight()];
+	}
 
 	/** Log to a stream */
 	public abstract void log(java.io.Writer w);
 
-	public abstract void observe(int x, int y, cobweb.UIInterface ui);
+	public abstract void observe(int x, int y);
 
-	public abstract void remove(int mode, cobweb.UIInterface ui);
+	public abstract void clearFood();
+
+	public abstract void clearStones();
 
 	/** Report to a stream */
 	public abstract void report(java.io.Writer w);
@@ -410,11 +414,17 @@ public abstract class Environment {
 	/** Save to a stream */
 	public abstract void save(java.io.Writer w);
 
-	public abstract void selectAgent(int x, int y, int type, cobweb.UIInterface theUI);
+	public abstract void addAgent(int x, int y, int type);
 
-	public abstract void selectFood(int x, int y, int type, cobweb.UIInterface theUI);
+	public abstract void removeAgent(int x, int y);
 
-	public abstract void selectStones(int x, int y, UIInterface theUI);
+	public abstract void addFood(int x, int y, int type);
+
+	public abstract void removeFood(int x, int y);
+
+	public abstract void addStone(int x, int y);
+
+	public abstract void removeStone(int x, int y);
 
 	private final void setAgent(Location l, Agent a) {
 		if (a != null)
@@ -422,8 +432,6 @@ public abstract class Environment {
 		else
 			agentTable.remove(l);
 	}
-
-	public abstract void setclick(int count);
 
 	/** Core implementation of setField; this is what could be accelerated in C++ */
 	protected abstract void setField(Location l, int field, int value);
@@ -436,4 +444,8 @@ public abstract class Environment {
 
 	/** Update the log; called from the UIInterface */
 	protected abstract void writeLogEntry();
+
+	public abstract void unObserve();
+
+	public abstract void clearWaste();
 }

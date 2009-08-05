@@ -50,5 +50,5 @@ public class BoundCheckBox extends JCheckBox implements FieldBoundComponent {
 	@Override
 	public String getLabel() {
 		return label;
-	};
+	}
 }

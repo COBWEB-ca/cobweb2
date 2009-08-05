@@ -35,7 +35,7 @@ public interface Scheduler {
 	 *
 	 * @return the paused state flag of the simulation
 	 */
-	boolean isSchedulerPaused();
+	boolean isRunning();
 
 	/**
 	 * Kill the scheduler. This method should immediately and irrevocably halt the simulation.

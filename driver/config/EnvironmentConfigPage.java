@@ -171,7 +171,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(randomSeed);
 		fieldPane.add(new JPanel());
 		fieldPane.add(makeRandom);
-		
+
 		panel14.add(fieldPane, BorderLayout.EAST);
 		makeOptionsTable(fieldPane, 3);
 
@@ -222,7 +222,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 	}
 
 	public void validateUI() throws IllegalArgumentException {
-
+		// Nothing
 	}
 
 

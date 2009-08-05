@@ -2,8 +2,12 @@ package cwcore.complexParams;
 
 public interface AgentFoodCountable {
 
-	public abstract int getAgentTypes();
+	public int getAgentTypes();
 
-	public abstract int getFoodTypes();
+	public int getFoodTypes();
+
+	public int getHeight();
+
+	public int getWidth();
 
 }

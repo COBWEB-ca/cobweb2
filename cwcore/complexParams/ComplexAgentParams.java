@@ -8,7 +8,7 @@ import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfXMLTag;
 
 
-public class ComplexAgentParams extends AbstractReflectionParams implements Cloneable {
+public class ComplexAgentParams extends AbstractReflectionParams {
 
 	/**
 	 *

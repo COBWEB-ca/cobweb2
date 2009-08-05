@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 
 public class ReflectionUtil {
 
+	@SuppressWarnings("boxing")
 	public static final Object stringToBoxed(Class<?> t, String strVal) {
 		if (t.equals(boolean.class)) {
 			return Boolean.parseBoolean(strVal);
@@ -47,7 +48,7 @@ public class ReflectionUtil {
 			throw new RuntimeException("Cannot access field: " + field.toString(), ex);
 		}
 	}
-	
+
 	public static void addField(Object object, Field field, float factor) {
 		try {
 			Object o;

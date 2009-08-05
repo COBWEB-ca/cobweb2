@@ -4,6 +4,7 @@ import ga.GATracker;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -11,11 +12,12 @@ import java.util.Vector;
 import cobweb.Agent;
 import cobweb.ArrayEnvironment;
 import cobweb.ColorLookup;
+import cobweb.DrawingHandler;
 import cobweb.Environment;
 import cobweb.RandomNoGenerator;
+import cobweb.Scheduler;
 import cobweb.TickScheduler;
 import cobweb.TypeColorEnumeration;
-import cobweb.UIInterface;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
@@ -240,6 +242,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			return true;
 		}
 
+		@SuppressWarnings("hiding")
 		public void reset(long birthTick, int weight, float rate) {
 			initialWeight = weight;
 			this.birthTick = birthTick;
@@ -343,6 +346,48 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private int draughtdays[];
 
+	int[][] backFoodArray;
+
+	ArrayEnvironment backArray;
+
+	@Override
+	public synchronized void addAgent(int x, int y, int type) {
+		int action = -1; // $$$$$ -1: not play Prisoner's Dilemma
+		cobweb.Environment.Location l;
+		l = getUserDefinedLocation(x, y);
+		if (l.getAgent() != null && l.getAgent().type() == type) { // &&&&&& add " && l.getAgent().type() == type" Apr 3
+			l.getAgent().die();
+		} else if (type < data.getAgentTypes()) {
+			if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
+					&& !l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
+				int agentType = type;
+				if (data.prisDilemma) {
+					// System.out.println("in select agent: Value of PrisDilemma
+					// is true");
+					// System.out.println("PrisDilemma: "+prisDilemma[0]);
+
+					action = 0;
+
+					double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static value for now $$$$$$ added for
+					// the
+					// below else block.
+					float rnd = cobweb.globals.behaviorRandom.nextFloat();
+					// System.out.println("rnd: " + rnd);
+					// System.out.println("coopProb: " + coopProb);
+
+					if (rnd > coopProb)
+						action = 1; // agent defects depending on probability
+				}
+				// spammy
+				// System.out.println("type "+agentType);
+				new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
+																											// genetic
+				// sequence of agent
+				// type
+			}
+		}
+	}
+
 	public ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
 		agentInfoVector.add(info);
 		return info;
@@ -358,6 +403,78 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public ComplexAgentInfo addAgentInfo(int agentT, int action) {
 		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, action));
+	}
+
+	@Override
+	public synchronized void addFood(int x, int y, int type) {
+
+		cobweb.Environment.Location l;
+		l = getUserDefinedLocation(x, y);
+		if (l.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(l) == type) { // $$$$$$ add
+			// " && getFoodType(l) == type" Apr
+			// 3
+			l.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			// change
+			// from
+			// "+ ")\n");"
+			// Apr
+			// 3
+		} else if (// l.getAgent() == null && // $$$$$$ silence this condition, the food would be added under the agent.
+		// Apr 3
+		!(l.testFlag(ComplexEnvironment.FLAG_FOOD)) && !(l.testFlag(ComplexEnvironment.FLAG_STONE))) {
+			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+			setFoodType(l, type);
+		}
+		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
+		fillTileColors(tileColors);
+	}
+
+	/* JUST ADDED */
+	@Override
+	public synchronized void addStone(int x, int y) {
+		cobweb.Environment.Location l;
+		l = getUserDefinedLocation(x, y);
+		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
+			l.setFlag(ComplexEnvironment.FLAG_STONE, false);
+		} else if (l.getAgent() == null && !l.testFlag(ComplexEnvironment.FLAG_FOOD)
+				&& !l.testFlag(ComplexEnvironment.FLAG_STONE)) {
+			l.setFlag(ComplexEnvironment.FLAG_STONE, true);
+		} else {
+			return;
+		}
+		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
+		fillTileColors(tileColors);
+	}
+
+	private void clearFlag(int flag) {
+		for (int x = 0; x < getSize(AXIS_X); ++x) {
+			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+				Location currentPos = getLocation(x, y);
+
+				if (currentPos.testFlag(flag)) {
+					currentPos.setFlag(flag, false);
+				}
+			}
+		}
+	}
+
+	/*
+	 * Remove components from the environment mode 0 : remove all the components mode -1: remove stones mode -2: remove
+	 * food mode -3: remove agents mode -4: remove waste
+	 */
+	@Override
+	public void clearFood() {
+		clearFlag(FLAG_FOOD);
+	}
+
+	@Override
+	public void clearStones() {
+		clearFlag(FLAG_STONE);
+	}
+
+	@Override
+	public void clearWaste() {
+		clearFlag(FLAG_WASTE);
 	}
 
 	private void copyParamsFromParser(Parser p) {
@@ -487,13 +604,17 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		for (int y = 0; y < getSize(AXIS_Y); ++y) {
 			for (int x = 0; x < getSize(AXIS_X); ++x) {
 				Location currentPos = getLocation(x, y);
+
 				if (currentPos.testFlag(FLAG_STONE))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
+
 				else if (currentPos.testFlag(FLAG_WASTE))
 					tileColors[tileIndex++] = wasteColor;
-				else if (currentPos.testFlag(FLAG_FOOD)) {
+
+				else if (currentPos.testFlag(FLAG_FOOD))
 					tileColors[tileIndex++] = colorMap.getColor(getFoodType(currentPos), 0 /* agentTypeCount */);
-				} else
+
+				else
 					tileColors[tileIndex++] = java.awt.Color.white;
 			}
 		}
@@ -520,14 +641,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
-	protected synchronized void getDrawInfo(UIInterface theUI) {
+	protected synchronized void getDrawInfo(DrawingHandler theUI) {
 		super.getDrawInfo(theUI);
 		for (Agent a : agentTable.values()) {
 			a.getDrawInfo(theUI);
 		}
 
 		if (observedAgent != null) {
-			theUI.newPath(((ComplexAgent) observedAgent).getInfo().getPathHistory());
+			List<Location> path = ((ComplexAgent) observedAgent).getInfo().getPathHistory();
+			if (path != null)
+				theUI.newPath(path);
 		}
 
 	}
@@ -537,6 +660,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	protected int getField(cobweb.Environment.Location l, int field) {
 		return 0;
 	}
+
+	// Hidden implementation stuff...
 
 	public int getInfoNum() {
 		return agentInfoVector.size();
@@ -575,8 +700,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return data.getAgentTypes();
 	}
 
-	int[][] backFoodArray;
-	ArrayEnvironment backArray;
+	int mostFood[];
 
 	private void growFood() {
 
@@ -597,29 +721,27 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					// as well how many of each food type exist
 
 					double foodCount = 0;
-					int mostFood[] = new int[data.getFoodTypes()];
-					for (int i = 0; i < data.getAgentTypes(); ++i)
-						mostFood[i] = 0;
+					Arrays.fill(mostFood, 0);
 
 					Location checkPos = currentPos.getAdjacent(DIRECTION_NORTH);
 					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						++foodCount;
-						++mostFood[getFoodType(checkPos)];
+						foodCount++;
+						mostFood[getFoodType(checkPos)]++;
 					}
 					checkPos = currentPos.getAdjacent(DIRECTION_SOUTH);
 					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						++foodCount;
-						++mostFood[getFoodType(checkPos)];
+						foodCount++;
+						mostFood[getFoodType(checkPos)]++;
 					}
 					checkPos = currentPos.getAdjacent(DIRECTION_EAST);
 					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						++foodCount;
-						++mostFood[getFoodType(checkPos)];
+						foodCount++;
+						mostFood[getFoodType(checkPos)]++;
 					}
 					checkPos = currentPos.getAdjacent(DIRECTION_WEST);
 					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						++foodCount;
-						++mostFood[getFoodType(checkPos)];
+						foodCount++;
+						mostFood[getFoodType(checkPos)]++;
 					}
 
 					// and if we have found any adjacent food, theres a
@@ -670,8 +792,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		backFoodArray = swapFoodArray;
 	}
 
-	// Hidden implementation stuff...
-
 	private void killOldAgents() {
 		// if keepOldAgents is false then we want to kill all of the agents
 		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
@@ -690,7 +810,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
-	public void load(cobweb.Scheduler s, Parser p/* java.io.Reader r */) throws IllegalArgumentException {
+	public void load(Scheduler s, Parser p) throws IllegalArgumentException {
+		super.load(s, p);
 		// sFlag stores whether or not we are using a new scheduler
 		boolean sFlag = (s != theScheduler);
 
@@ -713,7 +834,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		setDefaultMutableAgentParam();
 
-
 		/**
 		 * If the random seed is set to 0 in the data file, it means we use the system time instead
 		 */
@@ -735,6 +855,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 		backArray = new ArrayEnvironment(data.width, data.height);
 		backFoodArray = new int[data.width][data.height];
+		mostFood = new int[data.getFoodTypes()];
 
 		setupLocationCache();
 
@@ -801,7 +922,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		int doCheat = -1; // $$$$$ -1: not play Prisoner's Dilemma
 		for (int i = 0; i < data.getAgentTypes(); ++i) {
 			double coopProb = agentData[i].pdCoopProb / 100.0d; // static value for now $$$$$$ added for the below else
-																// block.
+			// block.
 			// Apr 18
 
 			for (int j = 0; j < agentData[i].initialAgents; ++j) {
@@ -840,7 +961,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				// tiles
 				if (tries < 100) {
 					int agentType = i;
-					new ComplexAgent(agentType, location, doCheat, (ComplexAgentParams)agentData[agentType].clone()); // Default genetic
+					new ComplexAgent(agentType, location, doCheat, (ComplexAgentParams) agentData[agentType].clone()); // Default
+																														// genetic
 					// sequence of agent
 					// type
 				}
@@ -898,15 +1020,15 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			}
 		}
 		// Remove agents that have fallen out of bounds
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+		for (int x = 0; x < oldW && x < data.width; ++x) {
+			for (int y = data.height; y < oldH; ++y) {
 				Location currentPos = getLocation(x, y);
 				if (currentPos.getAgent() != null)
 					currentPos.getAgent().die();
 			}
 		}
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+		for (int x = data.width; x < oldW; ++x) {
+			for (int y = 0; y < data.height && y < oldH; ++y) {
 				Location currentPos = getLocation(x, y);
 				if (currentPos.getAgent() != null)
 					currentPos.getAgent().die();
@@ -986,7 +1108,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * This gets called when the user clicks on a tile without selecting outside of edit mode
 	 */
 	@Override
-	public void observe(int x, int y, cobweb.UIInterface ui) {
+	public void observe(int x, int y) {
 		cobweb.Environment.Location l = getUserDefinedLocation(x, y);
 		/* A tile can only consist of: STONE or WASTE or (FOOD|AGENT) */
 		observedAgent = l.getAgent();
@@ -1067,41 +1189,24 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	/*
-	 * Remove components from the environment mode 0 : remove all the components mode -1: remove stones mode -2: remove
-	 * food mode -3: remove agents mode -4: remove waste
-	 */
 	@Override
-	public void remove(int mode, cobweb.UIInterface ui) {
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
-				Location currentPos = getLocation(x, y);
-				/*
-				 * To ensure everything works properly, we do the removal according to each component's behaviour. -
-				 * stone tiles cannot coexist with waste tiles nor food tiles and agent tiles. - waste tiles cannot
-				 * coexist with stone tiles nor food tiles and agent tiles. - an agent can be on top of an empty tile
-				 * and a food tile only - a food tile can exist on its own
-				 */
-				if (currentPos.testFlag(FLAG_STONE)) {
-					if ((mode == 0) || (mode == -1))
-						currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
-				} else if (currentPos.testFlag(FLAG_WASTE)) {
-					if ((mode == 0) || (mode == -4)) {
-						currentPos.setFlag(ComplexEnvironment.FLAG_WASTE, false);
-						wastearray[currentPos.v[0]][currentPos.v[1]] = null;
-					}
-				} else {
-					if (currentPos.testFlag(FLAG_FOOD)) {
-						if ((mode == 0) || (mode == -2))
-							currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-					}
-					if (currentPos.getAgent() != null) {
-						if ((mode == 0) || (mode == -3))
-							currentPos.getAgent().die();
-					}
-				}
-			}
-		}
+	public void removeAgent(int x, int y) {
+		Location l = getLocation(x, y);
+		Agent a = l.getAgent();
+		if (a != null)
+			a.die();
+	}
+
+	@Override
+	public void removeFood(int x, int y) {
+		Location l = getLocation(x, y);
+		l.setFlag(FLAG_FOOD, false);
+	}
+
+	@Override
+	public void removeStone(int x, int y) {
+		Location l = getLocation(x, y);
+		l.setFlag(FLAG_STONE, false);
 	}
 
 	@Override
@@ -1132,100 +1237,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		 */
 	}
 
-	@Override
-	public synchronized void selectAgent(int x, int y, int type, cobweb.UIInterface theUI) {
-		int action = -1; // $$$$$ -1: not play Prisoner's Dilemma
-		cobweb.Environment.Location l;
-		l = getUserDefinedLocation(x, y);
-		if (l.getAgent() != null && l.getAgent().type() == type) { // &&&&&& add " && l.getAgent().type() == type" Apr 3
-			l.getAgent().die();
-		} else if (type < data.getAgentTypes()) {
-			if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
-				int agentType = type;
-				if (data.prisDilemma) {
-					// System.out.println("in select agent: Value of PrisDilemma
-					// is true");
-					// System.out.println("PrisDilemma: "+prisDilemma[0]);
-
-					action = 0;
-
-					double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static value for now $$$$$$ added for
-																				// the
-					// below else block.
-					float rnd = cobweb.globals.behaviorRandom.nextFloat();
-					// System.out.println("rnd: " + rnd);
-					// System.out.println("coopProb: " + coopProb);
-
-					if (rnd > coopProb)
-						action = 1; // agent defects depending on probability
-				}
-				// spammy
-				// System.out.println("type "+agentType);
-				new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default genetic
-				// sequence of agent
-				// type
-				theUI.writeOutput("Agent added at location (" + x + "," + y + "): type " + (agentType + 1) + "\n"); // $$$$$$
-																													// added
-																													// on
-																													// Apr
-																													// 3
-			}
-		}
-	}
-
-	@Override
-	public synchronized void selectFood(int x, int y, int type, cobweb.UIInterface theUI) {
-
-		cobweb.Environment.Location l;
-		l = getUserDefinedLocation(x, y);
-		if (l.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(l) == type) { // $$$$$$ add
-			// " && getFoodType(l) == type" Apr
-			// 3
-			l.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-			theUI.writeOutput("Food removed at location (" + x + "," + y + "): type " + (type + 1) + "\n"); // $$$$$$
-			// change
-			// from
-			// "+ ")\n");"
-			// Apr
-			// 3
-		} else if (// l.getAgent() == null && // $$$$$$ silence this condition, the food would be added under the agent.
-		// Apr 3
-		!(l.testFlag(ComplexEnvironment.FLAG_FOOD)) && !(l.testFlag(ComplexEnvironment.FLAG_STONE))) {
-			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-			setFoodType(l, type);
-		}
-		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
-		fillTileColors(tileColors);
-		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
-	}
-
-	/* JUST ADDED */
-	@Override
-	public synchronized void selectStones(int x, int y, cobweb.UIInterface theUI) {
-		cobweb.Environment.Location l;
-		l = getUserDefinedLocation(x, y);
-		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
-			l.setFlag(ComplexEnvironment.FLAG_STONE, false);
-			theUI.writeOutput("Stone removed at location (" + x + "," + y + ")\n");
-		} else if (l.getAgent() == null && !l.testFlag(ComplexEnvironment.FLAG_FOOD)
-				&& !l.testFlag(ComplexEnvironment.FLAG_STONE)) {
-			l.setFlag(ComplexEnvironment.FLAG_STONE, true);
-		} else {
-			return;
-		}
-		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
-		fillTileColors(tileColors);
-		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
-	}
-
-	/* //[]SK */
-
-	@Override
-	public void setclick(int click) {
-		clickcount = click;
-	}
-
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
 		ComplexAgent.setDefaultMutableParams(agentData);
@@ -1233,6 +1244,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	@Override
 	protected void setField(cobweb.Environment.Location l, int field, int value) {
+		// Nothing
 	}
 
 	/*
@@ -1348,6 +1360,15 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		if (observedAgent != null && !observedAgent.isAlive()) {
 			observedAgent = null;
 		}
+	}
+
+	public void tickZero() {
+		// Nothing
+	}
+
+	@Override
+	public void unObserve() {
+		// Nothing
 	}
 
 	private void updateWaste() {
@@ -1480,11 +1501,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			logStream.println();
 			logStream.println();
 		}
-	}
-
-	@Override
-	public void tickZero() {
-
 	}
 
 }

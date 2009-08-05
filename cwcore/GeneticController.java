@@ -18,9 +18,11 @@ public class GeneticController implements cobweb.Controller {
 	int commSize;
 
 	public void addClientAgent(cobweb.Agent a) {
+		// Nothing
 	}
 
 	public void removeClientAgent(cobweb.Agent a) {
+		// Nothing
 	}
 
 	/** sexual reproduction
@@ -62,7 +64,7 @@ public class GeneticController implements cobweb.Controller {
 	}
 
 	public GeneticController() {
-
+		// Nothing
 	}
 
 	public void setupFromEnvironment(int memory, int comm, CobwebParam params) {

@@ -15,10 +15,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -27,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.text.NumberFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -48,9 +45,11 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import cobweb.DrawingHandler;
 import cobweb.LocalUIInterface;
 import cobweb.UIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
+import cobweb.UIInterface.MouseMode;
 import cobweb.UIInterface.UIClient;
 import driver.config.GUI;
 
@@ -179,31 +178,29 @@ public class CobwebApplication extends JFrame implements UIClient {
 			} else if (e.getActionCommand().compareTo("Observation Mode") == 0) {
 				// pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				mode = 0;
+				displayPanel.setMouseMode(MouseMode.Observe);
 			} else if (e.getActionCommand().compareTo("Select Stones") == 0) {
 				// pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 				/* switch to stone selection mode */
-				mode = 1;
+				displayPanel.setMouseMode(MouseMode.AddStone);
 			} else if (e.getActionCommand().compareTo("Remove All") == 0) {
 				// pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 				/* remove all */
 				// $$$$$$ modified on Feb 29
 				if (uiPipe != null) {
-					mode = 0;
-					uiPipe.removeComponents(mode);
+					uiPipe.clearAgents();
+					uiPipe.clearFood();
+					uiPipe.clearStones();
 				}
-				// mode = 0;
-				// uiPipe.removeComponents(mode);
 			} else if (e.getActionCommand().compareTo("Remove All Stones") == 0) {
 				// pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 				/* remove all stones */
 				// $$$$$$ modified on Feb 29
 				if (uiPipe != null) {
-					mode = -1;
-					uiPipe.removeComponents(mode);
+					uiPipe.clearStones();
 				}
 				// mode = -1;
 				// uiPipe.removeComponents(mode);
@@ -213,8 +210,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				/* remove all food */
 				// $$$$$$ modified on Feb 29
 				if (uiPipe != null) {
-					mode = -2;
-					uiPipe.removeComponents(mode);
+					uiPipe.clearFood();
 				}
 				// mode = -2;
 				// uiPipe.removeComponents(mode);
@@ -224,8 +220,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				/* remove all agents */
 				// $$$$$$ modified on Feb 29
 				if (uiPipe != null) {
-					mode = -3;
-					uiPipe.removeComponents(mode);
+					uiPipe.clearAgents();
 				}
 				// mode = -3;
 				// uiPipe.removeComponents(mode);
@@ -237,8 +232,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				/* remove all agents */
 				// $$$$$$ modified on Feb 29
 				if (uiPipe != null) {
-					mode = -4;
-					uiPipe.removeComponents(mode);
+					uiPipe.clearWaste();
 				}
 				// mode = -4;
 				// uiPipe.removeComponents(mode);
@@ -250,14 +244,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 					// pauseUI(); // $$$$$$ Feb 12
 					disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 					/* switch to food selection mode */
-					mode = 2;
-					type = i;
+					displayPanel.setMouseMode(MouseMode.AddFood, i);
 				} else if (e.getActionCommand().compareTo("Agent Type " + (i + 1)) == 0) {
 					// pauseUI(); // $$$$$$ Feb 12
 					disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 					/* switch to agent selection mode */
-					mode = 3;
-					type = i;
+					displayPanel.setMouseMode(MouseMode.AddAgent, i);
 				}
 			}
 		}
@@ -271,74 +263,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 		// $$$$$$ A facilitating method to ensure the UI to pause. Feb 12
 		private void pauseUI() {
-			if (uiPipe != null && uiPipe.isPaused() == false) { // $$$$$$ changed from
+			if (uiPipe != null && uiPipe.isRunning()) { // $$$$$$ changed from
 				// "if (uiPipe.isPaused() == false) {", for the very
 				// first run. Feb 28
 				uiPipe.pause();
-				pauseButton.updateLabel();
+				pauseButton.repaint();
 			}
 		}
 	}
-
-	/**
-	 * Mouse event listener for the simulation display panel
-	 *
-	 */
-	private class Mouse extends MouseAdapter implements MouseListener, MouseMotionListener {
-
-		int storedX = -1;
-
-		int storedY = -1;
-
-		long storedTick = -1;
-
-		private void convertCoords(int x, int y) {
-			int realX = -1;
-			int realY = -1;
-			long realTick = uiPipe.getCurrentTime();
-			{
-				if (
-				/* Check the x-axis bounds */
-				x >= displayPanel.getBorderWidth()
-						&& x < (displayPanel.getTileW() * displayPanel.getWidthInTiles())
-								+ displayPanel.getBorderWidth()
-						&&
-						/* Check the y-axis bounds */
-						y >= displayPanel.getBorderHeight()
-						&& y < (displayPanel.getTileH() * displayPanel.getHeightInTiles())
-								+ displayPanel.getBorderHeight()) {
-					realX = (x - displayPanel.getBorderWidth()) / displayPanel.getTileW();
-					realY = (y - displayPanel.getBorderHeight()) / displayPanel.getTileH();
-					// Avoid flickering
-					if (storedX != realX || storedY != realY || storedTick != realTick) {
-						uiPipe.updateclick(realX, realY, mode, type);
-					}
-					// Update
-					storedX = realX;
-					storedY = realY;
-					storedTick = realTick;
-				}
-			}
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			convertCoords(e.getX(), e.getY());
-		}
-
-		@Override
-		public void mouseDragged(MouseEvent e) {
-			if (mode != 0) {
-				convertCoords(e.getX(), e.getY()); // $$$$$$ no need for observation mode. Mar 28
-			}
-		}
-
-		@Override
-		public void mouseMoved(MouseEvent e) {
-			// Java 1.5 MouseAdapter doesn't implement this
-		}
-
-	} // Mouse
 
 	private static final long serialVersionUID = 2112476687880153089L;
 
@@ -389,19 +321,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private cobweb.UIInterface uiPipe;
 
-	private DisplayPanel displayPanel;; // $$$$$$ added to avoid duplicately information lines shown in textWindow. Apr
+	private DisplayPanel displayPanel; // $$$$$$ added to avoid duplicately information lines shown in textWindow. Apr
 	// 1
 
 	private PauseButton pauseButton;
 
 	private StepButton stepButton;
-
-	private final Mouse mymouse = new Mouse();
-
-	/* selection mode */
-	private int mode = 0;
-
-	private int type = -1;
 
 	String newline = "\n";
 
@@ -475,7 +400,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 		/*** $$$$$$ For cancelling the output info text window, remove some codes in the field to the below block. Apr 22 */
 		myLogger.info(GREETINGS);
-
+		myLogger.info("JVM Memory: " + Runtime.getRuntime().maxMemory() / 1024 + "KB");
 
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -696,7 +621,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	// $$$$$$ get UI. Mar 14
-	public cobweb.UIInterface getUI() {
+	public UIInterface getUI() {
 		return uiPipe;
 	}
 
@@ -1015,7 +940,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 
-	public void refresh(UIInterface theUIInterface, boolean wait) {
+	public void refresh(DrawingHandler theUIInterface, boolean wait) {
 		if (displayPanel != null) {
 			displayPanel.refresh(wait);
 		}
@@ -1530,17 +1455,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 			}
 		});
 
-		// Mouse mymouse = new Mouse(); // $$$$$$ moved to this class's field to avoid duplicate mouse additions to
-		// displayPanel. Apr 1
-		displayPanel.addMouseListener(mymouse);
-		displayPanel.addMouseMotionListener(mymouse);
-		// addMouseListener(mymouse); // $$$$$$ do not know what for. silenced on Apr 1
-
 		uiPipe.setTimeStopField(tickField);
 
 		uiPipe.AddTickEventListener(new TickEventListener() {
 			public void TickPerformed(long currentTick) {
-				tickDisplay.setText("Tick: " + Long.toString(currentTick) + "  ");
+
+				tickDisplay.setText("Tick: " + NumberFormat.getIntegerInstance().format(currentTick));
 			}
 		});
 
@@ -1550,7 +1470,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		uiPipe.start();
 	} // end of UISettings
 
-	@Override
 	public boolean isReadyToRefresh() {
 		return displayPanel != null && displayPanel.isReadyToRefresh();
 	}

@@ -3,7 +3,6 @@ package temperature;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import cobweb.Environment;
 import cobweb.Environment.Location;
 import cobweb.params.ReflectionUtil;
 import cwcore.ComplexAgent;
@@ -16,15 +15,18 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	private TemperatureParams params;
 
 	public TemperatureMutator() {
-
+		// Nothing
 	}
 
 	public void setParams(TemperatureParams params, AgentFoodCountable env) {
 		this.params = params;
-
+		height = env.getHeight();
+		bandNumber = Math.min(TemperatureParams.TEMPERATURE_BANDS, height);
 	}
 
 	private static final Collection<String> blank = new LinkedList<String>();
+	private int bandNumber;
+	private int height;
 
 	public Collection<String> logDataAgent(int agentType) {
 		return blank;
@@ -43,7 +45,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	}
 
 	public void onDeath(ComplexAgent agent) {
-
+		// Nothing
 	}
 
 	public void onSpawn(ComplexAgent agent) {
@@ -83,7 +85,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	}
 
 	private float getTemp(Location loc) {
-		int lat = loc.v[1] * TemperatureParams.TEMPERATURE_BANDS / loc.getEnvironment().getSize(Environment.AXIS_Y);
+		int lat = loc.v[1] * bandNumber / height;
 		return params.tempBands[lat];
 	}
 

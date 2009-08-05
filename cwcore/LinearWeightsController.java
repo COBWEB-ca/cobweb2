@@ -43,8 +43,8 @@ public class LinearWeightsController implements cobweb.Controller {
 	private LinearWeightsControllerParams params;
 
 	public LinearWeightsController() {
-
-	};
+		// nothing
+	}
 
 	/*
 	 * (non-Javadoc)

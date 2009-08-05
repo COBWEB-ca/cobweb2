@@ -1,12 +1,13 @@
 package cwcore.legacy;
 
+import cobweb.DrawingHandler;
 import cobweb.Point2D;
 
 public class SimpleAgent extends cobweb.Agent implements
 		cobweb.TickScheduler.Client {
 
 	@Override
-	public void getDrawInfo(cobweb.UIInterface theUI) {
+	public void getDrawInfo(DrawingHandler theUI) {
 		theUI.newAgent(java.awt.Color.red, java.awt.Color.black,
 				new Point2D(getPosition().v[0], getPosition().v[1]),
 				new Point2D(facing.v[0], facing.v[1]));
@@ -14,6 +15,7 @@ public class SimpleAgent extends cobweb.Agent implements
 
 	@Override
 	public void setColor(java.awt.Color c) {
+		// Nothing
 	}
 
 	@Override
@@ -69,7 +71,7 @@ public class SimpleAgent extends cobweb.Agent implements
 	}
 
 	SimpleAgent(cobweb.Environment.Location pos) {
-		super(pos, new SimpleController());
+		super(new SimpleController());
 	}
 
 	@Override
@@ -89,8 +91,7 @@ public class SimpleAgent extends cobweb.Agent implements
 
 	private cobweb.Direction facing = cobweb.Environment.DIRECTION_NORTH;
 
-	@Override
 	public void tickZero() {
-
+		// Nothing
 	}
 }

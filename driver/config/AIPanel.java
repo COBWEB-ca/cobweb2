@@ -32,7 +32,7 @@ class AIPanel extends SettingsPanel {
 	private Parser parser;
 
 	public AIPanel() {
-
+		// Nothing
 	}
 
 	@Override

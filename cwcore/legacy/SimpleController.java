@@ -15,9 +15,11 @@ class SimpleController implements cobweb.Controller {
 	private static final long serialVersionUID = -5220765303102095303L;
 
 	public void addClientAgent(cobweb.Agent a) {
+		// Nothing
 	}
 
 	public void removeClientAgent(cobweb.Agent a) {
+		// Nothing
 	}
 
 	public void controlAgent(cobweb.Agent baseAgent) {
@@ -37,12 +39,15 @@ class SimpleController implements cobweb.Controller {
 
 
 	public void setupFromEnvironment(int memory, int comm, CobwebParam params) {
+		// Nothing
 	}
 
 	public void setupFromParent(Controller parent, float mutationRate) {
+		// Nothing
 	}
 
 	public void setupFromParents(Controller parent1, Controller parent2, float mutationRate) {
+		// Nothing
 	}
 
 

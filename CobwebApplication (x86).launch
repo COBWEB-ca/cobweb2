@@ -10,8 +10,7 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6 x64"/>
+<stringAttribute key="org.eclipse.jdt.launching.JRE_CONTAINER" value="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="driver.CobwebApplication"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cobweb2"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+UseParallelGC"/>
 </launchConfiguration>

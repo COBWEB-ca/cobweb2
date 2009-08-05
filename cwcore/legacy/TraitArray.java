@@ -65,6 +65,7 @@ public class TraitArray implements InnateArray {
 	}
 
 	/* Return a copy of this InnateArray. No mutation is performed. */
+	@SuppressWarnings("hiding")
 	public InnateArray copy(float mutationRate) {
 		return (InnateArray) this.clone();
 		/*
@@ -86,12 +87,11 @@ public class TraitArray implements InnateArray {
 
 	/* Set the Object at index "i" to "o". */
 	public void index(int i, Object o) {
-		if (array[i].getClass().getName().compareTo(o.getClass().getName()) != 0) {
+		if (!array[i].getClass().equals(o.getClass()))
 			throw new java.lang.ClassCastException("index(int i, Object o)"
 					+ ": o is of different type from array[i]");
-		} else {
-			array[i] = o;
-		}
+
+		array[i] = o;
 	}
 
 	/* Give random values to all of the variables in the array. */
@@ -111,11 +111,14 @@ public class TraitArray implements InnateArray {
 	 */
 	public InnateArray splice(InnateArray other) {
 		/* change of plans: gets all of one parents info */
+
+		InnateArray result;
 		if (cobweb.globals.behaviorRandom.nextFloat() < .5) {
-			return (InnateArray) this.clone();
+			result = (InnateArray) this.clone();
 		} else {
-			return (InnateArray) other.clone();
+			result = (InnateArray) other.clone();
 		}
+		return result;
 	}
 
 	/* Return the number of elements this InnateArray can hold. */

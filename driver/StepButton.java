@@ -15,32 +15,27 @@ public class StepButton extends JButton implements
 	private cobweb.UIInterface uiPipe;
 
 	public StepButton(cobweb.UIInterface theUI) {
+		super("Step");
 		uiPipe = theUI;
-		updateLabel();
 		addActionListener(this);
 	}
 
 	public void setUI(cobweb.UIInterface theUI) {
 		uiPipe = theUI;
-		updateLabel();
-	}
-
-	public void updateLabel() {
-		setText("Step");
 	}
 
 	// $$$$$$ Modified on Mar 14
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 		if  (uiPipe.isRunnable()) {
-			java.lang.Long stepTime = uiPipe.getCurrentTime();
+			long stepTime = uiPipe.getCurrentTime();
 			stepTime++;
 			JTextField textStepTime = uiPipe.getTimeStopField();
-			textStepTime.setText(stepTime.toString());
+			textStepTime.setText(Long.toString(stepTime));
 
-			if (uiPipe.isPaused()) {
-				uiPipe.resume();
-			} else {
+			if (uiPipe.isRunning()) {
 				uiPipe.pause();
+			} else {
+				uiPipe.resume();
 			}
 		}
 	}

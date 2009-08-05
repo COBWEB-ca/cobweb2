@@ -41,6 +41,7 @@ public class BoundJFormattedTextField extends JFormattedTextField implements Fie
 		return label;
 	}
 
+	@SuppressWarnings("boxing")
 	public void propertyChange(PropertyChangeEvent evt) {
 		try {
 			Object value = evt.getNewValue();

@@ -52,9 +52,9 @@ public class GeneticCodeTest extends TestCase {
 
 		assertEquals("10110100" + "01011010" + "00011110" + "00000000", gc.stringFromBits(0, 32));
 
-		assertEquals(0.0f, gc.getStatus(0));
-		assertEquals(1.0f, gc.getStatus(1));
-		assertEquals(2.0f, gc.getStatus(2));
+		assertEquals(0.0f, gc.getStatus(0), 0.000000000000001f);
+		assertEquals(1.0f, gc.getStatus(1), 0.000000000000001f);
+		assertEquals(2.0f, gc.getStatus(2), 0.000000000000001f);
 		assertEquals(0.0f, gc.getStatus(3), 0.000000000000001f);
 	}
 

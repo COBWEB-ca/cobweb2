@@ -24,9 +24,9 @@ public class TickScheduler extends Thread implements Scheduler {
 		public void tickZero();
 	}
 
-	private volatile boolean bPaused = true;
+	private volatile boolean running = false;
 
-	private volatile boolean bDone = true; // Thread.stop() is unsafe
+	private volatile boolean done = false;
 
 	private long frameSkip = 0;
 
@@ -48,7 +48,6 @@ public class TickScheduler extends Thread implements Scheduler {
 	 */
 	public TickScheduler(UIInterface ui, Parser p) {
 		this.setName("cobweb.TickScheduler");
-		bDone = false;
 		loadScheduler(ui, p);
 	}
 
@@ -80,14 +79,14 @@ public class TickScheduler extends Thread implements Scheduler {
 		return tickCount;
 	}
 
-	public boolean isSchedulerPaused() {
-		return bPaused;
+	public boolean isRunning() {
+		return running;
 	}
 
 	// Client management
 
 	public synchronized void killScheduler() {
-		bDone = true;
+		done = true;
 		notifyAll();
 	}
 
@@ -105,8 +104,8 @@ public class TickScheduler extends Thread implements Scheduler {
 	}
 
 	public synchronized void pauseScheduler() {
-		bPaused = true;
-		theUI.getPauseButton().updateLabel(); // $$$$$$ Mar 20
+		running = false;
+		theUI.refresh(true);
 	}
 
 	public synchronized void removeSchedulerClient(Object theClient) {
@@ -118,7 +117,7 @@ public class TickScheduler extends Thread implements Scheduler {
 	}
 
 	public synchronized void resumeScheduler() {
-		bPaused = false;
+		running = true;
 		notifyAll();
 	}
 
@@ -128,11 +127,11 @@ public class TickScheduler extends Thread implements Scheduler {
 		long frameCount = 0;
 
 		// Main loop
-		while (!bDone) {
+		while (!done) {
 			cwcore.ComplexAgent.dumpData(tickCount);
 			cwcore.ComplexAgent.clearData();
 
-			if (bPaused && !bDone) {
+			if (!running && !done) {
 				myWait(1000);
 			} else {
 				doTick();
@@ -147,7 +146,7 @@ public class TickScheduler extends Thread implements Scheduler {
 			}
 
 			// start doing something
-			if (!bPaused && slowdown != 0) {
+			if (running && slowdown != 0) {
 				myWait(slowdown);
 			}
 		}

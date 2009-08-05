@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package driver.config;
 
@@ -15,6 +15,6 @@ public class SeedRandomListener implements ActionListener {
 		this.box = box;
 	}
 	public void actionPerformed(ActionEvent e) {
-		box.setValue(Math.abs(new Random().nextLong() % 9999l));
+		box.setValue(new Long(Math.abs(new Random().nextLong() % 100000l)));
 	}
 }

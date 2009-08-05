@@ -69,6 +69,12 @@ public class GeneticCode {
 	 * @return similarity between "genes1" and "genes2" range: 0.0 - 1.0
 	 */
 	public static float compareGeneticSimilarity(GeneticCode gc1, GeneticCode gc2) {
+		if ((gc1 == null && gc2 != null) || (gc1 != null && gc2 == null))
+			return 0;
+
+		if (gc1 == gc2)
+			return 1;
+
 		int similarity_number = 0;
 		int length = Math.min(gc1.bytes * 8, gc2.bytes * 8);
 		int maxLen = Math.max(gc1.bytes * 8, gc2.bytes * 8);

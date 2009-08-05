@@ -38,12 +38,10 @@ public class TemperatureConfigPage implements ConfigPage {
 
 	}
 
-	@Override
 	public JPanel getPanel() {
 		return myPanel;
 	}
 
-	@Override
 	public void validateUI() throws IllegalArgumentException {
 		GUI.updateTable(this.bandsConf);
 		GUI.updateTable(agentTable);

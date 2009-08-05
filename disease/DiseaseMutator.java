@@ -77,11 +77,11 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 
 			sickCount[agent.type()]++;
 		}
-		sick.put(agent, isSick);
+		sick.put(agent, new Boolean(isSick));
 	}
 
 	public void onDeath(ComplexAgent agent) {
-		if (sick.remove(agent))
+		if (sick.remove(agent).booleanValue())
 			sickCount[agent.type()]--;
 	}
 
@@ -90,14 +90,14 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 	}
 
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
-		if (parent.isAlive() && sick.get(parent))
+		if (parent.isAlive() && sick.get(parent).booleanValue())
 			makeRandomSick(agent, params[agent.type()].childTransmitRate);
 		else
 			makeRandomSick(agent, 0);
 	}
 
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
-		if ((parent1.isAlive() && sick.get(parent1)) || (parent2.isAlive() && sick.get(parent2)))
+		if ((parent1.isAlive() && sick.get(parent1).booleanValue()) || (parent2.isAlive() && sick.get(parent2).booleanValue()))
 			makeRandomSick(agent, params[agent.type()].childTransmitRate);
 		else
 			makeRandomSick(agent, 0);
@@ -111,7 +111,9 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 	private void transmitBumpOneWay(ComplexAgent bumper, ComplexAgent bumpee) {
 		int tr = bumper.type();
 		int te = bumpee.type();
-		if (sick.get(bumper) && params[tr].transmitTo[te] && !sick.get(bumpee)) {
+		if (sick.get(bumper) == null || sick.get(bumpee) == null)
+			return;
+		if (sick.get(bumper).booleanValue() && params[tr].transmitTo[te] && !sick.get(bumpee).booleanValue()) {
 			makeRandomSick(bumpee, params[te].contactTransmitRate);
 		}
 	}

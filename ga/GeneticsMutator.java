@@ -25,6 +25,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 	private Map<ComplexAgent, GeneticCode> genes = new HashMap<ComplexAgent, GeneticCode>();
 
 	public GeneticsMutator() {
+		// Nothing
 	}
 
 	public GATracker getTracker() {
@@ -61,16 +62,21 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 
 
 	private GeneticCode getGene(ComplexAgent agent) {
+		if (!agent.isAlive())
+			return null;
+
 		GeneticCode gc = genes.get(agent);
-		if (gc == null) {
+		if (gc == null)
 			onSpawn(agent);
-		}
+
 		return gc;
 	}
 
 	public void onDeath(ComplexAgent agent) {
-		if (genes.containsKey(agent))
+		if (genes.containsKey(agent)) {
 			tracker.removeAgent(agent.type(), genes.get(agent));
+			genes.remove(agent);
+		}
 	}
 
 	public void onSpawn(ComplexAgent agent) {
@@ -135,7 +141,6 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 		return GeneticCode.compareGeneticSimilarity(getGene(a1), getGene(a2));
 	}
 
-	@Override
 	public Collection<String> logDataAgent(int agentType) {
 		List<String> s = new LinkedList<String>();
 		for (int i = 0; i < params.geneCount; i++) {
@@ -146,17 +151,14 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 
 	private static final Collection<String> blank = new LinkedList<String>();
 
-	@Override
 	public Collection<String> logDataTotal() {
 		return blank;
 	}
 
-	@Override
 	public Collection<String> logHeaderTotal() {
 		return blank;
 	}
 
-	@Override
 	public Collection<String> logHeadersAgent() {
 		List<String> s = new LinkedList<String>();
 		for (int i = 0; i < params.geneCount; i++) {

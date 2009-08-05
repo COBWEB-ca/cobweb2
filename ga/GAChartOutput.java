@@ -180,7 +180,7 @@ public class GAChartOutput implements ActionListener {
 	public void initGeneStatusDistributionRangeVector() {
 		for (int i = 0; i < GATracker.GENE_STATUS_DISTRIBUTION_SIZE; i++) {
 			// Rounding the number off to the 4 significand digits
-			gene_status_distribution_range[i] = new Double(Math.round(2*Math.abs(Math.sin(i*Math.PI/180)*10000)))/10000;
+			gene_status_distribution_range[i] = Math.round(2*Math.abs(Math.sin(i*Math.PI/180)*10000))/10000;
 		}
 	}
 
@@ -194,6 +194,7 @@ public class GAChartOutput implements ActionListener {
 	}
 
 	public void InitData() {
+		// Nothing
 	}
 
 	/** Update the gene_status_distribution data */

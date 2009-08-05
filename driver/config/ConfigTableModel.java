@@ -80,10 +80,14 @@ public class ConfigTableModel extends AbstractTableModel {
 
 		@Override
 		public String toString() {
+			String out;
+
 			if (!array)
-				return field.toString();
+				out = field.toString();
 			else
-				return field.toString() + "[" + index + "]";
+				out = field.toString() + "[" + index + "]";
+
+			return out;
 		}
 	}
 
@@ -117,14 +121,16 @@ public class ConfigTableModel extends AbstractTableModel {
 			return rowNames.get(row);
 
 		MyField mf = fields.get(row);
+		Object value;
 		try {
 			if (!mf.array)
-				return mf.field.get(data[col-1]);
+				value = mf.field.get(data[col-1]);
 			else
-				return Array.get(mf.field.get(data[col-1]), mf.index);
+				value = Array.get(mf.field.get(data[col-1]), mf.index);
 		} catch (IllegalAccessException ex) {
 			throw new RuntimeException("This field seems to be broken: " + mf.toString() , ex);
 		}
+		return value;
 	}
 
 	@Override

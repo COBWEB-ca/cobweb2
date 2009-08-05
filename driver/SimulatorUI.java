@@ -11,8 +11,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import cobweb.DrawingHandler;
 import cobweb.LocalUIInterface;
-import cobweb.UIInterface;
 import cobweb.Environment.EnvironmentStats;
 import cobweb.LocalUIInterface.TickEventListener;
 import cobweb.UIInterface.UIClient;
@@ -136,21 +136,18 @@ public class SimulatorUI extends JPanel implements UIClient {
 			}
 		});
 
-		//TODO: use mouse to click on grid
-
 		uiPipe.setPauseButton(pauseButton);
 
 		validate();
 		uiPipe.start();
 	}
 
-	public void refresh(UIInterface theInterface, boolean wait) {
+	public void refresh(DrawingHandler theInterface, boolean wait) {
 		if (displayPanel != null) {
 			displayPanel.refresh(wait);
 		}
 	}
 
-	@Override
 	public boolean isReadyToRefresh() {
 		return displayPanel != null && displayPanel.isReadyToRefresh();
 	}

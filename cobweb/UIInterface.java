@@ -22,31 +22,52 @@ package cobweb;
  * @see cobweb.LocalUIInterface
  */
 
-import java.util.List;
+import java.awt.Graphics;
+import java.io.IOException;
 
+import javax.swing.JButton;
 import javax.swing.JTextField;
 
-import cobweb.Environment.Location;
 import cobweb.LocalUIInterface.TickEventListener;
 import driver.Parser;
 
 public interface UIInterface {
+	public static enum MouseMode {
+		Observe,
+		AddStone, AddFood, AddAgent,
+		RemoveStone, RemoveFood, RemoveAgent
+	}
+
 	/**
 	 * This is the minimal interface that a client of the UIInterface must implement. This allows the UIInterface to
 	 * notify the client of new frame data.
 	 */
 	public static interface UIClient {
+		public boolean isReadyToRefresh();
+
 		/**
 		 * Notification that the UIInterface has new frame data.
 		 *
 		 * @param theInterface the UIInterface with new frame data
 		 */
-		public void refresh(UIInterface theInterface, boolean wait);
-
-		public boolean isReadyToRefresh();
+		public void refresh(DrawingHandler theInterface, boolean wait);
 	}
 
+	public void addAgent(int x, int y, int type);
+
+	public void addFood(int x, int y, int type);
+
+	public void addStone(int x, int y);
+
 	public void AddTickEventListener(TickEventListener listener);
+
+	public void clearAgents();
+
+	public void clearFood();
+
+	public void clearStones();
+
+	public void clearWaste();
 
 	/* returns the number of agents */
 	public int countAgentTypes();
@@ -58,7 +79,7 @@ public interface UIInterface {
 	 * @param tileWidth width, in pixels, of a single tile
 	 * @param tileHeight height, in pixels, of a single tile
 	 */
-	public void draw(java.awt.Graphics g, int tileWidth, int tileHeight);
+	public void draw(Graphics g, int tileWidth, int tileHeight);
 
 	/* get current time */
 	public long getCurrentTime();
@@ -68,7 +89,7 @@ public interface UIInterface {
 	 */
 	public int getHeight();
 
-	public driver.PauseButton getPauseButton();
+	public JButton getPauseButton();
 
 	/**
 	 * Returns the tick count being displayed.
@@ -88,7 +109,7 @@ public interface UIInterface {
 	/**
 	 * Query the pause state of the simulation.
 	 */
-	public boolean isPaused();
+	public boolean isRunning();
 
 	public boolean isRunnable();
 
@@ -97,38 +118,18 @@ public interface UIInterface {
 	 */
 	public void killScheduler();
 
-	public void load(UIInterface.UIClient client, Parser p);
+	public void load(UIClient client, Parser p);
 
 	/**
 	 * Request that the log information from the simulation be stored in the file specified.
 	 */
 	public void log(String filePath) throws java.io.IOException;
 
-	public void newAgent(java.awt.Color agentColor, java.awt.Color typeColor, java.awt.Color strategyColor,
-			Point2D position, Point2D facing);
-
-	/**
-	 * Inform the UI of the visual state of an agent.
-	 *
-	 * @param agentColor the colour of the agent.
-	 * @param outlineColor colour of agent's outline
-	 * @param position the tile position of the agent.
-	 * @param facing a direction vector for the facing direction of the agent. A facing of (0,0) means the agent has no
-	 *            facing direction.
+	/*
+	 * for interactive component selection : (int x, int y) location of the component int mode : 1 - stones 2-food
+	 * 3-agents int type : applies to type of food or agents, selected by the user.
 	 */
-	public void newAgent(java.awt.Color agentColor, java.awt.Color outlineColor, Point2D position,
-			Point2D facing);
-
-	public void newPath(List<Location> path);
-
-	/**
-	 * Inform the UI of a new tile color array.
-	 *
-	 * @param tileColors a width * height array of tile colors.
-	 * @param width grid width
-	 * @param height grid height
-	 */
-	public void newTileColors(int width, int height, java.awt.Color[] tileColors);
+	public void observe(int x, int y);
 
 	/**
 	 * Pause the simulation.
@@ -143,14 +144,15 @@ public interface UIInterface {
 	 */
 	public void refresh(boolean wait);
 
-	/*
-	 * removeComponents: mode 0 : remove all mode -1: remove stones mode -2: remove food mode -3: remove agents
-	 */
-	public void removeComponents(int mode);
+	public void removeAgent(int x, int y);
+
+	public void removeFood(int x, int y);
+
+	public void removeStone(int x, int y);
 
 	public void RemoveTickEventListener(TickEventListener listener);
 
-	public void report(String filePath) throws java.io.IOException;
+	public void report(String filePath) throws IOException;
 
 	public void reset();
 
@@ -163,7 +165,7 @@ public interface UIInterface {
 	 * Request that the state of the simulation be saved. Dumps the state of the simulation into the file specified. The
 	 * timing of this is a little tricky; the call blocks until such time as the simulation can safely be saved.
 	 */
-	public void save(String filePath) throws java.io.IOException;
+	public void save(String filePath) throws IOException;
 
 	/**
 	 * Set the number of frames between frame update notifications. The frame skip is the number of frames "dropped" by
@@ -175,7 +177,7 @@ public interface UIInterface {
 	 */
 	public void setFrameSkip(long frameSkip);
 
-	public void setPauseButton(driver.PauseButton pb);
+	public void setPauseButton(JButton pb);
 
 	public void setRunnable(boolean ready);
 
@@ -196,13 +198,9 @@ public interface UIInterface {
 	/**
 	 * Request that the trackAgent information from the simulation be stored in the file specified.
 	 */
-	public void trackAgent(String filePath) throws java.io.IOException;
+	public void trackAgent(String filePath) throws IOException;
 
-	/*
-	 * for interactive component selection : (int x, int y) location of the component int mode : 1 - stones 2-food
-	 * 3-agents int type : applies to type of food or agents, selected by the user.
-	 */
-	public int updateclick(int x, int y, int mode, int type);
+	public void unObserve();
 
 	/**
 	 * Called by the Scheduler when it is appropriate to update the log

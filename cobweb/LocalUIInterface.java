@@ -5,7 +5,6 @@ import ga.GeneticsMutator;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.lang.reflect.Constructor;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.swing.JButton;
 import javax.swing.JTextField;
 
 import temperature.TemperatureMutator;
@@ -24,7 +24,7 @@ import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
 import driver.Parser;
 
-public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Client {
+public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
 	/**
 	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo exists to make the data passed to
 	 * newAgent calls persist for subsequent draw calls. Note that this class is private to LocalUIInterface; no other
@@ -46,6 +46,10 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		 */
 		Point2D facing;
 
+		private int[] xPts = new int[3];
+
+		private int[] yPts = new int[3];
+
 		/** Construct an AgentDrawInfo, linked to nxt, with specified properties. */
 		AgentDrawInfo(java.awt.Color c, java.awt.Color t, java.awt.Color strat, Point2D p, Point2D f) {
 			agentColor = c;
@@ -61,8 +65,6 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 			int topLeftY = position.y * tileHeight;
 
 			if (facing.x != 0 || facing.y != 0) {
-				int[] xPts = null;
-				int[] yPts = null;
 				int deltaX = tileWidth / 2;
 				int deltaY = tileHeight / 2;
 				int centerX = topLeftX + deltaX;
@@ -71,14 +73,22 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 					// Diagonal; deal with this later
 				} else if (facing.x != 0) {
 					// Horizontal facing...
-					xPts = new int[] { centerX + facing.x * deltaX, centerX - facing.x * deltaX,
-							centerX - facing.x * deltaX };
-					yPts = new int[] { centerY, centerY + deltaY, centerY - deltaY };
+					xPts[0] = centerX + facing.x * deltaX;
+					xPts[1] = centerX - facing.x * deltaX;
+					xPts[2] = xPts[1];
+
+					yPts[0] = centerY;
+					yPts[1] = centerY + deltaY;
+					yPts[2] = centerY - deltaY;
 				} else {
 					// Vertical facing...
-					xPts = new int[] { centerX, centerX + deltaX, centerX - deltaX };
-					yPts = new int[] { centerY + facing.y * deltaY, centerY - facing.y * deltaY,
-							centerY - facing.y * deltaY };
+					xPts[0] = centerX;
+					xPts[1] = centerX + deltaX;
+					xPts[2] = centerX - deltaX;
+
+					yPts[0] = centerY + facing.y * deltaY;
+					yPts[1] = centerY - facing.y * deltaY;
+					yPts[2] = yPts[1];
 				}
 				g.fillPolygon(xPts, yPts, 3);
 				g.setColor(type);
@@ -108,8 +118,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		int height;
 
 		/**
-		 * width * height array of colors for the tiles; The color for a specific tile at (x,y) is
-		 * tileColors[y * width * + x]
+		 * width * height array of colors for the tiles; The color for a specific tile at (x,y) is tileColors[y * width
+		 * * + x]
 		 */
 		java.awt.Color[] tileColors;
 
@@ -117,6 +127,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		List<AgentDrawInfo> agents;
 
 		List<PathDrawInfo> paths;
+
+		private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 		/**
 		 * Construct a DrawInfo width specific width, height and tile colors. The tiles array is not copied; the caller
@@ -131,10 +143,9 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 			paths = new LinkedList<PathDrawInfo>();
 		}
 
-		private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
-
 		/** Draw the tiles and the agents. */
 		void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
+			// Tiles
 			int tileIndex = 0;
 			for (int y = 0; y < height; ++y) {
 				for (int x = 0; x < width; ++x) {
@@ -142,6 +153,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 					g.fillRect(x * tileWidth + 1, y * tileHeight + 1, tileWidth - 1, tileHeight - 1);
 				}
 			}
+
+			// Grid lines
 			g.setColor(COLOR_GRIDLINES);
 			for (int y = 0; y <= height; y++) {
 				g.drawLine(0, y * tileHeight, tileWidth * width, y * tileHeight);
@@ -150,19 +163,27 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 				g.drawLine(x * tileWidth, 0, x * tileWidth, tileHeight * height);
 			}
 
+			// Agents
 			for (AgentDrawInfo a : agents) {
 				a.draw(g, tileWidth, tileHeight);
 			}
 
+			// Paths
 			for (PathDrawInfo path : paths) {
 				path.draw(g, tileWidth, tileHeight);
 			}
 
+			int limit = Math.min(TemperatureParams.TEMPERATURE_BANDS, height);
+			// Temperature band labels
 			for (int y = 0; y < height; y++) {
-				int band = y * TemperatureParams.TEMPERATURE_BANDS / height;
-				g.setColor(colorMap.getColor(band + 0, 5));
+				int band = y * limit / height;
+				g.setColor(colorMap.getColor(band, 5));
+				int offset = (limit/2 - band) * 3 / -2;
 				for (int i = 0; i <= band; i++) {
-					g.drawLine(-3 - i * 3, y * tileHeight, -3 - i * 3, (y + 1) *tileHeight);
+					int x = (i + 2) * -3 + offset;
+					g.drawLine(
+							x - 1, y * tileHeight,
+							x, (y + 1) * tileHeight);
 				}
 			}
 		}
@@ -279,11 +300,17 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 
 	private long tickcounter = 0;
 
-	private driver.PauseButton pauseButton;
+	private JButton pauseButton;
 
 	private boolean runnable = false;
 
 	private TemperatureMutator tempMutator;
+
+	private GeneticsMutator geneticMutator;
+
+	private DiseaseMutator diseaseMutator;
+
+	Logger myLogger = Logger.getLogger("COBWEB2");
 
 	/**
 	 * Construct a LocalUIInterface from a specified state file URL.
@@ -309,9 +336,44 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		loadNewDataFile(0);
 	}
 
+	public void addAgent(int x, int y, int type) {
+		theEnvironment.addAgent(x, y, type);
+		refresh(false);
+	}
+
+	public void addFood(int x, int y, int type) {
+		theEnvironment.addFood(x, y, type);
+		refresh(false);
+	}
+
+	public void addStone(int x, int y) {
+		theEnvironment.addStone(x, y);
+		refresh(false);
+	}
+
 	public void AddTickEventListener(TickEventListener listener) {
 		tickListeners.add(listener);
 		listener.TickPerformed(myClock);
+	}
+
+	public void clearAgents() {
+		theEnvironment.clearAgents();
+		refresh(false);
+	}
+
+	public void clearFood() {
+		theEnvironment.clearFood();
+		refresh(false);
+	}
+
+	public void clearStones() {
+		theEnvironment.clearStones();
+		refresh(false);
+	}
+
+	public void clearWaste() {
+		theEnvironment.clearWaste();
+		refresh(false);
 	}
 
 	/* return number of TYPES of agents in the environment */
@@ -333,8 +395,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		// Don't synchronise the whole method; drawing could take a while,
 		// and the wait in refresh might want to acquire the monitor on a
 		// timeout.
-		//// ^ odd, works fine
-		//doRefreshNotification();
+		// // ^ odd, works fine
+		// doRefreshNotification();
 	}
 
 	// return current Parser being dealt with
@@ -358,7 +420,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		return theEnvironment.getSize(1);
 	}
 
-	public driver.PauseButton getPauseButton() {
+	public JButton getPauseButton() {
 		return pauseButton;
 	}
 
@@ -383,12 +445,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 	 * @return TextField TickField
 	 */
 	public JTextField getTimeStopField() {
-		if (stopTickField != null) {
-			return stopTickField; // return the TickField instance
-		} else {
-			return new JTextField(); // return a new "blank" instance
-			// of TextField
-		}
+		return stopTickField; // return the TickField instance
 	}
 
 	/**
@@ -408,11 +465,10 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 				// Use reflection to find a constructor taking a Scheduler parameter
 				// and a Reader
 				Constructor<?> environmentCtor = environmentClass.getConstructor();
-				if (environmentCtor == null) {
+				if (environmentCtor == null)
 					throw new InstantiationError("No valid constructor found on environment class.");
-				} else {
-					theEnvironment = (Environment) environmentCtor.newInstance();
-				}
+
+				theEnvironment = (Environment) environmentCtor.newInstance();
 			}
 			theEnvironment.load(theScheduler, p);
 		} catch (Exception ex) {
@@ -420,12 +476,6 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		}
 		Environment.setUIPipe(this);
 		updateEnvironmentDrawInfo();
-	}
-
-	private void updateEnvironmentDrawInfo() {
-		theEnvironment.getDrawInfo(this);
-		theDrawingInfo = newDrawingInfo;
-		newDrawingInfo = null;
 	}
 
 	/**
@@ -442,14 +492,17 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 			// Use reflection to find a constructor taking a UIInterface
 			// parameter and a Reader
 			Constructor<?> theCtor = schedulerClass.getConstructor(UIInterface.class, Parser.class);
-			if (theCtor == null) {
+			if (theCtor == null)
 				throw new InstantiationError("Correct constructor not found in " + schedulerName);
-			} else {
-				theScheduler = (Scheduler) theCtor.newInstance(this, p);
-			}
+
+			theScheduler = (Scheduler) theCtor.newInstance(this, p);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Cannot initialize scheduler", e);
 		}
+	}
+
+	public boolean isRunnable() {
+		return runnable;
 	}
 
 	/**
@@ -457,12 +510,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 	 *
 	 * @return the paused state flag of the simulation
 	 */
-	public boolean isPaused() {
-		return theScheduler.isSchedulerPaused();
-	}
-
-	public boolean isRunnable() {
-		return runnable;
+	public boolean isRunning() {
+		return theScheduler.isRunning();
 	}
 
 	/**
@@ -502,7 +551,6 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 
 		InitEnvironment("cwcore.ComplexEnvironment", p);
 
-
 		theScheduler.addSchedulerClient(this);
 		theScheduler.addSchedulerClient(geneticMutator.getTracker());
 
@@ -511,9 +559,6 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		theScheduler.startScheduler();
 		tickNotification(0);
 	}
-
-	private GeneticsMutator geneticMutator;
-	private DiseaseMutator diseaseMutator;
 
 	private void loadNewDataFile(int n) {
 		// System.out.println("Loading new file " + n); // $$$$$$ silenced on Apr 22
@@ -558,11 +603,17 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 
 	}
 
+	public void observe(int x, int y) {
+		theEnvironment.observe(x, y);
+		refresh(false);
+	}
+
 	/**
 	 * Pause the simulation. Calls pauseScheduler on the scheduler.
 	 */
 	public void pause() {
 		theScheduler.pauseScheduler();
+		refresh(true);
 	}
 
 	/**
@@ -572,6 +623,8 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 	 * @param wait Wait for refresh?
 	 */
 	public void refresh(boolean wait) {
+		if (wait && pauseButton != null)
+			pauseButton.repaint();
 		if (theClient == null || !theClient.isReadyToRefresh())
 			return;
 
@@ -581,9 +634,19 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		theClient.refresh(this, wait);
 	}
 
-	public void removeComponents(int mode) {
-		theEnvironment.remove(mode, this);
-		refresh(true);
+	public void removeAgent(int x, int y) {
+		theEnvironment.removeAgent(x, y);
+		refresh(false);
+	}
+
+	public void removeFood(int x, int y) {
+		theEnvironment.removeFood(x, y);
+		refresh(false);
+	}
+
+	public void removeStone(int x, int y) {
+		theEnvironment.removeStone(x, y);
+		refresh(false);
 	}
 
 	public void RemoveTickEventListener(TickEventListener listener) {
@@ -594,10 +657,10 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		// Open the Writer...
 		java.io.FileWriter outStream = new java.io.FileWriter(filePath);
 
-		boolean pauseState = isPaused();
+		boolean running = isRunning();
 
 		// Pause, if needed
-		if (!pauseState) {
+		if (running) {
 			pause();
 		}
 
@@ -608,7 +671,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		outStream.close();
 
 		// Resume, if needed
-		if (!pauseState) {
+		if (running) {
 			resume();
 		}
 	}
@@ -634,10 +697,10 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		// Open the Writer...
 		java.io.FileWriter outStream = new java.io.FileWriter(filePath);
 
-		boolean pauseState = isPaused();
+		boolean running = isRunning();
 
 		// Pause, if needed
-		if (!pauseState) {
+		if (running) {
 			pause();
 		}
 
@@ -651,7 +714,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		outStream.close();
 
 		// Resume, if needed
-		if (!pauseState) {
+		if (running) {
 			resume();
 		}
 	}
@@ -664,7 +727,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		theScheduler.setSchedulerFrameSkip(frameSkip);
 	}
 
-	public void setPauseButton(driver.PauseButton pb) {
+	public void setPauseButton(JButton pb) {
 		pauseButton = pb;
 	}
 
@@ -685,6 +748,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 	 * Start the simulation. Calls startScheduler on the scheduler.
 	 */
 	public void start() {
+		// Nothing
 	}
 
 	/** ********************************************************************** */
@@ -708,6 +772,10 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		}
 	}
 
+	public void tickZero() {
+		refresh(true);
+	}
+
 	public void trackAgent(String filePath) throws java.io.IOException {
 		// Open the writer...
 		java.io.FileWriter outStream = new java.io.FileWriter(filePath);
@@ -715,32 +783,15 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		ComplexEnvironment.trackAgent(outStream);
 	}
 
-	public int updateclick(int x, int y, int mode, int type) {
-		switch (mode) {
-			case 0: // no mode selected. i.e., we want to see this specific tile
-				theEnvironment.observe(x, y, this);
-				break;
-			case 1:
-				theEnvironment.selectStones(x, y, this);
-				break;
-			case 2:
-				theEnvironment.selectFood(x, y, type, this);
-				break;
-			case 3:
-				theEnvironment.selectAgent(x, y, type, this);
-				break;
-			default:
-				break;
-		}
-		try {
-			refresh(true);
-		} catch (ConcurrentModificationException ex) {
-			// Doesn't do anything bad, but a new agent might not show up if this exception occurs
-			// TODO: fix if possible
-		}
-		return 1;
+	public void unObserve() {
+		theEnvironment.unObserve();
 	}
 
+	private void updateEnvironmentDrawInfo() {
+		theEnvironment.getDrawInfo(this);
+		theDrawingInfo = newDrawingInfo;
+		newDrawingInfo = null;
+	}
 
 	/**
 	 * Write an entry into the log
@@ -749,14 +800,7 @@ public class LocalUIInterface implements UIInterface, cobweb.TickScheduler.Clien
 		theEnvironment.writeLogEntry();
 	}
 
-	Logger myLogger = Logger.getLogger("COBWEB2");
-
 	public void writeOutput(String s) {
 		myLogger.info(s);
-	}
-
-	@Override
-	public void tickZero() {
-		refresh(true);
 	}
 }

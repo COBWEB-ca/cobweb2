@@ -142,4 +142,14 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	}
 
 
+	public int getHeight() {
+		return height;
+	}
+
+
+	public int getWidth() {
+		return width;
+	}
+
+
 }

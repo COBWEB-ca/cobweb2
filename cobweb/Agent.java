@@ -27,15 +27,12 @@ public abstract class Agent {
 
 	protected long id;
 
-	protected Agent(Environment.Location pos, Controller ai) {
-		position = pos;
+	protected Agent(Controller ai) {
 		controller = ai;
 		controller.addClientAgent(this); // this currently does absolutely
 		// nothing for both simple and
 		// complex implementations of
 		// controller
-		position.setAgent(this);
-		position.getEnvironment().getScheduler().addSchedulerClient(this);
 
 		id = makeID();
 	}
@@ -48,8 +45,9 @@ public abstract class Agent {
 	 * Removes this Agent from the Environment.
 	 */
 	public void die() {
+		assert(isAlive());
 		if (!isAlive())
-			throw new IllegalStateException("Already dead!");
+			return;
 
 		position.setAgent(null);
 		alive = false;
@@ -73,7 +71,7 @@ public abstract class Agent {
 		return controller;
 	}
 
-	public abstract void getDrawInfo(UIInterface theUI);
+	public abstract void getDrawInfo(DrawingHandler theUI);
 
 	public int getEnergy() {
 		return -1;
