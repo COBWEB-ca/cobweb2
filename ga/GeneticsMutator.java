@@ -103,15 +103,19 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
 		GeneticCode genetic_code = null;
+		GeneticCode gc1 = getGene(parent1);
+		GeneticCode gc2 = getGene(parent2);
+		//TODO deal with nulls
+
 		switch (params.meiosisMode.mode) {
 			case ColourAveraging:
-				genetic_code = GeneticCode.createGeneticCodeMeiosisAverage(getGene(parent1), getGene(parent2));
+				genetic_code = GeneticCode.createGeneticCodeMeiosisAverage(gc1, gc2);
 				break;
 			case GeneSwapping:
-				genetic_code = GeneticCode.createGeneticCodeMeiosisGeneSwap(getGene(parent1), getGene(parent2));
+				genetic_code = GeneticCode.createGeneticCodeMeiosisGeneSwap(gc1, gc2);
 				break;
 			case RandomRecombination:
-				genetic_code = GeneticCode.createGeneticCodeMeiosisRecomb(getGene(parent1), getGene(parent2));
+				genetic_code = GeneticCode.createGeneticCodeMeiosisRecomb(gc1, gc2);
 				break;
 		}
 

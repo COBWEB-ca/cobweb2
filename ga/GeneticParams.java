@@ -235,6 +235,12 @@ public class GeneticParams extends AbstractReflectionParams {
 				}
 			}
 		}
+		for (int i = 0; i < geneValues.length; i++) {
+			for (int j = 0; j < geneValues[i].length; j++) {
+				if (geneValues[i][j] == null)
+					geneValues[i][j] = Integer.toBinaryString(30);
+			}
+		}
 
 		for (int i = 0; i < geneCount; i++) {
 			if (phenotype[i].field == null) {

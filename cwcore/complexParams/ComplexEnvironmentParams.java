@@ -92,7 +92,7 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	public float likeFoodProb;
 
 
-	@ConfDisplayName("Prisoner's dillema")
+	@ConfDisplayName("Prisoner's dilemma")
 	@ConfXMLTag("PrisDilemma")
 	public boolean prisDilemma;
 
@@ -104,8 +104,8 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	public PDParams pdParams;
 
 	public ComplexEnvironmentParams() {
-		agentTypeCount = 4;
-		foodTypeCount = 4;
+		agentTypeCount = 8;
+		foodTypeCount = 8;
 
 		schedulerName = TickScheduler.class.getName();
 		controllerName = GeneticController.class.getName();

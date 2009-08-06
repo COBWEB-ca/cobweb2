@@ -223,7 +223,7 @@ public class ComplexAgentInfo {
 	}
 
 	public static void resetGroupData() {
-		for (int i = 0; i < MAX_NUM_OF_AGENTS; i++) {
+		for (int i = 0; i < typesCount; i++) {
 			energies[i] = 0;
 			foodEnergies[i] = 0;
 			stepEnergies[i] = 0;
@@ -278,29 +278,55 @@ public class ComplexAgentInfo {
 	@SuppressWarnings("unused")
 	private static int[] cooperatingAgent;
 
-	private static int MAX_NUM_OF_AGENTS = 4;
+	private static int typesCount = 4;
 
-	private static int[] energies = new int[MAX_NUM_OF_AGENTS];
+	private static int[] energies;
 
-	private static int[] stepEnergies = new int[MAX_NUM_OF_AGENTS];
+	private static int[] stepEnergies;
 
-	private static int[] agentBumpEnergies = new int[MAX_NUM_OF_AGENTS];
+	private static int[] agentBumpEnergies;
 
-	private static int[] rockBumpEnergies = new int[MAX_NUM_OF_AGENTS];
+	private static int[] rockBumpEnergies;
 
-	private static int[] liveCount = new int[MAX_NUM_OF_AGENTS];
+	private static int[] liveCount;
 
-	private static int[] foodEnergies = new int[MAX_NUM_OF_AGENTS];
+	private static int[] foodEnergies;
 
-	private static int[] otherEnergySources = new int[MAX_NUM_OF_AGENTS];
+	private static int[] otherEnergySources;
 
-	private static int[] cannibalEnergies = new int[MAX_NUM_OF_AGENTS];
+	private static int[] cannibalEnergies;
 
-	private static int[] turningEnergies = new int[MAX_NUM_OF_AGENTS];
+	private static int[] turningEnergies;
 
-	private static int[] otherEnergySinks = new int[MAX_NUM_OF_AGENTS];
+	private static int[] otherEnergySinks;
 
-	private static int[] agentAgingEnergies = new int[MAX_NUM_OF_AGENTS];
+	private static int[] agentAgingEnergies;
+
+	public static void initialize(int agentCount) {
+		typesCount = agentCount;
+
+		energies = new int[typesCount];
+
+		stepEnergies = new int[typesCount];
+
+		agentBumpEnergies = new int[typesCount];
+
+		rockBumpEnergies = new int[typesCount];
+
+		liveCount = new int[typesCount];
+
+		foodEnergies = new int[typesCount];
+
+		otherEnergySources = new int[typesCount];
+
+		cannibalEnergies = new int[typesCount];
+
+		turningEnergies = new int[typesCount];
+
+		otherEnergySinks = new int[typesCount];
+
+		agentAgingEnergies = new int[typesCount];
+	}
 
 	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, ComplexAgentInfo p2, int strat) {
 		this.type = type;

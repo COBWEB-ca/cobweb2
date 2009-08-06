@@ -48,10 +48,16 @@ public class TemperatureParams implements CobwebParam {
 				NodeList nl2 = n.getChildNodes();
 				for (int j = 0; j < nl2.getLength(); j++) {
 					Node tt = nl2.item(j);
+					if (j >= env.getAgentTypes())
+						break;
 					agentParams[j] = new TemperatureAgentParams();
 					agentParams[j].loadConfig(tt);
 				}
 			}
+		}
+		for (int i = 0; i < agentParams.length; i++) {
+			if (agentParams[i] == null)
+				agentParams[i] = new TemperatureAgentParams();
 		}
 	}
 

@@ -75,7 +75,7 @@ public class LinearWeightsController implements cobweb.Controller {
 						/ (double) ComplexAgent.LOOK_DISTANCE : 0,
 				type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist)
 						/ (double) ComplexAgent.LOOK_DISTANCE : 0,
-				type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? (4.0 - dist) / 4.0 : 0,
+				type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? (ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0,
 				agent.getIntFacing() / 2, (double) agent.getMemoryBuffer() / (1 << memSize - 1),
 				(double) agent.getCommInbox() / (1 << commSize - 1), Math.max(agent.getAge() / 100.0, 2),
 				globals.behaviorRandom.nextGaussian() };

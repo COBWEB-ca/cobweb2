@@ -38,7 +38,7 @@ public class DiseaseParams extends AbstractReflectionParams {
 	@ConfXMLTag("childTransmitRate")
 	@ConfDisplayName("Child transmission rate")
 	public float childTransmitRate;
-	
+
 	@ConfXMLTag("parameter")
 	@ConfDisplayName("Parameter")
 	public Phenotype param;
@@ -81,6 +81,8 @@ public class DiseaseParams extends AbstractReflectionParams {
 					continue;
 
 				int id = Integer.parseInt(m.group(1)) - 1;
+				if (id >= env.getAgentTypes())
+					continue;
 				boolean transmit = Boolean.parseBoolean(tt.getTextContent());
 				transmitTo[id] = transmit;
 			}

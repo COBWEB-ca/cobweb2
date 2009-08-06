@@ -26,7 +26,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import temperature.TemperatureParams;
-
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
@@ -79,7 +78,7 @@ public class Parser {
 			diseaseParams[i] = new DiseaseParams(envParams);
 			diseaseParams[i].type = i;
 		}
-		
+
 		tempParams = new TemperatureParams(envParams);
 
 		try {
@@ -123,7 +122,7 @@ public class Parser {
 		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
 		for (int i = 0; i < envParams.getAgentTypes(); i++)
 			diseaseParams[i] = new DiseaseParams(envParams);
-		
+
 		tempParams = new TemperatureParams(envParams);
 
 		geneticParams = new GeneticParams(envParams);
@@ -144,6 +143,8 @@ public class Parser {
 				if (p.type < 0)
 					p.type = agent++;
 				p.pdMemory = envParams.pdMemorySize;
+				if (p.type >= envParams.getAgentTypes())
+					continue;
 				agentParams[p.type] = p;
 
 			} else if (nodeName.equals("food")) {
@@ -151,11 +152,27 @@ public class Parser {
 				p.loadConfig(node);
 				if (p.type < 0)
 					p.type = food++;
+
+				if (p.type >= envParams.getFoodTypes())
+					continue;
+
 				foodParams[p.type] = p;
 			} else if (nodeName.equals("disease")) {
 				parseDiseaseParams(node);
 			} else if (nodeName.equals("Temperature")) {
 				tempParams.loadConfig(node);
+			}
+		}
+		for (int i = 0; i < agentParams.length; i++) {
+			if (agentParams[i] == null) {
+				agentParams[i] = new ComplexAgentParams(envParams);
+				agentParams[i].type = i;
+			}
+		}
+		for (int i = 0; i < foodParams.length; i++) {
+			if (foodParams[i] == null) {
+				foodParams[i] = new ComplexFoodParams();
+				foodParams[i].type = i;
 			}
 		}
 	}
@@ -164,13 +181,15 @@ public class Parser {
 		NodeList nodes = root.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node n = nodes.item(i);
+			if (i >= envParams.getAgentTypes())
+				break;
 			DiseaseParams dp = new DiseaseParams(envParams);
 			dp.loadConfig(n);
 			diseaseParams[i] = dp;
 		}
-		for (int i = nodes.getLength(); i < diseaseParams.length; i++) {
-			DiseaseParams dp = new DiseaseParams(envParams);
-			diseaseParams[i] = dp;
+		for (int i = 0; i < diseaseParams.length; i++) {
+			if (diseaseParams[i] == null)
+				diseaseParams[i] = new DiseaseParams(envParams);
 		}
 	}
 
@@ -242,7 +261,7 @@ public class Parser {
 			disease.appendChild(node);
 		}
 		root.appendChild(disease);
-		
+
 		Node temp = d.createElement("Temperature");
 		tempParams.saveConfig(temp, d);
 		root.appendChild(temp);
@@ -265,7 +284,7 @@ public class Parser {
 			throw new RuntimeException(ex);
 		}
 	}
-	
+
 	private TemperatureParams tempParams;
 
 	public TemperatureParams getTempParams() {

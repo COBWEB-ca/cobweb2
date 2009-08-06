@@ -50,9 +50,13 @@ public class FoodwebParams implements CobwebParam {
 			Matcher m;
 			if ((m = AgentN.matcher(name)).matches()) {
 				int agent = Integer.parseInt(m.group(1)) - 1;
+				if (agent >= env.getAgentTypes())
+					continue;
 				canEatAgent[agent] = Boolean.parseBoolean(n.getFirstChild().getNodeValue());
 			} else if ((m = FoodN.matcher(name)).matches()) {
 				int food = Integer.parseInt(m.group(1)) - 1;
+				if (food >= env.getFoodTypes())
+					continue;
 				canEatFood[food] = Boolean.parseBoolean(n.getFirstChild().getNodeValue());
 			}
 		}

@@ -858,6 +858,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		mostFood = new int[data.getFoodTypes()];
 
 		setupLocationCache();
+		cwcore.ComplexAgentInfo.initialize(data.getAgentTypes());
 
 		if (wastearray == null || !data.keepOldWaste) {
 			loadNewWaste();
