@@ -58,14 +58,6 @@ public class GeneticConfigPage implements ConfigPage {
 			items.remove(item);
 			return item;
 		}
-
-		public T removeItem(int index) {
-			return items.remove(index);
-		}
-
-		public int length() {
-			return items.size();
-		}
 	}
 
 	/**

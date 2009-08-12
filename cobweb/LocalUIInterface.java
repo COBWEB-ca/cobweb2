@@ -108,9 +108,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * and LocalUIInterface reads DrawInfo members directly.
 	 */
 	private static class DrawInfo {
-		/** The tick we're drawing */
-		long tickCount;
-
 		/** Width of the frame info, in tiles */
 		int width;
 
@@ -137,7 +134,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		DrawInfo(int w, int h, long initTickCount, java.awt.Color[] tiles) {
 			width = w;
 			height = h;
-			tickCount = initTickCount;
 			tileColors = tiles;
 			agents = new LinkedList<AgentDrawInfo>();
 			paths = new LinkedList<PathDrawInfo>();
@@ -188,10 +184,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 			}
 		}
 
-		/** Get the tick count. */
-		long getTime() {
-			return tickCount;
-		}
 	}
 
 	private static class PathDrawInfo {
