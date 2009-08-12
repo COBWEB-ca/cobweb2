@@ -231,6 +231,8 @@ public class GeneticParams extends AbstractReflectionParams {
 				if (m.matches()) {
 					int agent = Integer.parseInt(m.group(1)) - 1;
 					int gene = Integer.parseInt(m.group(2)) - 1;
+					if (agent >= env.getAgentTypes() || gene >= geneCount)
+						continue;
 					geneValues[agent][gene] = n.getFirstChild().getNodeValue();
 				}
 			}

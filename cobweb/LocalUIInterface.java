@@ -196,8 +196,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	private static class PathDrawInfo {
 
-		public static PathDrawInfo pathDraw;
-
 		private final List<Location> path;
 
 		public PathDrawInfo(List<Location> path) {

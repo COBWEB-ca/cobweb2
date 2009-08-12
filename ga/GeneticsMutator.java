@@ -107,6 +107,15 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 		GeneticCode gc2 = getGene(parent2);
 		//TODO deal with nulls
 
+		if (gc1 == null && gc2 == null) {
+			gc1 = new GeneticCode(params.geneCount);
+			gc2 = new GeneticCode(params.geneCount);
+		} else if (gc1 == null) {
+			gc1 = gc2;
+		} else if (gc2 == null) {
+			gc2 = gc1;
+		}
+
 		switch (params.meiosisMode.mode) {
 			case ColourAveraging:
 				genetic_code = GeneticCode.createGeneticCodeMeiosisAverage(gc1, gc2);

@@ -144,8 +144,7 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 			}
 		} catch (ConcurrentModificationException ex) {
-			// Doesn't do anything bad, but a new agent might not show up if this exception occurs
-			// TODO LOW:  fix if possible
+			// TODO LOW: Doesn't do anything bad, but a new agent might not show up if this exception occurs fix if possible
 		}
 	}
 

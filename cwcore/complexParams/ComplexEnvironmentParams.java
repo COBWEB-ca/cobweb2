@@ -104,8 +104,8 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	public PDParams pdParams;
 
 	public ComplexEnvironmentParams() {
-		agentTypeCount = 8;
-		foodTypeCount = 8;
+		agentTypeCount = 4;
+		foodTypeCount = 4;
 
 		schedulerName = TickScheduler.class.getName();
 		controllerName = GeneticController.class.getName();
