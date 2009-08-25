@@ -44,17 +44,15 @@ public class Parser {
 
 	private ComplexEnvironmentParams envParams;
 
-	public Parser(InputStream file) {
-		this();
-		this.fileName = ":STREAM:" + file.toString() + ":";
-		loadFile(file);
-	}
+	private GeneticParams geneticParams;
 
-	public Parser(String fileName) throws FileNotFoundException {
-		this();
-		this.fileName = fileName;
-		loadFile(new FileInputStream(fileName));
-	}
+	private ComplexAgentParams[] agentParams;
+
+	private ComplexFoodParams[] foodParams;
+
+	private DiseaseParams[] diseaseParams;
+
+	private TemperatureParams tempParams;
 
 	public Parser() {
 		envParams = new ComplexEnvironmentParams();
@@ -88,11 +86,49 @@ public class Parser {
 		}
 	}
 
+	public Parser(InputStream file) {
+		this();
+		this.fileName = ":STREAM:" + file.toString() + ":";
+		loadFile(file);
+	}
+
+	public Parser(String fileName) throws FileNotFoundException {
+		this();
+		this.fileName = fileName;
+		loadFile(new FileInputStream(fileName));
+	}
+	public ComplexAgentParams[] getAgentParams() {
+		return agentParams;
+	}
+
+	public DiseaseParams[] getDiseaseParams() {
+		return diseaseParams;
+	}
+
+	public Document getDocument() {
+		return document;
+	}
+
+	public ComplexEnvironmentParams getEnvParams() {
+		return envParams;
+	}
+
 	public String getFilename() {
 		return fileName;
 	}
 
-	private GeneticParams geneticParams;
+	public ComplexFoodParams[] getFoodParams() {
+		return foodParams;
+	}
+
+	public GeneticParams getGeneticParams() {
+		return geneticParams;
+	}
+
+	public TemperatureParams getTempParams() {
+		return tempParams;
+	}
+
 
 	private void loadFile(InputStream file) throws IllegalArgumentException {
 
@@ -193,41 +229,11 @@ public class Parser {
 		}
 	}
 
-	private ComplexAgentParams[] agentParams;
-	private ComplexFoodParams[] foodParams;
-
-	private DiseaseParams[] diseaseParams;
-
-	public DiseaseParams[] getDiseaseParams() {
-		return diseaseParams;
-	}
-
-	public GeneticParams getGeneticParams() {
-		return geneticParams;
-	}
-
-	public ComplexEnvironmentParams getEnvParams() {
-		return envParams;
-	}
-
-	public ComplexAgentParams[] getAgentParams() {
-		return agentParams;
-	}
-
-	public ComplexFoodParams[] getFoodParams() {
-		return foodParams;
-	}
-
-	public Document getDocument() {
-		return document;
-	}
-
-
 	/**
 	 * Writes the information stored in this tree to an XML file, conforming to the rules of our spec.
 	 *
 	 */
-	public void write(OutputStream stream) throws IOException {
+	public void write(OutputStream stream) {
 		Document d;
 		try {
 			d = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -283,12 +289,6 @@ public class Parser {
 		} catch (TransformerException ex) {
 			throw new RuntimeException(ex);
 		}
-	}
-
-	private TemperatureParams tempParams;
-
-	public TemperatureParams getTempParams() {
-		return tempParams;
 	}
 
 } // Parser

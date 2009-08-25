@@ -25,12 +25,16 @@ import disease.DiseaseMutator;
 import driver.Parser;
 
 public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
+
 	/**
-	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo exists to make the data passed to
-	 * newAgent calls persist for subsequent draw calls. Note that this class is private to LocalUIInterface; no other
-	 * class (other than LocalUIInterface.DrawInfo) knows of the existence of this class.
+	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo
+	 * exists to make the data passed to newAgent calls persist for subsequent
+	 * draw calls. Note that this class is private to LocalUIInterface; no other
+	 * class (other than LocalUIInterface.DrawInfo) knows of the existence of
+	 * this class.
 	 */
 	private static class AgentDrawInfo {
+
 		/** Solid color of the agent. */
 		java.awt.Color agentColor;
 
@@ -42,7 +46,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		Point2D position;
 
 		/**
-		 * Facing vector; not normalized, but only the sign of each component is considered.
+		 * Facing vector; not normalised, but only the sign of each component is
+		 * considered.
 		 */
 		Point2D facing;
 
@@ -50,13 +55,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 		private int[] yPts = new int[3];
 
-		/** Construct an AgentDrawInfo, linked to nxt, with specified properties. */
-		AgentDrawInfo(java.awt.Color c, java.awt.Color t, java.awt.Color strat, Point2D p, Point2D f) {
-			agentColor = c;
-			type = t;
-			action = strat;
-			position = p;
-			facing = f;
+		private AgentDrawInfo(Color bodyColor, Color dotColor, Color borderColor, Point2D position, Point2D direction) {
+			agentColor = bodyColor;
+			type = dotColor;
+			action = borderColor;
+			this.position = position;
+			facing = direction;
 		}
 
 		void draw(Graphics g, int tileWidth, int tileHeight) {
@@ -102,12 +106,15 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * DrawInfo stores the frame data for the draw method to display. DrawInfo's are built by calling newTileColors and
-	 * newAgent in response to a getDrawInfo call on the Environment or on an Agent. Note that DrawInfo is a private
-	 * class, and only LocalUIInterface knows of it's existance. For this reason, DrawInfo is local to LocalUIInterface,
-	 * and LocalUIInterface reads DrawInfo members directly.
+	 * DrawInfo stores the frame data for the draw method to display. DrawInfo's
+	 * are built by calling newTileColors and newAgent in response to a
+	 * getDrawInfo call on the Environment or on an Agent. Note that DrawInfo is
+	 * a private class, and only LocalUIInterface knows of it's existence. For
+	 * this reason, DrawInfo is local to LocalUIInterface, and LocalUIInterface
+	 * reads DrawInfo members directly.
 	 */
 	private static class DrawInfo {
+
 		/** Width of the frame info, in tiles */
 		int width;
 
@@ -115,8 +122,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		int height;
 
 		/**
-		 * width * height array of colors for the tiles; The color for a specific tile at (x,y) is tileColors[y * width
-		 * * + x]
+		 * width * height array of colors for the tiles; The color for a
+		 * specific tile at (x,y) is tileColors[y * width * + x]
 		 */
 		java.awt.Color[] tileColors;
 
@@ -128,10 +135,11 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 		/**
-		 * Construct a DrawInfo width specific width, height and tile colors. The tiles array is not copied; the caller
-		 * is assumed to "give" the array to the drawing info, and not keep any local references around.
+		 * Construct a DrawInfo width specific width, height and tile colors.
+		 * The tiles array is not copied; the caller is assumed to "give" the
+		 * array to the drawing info, and not keep any local references around.
 		 */
-		DrawInfo(int w, int h, long initTickCount, java.awt.Color[] tiles) {
+		DrawInfo(int w, int h, java.awt.Color[] tiles) {
 			width = w;
 			height = h;
 			tileColors = tiles;
@@ -174,12 +182,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 			for (int y = 0; y < height; y++) {
 				int band = y * limit / height;
 				g.setColor(colorMap.getColor(band, 5));
-				int offset = (limit/2 - band) * 3 / -2;
+				int offset = (limit / 2 - band) * 3 / -2;
 				for (int i = 0; i <= band; i++) {
 					int x = (i + 2) * -3 + offset;
-					g.drawLine(
-							x - 1, y * tileHeight,
-							x, (y + 1) * tileHeight);
+					g.drawLine(x - 1, y * tileHeight, x, (y + 1) * tileHeight);
 				}
 			}
 		}
@@ -248,6 +254,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	public static interface TickEventListener {
+
 		public void TickPerformed(long currentTick);
 	}
 
@@ -260,8 +267,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	private final Set<TickEventListener> tickListeners = new LinkedHashSet<TickEventListener>();
 
 	/**
-	 * This is the frame data under construction by setAgent calls. Constructed in a seperate member from the finished
-	 * frame data so a refresh can occur while a draw is happening.
+	 * This is the frame data under construction by setAgent calls. Constructed
+	 * in a separate member from the finished frame data so a refresh can occur
+	 * while a draw is happening.
 	 */
 	private volatile DrawInfo newDrawingInfo;
 
@@ -304,11 +312,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/**
 	 * Construct a LocalUIInterface from a specified state file URL.
-	 *
-	 * Any failure to load the state file, either from file/network input errors, a badly formed state file, or a class
-	 * specified in the data file being unknown will result in a InstantiationError being thrown with a descriptive and
-	 * appropriate message string.
-	 *
+	 * 
+	 * Any failure to load the state file, either from file/network input
+	 * errors, a badly formed state file, or a class specified in the data file
+	 * being unknown will result in a InstantiationError being thrown with a
+	 * descriptive and appropriate message string.
+	 * 
 	 * @param client the UIClient to notify of new frame data.
 	 * @param p configuration
 	 */
@@ -328,17 +337,14 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	public void addAgent(int x, int y, int type) {
 		theEnvironment.addAgent(x, y, type);
-		refresh(false);
 	}
 
 	public void addFood(int x, int y, int type) {
 		theEnvironment.addFood(x, y, type);
-		refresh(false);
 	}
 
 	public void addStone(int x, int y) {
 		theEnvironment.addStone(x, y);
-		refresh(false);
 	}
 
 	public void AddTickEventListener(TickEventListener listener) {
@@ -348,22 +354,18 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	public void clearAgents() {
 		theEnvironment.clearAgents();
-		refresh(false);
 	}
 
 	public void clearFood() {
 		theEnvironment.clearFood();
-		refresh(false);
 	}
 
 	public void clearStones() {
 		theEnvironment.clearStones();
-		refresh(false);
 	}
 
 	public void clearWaste() {
 		theEnvironment.clearWaste();
-		refresh(false);
 	}
 
 	/* return number of TYPES of agents in the environment */
@@ -373,12 +375,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/**
 	 * Display the most recent frame data.
-	 *
+	 * 
 	 * @param g Graphics to render to
 	 * @param tileWidth width, in pixels, of a single tile
 	 * @param tileHeight height, in pixels, of a single tile
 	 */
-	public synchronized void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
+	public void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
 		if (theDrawingInfo != null) {
 			theDrawingInfo.draw(g, tileWidth, tileHeight);
 		}
@@ -403,8 +405,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/**
 	 * Returns the height, in tiles, of the environment.
-	 *
-	 * @return 0 if there is no valid frame data, otherwise returns the height of the frame data.
+	 * 
+	 * @return 0 if there is no valid frame data, otherwise returns the height
+	 *         of the frame data.
 	 */
 	public int getHeight() {
 		return theEnvironment.getSize(1);
@@ -440,8 +443,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/**
 	 * Returns the width, in tiles, of the environment.
-	 *
-	 * @return 0 if there is no valid frame data, otherwise returns the width of the frame data.
+	 * 
+	 * @return 0 if there is no valid frame data, otherwise returns the width of
+	 *         the frame data.
 	 */
 
 	public int getWidth() {
@@ -452,7 +456,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		try {
 			if (theEnvironment == null) {
 				Class<?> environmentClass = Class.forName(environmentName);
-				// Use reflection to find a constructor taking a Scheduler parameter
+				// Use reflection to find a constructor taking a Scheduler
+				// parameter
 				// and a Reader
 				Constructor<?> environmentCtor = environmentClass.getConstructor();
 				if (environmentCtor == null)
@@ -469,8 +474,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Initialize the specified Scheduler class with state data read from the Reader. This is a private helper to the
-	 * LocalUIInterface constructor.
+	 * Initialize the specified Scheduler class with state data read from the
+	 * Reader. This is a private helper to the LocalUIInterface constructor.
 	 */
 	private void InitScheduler(String schedulerName, Parser p) {
 		try {
@@ -497,7 +502,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/**
 	 * Is the simulation paused? Calls isSchedulerPaused on the scheduler.
-	 *
+	 * 
 	 * @return the paused state flag of the simulation
 	 */
 	public boolean isRunning() {
@@ -512,8 +517,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Initialize the specified environment class with state data read from the Reader. This is a private helper to the
-	 * LocalUIInterface constructor.
+	 * Initialize the specified environment class with state data read from the
+	 * Reader. This is a private helper to the LocalUIInterface constructor.
 	 */
 	public void load(UIInterface.UIClient client, Parser p) {
 		theClient = client;
@@ -551,14 +556,15 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	private void loadNewDataFile(int n) {
-		// System.out.println("Loading new file " + n); // $$$$$$ silenced on Apr 22
+		// System.out.println("Loading new file " + n); // $$$$$$ silenced on
+		// Apr 22
 		this.load(theClient, parsedfiles[n]);
 		currentParser = parsedfiles[n];
 	}
 
 	/**
 	 * Set the log file.
-	 *
+	 * 
 	 * @see cobweb.UIInterface#log
 	 */
 	public void log(String filePath) throws java.io.IOException {
@@ -568,20 +574,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		theEnvironment.log(outStream);
 	}
 
-	public synchronized void newAgent(java.awt.Color agentColor, java.awt.Color typeColor,
+	public void newAgent(java.awt.Color agentColor, java.awt.Color typeColor,
 			java.awt.Color strategyColor, Point2D position, Point2D facing) {
 		newDrawingInfo.agents.add(new AgentDrawInfo(agentColor, typeColor, strategyColor, position, facing));
 	}
 
-	/**
-	 * Notify the UI of agent drawing information.
-	 */
-	public synchronized void newAgent(java.awt.Color agentColor, java.awt.Color strategyColor, Point2D position,
-			Point2D facing) {
-		newDrawingInfo.agents.add(new AgentDrawInfo(agentColor, agentColor, strategyColor, position, facing));
-	}
-
-	public synchronized void newPath(List<Location> path) {
+	public void newPath(List<Location> path) {
 		newDrawingInfo.paths.add(new PathDrawInfo(path));
 	}
 
@@ -589,13 +587,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * Notify the UI of new tile colors.
 	 */
 	public void newTileColors(int width, int height, java.awt.Color[] tileColors) {
-		newDrawingInfo = new DrawInfo(width, height, theScheduler.getTime(), tileColors);
+		newDrawingInfo = new DrawInfo(width, height, tileColors);
 
 	}
 
 	public void observe(int x, int y) {
 		theEnvironment.observe(x, y);
-		refresh(false);
 	}
 
 	/**
@@ -607,9 +604,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Inform the UI that new frame data is available. Calls getDrawInfo on the environment, then informs the client
-	 * that the frame data has been updated.
-	 *
+	 * Inform the UI that new frame data is available. Calls getDrawInfo on the
+	 * environment, then informs the client that the frame data has been
+	 * updated.
+	 * 
 	 * @param wait Wait for refresh?
 	 */
 	public void refresh(boolean wait) {
@@ -619,24 +617,23 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 			return;
 
 		updateEnvironmentDrawInfo();
-		// Wait for refresh calls theClient.refresh... if it didn't we'd have a race condition between
-		// the UI thread that refreshes and this thread which waits for the refresh.
+		// Wait for refresh calls theClient.refresh... if it didn't we'd have a
+		// race condition between
+		// the UI thread that refreshes and this thread which waits for the
+		// refresh.
 		theClient.refresh(this, wait);
 	}
 
 	public void removeAgent(int x, int y) {
 		theEnvironment.removeAgent(x, y);
-		refresh(false);
 	}
 
 	public void removeFood(int x, int y) {
 		theEnvironment.removeFood(x, y);
-		refresh(false);
 	}
 
 	public void removeStone(int x, int y) {
 		theEnvironment.removeStone(x, y);
-		refresh(false);
 	}
 
 	public void RemoveTickEventListener(TickEventListener listener) {
@@ -671,7 +668,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Resume the simulation from a paused state. Calls resumeScheduler on the scheduler.
+	 * Resume the simulation from a paused state. Calls resumeScheduler on the
+	 * scheduler.
 	 */
 	public void resume() {
 		theScheduler.resumeScheduler();
@@ -679,10 +677,11 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/**
 	 * Save the state of the simulation.
-	 *
+	 * 
 	 * @see cobweb.UIInterface#save
 	 */
-	// $$$$$ Method save used to be invoked by the now silenced method CobwebApplication.saveFile
+	// $$$$$ Method save used to be invoked by the now silenced method
+	// CobwebApplication.saveFile
 	public void save(String filePath) throws java.io.IOException {
 		// Open the Writer...
 		java.io.FileWriter outStream = new java.io.FileWriter(filePath);
@@ -710,8 +709,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Sets the number of frames "dropped" between updates of the frame data. Calls setSchedulerFrameSkip on the
-	 * scheduler.
+	 * Sets the number of frames "dropped" between updates of the frame data.
+	 * Calls setSchedulerFrameSkip on the scheduler.
 	 */
 	public void setFrameSkip(long frameSkip) {
 		theScheduler.setSchedulerFrameSkip(frameSkip);

@@ -37,7 +37,7 @@ public class BoundJFormattedTextField extends JFormattedTextField implements Fie
 		this.addPropertyChangeListener("value", this);
 	}
 
-	public String getLabel() {
+	public String getLabelText() {
 		return label;
 	}
 

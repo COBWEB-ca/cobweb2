@@ -1,6 +1,7 @@
 package cobweb;
 
 public class ArrayEnvironment {
+
 	private int width;
 
 	private int height;

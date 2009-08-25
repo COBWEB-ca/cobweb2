@@ -240,7 +240,7 @@ public class GUI extends JFrame {
 		controllerPanel.bindToParser(p);
 		tabbedPane.addTab("AI", controllerPanel);
 
-		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), p.getEnvParams());
+		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams());
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
 		tempPage = new TemperatureConfigPage(p.getTempParams());

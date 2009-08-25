@@ -65,15 +65,15 @@ public class EnvironmentConfigPage implements ConfigPage {
 		JPanel fieldPane = new JPanel();
 
 		Width = new BoundJFormattedTextField(params, "width", NumberFormat.getIntegerInstance());
-		fieldPane.add(new JLabel(Width.getLabel()));
+		fieldPane.add(new JLabel(Width.getLabelText()));
 		fieldPane.add(Width);
 
 		Height = new BoundJFormattedTextField(params, "height", NumberFormat.getIntegerInstance());
-		fieldPane.add(new JLabel(Height.getLabel()));
+		fieldPane.add(new JLabel(Height.getLabelText()));
 		fieldPane.add(Height);
 
 		wrap = new BoundCheckBox(params, "wrapMap");
-		fieldPane.add(new JLabel(wrap.getLabel()));
+		fieldPane.add(new JLabel(wrap.getLabelText()));
 		fieldPane.add(wrap);
 
 		panel11.add(fieldPane, BorderLayout.CENTER);
@@ -88,11 +88,11 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane = new JPanel(new GridLayout(3, 1));
 
 		PrisDilemma = new BoundCheckBox(params, "prisDilemma");
-		fieldPane.add(new JLabel(PrisDilemma.getLabel()));
+		fieldPane.add(new JLabel(PrisDilemma.getLabelText()));
 		fieldPane.add(PrisDilemma);
 
 		memory_size = new BoundJFormattedTextField(params, "pdMemorySize", NumberFormat.getIntegerInstance());
-		fieldPane.add(new JLabel(memory_size.getLabel()));
+		fieldPane.add(new JLabel(memory_size.getLabelText()));
 		fieldPane.add(memory_size);
 
 		makeOptionsTable(fieldPane, 2);
@@ -108,23 +108,23 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 
 		keepOldAgents = new BoundCheckBox(params, "keepOldAgents");
-		fieldPane.add(new JLabel(keepOldAgents.getLabel()));
+		fieldPane.add(new JLabel(keepOldAgents.getLabelText()));
 		fieldPane.add(keepOldAgents);
 
 		spawnNewAgents = new BoundCheckBox(params, "spawnNewAgents");
-		fieldPane.add(new JLabel(spawnNewAgents.getLabel()));
+		fieldPane.add(new JLabel(spawnNewAgents.getLabelText()));
 		fieldPane.add(spawnNewAgents);
 
 		keepOldArray = new BoundCheckBox(params, "keepOldArray");
-		fieldPane.add(new JLabel(keepOldArray.getLabel()));
+		fieldPane.add(new JLabel(keepOldArray.getLabelText()));
 		fieldPane.add(keepOldArray);
 
 		keepOldWaste = new BoundCheckBox(params, "keepOldWaste");
-		fieldPane.add(new JLabel(keepOldWaste.getLabel()));
+		fieldPane.add(new JLabel(keepOldWaste.getLabelText()));
 		fieldPane.add(keepOldWaste);
 
 		keepOldPackets = new BoundCheckBox(params, "keepOldPackets");
-		fieldPane.add(new JLabel(keepOldPackets.getLabel()));
+		fieldPane.add(new JLabel(keepOldPackets.getLabelText()));
 		fieldPane.add(keepOldPackets);
 		makeOptionsTable(fieldPane, 5);
 
@@ -161,13 +161,13 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane = new JPanel(new GridLayout(3, 1));
 
 		initialStones = new BoundJFormattedTextField(params, "initialStones", NumberFormat.getIntegerInstance());
-		fieldPane.add(new JLabel(initialStones.getLabel()));
+		fieldPane.add(new JLabel(initialStones.getLabelText()));
 		fieldPane.add(initialStones);
 
 		randomSeed = new BoundJFormattedTextField(params, "randomSeed", NumberFormat.getIntegerInstance());
 		JButton makeRandom = new JButton("Generate");
 		makeRandom.addActionListener(new SeedRandomListener(randomSeed));
-		fieldPane.add(new JLabel(randomSeed.getLabel()));
+		fieldPane.add(new JLabel(randomSeed.getLabelText()));
 		fieldPane.add(randomSeed);
 		fieldPane.add(new JPanel());
 		fieldPane.add(makeRandom);
@@ -183,11 +183,11 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane = new JPanel(new GridLayout(2, 1));
 
 		dropNewFood = new BoundCheckBox(params, "dropNewFood");
-		fieldPane.add(new JLabel(dropNewFood.getLabel()));
+		fieldPane.add(new JLabel(dropNewFood.getLabelText()));
 		fieldPane.add(dropNewFood);
 
 		maxFoodChance = new BoundJFormattedTextField(params, "likeFoodProb", NumberFormat.getInstance());
-		fieldPane.add(new JLabel(maxFoodChance.getLabel()));
+		fieldPane.add(new JLabel(maxFoodChance.getLabelText()));
 		fieldPane.add(maxFoodChance);
 
 		panel16.add(fieldPane, BorderLayout.EAST);

@@ -7,6 +7,7 @@ package cobweb;
  *
  */
 public class Point2D {
+
 	int x;
 	int y;
 

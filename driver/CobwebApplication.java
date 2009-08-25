@@ -55,10 +55,6 @@ import driver.config.GUI;
 
 public class CobwebApplication extends JFrame implements UIClient {
 
-	private static final String MODIFY_THIS_FILE = "Modify Simulation File";
-
-	private static final String MODIFY_CURRENT_DATA = "Modify Simulation";
-
 	private class CobwebEventListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
@@ -136,7 +132,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				if (uiPipe == null) {
 					JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
 							// specifically for MS Windows. Feb 22
-							"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
+					"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
 				} else if (uiPipe.getCurrentTime() != 0) {
 					JOptionPane.showMessageDialog(
 							CA, // $$$$$$ change from "displayPanel" to "GUI.frame" specifically for MS Windows. Feb 22
@@ -170,7 +166,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				if (uiPipe == null) {
 					JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
 							// specifically for MS Windows. Feb 22
-							"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
+					"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
 				} else {
 					CobwebApplication.this.reportDialog();
 				}
@@ -272,6 +268,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	private static final String MODIFY_THIS_FILE = "Modify Simulation File";
+
+	private static final String MODIFY_CURRENT_DATA = "Modify Simulation";
+
 	private static final long serialVersionUID = 2112476687880153089L;
 
 	static CobwebApplication CA;
@@ -358,7 +358,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(handler);
 
-		CA = new CobwebApplication(args);
+		CA = new CobwebApplication();
 		if (args.length > 0) {
 			CA.inputFile = args[0];
 		} else {
@@ -395,7 +395,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	JPanel controls;
 
 	// constructor
-	CobwebApplication(String[] param) {
+	private CobwebApplication() {
 		super("Cobweb Application");
 
 		/*** $$$$$$ For cancelling the output info text window, remove some codes in the field to the below block. Apr 22 */
@@ -495,12 +495,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		File inf = new File(newInput);
 		if (inf.isHidden() != false || ((inf.exists() != false) && (inf.canWrite() == false))) {
 			JOptionPane
-					.showMessageDialog(
-							GUI.frame, // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows. Feb 22
-							"Caution:  The new data file \""
-									+ newInput
-									+ "\" is NOT allowed to be modified.\n"
-									+ "\n                  Any modification of this data file will be neither implemented nor saved.");
+			.showMessageDialog(
+					GUI.frame, // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows. Feb 22
+					"Caution:  The new data file \""
+					+ newInput
+					+ "\" is NOT allowed to be modified.\n"
+					+ "\n                  Any modification of this data file will be neither implemented nor saved.");
 		}
 		/*
 		 * // resets the counter to 0. There is no other work needing to be // done in the UI because // the UI
@@ -591,7 +591,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			public void actionPerformed(ActionEvent evt) {
 				String[] S = { "Update & Additional Programming By", "", "Jin Soo Kang",
 						"Undergraduate, Computer Science", "University of Toronto", "jin.kang@utoronto.ca",
-						"[2000 - 2001]" };
+				"[2000 - 2001]" };
 
 				CobwebApplication.this.creditDialog(theDialog, S, 300, 250); // $$$$$$ change from "this" to
 				// parentDialog. Feb 22
@@ -628,6 +628,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 	// $$$$$$ Implemented on Mar 14
 	public boolean isInvokedByModify() {
 		return invokedByModify;
+	}
+
+	public boolean isReadyToRefresh() {
+		return displayPanel != null && displayPanel.isReadyToRefresh();
 	}
 
 	public void logFile(String filePath) {
@@ -844,8 +848,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 				Object[] options = { "Yes, please", "No, thanks" };
 				int n = JOptionPane.showOptionDialog(GUI.frame,
 						"Default data would not be affected by \"Modify This File\" menu.\n"
-								+ "\nTo set up new default data, please use \"Set Default Data\" menu instead.\n"
-								+ "\n\nWould you like to be reminded next time?", "Modifying Default Data Reminder",
+						+ "\nTo set up new default data, please use \"Set Default Data\" menu instead.\n"
+						+ "\n\nWould you like to be reminded next time?", "Modifying Default Data Reminder",
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, // do not use a custom Icon
 						options, // the titles of buttons
 						options[0]); // default button titl
@@ -928,6 +932,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+
 	/*
 	 * public void trackAgentFile(String filePath) { uiPipe
 	 * .writeToTextWindow("Track Agent is disabled for now! Please use the logging function instead.\n"); }
@@ -938,7 +943,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 		System.exit(0);
 	}
-
 
 	public void refresh(DrawingHandler theUIInterface, boolean wait) {
 		if (displayPanel != null) {
@@ -1119,7 +1123,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			JOptionPane.showMessageDialog(
 					this, // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows. Feb 22
 					"Fail to set default data!\n"
-							+ "\nPossible cause(s): Permission for the current folder may not be attained.", "Warning",
+					+ "\nPossible cause(s): Permission for the current folder may not be attained.", "Warning",
 					JOptionPane.WARNING_MESSAGE);
 
 			/*** $$$$$$ Cancel textWindow Apr 22 */
@@ -1469,9 +1473,5 @@ public class CobwebApplication extends JFrame implements UIClient {
 		validate();
 		uiPipe.start();
 	} // end of UISettings
-
-	public boolean isReadyToRefresh() {
-		return displayPanel != null && displayPanel.isReadyToRefresh();
-	}
 
 } // CobwebApplication

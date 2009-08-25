@@ -5,12 +5,12 @@ public class Direction {
 
 	public int[] v;
 
-	public Direction(int dim) {
-		v = new int[dim];
-	}
-
 	public Direction(Direction dir) {
 		v = dir.v.clone();
+	}
+
+	public Direction(int dim) {
+		v = new int[dim];
 	}
 
 	public Direction(int[] initV) {
@@ -19,13 +19,13 @@ public class Direction {
 
 	/**
 	 * Directions are equal when all their elements of v vector equal
-	 *
+	 * 
 	 * @param other Direction to compare to
 	 * @return true when directions equivalent
 	 */
 	public boolean equals(Direction other) {
 		if (this.v.length != other.v.length) {
-			throw new IllegalArgumentException("Other Direction of unequal dimention");
+			throw new IllegalArgumentException("Other Direction of unequal dimension");
 		}
 		if (other == this)
 			return true;
@@ -37,7 +37,8 @@ public class Direction {
 	}
 
 	/**
-	 * Required for Comparable, just XOR all vector elements and shift the result at each XOR
+	 * Required for Comparable, just XOR all vector elements and shift the
+	 * result at each XOR
 	 */
 	@Override
 	public int hashCode() {

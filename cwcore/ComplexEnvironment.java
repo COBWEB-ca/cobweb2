@@ -32,7 +32,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		/**
 		 * adds packets to the list of packets
-		 *
+		 * 
 		 * @param packet packet
 		 */
 		public void addPacketToList(CommPacket packet) {
@@ -58,7 +58,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		/**
 		 * returns the packet with the specified ID
-		 *
+		 * 
 		 * @return CommPacket
 		 */
 		public CommPacket getPacket(int packetId) {
@@ -80,7 +80,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		/**
 		 * removes packets from the list of packets
-		 *
+		 * 
 		 * @param packet packet to remove
 		 */
 		public void removePacketfromList(CommPacket packet /* int packetId */) {
@@ -126,8 +126,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		/**
 		 * Constructor
-		 *
-		 *
+		 * 
+		 * 
 		 */
 		public CommPacket(int type, long dispatcherId, String content, int energy, boolean energyBased, int fixedRange) {
 
@@ -204,6 +204,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	static class Waste {
+
 		private int initialWeight;
 
 		private long birthTick;
@@ -262,7 +263,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public static final int FLAG_WASTE = 4;
 
-	public static final int INIT_LAST_MOVE = 0; // Initial last move set to cooperate
+	public static final int INIT_LAST_MOVE = 0; // Initial last move set to
+	// cooperate
 
 	public static int PD_PAYOFF_REWARD;
 
@@ -275,8 +277,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public static final List<CommPacket> currentPackets = new ArrayList<CommPacket>();
 
 	/*
-	 * All variables that will by referenced by the parser must be declared as 1-sized arrays as all of the following
-	 * are.
+	 * All variables that will by referenced by the parser must be declared as
+	 * 1-sized arrays as all of the following are.
 	 */
 
 	// Info for logfile
@@ -330,7 +332,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	private cobweb.ArrayEnvironment array;
 
 	/*
-	 * Waste tile array to store the data per waste tile. Needed to allow depletion of waste
+	 * Waste tile array to store the data per waste tile. Needed to allow
+	 * depletion of waste
 	 */
 	private static Waste[][] wastearray;
 
@@ -350,12 +353,17 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	ArrayEnvironment backArray;
 
+	int mostFood[];
+
 	@Override
 	public synchronized void addAgent(int x, int y, int type) {
+		super.addAgent(x, y, type);
 		int action = -1; // $$$$$ -1: not play Prisoner's Dilemma
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
-		if (l.getAgent() != null && l.getAgent().type() == type) { // &&&&&& add " && l.getAgent().type() == type" Apr 3
+		if (l.getAgent() != null && l.getAgent().type() == type) { // &&&&&& add
+			// " && l.getAgent().type() == type"
+			// Apr 3
 			l.getAgent().die();
 		} else if (type < data.getAgentTypes()) {
 			if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
@@ -368,10 +376,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 					action = 0;
 
-					double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static value for now $$$$$$ added for
+					double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static
+					// value
+					// for
+					// now
+					// $$$$$$
+					// added
+					// for
 					// the
 					// below else block.
-					float rnd = cobweb.globals.behaviorRandom.nextFloat();
+					float rnd = cobweb.globals.random.nextFloat();
 					// System.out.println("rnd: " + rnd);
 					// System.out.println("coopProb: " + coopProb);
 
@@ -381,27 +395,27 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				// spammy
 				// System.out.println("type "+agentType);
 				new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
-																											// genetic
+				// genetic
 				// sequence of agent
 				// type
 			}
 		}
 	}
 
-	public ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
+	ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
 		agentInfoVector.add(info);
 		return info;
 	}
 
-	public ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2, int action) {
+	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2, int action) {
 		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, p2, action));
 	}
 
-	public ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, int action) {
+	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, int action) {
 		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, action));
 	}
 
-	public ComplexAgentInfo addAgentInfo(int agentT, int action) {
+	ComplexAgentInfo addAgentInfo(int agentT, int action) {
 		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, action));
 	}
 
@@ -410,7 +424,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
-		if (l.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(l) == type) { // $$$$$$ add
+		if (l.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(l) == type) { // $$$$$$
+			// add
 			// " && getFoodType(l) == type" Apr
 			// 3
 			l.setFlag(ComplexEnvironment.FLAG_FOOD, false);
@@ -419,9 +434,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			// "+ ")\n");"
 			// Apr
 			// 3
-		} else if (// l.getAgent() == null && // $$$$$$ silence this condition, the food would be added under the agent.
-		// Apr 3
-		!(l.testFlag(ComplexEnvironment.FLAG_FOOD)) && !(l.testFlag(ComplexEnvironment.FLAG_STONE))) {
+		} else if (// l.getAgent() == null && // $$$$$$ silence this condition,
+				// the food would be added under the agent.
+				// Apr 3
+				!(l.testFlag(ComplexEnvironment.FLAG_FOOD)) && !(l.testFlag(ComplexEnvironment.FLAG_STONE))) {
 			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
 			setFoodType(l, type);
 		}
@@ -429,7 +445,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		fillTileColors(tileColors);
 	}
 
-	/* JUST ADDED */
 	@Override
 	public synchronized void addStone(int x, int y) {
 		cobweb.Environment.Location l;
@@ -446,6 +461,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		fillTileColors(tileColors);
 	}
 
+	@Override
+	public synchronized void clearAgents() {
+		super.clearAgents();
+	}
+
 	private void clearFlag(int flag) {
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
@@ -459,21 +479,25 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/*
-	 * Remove components from the environment mode 0 : remove all the components mode -1: remove stones mode -2: remove
-	 * food mode -3: remove agents mode -4: remove waste
+	 * Remove components from the environment mode 0 : remove all the components
+	 * mode -1: remove stones mode -2: remove food mode -3: remove agents mode
+	 * -4: remove waste
 	 */
 	@Override
-	public void clearFood() {
+	public synchronized void clearFood() {
+		super.clearFood();
 		clearFlag(FLAG_FOOD);
 	}
 
 	@Override
-	public void clearStones() {
+	public synchronized void clearStones() {
+		super.clearStones();
 		clearFlag(FLAG_STONE);
 	}
 
 	@Override
-	public void clearWaste() {
+	public synchronized void clearWaste() {
+		super.clearWaste();
 		clearFlag(FLAG_WASTE);
 	}
 
@@ -655,13 +679,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	}
 
+	// Hidden implementation stuff...
+
 	// Ignored; this model has no fields
 	@Override
 	protected int getField(cobweb.Environment.Location l, int field) {
 		return 0;
 	}
-
-	// Hidden implementation stuff...
 
 	public int getInfoNum() {
 		return agentInfoVector.size();
@@ -699,8 +723,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		return data.getAgentTypes();
 	}
-
-	int mostFood[];
 
 	private void growFood() {
 
@@ -826,8 +848,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		int oldW = data.width;
 
 		/**
-		 * the first parameter must be the number of agent types as we must allocate space to store the parameter for
-		 * each type
+		 * the first parameter must be the number of agent types as we must
+		 * allocate space to store the parameter for each type
 		 */
 
 		copyParamsFromParser(p);
@@ -835,15 +857,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		setDefaultMutableAgentParam();
 
 		/**
-		 * If the random seed is set to 0 in the data file, it means we use the system time instead
+		 * If the random seed is set to 0 in the data file, it means we use the
+		 * system time instead
 		 */
-		// $$$$$ This means setting Random Seed to zero would get non-repeatable results. Apr 19
+		// $$$$$ This means setting Random Seed to zero would get non-repeatable
+		// results. Apr 19
 		if (data.randomSeed == 0)
 			data.randomSeed = System.currentTimeMillis();
 
 		cobweb.globals.random = new RandomNoGenerator(data.randomSeed);
 		environmentRandom = cobweb.globals.random;
-		cobweb.globals.behaviorRandom = new RandomNoGenerator(42);
 
 		if (data.keepOldArray) {
 			int[] boardIndices = { data.width, data.height };
@@ -922,7 +945,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	private void loadNewAgents() {
 		int doCheat = -1; // $$$$$ -1: not play Prisoner's Dilemma
 		for (int i = 0; i < data.getAgentTypes(); ++i) {
-			double coopProb = agentData[i].pdCoopProb / 100.0d; // static value for now $$$$$$ added for the below else
+			double coopProb = agentData[i].pdCoopProb / 100.0d; // static value
+			// for now
+			// $$$$$$ added
+			// for the below
+			// else
 			// block.
 			// Apr 18
 
@@ -931,14 +958,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					if (agentData[i].pdTitForTat) {
 						doCheat = 0; // spawn cooperating agent
 					} else {
-						// $$$$$$ change from the first silent line to the following three. Apr 18
+						// $$$$$$ change from the first silent line to the
+						// following three. Apr 18
 						// action = 1;
 						doCheat = 0;
-						float rnd = cobweb.globals.behaviorRandom.nextFloat();
+						float rnd = cobweb.globals.random.nextFloat();
 						// System.out.println("rnd: " + rnd);
 						// System.out.println("coopProb: " + coopProb);
 						if (rnd > coopProb)
-							doCheat = 1; // agent defects depending on probability
+							doCheat = 1; // agent defects depending on
+						// probability
 					}
 
 				}
@@ -954,16 +983,17 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 						// of
 						// agents
 						|| location.testFlag(ComplexEnvironment.FLAG_STONE) // nor
-				// on
+						// on
 						// stone
 						// tiles
-						|| location.testFlag(ComplexEnvironment.FLAG_WASTE))); // nor on
+						|| location.testFlag(ComplexEnvironment.FLAG_WASTE))); // nor
+				// on
 				// waste
 				// tiles
 				if (tries < 100) {
 					int agentType = i;
 					new ComplexAgent(agentType, location, doCheat, (ComplexAgentParams) agentData[agentType].clone()); // Default
-																														// genetic
+					// genetic
 					// sequence of agent
 					// type
 				}
@@ -1077,7 +1107,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			if (agent.getAgentPDAction() == 0) {
 				coops++;
 				stratArray[0] = coops;
-			} else if (agent.getAgentPDAction() == 1) { // $$$$$$ add " if (agent.getAgentPDAction() == 1) ". Apr 19
+			} else if (agent.getAgentPDAction() == 1) { // $$$$$$ add
+				// " if (agent.getAgentPDAction() == 1) ".
+				// Apr 19
 				cheaters++;
 				stratArray[1] = cheaters;
 			}
@@ -1106,7 +1138,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/*
-	 * This gets called when the user clicks on a tile without selecting outside of edit mode
+	 * This gets called when the user clicks on a tile without selecting outside
+	 * of edit mode
 	 */
 	@Override
 	public void observe(int x, int y) {
@@ -1117,7 +1150,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	/**
 	 * Dump header for report file to path
-	 *
+	 * 
 	 * @param pw writer to print into
 	 */
 	public void printAgentHeader(java.io.PrintWriter pw) {
@@ -1185,13 +1218,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		// Prints out species-wise statistics of each agent type
 		for (int i = 0; i < data.getAgentTypes(); i++) {
-			ComplexAgentInfo.printAgentsCountByType(pw, i); // Steps, deaths, births, etc.
+			ComplexAgentInfo.printAgentsCountByType(pw, i); // Steps, deaths,
+			// births, etc.
 			pw.print("\n");
 		}
 	}
 
 	@Override
-	public void removeAgent(int x, int y) {
+	public synchronized void removeAgent(int x, int y) {
+		super.removeAgent(x, y);
+
 		Location l = getLocation(x, y);
 		Agent a = l.getAgent();
 		if (a != null)
@@ -1199,13 +1235,15 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
-	public void removeFood(int x, int y) {
+	public synchronized void removeFood(int x, int y) {
+		super.removeFood(x, y);
 		Location l = getLocation(x, y);
 		l.setFlag(FLAG_FOOD, false);
 	}
 
 	@Override
-	public void removeStone(int x, int y) {
+	public synchronized void removeStone(int x, int y) {
+		super.removeStone(x, y);
 		Location l = getLocation(x, y);
 		l.setFlag(FLAG_STONE, false);
 	}
@@ -1222,19 +1260,25 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/*
-	 * save copies all current parsable parameters, and their values, to the specified writer
+	 * save copies all current parsable parameters, and their values, to the
+	 * specified writer
 	 */
 	@Override
 	public void save(java.io.Writer w) {
 		/*
-		 * java.io.PrintWriter pw = new java.io.PrintWriter(w); pw.println(this.getClass().getName() + " " +
-		 * data.agentTypeCount); pw.println(""); int[] indices = new int[512]; int length = parseData.size(); String[]
-		 * names = new String[length]; Object[] saveArray = new Object[length]; java.util.Enumeration<String> nameList =
-		 * parseData.keys(); java.util.Enumeration<Object> saveList = parseData.elements(); for (int i = 0;
-		 * saveList.hasMoreElements() && nameList.hasMoreElements(); ++i) { names[i] = nameList.nextElement();
-		 * saveArray[i] = java.lang.reflect.Array.get(saveList.nextElement(), 0); } try {
-		 * cobweb.parseClass.parseSave(pw, saveArray, names, indices, 0); } catch (java.io.IOException e) { // throw new
-		 * java.io.IOException(); } pw.println(this.getClass().getName() + ".End"); pw.println(""); pw.flush();
+		 * java.io.PrintWriter pw = new java.io.PrintWriter(w);
+		 * pw.println(this.getClass().getName() + " " + data.agentTypeCount);
+		 * pw.println(""); int[] indices = new int[512]; int length =
+		 * parseData.size(); String[] names = new String[length]; Object[]
+		 * saveArray = new Object[length]; java.util.Enumeration<String>
+		 * nameList = parseData.keys(); java.util.Enumeration<Object> saveList =
+		 * parseData.elements(); for (int i = 0; saveList.hasMoreElements() &&
+		 * nameList.hasMoreElements(); ++i) { names[i] = nameList.nextElement();
+		 * saveArray[i] = java.lang.reflect.Array.get(saveList.nextElement(),
+		 * 0); } try { cobweb.parseClass.parseSave(pw, saveArray, names,
+		 * indices, 0); } catch (java.io.IOException e) { // throw new
+		 * java.io.IOException(); } pw.println(this.getClass().getName() +
+		 * ".End"); pw.println(""); pw.flush();
 		 */
 	}
 
@@ -1249,8 +1293,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/*
-	 * setFlag flags the location as a food/stone location. It does nothing if the square is already occupied (for
-	 * example, setFlag((0,0),FOOD,true) does nothing when (0,0) is a stone
+	 * setFlag flags the location as a food/stone location. It does nothing if
+	 * the square is already occupied (for example, setFlag((0,0),FOOD,true)
+	 * does nothing when (0,0) is a stone
 	 */
 	@Override
 	protected void setFlag(cobweb.Environment.Location l, int flag, boolean state) {
@@ -1317,9 +1362,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/**
-	 * tickNotification is the method called by the scheduler each of its clients for every tick of the simulation. For
-	 * environment, tickNotification performs all of the per-tick tasks necessary for the environment to function
-	 * properly. These tasks include managing food depletion, food growth, and random food-"dropping".
+	 * tickNotification is the method called by the scheduler each of its
+	 * clients for every tick of the simulation. For environment,
+	 * tickNotification performs all of the per-tick tasks necessary for the
+	 * environment to function properly. These tasks include managing food
+	 * depletion, food growth, and random food-"dropping".
 	 */
 	public void tickNotification(long tick) {
 
@@ -1388,8 +1435,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/*
-	 * Write to Log file: FoodCount, AgentCount, Average Agent Energy and Agent Energy at the most recent ticks ( by
-	 * tick and by Agent/Food preference)
+	 * Write to Log file: FoodCount, AgentCount, Average Agent Energy and Agent
+	 * Energy at the most recent ticks ( by tick and by Agent/Food preference)
 	 */
 	@Override
 	public void writeLogEntry() {
@@ -1399,7 +1446,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
 
-		setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick. Apr 19
+		setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick.
+		// Apr 19
 		// For this tick: print FoodCount, AgentCount, Average Agent Energy
 		// and Agent Energy for EACH AGENT TYPE
 		for (int i = 0; i < data.getAgentTypes(); i++) {
@@ -1407,7 +1455,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			long agentCount = countAgents(i);
 			long agentEnergy = countAgentEnergy(i);
 			/*
-			 * System.out .println("************* Near Agent Count *************");
+			 * System.out
+			 * .println("************* Near Agent Count *************");
 			 */
 
 			int cheaters = (numAgentsStrat(i))[1];
@@ -1439,11 +1488,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// print the TOTAL of FoodCount, AgentCount, Average Agent Energy
 		// and Agent Energy at a certain tick
 		/*
-		 * System.out .println("************* Before Agent Count Call *************");
+		 * System.out
+		 * .println("************* Before Agent Count Call *************");
 		 */
 		long agentCountAll = countAgents();
 		/*
-		 * System.out .println("************* After Agent Count Call *************");
+		 * System.out
+		 * .println("************* After Agent Count Call *************");
 		 */
 		long agentEnergyAll = countAgentEnergy();
 		int total_cheaters = (numAgentsStrat())[1];
@@ -1469,13 +1520,24 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public void writeLogTitles() {
 		if (logStream != null) {
 			for (int i = 0; i < data.getAgentTypes(); i++) {
-				// logStream.print("\t\t" + "Type" + (i + 1) + "\t\t\t\t"); // $$$$$ why this format?
-				logStream.print("\t" + "Type" + (i + 1) + "\t\t\t\t\t\t"); // $$$$$$ change to this on Apr 19
+				// logStream.print("\t\t" + "Type" + (i + 1) + "\t\t\t\t"); //
+				// $$$$$ why this format?
+				logStream.print("\t" + "Type" + (i + 1) + "\t\t\t\t\t\t"); // $$$$$$
+				// change
+				// to
+				// this
+				// on
+				// Apr
+				// 19
 				for (int z = 0; z < ComplexAgent.logHederAgent().size(); z++)
 					logStream.print('\t');
 			}
-			// logStream.print("\t\t\t" + "Total For all Agent types" + "\t\t"); // $$$$$ why this format?
-			logStream.print("\t" + "Total for all Agent Types"); // $$$$$$ change to this on Apr 19
+			// logStream.print("\t\t\t" + "Total For all Agent types" + "\t\t");
+			// // $$$$$ why this format?
+			logStream.print("\t" + "Total for all Agent Types"); // $$$$$$
+			// change to
+			// this on
+			// Apr 19
 			logStream.println();
 			for (int i = 0; i < data.getAgentTypes(); i++) {
 

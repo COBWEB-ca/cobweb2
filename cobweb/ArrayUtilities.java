@@ -5,16 +5,16 @@ import java.lang.reflect.Array;
 public class ArrayUtilities {
 
 	/**
-	 * Resizes a given array to the given dimensions.
-	 * If a dimension is already the right size, it is re-used, otherwise a new array is created
-	 *
+	 * Resizes a given array to the given dimensions. If a dimension is already
+	 * the right size, it is re-used, otherwise a new array is created
+	 * 
 	 * @param original original array
 	 * @param newsize new dimensions of the array
 	 */
 	public static <T> T resizeArray(T original, int... newsize) {
-//		if (original == null) {
-//			return null;
-//		}
+		// if (original == null) {
+		// return null;
+		// }
 		if (!original.getClass().isArray()) {
 			return original;
 		}

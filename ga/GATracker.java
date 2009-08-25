@@ -76,7 +76,7 @@ public class GATracker implements Client {
 			charOutput = new GAChartOutput(typeCount, geneCount, names);
 			// Initialize chart output
 			charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
-			plotGeneValueDistribution(0);
+			plotGeneValueDistribution();
 		}
 		frameskip = 0;
 	}
@@ -102,13 +102,13 @@ public class GATracker implements Client {
 	}
 
 	/** Calculates GA info and prints them if appropriate. */
-	public void printGAInfo(long time_step) {
-		plotGeneValueDistribution(time_step);
+	public void printGAInfo() {
+		plotGeneValueDistribution();
 	}
 	private int frameskip;
 
 	/** Plot the gene value distribution of all agent types for a certain time step. */
-	private void plotGeneValueDistribution(long time_step) {
+	private void plotGeneValueDistribution() {
 		if (frameskip-- <= 0) {
 
 			charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
@@ -140,7 +140,7 @@ public class GATracker implements Client {
 	public void tickNotification(long time) {
 		/* If program is set to track GA info, then print them. */
 		if (track_gene_value_distribution) {
-			printGAInfo(time);
+			printGAInfo();
 		}
 	}
 

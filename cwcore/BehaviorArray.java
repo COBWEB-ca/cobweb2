@@ -343,7 +343,7 @@ public class BehaviorArray {
 		 */
 		for (int i = 0;;) {
 
-			int r = cobweb.globals.behaviorRandom.nextInt(size);
+			int r = cobweb.globals.random.nextInt(size);
 			if (boolArray[r] == false) {
 				boolArray[r] = true;
 				if (++i == size >> 1) {

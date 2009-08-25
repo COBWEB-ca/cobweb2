@@ -1,11 +1,12 @@
 package cobweb;
 
-
 /**
- * The Agent class represents the physical notion of an Agent in a simulation. Instances of the Agent class are not
- * responsible for implementing the intelligence of the Agent, this is deferred to the Agent.Controller class.
+ * The Agent class represents the physical notion of an Agent in a simulation.
+ * Instances of the Agent class are not responsible for implementing the
+ * intelligence of the Agent, this is deferred to the Agent.Controller class.
  */
 public abstract class Agent {
+
 	private boolean alive = true;
 
 	private static long nextID = 1;
@@ -45,7 +46,7 @@ public abstract class Agent {
 	 * Removes this Agent from the Environment.
 	 */
 	public void die() {
-		assert(isAlive());
+		assert (isAlive());
 		if (!isAlive())
 			return;
 

@@ -24,7 +24,7 @@ public class LinearWeightsController implements cobweb.Controller {
 	private static double[] runningOutputMean = new double[OUTPUT_COUNT];
 
 	public static final String[] inputNames = { "Constant", "Energy", "Distance to agent", "Distance to food",
-			"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random" };
+		"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random" };
 
 	public static final String[] outputNames = { "Memory", "Communication", "Left", "Right", "Forward", "Asexual Breed" };
 
@@ -73,12 +73,12 @@ public class LinearWeightsController implements cobweb.Controller {
 				((double) agent.getEnergy() / (ENERGY_THRESHOLD)),
 				type == ComplexEnvironment.FLAG_AGENT ? (ComplexAgent.LOOK_DISTANCE - dist)
 						/ (double) ComplexAgent.LOOK_DISTANCE : 0,
-				type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist)
-						/ (double) ComplexAgent.LOOK_DISTANCE : 0,
-				type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? (ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0,
-				agent.getIntFacing() / 2, (double) agent.getMemoryBuffer() / (1 << memSize - 1),
-				(double) agent.getCommInbox() / (1 << commSize - 1), Math.max(agent.getAge() / 100.0, 2),
-				globals.behaviorRandom.nextGaussian() };
+						type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist)
+								/ (double) ComplexAgent.LOOK_DISTANCE : 0,
+								type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? (ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0,
+										agent.getIntFacing() / 2, (double) agent.getMemoryBuffer() / (1 << memSize - 1),
+										(double) agent.getCommInbox() / (1 << commSize - 1), Math.max(agent.getAge() / 100.0, 2),
+										globals.random.nextGaussian() };
 
 		double memout = 0.0;
 		double commout = 0.0;
@@ -88,7 +88,7 @@ public class LinearWeightsController implements cobweb.Controller {
 		double asexflag = 0.0;
 		for (int eq = 0; eq < OUTPUT_COUNT; eq++) {
 			double res = 0.0;
-			variables[9] = globals.behaviorRandom.nextGaussian();
+			variables[9] = globals.random.nextGaussian();
 			for (int v = 0; v < INPUT_COUNT; v++) {
 				res += params.data[v][eq] * variables[v];
 			}
@@ -133,9 +133,9 @@ public class LinearWeightsController implements cobweb.Controller {
 	private void mutate(float mutation) {
 		mutationCounter += INPUT_COUNT * OUTPUT_COUNT * mutation;
 		while (mutationCounter > 1) {
-			int i = globals.behaviorRandom.nextInt(params.data.length);
-			int j = globals.behaviorRandom.nextInt(params.data[i].length);
-			params.data[i][j] += globals.behaviorRandom.nextGaussian() * 0.5;
+			int i = globals.random.nextInt(params.data.length);
+			int j = globals.random.nextInt(params.data[i].length);
+			params.data[i][j] += globals.random.nextGaussian() * 0.5;
 			mutationCounter -= 1;
 		}
 	}
@@ -179,7 +179,7 @@ public class LinearWeightsController implements cobweb.Controller {
 
 		for (int i = 0; i < params.data.length; i++) {
 			for (int j = 0; j < params.data[i].length; j++) {
-				if (globals.behaviorRandom.nextBoolean()) {
+				if (globals.random.nextBoolean()) {
 					params.data[i][j] = pa2.params.data[i][j];
 				}
 			}
@@ -193,7 +193,7 @@ public class LinearWeightsController implements cobweb.Controller {
 		for (int i = 0; i < params.data.length; i++) {
 			for (int j = 0; j < params.data[i].length; j++) {
 				diff += Math.abs(this.params.data[i][j] * this.params.data[i][j] - other.params.data[i][j]
-						* other.params.data[i][j]);
+				                                                                                        * other.params.data[i][j]);
 			}
 		}
 		return Math.max(0, (100.0 - diff) / 100.0);

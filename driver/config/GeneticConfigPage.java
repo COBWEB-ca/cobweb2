@@ -252,14 +252,14 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private JPanel makeUpdateConfig() {
 		BoundCheckBox track_gene_value_distribution = new BoundCheckBox(this.params, "trackValues");
-		track_gene_value_distribution.setText(track_gene_value_distribution.getLabel());
+		track_gene_value_distribution.setText(track_gene_value_distribution.getLabelText());
 
 		BoundJFormattedTextField chart_update_frequency = new BoundJFormattedTextField(this.params, "updateFrequency",
 				NumberFormat.getIntegerInstance());
 		chart_update_frequency.setColumns(4);
 
 		JPanel chart_update_frequency_panel = new JPanel();
-		chart_update_frequency_panel.add(new JLabel(chart_update_frequency.getLabel()));
+		chart_update_frequency_panel.add(new JLabel(chart_update_frequency.getLabelText()));
 		chart_update_frequency_panel.add(chart_update_frequency);
 
 		JPanel gene_check_boxes = new JPanel(new BorderLayout());

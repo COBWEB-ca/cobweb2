@@ -28,6 +28,30 @@ public class TraitArray implements InnateArray {
 	/* The same variables kept in an array. */
 	private final Object[] array;
 
+	/* Constructor: make an InnateArray. */
+	public TraitArray(Object[] array) {
+		this.array = array;
+
+		foodEnergy = (Integer) array[0];
+		breedEnergy = (Integer) array[1];
+		initEnergy = (Integer) array[2];
+		stepEnergy = (Integer) array[3];
+		stepRockEnergy = (Integer) array[4];
+		turnLeftEnergy = (Integer) array[5];
+		turnRightEnergy = (Integer) array[6];
+		mutationRate = (Float) array[7];
+	}
+
+	/* Return an exact copy of this object. */
+	@Override
+	public Object clone() {
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
 	/*
 	 * Return -1, 0, or 1, depending on whether this InnateArray is less than,
 	 * equal to, or greater than other, by some measure.
@@ -52,16 +76,6 @@ public class TraitArray implements InnateArray {
 		 * same.
 		 */
 		return 0;
-	}
-
-	/* Return an exact copy of this object. */
-	@Override
-	public Object clone() {
-		try {
-			return super.clone();
-		} catch (CloneNotSupportedException ex) {
-			throw new RuntimeException(ex);
-		}
 	}
 
 	/* Return a copy of this InnateArray. No mutation is performed. */
@@ -101,8 +115,13 @@ public class TraitArray implements InnateArray {
 		 * relatively useless for now.
 		 */
 		for (int i = 0; i < this.size(); i++) {
-			array[i] = new Integer(cobweb.globals.behaviorRandom.nextInt());
+			array[i] = new Integer(cobweb.globals.random.nextInt());
 		}
+	}
+
+	/* Return the number of elements this InnateArray can hold. */
+	public int size() {
+		return array.length;
 	}
 
 	/*
@@ -113,17 +132,12 @@ public class TraitArray implements InnateArray {
 		/* change of plans: gets all of one parents info */
 
 		InnateArray result;
-		if (cobweb.globals.behaviorRandom.nextFloat() < .5) {
+		if (cobweb.globals.random.nextFloat() < .5) {
 			result = (InnateArray) this.clone();
 		} else {
 			result = (InnateArray) other.clone();
 		}
 		return result;
-	}
-
-	/* Return the number of elements this InnateArray can hold. */
-	public int size() {
-		return array.length;
 	}
 
 	/*
@@ -142,19 +156,5 @@ public class TraitArray implements InnateArray {
 		}
 
 		return output;
-	}
-
-	/* Constructor: make an InnateArray. */
-	public TraitArray(Object[] array) {
-		this.array = array;
-
-		foodEnergy = (Integer) array[0];
-		breedEnergy = (Integer) array[1];
-		initEnergy = (Integer) array[2];
-		stepEnergy = (Integer) array[3];
-		stepRockEnergy = (Integer) array[4];
-		turnLeftEnergy = (Integer) array[5];
-		turnRightEnergy = (Integer) array[6];
-		mutationRate = (Float) array[7];
 	}
 }

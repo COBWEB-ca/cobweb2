@@ -10,18 +10,55 @@ import cwcore.ComplexEnvironment.CommManager;
 import driver.Parser;
 
 /**
- * TickScheduler is an implementation of Scheduler that sends uniform ticks to clients.
+ * TickScheduler is an implementation of Scheduler that sends uniform ticks to
+ * clients.
  */
-public class TickScheduler extends Thread implements Scheduler {
+public class TickScheduler implements Scheduler {
 
 	/**
-	 * The TickScheduler client interface is quite trivial; tickNotification is called on each client each tick.
+	 * The TickScheduler client interface is quite trivial; tickNotification is
+	 * called on each client each tick.
 	 */
 	public static interface Client {
+
 		/** Notification of a tick. */
 		public void tickNotification(long time);
 
 		public void tickZero();
+	}
+
+	private class SchedulerRunnable implements Runnable {
+
+		public void run() {
+			doZeroTick();
+			long frameCount = 0;
+
+			// Main loop
+			while (!done) {
+				cwcore.ComplexAgent.dumpData(tickCount);
+				cwcore.ComplexAgent.clearData();
+
+				if (!done && !running) {
+					myWait(100);
+					theUI.refresh(false);
+				} else {
+					doTick();
+
+					if (theUI.getStopTime() != 0 && getTime() == theUI.getStopTime()) {
+						pauseScheduler();
+					}
+					if (frameCount >= frameSkip) {
+						theUI.refresh(slowdown > 0);
+						frameCount = 0;
+					}
+				}
+
+				// start doing something
+				if (running && slowdown != 0) {
+					myWait(slowdown);
+				}
+			}
+		}
 	}
 
 	private volatile boolean running = false;
@@ -42,12 +79,16 @@ public class TickScheduler extends Thread implements Scheduler {
 
 	private final Set<Client> clientV = new LinkedHashSet<Client>();
 
+	private Thread myThread;
+
 	/**
-	 * Constructor for TickScheduler. This should NEVER be called directly; instead reflection should be used inside the
-	 * implementation of UIInterface; look at the LocalUIInterface for an implementation example.
+	 * Constructor for TickScheduler. This should NEVER be called directly;
+	 * instead reflection should be used inside the implementation of
+	 * UIInterface; look at the LocalUIInterface for an implementation example.
 	 */
 	public TickScheduler(UIInterface ui, Parser p) {
-		this.setName("cobweb.TickScheduler");
+		myThread = new Thread(new SchedulerRunnable());
+		myThread.setName("cobweb.TickScheduler");
 		loadScheduler(ui, p);
 	}
 
@@ -71,8 +112,12 @@ public class TickScheduler extends Thread implements Scheduler {
 			logCount = 0;
 			theUI.writeLogEntry();
 		}
+	}
 
-		// carry on doing something
+	private void doZeroTick() {
+		for (Client client : new Vector<Client>(clientV)) {
+			client.tickZero();
+		}
 	}
 
 	public long getTime() {
@@ -82,8 +127,6 @@ public class TickScheduler extends Thread implements Scheduler {
 	public boolean isRunning() {
 		return running;
 	}
-
-	// Client management
 
 	public synchronized void killScheduler() {
 		done = true;
@@ -99,7 +142,7 @@ public class TickScheduler extends Thread implements Scheduler {
 			wait(time);
 		} catch (InterruptedException ex) {
 			// Should not happen
-			Logger.getAnonymousLogger().log(Level.INFO, "myWait broke", ex);
+			Logger.getLogger("COBWEB2").log(Level.INFO, "myWait broke", ex);
 		}
 	}
 
@@ -121,44 +164,8 @@ public class TickScheduler extends Thread implements Scheduler {
 		notifyAll();
 	}
 
-	@Override
-	public void run() {
-		doZeroTick();
-		long frameCount = 0;
-
-		// Main loop
-		while (!done) {
-			cwcore.ComplexAgent.dumpData(tickCount);
-			cwcore.ComplexAgent.clearData();
-
-			if (!running && !done) {
-				myWait(1000);
-			} else {
-				doTick();
-
-				if (theUI.getStopTime() != 0 && getTime() == theUI.getStopTime()) {
-					pauseScheduler();
-				}
-				if (frameCount >= frameSkip) {
-					theUI.refresh(slowdown > 0);
-					frameCount = 0;
-				}
-			}
-
-			// start doing something
-			if (running && slowdown != 0) {
-				myWait(slowdown);
-			}
-		}
-	}
-
-	private void doZeroTick() {
-		for (Client client : new Vector<Client>(clientV)) {
-			client.tickZero();
-		}
-	}
-
-	// Saving. // $$$$$ Used to be invoked from this chain: the now silenced method CobwebApplication.saveFile =>
+	// Saving. // $$$$$ Used to be invoked from this chain: the now silenced
+	// method CobwebApplication.saveFile =>
 	// LocalUIInterface.save
 	public synchronized void saveScheduler(java.io.Writer w) {
 		java.io.PrintWriter pw = new java.io.PrintWriter(w);
@@ -180,8 +187,8 @@ public class TickScheduler extends Thread implements Scheduler {
 	}
 
 	public synchronized void startScheduler() {
-		if (!isAlive()) {
-			start();
+		if (!myThread.isAlive()) {
+			myThread.start();
 		}
 		notifyAll();
 	}

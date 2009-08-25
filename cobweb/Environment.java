@@ -2,32 +2,40 @@ package cobweb;
 
 import java.awt.Color;
 import java.util.Hashtable;
+import java.util.LinkedList;
 
 import driver.Parser;
 
 /**
- * The Environment class represents the simulation world; a collection of locations with state, each of which may
- * contain an agent.
- *
- * The Environment class is designed to handle an arbitrary number of dimensions, although the UIInterface is somewhat
- * tied to two dimensions for display purposes.
- *
- * All access to the internal data of the Environment is done through an accessor class, Environment.Location. The
- * practical upshot of this is that the Environment internals may be implemented in C or C++ using JNI, while the Java
- * code still has a nice java flavoured interface to the data.
- *
- * Another advantage of the accessor model is that the internal data need not be in a format that is reasonable for
- * external access. An array of longs where bitfields represent the location states makes sense in this context, because
+ * The Environment class represents the simulation world; a collection of
+ * locations with state, each of which may contain an agent.
+ * 
+ * The Environment class is designed to handle an arbitrary number of
+ * dimensions, although the UIInterface is somewhat tied to two dimensions for
+ * display purposes.
+ * 
+ * All access to the internal data of the Environment is done through an
+ * accessor class, Environment.Location. The practical upshot of this is that
+ * the Environment internals may be implemented in C or C++ using JNI, while the
+ * Java code still has a nice java flavoured interface to the data.
+ * 
+ * Another advantage of the accessor model is that the internal data need not be
+ * in a format that is reasonable for external access. An array of longs where
+ * bitfields represent the location states makes sense in this context, because
  * the accessors allow friendly access to this state information.
- *
- * Furthermore, the accessor is designed to be quite general; there should be no need to subclass Environment.Location
- * for a specific Environment implementation. A number of constants should be defined in an Environment implementation
- * to allow agents to interpret the state information of a location, so agents will need to be somewhat aware of the
- * specific environment they are operating in, but all access should be through this interface, using implementation
- * specific access constants.
+ * 
+ * Furthermore, the accessor is designed to be quite general; there should be no
+ * need to subclass Environment.Location for a specific Environment
+ * implementation. A number of constants should be defined in an Environment
+ * implementation to allow agents to interpret the state information of a
+ * location, so agents will need to be somewhat aware of the specific
+ * environment they are operating in, but all access should be through this
+ * interface, using implementation specific access constants.
  */
 public abstract class Environment {
+
 	public static class EnvironmentStats {
+
 		public long[] agentCounts;
 		public long[] foodCounts;
 		public long timestep;
@@ -35,28 +43,40 @@ public abstract class Environment {
 	}
 
 	/**
-	 * Public accessor to Location state information. Note that this class is simply a pass-through to the private
-	 * getField/setField and getFlag/setFlag calls in the environment. This design allows for a logical and clear code
-	 * style in agents and agent controllers, as the notion of position in the environment allows immediate access to
-	 * state information.
+	 * Public accessor to Location state information. Note that this class is
+	 * simply a pass-through to the private getField/setField and
+	 * getFlag/setFlag calls in the environment. This design allows for a
+	 * logical and clear code style in agents and agent controllers, as the
+	 * notion of position in the environment allows immediate access to state
+	 * information.
 	 */
 	public class Location {
+
 		/**
-		 * Sometimes it's essential to get the coordinates; iteration is an example of this. To make this as fast as
-		 * possible, no accessors are provided for the coordinate array, instead they're public. Bad form, but as fast
-		 * as possible.
+		 * Sometimes it's essential to get the coordinates; iteration is an
+		 * example of this. To make this as fast as possible, no accessors are
+		 * provided for the coordinate array, instead they're public. Bad form,
+		 * but as fast as possible.
 		 */
 		public int[] v;
 
-		/** Private constructor, as only the environment should create locations. */
+		/**
+		 * Private constructor, as only the environment should create locations.
+		 */
 		private Location(int[] axisPos) {
 			v = new int[Environment.this.getAxisCount()];
 			for (int i = 0; i < Environment.this.getAxisCount(); ++i)
 				v[i] = axisPos[i];
 		}
 
+		public boolean checkFlip(Direction dir) {
+			int y = v[1] + dir.v[1];
+			return (y < 0 || y >= getSize(AXIS_Y)) && getAxisWrap(AXIS_Y);
+		}
+
 		/**
-		 * "City-block" distance method; number of single axis steps between this location and the parameter location.
+		 * "City-block" distance method; number of single axis steps between
+		 * this location and the parameter location.
 		 */
 		public int cityBlockDistance(Location l) {
 			int dist = 0;
@@ -71,7 +91,8 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Distance squared; useful because sometimes the sqrt is irrelevant, as in isAdjacent.
+		 * Distance squared; useful because sometimes the sqrt is irrelevant, as
+		 * in isAdjacent.
 		 */
 		public int distanceSquare(Location l) {
 			int dist = 0;
@@ -97,8 +118,9 @@ public abstract class Environment {
 		}
 
 		/**
-		 * @return the location adjacent to this one, along direction d. Null return value means this location is on the
-		 *         edge of the environment.
+		 * @return the location adjacent to this one, along direction d. Null
+		 *         return value means this location is on the edge of the
+		 *         environment.
 		 */
 		public Location getAdjacent(Direction d) {
 			// If the direction has too many dimensions, we have a problem
@@ -133,7 +155,8 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Similar to the other getAdjacent call, but this is a single-axis version
+		 * Similar to the other getAdjacent call, but this is a single-axis
+		 * version
 		 */
 		public Location getAdjacent(int axis, int delta) {
 			if (v.length <= axis)
@@ -144,7 +167,8 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Get the agent at this location. A location may only contain a single agent.
+		 * Get the agent at this location. A location may only contain a single
+		 * agent.
 		 */
 		public Agent getAgent() {
 			return Environment.this.getAgent(this);
@@ -156,8 +180,8 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Get the value of the field associated with the constant field in this location. The valid values for field
-		 * are implementation defined.
+		 * Get the value of the field associated with the constant field in this
+		 * location. The valid values for field are implementation defined.
 		 */
 		public int getField(int field) {
 			return Environment.this.getField(this, field);
@@ -173,9 +197,10 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Is the location adjacent in a true distance measure sense (diagonal is adjacent)? Different from city block
-		 * distance, as a city block distance of 2 Can be 2 steps on the same axis (not adjacent), or 1 step on 2 axes
-		 * (adjacent)
+		 * Is the location adjacent in a true distance measure sense (diagonal
+		 * is adjacent)? Different from city block distance, as a city block
+		 * distance of 2 Can be 2 steps on the same axis (not adjacent), or 1
+		 * step on 2 axes (adjacent)
 		 */
 		public boolean isAdjacent(Location l) {
 			int distSquare = distanceSquare(l);
@@ -189,8 +214,9 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Through direct manipulation of the coordinate array, arbitrary locations can be created from a valid
-		 * location. This checks if the location is still a valid location in the environment by assuring the
+		 * Through direct manipulation of the coordinate array, arbitrary
+		 * locations can be created from a valid location. This checks if the
+		 * location is still a valid location in the environment by assuring the
 		 * coordinates are positive, but less than the size of the environment.
 		 */
 		public boolean isValid() {
@@ -204,31 +230,32 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Set the agent at this location. A location may only contain a single agent.
+		 * Set the agent at this location. A location may only contain a single
+		 * agent.
 		 */
 		public void setAgent(Agent a) {
 			Environment.this.setAgent(this, a);
 		}
 
 		/**
-		 * Set the value of the field associated with the constant field in this location. The valid values for field
-		 * are implementation defined.
+		 * Set the value of the field associated with the constant field in this
+		 * location. The valid values for field are implementation defined.
 		 */
 		public void setField(int field, int value) {
 			Environment.this.setField(this, field, value);
 		}
 
 		/**
-		 * Set the flag associated with the constant flag in this location. The valid values for flag are implementation
-		 * defined.
+		 * Set the flag associated with the constant flag in this location. The
+		 * valid values for flag are implementation defined.
 		 */
 		public void setFlag(int flag, boolean state) {
 			Environment.this.setFlag(this, flag, state);
 		}
 
 		/**
-		 * Test the flag associated with the constant flag in this location. The valid values for flag are
-		 * implementation defined.
+		 * Test the flag associated with the constant flag in this location. The
+		 * valid values for flag are implementation defined.
 		 */
 		public boolean testFlag(int flag) {
 			return Environment.this.testFlag(this, flag);
@@ -246,13 +273,7 @@ public abstract class Environment {
 			return out.toString();
 		}
 
-		public boolean checkFlip(Direction dir) {
-			int y = v[1] + dir.v[1];
-			return (y < 0 || y >= getSize(AXIS_Y)) && getAxisWrap(AXIS_Y);
-		}
-
 	}
-
 
 	private Location[][] locationCache;
 
@@ -280,14 +301,21 @@ public abstract class Environment {
 
 	public static final Direction DIRECTION_SOUTHWEST = new Direction(new int[] { -1, +1 });
 
-	/** Report to a stream */
+	/**
+	 * Report to a stream
+	 * 
+	 * @param w Where to log tracking information
+	 * */
 	public static void trackAgent(java.io.Writer w) {
-		System.err.println("Your environment is supposed to override the agent tracking.\n");
-		System.exit(0);
+		throw new RuntimeException("Not implemented, but your Environment subclass should shadow this function");
 	}
 
 	protected Scheduler theScheduler;
 
+	/**
+	 * The implementation uses a hash table to store agents, as we assume there
+	 * are many more locations than agents.
+	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 
 	private static DrawingHandler myUI;
@@ -300,14 +328,62 @@ public abstract class Environment {
 		myUI = ui;
 	}
 
+	private Color[] tileColors;
+
+	/**
+	 * Adds agent at given position
+	 * 
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 * @param type agent type
+	 */
+	public void addAgent(int x, int y, int type) {
+		// Nothing
+	}
+
+	/**
+	 * Adds food at given position
+	 * 
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 * @param type agent type
+	 */
+	public void addFood(int x, int y, int type) {
+		// Nothing
+	}
+
+	/**
+	 * Adds stone at given position
+	 * 
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 */
+	public void addStone(int x, int y) {
+		// Nothing
+	}
+
 	/** Returns an Enumeration of Agents */
 	public java.util.Enumeration<Agent> agents() {
 		return agentTable.elements();
 	}
 
-	protected void clearAgents() {
+	public void clearAgents() {
+		for (Agent a : new LinkedList<Agent>(agentTable.values())) {
+			a.die();
+		}
 		agentTable.clear();
-		agentTable = new java.util.Hashtable<Location, Agent>();
+	}
+
+	public void clearFood() {
+		// Nothing
+	}
+
+	public void clearStones() {
+		// Nothing
+	}
+
+	public void clearWaste() {
+		// Nothing
 	}
 
 	public int countAgents() {
@@ -315,13 +391,11 @@ public abstract class Environment {
 	}
 
 	/**
-	 * Called from getDrawInfo to allow implementations to fill the array of tile colors.
+	 * Called from getDrawInfo to allow implementations to fill the array of
+	 * tile colors.
 	 */
 	protected abstract void fillTileColors(java.awt.Color[] tiles);
 
-	// The implementation uses a hashtable to store agents, as we assume there
-	// are many
-	// more locations than agents.
 	private Agent getAgent(Location l) {
 		return agentTable.get(l);
 	}
@@ -347,14 +421,10 @@ public abstract class Environment {
 
 	}
 
-	private Color[] tileColors;
-
-	/** Core implementation of getField; this is what could be accelerated in C++ */
+	/**
+	 * Core implementation of getField; this is what could be accelerated in C++
+	 */
 	protected abstract int getField(Location l, int field);
-
-	protected void setupLocationCache() {
-		locationCache = new Location[getSize(AXIS_X)][getSize(AXIS_Y)];
-	}
 
 	// Syntactic sugar for common cases
 	public Location getLocation(int x, int y) {
@@ -394,9 +464,14 @@ public abstract class Environment {
 		return l;
 	}
 
-	/** Load from a stream <== new addition! */
-	public void load(Scheduler s, Parser p) throws IllegalArgumentException {
-		tileColors = new Color[p.getEnvParams().getWidth() * p.getEnvParams().getHeight()];
+	/**
+	 * Load environment from parameters
+	 * 
+	 * @param scheduler the Scheduler to use
+	 * @param parameters the parameters
+	 **/
+	public void load(Scheduler scheduler, Parser parameters) throws IllegalArgumentException {
+		tileColors = new Color[parameters.getEnvParams().getWidth() * parameters.getEnvParams().getHeight()];
 	}
 
 	/** Log to a stream */
@@ -404,27 +479,41 @@ public abstract class Environment {
 
 	public abstract void observe(int x, int y);
 
-	public abstract void clearFood();
+	/**
+	 * Removes agent at given position
+	 * 
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 */
+	public void removeAgent(int x, int y) {
+		// Nothing
+	}
 
-	public abstract void clearStones();
+	/**
+	 * Removes food at given position
+	 * 
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 */
+	public void removeFood(int x, int y) {
+		// Nothing
+	}
+
+	/**
+	 * Removes stone at given position
+	 * 
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 */
+	public void removeStone(int x, int y) {
+		// Nothing
+	}
 
 	/** Report to a stream */
 	public abstract void report(java.io.Writer w);
 
 	/** Save to a stream */
 	public abstract void save(java.io.Writer w);
-
-	public abstract void addAgent(int x, int y, int type);
-
-	public abstract void removeAgent(int x, int y);
-
-	public abstract void addFood(int x, int y, int type);
-
-	public abstract void removeFood(int x, int y);
-
-	public abstract void addStone(int x, int y);
-
-	public abstract void removeStone(int x, int y);
 
 	private final void setAgent(Location l, Agent a) {
 		if (a != null)
@@ -433,19 +522,25 @@ public abstract class Environment {
 			agentTable.remove(l);
 	}
 
-	/** Core implementation of setField; this is what could be accelerated in C++ */
+	/**
+	 * Core implementation of setField; this is what could be accelerated in C++
+	 */
 	protected abstract void setField(Location l, int field, int value);
 
 	/** Core implementation of setFlag; this is what could be accelerated in C++ */
 	protected abstract void setFlag(Location l, int flag, boolean state);
 
-	/** Core implementation of testFlag; this is what could be accelerated in C++ */
-	protected abstract boolean testFlag(Location l, int flag);
+	protected void setupLocationCache() {
+		locationCache = new Location[getSize(AXIS_X)][getSize(AXIS_Y)];
+	}
 
-	/** Update the log; called from the UIInterface */
-	protected abstract void writeLogEntry();
+	/**
+	 * Core implementation of testFlag; this is what could be accelerated in C++
+	 */
+	protected abstract boolean testFlag(Location l, int flag);
 
 	public abstract void unObserve();
 
-	public abstract void clearWaste();
+	/** Update the log; called from the UIInterface */
+	protected abstract void writeLogEntry();
 }

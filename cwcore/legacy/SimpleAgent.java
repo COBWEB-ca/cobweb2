@@ -1,38 +1,17 @@
 package cwcore.legacy;
 
+import java.awt.Color;
+
 import cobweb.DrawingHandler;
 import cobweb.Point2D;
 
 public class SimpleAgent extends cobweb.Agent implements
-		cobweb.TickScheduler.Client {
+cobweb.TickScheduler.Client {
 
-	@Override
-	public void getDrawInfo(DrawingHandler theUI) {
-		theUI.newAgent(java.awt.Color.red, java.awt.Color.black,
-				new Point2D(getPosition().v[0], getPosition().v[1]),
-				new Point2D(facing.v[0], facing.v[1]));
-	}
+	private cobweb.Direction facing = cobweb.Environment.DIRECTION_NORTH;
 
-	@Override
-	public void setColor(java.awt.Color c) {
-		// Nothing
-	}
-
-	@Override
-	public java.awt.Color getColor() {
-		return java.awt.Color.black;
-	}
-
-	@Override
-	public double similarity(cobweb.Agent other) {
-		if (other instanceof SimpleAgent) {
-			return 1.0;
-		}
-		return 0.0;
-	}
-
-	public void tickNotification(long tick) {
-		controller.controlAgent(this);
+	public SimpleAgent() {
+		super(new SimpleController());
 	}
 
 	boolean canStep() {
@@ -49,31 +28,6 @@ public class SimpleAgent extends cobweb.Agent implements
 		return true;
 	}
 
-	void step() {
-		if (canStep())
-			move(getPosition().getAdjacent(facing));
-	}
-
-	void turnRight() {
-		cobweb.Direction newFacing = new cobweb.Direction(
-				2);
-		newFacing.v[0] = -facing.v[1];
-		newFacing.v[1] = facing.v[0];
-		facing = newFacing;
-	}
-
-	void turnLeft() {
-		cobweb.Direction newFacing = new cobweb.Direction(
-				2);
-		newFacing.v[0] = facing.v[1];
-		newFacing.v[1] = -facing.v[0];
-		facing = newFacing;
-	}
-
-	SimpleAgent(cobweb.Environment.Location pos) {
-		super(new SimpleController());
-	}
-
 	@Override
 	public int getAgentPDAction() {
 		return 0;
@@ -85,13 +39,61 @@ public class SimpleAgent extends cobweb.Agent implements
 	}
 
 	@Override
+	public java.awt.Color getColor() {
+		return java.awt.Color.black;
+	}
+
+	@Override
+	public void getDrawInfo(DrawingHandler theUI) {
+		theUI.newAgent(java.awt.Color.red, Color.red, java.awt.Color.black,
+				new Point2D(getPosition().v[0], getPosition().v[1]),
+				new Point2D(facing.v[0], facing.v[1]));
+	}
+
+	@Override
+	public void setColor(java.awt.Color c) {
+		// Nothing
+	}
+
+	@Override
+	public double similarity(cobweb.Agent other) {
+		if (other instanceof SimpleAgent) {
+			return 1.0;
+		}
+		return 0.0;
+	}
+
+	@Override
 	public double similarity(int other) {
 		return 0.0;
 	}
 
-	private cobweb.Direction facing = cobweb.Environment.DIRECTION_NORTH;
+	void step() {
+		if (canStep())
+			move(getPosition().getAdjacent(facing));
+	}
+
+	public void tickNotification(long tick) {
+		controller.controlAgent(this);
+	}
 
 	public void tickZero() {
 		// Nothing
+	}
+
+	void turnLeft() {
+		cobweb.Direction newFacing = new cobweb.Direction(
+				2);
+		newFacing.v[0] = facing.v[1];
+		newFacing.v[1] = -facing.v[0];
+		facing = newFacing;
+	}
+
+	void turnRight() {
+		cobweb.Direction newFacing = new cobweb.Direction(
+				2);
+		newFacing.v[0] = -facing.v[1];
+		newFacing.v[1] = facing.v[0];
+		facing = newFacing;
 	}
 }

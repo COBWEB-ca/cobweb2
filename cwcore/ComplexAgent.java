@@ -49,6 +49,42 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	private static AgentSimularityCalculator simCalc;
 
+	public static Collection<String> logDataAgent(int i) {
+		List<String> blah = new LinkedList<String>();
+		for (SpawnMutator mut : spawnMutators) {
+			for (String s : mut.logDataAgent(i))
+				blah.add(s);
+		}
+		return blah;
+	}
+
+	public static Iterable<String> logDataTotal() {
+		List<String> blah = new LinkedList<String>();
+		for (SpawnMutator mut : spawnMutators) {
+			for (String s : mut.logDataTotal())
+				blah.add(s);
+		}
+		return blah;
+	}
+
+	public static Collection<String> logHederAgent() {
+		List<String> blah = new LinkedList<String>();
+		for (SpawnMutator mut : spawnMutators) {
+			for (String s : mut.logHeadersAgent())
+				blah.add(s);
+		}
+		return blah;
+	}
+
+	public static Iterable<String> logHederTotal() {
+		List<String> blah = new LinkedList<String>();
+		for (SpawnMutator mut : spawnMutators) {
+			for (String s : mut.logHeaderTotal())
+				blah.add(s);
+		}
+		return blah;
+	}
+
 	/** Sets the default mutable parameters of each agent type. */
 	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
 		defaulParams = params.clone();
@@ -67,37 +103,37 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	/* energy gauge */
 	private int energy;
-
 	/* Prisoner's Dilemma */
 	private int agentPDStrategy; // tit-for-tat or probability
 
 	private int pdCheater; // The agent's action; 1 == cheater, else
-
 	// cooperator
 	private int lastPDMove; // Remember the opponent's move in the last game
-
 	private int commInbox;
 	private int commOutbox;
 
 	// memory size is the maximum capacity of the number of cheaters an agent
 	// can remember
 	private long photo_memory[];
+
 	private int photo_num = 0;
 	private boolean want2meet = false;
 	boolean cooperate;
-
 	private long birthTick = 0;
-
 	private long age = 0;
 	/* Waste variables */
 	private int wasteCounterGain;
 	private int wasteCounterLoss;
+
 	private int memoryBuffer;
 	private ComplexAgent breedPartner;
+
 	private Color color = Color.lightGray;
+
 	private boolean asexFlag;
 
 	private ComplexAgentInfo info;
+
 	// pregnancyPeriod is set value while pregPeriod constantly changes
 	private int pregPeriod;
 
@@ -170,6 +206,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	private static Set<SpawnMutator> spawnMutators = new LinkedHashSet<SpawnMutator>();
 
+	boolean mustFlip = false;
+
 	/**
 	 * Constructor with two parents
 	 *
@@ -178,7 +216,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param parent2 second parent
 	 * @param strat PD strategy
 	 */
-	ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, int strat) {
+	protected ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, int strat) {
 		super(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
 				parent1.params.mutationRate));
 		InitFacing();
@@ -202,7 +240,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param parent parent
 	 * @param strat PD strategy
 	 */
-	ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
+	protected ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
 		super(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 		InitFacing();
 
@@ -289,8 +327,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		return caneat;
 	}
-
-	boolean mustFlip = false;
 
 	boolean canStep(Location destPos) {
 		// The position must be valid...
@@ -547,6 +583,21 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		// Return an empty tile
 		return 0;
+	}
+
+	@Override
+	public void move(Location newPos) {
+		super.move(newPos);
+		if (mustFlip) {
+			if (facing.equals(Environment.DIRECTION_NORTH))
+				facing = Environment.DIRECTION_SOUTH;
+			else if (facing.equals(Environment.DIRECTION_SOUTH))
+				facing = Environment.DIRECTION_NORTH;
+			else if (facing.equals(Environment.DIRECTION_EAST))
+				facing = Environment.DIRECTION_WEST;
+			else if (facing.equals(Environment.DIRECTION_WEST))
+				facing = Environment.DIRECTION_EAST;
+		}
 	}
 
 	/**
@@ -945,6 +996,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			receiveBroadcast();// []SK
 	}
 
+	public void tickZero() {
+		// nothing
+	}
+
 	private void tryAsexBreed() {
 		if (asexFlag && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
 				&& cobweb.globals.random.nextFloat() < params.asexualBreedChance) {
@@ -1039,60 +1094,5 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	@Override
 	public int type() {
 		return agentType;
-	}
-
-	public void tickZero() {
-		// nothing
-	}
-
-	public static Iterable<String> logDataTotal() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logDataTotal())
-				blah.add(s);
-		}
-		return blah;
-	}
-
-	public static Iterable<String> logHederTotal() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logHeaderTotal())
-				blah.add(s);
-		}
-		return blah;
-	}
-
-	public static Collection<String> logHederAgent() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logHeadersAgent())
-				blah.add(s);
-		}
-		return blah;
-	}
-
-	public static Collection<String> logDataAgent(int i) {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logDataAgent(i))
-				blah.add(s);
-		}
-		return blah;
-	}
-
-	@Override
-	public void move(Location newPos) {
-		super.move(newPos);
-		if (mustFlip) {
-			if (facing.equals(Environment.DIRECTION_NORTH))
-				facing = Environment.DIRECTION_SOUTH;
-			else if (facing.equals(Environment.DIRECTION_SOUTH))
-				facing = Environment.DIRECTION_NORTH;
-			else if (facing.equals(Environment.DIRECTION_EAST))
-				facing = Environment.DIRECTION_WEST;
-			else if (facing.equals(Environment.DIRECTION_WEST))
-				facing = Environment.DIRECTION_EAST;
-		}
 	}
 }

@@ -40,7 +40,7 @@ final class GeneticAIPanel extends SettingsPanel {
 				.getIntegerInstance());
 		this.removeAll();
 		seed.setColumns(5);
-		this.add(new JLabel(seed.getLabel()));
+		this.add(new JLabel(seed.getLabelText()));
 		this.add(seed);
 		JButton makeRandom = new JButton("Generate");
 		makeRandom.addActionListener(new SeedRandomListener(seed));

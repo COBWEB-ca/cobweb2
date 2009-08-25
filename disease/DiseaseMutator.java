@@ -35,11 +35,6 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 		sickCount = new int[0];
 	}
 
-	public void onContact(ComplexAgent bumper, ComplexAgent bumpee) {
-		transmitBumpOneWay(bumper, bumpee);
-		transmitBumpOneWay(bumpee, bumper);
-	}
-
 	public Collection<String> logDataAgent(int agentType) {
 		List<String> l = new LinkedList<String>();
 		l.add(Integer.toString(sickCount[agentType]));
@@ -80,8 +75,14 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 		sick.put(agent, new Boolean(isSick));
 	}
 
+	public void onContact(ComplexAgent bumper, ComplexAgent bumpee) {
+		transmitBumpOneWay(bumper, bumpee);
+		transmitBumpOneWay(bumpee, bumper);
+	}
+
 	public void onDeath(ComplexAgent agent) {
-		if (sick.remove(agent).booleanValue())
+		Boolean b = sick.remove(agent);
+		if (b != null && b.booleanValue())
 			sickCount[agent.type()]--;
 	}
 
