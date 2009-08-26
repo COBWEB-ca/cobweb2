@@ -23,14 +23,22 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 	private static final String newLine = System.getProperty("line.separator");
 	private static final Logger logger = Logger.getLogger("COBWEB2");
 
+	Handler fh;
+
 	public MyUncaughtExceptionHandler() {
-		Handler fh;
-		try {
-			fh = new StreamHandler(new FileOutputStream("cobweb_errors.log", true), new SimpleFormatter());
-			fh.setLevel(Level.WARNING);
-			logger.addHandler(fh);
-		} catch (FileNotFoundException ex) {
-			logger.log(Level.SEVERE, "Cannot open file log!", ex);
+
+	}
+
+	private void exceptionToString(Throwable ex, StringBuilder sb, String indent) {
+		sb.append(ex.toString() + newLine);
+		for (StackTraceElement s : ex.getStackTrace()) {
+			if (s.getClassName().startsWith("java"))
+				continue;
+			sb.append(indent + "  at " + s.getClassName() + "." + s.getMethodName() + "(" + s.getFileName() + ":" + s.getLineNumber() + ")" + newLine);
+		}
+		if (ex.getCause() != null) {
+			sb.append(indent + "Caused by: " + newLine);
+			exceptionToString(ex.getCause(), sb, indent + "  ");
 		}
 	}
 
@@ -41,6 +49,16 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 		if (ex instanceof CobwebUserException) {
 			((CobwebUserException) ex).notifyUser();
 			return;
+		}
+
+		if (fh == null) {
+			try {
+				fh = new StreamHandler(new FileOutputStream("cobweb_errors.log", true), new SimpleFormatter());
+				fh.setLevel(Level.WARNING);
+				logger.addHandler(fh);
+			} catch (FileNotFoundException exi) {
+				logger.log(Level.SEVERE, "Cannot open file log!", exi);
+			}
 		}
 
 		logger.log(Level.SEVERE, "Uncaught Exception in thread " + thread.getName(), ex);
@@ -58,19 +76,6 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 
 		JOptionPane.showMessageDialog(null, "Oh no! You crashed COBWEB!" + newLine + sb.toString()
 				, "Unexpected Error", JOptionPane.ERROR_MESSAGE);
-	}
-
-	private void exceptionToString(Throwable ex, StringBuilder sb, String indent) {
-		sb.append(ex.toString() + newLine);
-		for (StackTraceElement s : ex.getStackTrace()) {
-			if (s.getClassName().startsWith("java"))
-				continue;
-			sb.append(indent + "  at " + s.getClassName() + "." + s.getMethodName() + "(" + s.getFileName() + ":" + s.getLineNumber() + ")" + newLine);
-		}
-		if (ex.getCause() != null) {
-			sb.append(indent + "Caused by: " + newLine);
-			exceptionToString(ex.getCause(), sb, indent + "  ");
-		}
 	}
 
 }

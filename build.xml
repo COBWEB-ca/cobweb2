@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="cobweb2">
+    
+	<property environment="env"/>
+    
+	<property name="junit.output.dir" value="junit"/>
+    
+	<property name="debuglevel" value="source,lines,vars"/>
+    
+	<property name="target" value="1.6"/>
+    
+	<property name="source" value="1.6"/>
+    
+	<path id="JUnit 3.libraryclasspath">
+        <pathelement location="../../../../../Program Files (x86)/eclipse/plugins/org.junit_3.8.2.v20080602-1318/junit.jar"/>
+    </path>
+    
+	<path id="cobweb2.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="lib/jcommon-1.0.12.jar"/>
+        <pathelement location="lib/jfreechart-1.0.9.jar"/>
+        <path refid="JUnit 3.libraryclasspath"/>
+    </path>
+    
+	<target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src" excludes="**/*.launch, **/*.java"/>
+        </copy>
+    </target>
+    
+	<target name="clean">
+        <delete dir="bin"/>
+    </target>
+    
+	<target depends="clean" name="cleanall"/>
+    
+	<target depends="build-subprojects,build-project" name="build"/>
+    
+	<target name="build-subprojects"/>
+    
+	<target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="cobweb2.classpath"/>
+        </javac>
+    </target>
+    
+	<target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    
+	<target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    
+	<target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    
+	<target name="GeneticCodeTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="cobweb2test.ga.GeneticCodeTest" todir="${junit.output.dir}"/>
+            <classpath refid="cobweb2.classpath"/>
+        </junit>
+    </target>
+    
+	<target name="CobwebApplication">
+        <java classname="driver.CobwebApplication" failonerror="true" fork="yes">
+            <jvmarg line="-XX:+UseParallelGC -Xmx2g"/>
+            <classpath refid="cobweb2.classpath"/>
+        </java>
+    </target>
+    
+	<target name="CobwebApplication (x86)">
+        <java classname="driver.CobwebApplication" failonerror="true" fork="yes">
+            <classpath refid="cobweb2.classpath"/>
+        </java>
+    </target>
+    
+	<target name="CobwebApplication (noparams)">
+        <java classname="driver.CobwebApplication" failonerror="true" fork="yes">
+            <classpath refid="cobweb2.classpath"/>
+        </java>
+    </target>
+    
+	<target name="Cobweb2Applet">
+        <java classname="sun.applet.AppletViewer" dir="." failonerror="true" fork="yes">
+            <jvmarg line="-Xmx64m"/>
+            <arg line="Cobweb2Applet.html"/>
+            <classpath refid="cobweb2.classpath"/>
+        </java>
+    </target>
+    
+	<target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+</project>
