@@ -7,8 +7,8 @@
     <ControllerConfig>
         <RandomSeed>42</RandomSeed>
     </ControllerConfig>
-    <Width>70</Width>
-    <Height>70</Height>
+    <Width>69</Width>
+    <Height>69</Height>
     <wrap>true</wrap>
     <randomSeed>0</randomSeed>
     <keepOldArray>false</keepOldArray>

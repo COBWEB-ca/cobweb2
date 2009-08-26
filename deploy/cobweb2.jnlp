@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.5+" codebase="http://cobweb.ca/apps" href="cobweb2.jnlp">
+<information>
+        <title>COBWEB 2</title>
+        <vendor>Cobweb Project</vendor>
+
+        <homepage href="http://cobweb.ca/" />
+        <description>COBWEB is a platform for multi-agent simulation.
+        It is free, open-source software developed by The Cobweb Research and Development Team,
+        a group of student programmers and analysts at the University of Toronto,
+        under the supervision of Dr. Brad Bass of Environment Canada's
+        Adaptations &amp; Impacts Research Divison.
+        COBWEB is written entirely in Java with a modular object-oriented design
+        that allows for great flexibility and customization.
+        </description>
+
+        <offline-allowed/>
+
+        <association mime-type="application-x/cobweb2-file" extensions="2wc" />
+
+        <shortcut online="false">
+                <menu submenu="COBWEB"/>
+        </shortcut>
+</information>
+
+<security>
+        <all-permissions/>
+</security>
+<resources>
+  <j2se version="1.6+" initial-heap-size="128m" max-heap-size="512m" />
+  <jar href="cobweb2.jar"/>
+</resources>
+<application-desc main-class="driver.CobwebApplication"/>
+</jnlp>

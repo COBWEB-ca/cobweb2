@@ -361,7 +361,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if (args.length > 0) {
 			CA.inputFile = args[0];
 		} else {
-			CA.inputFile = INITIAL_OR_NEW_INPUT_FILE_NAME + CONFIG_FILE_EXTENSION;
+			String tempdir = System.getProperty("java.io.tmpdir");
+			String sep = System.getProperty("file.separator");
+			if (!tempdir.endsWith(sep))
+				tempdir = tempdir + sep;
+
+			CA.inputFile = tempdir + INITIAL_OR_NEW_INPUT_FILE_NAME + CONFIG_FILE_EXTENSION;
 		}
 		CA.setCurrentFile(CA.inputFile); // $$$$$$ added on Mar 14
 		// CA.setEnabled(false); // $$$$$$ to make sure the "Cobweb Application" frame disables when ever the
