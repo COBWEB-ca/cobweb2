@@ -182,9 +182,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private static Set<StepMutator> stepMutators = new LinkedHashSet<StepMutator>();
 
 	private static final cobweb.Direction[] dirList = { cobweb.Environment.DIRECTION_NORTH,
-			cobweb.Environment.DIRECTION_SOUTH, cobweb.Environment.DIRECTION_WEST, cobweb.Environment.DIRECTION_EAST,
-			cobweb.Environment.DIRECTION_NORTHEAST, cobweb.Environment.DIRECTION_SOUTHEAST,
-			cobweb.Environment.DIRECTION_NORTHWEST, cobweb.Environment.DIRECTION_SOUTHWEST };
+		cobweb.Environment.DIRECTION_SOUTH, cobweb.Environment.DIRECTION_WEST, cobweb.Environment.DIRECTION_EAST,
+		cobweb.Environment.DIRECTION_NORTHEAST, cobweb.Environment.DIRECTION_SOUTHEAST,
+		cobweb.Environment.DIRECTION_NORTHWEST, cobweb.Environment.DIRECTION_SOUTHWEST };
 
 	public static void addMutator(AgentMutator mutator) {
 		if (mutator instanceof SpawnMutator)
@@ -200,6 +200,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public static void clearMutators() {
 		spawnMutators.clear();
 		contactMutators.clear();
+		stepMutators.clear();
 	}
 
 	private cobweb.Direction facing = cobweb.Environment.DIRECTION_NORTH;
@@ -904,7 +905,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 				double sim = 0.0;
 				boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-						&& cobweb.globals.random.nextFloat() < params.sexualBreedChance;
+				&& cobweb.globals.random.nextFloat() < params.sexualBreedChance;
 
 				// Generate genetic similarity number
 				sim = simCalc.similarity(this, adjacentAgent);

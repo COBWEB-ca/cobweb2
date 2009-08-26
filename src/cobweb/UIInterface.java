@@ -54,10 +54,8 @@ public interface UIInterface {
 
 		/**
 		 * Notification that the UIInterface has new frame data.
-		 * 
-		 * @param theInterface the UIInterface with new frame data
 		 */
-		public void refresh(DrawingHandler theInterface, boolean wait);
+		public void refresh(boolean wait);
 	}
 
 	public void addAgent(int x, int y, int type);

@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -21,6 +22,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -32,6 +34,23 @@ import cwcore.complexParams.ComplexFoodParams;
 import disease.DiseaseParams;
 
 public class Parser {
+	private static void removeIgnorableWSNodes(Element parent) {
+		Node nextNode = parent.getFirstChild();
+		for (Node child = parent.getFirstChild();
+		nextNode != null;) {
+			child = nextNode;
+			nextNode = child.getNextSibling();
+			if (child.getNodeType() == Node.TEXT_NODE) {
+				// Checks if the text node is ignorable
+				if (child.getTextContent().matches("^\\s*$")) {
+					parent.removeChild(child);
+				}
+			} else if (child.getNodeType() == Node.ELEMENT_NODE) {
+				removeIgnorableWSNodes((Element )child);
+			}
+		}
+	}
+
 	private String fileName = null;
 
 	private Document document = null;
@@ -40,7 +59,7 @@ public class Parser {
 	 * The genetic sequence. Initialize them to a certain sequence for the four agents.
 	 */
 	public String[][] genetic_sequence = { { "000111100001111000011110", "000111100001111000011110",
-			"000111100001111000011110", "000111100001111000011110", "", "", "", "", "", "" } };
+		"000111100001111000011110", "000111100001111000011110", "", "", "", "", "", "" } };
 
 	private ComplexEnvironmentParams envParams;
 
@@ -91,12 +110,12 @@ public class Parser {
 		this.fileName = ":STREAM:" + file.toString() + ":";
 		loadFile(file);
 	}
-
 	public Parser(String fileName) throws FileNotFoundException {
 		this();
 		this.fileName = fileName;
 		loadFile(new FileInputStream(fileName));
 	}
+
 	public ComplexAgentParams[] getAgentParams() {
 		return agentParams;
 	}
@@ -125,6 +144,7 @@ public class Parser {
 		return geneticParams;
 	}
 
+
 	public TemperatureParams getTempParams() {
 		return tempParams;
 	}
@@ -136,6 +156,10 @@ public class Parser {
 
 		// DOM initialization
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setIgnoringElementContentWhitespace(true);
+		factory.setIgnoringComments(true);
+		// factory.setValidating(true);
+
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			document = builder.parse(file);
@@ -147,7 +171,9 @@ public class Parser {
 			throw new IllegalArgumentException("Can't open config file", ex);
 		}
 
+
 		Node root = document.getFirstChild();
+		removeIgnorableWSNodes((Element) root);
 
 		envParams = new ComplexEnvironmentParams();
 
@@ -277,12 +303,17 @@ public class Parser {
 		Source s = new DOMSource(d);
 
 		Transformer t;
+		TransformerFactory tf = TransformerFactory.newInstance();
 		try {
-			t = TransformerFactory.newInstance().newTransformer();
+			t = tf.newTransformer();
+
 		} catch (TransformerConfigurationException ex) {
 			throw new RuntimeException(ex);
 		}
-		t.setParameter("indent", "yes");
+		t.setOutputProperty(OutputKeys.INDENT, "yes");
+		t.setParameter(OutputKeys.STANDALONE, "yes");
+		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
 		Result r = new StreamResult(stream);
 		try {
 			t.transform(s, r);

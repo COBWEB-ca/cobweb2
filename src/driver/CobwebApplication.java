@@ -45,7 +45,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
-import cobweb.DrawingHandler;
 import cobweb.LocalUIInterface;
 import cobweb.UIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
@@ -944,7 +943,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		System.exit(0);
 	}
 
-	public void refresh(DrawingHandler theUIInterface, boolean wait) {
+	public void refresh(boolean wait) {
 		if (displayPanel != null) {
 			displayPanel.refresh(wait);
 		}

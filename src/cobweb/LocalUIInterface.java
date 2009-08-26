@@ -524,6 +524,16 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		theClient = client;
 		InitScheduler(p.getEnvParams().schedulerName, p);
 
+		// TODO: this is a hack to make the applet work when we switch grids and
+		// the static information is not cleared, ComplexAgent should really
+		// have a way to track which mutators have been bound
+		if (!p.getEnvParams().keepOldAgents) {
+			ComplexAgent.clearMutators();
+			geneticMutator = null;
+			diseaseMutator = null;
+			tempMutator = null;
+		}
+
 		if (geneticMutator == null) {
 			geneticMutator = new GeneticsMutator();
 			ComplexAgent.addMutator(geneticMutator);
@@ -621,7 +631,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		// race condition between
 		// the UI thread that refreshes and this thread which waits for the
 		// refresh.
-		theClient.refresh(this, wait);
+		theClient.refresh(wait);
 	}
 
 	public void removeAgent(int x, int y) {

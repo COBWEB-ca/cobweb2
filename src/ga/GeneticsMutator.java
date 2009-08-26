@@ -24,12 +24,50 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 
 	private Map<ComplexAgent, GeneticCode> genes = new HashMap<ComplexAgent, GeneticCode>();
 
+	private static final Collection<String> blank = new LinkedList<String>();
+
 	public GeneticsMutator() {
 		// Nothing
 	}
 
+
+	private GeneticCode getGene(ComplexAgent agent) {
+		if (!agent.isAlive())
+			return null;
+
+		GeneticCode gc = genes.get(agent);
+		if (gc == null)
+			onSpawn(agent);
+
+		return gc;
+	}
+
 	public GATracker getTracker() {
 		return tracker;
+	}
+
+	public Collection<String> logDataAgent(int agentType) {
+		List<String> s = new LinkedList<String>();
+		for (int i = 0; i < params.geneCount; i++) {
+			s.add(Double.toString(tracker.getAvgStatus(agentType, i)));
+		}
+		return s;
+	}
+
+	public Collection<String> logDataTotal() {
+		return blank;
+	}
+
+	public Collection<String> logHeadersAgent() {
+		List<String> s = new LinkedList<String>();
+		for (int i = 0; i < params.geneCount; i++) {
+			s.add("Avg. Gene: " + params.phenotype[i].field.getAnnotation(ConfDisplayName.class).value());
+		}
+		return s;
+	}
+
+	public Collection<String> logHeaderTotal() {
+		return blank;
 	}
 
 	public void mutateAgentAttributes(ComplexAgent agent) {
@@ -58,18 +96,6 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 		Color col = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), colValues, 1);
 		agent.setColor(col);
 		tracker.addAgent(agent.type(), getGene(agent));
-	}
-
-
-	private GeneticCode getGene(ComplexAgent agent) {
-		if (!agent.isAlive())
-			return null;
-
-		GeneticCode gc = genes.get(agent);
-		if (gc == null)
-			onSpawn(agent);
-
-		return gc;
 	}
 
 	public void onDeath(ComplexAgent agent) {
@@ -152,32 +178,6 @@ public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator 
 
 	public float similarity(ComplexAgent a1, ComplexAgent a2) {
 		return GeneticCode.compareGeneticSimilarity(getGene(a1), getGene(a2));
-	}
-
-	public Collection<String> logDataAgent(int agentType) {
-		List<String> s = new LinkedList<String>();
-		for (int i = 0; i < params.geneCount; i++) {
-			s.add(Double.toString(tracker.getAvgStatus(agentType, i)));
-		}
-		return s;
-	}
-
-	private static final Collection<String> blank = new LinkedList<String>();
-
-	public Collection<String> logDataTotal() {
-		return blank;
-	}
-
-	public Collection<String> logHeaderTotal() {
-		return blank;
-	}
-
-	public Collection<String> logHeadersAgent() {
-		List<String> s = new LinkedList<String>();
-		for (int i = 0; i < params.geneCount; i++) {
-			s.add("Avg. Gene: " + params.phenotype[i].field.getAnnotation(ConfDisplayName.class).value());
-		}
-		return s;
 	}
 
 }

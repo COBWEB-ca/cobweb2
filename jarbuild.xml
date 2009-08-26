@@ -3,15 +3,25 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jar">
-        <jar destfile="C:/Users/Igor/Desktop/cobweb2-2009-07-30.jar" filesetmanifest="mergewithoutmain">
+    	<tstamp>
+    	    <format property="cw.build.date" pattern="yyyy-MM-dd" locale="en,CA"/>
+    	  </tstamp>
+        <jar destfile="cobweb2-${cw.build.date}.jar" filesetmanifest="mergewithoutmain">
             <manifest>
                 <attribute name="Built-By" value="${user.name}"/>
                 <attribute name="Main-Class" value="driver.CobwebApplication"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
-            <fileset dir="bin">
-        	<exclude name="**/doxygen/**"/>
-            </fileset>
+            <fileset dir="bin"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/jcommon-1.0.12.jar"/>
+            <zipfileset excludes="META-INF/*.SF" src="lib/jfreechart-1.0.9.jar"/>
         </jar>
+    	<signjar
+    	    alias="cobweb2" keystore="cobweb.ca.ks"
+    	    storepass="Ag3ntplAstore"
+    		jar="cobweb2-${cw.build.date}.jar"
+    		>
+    	  
+    	</signjar>
     </target>
 </project>

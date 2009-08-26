@@ -11,7 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cobweb.DrawingHandler;
 import cobweb.LocalUIInterface;
 import cobweb.Environment.EnvironmentStats;
 import cobweb.LocalUIInterface.TickEventListener;
@@ -28,16 +27,6 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 	private final LocalUIInterface uiPipe;
 
-	public void AddTickEventListener(TickEventListener listener) {
-		uiPipe.AddTickEventListener(listener);
-		uiPipe.setRunnable(true);
-	}
-
-	public void RemoveTickEventListener(TickEventListener listener) {
-		uiPipe.setRunnable(false);
-		uiPipe.RemoveTickEventListener(listener);
-	}
-
 	private DisplayPanel displayPanel;
 
 	private PauseButton pauseButton;
@@ -48,7 +37,6 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 	public JLabel tickDisplay;
 
-
 	public SimulatorUI(Parser p) {
 		uiPipe = new LocalUIInterface(this, p);
 		setLayout(new BorderLayout());
@@ -56,8 +44,29 @@ public class SimulatorUI extends JPanel implements UIClient {
 		setupUI();
 	}
 
+	public void AddTickEventListener(TickEventListener listener) {
+		uiPipe.AddTickEventListener(listener);
+		uiPipe.setRunnable(true);
+	}
+
+
 	public EnvironmentStats getStatistics() {
 		return uiPipe.getStatistics();
+	}
+
+	public boolean isReadyToRefresh() {
+		return displayPanel != null && displayPanel.isReadyToRefresh();
+	}
+
+	public void refresh(boolean wait) {
+		if (displayPanel != null) {
+			displayPanel.refresh(wait);
+		}
+	}
+
+	public void RemoveTickEventListener(TickEventListener listener) {
+		uiPipe.setRunnable(false);
+		uiPipe.RemoveTickEventListener(listener);
 	}
 
 	public void setupUI() {
@@ -127,11 +136,11 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 		tickField.addFocusListener(new java.awt.event.FocusAdapter(){
 			@Override
-			public void focusLost(FocusEvent e) {
+			public void focusGained(FocusEvent e) {
 				tickField.repaint();
 			}
 			@Override
-			public void focusGained(FocusEvent e) {
+			public void focusLost(FocusEvent e) {
 				tickField.repaint();
 			}
 		});
@@ -142,13 +151,7 @@ public class SimulatorUI extends JPanel implements UIClient {
 		uiPipe.start();
 	}
 
-	public void refresh(DrawingHandler theInterface, boolean wait) {
-		if (displayPanel != null) {
-			displayPanel.refresh(wait);
-		}
-	}
-
-	public boolean isReadyToRefresh() {
-		return displayPanel != null && displayPanel.isReadyToRefresh();
+	public void killSimulation() {
+		this.uiPipe.killScheduler();
 	}
 }

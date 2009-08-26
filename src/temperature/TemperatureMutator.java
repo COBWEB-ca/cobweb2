@@ -14,19 +14,28 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	private TemperatureParams params;
 
+	private static final Collection<String> blank = new LinkedList<String>();
+
+	private int bandNumber;
+
+	private int height = -9000;
 	public TemperatureMutator() {
 		// Nothing
 	}
-
-	public void setParams(TemperatureParams params, AgentFoodCountable env) {
-		this.params = params;
-		height = env.getHeight();
-		bandNumber = Math.min(TemperatureParams.TEMPERATURE_BANDS, height);
+	private float getTemp(Location loc) {
+		int lat = loc.v[1] * bandNumber / height;
+		assert (lat < params.tempBands.length);
+		return params.tempBands[lat];
 	}
 
-	private static final Collection<String> blank = new LinkedList<String>();
-	private int bandNumber;
-	private int height;
+	private float locToPenalty(Location l, TemperatureAgentParams aPar) {
+		float temp = getTemp(l);
+		float ptemp = aPar.preferedTemp;
+		float diff = Math.abs(temp - ptemp);
+		diff = Math.max(diff - aPar.preferedTempRange, 0);
+		float f = diff * aPar.differenceFactor;
+		return f;
+	}
 
 	public Collection<String> logDataAgent(int agentType) {
 		return blank;
@@ -56,15 +65,6 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 			ReflectionUtil.addField(agent.params, aPar.parameter.field, f);
 	}
 
-	private float locToPenalty(Location l, TemperatureAgentParams aPar) {
-		float temp = getTemp(l);
-		float ptemp = aPar.preferedTemp;
-		float diff = Math.abs(temp - ptemp);
-		diff = Math.max(diff - aPar.preferedTempRange, 0);
-		float f = diff * aPar.differenceFactor;
-		return f;
-	}
-
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
 		onSpawn(agent);
 	}
@@ -84,9 +84,10 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 		}
 	}
 
-	private float getTemp(Location loc) {
-		int lat = loc.v[1] * bandNumber / height;
-		return params.tempBands[lat];
+	public void setParams(TemperatureParams params, AgentFoodCountable env) {
+		this.params = params;
+		height = env.getHeight();
+		bandNumber = Math.min(TemperatureParams.TEMPERATURE_BANDS, height);
 	}
 
 }

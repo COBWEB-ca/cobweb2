@@ -37,21 +37,102 @@ import driver.SimulatorUI;
  */
 public class Cobweb2Applet extends JApplet {
 
+	private class ExpSelectorListener implements ActionListener {
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			JComboBox cb = (JComboBox)e.getSource();
+			String expname = (String)cb.getSelectedItem();
+			loadSimulation(expname);
+		}
+
+	}
+
+	private class StatsUpdater implements TickEventListener {
+
+		JFrame graph = new JFrame("Statistics");
+
+		int frame = 0;
+
+
+
+		static final int frameskip = 50;
+
+
+
+		XYSeries agentData = new XYSeries("Agents");
+		XYSeries foodData = new XYSeries("Food");
+
+		XYSeriesCollection data = new XYSeriesCollection();
+		JFreeChart plot = ChartFactory.createXYLineChart(
+				"Agent and Food count"
+				, "Time"
+				, "Count"
+				, data
+				, PlotOrientation.VERTICAL
+				, true
+				, false
+				, false);
+
+		public StatsUpdater() {
+			graph.setSize(500, 500);
+			ChartPanel cp = new ChartPanel(plot, true);
+			graph.add(cp);
+			plot.setAntiAlias(true);
+			plot.setNotify(false);
+
+			data.addSeries(agentData);
+			data.addSeries(foodData);
+		}
+
+		public void TickPerformed(long currentTick) {
+
+
+			EnvironmentStats stats = ui.getStatistics();
+			long agentCount = 0;
+			for (long count : stats.agentCounts) {
+				agentCount += count;
+			}
+			long foodCount = 0;
+			for (long count : stats.foodCounts) {
+				foodCount += count;
+			}
+
+			agentData.add(currentTick, agentCount);
+			foodData.add(currentTick, foodCount);
+
+			if (frame++ == frameskip) {
+				frame = 0;
+				plot.setNotify(true);
+				plot.setNotify(false);
+			}
+		}
+
+		public void toggleGraphVisible() {
+			graph.setVisible(!graph.isVisible());
+		}
+
+	}
+
+
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 3127350835002502812L;
-
 	Map<String, String> experements = new LinkedHashMap<String, String>();
-
-
 	SimulatorUI ui;
 	JPanel controls;
 	Parser parser;
+
 	String currentexp;
+
 	ExperementSelector expselector;
 
 	JLabel statsLabel;
+
+	StatsUpdater statsUpdater;
 
 	@Override
 	public void init() {
@@ -110,19 +191,6 @@ public class Cobweb2Applet extends JApplet {
 
 	}
 
-	private class ExpSelectorListener implements ActionListener {
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			JComboBox cb = (JComboBox)e.getSource();
-			String expname = (String)cb.getSelectedItem();
-			loadSimulation(expname);
-		}
-
-	}
-
 	/**
 	 * Sets up known simulation by name
 	 * @param expname Experiment name
@@ -131,12 +199,13 @@ public class Cobweb2Applet extends JApplet {
 		this.currentexp = expname;
 		if (ui != null) {
 
+			ui.killSimulation();
 			ui.RemoveTickEventListener(statsUpdater);
 			remove(ui);
 		}
 
 
-		InputStream datafile = getClass().getResourceAsStream("/resources/" + experements.get(expname));
+		InputStream datafile = getClass().getResourceAsStream("/experiments/" + experements.get(expname));
 
 		parser = new Parser(datafile);
 		ui = new SimulatorUI(parser);
@@ -148,74 +217,6 @@ public class Cobweb2Applet extends JApplet {
 		ui.setVisible(true);
 		statsUpdater = new StatsUpdater();
 		ui.AddTickEventListener(statsUpdater);
-	}
-
-	StatsUpdater statsUpdater;
-
-	private class StatsUpdater implements TickEventListener {
-
-		JFrame graph = new JFrame("Statistics");
-
-		public StatsUpdater() {
-			graph.setSize(500, 500);
-			ChartPanel cp = new ChartPanel(plot, true);
-			graph.add(cp);
-			plot.setAntiAlias(true);
-			plot.setNotify(false);
-
-			data.addSeries(agentData);
-			data.addSeries(foodData);
-		}
-
-
-
-		public void toggleGraphVisible() {
-			graph.setVisible(!graph.isVisible());
-		}
-
-
-
-		int frame = 0;
-		static final int frameskip = 50;
-
-		XYSeries agentData = new XYSeries("Agents");
-		XYSeries foodData = new XYSeries("Food");
-
-		XYSeriesCollection data = new XYSeriesCollection();
-
-		JFreeChart plot = ChartFactory.createXYLineChart(
-				"Agent and Food count"
-				, "Time"
-				, "Count"
-				, data
-				, PlotOrientation.VERTICAL
-				, true
-				, false
-				, false);
-
-		public void TickPerformed(long currentTick) {
-
-
-			EnvironmentStats stats = ui.getStatistics();
-			long agentCount = 0;
-			for (long count : stats.agentCounts) {
-				agentCount += count;
-			}
-			long foodCount = 0;
-			for (long count : stats.foodCounts) {
-				foodCount += count;
-			}
-
-			agentData.add(currentTick, agentCount);
-			foodData.add(currentTick, foodCount);
-
-			if (frame++ == frameskip) {
-				frame = 0;
-				plot.setNotify(true);
-				plot.setNotify(false);
-			}
-		}
-
 	}
 
 
