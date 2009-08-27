@@ -13,13 +13,22 @@ import org.w3c.dom.NodeList;
 import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 
+/**
+ * Food web parameters for an agent.
+ */
 public class FoodwebParams implements CobwebParam {
 
 	private static final long serialVersionUID = 1380425322335531943L;
 
+	/**
+	 * If this agent can eat Agent type 1 canEatAgents[0] is true.
+	 */
 	@ConfDisplayName("Agent")
 	public boolean[] canEatAgent;
 
+	/**
+	 * If this agent can eat Food type 1 canEatFood[0] is true.
+	 */
 	@ConfDisplayName("Food")
 	public boolean[] canEatFood;
 

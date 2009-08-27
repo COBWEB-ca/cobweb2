@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marks this field as being modifiable by genetics, diseases, etc.
+ * Marks this field as being modifiable by mutators (genetics, diseases, etc.).
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

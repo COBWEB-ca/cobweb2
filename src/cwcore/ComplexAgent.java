@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import cobweb.ColorLookup;
+import cobweb.Direction;
 import cobweb.DrawingHandler;
 import cobweb.Environment;
 import cobweb.Point2D;
@@ -24,12 +25,12 @@ import driver.ControllerFactory;
 
 public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client {
 
-	static class lookPair {
+	static class SeeInfo {
 		private int dist;
 
 		private int type;
 
-		public lookPair(int d, int t) {
+		public SeeInfo(int d, int t) {
 			dist = d;
 			type = t;
 		}
@@ -47,7 +48,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	private static ComplexAgentParams defaulParams[];
 
-	private static AgentSimularityCalculator simCalc;
+	private static AgentSimilarityCalculator simCalc;
 
 	public static Collection<String> logDataAgent(int i) {
 		List<String> blah = new LinkedList<String>();
@@ -93,7 +94,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	public static void setSimularityCalc(AgentSimularityCalculator calc) {
+	public static void setSimularityCalc(AgentSimilarityCalculator calc) {
 		simCalc = calc;
 	}
 
@@ -147,9 +148,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	// the output
 	// (dumping 200 .txt files != graceful).
 	private static java.io.Writer writer;
-
-	@SuppressWarnings("unused")
-	private static long groupLastPolled = 1;
 
 	public static final int LOOK_DISTANCE = 4;
 
@@ -387,32 +385,37 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		info.setDeath(((ComplexEnvironment) position.getEnvironment()).getTickCount());
 	}
 
-	public lookPair distanceLook() {
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
+	public SeeInfo distanceLook() {
+		Direction d = facing;
+		cobweb.Environment.Location destPos = getPosition().getAdjacent(d);
+		if (getPosition().checkFlip(d)) 
+			d = d.flip();
 		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
 
 			// We are looking at the wall
 			if (destPos == null)
-				return new lookPair(dist, ComplexEnvironment.FLAG_STONE);
+				return new SeeInfo(dist, ComplexEnvironment.FLAG_STONE);
 
 			// Check for stone...
 			if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
-				return new lookPair(dist, ComplexEnvironment.FLAG_STONE);
+				return new SeeInfo(dist, ComplexEnvironment.FLAG_STONE);
 
 			// If there's another agent there, then return that it's a stone...
 			if (destPos.getAgent() != null && destPos.getAgent() != this)
-				return new lookPair(dist, ComplexEnvironment.FLAG_AGENT);
+				return new SeeInfo(dist, ComplexEnvironment.FLAG_AGENT);
 
 			// If there's food there, return the food...
 			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
-				return new lookPair(dist, ComplexEnvironment.FLAG_FOOD);
+				return new SeeInfo(dist, ComplexEnvironment.FLAG_FOOD);
 
 			if (destPos.testFlag(ComplexEnvironment.FLAG_WASTE))
-				return new lookPair(dist, ComplexEnvironment.FLAG_WASTE);
+				return new SeeInfo(dist, ComplexEnvironment.FLAG_WASTE);
 
-			destPos = destPos.getAdjacent(facing);
+			destPos = destPos.getAdjacent(d);
+			if (getPosition().checkFlip(d)) 
+				d = d.flip();
 		}
-		return new lookPair(LOOK_DISTANCE, 0);
+		return new SeeInfo(LOOK_DISTANCE, 0);
 	}
 
 	public void eat(cobweb.Environment.Location destPos) {
@@ -443,12 +446,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			return 0.0;
 		double tempAge = currTick - birthTick;
 		assert(tempAge == age);
-		if (tracked && log)
-			info.useExtraEnergy(Math.min(Math.max(0, energy), (int) (params.agingRate
-					* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180)) + 0.5)));
+		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
+				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
+		if (tracked && log) {
+			info.useExtraEnergy(penaltyValue);
+		}
 
-		return Math.min(Math.max(0, energy), params.agingRate
-				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180)));
+		return penaltyValue;
 	}
 
 	cobweb.Agent getAdjacentAgent() {
@@ -649,9 +653,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 * Payoff Matrix: 0 0 => 5 5 0 1 => 2 8 1 0 => 8 2 1 1 => 3 3
 		 */
 
-		@SuppressWarnings("unused")
-		final int PD_STATIC_PAYOFF = 0;
-
 		final int PD_COOPERATE = 0;
 		final int PD_DEFECT = 1;
 
@@ -692,9 +693,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	void receiveBroadcast() {
-
-		@SuppressWarnings("unused")
-		CommManager commManager = new CommManager();
 		CommPacket commPacket = null;
 
 		commPacket = ComplexEnvironment.currentPackets.get(checkforBroadcasts());
@@ -711,7 +709,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				receiveCheatingBroadcast(commPacket);
 				break;
 			default:
-				System.out.println("Unrecognized broadcast type");
+				System.out.println("Unrecognised broadcast type");
 		}
 	}
 
@@ -724,11 +722,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	void receiveFoodBroadcast(CommPacket commPacket) {
 		String message = commPacket.getContent();
-		String[] xy = message.split(",");
-		@SuppressWarnings("unused")
+		String[] xy = message.substring(1, message.length() - 1).split(",");
 		int x = Integer.parseInt(xy[0]);
-		@SuppressWarnings("unused")
 		int y = Integer.parseInt(xy[1]);
+		//TODO: do something with the food location;
 	}
 
 	public void setAsexFlag(boolean asexFlag) {
@@ -1013,13 +1010,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * Produce waste
 	 */
 	private void tryPoop() {
-		// we should check before calling this function instead
-		// if (!wasteMode) return;
 		boolean produce = false;
-		if (wasteCounterGain <= 0) {
+		if (wasteCounterGain <= 0 && params.wasteLimitGain > 0) {
 			produce = true;
 			wasteCounterGain += params.wasteLimitGain;
-		} else if (wasteCounterLoss <= 0) {
+		} else if (wasteCounterLoss <= 0 && params.wasteLimitLoss > 0) {
 			produce = true;
 			wasteCounterLoss += params.wasteLimitLoss;
 		}

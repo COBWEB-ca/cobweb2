@@ -55,7 +55,7 @@ public interface Scheduler {
 	/**
 	 * Save the scheduler to the specified stream.
 	 */
-	void loadScheduler(UIInterface ui, driver.Parser p);
+	void loadScheduler(UIInterface ui, driver.SimulationConfig p);
 
 	/** Pause the simulation. */
 	void pauseScheduler();

@@ -1,5 +1,6 @@
 package cwcore.legacy;
 
+@Deprecated
 public interface InnateArray extends Comparable<InnateArray>, Cloneable {
 	/*
 	 * Constructor: make an InnateArray to hold size objects. InnateArray(int

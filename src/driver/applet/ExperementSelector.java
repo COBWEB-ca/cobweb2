@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.swing.JComboBox;
 
 /**
- * @author igor
  *
  */
 public class ExperementSelector extends JComboBox {

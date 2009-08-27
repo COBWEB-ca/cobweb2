@@ -1,7 +1,8 @@
 package cwcore.legacy;
 
-import driver.Parser;
+import driver.SimulationConfig;
 
+@Deprecated
 public class SimpleEnvironment extends cobweb.Environment implements cobweb.TickScheduler.Client {
 	public static final int FLAG_STONE = 1;
 
@@ -125,7 +126,7 @@ public class SimpleEnvironment extends cobweb.Environment implements cobweb.Tick
 	}
 
 	@Override
-	public void load(cobweb.Scheduler s, Parser p/* java.io.Reader r */) throws IllegalArgumentException {
+	public void load(cobweb.Scheduler s, SimulationConfig p/* java.io.Reader r */) throws IllegalArgumentException {
 
 		if (s != theScheduler) {
 			theScheduler = s;

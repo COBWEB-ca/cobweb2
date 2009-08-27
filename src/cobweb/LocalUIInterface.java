@@ -22,7 +22,7 @@ import cobweb.Environment.Location;
 import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
-import driver.Parser;
+import driver.SimulationConfig;
 
 public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
 
@@ -286,9 +286,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	public int count = 0;
 
-	private Parser[] parsedfiles;
+	private SimulationConfig[] parsedfiles;
 
-	private Parser currentParser;
+	private SimulationConfig currentParser;
 
 	private int[] pauseAt;
 
@@ -322,12 +322,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * @param p configuration
 	 */
 
-	public LocalUIInterface(UIClient client, Parser p) {
+	public LocalUIInterface(UIClient client, SimulationConfig p) {
 		load(client, p);
 		currentParser = p;
 	}
 
-	public LocalUIInterface(UIInterface.UIClient client, Parser p[], int time[], int numfiles) {
+	public LocalUIInterface(UIInterface.UIClient client, SimulationConfig p[], int time[], int numfiles) {
 		theClient = client;
 		totalfilenum = numfiles;
 		pauseAt = time;
@@ -392,7 +392,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	// return current Parser being dealt with
-	public Parser getcurrentParser() {
+	public SimulationConfig getcurrentParser() {
 		return currentParser;
 	}
 
@@ -452,7 +452,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		return theEnvironment.getSize(0);
 	}
 
-	private void InitEnvironment(String environmentName, Parser p) {
+	private void InitEnvironment(String environmentName, SimulationConfig p) {
 		try {
 			if (theEnvironment == null) {
 				Class<?> environmentClass = Class.forName(environmentName);
@@ -477,7 +477,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * Initialize the specified Scheduler class with state data read from the
 	 * Reader. This is a private helper to the LocalUIInterface constructor.
 	 */
-	private void InitScheduler(String schedulerName, Parser p) {
+	private void InitScheduler(String schedulerName, SimulationConfig p) {
 		try {
 			if (theScheduler != null) {
 				theScheduler.killScheduler();
@@ -486,7 +486,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 			Class<?> schedulerClass = Class.forName(schedulerName);
 			// Use reflection to find a constructor taking a UIInterface
 			// parameter and a Reader
-			Constructor<?> theCtor = schedulerClass.getConstructor(UIInterface.class, Parser.class);
+			Constructor<?> theCtor = schedulerClass.getConstructor(UIInterface.class, SimulationConfig.class);
 			if (theCtor == null)
 				throw new InstantiationError("Correct constructor not found in " + schedulerName);
 
@@ -520,7 +520,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * Initialize the specified environment class with state data read from the
 	 * Reader. This is a private helper to the LocalUIInterface constructor.
 	 */
-	public void load(UIInterface.UIClient client, Parser p) {
+	public void load(UIInterface.UIClient client, SimulationConfig p) {
 		theClient = client;
 		InitScheduler(p.getEnvParams().schedulerName, p);
 

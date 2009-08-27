@@ -8,17 +8,16 @@ import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;
 
+@Deprecated
 class SimpleController implements cobweb.Controller {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -5220765303102095303L;
 
-	public void addClientAgent(cobweb.Agent a) {
-		// Nothing
-	}
+	SimpleControllerParams params;
 
-	public void removeClientAgent(cobweb.Agent a) {
+	public void addClientAgent(cobweb.Agent a) {
 		// Nothing
 	}
 
@@ -38,6 +37,19 @@ class SimpleController implements cobweb.Controller {
 	}
 
 
+	public CobwebParam getParams() {
+		return params;
+	}
+
+	public void removeClientAgent(cobweb.Agent a) {
+		// Nothing
+	}
+
+	public void setParams(CobwebParam params) {
+		this.params = (SimpleControllerParams) params;
+	}
+
+
 	public void setupFromEnvironment(int memory, int comm, CobwebParam params) {
 		// Nothing
 	}
@@ -48,16 +60,5 @@ class SimpleController implements cobweb.Controller {
 
 	public void setupFromParents(Controller parent1, Controller parent2, float mutationRate) {
 		// Nothing
-	}
-
-
-	SimpleControllerParams params;
-
-	public CobwebParam getParams() {
-		return params;
-	}
-
-	public void setParams(CobwebParam params) {
-		this.params = (SimpleControllerParams) params;
 	}
 }

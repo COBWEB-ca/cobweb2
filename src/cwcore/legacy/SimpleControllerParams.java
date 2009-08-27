@@ -5,6 +5,7 @@ import org.w3c.dom.Node;
 
 import cobweb.params.CobwebParam;
 
+@Deprecated
 public class SimpleControllerParams implements CobwebParam {
 
 	/**

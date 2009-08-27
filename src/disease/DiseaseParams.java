@@ -21,28 +21,43 @@ public class DiseaseParams extends AbstractReflectionParams {
 	@ConfXMLTag("Index")
 	public int type;
 
+	/**
+	 * Fraction of initially infected agents.
+	 */
 	@ConfXMLTag("initialInfection")
 	@ConfDisplayName("Initially infected fraction")
-	public float initialInfection;
+	public float initialInfection = 0;
 
+	/**
+	 * Agent types this agent can transmit the disease to.
+	 */
 	@ConfDisplayName("Transmit to")
 	public boolean[] transmitTo;
 
 	/**
-	 * Contact transmission rate
+	 * Chance this agent will get a disease from contact with an infected agent.
 	 */
 	@ConfXMLTag("contactTransmitRate")
 	@ConfDisplayName("Contact transmission rate")
-	public float contactTransmitRate;
+	public float contactTransmitRate = 0.5f;
 
+	/**
+	 * Chance a child of an infected agent will be infected.
+	 */
 	@ConfXMLTag("childTransmitRate")
 	@ConfDisplayName("Child transmission rate")
-	public float childTransmitRate;
+	public float childTransmitRate = 0.9f;
 
+	/**
+	 * Which parameter is affected by the disease.
+	 */
 	@ConfXMLTag("parameter")
 	@ConfDisplayName("Parameter")
-	public Phenotype param;
+	public Phenotype param = new Phenotype();
 
+	/**
+	 * The factor the parameter is multiplied by when the agent is infected.
+	 */
 	@ConfXMLTag("factor")
 	@ConfDisplayName("Factor")
 	public float factor = 2;
@@ -54,10 +69,6 @@ public class DiseaseParams extends AbstractReflectionParams {
 	public DiseaseParams(AgentFoodCountable env) {
 		this.env = env;
 		transmitTo = new boolean[env.getAgentTypes()];
-		initialInfection = 0.0f;
-		contactTransmitRate = 0.5f;
-		childTransmitRate = 1;
-		this.param = new Phenotype();
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.awt.Color;
 import cobweb.DrawingHandler;
 import cobweb.Point2D;
 
+@Deprecated
 public class SimpleAgent extends cobweb.Agent implements
 cobweb.TickScheduler.Client {
 

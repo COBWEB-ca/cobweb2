@@ -13,6 +13,12 @@ public class Direction {
 		v = new int[dim];
 	}
 
+	public Direction(int x, int y) {
+		v = new int[2];
+		v[0] = x;
+		v[1] = y;
+	}
+
 	public Direction(int[] initV) {
 		v = initV;
 	}
@@ -34,6 +40,10 @@ public class Direction {
 				return false;
 		}
 		return true;
+	}
+
+	public Direction flip() {
+		return new Direction(-v[0], -v[1]);
 	}
 
 	/**

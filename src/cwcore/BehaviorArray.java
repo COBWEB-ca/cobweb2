@@ -163,6 +163,7 @@ public class BehaviorArray {
 
 	/* This method has been modified. It is now unaffected by mutationRate */
 	public BehaviorArray copy(float mutationRate) {
+		// TODO: should it mutate?
 
 		BehaviorArray newArray = new BehaviorArray(inputSize, outputSize);
 		int[] get = new int[outputSize.length];
@@ -178,7 +179,7 @@ public class BehaviorArray {
 				 * else { outputCode.add( get[j], outputSize[j] ); }
 				 */
 
-				// TODO: should it mutate?
+
 				/* Replaces the above commented-out codes from above */
 				outputCode.add(get[j], outputSize[j]);
 

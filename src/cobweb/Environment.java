@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-import driver.Parser;
+import driver.SimulationConfig;
 
 /**
  * The Environment class represents the simulation world; a collection of
@@ -470,7 +470,7 @@ public abstract class Environment {
 	 * @param scheduler the Scheduler to use
 	 * @param parameters the parameters
 	 **/
-	public void load(Scheduler scheduler, Parser parameters) throws IllegalArgumentException {
+	public void load(Scheduler scheduler, SimulationConfig parameters) throws IllegalArgumentException {
 		tileColors = new Color[parameters.getEnvParams().getWidth() * parameters.getEnvParams().getHeight()];
 	}
 

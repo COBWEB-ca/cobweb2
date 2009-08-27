@@ -33,7 +33,7 @@ import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
 import disease.DiseaseParams;
 
-public class Parser {
+public class SimulationConfig {
 	private static void removeIgnorableWSNodes(Element parent) {
 		Node nextNode = parent.getFirstChild();
 		for (Node child = parent.getFirstChild();
@@ -53,13 +53,9 @@ public class Parser {
 
 	private String fileName = null;
 
-	private Document document = null;
-
 	/**
 	 * The genetic sequence. Initialize them to a certain sequence for the four agents.
 	 */
-	public String[][] genetic_sequence = { { "000111100001111000011110", "000111100001111000011110",
-		"000111100001111000011110", "000111100001111000011110", "", "", "", "", "", "" } };
 
 	private ComplexEnvironmentParams envParams;
 
@@ -73,7 +69,7 @@ public class Parser {
 
 	private TemperatureParams tempParams;
 
-	public Parser() {
+	public SimulationConfig() {
 		envParams = new ComplexEnvironmentParams();
 
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
@@ -98,19 +94,14 @@ public class Parser {
 
 		tempParams = new TemperatureParams(envParams);
 
-		try {
-			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		} catch (ParserConfigurationException ex) {
-			throw new RuntimeException(ex);
-		}
 	}
 
-	public Parser(InputStream file) {
+	public SimulationConfig(InputStream file) {
 		this();
 		this.fileName = ":STREAM:" + file.toString() + ":";
 		loadFile(file);
 	}
-	public Parser(String fileName) throws FileNotFoundException {
+	public SimulationConfig(String fileName) throws FileNotFoundException {
 		this();
 		this.fileName = fileName;
 		loadFile(new FileInputStream(fileName));
@@ -122,10 +113,6 @@ public class Parser {
 
 	public DiseaseParams[] getDiseaseParams() {
 		return diseaseParams;
-	}
-
-	public Document getDocument() {
-		return document;
 	}
 
 	public ComplexEnvironmentParams getEnvParams() {
@@ -160,6 +147,7 @@ public class Parser {
 		factory.setIgnoringComments(true);
 		// factory.setValidating(true);
 
+		Document document;
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			document = builder.parse(file);
@@ -204,7 +192,6 @@ public class Parser {
 				p.loadConfig(node);
 				if (p.type < 0)
 					p.type = agent++;
-				p.pdMemory = envParams.pdMemorySize;
 				if (p.type >= envParams.getAgentTypes())
 					continue;
 				agentParams[p.type] = p;

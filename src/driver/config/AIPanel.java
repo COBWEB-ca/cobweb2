@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 
 import cwcore.GeneticController;
 import cwcore.LinearWeightsController;
-import driver.Parser;
+import driver.SimulationConfig;
 import driver.SettingsPanel;
 
 class AIPanel extends SettingsPanel {
@@ -29,14 +29,14 @@ class AIPanel extends SettingsPanel {
 
 	SettingsPanel[] tabs;
 
-	private Parser parser;
+	private SimulationConfig parser;
 
 	public AIPanel() {
 		// Nothing
 	}
 
 	@Override
-	public void bindToParser(Parser p) {
+	public void bindToParser(SimulationConfig p) {
 		parser = p;
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		inner.setLayout(cardSwitch);

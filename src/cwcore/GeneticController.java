@@ -5,7 +5,7 @@ package cwcore;
 
 import cobweb.Controller;
 import cobweb.params.CobwebParam;
-import cwcore.ComplexAgent.lookPair;
+import cwcore.ComplexAgent.SeeInfo;
 
 public class GeneticController implements cobweb.Controller {
 	/**
@@ -99,7 +99,7 @@ public class GeneticController implements cobweb.Controller {
 
 		inputCode.add(theAgent.getIntFacing(), 2);
 
-		lookPair get = theAgent.distanceLook();
+		SeeInfo get = theAgent.distanceLook();
 		int type = get.getType();
 		int dist = get.getDist();
 		inputCode.add(type, 2);

@@ -10,8 +10,10 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
+    <import file="deployJar.xml"/>
+    <import file="javadoc.xml"/>
     <path id="JUnit 3.libraryclasspath">
-        <pathelement location="../../../../../Program Files (x86)/eclipse/plugins/org.junit_3.8.2.v20080602-1318/junit.jar"/>
+        <pathelement location="../../../../../Program Files/eclipse/plugins/org.junit_3.8.2.v20080602-1318/junit.jar"/>
     </path>
     <path id="cobweb2.classpath">
         <pathelement location="bin"/>
@@ -53,6 +55,19 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
     <target name="ComplexAgentParamsTest">
         <mkdir dir="${junit.output.dir}"/>
         <junit fork="yes" printsummary="withOutAndErr">

@@ -20,24 +20,20 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.LookAndFeel;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumnModel;
 
 import cobweb.TypeColorEnumeration;
-import cwcore.complexParams.FoodwebParams;
 import driver.CobwebApplication;
 import driver.CobwebUserException;
-import driver.Parser;
 import driver.SettingsPanel;
+import driver.SimulationConfig;
 
 /**
  * Simulation configuration dialog
@@ -54,10 +50,10 @@ public class GUI extends JFrame {
 			 * this fragment of code is necessary to update the last cell of the table before saving it
 			 */
 			environmentPage.validateUI();
-			updateTable(resourceParamTable);
-			updateTable(agentParamTable);
-			updateTable(foodTable);
-			updateTable(tablePD);
+			resourcePage.validateUI();
+			agentPage.validateUI();
+			foodwebPage.validateUI();
+			pdPage.validateUI();
 			geneticPage.validateUI();
 			diseaseConfigPage.validateUI();
 			tempPage.validateUI();
@@ -72,26 +68,23 @@ public class GUI extends JFrame {
 
 			/* create a new parser for the xml file */
 			try {
-				p = new Parser(datafile);
+				p = new SimulationConfig(datafile);
 			} catch (FileNotFoundException ex) {
-				throw new CobwebUserException("Cannot write file! Make sure your file is not read-only.", ex);
+				throw new CobwebUserException("Cannot open file!", ex);
 			}
+
 			CA.openFile(p);
 			if (!datafile.equals(CA.getCurrentFile())) {
 				CA.setCurrentFile(datafile);
-			} // $$$$$$ added on Mar 14
+			}
 			frame.setVisible(false);
-			frame.dispose(); // $$$$$$ added on Feb 28
-			// $$$$$$ Added on Mar 14
+			frame.dispose();
+
 			if (CA.getUI() != null) {
 				if (CA.isInvokedByModify() == false) {
-					CA.getUI().reset(); // reset tick
-					// CA.refresh(CA.getUI());
-					// if (CA.tickField != null && !CA.tickField.getText().equals("")) {CA.tickField.setText("");}
-					// // $$$$$$ Mar 17
+					CA.getUI().reset();
 				}
 				CA.getUI().setRunnable(true);
-				//CA.getUI().refresh(10);
 			}
 		}
 	}
@@ -100,10 +93,10 @@ public class GUI extends JFrame {
 		public void actionPerformed(java.awt.event.ActionEvent e) {
 			try {
 				environmentPage.validateUI();
-				updateTable(resourceParamTable);
-				updateTable(agentParamTable);
-				updateTable(foodTable);
-				updateTable(tablePD);
+				resourcePage.validateUI();
+				agentPage.validateUI();
+				foodwebPage.validateUI();
+				pdPage.validateUI();
 				geneticPage.validateUI();
 				diseaseConfigPage.validateUI();
 				tempPage.validateUI();
@@ -115,21 +108,38 @@ public class GUI extends JFrame {
 		}
 	}
 
-	final String TickScheduler = "cobweb.TickScheduler";
-	JCheckBox FoodWeb;
+	private static final String WINDOW_TITLE = "Simulation Settings";
+
+	static void colorHeaders(JTable ft, boolean skipFirst) {
+		TypeColorEnumeration tc = TypeColorEnumeration.getInstance();
+
+		int firstCol = skipFirst ? 1 : 0;
+
+		for (int col = firstCol; col < ft.getColumnCount(); col++) {
+			DefaultTableCellRenderer r = new DefaultTableCellRenderer();
+			r.setBackground(tc.getColor(col - firstCol, 0));
+			ft.getColumnModel().getColumn(col).setHeaderRenderer(r);
+			LookAndFeel.installBorder(ft.getTableHeader(), "TableHeader.cellBorder");
+		}
+	}
+	static void makeGroupPanel(JComponent target, String title) {
+		target.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.blue), title));
+	}
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////
 
-	EnvironmentConfigPage environmentPage;
-	GeneticConfigPage geneticPage;
+	static void updateTable(JTable table) {
+		int row = table.getEditingRow();
+		int col = table.getEditingColumn();
+		if (table.isEditing()) {
+			table.getCellEditor(row, col).stopCellEditing();
+		}
+	}
+	private EnvironmentConfigPage environmentPage;
 
-	private JTable resourceParamTable;
+	private ResourceConfigPage resourcePage;
 
-	private JTable agentParamTable;
-
-	private JTable foodTable;
-
-	private JTable tablePD;
+	private GeneticConfigPage geneticPage;
 
 	private JTabbedPane tabbedPane;
 
@@ -139,20 +149,14 @@ public class GUI extends JFrame {
 
 	public static JFrame frame;
 
-	Parser p;
+	private SimulationConfig p;
 
 	private final CobwebApplication CA;
 
 	private String datafile;
 
-	public int numAgentTypes;
-
-	public int numFoodTypes;
-
 	SettingsPanel controllerPanel;
-
 	public static final long serialVersionUID = 0xB9967684A8375BC0L;
-
 	/**
 	 * Create the GUI and show it. For thread safety, this method should be invoked from the event-dispatching thread.
 	 */
@@ -160,23 +164,25 @@ public class GUI extends JFrame {
 		if (ca.getUI() != null) {
 			ca.getUI().setRunnable(false);
 		}
-		// Make sure we have nice window decorations.
-		// JFrame.setDefaultLookAndFeelDecorated(true);
-
-		// Create and set up the window.
-
 
 		// Create and set up the content pane.
 
 		frame = new GUI(ca, filename, ca.getUI() != null);
 		frame.setVisible(true);
 
-		// frame.validate();
 	}
 
-	Logger myLogger = Logger.getLogger("COBWEB2");
+	private Logger myLogger = Logger.getLogger("COBWEB2");
+
 	private DiseaseConfigPage diseaseConfigPage;
+
 	private TemperatureConfigPage tempPage;
+
+	private AgentConfigPage agentPage;
+
+	private FoodwebConfigPage foodwebPage;
+
+	private PDConfigPage pdPage;
 
 	public GUI() {
 		super();
@@ -185,8 +191,8 @@ public class GUI extends JFrame {
 
 	// GUI Special Constructor
 	public GUI(CobwebApplication ca, String filename, boolean allowKeep) {
-		super("Simulation Settings");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		super(WINDOW_TITLE);
+		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel j = new JPanel();
 		j.setLayout(new BoxLayout(j, BoxLayout.Y_AXIS));
@@ -201,7 +207,7 @@ public class GUI extends JFrame {
 
 		if (f.exists()) {
 			try {
-				p = new Parser(datafile);
+				p = new SimulationConfig(datafile);
 			} catch (Exception ex) {
 				myLogger.log(Level.WARNING, "Cannot open config file", ex);
 				setDefault();
@@ -210,27 +216,24 @@ public class GUI extends JFrame {
 			setDefault();
 		}
 
-		numAgentTypes = p.getEnvParams().getAgentTypes();
-		numFoodTypes = p.getEnvParams().getFoodTypes();
-
 		tabbedPane = new JTabbedPane();
 
 		environmentPage = new EnvironmentConfigPage(p.getEnvParams(), allowKeep);
 		tabbedPane.addTab("Environment", environmentPage.getPanel());
 
 		/* Resources panel */
-		JComponent resourcePanel = setupResourcePanel();
-		tabbedPane.addTab("Resources", resourcePanel);
+		resourcePage = new ResourceConfigPage(p.getFoodParams());
+		tabbedPane.addTab("Resources", resourcePage.getPanel());
 
 		/* Agents' panel */
-		JComponent agentPanel = setupAgentPanel();
-		tabbedPane.addTab("Agents", agentPanel);
+		agentPage = new AgentConfigPage(p.getAgentParams());
+		tabbedPane.addTab("Agents", agentPage.getPanel());
 
-		JComponent foodPanel = setupFoodwebPanel();
-		tabbedPane.addTab("Food Web", foodPanel);
+		foodwebPage = new FoodwebConfigPage(p.getAgentParams());
+		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
 
-		JComponent panelPD = setupPDpannel();
-		tabbedPane.addTab("PD Options", panelPD);
+		pdPage = new PDConfigPage(p.getEnvParams().pdParams);
+		tabbedPane.addTab("PD Options", pdPage.getPanel());
 
 		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
 		JComponent panelGA = geneticPage.getPanel();
@@ -267,29 +270,17 @@ public class GUI extends JFrame {
 		getRootPane().setDefaultButton(ok);
 		add(j);
 		pack();
+		File filePath;
+		if (p.getFilename() == null ||
+				(filePath = new File(p.getFilename())).getName() == null)
+			filePath = new File(CobwebApplication.DEFAULT_DATA_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION);
+		setTitle(WINDOW_TITLE + " - " + filePath.getName());
 	}
 
-	static void colorHeaders(JTable ft, boolean skipFirst) {
-		TypeColorEnumeration tc = TypeColorEnumeration.getInstance();
 
-		int firstCol = skipFirst ? 1 : 0;
-
-		for (int col = firstCol; col < ft.getColumnCount(); col++) {
-			DefaultTableCellRenderer r = new DefaultTableCellRenderer();
-			r.setBackground(tc.getColor(col - firstCol, 0));
-			ft.getColumnModel().getColumn(col).setHeaderRenderer(r);
-			LookAndFeel.installBorder(ft.getTableHeader(), "TableHeader.cellBorder");
-		}
-	}
-
-	public Parser getParser() {
+	public SimulationConfig getParser() {
 		return p;
 	}
-
-	static void makeGroupPanel(JComponent target, String title) {
-		target.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.blue), title));
-	}
-
 
 	// $$$$$$ This openFileDialog method is invoked by pressing the "Save" button
 	public void openFileDialog() {
@@ -324,7 +315,7 @@ public class GUI extends JFrame {
 					// $$$$$ The following block used to be the original code. Feb 22
 					p.write(new FileOutputStream(theDialog.getDirectory() + theDialog.getFile()));
 
-					p = new Parser(theDialog.getDirectory() + theDialog.getFile());
+					p = new SimulationConfig(theDialog.getDirectory() + theDialog.getFile());
 					CA.openFile(p);
 					if (!datafile.equals(CA.getCurrentFile())) {
 						CA.setCurrentFile(datafile);
@@ -353,94 +344,7 @@ public class GUI extends JFrame {
 	}
 
 	private void setDefault() {
-		p = new Parser();
-	}
-
-	private JComponent setupAgentPanel() {
-		JComponent agentPanel = new JPanel();
-		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
-		makeGroupPanel(agentPanel, "Agent Parameters");
-
-		agentParamTable = new MixedValueJTable();
-		agentParamTable.setModel(new ConfigTableModel(p.getAgentParams(), "Agent "));
-
-		TableColumnModel agParamColModel = agentParamTable.getColumnModel();
-		// Get the column at index pColumn, and set its preferred width.
-		agParamColModel.getColumn(0).setPreferredWidth(200);
-
-
-		colorHeaders(agentParamTable, true);
-		JScrollPane agentScroll = new JScrollPane(agentParamTable);
-		// Add the scroll pane to this panel.
-		agentPanel.add(agentScroll);
-		return agentPanel;
-	}
-
-
-
-	private JComponent setupFoodwebPanel() {
-		JComponent foodPanel = new JPanel();
-		// tabbedPane.addTab("Agents", panel3);
-
-		foodTable = new MixedValueJTable();
-
-		FoodwebParams[] foodweb = new FoodwebParams[p.getEnvParams().getAgentTypes()];
-		for (int i = 0; i < p.getEnvParams().getAgentTypes(); i++) {
-			foodweb[i] = p.getAgentParams()[i].foodweb;
-		}
-		foodTable.setModel(new ConfigTableModel(foodweb, "Agent "));
-
-		colorHeaders(foodTable, true);
-
-		// Create the scroll pane and add the table to it.
-		JScrollPane foodScroll = new JScrollPane(foodTable);
-
-		foodPanel.setLayout(new BoxLayout(foodPanel, BoxLayout.X_AXIS));
-		makeGroupPanel(foodPanel, "Food Parameters");
-		foodPanel.add(foodScroll);
-		return foodPanel;
-	}
-
-	private JComponent setupPDpannel() {
-		JComponent panelPD = new JPanel();
-
-		tablePD = new JTable();
-		tablePD.setModel(new ConfigTableModel(p.getEnvParams().pdParams, "Value"));
-
-		JScrollPane scrollPanePD = new JScrollPane(tablePD);
-
-		panelPD.add(scrollPanePD, BorderLayout.CENTER);
-
-		panelPD.setLayout(new BoxLayout(panelPD, BoxLayout.X_AXIS));
-		makeGroupPanel(panelPD, "Prisoner's Dilemma Parameters");
-		return panelPD;
-	}
-
-	private JComponent setupResourcePanel() {
-
-		JComponent resourcePanel = new JPanel();
-		resourceParamTable = new MixedValueJTable();
-		resourceParamTable.setModel(new ConfigTableModel(p.getFoodParams(), "Food "));
-
-		TableColumnModel colModel = resourceParamTable.getColumnModel();
-		colModel.getColumn(0).setPreferredWidth(120);
-		System.out.println(colModel.getColumn(0).getHeaderValue());
-
-		colorHeaders(resourceParamTable, true);
-
-		JScrollPane resourceScroll = new JScrollPane(resourceParamTable);
-		resourcePanel.setLayout(new BoxLayout(resourcePanel, BoxLayout.X_AXIS));
-		makeGroupPanel(resourcePanel, "Resource Parameters");
-		resourcePanel.add(resourceScroll);
-		return resourcePanel;
-	}
-
-	public static void updateTable(JTable table) {
-		int row = table.getEditingRow();
-		int col = table.getEditingColumn();
-		if (table.isEditing()) {
-			table.getCellEditor(row, col).stopCellEditing();
-		}
+		p = new SimulationConfig();
 	}
 
 }

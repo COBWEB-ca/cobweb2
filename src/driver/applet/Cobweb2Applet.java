@@ -26,14 +26,12 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import cobweb.Environment.EnvironmentStats;
 import cobweb.LocalUIInterface.TickEventListener;
-import driver.Parser;
+import driver.SimulationConfig;
 import driver.SimulatorUI;
 
 
 /**
  * Applet version of COBWEB2
- * @author igor
- *
  */
 public class Cobweb2Applet extends JApplet {
 
@@ -124,7 +122,7 @@ public class Cobweb2Applet extends JApplet {
 	Map<String, String> experements = new LinkedHashMap<String, String>();
 	SimulatorUI ui;
 	JPanel controls;
-	Parser parser;
+	SimulationConfig parser;
 
 	String currentexp;
 
@@ -207,7 +205,7 @@ public class Cobweb2Applet extends JApplet {
 
 		InputStream datafile = getClass().getResourceAsStream("/experiments/" + experements.get(expname));
 
-		parser = new Parser(datafile);
+		parser = new SimulationConfig(datafile);
 		ui = new SimulatorUI(parser);
 
 		//FIX: DisplayPanel is buggy, so we have to hide and show it for it to redraw

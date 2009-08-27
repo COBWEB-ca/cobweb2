@@ -37,7 +37,7 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 	public JLabel tickDisplay;
 
-	public SimulatorUI(Parser p) {
+	public SimulatorUI(SimulationConfig p) {
 		uiPipe = new LocalUIInterface(this, p);
 		setLayout(new BorderLayout());
 

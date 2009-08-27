@@ -11,7 +11,7 @@ import javax.swing.JLabel;
 import cwcore.GeneticController;
 import cwcore.GeneticControllerParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
-import driver.Parser;
+import driver.SimulationConfig;
 import driver.SettingsPanel;
 
 final class GeneticAIPanel extends SettingsPanel {
@@ -20,7 +20,7 @@ final class GeneticAIPanel extends SettingsPanel {
 	private BoundJFormattedTextField seed;
 
 	@Override
-	public void bindToParser(Parser p) {
+	public void bindToParser(SimulationConfig p) {
 		ComplexEnvironmentParams ep = p.getEnvParams();
 		if (!(ep.controllerParams instanceof GeneticControllerParams)) {
 			p.getEnvParams().controllerName = GeneticController.class.getName();

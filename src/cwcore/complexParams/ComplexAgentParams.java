@@ -7,187 +7,310 @@ import cobweb.params.AbstractReflectionParams;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfXMLTag;
 
-
+/**
+ * Parameters for ComplexAgent.
+ */
 public class ComplexAgentParams extends AbstractReflectionParams {
 
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -7852361484228627541L;
 
+	/**
+	 * Agent type index.
+	 */
 	@ConfXMLTag("Index")
-	public int type;
+	public int type = -1;
 
+	/**
+	 * Initial number of agents.
+	 */
 	@ConfDisplayName("Initial count")
 	@ConfXMLTag("Agents")
-	public int initialAgents;
+	public int initialAgents = 20;
 
-	@ConfDisplayName("Favorite food energy")
+	/**
+	 * Energy gained from favourite food.
+	 */
+	@ConfDisplayName("Favourite food energy")
 	@ConfXMLTag("FoodEnergy")
 	@GeneMutatable
-	public int foodEnergy;
+	public int foodEnergy = 100;
 
+	/**
+	 * Energy gained from other food.
+	 */
 	@ConfDisplayName("Other food energy")
 	@ConfXMLTag("OtherFoodEnergy")
 	@GeneMutatable
-	public int otherFoodEnergy;
+	public int otherFoodEnergy = 25;
 
+	/**
+	 * Fraction of energy gained from eating another agent.
+	 */
 	@ConfDisplayName("Agent eating efficiency")
 	@ConfXMLTag("AgentFoodEnergyFraction")
 	@GeneMutatable
-	public float agentFoodEnergy;
+	public float agentFoodEnergy = 1;
 
+	/**
+	 * Amount of energy used to breed.
+	 */
 	@ConfDisplayName("Breed energy")
 	@ConfXMLTag("BreedEnergy")
 	@GeneMutatable
-	public int breedEnergy;
+	public int breedEnergy = 60;
 
+	/**
+	 * Time between asexual breeding and producing child agent.
+	 */
 	@ConfDisplayName("Asexual pregnancy period")
 	@ConfXMLTag("pregnancyPeriod")
 	@GeneMutatable
-	public int asexPregnancyPeriod;
+	public int asexPregnancyPeriod = 0;
 
+	/**
+	 * Initial energy amount.
+	 */
 	@ConfDisplayName("Initial energy")
 	@ConfXMLTag("InitEnergy")
-	public int initEnergy;
+	public int initEnergy = 100;
 
+	/**
+	 * Energy used to step forward.
+	 */
 	@ConfDisplayName("Step energy")
 	@ConfXMLTag("StepEnergy")
 	@GeneMutatable
-	public int stepEnergy;
+	public int stepEnergy = 1;
 
+	/**
+	 * Energy lost bumping into a rock/wall.
+	 */
 	@ConfDisplayName("Rock bump energy")
 	@ConfXMLTag("StepRockEnergy")
 	@GeneMutatable
-	public int stepRockEnergy;
+	public int stepRockEnergy = 2;
 
+	/**
+	 * Energy lost bumping into another agent.
+	 */
 	@ConfDisplayName("Agent bump energy")
 	@ConfXMLTag("StepAgentEnergy")
 	@GeneMutatable
-	public int stepAgentEnergy;
+	public int stepAgentEnergy = 2;
 
+	/**
+	 * Energy used to turn right.
+	 */
 	@ConfDisplayName("Turn right energy")
 	@ConfXMLTag("TurnRightEnergy")
-	public int turnRightEnergy;
+	public int turnRightEnergy = 1;
 
+	/**
+	 * Energy used to turn left.
+	 */
 	@ConfDisplayName("Turn left energy")
 	@ConfXMLTag("TurnLeftEnergy")
 	@GeneMutatable
-	public int turnLeftEnergy;
+	public int turnLeftEnergy = 1;
 
+	/**
+	 * Rate at which the agent's child mutates from the parent.
+	 */
 	@ConfDisplayName("Mutation rate")
 	@ConfXMLTag("MutationRate")
 	@GeneMutatable
-	public float mutationRate;
+	public float mutationRate = 0.05f;
 
+	/**
+	 * Size of agent's memory in bits.
+	 */
 	@ConfDisplayName("Memory bits")
 	@ConfXMLTag("MemoryBits")
-	public int memoryBits;
+	public int memoryBits = 2;
 
+	/**
+	 * Minimum agent similarity for communication to work.
+	 */
 	@ConfDisplayName("Communication minimum similarity")
 	@ConfXMLTag("commSimMin")
 	@GeneMutatable
-	public int commSimMin;
+	public int commSimMin = 0;
 
+	/**
+	 * Size of communication message in bits.
+	 */
 	@ConfDisplayName("Communication bits")
 	@ConfXMLTag("communicationBits")
-	public int communicationBits;
+	public int communicationBits = 2;
 
+	/**
+	 * Chance that bumping into another agent will result in sexual breeding.
+	 */
 	@ConfDisplayName("Sexual breed chance")
 	@ConfXMLTag("sexualBreedChance")
 	@GeneMutatable
-	public float sexualBreedChance;
+	public float sexualBreedChance = 1;
 
+	/**
+	 * Chance an agent breeds asexually at a time step.
+	 */
 	@ConfDisplayName("Asexual breed chance")
 	@ConfXMLTag("asexualBreedChance")
 	@GeneMutatable
-	public float asexualBreedChance;
+	public float asexualBreedChance = 0;
 
+	/**
+	 * Minimum agent similarity to be able to breed sexually. 
+	 */
 	@ConfDisplayName("Breeding minimum similarity")
 	@ConfXMLTag("breedSimMin")
 	@GeneMutatable
-	public float breedSimMin;
+	public float breedSimMin = 0;
 
+	/**
+	 * Time between sexual breeding and producing child agent.
+	 */
 	@ConfDisplayName("Sexual pregnancy period")
 	@ConfXMLTag("sexualPregnancyPeriod")
 	@GeneMutatable
-	public int sexualPregnancyPeriod;
+	public int sexualPregnancyPeriod = 5;
 
+	/**
+	 * Enable aging mode.
+	 */
 	@ConfDisplayName("Aging")
 	@ConfXMLTag("agingMode")
-	public boolean agingMode;
+	public boolean agingMode = false;
 
+	/**
+	 * Age limit after which the agent is forced to die.
+	 */
 	@ConfDisplayName("Age limit")
 	@ConfXMLTag("agingLimit")
 	@GeneMutatable
-	public int agingLimit;
+	public int agingLimit = 300;
 
+	/**
+	 * Age-based energy penalty factor. 
+	 * agePenalty = agingRate * tan(age / agingLimit * 89.99)
+	 */
 	@ConfDisplayName("Aging rate")
 	@ConfXMLTag("agingRate")
 	@GeneMutatable
-	public float agingRate;
+	public float agingRate = 10;
 
+	/**
+	 * Enable waste creation.
+	 */
 	@ConfDisplayName("Waste")
 	@ConfXMLTag("wasteMode")
-	public boolean wasteMode;
+	public boolean wasteMode = false;
 
+	/**
+	 * Energy lost when stepping into waste. 
+	 */
 	@ConfDisplayName("Step waste energy loss")
 	@ConfXMLTag("wastePen")
-	public int wastePen;
+	public int wastePen = 2;
 
+	/**
+	 * Waste is produced when this amount of energy is gained.
+	 */
 	@ConfDisplayName("Waste gain limit")
 	@ConfXMLTag("wasteGain")
-	public int wasteLimitGain;
+	public int wasteLimitGain = 100;
 
+	/**
+	 * Waste is produced when this amount of energy is lost.
+	 */
 	@ConfDisplayName("Waste loss limit")
 	@ConfXMLTag("wasteLoss")
-	public int wasteLimitLoss;
+	public int wasteLimitLoss = 0;
 
+	/**
+	 * Waste decay rate.
+	 * Formula for decay is: amount = wasteInit * e ^ -rate * time
+	 */
 	@ConfDisplayName("Waste decay")
 	@ConfXMLTag("wasteRate")
-	public float wasteDecay;
+	public float wasteDecay = 0.5f;
 
-	@ConfDisplayName("Waste initial ammount")
+	/**
+	 * Initial waste amount.
+	 */
+	@ConfDisplayName("Waste initial amount")
 	@ConfXMLTag("wasteInit")
-	public int wasteInit;
+	public int wasteInit = 100;
 
+	/**
+	 * Use tit-for-tat strategy for prisoner's dilemma.
+	 */
 	@ConfDisplayName("PD:Use Tit-for-tat")
 	@ConfXMLTag("pdTitForTat")
-	public boolean pdTitForTat;
+	public boolean pdTitForTat = false;
 
+	/**
+	 * Percentage of agents that will be cooperators initially, the rest are cheaters.
+	 */
 	@ConfDisplayName("PD Cooperation probability")
 	@ConfXMLTag("pdCoopProb")
-	public int pdCoopProb;
+	public int pdCoopProb = 50;
 
+	/**
+	 * How many PD cheaters an agent will remember.
+	 */
 	@ConfDisplayName("PD memory size")
 	@ConfXMLTag("pdMemorySize")
-	public int pdMemory;
+	public int pdMemory = 10;
 
+	/**
+	 * Enables message broadcasts.
+	 */
 	@ConfDisplayName("Broadcast")
 	@ConfXMLTag("broadcastMode")
-	public boolean broadcastMode;
+	public boolean broadcastMode = false;
 
+	/**
+	 * Makes broadcast radius depend on agent energy.
+	 * Formula is: radius = energy / 10 + 1.
+	 */
 	@ConfDisplayName("Broadcast energy-based")
 	@ConfXMLTag("broadcastEnergyBased")
-	public boolean broadcastEnergyBased;
+	public boolean broadcastEnergyBased = false;
 
+	/**
+	 * Radius of broadcast area.
+	 */
 	@ConfDisplayName("Broadcast fixed range")
 	@ConfXMLTag("broadcastFixedRange")
 	@GeneMutatable
-	public int broadcastFixedRange;
+	public int broadcastFixedRange = 20;
 
-	@ConfDisplayName("Broadcast minumum energy")
+	/**
+	 * Minimum agent energy to broadcast.
+	 */
+	@ConfDisplayName("Broadcast minimum energy")
 	@ConfXMLTag("broadcastEnergyMin")
 	@GeneMutatable
-	public int broadcastEnergyMin;
+	public int broadcastEnergyMin = 20;
 
+	/**
+	 * Energy used up by broadcasting.
+	 */
 	@ConfDisplayName("Broadcast cost")
 	@ConfXMLTag("broadcastEnergyCost")
 	@GeneMutatable
-	public int broadcastEnergyCost;
+	public int broadcastEnergyCost = 5;
 
+	/**
+	 * Agent's food web parameters.
+	 */
 	@ConfXMLTag("foodweb")
 	public FoodwebParams foodweb;
+
+	public ComplexAgentParams(AgentFoodCountable env) {
+		foodweb = new FoodwebParams(env);
+	}
 
 	@Override
 	public Object clone() {
@@ -196,35 +319,5 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}
-	}
-
-	public ComplexAgentParams(AgentFoodCountable env) {
-		initialAgents = 20;
-		mutationRate = 0.05f;
-		initEnergy = 100;
-		foodEnergy = 100;
-		otherFoodEnergy = 25;
-		agentFoodEnergy = 1;
-		breedEnergy = 60;
-		asexPregnancyPeriod = 0;
-		stepEnergy = 1;
-		stepRockEnergy = 1;
-		turnRightEnergy = 1;
-		turnLeftEnergy = 1;
-		memoryBits = 2;
-		commSimMin = 0;
-		stepAgentEnergy = 1;
-		communicationBits = 2;
-		sexualPregnancyPeriod = 5;
-		breedSimMin = 0.0f;
-		sexualBreedChance = 1.0f;
-		asexualBreedChance = 0.0f;
-		wasteInit = 100;
-		wasteLimitLoss = 100;
-		wasteLimitGain = 100;
-		wasteDecay = 0.5f;
-
-		type = -1;
-		foodweb = new FoodwebParams(env);
 	}
 }

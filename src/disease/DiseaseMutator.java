@@ -19,7 +19,7 @@ import cwcore.complexParams.ContactMutator;
 import cwcore.complexParams.SpawnMutator;
 
 /**
- *
+ * Simulates various diseases that can affect agents.
  */
 public class DiseaseMutator implements ContactMutator, SpawnMutator {
 

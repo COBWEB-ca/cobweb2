@@ -5,7 +5,7 @@ package cwcore.legacy;
  * constanat within the lifetime of a single agent and represent what
  * to a biological organism would be physical and genetic constraints. */
 
-
+@Deprecated
 public class TraitArray implements InnateArray {
 
 	/* Const named version of variables. */
@@ -79,8 +79,8 @@ public class TraitArray implements InnateArray {
 	}
 
 	/* Return a copy of this InnateArray. No mutation is performed. */
-	@SuppressWarnings("hiding")
-	public InnateArray copy(float mutationRate) {
+	@Override
+	public InnateArray copy(float mRate) {
 		return (InnateArray) this.clone();
 		/*
 		 * InnateArray c = this.clone();

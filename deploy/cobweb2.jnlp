@@ -16,7 +16,7 @@
 
         <offline-allowed/>
 
-        <association mime-type="application-x/cobweb2-file" extensions="2wc" />
+        <association mime-type="application-x/cobweb2-file" extensions="cw2xml" />
 
         <shortcut online="false">
                 <menu submenu="COBWEB"/>

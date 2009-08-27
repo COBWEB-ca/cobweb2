@@ -7,7 +7,7 @@ import cobweb.Agent;
 import cobweb.Controller;
 import cobweb.globals;
 import cobweb.params.CobwebParam;
-import cwcore.ComplexAgent.lookPair;
+import cwcore.ComplexAgent.SeeInfo;
 
 public class LinearWeightsController implements cobweb.Controller {
 
@@ -46,18 +46,10 @@ public class LinearWeightsController implements cobweb.Controller {
 		// nothing
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see cobweb.Agent.Controller#addClientAgent(cobweb.Agent)
-	 */
 	public void addClientAgent(Agent theAgent) {
 		// Nothing
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see cobweb.Agent.Controller#controlAgent(cobweb.Agent)
-	 */
 	public void controlAgent(Agent theAgent) {
 		ComplexAgent agent;
 		if (theAgent instanceof ComplexAgent) {
@@ -65,20 +57,22 @@ public class LinearWeightsController implements cobweb.Controller {
 		} else {
 			return;
 		}
-		lookPair get = agent.distanceLook();
+		SeeInfo get = agent.distanceLook();
 		int type = get.getType();
 		int dist = get.getDist();
 		double variables[] = {
 				1.0,
 				((double) agent.getEnergy() / (ENERGY_THRESHOLD)),
-				type == ComplexEnvironment.FLAG_AGENT ? (ComplexAgent.LOOK_DISTANCE - dist)
-						/ (double) ComplexAgent.LOOK_DISTANCE : 0,
-						type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist)
-								/ (double) ComplexAgent.LOOK_DISTANCE : 0,
-								type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? (ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0,
+				type == ComplexEnvironment.FLAG_AGENT ? 
+						(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0,
+						type == ComplexEnvironment.FLAG_FOOD ? 
+								(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0,
+								type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? 
+										(ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0,
 										agent.getIntFacing() / 2, (double) agent.getMemoryBuffer() / (1 << memSize - 1),
 										(double) agent.getCommInbox() / (1 << commSize - 1), Math.max(agent.getAge() / 100.0, 2),
-										globals.random.nextGaussian() };
+										globals.random.nextGaussian() 
+		};
 
 		double memout = 0.0;
 		double commout = 0.0;
@@ -113,10 +107,6 @@ public class LinearWeightsController implements cobweb.Controller {
 		agent.setMemoryBuffer((int) memout);
 		agent.setCommOutbox((int) commout);
 		agent.setAsexFlag(asexflag > 0.50);
-
-		// if (agent.canEat(agent.getPosition())) {
-		// agent.eat(agent.getPosition());
-		// }
 
 		if (right > left && right > step)
 			agent.turnRight();

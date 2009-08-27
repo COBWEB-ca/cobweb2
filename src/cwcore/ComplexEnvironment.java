@@ -22,7 +22,7 @@ import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
 import driver.ControllerFactory;
-import driver.Parser;
+import driver.SimulationConfig;
 
 public class ComplexEnvironment extends Environment implements TickScheduler.Client {
 
@@ -215,9 +215,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		private boolean valid;
 
-		@SuppressWarnings("unused")
-		private long lastAmount = 0;
-
 		public Waste(long birthTick, int weight, float rate) {
 			initialWeight = weight;
 			this.birthTick = birthTick;
@@ -230,7 +227,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		/* Call me sparsely, especially when the age is really old */
 		public double getAmount(long tick) {
-			return initialWeight * Math.pow(Math.E, -1 * rate * (tick - birthTick));
+			return initialWeight * Math.pow(Math.E, -rate * (tick - birthTick));
 		}
 
 		public boolean isActive(long tick) {
@@ -243,17 +240,18 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			return true;
 		}
 
-		@SuppressWarnings("hiding")
-		public void reset(long birthTick, int weight, float rate) {
+		public void reset(long newBirthTick, int weight, float newRate) {
 			initialWeight = weight;
-			this.birthTick = birthTick;
-			this.rate = rate;
+			this.birthTick = newBirthTick;
+			this.rate = newRate;
 			// to avoid recalculating every tick
 			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
 			// skinawy
 			valid = true;
 		}
 	}
+
+	private static final int DROP_ATTEMPTS_MAX = 5;
 
 	public static final int FLAG_STONE = 1;
 
@@ -324,9 +322,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private java.io.PrintWriter logStream;
 
-	@SuppressWarnings("unused")
-	private java.io.PrintWriter trackAgentStream;
-
 	private Vector<ComplexAgentInfo> agentInfoVector = new Vector<ComplexAgentInfo>();
 
 	private cobweb.ArrayEnvironment array;
@@ -341,9 +336,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	// Food array contains type and their locations
 	private static int[][] foodarray = new int[0][];
-
-	@SuppressWarnings("unused")
-	private int clickcount = 0;
 
 	private Agent observedAgent = null;
 
@@ -501,7 +493,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		clearFlag(FLAG_WASTE);
 	}
 
-	private void copyParamsFromParser(Parser p) {
+	private void copyParamsFromParser(SimulationConfig p) {
 		data = p.getEnvParams();
 
 		foodData = p.getFoodParams();
@@ -586,7 +578,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// how many food items we need to destroy, say N,
 		// and we destroy the food at the positions occupying the last N
 		// spots in our vector
-		Vector<Location> locations = new Vector<Location>();
+		LinkedList<Location> locations = new LinkedList<Location>();
 		for (int x = 0; x < getSize(AXIS_X); ++x)
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
@@ -597,10 +589,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		int foodToDeplete = (int) (locations.size() * foodData[type].depleteRate);
 
 		for (int j = 0; j < foodToDeplete; ++j) {
-			Location loc = locations.remove(locations.size() - 1);
+			Location loc = locations.removeLast();
 			loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 		}
-		foodData[type].draughtPeriod = foodData[type].draughtPeriod;
+		draughtdays[type] = foodData[type].draughtPeriod;
 	}
 
 	private void dropFood(int type) {
@@ -613,12 +605,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				++j;
 				l = getRandomLocation();
 
-			} while (j < foodData[type].growRate
+			} while (j < DROP_ATTEMPTS_MAX
 					&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_FOOD)
 							|| l.testFlag(ComplexEnvironment.FLAG_WASTE) || l.getAgent() != null));
 
-			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-			setFoodType(l, type);
+			if (j < DROP_ATTEMPTS_MAX) {
+				l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+				setFoodType(l, type);
+			}
 		}
 	}
 
@@ -832,7 +826,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
-	public void load(Scheduler s, Parser p) throws IllegalArgumentException {
+	public void load(Scheduler s, SimulationConfig p) throws IllegalArgumentException {
 		super.load(s, p);
 		// sFlag stores whether or not we are using a new scheduler
 		boolean sFlag = (s != theScheduler);
@@ -1397,11 +1391,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 
 		// Air-drop food into the environment
-		for (int i = 0; i < data.getFoodTypes(); ++i) {
-			if (foodData[i].draughtPeriod == 0) {
+		for (int i = 0; i < data.foodTypeCount; ++i) {
+			if (draughtdays[i] == 0) {
 				dropFood(i);
 			} else {
-				foodData[i].draughtPeriod--;
+				draughtdays[i]--;
 			}
 		}
 

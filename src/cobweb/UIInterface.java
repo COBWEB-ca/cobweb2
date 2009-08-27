@@ -35,7 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 
 import cobweb.LocalUIInterface.TickEventListener;
-import driver.Parser;
+import driver.SimulationConfig;
 
 public interface UIInterface {
 
@@ -123,7 +123,7 @@ public interface UIInterface {
 	 */
 	public void killScheduler();
 
-	public void load(UIClient client, Parser p);
+	public void load(UIClient client, SimulationConfig p);
 
 	/**
 	 * Request that the log information from the simulation be stored in the

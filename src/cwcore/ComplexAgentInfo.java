@@ -272,12 +272,6 @@ public class ComplexAgentInfo {
 
 	private static boolean alreadyInitialized = false;
 
-	@SuppressWarnings("unused")
-	private static int[] cheatingAgent;
-
-	@SuppressWarnings("unused")
-	private static int[] cooperatingAgent;
-
 	private static int typesCount = 4;
 
 	private static int[] energies;

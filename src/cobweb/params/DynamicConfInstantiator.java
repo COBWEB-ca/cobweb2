@@ -3,7 +3,6 @@ package cobweb.params;
 
 /**
  * Allows instantiation of a configuration parameter based on other parameters
- *
  */
 public interface DynamicConfInstantiator {
 	/**

@@ -30,5 +30,5 @@ public abstract class SettingsPanel extends JPanel  {
 		super(layout);
 	}
 
-	public abstract void bindToParser(Parser p);
+	public abstract void bindToParser(SimulationConfig p);
 }

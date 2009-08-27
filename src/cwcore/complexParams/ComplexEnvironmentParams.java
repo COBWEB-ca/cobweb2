@@ -12,126 +12,159 @@ import cobweb.params.ConfXMLTag;
 import cwcore.GeneticController;
 import cwcore.GeneticControllerParams;
 
+/**
+ * Parameters for the ComplexEnvironment
+ */
 public class ComplexEnvironmentParams extends AbstractReflectionParams implements AgentFoodCountable {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = -3308627358945982393L;
 
+	/**
+	 * Number of Agent types.
+	 */
 	@ConfDisplayName("Agent types")
 	@ConfXMLTag("AgentTypeCount")
-	public int agentTypeCount;
+	public int agentTypeCount = 4;
 
+	/**
+	 * Number of Food types.
+	 */
 	@ConfDisplayName("Food types")
 	@ConfXMLTag("FoodTypeCount")
-	public int foodTypeCount;
+	public int foodTypeCount = 4;
 
 
+	/**
+	 * Class name of the scheduler object.
+	 */
 	@ConfDisplayName("Scheduler type")
 	@ConfXMLTag("scheduler")
-	public String schedulerName;
+	public String schedulerName = TickScheduler.class.getName();
 
+	/**
+	 * Class name of the controller object.
+	 */
 	@ConfDisplayName("Controller type")
 	@ConfXMLTag("ControllerName")
-	public String controllerName;
+	public String controllerName = GeneticController.class.getName();
 
+	/**
+	 * Configuration for the controller object.
+	 */
 	@ConfXMLTag("ControllerConfig")
 	@ConfDynamicInstance(ControllerLoader.class)
-	public CobwebParam controllerParams;
+	public CobwebParam controllerParams = new GeneticControllerParams();
 
 
+	/**
+	 * Width of the grid.
+	 */
 	@ConfDisplayName("Width")
 	@ConfXMLTag("Width")
-	public int width;
+	public int width = 80;
 
+	/**
+	 * Height of the grid.
+	 */
 	@ConfDisplayName("Height")
 	@ConfXMLTag("Height")
-	public int height;
+	public int height = 80;
 
+	/**
+	 * Enables the grid to wrap around at the edges.
+	 */
 	@ConfDisplayName("Wrap edges")
 	@ConfXMLTag("wrap")
-	public boolean wrapMap;
+	public boolean wrapMap = true;
 
 
+	/**
+	 * Random number generator seed for repeating the simulation exactly.
+	 */
 	@ConfDisplayName("Random seed")
 	@ConfXMLTag("randomSeed")
-	public long randomSeed;
+	public long randomSeed = 42;
 
 
+	/**
+	 * Keeps the existing food on the grid.
+	 */
 	@ConfDisplayName("Keep old array")
 	@ConfXMLTag("keepOldArray")
-	public boolean keepOldArray;
+	public boolean keepOldArray = false;
 
+	/**
+	 * Spawns new food on the grid.
+	 */
 	@ConfDisplayName("Drop new food")
 	@ConfXMLTag("dropNewFood")
-	public boolean dropNewFood;
+	public boolean dropNewFood = true;
 
+	/**
+	 * Keeps existing waste on the grid.
+	 */
 	@ConfDisplayName("Keep old waste")
 	@ConfXMLTag("keepOldWaste")
-	public boolean keepOldWaste;
+	public boolean keepOldWaste = false;
 
+	/**
+	 * Keeps existing agents.
+	 */
 	@ConfDisplayName("Keep old agents")
 	@ConfXMLTag("keepOldAgents")
-	public boolean keepOldAgents;
+	public boolean keepOldAgents = false;
 
+	/**
+	 * Spawns new agents.
+	 */
 	@ConfDisplayName("Spawn new agents")
 	@ConfXMLTag("spawnNewAgents")
-	public boolean spawnNewAgents;
+	public boolean spawnNewAgents = true;
 
+	/**
+	 * Keeps old communication packets.
+	 */
 	@ConfDisplayName("Keep old packets")
 	@ConfXMLTag("keepOldPackets")
-	public boolean keepOldPackets;
+	public boolean keepOldPackets = false;
 
+	/**
+	 * Number of stones to randomly place
+	 */
 	@ConfDisplayName("Random stones")
 	@ConfXMLTag("randomStones")
-	public int initialStones;
+	public int initialStones = 10;
 
 
+	/**
+	 * Probability that food will grow around similar existing food.
+	 */
 	@ConfDisplayName("Like food probability")
 	@ConfXMLTag("likeFoodProb")
-	public float likeFoodProb;
+	public float likeFoodProb = 0;
 
 
+	/**
+	 * Agents can play prisoner's dilemma game when they meet.
+	 */
 	@ConfDisplayName("Prisoner's dilemma")
 	@ConfXMLTag("PrisDilemma")
-	public boolean prisDilemma;
+	public boolean prisDilemma = false;
 
-	@ConfDisplayName("PD oponent memory")
-	@ConfXMLTag("memorySize")
-	public int pdMemorySize;
-
+	/**
+	 * Prisoner's dilemma parameters.
+	 */
 	@ConfXMLTag("pd")
-	public PDParams pdParams;
+	public PDParams pdParams = new PDParams();
 
+	/**
+	 * Initialises the default parameters
+	 */
 	public ComplexEnvironmentParams() {
-		agentTypeCount = 4;
-		foodTypeCount = 4;
-
-		schedulerName = TickScheduler.class.getName();
-		controllerName = GeneticController.class.getName();
-		controllerParams = new GeneticControllerParams();
-
-		width = 80;
-		height = 80;
-		wrapMap = true;
-
-		randomSeed = 42;
-
-		keepOldArray = false;
-		dropNewFood = true;
-		keepOldWaste = false;
-		keepOldAgents = false;
-		spawnNewAgents = true;
-		keepOldPackets = false;
-		initialStones = 10;
-
-		likeFoodProb = 0.0f;
-
-		prisDilemma = false;
-		pdMemorySize = 10;
-		pdParams = new PDParams();
+		// public, no parameter constructor for serialization
 	}
-
 
 	public int getAgentTypes() {
 		return agentTypeCount;
@@ -145,7 +178,6 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	public int getHeight() {
 		return height;
 	}
-
 
 	public int getWidth() {
 		return width;

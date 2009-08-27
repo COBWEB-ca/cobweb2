@@ -12,11 +12,11 @@ import java.util.Map;
 
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ReflectionUtil;
-import cwcore.AgentSimularityCalculator;
+import cwcore.AgentSimilarityCalculator;
 import cwcore.ComplexAgent;
 import cwcore.complexParams.SpawnMutator;
 
-public class GeneticsMutator implements SpawnMutator, AgentSimularityCalculator {
+public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator {
 
 	private GeneticParams params;
 

@@ -91,11 +91,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(new JLabel(PrisDilemma.getLabelText()));
 		fieldPane.add(PrisDilemma);
 
-		memory_size = new BoundJFormattedTextField(params, "pdMemorySize", NumberFormat.getIntegerInstance());
-		fieldPane.add(new JLabel(memory_size.getLabelText()));
-		fieldPane.add(memory_size);
-
-		makeOptionsTable(fieldPane, 2);
+		makeOptionsTable(fieldPane, 1);
 
 		panel15.add(fieldPane);
 		thePanel.add(panel15, "WEST");
@@ -138,16 +134,16 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 		fieldPane = new JPanel(new GridLayout(1, 1));
 
-//		fieldPane.add(new JLabel("No. of Colors"));
-//		fieldPane.add(numColor);
-//		fieldPane.add(new JLabel("Color Select Size"));
-//		fieldPane.add(colorSelectSize);
-//		fieldPane.add(new JLabel("Recolor Time Step"));
-//		fieldPane.add(reColorTimeStep);
-//		fieldPane.add(new JLabel("Colorizer Mode"));
-//		fieldPane.add(colorizerMode);
-//		fieldPane.add(new JLabel("Color Coded Agents"));
-//		fieldPane.add(ColorCodedAgents);
+		//		fieldPane.add(new JLabel("No. of Colors"));
+		//		fieldPane.add(numColor);
+		//		fieldPane.add(new JLabel("Color Select Size"));
+		//		fieldPane.add(colorSelectSize);
+		//		fieldPane.add(new JLabel("Recolor Time Step"));
+		//		fieldPane.add(reColorTimeStep);
+		//		fieldPane.add(new JLabel("Colorizer Mode"));
+		//		fieldPane.add(colorizerMode);
+		//		fieldPane.add(new JLabel("Color Coded Agents"));
+		//		fieldPane.add(ColorCodedAgents);
 
 		fieldPane.add(new JLabel("Not currently used"));
 		panel13.add(fieldPane);

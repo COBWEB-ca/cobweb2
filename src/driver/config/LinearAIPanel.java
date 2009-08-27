@@ -18,7 +18,7 @@ import javax.swing.table.DefaultTableModel;
 import cwcore.LinearWeightsController;
 import cwcore.LinearWeightsControllerParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
-import driver.Parser;
+import driver.SimulationConfig;
 import driver.SettingsPanel;
 
 /**
@@ -84,7 +84,7 @@ public class LinearAIPanel extends SettingsPanel {
 	}
 
 	@Override
-	public void bindToParser(Parser p) {
+	public void bindToParser(SimulationConfig p) {
 		ComplexEnvironmentParams ep = p.getEnvParams();
 		if (!(ep.controllerParams instanceof LinearWeightsControllerParams)) {
 			p.getEnvParams().controllerName = LinearWeightsController.class.getName();

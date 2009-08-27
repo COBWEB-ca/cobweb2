@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import cwcore.ComplexEnvironment.CommManager;
-import driver.Parser;
+import driver.SimulationConfig;
 
 /**
  * TickScheduler is an implementation of Scheduler that sends uniform ticks to
@@ -86,7 +86,7 @@ public class TickScheduler implements Scheduler {
 	 * instead reflection should be used inside the implementation of
 	 * UIInterface; look at the LocalUIInterface for an implementation example.
 	 */
-	public TickScheduler(UIInterface ui, Parser p) {
+	public TickScheduler(UIInterface ui, SimulationConfig p) {
 		myThread = new Thread(new SchedulerRunnable());
 		myThread.setName("cobweb.TickScheduler");
 		loadScheduler(ui, p);
@@ -133,7 +133,7 @@ public class TickScheduler implements Scheduler {
 		notifyAll();
 	}
 
-	public synchronized void loadScheduler(UIInterface ui, Parser p) {
+	public synchronized void loadScheduler(UIInterface ui, SimulationConfig p) {
 		theUI = ui;
 	}
 
