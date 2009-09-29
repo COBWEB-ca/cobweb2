@@ -9,7 +9,7 @@
         It is free, open-source software developed by The Cobweb Research and Development Team,
         a group of student programmers and analysts at the University of Toronto,
         under the supervision of Dr. Brad Bass of Environment Canada's
-        Adaptations &amp; Impacts Research Divison.
+        Adaptations &amp; Impacts Research Division.
         COBWEB is written entirely in Java with a modular object-oriented design
         that allows for great flexibility and customization.
         </description>
@@ -28,7 +28,7 @@
 </security>
 <resources>
   <j2se version="1.6+" initial-heap-size="128m" max-heap-size="512m" />
-  <jar href="cobweb2.jar"/>
+  <jar href="cobweb2.jar" />
 </resources>
 <application-desc main-class="driver.CobwebApplication"/>
 </jnlp>

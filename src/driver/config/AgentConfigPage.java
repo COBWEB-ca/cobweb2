@@ -31,12 +31,10 @@ public class AgentConfigPage implements ConfigPage {
 		agentPanel.add(agentScroll);
 	}
 
-	@Override
 	public JPanel getPanel() {
 		return agentPanel;
 	}
 
-	@Override
 	public void validateUI() throws IllegalArgumentException {
 		GUI.updateTable(agentParamTable);
 	}

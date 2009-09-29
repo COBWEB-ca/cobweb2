@@ -32,12 +32,10 @@ public class ResourceConfigPage implements ConfigPage {
 		myPanel.add(resourceScroll);
 	}
 
-	@Override
 	public JPanel getPanel() {
 		return myPanel;
 	}
 
-	@Override
 	public void validateUI() throws IllegalArgumentException {
 		GUI.updateTable(resourceParamTable);
 	}

@@ -79,7 +79,6 @@ public class TraitArray implements InnateArray {
 	}
 
 	/* Return a copy of this InnateArray. No mutation is performed. */
-	@Override
 	public InnateArray copy(float mRate) {
 		return (InnateArray) this.clone();
 		/*

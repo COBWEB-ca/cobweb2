@@ -29,12 +29,10 @@ public class PDConfigPage implements ConfigPage {
 		GUI.makeGroupPanel(panelPD, "Prisoner's Dilemma Parameters");
 	}
 
-	@Override
 	public JPanel getPanel() {
 		return panelPD;
 	}
 
-	@Override
 	public void validateUI() throws IllegalArgumentException {
 		GUI.updateTable(tablePD);
 	}

@@ -35,12 +35,10 @@ public class FoodwebConfigPage implements ConfigPage {
 		foodPanel.add(foodScroll);
 	}
 
-	@Override
 	public JPanel getPanel() {
 		return foodPanel;
 	}
 
-	@Override
 	public void validateUI() throws IllegalArgumentException {
 		GUI.updateTable(foodTable);
 	}
