@@ -2,6 +2,9 @@ package cwcore;
 
 import ga.GATracker;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,9 +12,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import cobweb.Agent;
 import cobweb.ArrayEnvironment;
 import cobweb.ColorLookup;
+import cobweb.Direction;
 import cobweb.DrawingHandler;
 import cobweb.Environment;
 import cobweb.RandomNoGenerator;
@@ -808,6 +822,102 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		backFoodArray = swapFoodArray;
 	}
 
+
+	@Override
+	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
+
+
+		if (option.equals("replace")) {
+			clearAgents();
+		}
+
+		//Load XML file
+		FileInputStream file = new FileInputStream(fileName);
+
+		// DOM initialization
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setIgnoringElementContentWhitespace(true);
+		factory.setIgnoringComments(true);
+		// factory.setValidating(true);
+
+		Document document;
+		try {
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			document = builder.parse(file);
+		} catch (SAXException ex) {
+			throw new IllegalArgumentException("Can't open config file", ex);
+		} catch (ParserConfigurationException ex) {
+			throw new IllegalArgumentException("Can't open config file", ex);
+		} catch (IOException ex) {
+			throw new IllegalArgumentException("Can't open config file", ex);
+		}
+
+
+		NodeList agents = document.getElementsByTagName("Agent");
+
+
+		for (int i = 0 ; i < agents.getLength(); i++){
+			ComplexAgentParams params = new ComplexAgentParams(data);
+			Node agent = agents.item(i);
+			Element element = (Element) agent;
+			NodeList paramsElement = element.getElementsByTagName("params");
+			Element paramNode = (Element) paramsElement.item(0);			
+
+			NodeList agentTypeElement = element.getElementsByTagName("agentType");
+			NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
+
+			NodeList directionElement = element.getElementsByTagName("direction");
+			Element direction = (Element) directionElement.item(0);
+			NodeList coordinates = direction.getElementsByTagName("coordinate");
+
+			NodeList locationElement = element.getElementsByTagName("location");
+			Element location = (Element) locationElement.item(0);
+			NodeList axisPos = location.getElementsByTagName("axisPos");
+
+			// location
+			int [] axis = new int [axisPos.getLength()];
+			for (int j = 0 ; j < axisPos.getLength(); j++) {
+				axis[j] = Integer.parseInt(axisPos.item(j).getChildNodes().item(0).getNodeValue());
+			}
+
+			Location loc = new Location(axis);
+
+			// direction
+			int [] coords = new int [coordinates.getLength()];
+			for (int j = 0 ; j < coordinates.getLength(); j++) {
+				coords[j] = Integer.parseInt(coordinates.item(j).getChildNodes().item(0).getNodeValue());
+			}
+			Direction facing = new Direction(coords);
+
+			// parameters
+			params.loadConfig(paramNode);
+
+			// agentType
+			int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());
+
+			// doCheat
+			int pdCheater = Integer.parseInt(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
+
+
+			ComplexAgent cAgent = new ComplexAgent(agentType, pdCheater, params, facing, loc);
+			agentTable.put(loc, cAgent);
+		}
+
+		//Insert the agents into the environment
+		Scheduler scheduler = getScheduler();
+
+		for (Location l : agentTable.keySet()) {
+
+			ComplexAgent a = (ComplexAgent) agentTable.get(l);
+			a.setPosition(l);
+
+			a.getController().addClientAgent(a);
+			scheduler.addSchedulerClient(a);
+		}
+
+		return true;
+	}
+
 	private void killOldAgents() {
 		// if keepOldAgents is false then we want to kill all of the agents
 		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
@@ -1559,5 +1669,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			logStream.println();
 		}
 	}
+
 
 }

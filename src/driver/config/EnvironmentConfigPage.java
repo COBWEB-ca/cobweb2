@@ -7,9 +7,12 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.text.NumberFormat;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import cwcore.complexParams.ComplexEnvironmentParams;
@@ -129,7 +132,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 		/* Options */
 		JPanel panel13 = new JPanel();
-		String title = "Colour Settings";
+		String title = "Sample Population";
 		GUI.makeGroupPanel(panel13, title);
 
 		fieldPane = new JPanel(new GridLayout(1, 1));
@@ -145,11 +148,68 @@ public class EnvironmentConfigPage implements ConfigPage {
 		//		fieldPane.add(new JLabel("Color Coded Agents"));
 		//		fieldPane.add(ColorCodedAgents);
 
-		fieldPane.add(new JLabel("Not currently used"));
+		fieldPane.add(new JLabel("Save"));
 		panel13.add(fieldPane);
+
+		// Radio buttons
+		JRadioButton percentageRButton = new JRadioButton("Percentage");
+		percentageRButton.setSelected(true);
+
+		JRadioButton numberRButton = new JRadioButton("Amount");
+		percentageRButton.setSelected(false);
+
+
+		ButtonGroup group = new ButtonGroup();
+		group.add(percentageRButton);
+		group.add(numberRButton);
+
+		JPanel radioPanel = new JPanel(new GridLayout(0, 1));
+		radioPanel.add(percentageRButton);
+		radioPanel.add(numberRButton);
+
+		//panel13.add(radioPanel);
+
+		JTextField populationAmount = new JTextField(6);
+
+		panel13.add(populationAmount);
+
+
+		JPanel savePane = new JPanel();
+
+
+		JPanel savePanel = new JPanel(new GridLayout(0, 1));
+		savePanel.add(radioPanel);
+		savePanel.add(populationAmount);
+
+
+		panel13.add(savePanel, BorderLayout.CENTER);
+
+		//		fieldPane.add(new JLabel("Insert"));
+		//		panel13.add(fieldPane);
 		//makeOptionsTable(fieldPane, 5);
 
 		thePanel.add(panel13);
+
+		JPanel insertPane = new JPanel(new GridLayout(1, 1));
+		insertPane.add(new JLabel("Insert"));
+		panel13.add(fieldPane);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		/* Random variables */
 		JPanel panel14 = new JPanel();

@@ -65,6 +65,7 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 			Class<?> t = f.getType();
 
 			ConfXMLTag tagname = f.getAnnotation(ConfXMLTag.class);
+
 			if (tagname == null)
 				continue;
 

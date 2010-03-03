@@ -1,11 +1,16 @@
 package cwcore;
 
 import java.awt.Color;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import cobweb.ColorLookup;
 import cobweb.Direction;
@@ -23,7 +28,7 @@ import cwcore.complexParams.SpawnMutator;
 import cwcore.complexParams.StepMutator;
 import driver.ControllerFactory;
 
-public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client {
+public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client, Serializable{
 
 	static class SeeInfo {
 		private int dist;
@@ -86,6 +91,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return blah;
 	}
 
+
 	/** Sets the default mutable parameters of each agent type. */
 	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
 		defaulParams = params.clone();
@@ -98,7 +104,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		simCalc = calc;
 	}
 
-	private int agentType;
+	private int agentType = 0;
+
 
 	public ComplexAgentParams params;
 
@@ -106,27 +113,28 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private int energy;
 	/* Prisoner's Dilemma */
 	private int agentPDStrategy; // tit-for-tat or probability
-
 	private int pdCheater; // The agent's action; 1 == cheater, else
 	// cooperator
 	private int lastPDMove; // Remember the opponent's move in the last game
-	private int commInbox;
-	private int commOutbox;
 
+	private int commInbox;
+
+	private int commOutbox;
 	// memory size is the maximum capacity of the number of cheaters an agent
 	// can remember
 	private long photo_memory[];
-
 	private int photo_num = 0;
 	private boolean want2meet = false;
 	boolean cooperate;
 	private long birthTick = 0;
 	private long age = 0;
+
 	/* Waste variables */
 	private int wasteCounterGain;
 	private int wasteCounterLoss;
 
 	private int memoryBuffer;
+
 	private ComplexAgent breedPartner;
 
 	private Color color = Color.lightGray;
@@ -221,6 +229,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		InitFacing();
 
 		copyConstants(parent1);
+
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent1.info, parent2.info, strat);
 
 		this.position = pos;
@@ -231,6 +240,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			mutator.onSpawn(this, parent1, parent2);
 
 	}
+
 
 	/**
 	 * Constructor with a parent; standard asexual copy
@@ -254,6 +264,23 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			mutator.onSpawn(this, parent);
 	}
 
+	/**   */
+	public ComplexAgent(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
+		super(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+
+		setConstants(doCheat, agentData);
+		this.facing = facingDirection;
+
+		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentT, doCheat);
+
+		this.position = pos;
+		pos.setAgent(this);
+		pos.getEnvironment().getScheduler().addSchedulerClient(this);
+
+		for (SpawnMutator mutator : spawnMutators)
+			mutator.onSpawn(this);
+	}
+
 	/**
 	 * Constructor with no parent agent; creates an agent using "immaculate conception" technique
 	 *
@@ -268,8 +295,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		InitFacing();
 
-
+		params = agentData;
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, doCheat);
+		this.agentType = agentType;
 
 		this.position = pos;
 		pos.setAgent(this);
@@ -355,6 +383,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return true;
 	}
 
+
 	int checkforBroadcasts() {
 		CommManager commManager = new CommManager();
 		CommPacket commPacket = null;
@@ -365,6 +394,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 		return -1;
 	}
+
+	//@Override
+	//	public Object clone() {
+	//		ComplexAgent cp = new ComplexAgent(getAgentType(), pdCheater, params, facing);
+	//		//cp.hibernate();
+	//		return cp;
+	//	}
 
 	void communicate(ComplexAgent target) {
 		target.commInbox = commOutbox;
@@ -534,6 +570,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return 0;
 	}
 
+
 	public int getMemoryBuffer() {
 		return memoryBuffer;
 	}
@@ -588,6 +625,34 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		// Return an empty tile
 		return 0;
+	}
+
+	public Node makeNode(Document doc) {
+
+		Node agent = doc.createElement("Agent");
+
+		Element agentTypeElement = doc.createElement("agentType"); 
+		agentTypeElement.appendChild(doc.createTextNode(agentType +"")); 
+		agent.appendChild(agentTypeElement); 
+
+
+		Element doCheatElement = doc.createElement("doCheat"); 
+		doCheatElement.appendChild(doc.createTextNode(pdCheater +"")); 
+		agent.appendChild(doCheatElement); 
+
+		Element paramsElement = doc.createElement("params"); 
+
+		params.saveConfig(paramsElement, doc);
+
+		agent.appendChild(paramsElement);
+
+		Element directionElement = doc.createElement("direction");
+
+		facing.saveAsANode(directionElement, doc);
+
+		agent.appendChild(directionElement);
+
+		return agent;
 	}
 
 	@Override
@@ -692,6 +757,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		info.alive();
 	}
 
+
+
 	void receiveBroadcast() {
 		CommPacket commPacket = null;
 
@@ -728,6 +795,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//TODO: do something with the food location;
 	}
 
+
 	public void setAsexFlag(boolean asexFlag) {
 		this.asexFlag = asexFlag;
 	}
@@ -748,7 +816,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
 
 		this.params = agentData;
+
 		this.agentType = agentData.type;
+
 		this.pdCheater = pdCheat;
 		energy = agentData.initEnergy;
 		wasteCounterGain = params.wasteLimitGain;
@@ -781,6 +851,19 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public void setMemoryBuffer(int memoryBuffer) {
 		this.memoryBuffer = memoryBuffer;
+	}
+
+	public void setPosition (Location pos) {
+
+		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, pdCheater);
+
+		this.position = pos;
+		pos.setAgent(this);
+		pos.getEnvironment().getScheduler().addSchedulerClient(this);
+
+		for (SpawnMutator mutator : spawnMutators)
+			mutator.onSpawn(this);
+
 	}
 
 	/*
@@ -1005,7 +1088,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			pregnant = true;
 		}
 	}
-
 	/**
 	 * Produce waste
 	 */
@@ -1062,7 +1144,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 		}
 	}
-
 	public void turnLeft() {
 		cobweb.Direction newFacing = new cobweb.Direction(2);
 		newFacing.v[0] = facing.v[1];

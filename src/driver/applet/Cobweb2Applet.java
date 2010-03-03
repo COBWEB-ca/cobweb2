@@ -195,6 +195,8 @@ public class Cobweb2Applet extends JApplet {
 	 */
 	private void loadSimulation(String expname) {
 		this.currentexp = expname;
+
+
 		if (ui != null) {
 
 			ui.killSimulation();

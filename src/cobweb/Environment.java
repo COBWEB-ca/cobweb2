@@ -1,9 +1,29 @@
 package cobweb;
 
 import java.awt.Color;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import cwcore.ComplexAgent;
 import driver.SimulationConfig;
 
 /**
@@ -50,7 +70,7 @@ public abstract class Environment {
 	 * notion of position in the environment allows immediate access to state
 	 * information.
 	 */
-	public class Location {
+	public class Location implements Serializable {
 
 		/**
 		 * Sometimes it's essential to get the coordinates; iteration is an
@@ -63,7 +83,8 @@ public abstract class Environment {
 		/**
 		 * Private constructor, as only the environment should create locations.
 		 */
-		private Location(int[] axisPos) {
+		public Location(int[] axisPos) {
+
 			v = new int[Environment.this.getAxisCount()];
 			for (int i = 0; i < Environment.this.getAxisCount(); ++i)
 				v[i] = axisPos[i];
@@ -229,6 +250,16 @@ public abstract class Environment {
 			return true;
 		}
 
+		public void saveAsANode(Node node, Document doc) {
+
+			for (int i : v) {
+				Element locationElement = doc.createElement("axisPos"); 
+				locationElement.appendChild(doc.createTextNode(i +""));
+				node.appendChild(locationElement);
+			}
+
+		}
+
 		/**
 		 * Set the agent at this location. A location may only contain a single
 		 * agent.
@@ -317,6 +348,7 @@ public abstract class Environment {
 	 * are many more locations than agents.
 	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
+	protected java.util.Hashtable<Location, Agent> samplePop = new Hashtable<Location, Agent>();
 
 	private static DrawingHandler myUI;
 
@@ -414,6 +446,11 @@ public abstract class Environment {
 	/** @return true if the axis specified wraps. */
 	public abstract boolean getAxisWrap(int axis);
 
+	public int getCurrentPopulation() {
+		return agentTable.keySet().size();
+
+	}
+
 	/** Called by the UIInterface to get the frame data for the Environment. */
 	protected void getDrawInfo(DrawingHandler theUI) {
 		fillTileColors(tileColors);
@@ -432,6 +469,12 @@ public abstract class Environment {
 		if (locationCache[x][y] == null)
 			locationCache[x][y] = new Location(new int[] { x, y });
 		return locationCache[x][y];
+	}
+
+	public int getPopByPercentage(double amount) {
+
+		return (int)(getCurrentPopulation()* (amount / 100));
+
 	}
 
 	/** Returns a random location. */
@@ -454,6 +497,7 @@ public abstract class Environment {
 
 	public abstract EnvironmentStats getStatistics();
 
+
 	public abstract int getTypeCount();
 
 	public Location getUserDefinedLocation(int x, int y) {
@@ -462,6 +506,11 @@ public abstract class Environment {
 			l = getLocation(x, y);
 		} while (!l.isValid());
 		return l;
+	}
+
+	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	/**
@@ -499,6 +548,7 @@ public abstract class Environment {
 		// Nothing
 	}
 
+
 	/**
 	 * Removes stone at given position
 	 * 
@@ -509,11 +559,87 @@ public abstract class Environment {
 		// Nothing
 	}
 
+
 	/** Report to a stream */
 	public abstract void report(java.io.Writer w);
 
 	/** Save to a stream */
 	public abstract void save(java.io.Writer w);
+	/** Save a sample population as an XML file */ 
+	public boolean savePopulation(String popName, String option, int amount) {
+
+		int totalPop;
+
+		if (option.equals("percentage")) {
+			totalPop = getPopByPercentage(amount);
+		} else {
+			int currPop = getCurrentPopulation();
+			if (amount > currPop) {
+
+				totalPop = currPop;
+			} else {
+
+				totalPop = amount;
+			}
+		}
+
+		Document d;
+		try {
+			d = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+		} catch (ParserConfigurationException ex) {
+			throw new RuntimeException(ex);
+		}
+		Node root = d.createElement("Agents");
+
+		int currentPopCount = 1;
+
+		for (Location l : agentTable.keySet()){
+			if (currentPopCount > totalPop) break;
+			Node node = ((ComplexAgent)agentTable.get(l)).makeNode(d);
+
+			Element locationElement = d.createElement("location"); 
+
+			l.saveAsANode(locationElement, d);
+			node.appendChild(locationElement);
+
+			root.appendChild(node);
+			currentPopCount++;
+
+		}
+
+		d.appendChild(root);
+		FileOutputStream stream = null;
+		try {
+			stream = new FileOutputStream(popName);
+		} catch (FileNotFoundException ex) {
+			// TODO Auto-generated catch block
+			ex.printStackTrace();
+		}
+
+		Source s = new DOMSource(d);
+
+		Transformer t;
+		TransformerFactory tf = TransformerFactory.newInstance();
+		try {
+			t = tf.newTransformer();
+
+		} catch (TransformerConfigurationException ex) {
+			throw new RuntimeException(ex);
+		}
+		t.setOutputProperty(OutputKeys.INDENT, "yes");
+		t.setParameter(OutputKeys.STANDALONE, "yes");
+		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+		Result r = new StreamResult(stream);
+		try {
+			t.transform(s, r);
+		} catch (TransformerException ex) {
+			throw new RuntimeException(ex);
+		}
+
+		System.out.println("Population saved");
+		return true;
+	}
 
 	private final void setAgent(Location l, Agent a) {
 		if (a != null)

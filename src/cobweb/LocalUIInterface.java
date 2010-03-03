@@ -4,7 +4,9 @@ import ga.GeneticsMutator;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -24,7 +26,7 @@ import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
 import driver.SimulationConfig;
 
-public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
+public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
 
 	/**
 	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo
@@ -258,6 +260,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		public void TickPerformed(long currentTick);
 	}
 
+	final String POP_NAME = "Sample";
+
 	long myClock = -1;
 
 	long delay = 1;
@@ -275,6 +279,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/** This is the most recent completed drawing info */
 	private volatile DrawInfo theDrawingInfo;
+
+	/** List of sample populations */
+	private HashMap<String, List<AgentDrawInfo>> samplePop ;
 
 	private UIInterface.UIClient theClient;
 
@@ -396,6 +403,11 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		return currentParser;
 	}
 
+	@Override
+	public int getCurrentPopulationNum() {
+		return theEnvironment.getCurrentPopulation();
+	}
+
 	/**
 	 * Returns the tick count for the most recent frame data.
 	 */
@@ -494,6 +506,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Cannot initialize scheduler", e);
 		}
+	}
+
+	@Override
+	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
+
+		return theEnvironment.insertPopulation(fileName, option);
 	}
 
 	public boolean isRunnable() {
@@ -719,6 +737,15 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
+	 * Saves the current list of agents in the environment
+	 */
+	public boolean saveCurrentPopulation (String popName, String option, int amount){
+
+		// save the list of agents
+		return theEnvironment.savePopulation(popName, option, amount);
+	}
+
+	/**
 	 * Sets the number of frames "dropped" between updates of the frame data.
 	 * Calls setSchedulerFrameSkip on the scheduler.
 	 */
@@ -752,6 +779,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/** ********************************************************************** */
 	public void tickNotification(long tickCount) {
+		//		SamplePopulation samplePop = SamplePopulation.getInstance();
+		//		System.out.println(samplePop.toString());
 		myClock = tickCount;
 		if (files < totalfilenum && (tickCount + 1) == (pauseAt[files] + tickcounter)) {
 			this.pause();
@@ -785,6 +814,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	public void unObserve() {
 		theEnvironment.unObserve();
 	}
+
 
 	private void updateEnvironmentDrawInfo() {
 		theEnvironment.getDrawInfo(this);

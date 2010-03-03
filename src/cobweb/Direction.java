@@ -1,5 +1,10 @@
 package cobweb;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+
 /** Dimensionality independent notion of a direction */
 public class Direction {
 
@@ -56,5 +61,16 @@ public class Direction {
 		for (int i : this.v)
 			hash = (hash << 13 | hash >> 19) ^ i;
 		return hash;
+	}
+
+
+	public void saveAsANode(Node node, Document doc){
+
+		for (int i : v) {
+			Element directionElement = doc.createElement("coordinate"); 
+			directionElement.appendChild(doc.createTextNode(i +""));
+			node.appendChild(directionElement);
+		}
+
 	}
 }

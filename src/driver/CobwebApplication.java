@@ -7,6 +7,7 @@ package driver;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
@@ -24,11 +25,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
@@ -40,6 +43,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -231,6 +235,53 @@ public class CobwebApplication extends JFrame implements UIClient {
 				}
 				// mode = -4;
 				// uiPipe.removeComponents(mode);
+			} else if (e.getActionCommand().compareTo("Save Sample Population") == 0) {
+				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+				if (uiPipe != null) {
+
+
+					// open dialog to choose population size to be saved
+					HashMap<String, Object> result = openSaveSamplePopOptionsDialog();
+					if (result != null){
+						String option = (String)result.get("option"); 
+						int amount = (Integer)result.get("amount");
+
+						if (option != null && amount != -1) {
+							// Open file dialog box
+							FileDialog theDialog = new FileDialog(GUI.frame, 
+									"Choose a file to save state to", FileDialog.SAVE);
+							theDialog.setVisible(true);
+							if (theDialog.getFile() != null) {
+
+								//Save population in the specified file. 
+								uiPipe.saveCurrentPopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
+							}
+						}
+					}
+				}
+			} else if (e.getActionCommand().compareTo("Insert Sample Population") == 0) {
+				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+				if (uiPipe != null) {
+
+					String option = openInsertSamplePopOptionsDialog();
+
+					if (option != null){
+						//Select the XML file
+						FileDialog theDialog = new FileDialog(GUI.frame, 
+								"Choose a file to load", FileDialog.LOAD);
+						theDialog.setVisible(true);
+						if (theDialog.getFile() != null) {
+							//Load the XML file
+							try {
+								uiPipe.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option);
+							} catch (FileNotFoundException ex) {
+								// TODO Auto-generated catch block
+								ex.printStackTrace();
+							}
+						}
+					}
+
+				}
 			}
 
 			// Handles Foodtype and AgentType selections:
@@ -249,11 +300,115 @@ public class CobwebApplication extends JFrame implements UIClient {
 			}
 		}
 
+
+
 		// $$$$$$ If a "Test Data" window is open (visible), dispose it (when hitting a menu). Feb 29
 		private void disposeGUIframe() {
 			if (uiPipe != null && GUI.frame != null && GUI.frame.isVisible()) {
 				GUI.frame.dispose();
 			}
+		}
+
+
+
+		private String openInsertSamplePopOptionsDialog() {
+			JRadioButton b1 = new JRadioButton("Replace current population");
+			JRadioButton b2 = new JRadioButton("Merge with current population");
+			b1.setSelected(true);
+
+			ButtonGroup group = new ButtonGroup();
+			group.add(b1);
+			group.add(b2);
+
+			Object[] array = {
+					new JLabel("Select an option:"),
+					b1,
+					b2
+			};
+
+			int res = JOptionPane.showConfirmDialog(null, array, "Select", 
+					JOptionPane.OK_CANCEL_OPTION);
+
+			System.out.println(res);
+
+
+			if (res == -1 || res == 2)			
+				return null;
+
+
+			String result = null;
+
+			if (b1.isSelected()) { 
+				result = "replace"; 
+			}
+			else if ( b2.isSelected()) {
+				result = "merge";
+			}
+
+			return result;
+		}
+
+
+
+		private HashMap<String, Object> openSaveSamplePopOptionsDialog() {
+
+			JRadioButton b1 = new JRadioButton("Save a percentage (%) between 1-100");
+
+
+			int popNum = uiPipe.getCurrentPopulationNum();
+
+			JRadioButton b2 = new JRadioButton("Save an amount (between 1-"+ popNum + ")");
+			b1.setSelected(true);
+
+			ButtonGroup group = new ButtonGroup();
+			group.add(b1);
+			group.add(b2);
+
+			JTextField amount = new JTextField(30);
+
+			Object[] array = {
+					new JLabel("Select an option:"),
+					b1,
+					b2,
+					new JLabel("Enter the number for the selected option:"),
+					amount
+			};
+
+			int res = JOptionPane.showConfirmDialog(null, array, "Select", 
+					JOptionPane.OK_CANCEL_OPTION);
+
+			if (res == -1 || res == 2)			
+				return null;
+
+			int am = -1;
+
+			HashMap<String, Object> result = new HashMap<String, Object>();
+
+			try {
+				am = Integer.parseInt(amount.getText());
+				if (am < 1)
+					throw new Exception();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog((Component)null, "Invalid input.");
+				return null;
+
+			}
+
+			result.put("amount", am);
+			String option = null;
+
+			if (b1.isSelected()) { 
+				option = b1.getText(); 
+				result.put("option", "percentage");
+			}
+			else if ( b2.isSelected()) {
+				option = b2.getText();
+				result.put("option", "amount");
+			}
+
+			return result;
+
+
 		}
 
 		// $$$$$$ A facilitating method to ensure the UI to pause. Feb 12
@@ -684,6 +839,16 @@ public class CobwebApplication extends JFrame implements UIClient {
 		setMenu.setActionCommand("Set Default Data");
 		setMenu.addActionListener(theListener);
 
+
+		// $$$$$$ Add "Save Sample Population" menu.
+		JMenuItem saveSamplePopMenu = new JMenuItem("Save Sample Population");
+		saveSamplePopMenu.setActionCommand("Save Sample Population");
+		saveSamplePopMenu.addActionListener(theListener);
+
+		JMenuItem insertSamplePopMenu = new JMenuItem("Insert Sample Population");
+		insertSamplePopMenu.setActionCommand("Insert Sample Population");
+		insertSamplePopMenu.addActionListener(theListener);
+
 		// $$$$$$ Add "Retrieve Default Data" menu. Feb 4
 		JMenuItem defaultMenu = new JMenuItem("Retrieve Default Data");
 		defaultMenu.setActionCommand("Retrieve Default Data");
@@ -783,6 +948,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ Add "Set Default Data" menu. Feb 21
 		fileMenu.add(new JSeparator());
 		fileMenu.add(setMenu);
+
+		fileMenu.add(new JSeparator());
+		fileMenu.add(saveSamplePopMenu);
+		fileMenu.add(insertSamplePopMenu);
 
 		fileMenu.add(new JSeparator());
 		fileMenu.add(saveMenu);

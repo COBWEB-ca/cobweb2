@@ -89,7 +89,12 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 			float coefficient = gc.getStatus(i);
 
 			// Get instance variable linked to attribute in agent
-			ReflectionUtil.multiplyField(agent.params, pheno.field, coefficient);
+			try {
+				ReflectionUtil.multiplyField(agent.params, pheno.field, coefficient); }
+			catch (Exception e) {
+
+				System.out.println("params: " + agent.params + " pheno: " + pheno.field + " coef " + coefficient);
+			}
 
 
 		}
@@ -108,7 +113,12 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	public void onSpawn(ComplexAgent agent) {
 		GeneticCode genetic_code = new GeneticCode(params.geneCount);
 		for (int i = 0; i < params.geneCount; i++) {
-			genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.type()][i], 0);
+			try {
+				genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.type()][i], 0);
+			} catch (Exception e) {
+
+				System.out.println(i);
+			}
 		}
 		genes.put(agent, genetic_code);
 		mutateAgentAttributes(agent);

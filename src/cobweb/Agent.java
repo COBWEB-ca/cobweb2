@@ -1,5 +1,9 @@
 package cobweb;
 
+
+
+
+
 /**
  * The Agent class represents the physical notion of an Agent in a simulation.
  * Instances of the Agent class are not responsible for implementing the
@@ -40,6 +44,17 @@ public abstract class Agent {
 
 	public long birthday() {
 		return 0L;
+	}
+
+
+	@Override
+	public Object clone() {
+		try {
+			return super.clone(); }
+		catch (Exception ex) {
+			return null;
+		}
+		//	return new Object();
 	}
 
 	/**
@@ -98,11 +113,16 @@ public abstract class Agent {
 		position = newPos;
 	}
 
+
+
+
 	public abstract void setColor(java.awt.Color c);
 
 	public abstract double similarity(Agent other);
 
+
 	public abstract double similarity(int other);
+
 
 	public int type() {
 		return -1;

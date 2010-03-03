@@ -29,6 +29,7 @@ package cobweb;
  */
 
 import java.awt.Graphics;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.JButton;
@@ -86,6 +87,8 @@ public interface UIInterface {
 	 */
 	public void draw(Graphics g, int tileWidth, int tileHeight);
 
+	public int getCurrentPopulationNum();
+
 	/* get current time */
 	public long getCurrentTime();
 
@@ -110,6 +113,8 @@ public interface UIInterface {
 	 * Get the width, in tiles, of the simulation environment.
 	 */
 	public int getWidth();
+
+	public boolean insertPopulation(String popName, String option) throws FileNotFoundException;
 
 	public boolean isRunnable();
 
@@ -175,6 +180,8 @@ public interface UIInterface {
 	 * saved.
 	 */
 	public void save(String filePath) throws IOException;
+
+	public boolean saveCurrentPopulation(String popName, String option, int amount);
 
 	/**
 	 * Set the number of frames between frame update notifications. The frame

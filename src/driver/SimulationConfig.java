@@ -253,7 +253,7 @@ public class SimulationConfig {
 		} catch (ParserConfigurationException ex) {
 			throw new RuntimeException(ex);
 		}
-		Node root = d.createElement("inputData");
+		Node root = d.createElement("inputeData");
 
 		envParams.saveConfig(root, d);
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {

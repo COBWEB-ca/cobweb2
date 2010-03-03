@@ -8,7 +8,7 @@ public class TypeColorEnumeration implements ColorLookup {
 	private static ColorSpace space = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 
 	private static Color[] table = { Color.yellow, Color.cyan, Color.green, Color.red, Color.orange, Color.blue,
-			Color.magenta };
+		Color.magenta };
 
 	private static TypeColorEnumeration instance = new TypeColorEnumeration();
 
@@ -17,12 +17,21 @@ public class TypeColorEnumeration implements ColorLookup {
 	}
 
 	public java.awt.Color getColor(int index, int num) {
-		Color c = table[index % table.length];
-		while (index > table.length) {
-			index -= table.length;
-			c = c.darker();
+
+		try {
+			Color c = table[index % table.length];
+			while (index > table.length) {
+				index -= table.length;
+				c = c.darker();
+			}
+			return c;
+
 		}
-		return c;
+		catch (Exception e)  {
+			System.out.println("E" + index + " " + num);
+
+		}
+		return null;
 	}
 
 	public ColorSpace getSpace() {
