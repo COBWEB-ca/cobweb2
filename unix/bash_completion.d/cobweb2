@@ -1,0 +1,23 @@
+#Bash Completion for cobweb2
+
+_cobweb2(){
+   cur="${COMP_WORDS[COMP_CWORD]}"
+   prev="${COMP_WORDS[COMP_CWORD-1]}"
+   COMPREPLY=()
+   opts="--help -hide -autorun -log -open"
+   case ${prev} in
+       "-autorun") return 0                 ;;
+       "-log")
+            COMPREPLY=( $(compgen -f -X "!*@(/|.tsv)" -- ${cur}) )
+            echo $COMPREPLY >> foo.ex
+            return 0                        ;;
+       "-open")
+            COMPREPLY=( $(compgen -f -X "!*@(/|.xml)" -- ${cur}) )
+            return 0                        ;;
+       *)                                   ;;
+   esac
+       
+   COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+}
+
+complete -F _cobweb2 cobweb2

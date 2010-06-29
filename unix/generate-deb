@@ -1,0 +1,39 @@
+#!/bin/sh
+
+mkdir -p ../deb/DEBIAN/
+mkdir -p ../deb/usr/bin/
+mkdir -p ../deb/usr/share/cobweb2/
+mkdir -p ../deb/usr/share/man/man1/
+mkdir -p ../deb/etc/bash_completion.d/
+
+echo "#!/bin/sh" > ../deb/DEBIAN/postinst
+chmod 755          ../deb/DEBIAN/postinst
+echo "#!/bin/sh" > ../deb/DEBIAN/prerm
+chmod 755          ../deb/DEBIAN/prerm
+
+# generate control
+echo "Package: cobweb2"       >> ../deb/DEBIAN/control
+echo "Version: 2"             >> ../deb/DEBIAN/control
+echo "Section: Science"       >> ../deb/DEBIAN/control
+echo "Priority: optional"     >> ../deb/DEBIAN/control
+echo "Architecture: all"      >> ../deb/DEBIAN/control
+echo "Depends: java6-runtime" >> ../deb/DEBIAN/control
+echo "Installed-Size: 1.8M"   >> ../deb/DEBIAN/control
+echo "Maintainer: Christopher Olah <christopherolah.co@gmail.com>" >> ../deb/DEBIAN/control
+echo "Conflicts: " >> ../deb/DEBIAN/control
+echo "Replaces: "  >> ../deb/DEBIAN/control
+echo "Description: a platform for multi-agent simulation" >> ../deb/DEBIAN/control
+echo " " >> ../deb/DEBIAN/control
+
+
+cp ../deploy/apps/cobweb2-latest.jar ../deb/usr/share/cobweb2/
+cp ../unix/bin/cobweb2 ../deb/usr/bin/
+cp ../unix/bash_completion.d/cobweb2 ../deb/etc/bash_completion.d/
+cat ../unix/man/cobweb2.1 | gzip > ../deb/usr/share/man/man1/cobweb2.1.gz
+
+dpkg --build ../deb
+mv ../deb.deb ../deploy/cobweb2.deb
+rm -rf ../deb
+
+
+	
