@@ -229,4 +229,6 @@ public interface UIInterface {
 	public void writeLogEntry();
 
 	public void writeOutput(String s);
+
+	public long getTime();
 }

@@ -832,4 +832,8 @@ public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.Ti
 	public void writeOutput(String s) {
 		myLogger.info(s);
 	}
+
+	public long getTime() {
+		return theScheduler.getTime();
+	}
 }

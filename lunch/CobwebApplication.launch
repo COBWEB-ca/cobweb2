@@ -1,16 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/cobweb2/src/driver/CobwebApplication.java"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
-<listEntry value="1"/>
-</listAttribute>
-<listAttribute key="org.eclipse.debug.ui.favoriteGroups">
-<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
-<listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
-</listAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="driver.CobwebApplication"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cobweb2"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+UseParallelGC -Xmx2g"/>
+  <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-autorun 100 -open /home/chris/cobweb2/resources/experiments/baseline.xml -log /home/chris/log.tsv"/>
+  <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+    <listEntry value="/cobweb2"/>
+  </listAttribute>
+  <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+    <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+    <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+  </listAttribute>
+  <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cobweb2"/>
+  <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-XX:+UseParallelGC -Xmx2g"/>
+  <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="driver.CobwebApplication"/>
+  <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+    <listEntry value="4"/>
+  </listAttribute>
+  <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 </launchConfiguration>

@@ -429,7 +429,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 	private static final String MODIFY_CURRENT_DATA = "Modify Simulation";
 
 	private static final long serialVersionUID = 2112476687880153089L;
-
+	
+	private int finalstep = 0;
+	
 	static CobwebApplication CA;
 
 	// $$$$$$ Add a greeting string for the textWindow. Mar 25
@@ -509,19 +511,82 @@ public class CobwebApplication extends JFrame implements UIClient {
 	public static final String CONFIG_FILE_EXTENSION = ".xml";
 
 	public static final String TEMPORARY_FILE_EXTENSION = ".cwtemp";
+	
+	public static final String Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] [[-open] SettingsFile.xml]";
 
 	public static void main(String[] args) {
+
+		// Process Arguments`
+		
+		String inputFileName = "";
+		String logFileName = "";
+		boolean autostart = false;
+		boolean visible = true;
+		int finalstep = 0;
+		
+		if (args.length > 0) {
+			for (int arg_pos = 0; arg_pos < args.length; ++arg_pos){
+				if (args[arg_pos].equalsIgnoreCase("--help")){
+					System.out.println("Syntax: " + Syntax);
+					System.exit(0);
+				} else if (args[arg_pos].equalsIgnoreCase("-autorun")){
+					autostart = true;
+					try{
+						finalstep = Integer.parseInt(args[++arg_pos]);
+					} catch (NumberFormatException numexception){
+						System.out.println("-autorun argument must be integer");
+						System.exit(1);
+					}
+					if (finalstep < -1) { 
+						System.out.println("-autorun argument must >= -1");
+						System.exit(1);
+					}
+				} else if (args[arg_pos].equalsIgnoreCase("-hide")){
+					visible=false;
+				} else if (args[arg_pos].equalsIgnoreCase("-open")){
+					if (args.length - arg_pos == 1) {
+						System.out.println("No value attached to '-open' argument,\n" +
+								"Correct Syntax is: " + Syntax);
+						System.exit(1);
+					} else {
+						inputFileName = args[++arg_pos];
+					}
+				} else if (args[arg_pos].equalsIgnoreCase("-log")){
+					if (args.length - arg_pos == 1) {
+						System.out.println("No value attached to '-log' argument,\n" +
+								"Correct Syntax is: " + Syntax);
+						System.exit(1);
+					} else {
+						logFileName = args[++arg_pos];
+					}
+				} else {
+					inputFileName = args[arg_pos];
+				}
+			}
+		}
+		
+		if (inputFileName != "" && ! new File(inputFileName).exists()){
+			System.out.println("Invalid settings file value: '" + inputFileName + "' does not exist" );
+			System.exit(1);			
+		}
+		if (logFileName != "" && ! new File(logFileName).exists()){
+			System.out.println("Invalid log file value: '" + logFileName + "' does not exist" );
+			System.exit(1);			
+		}
+		
+		//Create CobwebApplication and threads; this is not done earlier so 
+		// that argument errors will result in quick exits.
+		
 		MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(handler);
 
-		CA = new CobwebApplication();
-		if (args.length > 0) {
-			if (args.length == 1) {
-				CA.inputFile = args[0];
-			} else if (args[0].equalsIgnoreCase("-open")) {
-				CA.inputFile = args[1];
-			}
-		} else {
+		CA = new CobwebApplication(visible);
+		
+		//Set up inputFile
+
+		if (inputFileName != "") {
+			CA.inputFile = inputFileName;
+		}else {
 			String tempdir = System.getProperty("java.io.tmpdir");
 			String sep = System.getProperty("file.separator");
 			if (!tempdir.endsWith(sep))
@@ -541,6 +606,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			// $$$$$ following code. Please refer to GUI.GUI.close.addActionListener, "/* write UI info to xml file */". Jan
 			// 24
 			GUI.createAndShowGUI(CA, CA.inputFile);
+			System.out.println("Exception with SimulationConfig");
 		}
 
 
@@ -552,6 +618,28 @@ public class CobwebApplication extends JFrame implements UIClient {
 			JOptionPane.showMessageDialog(GUI.frame, "Caution:  The initial data file \"" + CA.inputFile
 					+ "\" is NOT allowed to be modified.\n"
 					+ "\n                  Any modification of this data file will be neither implemented nor saved.");
+		}
+		
+		if (logFileName != ""){
+			CA.logFile(logFileName);
+		}
+		
+		if (autostart) {
+			if (finalstep < 0){
+				CA.getUI().resume();
+			}else {
+				CA.getUI().slowDown(0);
+				CA.getUI().resume();
+				CA.finalstep=finalstep;
+				CA.getUI().AddTickEventListener(new TickEventListener() {
+					public void TickPerformed(long currentTick) {
+						if (currentTick > CA.finalstep) {
+							CA.getUI().pause();
+							CA.quitApplication();
+						}
+					}
+				});
+			}
 		}
 	}
 
@@ -571,7 +659,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 
 	// constructor
-	private CobwebApplication() {
+	private CobwebApplication(boolean visible) {
 		super(WINDOW_TITLE);
 
 		/*** $$$$$$ For cancelling the output info text window, remove some codes in the field to the below block. Apr 22 */
@@ -597,7 +685,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 		setJMenuBar(myMenuBar);
 
-		setVisible(true);
+		if(visible){
+			setVisible(true);
+		}
 
 	}
 
