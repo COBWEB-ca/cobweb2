@@ -11,7 +11,9 @@ cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] [[-open] Settin
 \- provides brief help message and exits.
 
 .B -hide 
-\- doesn't create a gui
+\- doesn't create a gui.
+   Despite this, various libraries used require X be running.
+   Running without a gui generally reduces run time to between 0.6 and 0.7 of the standard value.
 
 .B -autorun
 fianlsteps \- starts automaticaly and runs until finalstep is reached. (Setting finalstep to -1 will make it start but not stop at a specific step.)
