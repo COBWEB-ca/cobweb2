@@ -1,0 +1,5 @@
+bin
+deployJar.xml
+cobweb.ca.ks
+deploy/apps/*.jar
+deploy/downloads
