@@ -50,8 +50,8 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import cobweb.LocalUIInterface;
-import cobweb.UIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
+import cobweb.UIInterface;
 import cobweb.UIInterface.MouseMode;
 import cobweb.UIInterface.UIClient;
 import driver.config.GUI;
@@ -395,14 +395,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 			}
 
 			result.put("amount", am);
-			String option = null;
 
 			if (b1.isSelected()) { 
-				option = b1.getText(); 
 				result.put("option", "percentage");
 			}
 			else if ( b2.isSelected()) {
-				option = b2.getText();
 				result.put("option", "amount");
 			}
 
@@ -429,9 +426,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 	private static final String MODIFY_CURRENT_DATA = "Modify Simulation";
 
 	private static final long serialVersionUID = 2112476687880153089L;
-	
+
 	private int finalstep = 0;
-	
+
 	static CobwebApplication CA;
 
 	// $$$$$$ Add a greeting string for the textWindow. Mar 25
@@ -511,19 +508,19 @@ public class CobwebApplication extends JFrame implements UIClient {
 	public static final String CONFIG_FILE_EXTENSION = ".xml";
 
 	public static final String TEMPORARY_FILE_EXTENSION = ".cwtemp";
-	
+
 	public static final String Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] [[-open] SettingsFile.xml]";
 
 	public static void main(String[] args) {
 
 		// Process Arguments`
-		
+
 		String inputFileName = "";
 		String logFileName = "";
 		boolean autostart = false;
 		boolean visible = true;
 		int finalstep = 0;
-		
+
 		if (args.length > 0) {
 			for (int arg_pos = 0; arg_pos < args.length; ++arg_pos){
 				if (args[arg_pos].equalsIgnoreCase("--help")){
@@ -564,7 +561,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				}
 			}
 		}
-		
+
 		if (inputFileName != "" && ! new File(inputFileName).exists()){
 			System.out.println("Invalid settings file value: '" + inputFileName + "' does not exist" );
 			System.exit(1);			
@@ -573,15 +570,15 @@ public class CobwebApplication extends JFrame implements UIClient {
 			System.out.println("Invalid log file value: '" + logFileName + "' does not exist" );
 			System.exit(1);			
 		}
-		
+
 		//Create CobwebApplication and threads; this is not done earlier so 
 		// that argument errors will result in quick exits.
-		
+
 		MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
 		Thread.setDefaultUncaughtExceptionHandler(handler);
 
 		CA = new CobwebApplication(visible);
-		
+
 		//Set up inputFile
 
 		if (inputFileName != "") {
@@ -619,11 +616,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 					+ "\" is NOT allowed to be modified.\n"
 					+ "\n                  Any modification of this data file will be neither implemented nor saved.");
 		}
-		
+
 		if (logFileName != ""){
 			CA.logFile(logFileName);
 		}
-		
+
 		if (autostart) {
 			if (finalstep < 0){
 				CA.getUI().resume();

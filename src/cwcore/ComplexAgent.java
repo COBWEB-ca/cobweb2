@@ -16,9 +16,9 @@ import cobweb.ColorLookup;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
 import cobweb.Environment;
+import cobweb.Environment.Location;
 import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
-import cobweb.Environment.Location;
 import cwcore.ComplexEnvironment.CommManager;
 import cwcore.ComplexEnvironment.CommPacket;
 import cwcore.complexParams.AgentMutator;
@@ -48,6 +48,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			return type;
 		}
 	}
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5310096345506441368L;
 
 	/** Default mutable parameters of each agent type. */
 
@@ -792,13 +797,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		String[] xy = message.substring(1, message.length() - 1).split(",");
 		int x = Integer.parseInt(xy[0]);
 		int y = Integer.parseInt(xy[1]);
-		//TODO: do something with the food location;
-	}
+		thinkAboutFoodLocation(x, y);
 
+	}
 
 	public void setAsexFlag(boolean asexFlag) {
 		this.asexFlag = asexFlag;
 	}
+
 
 	@Override
 	public void setColor(Color c) {
@@ -1038,6 +1044,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (pregnant) {
 			pregPeriod--;
 		}
+	}
+
+	private void thinkAboutFoodLocation(int x, int y) {
+		//TODO: do something with the food location;
 	}
 
 	public void tickNotification(long tick) {

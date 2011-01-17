@@ -73,6 +73,10 @@ public abstract class Environment {
 	public class Location implements Serializable {
 
 		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -3224450412135996690L;
+		/**
 		 * Sometimes it's essential to get the coordinates; iteration is an
 		 * example of this. To make this as fast as possible, no accessors are
 		 * provided for the coordinate array, instead they're public. Bad form,

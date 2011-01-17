@@ -4,38 +4,19 @@
 package driver.config;
 
 import java.awt.Component;
+import java.text.DecimalFormat;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import java.text.DecimalFormat;
-import javax.swing.table.DefaultTableCellRenderer;
-
 
 import cobweb.params.CobwebSelectionParam;
 
 class MixedValueJTable extends JTable {
-
-	private static final long serialVersionUID = -9106510371599896107L;
-
-	private final class PerciseDecimalTableCellRenderer extends DefaultTableCellRenderer {
-
-		private DecimalFormat formater = new DecimalFormat();
-
-		PerciseDecimalTableCellRenderer(){
-			super.setHorizontalAlignment(RIGHT);
-		}
-		
-		public Component getTableCellRenderComponent
-			(JTable tbl, Object value, boolean selected, boolean focused, int row, int col){
-			value = formater.format(value);
-			return super.getTableCellRendererComponent(tbl, value, selected, focused, row, col);
-		}
-	}
 
 	public static class CobwebSelectionEditor extends DefaultCellEditor {
 
@@ -43,11 +24,6 @@ class MixedValueJTable extends JTable {
 
 		public CobwebSelectionEditor(JComboBox comboBox) {
 			super(comboBox);
-		}
-
-		@Override
-		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-			return super.getTableCellEditorComponent(table, value, isSelected, row, column);
 		}
 
 		@Override
@@ -61,14 +37,40 @@ class MixedValueJTable extends JTable {
 		}
 
 		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			return super.getTableCellEditorComponent(table, value, isSelected, row, column);
+		}
+
+		@Override
 		public boolean stopCellEditing() {
 			return super.stopCellEditing();
 		}
-	
+
 	}
-	
+
+	private final class PerciseDecimalTableCellRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = -1919381757017436295L;
+
+		private DecimalFormat formater = new DecimalFormat();
+
+		PerciseDecimalTableCellRenderer(){
+			super.setHorizontalAlignment(RIGHT);
+		}
+
+
+		@Override
+		public Component getTableCellRendererComponent
+		(JTable tbl, Object value, boolean selected, boolean focused, int row, int col){
+			value = formater.format(value);
+			return super.getTableCellRendererComponent(tbl, value, selected, focused, row, col);
+		}
+	}
+
+	private static final long serialVersionUID = -9106510371599896107L;
+
 	CobwebSelectionEditor myEditor = new CobwebSelectionEditor(new JComboBox());
-	
+
 	public MixedValueJTable() {
 		super();
 		this.getTableHeader().setReorderingAllowed(false);
@@ -99,7 +101,7 @@ class MixedValueJTable extends JTable {
 			if (getValueAt(row, column) instanceof Double ||
 					getValueAt(row, column) instanceof Float ){
 				renderer = new PerciseDecimalTableCellRenderer();
-			}else {
+			} else {
 				renderer = getDefaultRenderer(getValueAt(row, column).getClass());
 			}
 			System.out.println(renderer.getClass().getName());

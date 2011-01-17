@@ -24,6 +24,11 @@ public class SamplePopulationConfigPage extends JFrame {
 		}
 	}
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -989030369586898897L;
+
 	public static void main (String [] args) {
 
 		new SamplePopulationConfigPage();
@@ -60,8 +65,6 @@ public class SamplePopulationConfigPage extends JFrame {
 		//		JOptionPane.showInputDialog(null, "Pick a printer", "Input", JOptionPane.QUESTION_MESSAGE,
 		//				null, bigList, "Titan");
 
-		JLabel option_label = new JLabel("Select an option:");
-
 		JRadioButton b1 = new JRadioButton("Option 1");
 		JRadioButton b2 = new JRadioButton("Option 2");
 		JRadioButton b3 = new JRadioButton("Option 3");
@@ -71,8 +74,6 @@ public class SamplePopulationConfigPage extends JFrame {
 		group.add(b1);
 		group.add(b2);
 		group.add(b3);
-
-		JLabel name_label = new JLabel("Enter a name:");
 
 		JTextField name = new JTextField(30);
 

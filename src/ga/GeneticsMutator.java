@@ -160,6 +160,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 				genetic_code = GeneticCode.createGeneticCodeMeiosisGeneSwap(gc1, gc2);
 				break;
 			case RandomRecombination:
+			default:
 				genetic_code = GeneticCode.createGeneticCodeMeiosisRecomb(gc1, gc2);
 				break;
 		}

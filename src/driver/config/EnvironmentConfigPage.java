@@ -174,9 +174,6 @@ public class EnvironmentConfigPage implements ConfigPage {
 		panel13.add(populationAmount);
 
 
-		JPanel savePane = new JPanel();
-
-
 		JPanel savePanel = new JPanel(new GridLayout(0, 1));
 		savePanel.add(radioPanel);
 		savePanel.add(populationAmount);

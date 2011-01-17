@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -26,7 +25,7 @@ import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
 import driver.SimulationConfig;
 
-public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
+public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
 
 	/**
 	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo
@@ -280,8 +279,8 @@ public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.Ti
 	/** This is the most recent completed drawing info */
 	private volatile DrawInfo theDrawingInfo;
 
-	/** List of sample populations */
-	private HashMap<String, List<AgentDrawInfo>> samplePop ;
+	///** List of sample populations */
+	//private HashMap<String, List<AgentDrawInfo>> samplePop;
 
 	private UIInterface.UIClient theClient;
 
@@ -446,6 +445,10 @@ public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.Ti
 		return stopTime;
 	}
 
+	public long getTime() {
+		return theScheduler.getTime();
+	}
+
 	/**
 	 * @return TextField TickField
 	 */
@@ -602,8 +605,8 @@ public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.Ti
 		theEnvironment.log(outStream);
 	}
 
-	public void newAgent(java.awt.Color agentColor, java.awt.Color typeColor,
-			java.awt.Color strategyColor, Point2D position, Point2D facing) {
+	public void newAgent(java.awt.Color agentColor, java.awt.Color typeColor, java.awt.Color strategyColor,
+			Point2D position, Point2D facing) {
 		newDrawingInfo.agents.add(new AgentDrawInfo(agentColor, typeColor, strategyColor, position, facing));
 	}
 
@@ -739,7 +742,7 @@ public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.Ti
 	/**
 	 * Saves the current list of agents in the environment
 	 */
-	public boolean saveCurrentPopulation (String popName, String option, int amount){
+	public boolean saveCurrentPopulation(String popName, String option, int amount) {
 
 		// save the list of agents
 		return theEnvironment.savePopulation(popName, option, amount);
@@ -779,8 +782,8 @@ public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.Ti
 
 	/** ********************************************************************** */
 	public void tickNotification(long tickCount) {
-		//		SamplePopulation samplePop = SamplePopulation.getInstance();
-		//		System.out.println(samplePop.toString());
+		// SamplePopulation samplePop = SamplePopulation.getInstance();
+		// System.out.println(samplePop.toString());
 		myClock = tickCount;
 		if (files < totalfilenum && (tickCount + 1) == (pauseAt[files] + tickcounter)) {
 			this.pause();
@@ -815,7 +818,6 @@ public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.Ti
 		theEnvironment.unObserve();
 	}
 
-
 	private void updateEnvironmentDrawInfo() {
 		theEnvironment.getDrawInfo(this);
 		theDrawingInfo = newDrawingInfo;
@@ -831,9 +833,5 @@ public class LocalUIInterface implements  UIInterface, DrawingHandler, cobweb.Ti
 
 	public void writeOutput(String s) {
 		myLogger.info(s);
-	}
-
-	public long getTime() {
-		return theScheduler.getTime();
 	}
 }

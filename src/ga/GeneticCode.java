@@ -10,53 +10,6 @@ import java.util.BitSet;
  */
 public class GeneticCode {
 
-	private BitSet genes;
-
-	private int bytes;
-
-	public int getNumGenes() {
-		return bytes;
-	}
-
-	public GeneticCode(int bytes) {
-		this.bytes = bytes;
-		genes = new BitSet(bytes * 8);
-	}
-
-	private byte getByte(int position) {
-		byte res = 0;
-		for (int i = 0; i < 8; i++) {
-			res = (byte)(res << 1);
-			boolean on = genes.get(position + (7 - i));
-			res += on ? 1 : 0;
-		}
-		return res;
-	}
-
-	private void setByte(int position, byte value) {
-		for (int i = 0; i < 8; i++) {
-			boolean on = (value & (1 << i)) > 0;
-			genes.set(position + i, on);
-		}
-	}
-
-	/**
-	 * Returns the rgb colour associated to global instance variable "genes".
-	 *
-	 * @return An int array that stores the rgb colour.
-	 */
-	public int getValue(int gene) {
-		return getByte(gene * 8) & 0xff;
-	}
-
-	public void setValue(int gene, int value) {
-		setByte(gene * 8, (byte)value);
-	}
-
-	public float getStatus(int gene) {
-		return 2 * (float)Math.abs(Math.sin(getValue(gene) * Math.PI / 180));
-	}
-
 	/**
 	 * Compares two input bit strings of identical length and returns their %
 	 * similarity. The similarity between the two string is determined solely by
@@ -69,11 +22,17 @@ public class GeneticCode {
 	 * @return similarity between "genes1" and "genes2" range: 0.0 - 1.0
 	 */
 	public static float compareGeneticSimilarity(GeneticCode gc1, GeneticCode gc2) {
+
 		if ((gc1 == null && gc2 != null) || (gc1 != null && gc2 == null))
 			return 0;
 
+		if (gc1 == null || gc2 == null)
+			return 1;
+
 		if (gc1 == gc2)
 			return 1;
+
+
 
 		int similarity_number = 0;
 		int length = Math.min(gc1.bytes * 8, gc2.bytes * 8);
@@ -111,34 +70,6 @@ public class GeneticCode {
 		return result;
 	}
 
-	public GeneticCode(GeneticCode parent) {
-		this(parent.bytes);
-		genes.or(parent.genes);
-	}
-
-	/**
-	 * Creates a new bit string based on two parent bit strings, "genes1" and
-	 * "genes2". The new string is the combination of one fragment
-	 * from each parent (total length is still 24).
-	 *
-	 * @param genes1 Genes of parent 1
-	 * @param genes2 Genes of parent 2
-	 * @return The new bit string.
-	 */
-	public static GeneticCode createGeneticCodeMeiosisRecomb(GeneticCode genes1, GeneticCode genes2) {
-		assert(genes1.bytes == genes2.bytes);
-		GeneticCode result = new GeneticCode(genes1.bytes);
-		int split = cobweb.globals.random.nextInt(result.bytes * 8);
-
-		for (int i = 0; i < split; i++)
-			result.genes.set(i, genes1.genes.get(i));
-
-		for (int i = split; i < genes1.bytes * 8; i++)
-			result.genes.set(i, genes2.genes.get(i));
-
-		return result;
-	}
-
 	/**
 	 * Creates a new bit string based on two parent bit strings, "genes1" and
 	 * "genes2". Each gene encoded in the new string will be randomly
@@ -164,6 +95,77 @@ public class GeneticCode {
 	}
 
 	/**
+	 * Creates a new bit string based on two parent bit strings, "genes1" and
+	 * "genes2". The new string is the combination of one fragment
+	 * from each parent (total length is still 24).
+	 *
+	 * @param genes1 Genes of parent 1
+	 * @param genes2 Genes of parent 2
+	 * @return The new bit string.
+	 */
+	public static GeneticCode createGeneticCodeMeiosisRecomb(GeneticCode genes1, GeneticCode genes2) {
+		assert(genes1.bytes == genes2.bytes);
+		GeneticCode result = new GeneticCode(genes1.bytes);
+		int split = cobweb.globals.random.nextInt(result.bytes * 8);
+
+		for (int i = 0; i < split; i++)
+			result.genes.set(i, genes1.genes.get(i));
+
+		for (int i = split; i < genes1.bytes * 8; i++)
+			result.genes.set(i, genes2.genes.get(i));
+
+		return result;
+	}
+
+	private BitSet genes;
+
+	private int bytes;
+
+	public GeneticCode(GeneticCode parent) {
+		this(parent.bytes);
+		genes.or(parent.genes);
+	}
+
+	public GeneticCode(int bytes) {
+		this.bytes = bytes;
+		genes = new BitSet(bytes * 8);
+	}
+
+	public void bitsFromString(int start, int length, String string, int stringStart) {
+		int len = Math.min(length, string.length() - stringStart);
+		for (int i = 0; i < len; i++) {
+			genes.set(start + i, string.charAt(stringStart + (len - i - 1)) == '1');
+		}
+	}
+
+	private byte getByte(int position) {
+		byte res = 0;
+		for (int i = 0; i < 8; i++) {
+			res = (byte)(res << 1);
+			boolean on = genes.get(position + (7 - i));
+			res += on ? 1 : 0;
+		}
+		return res;
+	}
+
+	public int getNumGenes() {
+		return bytes;
+	}
+
+	public float getStatus(int gene) {
+		return 2 * (float)Math.abs(Math.sin(getValue(gene) * Math.PI / 180));
+	}
+
+	/**
+	 * Returns the rgb colour associated to global instance variable "genes".
+	 *
+	 * @return An int array that stores the rgb colour.
+	 */
+	public int getValue(int gene) {
+		return getByte(gene * 8) & 0xff;
+	}
+
+	/**
 	 * Mutates a bit string "genes" at a random bit and returns it.
 	 *
 	 * @param position The position of the string to be mutated.
@@ -172,11 +174,15 @@ public class GeneticCode {
 		genes.flip(position);
 	}
 
-	public void bitsFromString(int start, int length, String string, int stringStart) {
-		int len = Math.min(length, string.length() - stringStart);
-		for (int i = 0; i < len; i++) {
-			genes.set(start + i, string.charAt(stringStart + (len - i - 1)) == '1');
+	private void setByte(int position, byte value) {
+		for (int i = 0; i < 8; i++) {
+			boolean on = (value & (1 << i)) > 0;
+			genes.set(position + i, on);
 		}
+	}
+
+	public void setValue(int gene, int value) {
+		setByte(gene * 8, (byte)value);
 	}
 
 	public String stringFromBits(int start, int length) {
