@@ -427,13 +427,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private static final long serialVersionUID = 2112476687880153089L;
 
-	private int finalstep = 0;
-
-	static CobwebApplication CA;
-
-	// $$$$$$ Add a greeting string for the textWindow. Mar 25
-	public static final String GREETINGS = "Welcome to COBWEB 2";
-
 	// $$$$$$ A file copy method. Feb 11
 	public static void copyFile(String src, String dest) throws IOException {
 		File sourceFile = new File(src);
@@ -454,6 +447,21 @@ public class CobwebApplication extends JFrame implements UIClient {
 			if (destination != null)
 				destination.close();
 		}
+	}
+
+	private int finalstep = 0;
+
+	static CobwebApplication CA;
+
+	// $$$$$$ Add a greeting string for the textWindow. Mar 25
+	public static final String GREETINGS = "Welcome to COBWEB 2";
+
+	private static String getMyVersion() {
+		String version = CobwebApplication.class.getPackage().getImplementationVersion();
+		if (version == null) {
+			version = "test build";
+		}
+		return version;
 	}
 
 	JTextArea textArea;
@@ -705,10 +713,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 				"About Cobweb", true); // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows. Feb 22
 		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); // $$$$$$ added on Feb 18
 		JPanel info = new JPanel();
-		info.add(new JLabel("Cobweb 2003/2004"));
-		info.add(new JLabel(""));
-		info.add(new JLabel("is a product of"));
-		info.add(new JLabel("Environment Canada"));
+		info.add(new JLabel("Cobweb2 2003/2011"));
+		info.add(new JLabel("version: " + getMyVersion()));
 
 		JPanel term = new JPanel();
 		JButton close = new JButton("Close");
