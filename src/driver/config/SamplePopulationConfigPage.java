@@ -90,8 +90,6 @@ public class SamplePopulationConfigPage extends JFrame {
 		int res = JOptionPane.showConfirmDialog(null, array, "Select", 
 				JOptionPane.OK_CANCEL_OPTION);
 
-		System.out.println(res);
-
 	}
 
 	public void validateUI() throws IllegalArgumentException {

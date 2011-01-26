@@ -18,20 +18,13 @@ public class TypeColorEnumeration implements ColorLookup {
 
 	public java.awt.Color getColor(int index, int num) {
 
-		try {
-			Color c = table[index % table.length];
-			while (index > table.length) {
-				index -= table.length;
-				c = c.darker();
-			}
-			return c;
-
+		Color c = table[index % table.length];
+		while (index > table.length) {
+			index -= table.length;
+			c = c.darker();
 		}
-		catch (Exception e)  {
-			System.out.println("E" + index + " " + num);
+		return c;
 
-		}
-		return null;
 	}
 
 	public ColorSpace getSpace() {

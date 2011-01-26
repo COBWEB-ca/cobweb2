@@ -22,7 +22,6 @@ public class ResourceConfigPage implements ConfigPage {
 
 		TableColumnModel colModel = resourceParamTable.getColumnModel();
 		colModel.getColumn(0).setPreferredWidth(120);
-		System.out.println(colModel.getColumn(0).getHeaderValue());
 
 		GUI.colorHeaders(resourceParamTable, true);
 

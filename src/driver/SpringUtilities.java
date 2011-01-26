@@ -141,12 +141,8 @@ public class SpringUtilities {
 			int initialX, int initialY,
 			int xPad, int yPad) {
 		SpringLayout layout;
-		try {
-			layout = (SpringLayout)parent.getLayout();
-		} catch (ClassCastException exc) {
-			System.err.println("The first argument to makeGrid must use SpringLayout.");
-			return;
-		}
+
+		layout = (SpringLayout)parent.getLayout();
 
 		Spring xPadSpring = Spring.constant(xPad);
 		Spring yPadSpring = Spring.constant(yPad);

@@ -640,8 +640,6 @@ public abstract class Environment {
 		} catch (TransformerException ex) {
 			throw new RuntimeException(ex);
 		}
-
-		System.out.println("Population saved");
 		return true;
 	}
 

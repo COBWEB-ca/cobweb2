@@ -4,7 +4,9 @@ import ga.GeneticsMutator;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -587,8 +589,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	private void loadNewDataFile(int n) {
-		// System.out.println("Loading new file " + n); // $$$$$$ silenced on
-		// Apr 22
 		this.load(theClient, parsedfiles[n]);
 		currentParser = parsedfiles[n];
 	}
@@ -600,7 +600,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 */
 	public void log(String filePath) throws java.io.IOException {
 		// Open the Writer...
-		java.io.FileWriter outStream = new java.io.FileWriter(filePath);
+		java.io.Writer outStream = new BufferedWriter(new FileWriter(filePath), 8*1024);
 		// Fire it off to the environment
 		theEnvironment.log(outStream);
 	}
@@ -782,8 +782,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	/** ********************************************************************** */
 	public void tickNotification(long tickCount) {
-		// SamplePopulation samplePop = SamplePopulation.getInstance();
-		// System.out.println(samplePop.toString());
 		myClock = tickCount;
 		if (files < totalfilenum && (tickCount + 1) == (pauseAt[files] + tickcounter)) {
 			this.pause();

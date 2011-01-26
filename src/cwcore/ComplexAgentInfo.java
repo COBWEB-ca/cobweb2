@@ -153,12 +153,11 @@ public class ComplexAgentInfo {
 
 	public static void initStaticAgentInfo(int agenttypes) {
 		if (alreadyInitialized) {
-			System.out.println("ComplexAgentInfo::initStaticAgentInfo(" + agenttypes + ")"
+			Logger myLogger = Logger.getLogger("COBWEB2");
+			myLogger.log(Level.WARNING, "ComplexAgentInfo::initStaticAgentInfo(" + agenttypes + ")"
 					+ " ComplexAgentInfo::alreadyInitialized = " + alreadyInitialized);
 			return;
 		}
-		System.out.println("ComplexAgentInfo::initStaticAgentInfo(" + agenttypes + ")"
-				+ " ComplexAgentInfo::alreadyInitialized = " + alreadyInitialized);
 		alreadyInitialized = true;
 
 		agentTypes = agenttypes;

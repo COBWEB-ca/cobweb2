@@ -329,8 +329,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 			int res = JOptionPane.showConfirmDialog(null, array, "Select", 
 					JOptionPane.OK_CANCEL_OPTION);
 
-			System.out.println(res);
-
 
 			if (res == -1 || res == 2)			
 				return null;

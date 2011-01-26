@@ -104,11 +104,9 @@ class MixedValueJTable extends JTable {
 			} else {
 				renderer = getDefaultRenderer(getValueAt(row, column).getClass());
 			}
-			System.out.println(renderer.getClass().getName());
 		}
 		if (renderer == null) {
 			renderer = getDefaultRenderer(getColumnClass(column));
-			System.out.println(getColumnClass(column).getName());
 		}
 		return renderer;
 

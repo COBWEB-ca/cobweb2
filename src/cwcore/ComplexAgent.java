@@ -7,6 +7,8 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -694,8 +696,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			// 0, i.e. probability. Apr 22
 			pdCheater = 0; // agent is assumed to cooperate
 			float rnd = cobweb.globals.random.nextFloat();
-			// System.out.println("rnd: " + rnd);
-			// System.out.println("coopProb: " + coopProb);
 			if (rnd > coopProb)
 				pdCheater = 1; // agent defects depending on
 			// probability
@@ -781,7 +781,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				receiveCheatingBroadcast(commPacket);
 				break;
 			default:
-				System.out.println("Unrecognised broadcast type");
+				Logger myLogger = Logger.getLogger("COBWEB2");
+				myLogger.log(Level.WARNING, "Unrecognised broadcast type");
 		}
 	}
 
