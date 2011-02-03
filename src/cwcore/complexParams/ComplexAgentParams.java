@@ -320,4 +320,8 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 			throw new RuntimeException(ex);
 		}
 	}
+
+	public void resizeFoodweb(ComplexEnvironmentParams envParams) {
+		foodweb.resize(envParams);
+	}
 }

@@ -2,6 +2,7 @@ package disease;
 
 import ga.GeneticParams.Phenotype;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,6 +113,11 @@ public class DiseaseParams extends AbstractReflectionParams {
 		}
 		root.appendChild(trans);
 
+	}
+
+	public void resize(AgentFoodCountable envParams) {
+		boolean[] n = Arrays.copyOf(transmitTo, env.getAgentTypes());
+		this.transmitTo = n;
 	}
 
 }

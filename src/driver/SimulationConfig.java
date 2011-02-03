@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -307,6 +308,52 @@ public class SimulationConfig {
 		} catch (TransformerException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	public void SetAgentTypeCount(int count) {
+		this.envParams.agentTypeCount = count;
+		this.envParams.foodTypeCount = count;
+
+		{ 
+			ComplexAgentParams[] n = Arrays.copyOf(this.agentParams, count);
+			for (int i = 0; i < this.agentParams.length && i < count; i++) {
+				n[i].resizeFoodweb(envParams);
+			}
+			for (int i = this.agentParams.length; i < count; i++) {
+				n[i] = new ComplexAgentParams(envParams);
+			}
+			this.agentParams = n;
+		}
+
+		{
+			ComplexFoodParams[] n = Arrays.copyOf(this.foodParams, count);
+			for (int i = this.foodParams.length; i < count; i++) {
+				n[i] = new ComplexFoodParams();
+			}
+			this.foodParams = n;
+		}
+
+		{
+			DiseaseParams[] n = Arrays.copyOf(diseaseParams, count);
+
+			for (int i = 0; i < this.diseaseParams.length && i < count; i++) {
+				n[i].resize(envParams);
+			}
+
+			for (int i = this.diseaseParams.length; i < count; i++) {
+				n[i] = new DiseaseParams(envParams);
+			}
+
+			this.diseaseParams = n;
+		}
+		{
+			this.geneticParams.resize(envParams);
+		}
+		{
+			this.tempParams.resize(envParams);
+		}
+
+
 	}
 
 } // Parser

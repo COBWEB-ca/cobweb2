@@ -3,6 +3,7 @@
  */
 package cwcore.complexParams;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,6 +82,18 @@ public class FoodwebParams implements CobwebParam {
 			Node n = document.createElement("food" + (food + 1));
 			n.setTextContent(Boolean.toString(canEatFood[food]));
 			root.appendChild(n);
+		}
+	}
+
+	public void resize(AgentFoodCountable envParams) {
+		{
+			boolean[] n = Arrays.copyOf(canEatAgent, envParams.getAgentTypes());
+			canEatAgent = n;
+
+		}
+		{
+			boolean[] n = Arrays.copyOf(canEatFood, envParams.getFoodTypes());
+			canEatFood = n;
 		}
 	}
 

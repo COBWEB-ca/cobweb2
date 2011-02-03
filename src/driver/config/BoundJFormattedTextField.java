@@ -5,11 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.text.Format;
 
-import javax.swing.JFormattedTextField;
-
-import cobweb.params.ConfDisplayName;
-
-public class BoundJFormattedTextField extends JFormattedTextField implements FieldBoundComponent, PropertyChangeListener {
+public class BoundJFormattedTextField extends LabeledJFormattedTextField implements FieldBoundComponent, PropertyChangeListener {
 
 	/**
 	 *
@@ -18,27 +14,21 @@ public class BoundJFormattedTextField extends JFormattedTextField implements Fie
 
 	private final Object obj;
 	private final Field field;
-	private final String label;
 
 	public BoundJFormattedTextField(Object obj, String fieldName, Format format) {
-		super(format);
+		super(obj, fieldName, format);
 		this.obj = obj;
 		try {
 			this.field = obj.getClass().getField(fieldName);
 		} catch (NoSuchFieldException ex) {
 			throw new RuntimeException(ex);
 		}
-		this.label = field.getAnnotation(ConfDisplayName.class).value();
 		try {
 			this.setValue(field.get(obj));
 		} catch (IllegalAccessException ex) {
 			throw new RuntimeException(ex);
 		}
 		this.addPropertyChangeListener("value", this);
-	}
-
-	public String getLabelText() {
-		return label;
 	}
 
 	@SuppressWarnings("boxing")

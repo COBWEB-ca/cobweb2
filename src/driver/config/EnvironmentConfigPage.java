@@ -5,7 +5,11 @@ package driver.config;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -55,6 +59,18 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 	ComplexEnvironmentParams params;
 
+	private int oldAgentNum;
+
+	private List<AgentNumChangeListener> numChangeListeners = new LinkedList<AgentNumChangeListener>();
+
+	public void addAgentNumChangeListener(AgentNumChangeListener listener) {
+		numChangeListeners.add(listener);
+	}
+
+	public void removeAgentNumChangeListener(AgentNumChangeListener listener) {
+		numChangeListeners.remove(listener);
+	}
+
 	/**
 	 *
 	 */
@@ -64,7 +80,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 		/* Environment Settings */
 		JPanel panel11 = new JPanel();
-		GUI.makeGroupPanel(panel11, "Grid Settings");
+		GUI.makeGroupPanel(panel11, "Environment Settings");
 		JPanel fieldPane = new JPanel();
 
 		Width = new BoundJFormattedTextField(params, "width", NumberFormat.getIntegerInstance());
@@ -79,9 +95,36 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(new JLabel(wrap.getLabelText()));
 		fieldPane.add(wrap);
 
+		oldAgentNum = params.agentTypeCount;
+
+		LabeledJFormattedTextField AgentNum = new LabeledJFormattedTextField(params, "agentTypeCount", NumberFormat.getIntegerInstance());
+		AgentNum.setValue(theParams.agentTypeCount);
+		AgentNum.addPropertyChangeListener("value", new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				Object nv = evt.getNewValue();
+				if (!(nv instanceof Long)) {
+					return;
+				}
+
+				int newAgentNum = ((Long)evt.getNewValue()).intValue();
+
+				if (newAgentNum == oldAgentNum)
+					return;
+
+				for (AgentNumChangeListener x : numChangeListeners) {
+					x.AgentNumChanged(oldAgentNum, newAgentNum);
+				}
+			}
+		});
+
+		fieldPane.add(new JLabel(AgentNum.getLabelText()));
+		fieldPane.add(AgentNum);
+
 		panel11.add(fieldPane, BorderLayout.CENTER);
 
-		makeOptionsTable(fieldPane, 3);
+		makeOptionsTable(fieldPane, 4);
 
 		thePanel.add(panel11);
 

@@ -1,5 +1,7 @@
 package temperature;
 
+import java.util.Arrays;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -76,5 +78,14 @@ public class TemperatureParams implements CobwebParam {
 			agents.appendChild(n);
 		}
 		root.appendChild(agents);
+	}
+
+	public void resize(AgentFoodCountable envParams) {
+		TemperatureAgentParams[] n = Arrays.copyOf(agentParams, envParams.getAgentTypes());
+
+		for (int i = agentParams.length; i < envParams.getAgentTypes(); i++) {
+			n[i] = new TemperatureAgentParams();
+		}
+		agentParams = n;
 	}
 }

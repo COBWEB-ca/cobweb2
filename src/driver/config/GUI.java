@@ -219,35 +219,19 @@ public class GUI extends JFrame {
 		tabbedPane = new JTabbedPane();
 
 		environmentPage = new EnvironmentConfigPage(p.getEnvParams(), allowKeep);
+
 		tabbedPane.addTab("Environment", environmentPage.getPanel());
 
-		/* Resources panel */
-		resourcePage = new ResourceConfigPage(p.getFoodParams());
-		tabbedPane.addTab("Resources", resourcePage.getPanel());
+		setupConfigPages();
 
-		/* Agents' panel */
-		agentPage = new AgentConfigPage(p.getAgentParams());
-		tabbedPane.addTab("Agents", agentPage.getPanel());
+		environmentPage.addAgentNumChangeListener(new AgentNumChangeListener() {
 
-		foodwebPage = new FoodwebConfigPage(p.getAgentParams());
-		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
-
-		pdPage = new PDConfigPage(p.getEnvParams().pdParams);
-		tabbedPane.addTab("PD Options", pdPage.getPanel());
-
-		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
-		JComponent panelGA = geneticPage.getPanel();
-		tabbedPane.addTab("Genetics", panelGA);
-
-		controllerPanel = new AIPanel();
-		controllerPanel.bindToParser(p);
-		tabbedPane.addTab("AI", controllerPanel);
-
-		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams());
-		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
-
-		tempPage = new TemperatureConfigPage(p.getTempParams());
-		tabbedPane.addTab("Temperature", tempPage.getPanel());
+			@Override
+			public void AgentNumChanged(int oldNum, int newNum) {
+				p.SetAgentTypeCount(newNum);
+				setupConfigPages();
+			}
+		});
 
 		ok = new JButton("OK");
 		ok.setMaximumSize(new Dimension(80, 20));
@@ -276,11 +260,10 @@ public class GUI extends JFrame {
 			filePath = new File(CobwebApplication.DEFAULT_DATA_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION);
 		setTitle(WINDOW_TITLE + " - " + filePath.getName());
 	}
-
-
 	public SimulationConfig getParser() {
 		return p;
 	}
+
 
 	// $$$$$$ This openFileDialog method is invoked by pressing the "Save" button
 	public void openFileDialog() {
@@ -345,6 +328,54 @@ public class GUI extends JFrame {
 
 	private void setDefault() {
 		p = new SimulationConfig();
+	}
+
+	private void setupConfigPages() {
+
+
+
+		/* Resources panel */
+		removeOldPage(resourcePage);
+		resourcePage = new ResourceConfigPage(p.getFoodParams());
+		tabbedPane.addTab("Resources", resourcePage.getPanel());
+
+		/* Agents' panel */
+		removeOldPage(agentPage);
+		agentPage = new AgentConfigPage(p.getAgentParams());
+		tabbedPane.addTab("Agents", agentPage.getPanel());
+
+		removeOldPage(foodwebPage);
+		foodwebPage = new FoodwebConfigPage(p.getAgentParams());
+		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
+
+		removeOldPage(pdPage);
+		pdPage = new PDConfigPage(p.getEnvParams().pdParams);
+		tabbedPane.addTab("PD Options", pdPage.getPanel());
+
+		removeOldPage(geneticPage);
+		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
+		JComponent panelGA = geneticPage.getPanel();
+		tabbedPane.addTab("Genetics", panelGA);
+
+		if (controllerPanel != null) {
+			tabbedPane.remove(controllerPanel);
+		}
+		controllerPanel = new AIPanel();
+		controllerPanel.bindToParser(p);
+		tabbedPane.addTab("AI", controllerPanel);
+
+		removeOldPage(diseaseConfigPage);
+		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams());
+		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
+
+		removeOldPage(tempPage);
+		tempPage = new TemperatureConfigPage(p.getTempParams());
+		tabbedPane.addTab("Temperature", tempPage.getPanel());
+	}
+	private void removeOldPage(ConfigPage r) {
+		if (r != null) {
+			tabbedPane.remove(r.getPanel());
+		}
 	}
 
 }

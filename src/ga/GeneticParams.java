@@ -4,6 +4,7 @@
 package ga;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedList;
@@ -293,6 +294,19 @@ public class GeneticParams extends AbstractReflectionParams {
 			for (int j = 0; j < geneCount; j++)
 				geneValues[i][j] = "00011110";
 		updateFrequency = 10;
+	}
+
+	public void resize(AgentFoodCountable envParams) {
+
+		String[][] n = Arrays.copyOf(geneValues, envParams.getAgentTypes());
+
+		for (int i = geneValues.length; i < envParams.getAgentTypes(); i++) {
+			n[i] = new String[geneCount];
+			for (int j = 0; j < geneCount; j++)
+				n[i][j] = "00011110";
+		}
+		geneValues = n;
+
 	}
 
 
