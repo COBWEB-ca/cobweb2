@@ -11,12 +11,9 @@ import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import cwcore.complexParams.ComplexEnvironmentParams;
@@ -95,6 +92,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(new JLabel(wrap.getLabelText()));
 		fieldPane.add(wrap);
 
+
 		oldAgentNum = params.agentTypeCount;
 
 		LabeledJFormattedTextField AgentNum = new LabeledJFormattedTextField(params, "agentTypeCount", NumberFormat.getIntegerInstance());
@@ -122,25 +120,17 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(new JLabel(AgentNum.getLabelText()));
 		fieldPane.add(AgentNum);
 
-		panel11.add(fieldPane, BorderLayout.CENTER);
 
-		makeOptionsTable(fieldPane, 4);
-
-		thePanel.add(panel11);
-
-		JPanel panel15 = new JPanel();
-		GUI.makeGroupPanel(panel15, "Prisoner's Dilemma Options");
-
-		fieldPane = new JPanel(new GridLayout(3, 1));
 
 		PrisDilemma = new BoundCheckBox(params, "prisDilemma");
 		fieldPane.add(new JLabel(PrisDilemma.getLabelText()));
 		fieldPane.add(PrisDilemma);
 
-		makeOptionsTable(fieldPane, 1);
+		panel11.add(fieldPane, BorderLayout.CENTER);
 
-		panel15.add(fieldPane);
-		thePanel.add(panel15, "WEST");
+		makeOptionsTable(fieldPane, 5);
+
+		thePanel.add(panel11);
 
 		/* Colour Settings */
 		JPanel panel12 = new JPanel();
@@ -173,83 +163,6 @@ public class EnvironmentConfigPage implements ConfigPage {
 		panel12.add(fieldPane);
 		thePanel.add(panel12);
 
-		/* Options */
-		JPanel panel13 = new JPanel();
-		String title = "Sample Population";
-		GUI.makeGroupPanel(panel13, title);
-
-		fieldPane = new JPanel(new GridLayout(1, 1));
-
-		//		fieldPane.add(new JLabel("No. of Colors"));
-		//		fieldPane.add(numColor);
-		//		fieldPane.add(new JLabel("Color Select Size"));
-		//		fieldPane.add(colorSelectSize);
-		//		fieldPane.add(new JLabel("Recolor Time Step"));
-		//		fieldPane.add(reColorTimeStep);
-		//		fieldPane.add(new JLabel("Colorizer Mode"));
-		//		fieldPane.add(colorizerMode);
-		//		fieldPane.add(new JLabel("Color Coded Agents"));
-		//		fieldPane.add(ColorCodedAgents);
-
-		fieldPane.add(new JLabel("Save"));
-		panel13.add(fieldPane);
-
-		// Radio buttons
-		JRadioButton percentageRButton = new JRadioButton("Percentage");
-		percentageRButton.setSelected(true);
-
-		JRadioButton numberRButton = new JRadioButton("Amount");
-		percentageRButton.setSelected(false);
-
-
-		ButtonGroup group = new ButtonGroup();
-		group.add(percentageRButton);
-		group.add(numberRButton);
-
-		JPanel radioPanel = new JPanel(new GridLayout(0, 1));
-		radioPanel.add(percentageRButton);
-		radioPanel.add(numberRButton);
-
-		//panel13.add(radioPanel);
-
-		JTextField populationAmount = new JTextField(6);
-
-		panel13.add(populationAmount);
-
-
-		JPanel savePanel = new JPanel(new GridLayout(0, 1));
-		savePanel.add(radioPanel);
-		savePanel.add(populationAmount);
-
-
-		panel13.add(savePanel, BorderLayout.CENTER);
-
-		//		fieldPane.add(new JLabel("Insert"));
-		//		panel13.add(fieldPane);
-		//makeOptionsTable(fieldPane, 5);
-
-		thePanel.add(panel13);
-
-		JPanel insertPane = new JPanel(new GridLayout(1, 1));
-		insertPane.add(new JLabel("Insert"));
-		panel13.add(fieldPane);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 		/* Random variables */
 		JPanel panel14 = new JPanel();
@@ -265,6 +178,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		makeRandom.addActionListener(new SeedRandomListener(randomSeed));
 		fieldPane.add(new JLabel(randomSeed.getLabelText()));
 		fieldPane.add(randomSeed);
+
 		fieldPane.add(new JPanel());
 		fieldPane.add(makeRandom);
 
@@ -286,7 +200,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(new JLabel(maxFoodChance.getLabelText()));
 		fieldPane.add(maxFoodChance);
 
-		panel16.add(fieldPane, BorderLayout.EAST);
+		panel16.add(fieldPane, BorderLayout.WEST);
 		makeOptionsTable(fieldPane, 2);
 
 		thePanel.add(panel16);
@@ -302,7 +216,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 			keepOldWaste.setSelected(false);
 		}
 
-		SpringUtilities.makeCompactGrid(thePanel, 3, 2, 0, 0, 0, 0, 0, 0);
+		SpringUtilities.makeCompactGrid(thePanel, 2, 2, 0, 0, 0, 0, 0, 0);
 	}
 
 	/* (non-Javadoc)
