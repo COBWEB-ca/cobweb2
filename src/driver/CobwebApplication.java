@@ -1144,6 +1144,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 			uiPipe = new LocalUIInterface(this, p);
 			UIsettings();
 		} else {
+			if (uiPipe.isRunning())
+				uiPipe.pause();
+
 			uiPipe.load(this, p);
 			displayPanel.setUI(uiPipe);
 		}
