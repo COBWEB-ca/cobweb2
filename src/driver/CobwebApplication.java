@@ -285,7 +285,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			}
 
 			// Handles Foodtype and AgentType selections:
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < uiPipe.countAgentTypes(); i++) {
 				if (e.getActionCommand().compareTo("Food Type " + (i + 1)) == 0) {
 					// pauseUI(); // $$$$$$ Feb 12
 					disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1151,6 +1151,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 			displayPanel.setUI(uiPipe);
 		}
 
+		makeAgentFoodSelectMenu();
+
 		File f = new File(p.getFilename());
 		setTitle(WINDOW_TITLE + "  - " + f.getName());
 
@@ -1719,21 +1721,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			pauseButton.setUI(uiPipe);
 		}
 
-		JMenuItem foodtype[] = new JMenuItem[uiPipe.countAgentTypes()];
-		JMenuItem agentype[] = new JMenuItem[uiPipe.countAgentTypes()];
-		foodMenu.removeAll();
-		agentMenu.removeAll();
-		for (int i = 0; i < uiPipe.countAgentTypes(); i++) {
-			foodtype[i] = new JMenuItem("Food Type " + (i + 1));
-			foodtype[i].setActionCommand("Food Type " + (i + 1));
-			foodtype[i].addActionListener(theListener);
-			foodMenu.add(foodtype[i]);
-
-			agentype[i] = new JMenuItem("Agent Type " + (i + 1));
-			agentype[i].setActionCommand("Agent Type " + (i + 1));
-			agentype[i].addActionListener(theListener);
-			agentMenu.add(agentype[i]);
-		}
+		makeAgentFoodSelectMenu();
 
 		tickField.addFocusListener(new FocusAdapter() {
 			@Override
@@ -1761,5 +1749,23 @@ public class CobwebApplication extends JFrame implements UIClient {
 		validate();
 		uiPipe.start();
 	} // end of UISettings
+
+	private void makeAgentFoodSelectMenu() {
+		JMenuItem foodtype[] = new JMenuItem[uiPipe.countAgentTypes()];
+		JMenuItem agentype[] = new JMenuItem[uiPipe.countAgentTypes()];
+		foodMenu.removeAll();
+		agentMenu.removeAll();
+		for (int i = 0; i < uiPipe.countAgentTypes(); i++) {
+			foodtype[i] = new JMenuItem("Food Type " + (i + 1));
+			foodtype[i].setActionCommand("Food Type " + (i + 1));
+			foodtype[i].addActionListener(theListener);
+			foodMenu.add(foodtype[i]);
+
+			agentype[i] = new JMenuItem("Agent Type " + (i + 1));
+			agentype[i].setActionCommand("Agent Type " + (i + 1));
+			agentype[i].addActionListener(theListener);
+			agentMenu.add(agentype[i]);
+		}
+	}
 
 } // CobwebApplication
