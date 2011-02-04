@@ -367,44 +367,23 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		int action = -1; // $$$$$ -1: not play Prisoner's Dilemma
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
-		if (l.getAgent() != null && l.getAgent().type() == type) { // &&&&&& add
-			// " && l.getAgent().type() == type"
-			// Apr 3
-			l.getAgent().die();
-		} else if (type < data.getAgentTypes()) {
-			if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
-				int agentType = type;
-				if (data.prisDilemma) {
-					// System.out.println("in select agent: Value of PrisDilemma
-					// is true");
-					// System.out.println("PrisDilemma: "+prisDilemma[0]);
+		if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
+				&& !l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
+			int agentType = type;
+			if (data.prisDilemma) {
 
-					action = 0;
+				action = 0;
 
-					double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static
-					// value
-					// for
-					// now
-					// $$$$$$
-					// added
-					// for
-					// the
-					// below else block.
-					float rnd = cobweb.globals.random.nextFloat();
-					// System.out.println("rnd: " + rnd);
-					// System.out.println("coopProb: " + coopProb);
+				double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static
 
-					if (rnd > coopProb)
-						action = 1; // agent defects depending on probability
-				}
-				// spammy
-				// System.out.println("type "+agentType);
-				new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
-				// genetic
-				// sequence of agent
-				// type
+				float rnd = cobweb.globals.random.nextFloat();
+
+				if (rnd > coopProb)
+					action = 1; // agent defects depending on probability
 			}
+
+			new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
+
 		}
 	}
 
@@ -430,23 +409,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
-		if (l.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(l) == type) { // $$$$$$
-			// add
-			// " && getFoodType(l) == type" Apr
-			// 3
-			l.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-			// change
-			// from
-			// "+ ")\n");"
-			// Apr
-			// 3
-		} else if (// l.getAgent() == null && // $$$$$$ silence this condition,
-				// the food would be added under the agent.
-				// Apr 3
-				!(l.testFlag(ComplexEnvironment.FLAG_FOOD)) && !(l.testFlag(ComplexEnvironment.FLAG_STONE))) {
-			l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-			setFoodType(l, type);
+		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
+			throw new IllegalArgumentException("stone here already");
 		}
+		l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+		setFoodType(l, type);
+
 		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
 		fillTileColors(tileColors);
 	}
@@ -455,14 +423,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public synchronized void addStone(int x, int y) {
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
-		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
-			l.setFlag(ComplexEnvironment.FLAG_STONE, false);
-		} else if (l.getAgent() == null && !l.testFlag(ComplexEnvironment.FLAG_FOOD)
-				&& !l.testFlag(ComplexEnvironment.FLAG_STONE)) {
-			l.setFlag(ComplexEnvironment.FLAG_STONE, true);
-		} else {
+		if (l.getAgent() != null) {
 			return;
 		}
+
+		l.setFlag(ComplexEnvironment.FLAG_STONE, true);
+
 		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
 		fillTileColors(tileColors);
 	}
@@ -880,7 +846,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				axis[j] = Integer.parseInt(axisPos.item(j).getChildNodes().item(0).getNodeValue());
 			}
 
-			Location loc = new Location(axis);
+			Location loc = getLocation(axis[0], axis[1]);
 
 			// direction
 			int [] coords = new int [coordinates.getLength()];
@@ -1668,6 +1634,31 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			logStream.println();
 			logStream.println();
 		}
+	}
+
+	@Override
+	public boolean hasAgent(int x, int y) {
+		return getUserDefinedLocation(x, y).getAgent() != null;
+	}
+
+	@Override
+	public Agent getAgent(int x, int y) {
+		return getUserDefinedLocation(x, y).getAgent();
+	}
+
+	@Override
+	public boolean hasFood(int x, int y) {
+		return testFlag(getUserDefinedLocation(x, y), FLAG_FOOD);
+	}
+
+	@Override
+	public int getFood(int x, int y) {
+		return foodarray[x][y];
+	}
+
+	@Override
+	public boolean hasStone(int x, int y) {
+		return testFlag(getUserDefinedLocation(x, y), FLAG_STONE);
 	}
 
 

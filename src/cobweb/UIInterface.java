@@ -41,7 +41,7 @@ import driver.SimulationConfig;
 public interface UIInterface {
 
 	public static enum MouseMode {
-		Observe, AddStone, AddFood, AddAgent, RemoveStone, RemoveFood, RemoveAgent
+		Observe, AddStone, AddFood, AddAgent
 	}
 
 	/**
@@ -231,4 +231,14 @@ public interface UIInterface {
 	public void writeOutput(String s);
 
 	public long getTime();
+
+	public boolean hasAgent(int x, int y);
+
+	public abstract Agent getAgent(int x, int y);
+
+	public abstract boolean hasFood(int x, int y);
+
+	public abstract int getFood(int x, int y);
+
+	public abstract boolean hasStone(int x, int y);
 }

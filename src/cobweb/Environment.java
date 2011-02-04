@@ -87,7 +87,7 @@ public abstract class Environment {
 		/**
 		 * Private constructor, as only the environment should create locations.
 		 */
-		public Location(int[] axisPos) {
+		private Location(int[] axisPos) {
 
 			v = new int[Environment.this.getAxisCount()];
 			for (int i = 0; i < Environment.this.getAxisCount(); ++i)
@@ -506,9 +506,10 @@ public abstract class Environment {
 
 	public Location getUserDefinedLocation(int x, int y) {
 		Location l;
-		do {
-			l = getLocation(x, y);
-		} while (!l.isValid());
+		l = getLocation(x, y);
+		if (!l.isValid())
+			throw new IllegalArgumentException("Location not inside environment");
+
 		return l;
 	}
 
@@ -671,4 +672,14 @@ public abstract class Environment {
 
 	/** Update the log; called from the UIInterface */
 	protected abstract void writeLogEntry();
+
+	public abstract boolean hasAgent(int x, int y);
+
+	public abstract Agent getAgent(int x, int y);
+
+	public abstract boolean hasFood(int x, int y);
+
+	public abstract int getFood(int x, int y);
+
+	public abstract boolean hasStone(int x, int y);
 }

@@ -832,4 +832,29 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	public void writeOutput(String s) {
 		myLogger.info(s);
 	}
+
+	@Override
+	public boolean hasAgent(int x, int y) {
+		return theEnvironment.hasAgent(x, y);
+	}
+
+	@Override
+	public Agent getAgent(int x, int y) {
+		return theEnvironment.getAgent(x, y);
+	}
+
+	@Override
+	public boolean hasFood(int x, int y) {
+		return theEnvironment.hasFood(x, y);
+	}
+
+	@Override
+	public int getFood(int x, int y) {
+		return theEnvironment.getFood(x, y);
+	}
+
+	@Override
+	public boolean hasStone(int x, int y) {
+		return theEnvironment.hasStone(x, y);
+	}
 }

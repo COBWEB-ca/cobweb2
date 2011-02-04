@@ -7,11 +7,11 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ConcurrentModificationException;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import cobweb.Agent;
 import cobweb.UIInterface;
 import cobweb.UIInterface.MouseMode;
 
@@ -33,7 +33,7 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 	 * Mouse event listener for the simulation display panel
 	 *
 	 */
-	private class Mouse extends MouseAdapter {
+	private abstract class Mouse extends MouseAdapter {
 
 		int storedX = -1;
 
@@ -41,46 +41,229 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 		long storedTick = -1;
 
-		private void convertCoords(int x, int y) {
-			int realX = -1;
-			int realY = -1;
+		private boolean convertCoords(int x, int y, int[] out) {
 			long realTick = theUI.getCurrentTime();
 			{
-				if (       x >= borderLeft   && x < tileWidth  * mapWidth  + borderRight
-						&& y >= borderHeight && y < tileHeight * mapHeight + borderHeight) {
-					realX = (x - borderLeft) / tileWidth;
-					realY = (y - borderHeight) / tileHeight;
-
-					// Avoid multiple clicks on one spot
-					if (storedX != realX || storedY != realY || storedTick != realTick) {
-						onClick(realX, realY);
-					}
-					// Update
-					storedX = realX;
-					storedY = realY;
-					storedTick = realTick;
+				if (!(     x >= borderLeft   && x < tileWidth  * mapWidth  + borderRight
+						&& y >= borderHeight && y < tileHeight * mapHeight + borderHeight)) {
+					return false;
 				}
+
+				int realX = (x - borderLeft) / tileWidth;
+				int realY = (y - borderHeight) / tileHeight;
+
+				// Avoid multiple clicks on one spot
+				if (storedX != realX || storedY != realY || storedTick != realTick) {
+					out[0] = realX;
+					out[1] = realY;
+				}
+
+				// Update
+				storedX = realX;
+				storedY = realY;
+				storedTick = realTick;
+
+				return true;
 			}
 		}
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			convertCoords(e.getX(), e.getY());
+			dragMode = DragMode.Click;
+			int[] out = { 0, 0 };
+			if (convertCoords(e.getX(), e.getY(), out)) {
+				click(out[0], out[1]);
+			}
+		}
+
+
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			dragMode = DragMode.Click;
+			super.mouseReleased(e);
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			if (mode != MouseMode.Observe)
-				convertCoords(e.getX(), e.getY());
+			if (dragMode == DragMode.Click) {
+				dragMode = DragMode.DragStart;
+			}
+			int[] out = {0,0};
+			if (convertCoords(e.getX(), e.getY(), out)) {
+				dragMode = drag(out[0], out[1], dragMode);
+			}
 		}
+
+
+
+		private void click(int x, int y) {
+			if (canSetOn(x, y)) {
+				setOn(x, y);
+			} else if (canSetOff(x, y)) {
+				setOff(x, y);
+			}
+		}
+
+		private DragMode drag(int x, int y, DragMode dragmode) {
+			if (dragmode == DragMode.DragStart) {
+				if (canSetOn(x, y)) {
+					dragmode = DragMode.DragOn;
+				} else if (canSetOff(x, y)) {
+					dragmode = DragMode.DragOff;
+				}
+			} 
+
+			if (dragmode == DragMode.DragOn && canSetOn(x, y)) {
+				setOn(x, y);
+			} else if (dragmode == DragMode.DragOff && canSetOff(x, y)) {
+				setOff(x, y);
+			}
+			return dragmode;
+		}
+		abstract boolean canClick(int x, int y);
+
+		abstract boolean canSetOn(int x, int y);
+		abstract boolean canSetOff(int x, int y);
+		abstract void setOn(int x, int y);
+		abstract void setOff(int x, int y);
 	} // Mouse
+
+
+	private class ObserveMouseListener extends Mouse {
+
+		@Override
+		public boolean canClick(int x, int y) {
+			return true;
+		}
+
+		@Override
+		boolean canSetOn(int x, int y) {
+			return theUI.getAgent(x, y) != null;
+		}
+
+		@Override
+		boolean canSetOff(int x, int y) {
+			return !canSetOn(x, y);
+		}
+
+		@Override
+		void setOn(int x, int y) {
+			theUI.observe(x, y);
+		}
+
+		@Override
+		void setOff(int x, int y) {
+			theUI.unObserve();
+		}
+
+	}
+
+	private class StoneMouseListener extends Mouse {
+
+		@Override
+		public boolean canClick(int x, int y) {
+			return theUI.getAgent(x, y) != null;
+		}
+
+		@Override
+		boolean canSetOn(int x, int y) {
+			return theUI.hasStone(x, y);
+		}
+
+		@Override
+		boolean canSetOff(int x, int y) {
+			return !canSetOff(x, y);
+		}
+
+		@Override
+		void setOn(int x, int y) {
+			theUI.addStone(x, y);
+		}
+
+		@Override
+		void setOff(int x, int y) {
+			theUI.removeStone(x, y);
+		}
+
+	}
+
+	private class AgentMouseListener extends Mouse {
+
+		private int mytype;
+		public AgentMouseListener(int type) {
+			mytype = type;
+		}
+
+		@Override
+		public boolean canClick(int x, int y) {
+			Agent a = theUI.getAgent(x, y);
+			return (a == null && !theUI.hasStone(x, y)) || 
+			(a != null && a.type() == mytype);
+		}
+
+		@Override
+		boolean canSetOn(int x, int y) {
+			Agent a = theUI.getAgent(x, y);
+			return (a == null && !theUI.hasStone(x, y));
+		}
+
+		@Override
+		boolean canSetOff(int x, int y) {
+			Agent a = theUI.getAgent(x, y);
+			return (a != null && a.type() == mytype);
+		}
+
+		@Override
+		void setOn(int x, int y) {
+			theUI.addAgent(x, y, mytype);
+		}
+
+		@Override
+		void setOff(int x, int y) {
+			theUI.removeAgent(x, y);
+		}
+
+	}
+
+	private class FoodMouseListener extends Mouse {
+
+		int mytype;
+
+		public FoodMouseListener(int type) {
+			mytype = type;
+		}
+
+		@Override
+		public boolean canClick(int x, int y) {
+			return !theUI.hasStone(x, y);
+		}
+
+		@Override
+		boolean canSetOn(int x, int y) {
+			return !theUI.hasFood(x, y) || theUI.hasStone(x, y);
+		}
+
+		@Override
+		boolean canSetOff(int x, int y) {
+			return theUI.hasFood(x, y) && theUI.getFood(x, y) == mytype;
+		}
+
+		@Override
+		void setOn(int x, int y) {
+			theUI.addFood(x, y, mytype);
+		}
+
+		@Override
+		void setOff(int x, int y) {
+			theUI.removeFood(x, y);
+		}
+
+	}
 
 	private static final int THERMAL_MARKER_WIDTH = 16;
 
-	private MouseMode mode = MouseMode.Observe;
-	private int editType;
-
-	private final Mouse myMouse = new Mouse();
+	private Mouse myMouse;
 
 	private static final int PADDING = 10;
 
@@ -109,44 +292,28 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 	public DisplayPanel(UIInterface ui) {
 		theUI = ui;
 		addComponentListener(this);
+
+		setMouse(new ObserveMouseListener());
+	}
+
+	private void setMouse(Mouse m) {
+		removeMouseListener(myMouse);
+		removeMouseMotionListener(myMouse);
+
+		myMouse = m;
+
 		addMouseListener(myMouse);
 		addMouseMotionListener(myMouse);
-
 	}
 
-	private void onClick(int x, int y) {
-		try {
-			switch (mode) {
-				case Observe:
-					theUI.observe(x, y);
-					break;
-
-				case AddAgent:
-					theUI.addAgent(x, y, editType);
-					break;
-
-				case AddFood:
-					theUI.addFood(x, y, editType);
-					break;
-
-				case AddStone:
-					theUI.addStone(x, y);
-					break;
-				case RemoveAgent:
-					theUI.removeAgent(x, y);
-					break;
-				case RemoveFood:
-					theUI.removeFood(x, y);
-					break;
-				case RemoveStone:
-					theUI.removeStone(x, y);
-					break;
-
-			}
-		} catch (ConcurrentModificationException ex) {
-			// TODO LOW: Doesn't do anything bad, but a new agent might not show up if this exception occurs fix if possible
-		}
+	enum DragMode {
+		Click,
+		DragStart,
+		DragOn,
+		DragOff
 	}
+
+	private DragMode dragMode = DragMode.Click;
 
 	public void componentHidden(ComponentEvent e) {
 		// nothing
@@ -177,8 +344,8 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		//TODO LOW : antialias?
-//		Graphics2D g2 = (Graphics2D) g;
-//		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		//		Graphics2D g2 = (Graphics2D) g;
+		//		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		g.translate(borderLeft, borderHeight);
 		theUI.draw(g, tileWidth, tileHeight);
@@ -217,12 +384,29 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 	}
 
 	public void setMouseMode(MouseMode mode) {
-		this.mode = mode;
+		switch (mode) {
+			case AddStone:
+				setMouse(new StoneMouseListener());
+				break;
+			case Observe:
+				setMouse(new ObserveMouseListener());
+				break;
+			default:
+				break;
+		}
 	}
 
 	public void setMouseMode(MouseMode mode, int type) {
-		this.mode = mode;
-		this.editType = type;
+		switch (mode) {
+			case AddAgent:
+				setMouse(new AgentMouseListener(type));
+				break;
+			case AddFood:
+				setMouse(new FoodMouseListener(type));
+				break;
+			default:
+				break;
+		}
 	}
 
 	public void setUI(UIInterface ui) {
