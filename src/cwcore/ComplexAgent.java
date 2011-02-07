@@ -410,7 +410,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	//	}
 
 	void communicate(ComplexAgent target) {
-		target.commInbox = commOutbox;
+		target.setCommInbox(commOutbox);
 	}
 
 	public void copyConstants(ComplexAgent p) {
@@ -1048,7 +1048,16 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	private void thinkAboutFoodLocation(int x, int y) {
-		//TODO: do something with the food location;
+		Location target = this.getPosition().getEnvironment().getLocation(x, y);
+
+		double closeness = 1;
+
+		if (!target.equals(getPosition()))
+			closeness = 1 / target.distance(this.getPosition());
+
+		int o =(int)Math.round(closeness * (1 << this.params.communicationBits - 1));
+
+		setCommInbox(o);
 	}
 
 	public void tickNotification(long tick) {
