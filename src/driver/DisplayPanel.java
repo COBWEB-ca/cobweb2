@@ -35,36 +35,21 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 	 */
 	private abstract class Mouse extends MouseAdapter {
 
-		int storedX = -1;
-
-		int storedY = -1;
-
-		long storedTick = -1;
 
 		private boolean convertCoords(int x, int y, int[] out) {
-			long realTick = theUI.getCurrentTime();
-			{
-				if (!(     x >= borderLeft   && x < tileWidth  * mapWidth  + borderRight
-						&& y >= borderHeight && y < tileHeight * mapHeight + borderHeight)) {
-					return false;
-				}
-
-				int realX = (x - borderLeft) / tileWidth;
-				int realY = (y - borderHeight) / tileHeight;
-
-				// Avoid multiple clicks on one spot
-				if (storedX != realX || storedY != realY || storedTick != realTick) {
-					out[0] = realX;
-					out[1] = realY;
-				}
-
-				// Update
-				storedX = realX;
-				storedY = realY;
-				storedTick = realTick;
-
-				return true;
+			x -= borderLeft;
+			y -= borderHeight;
+			if (!(     x >= 0 && x < tileWidth  * mapWidth 
+					&& y >= 0 && y < tileHeight * mapHeight)) {
+				return false;
 			}
+
+			int realX = x / tileWidth;
+			int realY = y / tileHeight;
+
+			out[0] = realX;
+			out[1] = realY;
+			return true;
 		}
 
 		@Override
@@ -98,6 +83,9 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 
 		private void click(int x, int y) {
+			if(!canClick(x, y))
+				return;
+
 			if (canSetOn(x, y)) {
 				setOn(x, y);
 			} else if (canSetOff(x, y)) {
@@ -106,6 +94,8 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 		}
 
 		private DragMode drag(int x, int y, DragMode dragmode) {
+			if (!canClick(x, y))
+				return dragmode;
 			if (dragmode == DragMode.DragStart) {
 				if (canSetOn(x, y)) {
 					dragmode = DragMode.DragOn;
@@ -163,7 +153,7 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 		@Override
 		public boolean canClick(int x, int y) {
-			return theUI.getAgent(x, y) != null;
+			return !theUI.hasAgent(x, y);
 		}
 
 		@Override
