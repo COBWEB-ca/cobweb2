@@ -427,6 +427,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			return;
 		}
 
+		if (l.testFlag(FLAG_FOOD))
+			l.setFlag(FLAG_FOOD, false);
+		if (l.testFlag(FLAG_WASTE))
+			l.setFlag(FLAG_WASTE, false);
+
 		l.setFlag(ComplexEnvironment.FLAG_STONE, true);
 
 		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
