@@ -168,12 +168,12 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 		@Override
 		boolean canSetOn(int x, int y) {
-			return theUI.hasStone(x, y);
+			return !canSetOff(x, y);
 		}
 
 		@Override
 		boolean canSetOff(int x, int y) {
-			return !canSetOff(x, y);
+			return theUI.hasStone(x, y);
 		}
 
 		@Override
