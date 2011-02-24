@@ -580,8 +580,13 @@ public class CobwebApplication extends JFrame implements UIClient {
 		//Create CobwebApplication and threads; this is not done earlier so 
 		// that argument errors will result in quick exits.
 
-		MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
-		Thread.setDefaultUncaughtExceptionHandler(handler);
+		boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf(
+		"-agentlib:jdwp") > 0;
+
+		if (!isDebug) {
+			MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
+			Thread.setDefaultUncaughtExceptionHandler(handler);
+		}
 
 		CA = new CobwebApplication(visible);
 
