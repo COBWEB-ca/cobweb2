@@ -138,7 +138,11 @@ public class CobwebApplicationRunner {
 			if (!tempdir.endsWith(sep))
 				tempdir = tempdir + sep;
 
-			inputFileName = tempdir + CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION;
+			inputFileName = CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION;
+			File testFile = new File(inputFileName);
+			if (! (testFile.exists() && testFile.canWrite()))
+				inputFileName = tempdir + CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION;
+
 		}
 		CA.setCurrentFile(inputFileName); // $$$$$$ added on Mar 14
 
