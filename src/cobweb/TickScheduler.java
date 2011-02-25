@@ -67,10 +67,6 @@ public class TickScheduler implements Scheduler {
 
 	private long frameSkip = 0;
 
-	private long logCount = 0;
-
-	private final long logTicks = 0;
-
 	private long tickCount = 0;
 
 	private long slowdown = 1;
@@ -107,11 +103,7 @@ public class TickScheduler implements Scheduler {
 			client.tickNotification(tickCount);
 		}
 
-		++logCount;
-		if (logCount > logTicks) {
-			logCount = 0;
-			theUI.writeLogEntry();
-		}
+		theUI.writeLogEntry();
 	}
 
 	private void doZeroTick() {
@@ -171,7 +163,6 @@ public class TickScheduler implements Scheduler {
 		java.io.PrintWriter pw = new java.io.PrintWriter(w);
 		pw.println(this.getClass().getName());
 
-		pw.println("LogTicks " + logTicks);
 		pw.println("TickCount " + tickCount);
 
 		pw.println(this.getClass().getName() + ".End");
