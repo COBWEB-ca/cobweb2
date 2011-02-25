@@ -49,7 +49,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
-import cobweb.LocalUIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
 import cobweb.UIInterface;
 import cobweb.UIInterface.MouseMode;
@@ -119,7 +118,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 				if (GUI.frame == null || !GUI.frame.isVisible()) {
-					GUI.createAndShowGUI(CA, CA.getCurrentFile());// $$$$$$ changed from "GUI.frame.setVisible(true);".
+					GUI.createAndShowGUI(CobwebApplication.this, CobwebApplication.this.getCurrentFile());// $$$$$$ changed from "GUI.frame.setVisible(true);".
 					// Mar 17
 				}
 				CobwebApplication.this.saveFileDialog();
@@ -138,7 +137,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 					"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
 				} else if (uiPipe.getCurrentTime() != 0) {
 					JOptionPane.showMessageDialog(
-							CA, // $$$$$$ change from "displayPanel" to "GUI.frame" specifically for MS Windows. Feb 22
+							CobwebApplication.this, // $$$$$$ change from "displayPanel" to "GUI.frame" specifically for MS Windows. Feb 22
 							"To get a log file, the \"Log\" menu should be clicked before the simulation runs.",
 							"Warning", JOptionPane.WARNING_MESSAGE);
 				} else {
@@ -447,9 +446,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
-	private int finalstep = 0;
-
-	static CobwebApplication CA;
+	int finalstep = 0;
 
 	// $$$$$$ Add a greeting string for the textWindow. Mar 25
 	public static final String GREETINGS = "Welcome to COBWEB 2";
@@ -473,14 +470,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 	private int filecount = 0;
 	private SimulationConfig prsNames[];
 
-	private String inputFile;
+	String inputFile;
 
 	private String midFile; // $$$$$$ added for supporting "Modify Current Data", to temporary save the name when adding
 	// a file. Feb 14
 
 	private String currentFile; // $$$$$$ added for saving current used file name. Mar 14
-
-	private cobweb.UIInterface uiPipe;
 
 	private DisplayPanel displayPanel; // $$$$$$ added to avoid duplicately information lines shown in textWindow. Apr
 	// 1
@@ -515,142 +510,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	public static final String TEMPORARY_FILE_EXTENSION = ".cwtemp";
 
-	public static final String Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] [[-open] SettingsFile.xml]";
-
-	public static void main(String[] args) {
-
-		// Process Arguments`
-
-		String inputFileName = "";
-		String logFileName = "";
-		boolean autostart = false;
-		boolean visible = true;
-		int finalstep = 0;
-
-		if (args.length > 0) {
-			for (int arg_pos = 0; arg_pos < args.length; ++arg_pos){
-				if (args[arg_pos].equalsIgnoreCase("--help")){
-					System.out.println("Syntax: " + Syntax);
-					System.exit(0);
-				} else if (args[arg_pos].equalsIgnoreCase("-autorun")){
-					autostart = true;
-					try{
-						finalstep = Integer.parseInt(args[++arg_pos]);
-					} catch (NumberFormatException numexception){
-						System.out.println("-autorun argument must be integer");
-						System.exit(1);
-					}
-					if (finalstep < -1) { 
-						System.out.println("-autorun argument must >= -1");
-						System.exit(1);
-					}
-				} else if (args[arg_pos].equalsIgnoreCase("-hide")){
-					visible=false;
-				} else if (args[arg_pos].equalsIgnoreCase("-open")){
-					if (args.length - arg_pos == 1) {
-						System.out.println("No value attached to '-open' argument,\n" +
-								"Correct Syntax is: " + Syntax);
-						System.exit(1);
-					} else {
-						inputFileName = args[++arg_pos];
-					}
-				} else if (args[arg_pos].equalsIgnoreCase("-log")){
-					if (args.length - arg_pos == 1) {
-						System.out.println("No value attached to '-log' argument,\n" +
-								"Correct Syntax is: " + Syntax);
-						System.exit(1);
-					} else {
-						logFileName = args[++arg_pos];
-					}
-				} else {
-					inputFileName = args[arg_pos];
-				}
-			}
-		}
-
-		if (inputFileName != "" && ! new File(inputFileName).exists()){
-			System.out.println("Invalid settings file value: '" + inputFileName + "' does not exist" );
-			System.exit(1);			
-		}
-		if (logFileName != "" && ! new File(logFileName).exists()){
-			System.out.println("Invalid log file value: '" + logFileName + "' does not exist" );
-			System.exit(1);			
-		}
-
-		//Create CobwebApplication and threads; this is not done earlier so 
-		// that argument errors will result in quick exits.
-
-		boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf(
-		"-agentlib:jdwp") > 0;
-
-		if (!isDebug) {
-			MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
-			Thread.setDefaultUncaughtExceptionHandler(handler);
-		}
-
-		CA = new CobwebApplication(visible);
-
-		//Set up inputFile
-
-		if (inputFileName != "") {
-			CA.inputFile = inputFileName;
-		}else {
-			String tempdir = System.getProperty("java.io.tmpdir");
-			String sep = System.getProperty("file.separator");
-			if (!tempdir.endsWith(sep))
-				tempdir = tempdir + sep;
-
-			CA.inputFile = tempdir + INITIAL_OR_NEW_INPUT_FILE_NAME + CONFIG_FILE_EXTENSION;
-		}
-		CA.setCurrentFile(CA.inputFile); // $$$$$$ added on Mar 14
-		SimulationConfig defaultconf;
-		try {
-			defaultconf = new SimulationConfig(CA.inputFile);
-			CA.openFile(defaultconf);
-		} catch (Exception ex) {
-			// CA.setEnabled(false); // $$$$$$ to make sure the "Cobweb Application" frame disables when ever the
-			// "Test Data" window showing. Feb 28
-			// $$$$$ a file named as the above name will be automatically created or modified when everytime running the
-			// $$$$$ following code. Please refer to GUI.GUI.close.addActionListener, "/* write UI info to xml file */". Jan
-			// 24
-			GUI.createAndShowGUI(CA, CA.inputFile);
-			System.out.println("Exception with SimulationConfig");
-		}
-
-
-
-
-		// $$$$$$ Added to check if the new data file is hidden. Feb 22
-		File inf = new File(CA.inputFile);
-		if (inf.isHidden() || (inf.exists() && !inf.canWrite())) {
-			JOptionPane.showMessageDialog(GUI.frame, "Caution:  The initial data file \"" + CA.inputFile
-					+ "\" is NOT allowed to be modified.\n"
-					+ "\n                  Any modification of this data file will be neither implemented nor saved.");
-		}
-
-		if (logFileName != ""){
-			CA.logFile(logFileName);
-		}
-
-		if (autostart) {
-			if (finalstep < 0){
-				CA.getUI().resume();
-			}else {
-				CA.getUI().slowDown(0);
-				CA.getUI().resume();
-				CA.finalstep=finalstep;
-				CA.getUI().AddTickEventListener(new TickEventListener() {
-					public void TickPerformed(long currentTick) {
-						if (currentTick > CA.finalstep) {
-							CA.getUI().pause();
-							CA.quitApplication();
-						}
-					}
-				});
-			}
-		}
-	}
-
 	int randomSeedReminder = 0; // $$$$$$ added for checkValidityOfGAInput() method in GUI. Feb 25
 
 	int modifyingDefaultDataReminder = 0; // $$$$$$ added for openCurrentFile() method. Mar 25
@@ -667,7 +526,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 
 	// constructor
-	private CobwebApplication(boolean visible) {
+	public CobwebApplication() {
 		super(WINDOW_TITLE);
 
 		/*** $$$$$$ For cancelling the output info text window, remove some codes in the field to the below block. Apr 22 */
@@ -692,11 +551,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		JMenuBar myMenuBar = makeMenuBar();
 
 		setJMenuBar(myMenuBar);
-
-		if(visible){
-			setVisible(true);
-		}
-
+		setVisible(true);
 	}
 
 	/*
@@ -759,7 +614,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// 24
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME + CONFIG_FILE_EXTENSION; // $$$$$$ added for implementing
 		// "Modify Current Data". Feb 12
-		GUI.createAndShowGUI(CA, newInput); // $$$$$$ change the name from original "input.xml". Jan 31
+		GUI.createAndShowGUI(this, newInput); // $$$$$$ change the name from original "input.xml". Jan 31
 		if (uiPipe == null) {
 			setCurrentFile(newInput);
 		} // $$$$$$ added on Mar 14
@@ -844,7 +699,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				String[] S = { "Brad Bass, PhD", "Adaptations and Impacts Research Group",
 						"Environment Canada at Univ of Toronto", "Inst. for Environmental Studies",
 						"33 Willcocks Street", "Toronto, Ont M5S 3E8 CANADA",
-						"TEL: (416) 978-6285  FAX: (416) 978-3884", "brad.bass@ec.gc.ca" };
+						"TEL: (416) 978-6285  FAX: (416) 978-3884", "brad.bass@ec.gc.this" };
 				creditDialog(theDialog, S, 300, 300);
 			}
 		});
@@ -861,7 +716,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		jin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				String[] S = { "Update & Additional Programming By", "", "Jin Soo Kang",
-						"Undergraduate, Computer Science", "University of Toronto", "jin.kang@utoronto.ca",
+						"Undergraduate, Computer Science", "University of Toronto", "jin.kang@utoronto.this",
 				"[2000 - 2001]" };
 
 				CobwebApplication.this.creditDialog(theDialog, S, 300, 250); // $$$$$$ change from "this" to
@@ -1105,7 +960,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				throw new CobwebUserException("Cannot open config file", ex);
 			}
 		}
-		GUI.createAndShowGUI(CA, currentData);
+		GUI.createAndShowGUI(this, currentData);
 	}
 
 	public void openCurrentFile() { // $$$$$ "Modify This File" method
@@ -1124,7 +979,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			setCurrentFile(midFile);
 		}
 
-		GUI.createAndShowGUI(CA, getCurrentFile()); // $$$$$$ modified on Mar 14
+		GUI.createAndShowGUI(this, getCurrentFile()); // $$$$$$ modified on Mar 14
 
 		// $$$$$$ Added on Mar 25
 		if (getCurrentFile().equals(DEFAULT_DATA_FILE_NAME + TEMPORARY_FILE_EXTENSION)) {
@@ -1145,24 +1000,24 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	public void openFile(SimulationConfig p) {
-		if (uiPipe == null) {
-			uiPipe = new LocalUIInterface(this, p);
-			UIsettings();
-		} else {
-			if (uiPipe.isRunning())
-				uiPipe.pause();
+		if (uiPipe.isRunning())
+			uiPipe.pause();
+		uiPipe.load(p);
+	}
 
-			uiPipe.load(this, p);
-			displayPanel.setUI(uiPipe);
-		}
+	@Override
+	public void fileOpened(SimulationConfig conf) {
+
+		UIsettings();
+
+		displayPanel.setUI(uiPipe);
 
 		makeAgentFoodSelectMenu();
 
-		File f = new File(p.getFilename());
+		File f = new File(conf.getFilename());
 		setTitle(WINDOW_TITLE + "  - " + f.getName());
 
-		uiPipe.setRunnable(true);
-		// this.toFront(); // $$$$$$ added for CA frame going to front when anytime this method is called. Feb 22
+		uiPipe.setRunnable(true);	
 	}
 
 	public void openFileDialog() {
@@ -1183,7 +1038,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				 * != null) { uiPipe.killScheduler(); uiPipe = null; } //uiPipe.killScheduler(); //uiPipe = null; if
 				 * (GUI.frame.isVisible() == true) GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data"
 				 * window to show up. Feb 28 //if (tickField != null && !tickField.getText().equals(""))
-				 * {tickField.setText("");} // $$$$$$ reset tickField. Mar 14 CA.openFile(p);
+				 * {tickField.setText("");} // $$$$$$ reset tickField. Mar 14 CobwebApplication.this.openFile(p);
 				 */
 
 				// /* $$$$$$ If NOT wanting the "Test Data" window to show up, use the above block instead. Feb 28 //
@@ -1191,7 +1046,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				if (GUI.frame != null && GUI.frame.isVisible() == true) {
 					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up. Feb 28
 				}
-				GUI.createAndShowGUI(CA, getCurrentFile());
+				GUI.createAndShowGUI(this, getCurrentFile());
 				// CobwebApplication.this.setEnabled(false); // $$$$$$ to make sure the "Cobweb Application" frame
 				// disables when ever the "Test Data" window showing
 				// $$$$$$ Modified on Feb 28
@@ -1215,7 +1070,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	public void openMultFiles(SimulationConfig p[], int time[], int numfiles) {
-		uiPipe = new cobweb.LocalUIInterface(this, p, time, numfiles);
+		//sim.setUiPipe(new cobweb.LocalUIInterface(this, p, time, numfiles));
+		// TODO: fix file queuing?
 		UIsettings();
 	}
 
@@ -1301,7 +1157,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 
 		// $$$$$$ Modified on Mar 14
-		GUI.createAndShowGUI(CA, tempDefaultData);
+		GUI.createAndShowGUI(this, tempDefaultData);
 		if (uiPipe == null) {
 			setCurrentFile(tempDefaultData);
 		} // $$$$$$ added on Mar 14
@@ -1669,7 +1525,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				mult.setVisible(false);
 				mult.dispose(); // $$$$$$ added on Feb 14
 				if (uiPipe != null) {
-					CobwebApplication.this.toFront(); // $$$$$$ added for CA frame going to front when cancelling. Feb
+					CobwebApplication.this.toFront(); // $$$$$$ added for this frame going to front when cancelling. Feb
 					// 22; Modified on Feb 28
 				}
 			}
@@ -1771,6 +1627,13 @@ public class CobwebApplication extends JFrame implements UIClient {
 			agentype[i].addActionListener(theListener);
 			agentMenu.add(agentype[i]);
 		}
+	}
+
+	private UIInterface uiPipe;
+
+	@Override
+	public void setSimulation(UIInterface simulation) {
+		uiPipe = simulation;
 	}
 
 } // CobwebApplication

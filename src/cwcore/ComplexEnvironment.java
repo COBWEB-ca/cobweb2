@@ -575,7 +575,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		for (int j = 0; j < foodToDeplete; ++j) {
 			Location loc = locations.removeLast();
-			loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+
+			backArray.setLocationBits(loc, backArray.getLocationBits(loc) & ~backArray.getLocationBits(loc));
 		}
 		draughtdays[type] = foodData[type].draughtPeriod;
 	}
@@ -712,10 +713,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				Location currentPos = getLocation(x, y);
 				// if there's a stone or already food, we simply copy the
 				// information from the old arrays to the new ones
-				if ((array.getLocationBits(currentPos) & MASK_TYPE) != 0) {
-					backArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
-					backFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
-				} else {
+				if ((array.getLocationBits(currentPos) & MASK_TYPE) == 0) {
 					// otherwise, we want to see if we should grow food here
 					// the following code block tests all adjacent squares
 					// to this one and counts how many have food
@@ -780,9 +778,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 						backFoodArray[currentPos.v[0]][currentPos.v[1]] = -123154534;
 					}
 				}
-
 			}
 		}
+
 		// The tile array we've just computed becomes the current tile array
 		ArrayEnvironment swapArray = array;
 		array = backArray;
@@ -791,8 +789,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		int[][] swapFoodArray = foodarray;
 		foodarray = backFoodArray;
 		backFoodArray = swapFoodArray;
-	}
 
+	}
 
 	@Override
 	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
@@ -1451,6 +1449,17 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// for each agent type, we test to see if its deplete time step has
 		// come, and if so deplete the food random
 		// by the appropriate percentage
+
+		for (int y = 0; y < getSize(AXIS_Y); ++y) {
+			for (int x = 0; x < getSize(AXIS_X); ++x) {
+				Location currentPos = getLocation(x, y);
+				// if there's a stone or already food, we simply copy the
+				// information from the old arrays to the new ones
+				backArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
+				backFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
+			}
+		}
+
 		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			if (foodData[i].depleteRate != 0.0f && foodData[i].growRate > 0
 					&& (tickCount % foodData[i].depleteTime) == 0) {

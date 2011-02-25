@@ -57,6 +57,12 @@ public interface UIInterface {
 		 * Notification that the UIInterface has new frame data.
 		 */
 		public void refresh(boolean wait);
+
+		public void setCurrentFile(String input);
+
+		public void fileOpened(SimulationConfig conf);
+
+		public void setSimulation(UIInterface simulation);
 	}
 
 	public void addAgent(int x, int y, int type);
@@ -128,7 +134,7 @@ public interface UIInterface {
 	 */
 	public void killScheduler();
 
-	public void load(UIClient client, SimulationConfig p);
+	public void load(SimulationConfig p);
 
 	/**
 	 * Request that the log information from the simulation be stored in the

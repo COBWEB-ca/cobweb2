@@ -11,9 +11,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cobweb.LocalUIInterface;
 import cobweb.Environment.EnvironmentStats;
+import cobweb.LocalUIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
+import cobweb.UIInterface;
 import cobweb.UIInterface.UIClient;
 
 /**
@@ -38,7 +39,8 @@ public class SimulatorUI extends JPanel implements UIClient {
 	public JLabel tickDisplay;
 
 	public SimulatorUI(SimulationConfig p) {
-		uiPipe = new LocalUIInterface(this, p);
+		uiPipe = new LocalUIInterface(this);
+		uiPipe.load(p);
 		setLayout(new BorderLayout());
 
 		setupUI();
@@ -153,5 +155,20 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 	public void killSimulation() {
 		this.uiPipe.killScheduler();
+	}
+
+	@Override
+	public void setCurrentFile(String input) {
+		return;
+	}
+
+	@Override
+	public void fileOpened(SimulationConfig conf) {
+		return;
+	}
+
+	@Override
+	public void setSimulation(UIInterface simulation) {
+		return;
 	}
 }

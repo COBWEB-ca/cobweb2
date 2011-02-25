@@ -327,20 +327,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * descriptive and appropriate message string.
 	 * 
 	 * @param client the UIClient to notify of new frame data.
-	 * @param p configuration
 	 */
 
-	public LocalUIInterface(UIClient client, SimulationConfig p) {
-		load(client, p);
-		currentParser = p;
-	}
-
-	public LocalUIInterface(UIInterface.UIClient client, SimulationConfig p[], int time[], int numfiles) {
+	public LocalUIInterface(UIClient client) {
 		theClient = client;
-		totalfilenum = numfiles;
-		pauseAt = time;
-		parsedfiles = p;
-		loadNewDataFile(0);
 	}
 
 	public void addAgent(int x, int y, int type) {
@@ -543,8 +533,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * Initialize the specified environment class with state data read from the
 	 * Reader. This is a private helper to the LocalUIInterface constructor.
 	 */
-	public void load(UIInterface.UIClient client, SimulationConfig p) {
-		theClient = client;
+	public void load(SimulationConfig p) {
 		InitScheduler(p.getEnvParams().schedulerName, p);
 
 		// TODO: this is a hack to make the applet work when we switch grids and
@@ -586,10 +575,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 		theScheduler.startScheduler();
 		tickNotification(0);
+
+		theClient.fileOpened(p);
 	}
 
 	private void loadNewDataFile(int n) {
-		this.load(theClient, parsedfiles[n]);
+		this.load(parsedfiles[n]);
 		currentParser = parsedfiles[n];
 	}
 

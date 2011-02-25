@@ -1,5 +1,7 @@
 package ga;
 
+import java.awt.GraphicsEnvironment;
+
 import cobweb.ArrayUtilities;
 import cobweb.TickScheduler.Client;
 
@@ -72,6 +74,8 @@ public class GATracker implements Client {
 		}
 		track_gene_value_distribution = track;
 
+		if (GraphicsEnvironment.isHeadless())
+			track_gene_value_distribution = false;
 		if (track_gene_value_distribution) {
 			charOutput = new GAChartOutput(typeCount, geneCount, names);
 			// Initialize chart output
