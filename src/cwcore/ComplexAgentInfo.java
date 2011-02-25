@@ -239,11 +239,11 @@ public class ComplexAgentInfo {
 
 	private int action = 0;
 
-	private long parent1;
+	private long parent1 = -1;
 
-	private long parent2;
+	private long parent2 = -1;
 
-	private long birthTick;
+	private long birthTick = -1;
 
 	private long deathTick = -1;
 
@@ -266,8 +266,6 @@ public class ComplexAgentInfo {
 	private int sexualPregs;
 
 	private int directChildren;
-
-	private int totalChildren;
 
 	private static boolean alreadyInitialized = false;
 
@@ -371,7 +369,21 @@ public class ComplexAgentInfo {
 		otherEnergySources[type] += val;
 	}
 
+	int boundNorth = Integer.MAX_VALUE;
+	int boundSouth = Integer.MIN_VALUE;
+	int boundWest = Integer.MAX_VALUE;
+	int boundEast = Integer.MIN_VALUE;
+
 	public void addPathStep(Location loc) {
+		if (loc.v[0] < boundWest)
+			boundWest = loc.v[0];
+		if (loc.v[0] > boundEast)
+			boundEast = loc.v[0];
+		if (loc.v[1] > boundSouth)
+			boundSouth = loc.v[1];
+		if (loc.v[1] < boundNorth)
+			boundNorth = loc.v[1];
+
 		path.add(loc);
 		if (path.size() > MAX_PATH_HISTORY) {
 			path.remove(0);
@@ -450,7 +462,6 @@ public class ComplexAgentInfo {
 		}
 
 		pw.print("\t" + directChildren);
-		pw.print("\t" + totalChildren);
 		pw.print("\t" + sexualPregs);
 
 		int total = countSteps + countTurns + countAgentBumps + countRockBumps;

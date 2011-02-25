@@ -1249,7 +1249,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	public void printAgentInfo(java.io.PrintWriter pw) {
-		ComplexAgentInfo.initStaticAgentInfo(data.getAgentTypes());
+		//ComplexAgentInfo.initStaticAgentInfo(data.getAgentTypes());
 
 		// Concatenating the headers of the report file.
 		String agentInfoHeader = "Agent Number";
@@ -1273,7 +1273,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		agentInfoHeader += "\tRock Bumps";
 		agentInfoHeader += "\tStrategy";
 
+		ComplexAgentInfo.initStaticAgentInfo(this.getAgentTypes());
+
 		pw.println(agentInfoHeader);
+
+		for (ComplexAgentInfo info : agentInfoVector) {
+			info.printInfo(pw);
+		}
 
 		pw.println(); // Type info follows
 		String agentTypeHeaders = "Agent Type";
@@ -1289,12 +1295,17 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		pw.println(agentTypeHeaders);
 
+
+
 		// Prints out species-wise statistics of each agent type
 		for (int i = 0; i < data.getAgentTypes(); i++) {
 			ComplexAgentInfo.printAgentsCountByType(pw, i); // Steps, deaths,
 			// births, etc.
 			pw.print("\n");
 		}
+
+
+
 	}
 
 	@Override
