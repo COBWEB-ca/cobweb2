@@ -6,7 +6,6 @@
 package driver;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FileDialog;
@@ -29,13 +28,10 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -45,7 +41,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
@@ -110,10 +105,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 				// "Cobweb Application" frame disables when ever "Test Data" window showing
 				setInvokedByModify(true); // $$$$$$ added on Mar 14
 				CobwebApplication.this.openCurrentFile();
-			} else if (e.getActionCommand().compareTo("Set Multiple Files") == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				CobwebApplication.this.setMultFilesDialog(347, 265);
 			} else if (e.getActionCommand().compareTo("Save") == 0) {
 				pauseUI(); // $$$$$$ Feb 12
 				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -446,8 +437,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
-	int finalstep = 0;
-
 	// $$$$$$ Add a greeting string for the textWindow. Mar 25
 	public static final String GREETINGS = "Welcome to COBWEB 2";
 
@@ -458,19 +447,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 		return version;
 	}
-
-	JTextArea textArea;
-
-	private final int maxfiles = 100;
-
-	private String fileNames[];
-
-	private int pauseAt[];
-
-	private int filecount = 0;
-	private SimulationConfig prsNames[];
-
-	String inputFile;
 
 	private String midFile; // $$$$$$ added for supporting "Modify Current Data", to temporary save the name when adding
 	// a file. Feb 14
@@ -483,8 +459,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 	private PauseButton pauseButton;
 
 	private StepButton stepButton;
-
-	String newline = "\n";
 
 	public JTextField tickField;
 
@@ -510,19 +484,16 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	public static final String TEMPORARY_FILE_EXTENSION = ".cwtemp";
 
-	int randomSeedReminder = 0; // $$$$$$ added for checkValidityOfGAInput() method in GUI. Feb 25
+	private int modifyingDefaultDataReminder = 0; // $$$$$$ added for openCurrentFile() method. Mar 25
 
-	int modifyingDefaultDataReminder = 0; // $$$$$$ added for openCurrentFile() method. Mar 25
-
-	Logger myLogger = Logger.getLogger("COBWEB2");
+	private Logger myLogger = Logger.getLogger("COBWEB2");
 
 	private JFrame aiGraph;
 
-	JPanel mainPanel;
-	JLabel tickDisplay;
+	private JPanel mainPanel;
+	private JLabel tickDisplay;
 
-	JPanel controls;
-
+	private JPanel controls;
 
 
 	// constructor
@@ -588,23 +559,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		whatDialog.add(term, "South");
 		whatDialog.setSize(200, 150);
 		whatDialog.setVisible(true);
-	}
-
-	public int addfileNames(String filename, Integer step) throws FileNotFoundException {
-		// $$$$$$ added on Feb 18
-		File f = new File(filename);
-		if (f.exists() == false) {
-			return -2;
-		}
-
-		SimulationConfig prsfile = new SimulationConfig(filename);
-		if (step.intValue() >= 0) {
-			prsNames[filecount] = prsfile;
-			pauseAt[filecount] = step.intValue();
-			filecount++;
-			return 1;
-		}
-		return -1;
 	}
 
 	// $$$$$$ Implement "create New Data". Mar 14
@@ -742,10 +696,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		return currentFile;
 	}
 
-	public int getFileCount() { // changed from filecount(). Feb 18
-		return filecount;
-	}
-
 	// $$$$$$ get UI. Mar 14
 	public UIInterface getUI() {
 		return uiPipe;
@@ -812,9 +762,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		JMenuItem NewDataFileMenu = new JMenuItem("Create New Data");
 		NewDataFileMenu.setActionCommand("Create New Data");
 		NewDataFileMenu.addActionListener(theListener);
-		JMenuItem MultFileMenu = new JMenuItem("Set Multiple Files");
-		MultFileMenu.setActionCommand("Set Multiple Files");
-		MultFileMenu.addActionListener(theListener);
 		JMenuItem modifyMenu = new JMenuItem(MODIFY_THIS_FILE);
 		modifyMenu.setActionCommand(MODIFY_THIS_FILE);
 		modifyMenu.addActionListener(theListener);
@@ -889,7 +836,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.add(openMenu);
 		fileMenu.add(NewDataFileMenu);
-		fileMenu.add(MultFileMenu);
 		fileMenu.add(modifyMenu);
 
 		// $$$$$$ Add "Retrieve Default Data" menu. Feb 4
@@ -1074,15 +1020,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// TODO: fix file queuing?
 		UIsettings();
 	}
-
-	public void printfilenames() {
-		for (int i = 0; i < filecount; i++) {
-			System.out.println(fileNames[i]);
-			System.out.println(pauseAt[i]);
-			System.out.println();
-		}
-	}
-
 
 	/*
 	 * public void trackAgentFile(String filePath) { uiPipe
@@ -1291,250 +1228,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
-	// $$$$$$ filecount modifier. Feb 18
-	public void setFileCount(int c) {
-		filecount = c;
-	}
-
 	public void setInvokedByModify(boolean b) {
 		invokedByModify = b;
-	}
-
-	private void setMultFilesDialog(int length, int width) {
-		prsNames = new SimulationConfig[maxfiles];
-		pauseAt = new int[maxfiles];
-		final javax.swing.JDialog mult = new javax.swing.JDialog(this, // $$$$$$ change from Dialog mult. Feb 14
-				"Multiple File Setting", false); // $$$$$$ change from "this" to "GUI.frame" specifically for MS
-		// Windows. Feb 22
-		mult.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); // $$$$$$ added on Feb 14
-		final JTextField jtf = new JTextField(20);
-		final JTextField num_ticks = new JTextField(6);
-		num_ticks.setText("100");
-		final JTextArea fnames = new JTextArea(4, 35);
-		fnames.setEditable(false);
-
-		JButton b0 = new JButton("Browse");
-		JButton b1 = new JButton("Run");
-		JButton b2 = new JButton("Add File");
-		JButton b3 = new JButton("Cancel");
-
-		JPanel p2 = new JPanel();
-		p2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.gray), "File Name"));
-		p2.setLayout(new BorderLayout());
-		p2.add(jtf, BorderLayout.CENTER);
-		p2.add(b0, BorderLayout.EAST);
-
-		JPanel p3 = new JPanel();
-		p3.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.gray), "Number of Steps"));
-		p3.setLayout(new BorderLayout());
-		p3.add(new JLabel("Run this file for"), BorderLayout.CENTER);
-		p3.add(num_ticks, BorderLayout.EAST);
-
-		JPanel p4 = new JPanel();
-		p4.setLayout(new BorderLayout());
-		p4.add(b3, BorderLayout.WEST);
-		p4.add(b2, BorderLayout.CENTER);
-		p4.add(b1, BorderLayout.EAST);
-
-		JPanel p1 = new JPanel();
-		// p1.setLayout(new GridLayout(7, 1))
-		p1.add(p2);
-		p1.add(p3);
-		p1.add(new JLabel(" "));
-		p1.add("South", fnames);
-		p1.add(new JLabel("                             "));
-		p1.add(p4);
-
-		b0.addActionListener(new AbstractAction() {
-			public static final long serialVersionUID = 0x4DCEE6AA76B8E16DL;
-
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-
-				String filename = jtf.getText();
-				if (filename != null) {
-					File thefile = new File(filename);
-					if (thefile.isDirectory()) {
-						chooser.setCurrentDirectory(thefile);
-					} else {
-						chooser.setSelectedFile(thefile);
-					}
-				}
-
-				// set the title of the FileDialog
-				StringBuffer sb = new StringBuffer("Select File");
-				chooser.setDialogTitle(sb.toString());
-
-				// get the file
-				String fn;
-				int retVal = chooser.showOpenDialog(null);
-				if (retVal == JFileChooser.APPROVE_OPTION) {
-					fn = chooser.getSelectedFile().getAbsolutePath();
-				} else {
-					return;
-				}
-
-				if (fn != null) {
-					// display the path to the chosen file
-					jtf.setText(fn);
-				}
-			}
-		});
-
-		b1.addActionListener(new AbstractAction() {
-			public static final long serialVersionUID = 0xB69B9EE3DA1EAE11L;
-
-			public void actionPerformed(ActionEvent e) {
-				// $$$$$$ The following codes were modified on Feb 18
-				boolean canRun = true;
-				String filename = jtf.getText();
-				if (filename != null && filename.compareTo("") != 0) {
-					if (getFileCount() < maxfiles) {
-						// $$$$$$ Ask if need to add this file to the multiply files list. Feb 25
-						Object[] options = { "Yes, please", "No, thanks" };
-						int n = JOptionPane.showOptionDialog(mult, "Do you want to add the file \"" + filename
-								+ "\" to the list?", "Multiple File Running", JOptionPane.YES_NO_OPTION,
-								JOptionPane.QUESTION_MESSAGE, null, // do not use a custom Icon
-								options, // the titles of buttons
-								options[0]); // default button titl
-
-						/*
-						 * $$$$$ or default icon, custom title int n = JOptionPane.showConfirmDialog( mult,
-						 * "Do you want to add the file \"" + filename + "\" to the list?", "Multiple File Running",
-						 * JOptionPane.YES_NO_OPTION);
-						 */
-
-						if (n == 0) {
-							int status = 0;
-							try {
-								status = addfileNames(filename, (new Integer(num_ticks.getText())));
-							} catch (NumberFormatException ex) {
-								new CobwebUserException(ex).notifyUser();
-							} catch (FileNotFoundException ex) {
-								new CobwebUserException(ex).notifyUser();
-							}
-							if (status == 1) {
-								// canRun = true;
-								midFile = filename; // $$$$$$ added for supporting "Modify Current Data". Feb 14
-								// $$$$$$ added on Feb 18
-							} else if (status == -2) {
-								canRun = false;
-								JOptionPane.showMessageDialog(mult, "File \" " + filename + "\" could not be found!",
-										"Warning", JOptionPane.WARNING_MESSAGE);
-								// $$$$$ The following "Invalid filename" check is invalid. Feb 18
-							} else if (status == 0) {
-								canRun = false;
-								JOptionPane.showMessageDialog(mult, "Invalid filename: \"" + filename + "\" !",
-										"Warning", JOptionPane.WARNING_MESSAGE);
-							} else if (status == -1) {
-								canRun = false;
-								JOptionPane.showMessageDialog(mult, "Invalid input!", "Warning",
-										JOptionPane.WARNING_MESSAGE);
-							}
-						}
-
-						/*
-						 * $$$$$ The old way, without asking if adding the file to the list int status =
-						 * addfileNames(filename, (new Integer(num_ticks .getText()))); if (status == 1) { //canRun =
-						 * true; midFile = filename; // $$$$$$ added for supporting "Modify Current Data". Feb 14 //
-						 * $$$$$$ added on Feb 18 } else if (status == -2) { canRun = false;
-						 * JOptionPane.showMessageDialog(mult, "File \" " + filename + "\" could not be found!",
-						 * "Warning", JOptionPane.WARNING_MESSAGE); // $$$$$ The following "Invalid filename" check is
-						 * invalid. Feb 18 } else if (status == 0) { canRun = false; JOptionPane.showMessageDialog(mult,
-						 * "Invalid filename: \"" + filename + "\" !", "Warning", JOptionPane.WARNING_MESSAGE); } else
-						 * if (status == -1) { canRun = false; JOptionPane.showMessageDialog(mult, "Invalid input!",
-						 * "Warning", JOptionPane.WARNING_MESSAGE); }
-						 */
-
-					} else {
-						canRun = false;
-						JOptionPane.showMessageDialog(mult, "You can NOT add more than " + maxfiles + " files!",
-								"Warning", JOptionPane.WARNING_MESSAGE);
-					}
-				}
-
-				if (canRun == false) {
-					jtf.setText("");
-				} else {
-					if (getFileCount() != 0) {
-						if (GUI.frame != null && GUI.frame != null && GUI.frame.isVisible() == true) {
-							GUI.frame.dispose();
-						} // $$$$$ for allowing only one "Test Data" window to show up
-						// if (tickField != null && !tickField.getText().equals("")) {tickField.setText("");} // $$$$$$
-						// reset tickField. Mar 14
-						openMultFiles(prsNames, pauseAt, filecount);
-						setFileCount(0); // $$$$$$ reset filecount. Now "Set Multiple Files" menu can work more than
-						// once. Feb 18
-						setCurrentFile(midFile); // $$$$$$ added for supporting "Modify Current Data". Feb 18 &&&&&&
-						// modified on Mar 14
-						mult.setVisible(false);
-						mult.dispose(); // $$$$$$ added on Feb 14
-					} else {
-						JOptionPane.showMessageDialog(mult, "Please enter a filename.");
-					}
-				}
-			}
-		});
-
-		b2.addActionListener(new AbstractAction() {
-			public static final long serialVersionUID = 0x16124B6CEDFF67E9L;
-
-			public void actionPerformed(ActionEvent e) {
-				// $$$$$$ The following codes were modified on Feb 18
-				String filename = jtf.getText();
-				if (filename != null && filename.compareTo("") != 0) {
-					if (getFileCount() < maxfiles) {
-						int status = 0;
-						try {
-							status = addfileNames(filename, (new Integer(num_ticks.getText())));
-						} catch (NumberFormatException ex) {
-							new CobwebUserException(ex).notifyUser();
-						} catch (FileNotFoundException ex) {
-							new CobwebUserException(ex).notifyUser();
-						}
-						if (status == 1) {
-							fnames.append("file added: " + filename + " ");
-							fnames.append(new Integer(num_ticks.getText()) + " steps" + newline);
-							midFile = filename; // $$$$$$ added for supporting "Modify Current Data". Feb 14
-							// $$$$$$ added on Feb 18
-						} else if (status == -2) {
-							JOptionPane.showMessageDialog(mult, "File \" " + filename + "\" could not be found!",
-									"Warning", JOptionPane.WARNING_MESSAGE);
-							// $$$$$ The following "Invalid filename" check is invalid. Feb 18
-						} else if (status == 0) {
-							JOptionPane.showMessageDialog(mult, "Invalid filename: \"" + filename + "\" !", "Warning",
-									JOptionPane.WARNING_MESSAGE);
-						} else if (status == -1) {
-							JOptionPane.showMessageDialog(mult, "Invalid input!", "Warning",
-									JOptionPane.WARNING_MESSAGE);
-						}
-					} else {
-						JOptionPane.showMessageDialog(mult, "You can NOT add more than " + maxfiles + " files!",
-								"Warning", JOptionPane.WARNING_MESSAGE);
-					}
-				}
-
-				jtf.setText("");
-			}
-		});
-
-		b3.addActionListener(new AbstractAction() {
-			public static final long serialVersionUID = 0xEAE8EA9DF8593309L;
-
-			public void actionPerformed(ActionEvent e) {
-				mult.setVisible(false);
-				mult.dispose(); // $$$$$$ added on Feb 14
-				if (uiPipe != null) {
-					CobwebApplication.this.toFront(); // $$$$$$ added for this frame going to front when cancelling. Feb
-					// 22; Modified on Feb 28
-				}
-			}
-		});
-
-		mult.add(p1, "Center");
-		mult.setSize(length, width);
-		mult.setVisible(true);
-
 	}
 
 	public void UIsettings() {
