@@ -277,8 +277,6 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 	private final Runnable markReadyRefresh = new MarkDonePainting();
 
-	private int borderRight;
-
 	public DisplayPanel(UIInterface ui) {
 		theUI = ui;
 		addComponentListener(this);
@@ -426,7 +424,6 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 		tileHeight = tileWidth;
 		int borderWidth = (size.width - tileWidth * theUI.getWidth() + PADDING) / 2;
 		borderLeft = borderWidth + THERMAL_MARKER_WIDTH;
-		borderRight = borderWidth - THERMAL_MARKER_WIDTH;
 		borderHeight = (size.height - tileHeight * theUI.getHeight() + PADDING) / 2;
 
 		this.refresh(false);
