@@ -701,6 +701,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			// probability
 		}
 
+		info.setStrategy(pdCheater);
+
 		return;
 	}
 

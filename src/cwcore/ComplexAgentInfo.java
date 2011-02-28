@@ -5,7 +5,6 @@
 package cwcore;
 
 import java.io.PrintWriter;
-import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -208,17 +207,6 @@ public class ComplexAgentInfo {
 			pw.print("\t" + asexAgentsofType[i]);
 			pw.println("\t" + stepsAgentsofType[i]);
 		}
-	}
-
-	/** Prints the species-wise statistics of an agent type. Intended to replace printAgentsCount() */
-	public static void printAgentsCountByType(java.io.PrintWriter pw, int type) {
-		pw.print((type + 1)); // $$$$$$ change from "i" to "(i + 1)". Apr 3
-		pw.print("\t" + deadAgentsofType[type]);
-		pw.print("\t" + aliveAgentsofType[type]);
-		pw.print("\t" + offspringsAgentsofType[type]);
-		pw.print("\t" + sexAgentsofType[type]);
-		pw.print("\t" + asexAgentsofType[type]);
-		pw.print("\t" + stepsAgentsofType[type]);
 	}
 
 	public static void resetGroupData() {
@@ -436,24 +424,40 @@ public class ComplexAgentInfo {
 
 	}
 
+
+	public static void printAgentHeaders(PrintWriter pw) {
+		// Concatenating the headers of the report file.
+		pw.print("Agent Number");
+		pw.print("\tAgent Type");
+		pw.print("\tBirth");
+		pw.print("\tParent1\tParent2");
+		pw.print("\tDeath");
+		pw.print("\tChildren");
+		pw.print("\tSexual Pregnancies");
+		pw.print("\tSteps");
+		pw.print("\tTurns");
+		pw.print("\tAgent Bumps");
+		pw.print("\tRock Bumps");
+		pw.print("\tStrategy");
+
+		pw.print("\tboundNorth");
+		pw.print("\tboundEast");
+		pw.print("\tboundSouth");
+		pw.print("\tboundWest");
+
+		pw.println();
+	}
+
 	public void printInfo(java.io.PrintWriter pw) {
 		pw.print(agentNumber);
-		pw.print("\t" + (type + 1)); // $$$$$$ change from "agentType" to "(agentType + 1)". Apr 3
+		pw.print("\t" + (type + 1));
 		pw.print("\t" + birthTick);
-		if (parent1 == -1 && parent2 == -1) {
-			asexAgentsofType[type]++;
-			pw.print("\tRandomly generated");
-		} else if (parent2 == -1) {
-			asexAgentsofType[type]++;
-			offspringsAgentsofType[type]++;
-			pw.print("\tAsexual, from agent " + parent1);
-		} else {
-			pw.print("\tSexual, from Mother: " + parent1 + ", Father: " + parent2);
-			sexAgentsofType[type]++;
-			offspringsAgentsofType[type]++;
-			offspringsAgentsofType[type]++;
-		}
+		pw.print("\t" + parent1);
+		pw.print("\t" + parent2);
 		pw.print("\t" + deathTick);
+
+
+		//TODO: look into if this works/does anything useful
 		if (deathTick != -1) {
 			stepslivedAgentsofType[type] += (deathTick - birthTick);
 			deadAgentsofType[type]++;
@@ -467,17 +471,24 @@ public class ComplexAgentInfo {
 		int total = countSteps + countTurns + countAgentBumps + countRockBumps;
 		totalsAgentsofType[type] += total;
 		stepsAgentsofType[type] += countSteps;
-		DecimalFormat dform = new DecimalFormat("###.##%");
-		pw.print("\t" + dform.format((double) (countSteps) / total));
-		pw.print("\t" + dform.format((double) (countTurns) / total));
-		pw.print("\t" + dform.format((double) (countAgentBumps) / total));
-		pw.print("\t" + dform.format((double) (countRockBumps) / total));
 
-		if (action == 0) {
-			pw.println("\tcooperator");
+		pw.print("\t" + countSteps);
+		pw.print("\t" + countTurns);
+		pw.print("\t" + countAgentBumps);
+		pw.print("\t" + countRockBumps);
+
+		if (action == 1) {
+			pw.print("\tcheat");
 		} else {
-			pw.println("\tcheater");
+			pw.print("\tcooperate");
 		}
+
+		pw.print("\t" + boundNorth);
+		pw.print("\t" + boundEast);
+		pw.print("\t" + boundSouth);
+		pw.print("\t" + boundWest);
+
+		pw.println();
 	}
 
 	public void setDeath(long death) {

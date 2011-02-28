@@ -1249,61 +1249,15 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	public void printAgentInfo(java.io.PrintWriter pw) {
-		//ComplexAgentInfo.initStaticAgentInfo(data.getAgentTypes());
-
-		// Concatenating the headers of the report file.
-		String agentInfoHeader = "Agent Number";
-		agentInfoHeader += "\tAgent Type";
-		agentInfoHeader += "\tBirth Tick";
-		agentInfoHeader += "\tBirth Type";
-		agentInfoHeader += "\tDeath Tick";
-		agentInfoHeader += "\tGenome";
-		agentInfoHeader += "\tRed Gene Value";
-		agentInfoHeader += "\tGreen Gene Value";
-		agentInfoHeader += "\tBlue Gene Value";
-		agentInfoHeader += "\tRed Gene Status";
-		agentInfoHeader += "\tGreen Gene Status";
-		agentInfoHeader += "\tBlue Gene Status";
-		agentInfoHeader += "\tDirect Descendants";
-		agentInfoHeader += "\tTotal Descendants";
-		agentInfoHeader += "\tSexual Pregnancies";
-		agentInfoHeader += "\tSteps";
-		agentInfoHeader += "\tTurns";
-		agentInfoHeader += "\tAgent Bumps";
-		agentInfoHeader += "\tRock Bumps";
-		agentInfoHeader += "\tStrategy";
 
 		ComplexAgentInfo.initStaticAgentInfo(this.getAgentTypes());
 
-		pw.println(agentInfoHeader);
+		ComplexAgentInfo.printAgentHeaders(pw);
+
 
 		for (ComplexAgentInfo info : agentInfoVector) {
 			info.printInfo(pw);
 		}
-
-		pw.println(); // Type info follows
-		String agentTypeHeaders = "Agent Type";
-		agentTypeHeaders += "\tDeaths";
-		agentTypeHeaders += "\tLiving";
-		agentTypeHeaders += "\tTotal Offsprings";
-		agentTypeHeaders += "\tAsexual Births";
-		agentTypeHeaders += "\tSexual Births";
-		agentTypeHeaders += "\tSteps";
-		agentTypeHeaders += "\tAverage Red Gene Status";
-		agentTypeHeaders += "\tAverage Green Gene Status";
-		agentTypeHeaders += "\tAverage Blue Gene Status";
-
-		pw.println(agentTypeHeaders);
-
-
-
-		// Prints out species-wise statistics of each agent type
-		for (int i = 0; i < data.getAgentTypes(); i++) {
-			ComplexAgentInfo.printAgentsCountByType(pw, i); // Steps, deaths,
-			// births, etc.
-			pw.print("\n");
-		}
-
 
 
 	}
