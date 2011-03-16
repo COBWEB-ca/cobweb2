@@ -239,8 +239,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent1.info, parent2.info, strat);
 
-		this.position = pos;
-		pos.setAgent(this);
+		move(pos);
+
 		pos.getEnvironment().getScheduler().addSchedulerClient(this);
 
 		for (SpawnMutator mutator : spawnMutators)
@@ -263,8 +263,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		copyConstants(parent);
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent.info, strat);
 
-		this.position = pos;
-		pos.setAgent(this);
+		move(pos);
+
 		pos.getEnvironment().getScheduler().addSchedulerClient(this);
 
 		for (SpawnMutator mutator : spawnMutators)
@@ -280,8 +280,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentT, doCheat);
 
-		this.position = pos;
-		pos.setAgent(this);
+		move(pos);
+
 		pos.getEnvironment().getScheduler().addSchedulerClient(this);
 
 		for (SpawnMutator mutator : spawnMutators)
@@ -306,8 +306,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, doCheat);
 		this.agentType = agentType;
 
-		this.position = pos;
-		pos.setAgent(this);
+		move(pos);
+
 		pos.getEnvironment().getScheduler().addSchedulerClient(this);
 
 		for (SpawnMutator mutator : spawnMutators)
@@ -665,6 +665,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	@Override
 	public void move(Location newPos) {
 		super.move(newPos);
+		info.addPathStep(newPos);
 		if (mustFlip) {
 			if (facing.equals(Environment.DIRECTION_NORTH))
 				facing = Environment.DIRECTION_SOUTH;
@@ -860,19 +861,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public void setMemoryBuffer(int memoryBuffer) {
 		this.memoryBuffer = memoryBuffer;
-	}
-
-	public void setPosition (Location pos) {
-
-		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, pdCheater);
-
-		this.position = pos;
-		pos.setAgent(this);
-		pos.getEnvironment().getScheduler().addSchedulerClient(this);
-
-		for (SpawnMutator mutator : spawnMutators)
-			mutator.onSpawn(this);
-
 	}
 
 	/*

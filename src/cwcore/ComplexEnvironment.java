@@ -872,17 +872,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			agentTable.put(loc, cAgent);
 		}
 
-		//Insert the agents into the environment
-		Scheduler scheduler = getScheduler();
-
-		for (Location l : agentTable.keySet()) {
-
-			ComplexAgent a = (ComplexAgent) agentTable.get(l);
-			a.setPosition(l);
-
-			a.getController().addClientAgent(a);
-			scheduler.addSchedulerClient(a);
-		}
 
 		return true;
 	}

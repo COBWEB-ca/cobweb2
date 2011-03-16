@@ -109,7 +109,8 @@ public abstract class Agent {
 	 */
 	public void move(Environment.Location newPos) {
 		newPos.setAgent(this);
-		position.setAgent(null);
+		if (position != null)
+			position.setAgent(null);
 		position = newPos;
 	}
 
