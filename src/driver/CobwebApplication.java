@@ -653,7 +653,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				String[] S = { "Brad Bass, PhD", "Adaptations and Impacts Research Group",
 						"Environment Canada at Univ of Toronto", "Inst. for Environmental Studies",
 						"33 Willcocks Street", "Toronto, Ont M5S 3E8 CANADA",
-						"TEL: (416) 978-6285  FAX: (416) 978-3884", "brad.bass@ec.gc.this" };
+						"TEL: (416) 978-6285  FAX: (416) 978-3884", "brad.bass@ec.gc.ca" };
 				creditDialog(theDialog, S, 300, 300);
 			}
 		});
@@ -670,7 +670,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		jin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				String[] S = { "Update & Additional Programming By", "", "Jin Soo Kang",
-						"Undergraduate, Computer Science", "University of Toronto", "jin.kang@utoronto.this",
+						"Undergraduate, Computer Science", "University of Toronto", "jin.kang@utoronto.ca",
 				"[2000 - 2001]" };
 
 				CobwebApplication.this.creditDialog(theDialog, S, 300, 250); // $$$$$$ change from "this" to
