@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -316,6 +318,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	private DiseaseMutator diseaseMutator;
 
+	private Writer logWriter;
+
 	Logger myLogger = Logger.getLogger("COBWEB2");
 
 	/**
@@ -527,6 +531,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 */
 	public void killScheduler() {
 		theScheduler.killScheduler();
+		try {
+			if (logWriter != null)
+				logWriter.close();
+		} catch (IOException ex) {
+			throw new RuntimeException("Unable to close log file properly", ex);
+		}
 	}
 
 	/**
@@ -591,9 +601,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 */
 	public void log(String filePath) throws java.io.IOException {
 		// Open the Writer...
-		java.io.Writer outStream = new BufferedWriter(new FileWriter(filePath), 8*1024);
+		logWriter = new BufferedWriter(new FileWriter(filePath), 8*1024);
 		// Fire it off to the environment
-		theEnvironment.log(outStream);
+		theEnvironment.log(logWriter);
 	}
 
 	public void newAgent(java.awt.Color agentColor, java.awt.Color typeColor, java.awt.Color strategyColor,
@@ -623,6 +633,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	public void pause() {
 		theScheduler.pauseScheduler();
 		refresh(true);
+		try {
+			if (logWriter != null)
+				logWriter.flush();
+		} catch (IOException ex) {
+			throw new RuntimeException("Unable to close log file properly", ex);
+		}
 	}
 
 	/**
