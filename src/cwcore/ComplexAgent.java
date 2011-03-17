@@ -946,7 +946,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			wasteCounterLoss -= params.stepEnergy;
 			info.useStepEnergy(params.stepEnergy);
 			info.addStep();
-			info.addPathStep(this.getPosition());
 
 		} else if ((adjAgent = getAdjacentAgent()) != null && adjAgent instanceof ComplexAgent
 				&& ((ComplexAgent) adjAgent).info != null) {
