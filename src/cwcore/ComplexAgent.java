@@ -717,7 +717,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// agent
 
 		/*
-		 * TODO: The ability for the PD game to contend for the Get the food tiles immediately around each agents
+		 * TODO LOW: The ability for the PD game to contend for the Get the food tiles immediately around each agents
 		 */
 
 		/* 0 = cooperate. 1 = defect */

@@ -617,8 +617,7 @@ public abstract class Environment {
 		try {
 			stream = new FileOutputStream(popName);
 		} catch (FileNotFoundException ex) {
-			// TODO Auto-generated catch block
-			ex.printStackTrace();
+			throw new RuntimeException("Couldn't open output file", ex);
 		}
 
 		Source s = new DOMSource(d);

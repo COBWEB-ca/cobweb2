@@ -739,12 +739,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
-	public void openMultFiles(SimulationConfig p[], int time[], int numfiles) {
-		//sim.setUiPipe(new cobweb.LocalUIInterface(this, p, time, numfiles));
-		// TODO: fix file queuing?
-		UIsettings();
-	}
-
 	/*
 	 * public void trackAgentFile(String filePath) { uiPipe
 	 * .writeToTextWindow("Track Agent is disabled for now! Please use the logging function instead.\n"); }
