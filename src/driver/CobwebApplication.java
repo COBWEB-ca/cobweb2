@@ -52,361 +52,6 @@ import driver.config.GUI;
 
 public class CobwebApplication extends JFrame implements UIClient {
 
-	private class CobwebEventListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-
-			if (e.getActionCommand().compareTo("Open") == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				setInvokedByModify(false); // $$$$$$ added on Mar 14 // need to implement only if using the old "Open"
-				// behaviour in Version 2006
-				CobwebApplication.this.openFileDialog();
-				// $$$$$$ Add "Set Default Data" menu. Feb 21
-			} else if (e.getActionCommand().compareTo("Set Default Data") == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				CobwebApplication.this.setDefaultData();
-				// $$$$$$ Add "Retrieve Default Data" menu. Feb 4
-			} else if (e.getActionCommand().compareTo("Retrieve Default Data") == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				if (GUI.frame != null && GUI.frame.isVisible()) {
-					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
-				}
-				// CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the
-				// "Cobweb Application" frame disables when ever "Test Data" window showing
-				setInvokedByModify(false); // $$$$$$ added on Mar 14
-				CobwebApplication.this.retrieveDefaultData();
-				// $$$$$$ Added for "Modify Current Data" menu. Feb 12
-			} else if (e.getActionCommand().compareTo(MODIFY_CURRENT_DATA) == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				if (GUI.frame != null && GUI.frame.isVisible()) {
-					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
-				}
-				// CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the
-				// "Cobweb Application" frame disables when ever "Test Data" window showing
-				setInvokedByModify(true); // $$$$$$ added on Mar 14
-				CobwebApplication.this.openCurrentData();
-				// $$$$$$ Modified on Mar 14
-			} else if (e.getActionCommand().compareTo("Create New Data") == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				if (GUI.frame != null && GUI.frame.isVisible()) {
-					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
-				}
-				// CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the
-				// "Cobweb Application" frame disables when ever "Test Data" window showing
-				setInvokedByModify(false); // $$$$$$ added on Mar 14
-				CobwebApplication.this.createNewData(); // $$$$$$ implemented on Mar 14
-			} else if (e.getActionCommand().compareTo(MODIFY_THIS_FILE) == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				if (GUI.frame != null && GUI.frame.isVisible()) {
-					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
-				}
-				// CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the
-				// "Cobweb Application" frame disables when ever "Test Data" window showing
-				setInvokedByModify(true); // $$$$$$ added on Mar 14
-				CobwebApplication.this.openCurrentFile();
-			} else if (e.getActionCommand().compareTo("Save") == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				if (GUI.frame == null || !GUI.frame.isVisible()) {
-					GUI.createAndShowGUI(CobwebApplication.this, CobwebApplication.this.getCurrentFile());// $$$$$$ changed from "GUI.frame.setVisible(true);".
-					// Mar 17
-				}
-				CobwebApplication.this.saveFileDialog();
-				// $$$$$$ Modified for very first time running. Feb 28
-				if (GUI.frame != null && uiPipe != null) {
-					GUI.frame.dispose(); // $$$$$$ Feb 8 $$$$$$ change from "setVisible(false)". Mar 17
-					// CobwebApplication.this.toFront(); // $$$$$$ added on Feb 22
-				}
-			} else if (e.getActionCommand().compareTo("Log") == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				// $$$$$$ Check whether "Log" menu is clicked before the simulation runs. Feb 12
-				if (uiPipe == null) {
-					JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
-							// specifically for MS Windows. Feb 22
-					"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
-				} else if (uiPipe.getCurrentTime() != 0) {
-					JOptionPane.showMessageDialog(
-							CobwebApplication.this, // $$$$$$ change from "displayPanel" to "GUI.frame" specifically for MS Windows. Feb 22
-							"To get a log file, the \"Log\" menu should be clicked before the simulation runs.",
-							"Warning", JOptionPane.WARNING_MESSAGE);
-				} else {
-					CobwebApplication.this.logFileDialog();
-				}
-				/*
-				 * } else if (e.getActionCommand().compareTo("Track Agent") == 0) { pauseUI(); // $$$$$$ Feb 12
-				 * disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				 * CobwebApplication.this.trackAgentFileDialog();
-				 */
-			} else if (e.getActionCommand().compareTo("Quit") == 0) {
-				CobwebApplication.this.quitApplication();
-				// $$$$$$ Implement "Show/Hide Info" menu. Mar 14
-			} else if (e.getActionCommand().compareTo("Show/Hide Info") == 0) {
-				disposeGUIframe();
-			} else if (e.getActionCommand().compareTo("About") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				CobwebApplication.this.aboutDialog();
-			} else if (e.getActionCommand().compareTo("Credits") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				CobwebApplication.this.creditsDialog();
-			} else if (e.getActionCommand().compareTo("Report") == 0) {
-				pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				// $$$$$$ Modified on Feb 29
-				if (uiPipe == null) {
-					JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
-							// specifically for MS Windows. Feb 22
-					"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
-				} else {
-					CobwebApplication.this.reportDialog();
-				}
-				// CobwebApplication.this.reportDialog();
-			} else if (e.getActionCommand().compareTo("Observation Mode") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				displayPanel.setMouseMode(MouseMode.Observe);
-			} else if (e.getActionCommand().compareTo("Select Stones") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				/* switch to stone selection mode */
-				displayPanel.setMouseMode(MouseMode.AddStone);
-			} else if (e.getActionCommand().compareTo("Remove All") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				/* remove all */
-				// $$$$$$ modified on Feb 29
-				if (uiPipe != null) {
-					uiPipe.clearAgents();
-					uiPipe.clearFood();
-					uiPipe.clearStones();
-				}
-			} else if (e.getActionCommand().compareTo("Remove All Stones") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				/* remove all stones */
-				// $$$$$$ modified on Feb 29
-				if (uiPipe != null) {
-					uiPipe.clearStones();
-				}
-				// mode = -1;
-				// uiPipe.removeComponents(mode);
-			} else if (e.getActionCommand().compareTo("Remove All Food") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				/* remove all food */
-				// $$$$$$ modified on Feb 29
-				if (uiPipe != null) {
-					uiPipe.clearFood();
-				}
-				// mode = -2;
-				// uiPipe.removeComponents(mode);
-			} else if (e.getActionCommand().compareTo("Remove All Agents") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				/* remove all agents */
-				// $$$$$$ modified on Feb 29
-				if (uiPipe != null) {
-					uiPipe.clearAgents();
-				}
-				// mode = -3;
-				// uiPipe.removeComponents(mode);
-
-				// $$$$$$ Added on Feb 29
-			} else if (e.getActionCommand().compareTo("Remove All Waste") == 0) {
-				// pauseUI(); // $$$$$$ Feb 12
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				/* remove all agents */
-				// $$$$$$ modified on Feb 29
-				if (uiPipe != null) {
-					uiPipe.clearWaste();
-				}
-				// mode = -4;
-				// uiPipe.removeComponents(mode);
-			} else if (e.getActionCommand().compareTo("Save Sample Population") == 0) {
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				if (uiPipe != null) {
-
-
-					// open dialog to choose population size to be saved
-					HashMap<String, Object> result = openSaveSamplePopOptionsDialog();
-					if (result != null){
-						String option = (String)result.get("option"); 
-						int amount = (Integer)result.get("amount");
-
-						if (option != null && amount != -1) {
-							// Open file dialog box
-							FileDialog theDialog = new FileDialog(GUI.frame, 
-									"Choose a file to save state to", FileDialog.SAVE);
-							theDialog.setVisible(true);
-							if (theDialog.getFile() != null) {
-
-								//Save population in the specified file. 
-								uiPipe.saveCurrentPopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
-							}
-						}
-					}
-				}
-			} else if (e.getActionCommand().compareTo("Insert Sample Population") == 0) {
-				disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-				if (uiPipe != null) {
-
-					String option = openInsertSamplePopOptionsDialog();
-
-					if (option != null){
-						//Select the XML file
-						FileDialog theDialog = new FileDialog(GUI.frame, 
-								"Choose a file to load", FileDialog.LOAD);
-						theDialog.setVisible(true);
-						if (theDialog.getFile() != null) {
-							//Load the XML file
-							try {
-								uiPipe.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option);
-							} catch (FileNotFoundException ex) {
-								// TODO Auto-generated catch block
-								ex.printStackTrace();
-							}
-						}
-					}
-
-				}
-			}
-
-			// Handles Foodtype and AgentType selections:
-			for (int i = 0; i < uiPipe.countAgentTypes(); i++) {
-				if (e.getActionCommand().compareTo("Food Type " + (i + 1)) == 0) {
-					// pauseUI(); // $$$$$$ Feb 12
-					disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-					/* switch to food selection mode */
-					displayPanel.setMouseMode(MouseMode.AddFood, i);
-				} else if (e.getActionCommand().compareTo("Agent Type " + (i + 1)) == 0) {
-					// pauseUI(); // $$$$$$ Feb 12
-					disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-					/* switch to agent selection mode */
-					displayPanel.setMouseMode(MouseMode.AddAgent, i);
-				}
-			}
-		}
-
-
-
-		// $$$$$$ If a "Test Data" window is open (visible), dispose it (when hitting a menu). Feb 29
-		private void disposeGUIframe() {
-			if (uiPipe != null && GUI.frame != null && GUI.frame.isVisible()) {
-				GUI.frame.dispose();
-			}
-		}
-
-
-
-		private String openInsertSamplePopOptionsDialog() {
-			JRadioButton b1 = new JRadioButton("Replace current population");
-			JRadioButton b2 = new JRadioButton("Merge with current population");
-			b1.setSelected(true);
-
-			ButtonGroup group = new ButtonGroup();
-			group.add(b1);
-			group.add(b2);
-
-			Object[] array = {
-					new JLabel("Select an option:"),
-					b1,
-					b2
-			};
-
-			int res = JOptionPane.showConfirmDialog(null, array, "Select", 
-					JOptionPane.OK_CANCEL_OPTION);
-
-
-			if (res == -1 || res == 2)			
-				return null;
-
-
-			String result = null;
-
-			if (b1.isSelected()) { 
-				result = "replace"; 
-			}
-			else if ( b2.isSelected()) {
-				result = "merge";
-			}
-
-			return result;
-		}
-
-
-
-		private HashMap<String, Object> openSaveSamplePopOptionsDialog() {
-
-			JRadioButton b1 = new JRadioButton("Save a percentage (%) between 1-100");
-
-
-			int popNum = uiPipe.getCurrentPopulationNum();
-
-			JRadioButton b2 = new JRadioButton("Save an amount (between 1-"+ popNum + ")");
-			b1.setSelected(true);
-
-			ButtonGroup group = new ButtonGroup();
-			group.add(b1);
-			group.add(b2);
-
-			JTextField amount = new JTextField(30);
-
-			Object[] array = {
-					new JLabel("Select an option:"),
-					b1,
-					b2,
-					new JLabel("Enter the number for the selected option:"),
-					amount
-			};
-
-			int res = JOptionPane.showConfirmDialog(null, array, "Select", 
-					JOptionPane.OK_CANCEL_OPTION);
-
-			if (res == -1 || res == 2)			
-				return null;
-
-			int am = -1;
-
-			HashMap<String, Object> result = new HashMap<String, Object>();
-
-			try {
-				am = Integer.parseInt(amount.getText());
-				if (am < 1)
-					throw new Exception();
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog((Component)null, "Invalid input.");
-				return null;
-
-			}
-
-			result.put("amount", am);
-
-			if (b1.isSelected()) { 
-				result.put("option", "percentage");
-			}
-			else if ( b2.isSelected()) {
-				result.put("option", "amount");
-			}
-
-			return result;
-
-
-		}
-
-		// $$$$$$ A facilitating method to ensure the UI to pause. Feb 12
-		private void pauseUI() {
-			if (uiPipe != null && uiPipe.isRunning()) { // $$$$$$ changed from
-				// "if (uiPipe.isPaused() == false) {", for the very
-				// first run. Feb 28
-				uiPipe.pause();
-				pauseButton.repaint();
-			}
-		}
-	}
-
 	private static final String WINDOW_TITLE = "COBWEB 2";
 
 	private static final String MODIFY_THIS_FILE = "Modify Simulation File";
@@ -469,7 +114,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 	private JMenu foodMenu;
 
 	private JMenu agentMenu;
-	private final CobwebEventListener theListener;
 	private boolean invokedByModify; // $$$$$$ The value is determined by whether a "Test Data" window is invoked by one
 	// of "Modify This File"
 	// and "Modify Current Data" or by one of "Open", "Create New Data" and "Retrieve Default Data". Mar 14
@@ -515,9 +159,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		setSize(580, 650);
 
 		// Create the various widgits to make the application go.
-
-		// A listener, to process events
-		theListener = new CobwebEventListener();
 
 		JMenuBar myMenuBar = makeMenuBar();
 
@@ -733,92 +374,175 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// Build the menu items
 		JMenuItem openMenu = new JMenuItem("Open");
 		openMenu.setActionCommand("Open");
-		openMenu.addActionListener(theListener);
+		openMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuOpen();
+			}
+		});
 
 		// $$$$$$ Add "Set Default Data" menu. Feb 21
 		JMenuItem setMenu = new JMenuItem("Set Default Data");
 		setMenu.setActionCommand("Set Default Data");
-		setMenu.addActionListener(theListener);
+		setMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuSetDefault();
+			}
+		});
 
 
 		// $$$$$$ Add "Save Sample Population" menu.
 		JMenuItem saveSamplePopMenu = new JMenuItem("Save Sample Population");
 		saveSamplePopMenu.setActionCommand("Save Sample Population");
-		saveSamplePopMenu.addActionListener(theListener);
+		saveSamplePopMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuSaveSample();
+			}
+		});
 
 		JMenuItem insertSamplePopMenu = new JMenuItem("Insert Sample Population");
 		insertSamplePopMenu.setActionCommand("Insert Sample Population");
-		insertSamplePopMenu.addActionListener(theListener);
+		insertSamplePopMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuInsertSample();
+			}
+		});
 
 		// $$$$$$ Add "Retrieve Default Data" menu. Feb 4
 		JMenuItem defaultMenu = new JMenuItem("Retrieve Default Data");
 		defaultMenu.setActionCommand("Retrieve Default Data");
-		defaultMenu.addActionListener(theListener);
+		defaultMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuRetrieveDefault();
+			}
+		});
 		// $$$$$$ Add "Modify Current Data" menu. Feb 12
 		JMenuItem currentDataMenu = new JMenuItem(MODIFY_CURRENT_DATA);
 		currentDataMenu.setActionCommand(MODIFY_CURRENT_DATA);
-		currentDataMenu.addActionListener(theListener);
+		currentDataMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuModifyCurrent();
+			}
+		});
 
 		JMenuItem NewDataFileMenu = new JMenuItem("Create New Data");
 		NewDataFileMenu.setActionCommand("Create New Data");
-		NewDataFileMenu.addActionListener(theListener);
+		NewDataFileMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuCreateNew();
+			}
+		});
 		JMenuItem modifyMenu = new JMenuItem(MODIFY_THIS_FILE);
 		modifyMenu.setActionCommand(MODIFY_THIS_FILE);
-		modifyMenu.addActionListener(theListener);
+		modifyMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuModifyThis();
+			}
+		});
 		JMenuItem saveMenu = new JMenuItem("Save");
 		saveMenu.setActionCommand("Save");
-		saveMenu.addActionListener(theListener);
+		saveMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuSave();
+			}
+		});
 		JMenuItem logMenu = new JMenuItem("Log");
 		logMenu.setActionCommand("Log");
-		logMenu.addActionListener(theListener);
+		logMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuLog();
+			}
+		});
 		// JMenuItem trackAgentMenu = new JMenuItem("Track Agent");
 		// trackAgentMenu.setActionCommand("Track Agent");
 		// trackAgentMenu.addActionListener(theListener);
 		JMenuItem quitMenu = new JMenuItem("Quit");
 		quitMenu.setActionCommand("Quit");
-		quitMenu.addActionListener(theListener);
+		quitMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuQuit();
+			}
+		});
 		JMenuItem reportMenu = new JMenuItem("Report");
 		reportMenu.setActionCommand("Report");
-		reportMenu.addActionListener(theListener);
+		reportMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuReport();
+			}
+		});
 
 		JMenuItem aboutMenu = new JMenuItem("About");
 		aboutMenu.setActionCommand("About");
-		aboutMenu.addActionListener(theListener);
+		aboutMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuAbout();
+			}
+		});
 		JMenuItem creditsMenu = new JMenuItem("Credits");
 		creditsMenu.setActionCommand("Credits");
-		creditsMenu.addActionListener(theListener);
+		creditsMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuCredits();
+			}
+		});
 
 		observeMenu = new JMenuItem("Observation Mode");
 		observeMenu.setActionCommand("Observation Mode");
-		observeMenu.addActionListener(theListener);
+		observeMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuObserve();
+			}
+		});
 
 		stoneMenu = new JMenuItem("Select Stones");
 		stoneMenu.setActionCommand("Select Stones");
-		stoneMenu.addActionListener(theListener);
+		stoneMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuStones();
+			}
+		});
 
 		foodMenu = new JMenu("Select Food");
 		agentMenu = new JMenu("Select Agents");
 
 		JMenuItem removeStones = new JMenuItem("Remove All Stones");
 		removeStones.setActionCommand("Remove All Stones");
-		removeStones.addActionListener(theListener);
+		removeStones.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuRemoveStones();
+			}
+		});
 
 		JMenuItem removeFood = new JMenuItem("Remove All Food");
 		removeFood.setActionCommand("Remove All Food");
-		removeFood.addActionListener(theListener);
+		removeFood.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuRemoveFood();
+			}
+		});
 
 		JMenuItem removeAgents = new JMenuItem("Remove All Agents");
 		removeAgents.setActionCommand("Remove All Agents");
-		removeAgents.addActionListener(theListener);
-
+		removeAgents.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuRemoveAgents();
+			}
+		});
 		// $$$$$$ Added on Feb 29
 		JMenuItem removeWaste = new JMenuItem("Remove All Waste");
 		removeWaste.setActionCommand("Remove All Waste");
-		removeWaste.addActionListener(theListener);
+		removeWaste.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuRemoveWaste();
+			}
+		});
 
 		JMenuItem removeAll = new JMenuItem("Remove All");
 		removeAll.setActionCommand("Remove All");
-		removeAll.addActionListener(theListener);
+		removeAll.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuRemoveAll();
+			}
+		});
 
 		// Assemble the items into menus
 		JMenu EditMenu = new JMenu("Edit");
@@ -1314,14 +1038,45 @@ public class CobwebApplication extends JFrame implements UIClient {
 		for (int i = 0; i < uiPipe.countAgentTypes(); i++) {
 			foodtype[i] = new JMenuItem("Food Type " + (i + 1));
 			foodtype[i].setActionCommand("Food Type " + (i + 1));
-			foodtype[i].addActionListener(theListener);
+			foodtype[i].addActionListener(new FoodMouseActionListener(i));
 			foodMenu.add(foodtype[i]);
 
 			agentype[i] = new JMenuItem("Agent Type " + (i + 1));
 			agentype[i].setActionCommand("Agent Type " + (i + 1));
-			agentype[i].addActionListener(theListener);
+			agentype[i].addActionListener(new AgentMouseActionListener(i));
 			agentMenu.add(agentype[i]);
 		}
+	}
+
+	private class FoodMouseActionListener implements ActionListener {
+
+		private final int type;
+
+		public FoodMouseActionListener(int type) {
+			this.type = type;
+
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			displayPanel.setMouseMode(MouseMode.AddFood, type);
+		}
+	}
+
+	private class AgentMouseActionListener implements ActionListener {
+
+		private final int type;
+
+		public AgentMouseActionListener(int type) {
+			this.type = type;
+
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			displayPanel.setMouseMode(MouseMode.AddAgent, type);
+		}
+
 	}
 
 	private UIInterface uiPipe;
@@ -1329,6 +1084,373 @@ public class CobwebApplication extends JFrame implements UIClient {
 	@Override
 	public void setSimulation(UIInterface simulation) {
 		uiPipe = simulation;
+	}
+
+	private void onMenuOpen() {
+		pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		setInvokedByModify(false); // $$$$$$ added on Mar 14 // need to implement only if using the old "Open"
+		// behaviour in Version 2006
+		CobwebApplication.this.openFileDialog();
+		// $$$$$$ Add "Set Default Data" menu. Feb 21
+	}
+
+	private void onMenuSetDefault() {
+		pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		CobwebApplication.this.setDefaultData();
+		// $$$$$$ Add "Retrieve Default Data" menu. Feb 4
+	}
+
+	// $$$$$$ If a "Test Data" window is open (visible), dispose it (when hitting a menu). Feb 29
+	private void disposeGUIframe() {
+		if (uiPipe != null && GUI.frame != null && GUI.frame.isVisible()) {
+			GUI.frame.dispose();
+		}
+	}
+
+	private void onMenuAbout() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		CobwebApplication.this.aboutDialog();
+	}
+
+	private void onMenuCreateNew() {
+		pauseUI(); // $$$$$$ Feb 12
+		if (GUI.frame != null && GUI.frame.isVisible()) {
+			GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
+		}
+		// CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the
+		// "Cobweb Application" frame disables when ever "Test Data" window showing
+		setInvokedByModify(false); // $$$$$$ added on Mar 14
+		CobwebApplication.this.createNewData(); // $$$$$$ implemented on Mar 14
+	}
+
+	private void onMenuCredits() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		CobwebApplication.this.creditsDialog();
+	}
+
+	private void onMenuInsertSample() {
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		if (uiPipe != null) {
+
+			String option = openInsertSamplePopOptionsDialog();
+
+			if (option != null){
+				//Select the XML file
+				FileDialog theDialog = new FileDialog(GUI.frame, 
+						"Choose a file to load", FileDialog.LOAD);
+				theDialog.setVisible(true);
+				if (theDialog.getFile() != null) {
+					//Load the XML file
+					try {
+						uiPipe.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option);
+					} catch (FileNotFoundException ex) {
+						// TODO Auto-generated catch block
+						ex.printStackTrace();
+					}
+				}
+			}
+
+		}
+	}
+
+	private void onMenuLog() {
+		pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		// $$$$$$ Check whether "Log" menu is clicked before the simulation runs. Feb 12
+		if (uiPipe == null) {
+			JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
+					// specifically for MS Windows. Feb 22
+			"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
+		} else if (uiPipe.getCurrentTime() != 0) {
+			JOptionPane.showMessageDialog(
+					CobwebApplication.this, // $$$$$$ change from "displayPanel" to "GUI.frame" specifically for MS Windows. Feb 22
+					"To get a log file, the \"Log\" menu should be clicked before the simulation runs.",
+					"Warning", JOptionPane.WARNING_MESSAGE);
+		} else {
+			CobwebApplication.this.logFileDialog();
+		}
+		/*
+		 * } else if (e.getActionCommand().compareTo("Track Agent") == 0) { pauseUI(); // $$$$$$ Feb 12
+		 * disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		 * CobwebApplication.this.trackAgentFileDialog();
+		 */
+	}
+
+	private void onMenuModifyCurrent() {
+		pauseUI(); // $$$$$$ Feb 12
+		if (GUI.frame != null && GUI.frame.isVisible()) {
+			GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
+		}
+		// CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the
+		// "Cobweb Application" frame disables when ever "Test Data" window showing
+		setInvokedByModify(true); // $$$$$$ added on Mar 14
+		CobwebApplication.this.openCurrentData();
+		// $$$$$$ Modified on Mar 14
+	}
+
+	private void onMenuModifyThis() {
+		pauseUI(); // $$$$$$ Feb 12
+		if (GUI.frame != null && GUI.frame.isVisible()) {
+			GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
+		}
+		// CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the
+		// "Cobweb Application" frame disables when ever "Test Data" window showing
+		setInvokedByModify(true); // $$$$$$ added on Mar 14
+		CobwebApplication.this.openCurrentFile();
+	}
+
+	private void onMenuObserve() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		displayPanel.setMouseMode(MouseMode.Observe);
+	}
+
+	private void onMenuQuit() {
+		CobwebApplication.this.quitApplication();
+		// $$$$$$ Implement "Show/Hide Info" menu. Mar 14
+	}
+
+	private void onMenuRemoveAgents() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		/* remove all agents */
+		// $$$$$$ modified on Feb 29
+		if (uiPipe != null) {
+			uiPipe.clearAgents();
+		}
+		// mode = -3;
+		// uiPipe.removeComponents(mode);
+
+		// $$$$$$ Added on Feb 29
+	}
+
+	private void onMenuRemoveAll() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		/* remove all */
+		// $$$$$$ modified on Feb 29
+		if (uiPipe != null) {
+			uiPipe.clearAgents();
+			uiPipe.clearFood();
+			uiPipe.clearStones();
+		}
+	}
+
+	private void onMenuRemoveFood() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		/* remove all food */
+		// $$$$$$ modified on Feb 29
+		if (uiPipe != null) {
+			uiPipe.clearFood();
+		}
+		// mode = -2;
+		// uiPipe.removeComponents(mode);
+	}
+
+	private void onMenuRemoveStones() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		/* remove all stones */
+		// $$$$$$ modified on Feb 29
+		if (uiPipe != null) {
+			uiPipe.clearStones();
+		}
+		// mode = -1;
+		// uiPipe.removeComponents(mode);
+	}
+
+	private void onMenuRemoveWaste() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		/* remove all agents */
+		// $$$$$$ modified on Feb 29
+		if (uiPipe != null) {
+			uiPipe.clearWaste();
+		}
+		// mode = -4;
+		// uiPipe.removeComponents(mode);
+	}
+
+	private void onMenuReport() {
+		pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		// $$$$$$ Modified on Feb 29
+		if (uiPipe == null) {
+			JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
+					// specifically for MS Windows. Feb 22
+			"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
+		} else {
+			CobwebApplication.this.reportDialog();
+		}
+		// CobwebApplication.this.reportDialog();
+	}
+
+	private void onMenuRetrieveDefault() {
+		pauseUI(); // $$$$$$ Feb 12
+		if (GUI.frame != null && GUI.frame.isVisible()) {
+			GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up
+		}
+		// CobwebApplication.this.setEnabled(false); // $$$$$$ another way, to make sure the
+		// "Cobweb Application" frame disables when ever "Test Data" window showing
+		setInvokedByModify(false); // $$$$$$ added on Mar 14
+		CobwebApplication.this.retrieveDefaultData();
+		// $$$$$$ Added for "Modify Current Data" menu. Feb 12
+	}
+
+	private void onMenuSave() {
+		pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		if (GUI.frame == null || !GUI.frame.isVisible()) {
+			GUI.createAndShowGUI(CobwebApplication.this, CobwebApplication.this.getCurrentFile());// $$$$$$ changed from "GUI.frame.setVisible(true);".
+			// Mar 17
+		}
+		CobwebApplication.this.saveFileDialog();
+		// $$$$$$ Modified for very first time running. Feb 28
+		if (GUI.frame != null && uiPipe != null) {
+			GUI.frame.dispose(); // $$$$$$ Feb 8 $$$$$$ change from "setVisible(false)". Mar 17
+			// CobwebApplication.this.toFront(); // $$$$$$ added on Feb 22
+		}
+	}
+
+	private void onMenuSaveSample() {
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		if (uiPipe != null) {
+
+
+			// open dialog to choose population size to be saved
+			HashMap<String, Object> result = openSaveSamplePopOptionsDialog();
+			if (result != null){
+				String option = (String)result.get("option"); 
+				int amount = (Integer)result.get("amount");
+
+				if (option != null && amount != -1) {
+					// Open file dialog box
+					FileDialog theDialog = new FileDialog(GUI.frame, 
+							"Choose a file to save state to", FileDialog.SAVE);
+					theDialog.setVisible(true);
+					if (theDialog.getFile() != null) {
+
+						//Save population in the specified file. 
+						uiPipe.saveCurrentPopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
+					}
+				}
+			}
+		}
+	}
+
+	private void onMenuStones() {
+		// pauseUI(); // $$$$$$ Feb 12
+		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
+		/* switch to stone selection mode */
+		displayPanel.setMouseMode(MouseMode.AddStone);
+	}
+
+	private String openInsertSamplePopOptionsDialog() {
+		JRadioButton b1 = new JRadioButton("Replace current population");
+		JRadioButton b2 = new JRadioButton("Merge with current population");
+		b1.setSelected(true);
+
+		ButtonGroup group = new ButtonGroup();
+		group.add(b1);
+		group.add(b2);
+
+		Object[] array = {
+				new JLabel("Select an option:"),
+				b1,
+				b2
+		};
+
+		int res = JOptionPane.showConfirmDialog(null, array, "Select", 
+				JOptionPane.OK_CANCEL_OPTION);
+
+
+		if (res == -1 || res == 2)			
+			return null;
+
+
+		String result = null;
+
+		if (b1.isSelected()) { 
+			result = "replace"; 
+		}
+		else if ( b2.isSelected()) {
+			result = "merge";
+		}
+
+		return result;
+	}
+
+	private HashMap<String, Object> openSaveSamplePopOptionsDialog() {
+
+		JRadioButton b1 = new JRadioButton("Save a percentage (%) between 1-100");
+
+
+		int popNum = uiPipe.getCurrentPopulationNum();
+
+		JRadioButton b2 = new JRadioButton("Save an amount (between 1-"+ popNum + ")");
+		b1.setSelected(true);
+
+		ButtonGroup group = new ButtonGroup();
+		group.add(b1);
+		group.add(b2);
+
+		JTextField amount = new JTextField(30);
+
+		Object[] array = {
+				new JLabel("Select an option:"),
+				b1,
+				b2,
+				new JLabel("Enter the number for the selected option:"),
+				amount
+		};
+
+		int res = JOptionPane.showConfirmDialog(null, array, "Select", 
+				JOptionPane.OK_CANCEL_OPTION);
+
+		if (res == -1 || res == 2)			
+			return null;
+
+		int am = -1;
+
+		HashMap<String, Object> result = new HashMap<String, Object>();
+
+		try {
+			am = Integer.parseInt(amount.getText());
+			if (am < 1)
+				throw new Exception();
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog((Component)null, "Invalid input.");
+			return null;
+
+		}
+
+		result.put("amount", am);
+
+		if (b1.isSelected()) { 
+			result.put("option", "percentage");
+		}
+		else if ( b2.isSelected()) {
+			result.put("option", "amount");
+		}
+
+		return result;
+
+
+	}
+
+	// $$$$$$ A facilitating method to ensure the UI to pause. Feb 12
+	private void pauseUI() {
+		if (uiPipe != null && uiPipe.isRunning()) { // $$$$$$ changed from
+			// "if (uiPipe.isPaused() == false) {", for the very
+			// first run. Feb 28
+			uiPipe.pause();
+			pauseButton.repaint();
+		}
 	}
 
 } // CobwebApplication
