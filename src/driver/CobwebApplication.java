@@ -85,14 +85,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 	// $$$$$$ Add a greeting string for the textWindow. Mar 25
 	public static final String GREETINGS = "Welcome to COBWEB 2";
 
-	private static String getMyVersion() {
-		String version = CobwebApplication.class.getPackage().getImplementationVersion();
-		if (version == null) {
-			version = "test build";
-		}
-		return version;
-	}
-
 	private String midFile; // $$$$$$ added for supporting "Modify Current Data", to temporary save the name when adding
 	// a file. Feb 14
 
@@ -183,8 +175,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 				"About Cobweb", true); // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows. Feb 22
 		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); // $$$$$$ added on Feb 18
 		JPanel info = new JPanel();
+		info.setAlignmentX(CENTER_ALIGNMENT);
 		info.add(new JLabel("Cobweb2 2003/2011"));
-		info.add(new JLabel("version: " + getMyVersion()));
+		info.add(new JLabel("<html><center>version: <br/>" 
+				+  Versionator.getVersion().replace(" ", "<br/>") 
+				+ "</center></html>"
+				, JLabel.CENTER));
 
 		JPanel term = new JPanel();
 		JButton close = new JButton("Close");
@@ -199,6 +195,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		whatDialog.add(info, "Center");
 		whatDialog.add(term, "South");
 		whatDialog.setSize(200, 150);
+		//whatDialog.pack();
 		whatDialog.setVisible(true);
 	}
 

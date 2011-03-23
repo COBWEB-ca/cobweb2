@@ -12,25 +12,35 @@
     <property name="source" value="1.6"/>
     <import file="deployJar.xml"/>
     <import file="javadoc.xml"/>
-    <path id="JUnit 3.libraryclasspath">
-        <pathelement location="../../../../../Program Files/eclipse/plugins/org.junit_3.8.2.v20080602-1318/junit.jar"/>
+    <path id="JUnit 4.libraryclasspath">
+        <pathelement location="../../../../../Program Files (x86)/eclipse/plugins/org.junit_4.8.1.v4_8_1_v20100427-1100/junit.jar"/>
+        <pathelement location="../../../../../Program Files (x86)/eclipse/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
     </path>
     <path id="cobweb2.classpath">
         <pathelement location="bin"/>
         <pathelement location="lib/jcommon-1.0.12.jar"/>
         <pathelement location="lib/jfreechart-1.0.9.jar"/>
-        <path refid="JUnit 3.libraryclasspath"/>
+        <path refid="JUnit 4.libraryclasspath"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
-            <fileset dir="src" excludes="**/*.launch, **/*.java"/>
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
         </copy>
         <copy includeemptydirs="false" todir="bin">
-            <fileset dir="resources" excludes="**/*.launch, **/*.java"/>
+            <fileset dir="resources">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
         </copy>
         <copy includeemptydirs="false" todir="bin">
-            <fileset dir="test" excludes="**/*.launch, **/*.java"/>
+            <fileset dir="test">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
         </copy>
     </target>
     <target name="clean">
@@ -68,13 +78,23 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="ComplexAgentParamsTest">
-        <mkdir dir="${junit.output.dir}"/>
-        <junit fork="yes" printsummary="withOutAndErr">
-            <formatter type="xml"/>
-            <test name="cobweb2test.ComplexAgentParamsTest" todir="${junit.output.dir}"/>
+    <target name="CobwebApplication (1)">
+        <java classname="driver.CobwebApplicationRunner" failonerror="true" fork="yes">
+            <jvmarg line="-Xms16m -Xmx64m"/>
             <classpath refid="cobweb2.classpath"/>
-        </junit>
+        </java>
+    </target>
+    <target name="CobwebApplicationRunner (cli)">
+        <java classname="driver.CobwebApplicationRunner" failonerror="true" fork="yes">
+            <jvmarg line="-Djava.awt.headless=true"/>
+            <arg line="-hide -autorun 10000 -log LogFile.tsv -open initial_or_new_input_(reserved).xml"/>
+            <classpath refid="cobweb2.classpath"/>
+        </java>
+    </target>
+    <target name="CobwebApplicationRunner">
+        <java classname="driver.CobwebApplicationRunner" failonerror="true" fork="yes">
+            <classpath refid="cobweb2.classpath"/>
+        </java>
     </target>
     <target name="gaTest">
         <mkdir dir="${junit.output.dir}"/>
@@ -85,18 +105,24 @@
         </junit>
     </target>
     <target name="CobwebApplication">
-        <java classname="driver.CobwebApplication" failonerror="true" fork="yes">
+        <java classname="driver.CobwebApplicationRunner" failonerror="true" fork="yes">
             <jvmarg line="-XX:+UseParallelGC -Xmx2g"/>
             <classpath refid="cobweb2.classpath"/>
         </java>
     </target>
     <target name="CobwebApplication (x86)">
-        <java classname="driver.CobwebApplication" failonerror="true" fork="yes">
+        <java classname="driver.CobwebApplicationRunner" failonerror="true" fork="yes">
             <classpath refid="cobweb2.classpath"/>
         </java>
     </target>
     <target name="CobwebApplication (noparams)">
-        <java classname="driver.CobwebApplication" failonerror="true" fork="yes">
+        <java classname="driver.CobwebApplicationRunner" failonerror="true" fork="yes">
+            <classpath refid="cobweb2.classpath"/>
+        </java>
+    </target>
+    <target name="CobwebApplication (JRat)">
+        <java classname="driver.CobwebApplicationRunner" failonerror="true" fork="yes">
+            <jvmarg line="-XX:+UseParallelGC -Xmx2g -javaagent:shiftone-jrat.jar"/>
             <classpath refid="cobweb2.classpath"/>
         </java>
     </target>

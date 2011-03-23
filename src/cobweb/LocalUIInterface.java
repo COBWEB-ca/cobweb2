@@ -523,7 +523,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * @return the paused state flag of the simulation
 	 */
 	public boolean isRunning() {
-		return theScheduler.isRunning();
+		return theScheduler != null && theScheduler.isRunning();
 	}
 
 	/**
