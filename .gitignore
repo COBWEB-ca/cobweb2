@@ -3,3 +3,7 @@ deployJar.xml
 cobweb.ca.ks
 deploy/apps/*.jar
 deploy/downloads
+/metrics
+/cobweb2.jks
+/initial_or_new_input_(reserved).xml
+/jrat.output
