@@ -157,7 +157,7 @@ public class CobwebApplicationRunner {
 			// $$$$$ following code. Please refer to GUI.GUI.close.addActionListener, "/* write UI info to xml file */". Jan
 			// 24
 			if (visible && CA instanceof CobwebApplication) {
-				GUI.createAndShowGUI((CobwebApplication)CA, inputFileName);
+				GUI.createAndShowGUI((CobwebApplication)CA, inputFileName, false);
 				System.out.println("Exception with SimulationConfig");
 			}
 		}

@@ -160,14 +160,14 @@ public class GUI extends JFrame {
 	/**
 	 * Create the GUI and show it. For thread safety, this method should be invoked from the event-dispatching thread.
 	 */
-	public static void createAndShowGUI(CobwebApplication ca, String filename) {
+	public static void createAndShowGUI(CobwebApplication ca, String filename, boolean allowModify) {
 		if (ca.getUI() != null) {
 			ca.getUI().setRunnable(false);
 		}
 
 		// Create and set up the content pane.
 
-		frame = new GUI(ca, filename, ca.getUI() != null);
+		frame = new GUI(ca, filename, allowModify && (ca.getUI() != null));
 		frame.setVisible(true);
 
 	}

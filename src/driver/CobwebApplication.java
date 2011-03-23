@@ -206,7 +206,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// 24
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME + CONFIG_FILE_EXTENSION; // $$$$$$ added for implementing
 		// "Modify Current Data". Feb 12
-		GUI.createAndShowGUI(this, newInput); // $$$$$$ change the name from original "input.xml". Jan 31
+		GUI.createAndShowGUI(this, newInput, false); // $$$$$$ change the name from original "input.xml". Jan 31
 		if (uiPipe == null) {
 			setCurrentFile(newInput);
 		} // $$$$$$ added on Mar 14
@@ -627,7 +627,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				throw new CobwebUserException("Cannot open config file", ex);
 			}
 		}
-		GUI.createAndShowGUI(this, currentData);
+		GUI.createAndShowGUI(this, currentData, true);
 	}
 
 	public void openCurrentFile() { // $$$$$ "Modify This File" method
@@ -646,7 +646,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			setCurrentFile(midFile);
 		}
 
-		GUI.createAndShowGUI(this, getCurrentFile()); // $$$$$$ modified on Mar 14
+		GUI.createAndShowGUI(this, getCurrentFile(), true); // $$$$$$ modified on Mar 14
 
 		// $$$$$$ Added on Mar 25
 		if (getCurrentFile().equals(DEFAULT_DATA_FILE_NAME + TEMPORARY_FILE_EXTENSION)) {
@@ -713,7 +713,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				if (GUI.frame != null && GUI.frame.isVisible() == true) {
 					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up. Feb 28
 				}
-				GUI.createAndShowGUI(this, getCurrentFile());
+				GUI.createAndShowGUI(this, getCurrentFile(), true);
 				// CobwebApplication.this.setEnabled(false); // $$$$$$ to make sure the "Cobweb Application" frame
 				// disables when ever the "Test Data" window showing
 				// $$$$$$ Modified on Feb 28
@@ -809,7 +809,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 
 		// $$$$$$ Modified on Mar 14
-		GUI.createAndShowGUI(this, tempDefaultData);
+		GUI.createAndShowGUI(this, tempDefaultData, false);
 		if (uiPipe == null) {
 			setCurrentFile(tempDefaultData);
 		} // $$$$$$ added on Mar 14
@@ -1297,7 +1297,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		if (GUI.frame == null || !GUI.frame.isVisible()) {
-			GUI.createAndShowGUI(CobwebApplication.this, CobwebApplication.this.getCurrentFile());// $$$$$$ changed from "GUI.frame.setVisible(true);".
+			GUI.createAndShowGUI(CobwebApplication.this, CobwebApplication.this.getCurrentFile(), true);// $$$$$$ changed from "GUI.frame.setVisible(true);".
 			// Mar 17
 		}
 		CobwebApplication.this.saveFileDialog();

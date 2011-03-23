@@ -1082,6 +1082,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	private void loadNewWaste() {
 		wastearray = new Waste[data.width][data.height];
 
+
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location pos = getLocation(x, y);
@@ -1112,21 +1113,18 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				}
 			}
 		}
-		// Remove agents that have fallen out of bounds
-		for (int x = 0; x < oldW && x < data.width; ++x) {
-			for (int y = data.height; y < oldH; ++y) {
-				Location currentPos = getLocation(x, y);
-				if (currentPos.getAgent() != null)
-					currentPos.getAgent().die();
+
+		removeOffgridAgents(oldH, oldW);
+	}
+
+	private void removeOffgridAgents(int oldH, int oldW) {
+		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
+			Location l = a.getPosition();
+			if (l.v[0] >= data.width || l.v[1] >= data.height) {
+				a.die();
 			}
 		}
-		for (int x = data.width; x < oldW; ++x) {
-			for (int y = 0; y < data.height && y < oldH; ++y) {
-				Location currentPos = getLocation(x, y);
-				if (currentPos.getAgent() != null)
-					currentPos.getAgent().die();
-			}
-		}
+
 	}
 
 	private void loadOldWaste() {
@@ -1458,8 +1456,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	private void updateWaste() {
-		for (int i = 0; i < wastearray[0].length; i++) {
-			for (int j = 0; j < wastearray[1].length; j++) {
+		for (int i = 0; i < wastearray.length; i++) {
+			for (int j = 0; j < wastearray[i].length; j++) {
 				Location l = getLocation(i, j);
 				if (l.testFlag(ComplexEnvironment.FLAG_WASTE) == false)
 					continue;
