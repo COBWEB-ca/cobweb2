@@ -51,6 +51,13 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 			return;
 		}
 
+		for (int depth = 0; depth < 4; depth++) {
+			if (depth >= ex.getStackTrace().length)
+				break;
+			if (ex.getStackTrace()[depth].getClassName().equals("org.jfree.data.xy.DefaultXYDataset"))
+				return;
+		}
+
 		if (fh == null) {
 			try {
 				fh = new StreamHandler(new FileOutputStream("cobweb_errors.log", true), new SimpleFormatter());
@@ -60,14 +67,7 @@ public class MyUncaughtExceptionHandler implements UncaughtExceptionHandler {
 				logger.log(Level.SEVERE, "Cannot open file log!", exi);
 			}
 		}
-
 		logger.log(Level.SEVERE, "Uncaught Exception in thread " + thread.getName(), ex);
-		for (int depth = 0; depth < 4; depth++) {
-			if (depth >= ex.getStackTrace().length)
-				break;
-			if (ex.getStackTrace()[depth].getClassName().equals("org.jfree.data.xy.DefaultXYDataset"))
-				return;
-		}
 
 		StringBuilder sb = new StringBuilder();
 
