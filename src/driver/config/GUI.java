@@ -371,7 +371,10 @@ public class GUI extends JFrame {
 		removeOldPage(tempPage);
 		tempPage = new TemperatureConfigPage(p.getTempParams());
 		tabbedPane.addTab("Temperature", tempPage.getPanel());
+
+		//TODO: stuff here
 	}
+
 	private void removeOldPage(ConfigPage r) {
 		if (r != null) {
 			tabbedPane.remove(r.getPanel());
