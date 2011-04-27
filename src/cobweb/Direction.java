@@ -19,9 +19,7 @@ public class Direction {
 	}
 
 	public Direction(int x, int y) {
-		v = new int[2];
-		v[0] = x;
-		v[1] = y;
+		v = new int[]{x, y};
 	}
 
 	public Direction(int[] initV) {
