@@ -2,11 +2,9 @@ package cwcore;
 
 // Food storage
 // Vaccination/avoid infected agents
-// Gravitate towards zones of appropriate temperature
 // Wordbuilding
 
 // Make learning toggleable
-// Observe other agents
 // React to temperatures
 
 import java.awt.Color;
@@ -20,6 +18,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import learning.LearningAgentParams;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,6 +31,7 @@ import cobweb.Environment;
 import cobweb.Environment.Location;
 import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
+import cobweb.globals;
 import cwcore.ComplexEnvironment.CommManager;
 import cwcore.ComplexEnvironment.CommPacket;
 import cwcore.complexParams.AgentMutator;
@@ -68,22 +69,23 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private static final long serialVersionUID = -5310096345506441368L;
 
 	/** Default mutable parameters of each agent type. */
-
 	private static ComplexAgentParams defaulParams[];
+
+	private static LearningAgentParams learningParams[];
 
 	private static AgentSimilarityCalculator simCalc;
 
-	private int maxMemorableEvents = 5;
+	private static ArrayList<Occurrence> allOccurrences = new ArrayList<Occurrence>();
 
 	private Collection<MemorableEvent> memEvents;
 
 	private Collection<Queueable> queueables;
 
-	public boolean ignoreLearning = false;
-
 	/*
-	 * $$$$$$ added March 17th; use this method to allow the agent to remember
-	 * information
+	 * MemorableEvents are placed in the agent's memory with this method. Earliest memories will
+	 * be forgotten when the memory limit is exceeded.
+	 * 
+	 * TODO: Forget memories as time passes
 	 */
 	public void remember(MemorableEvent event) {
 		if (event == null) {
@@ -92,17 +94,19 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (memEvents == null) {
 			memEvents = new ArrayList<MemorableEvent>();
 		}
-		memEvents.add(event); // TODO: time-based memory-loss
-		if (memEvents.size() > maxMemorableEvents) {
+		memEvents.add(event);
+		if (memEvents.size() > lParams.numMemories) {
 			memEvents.remove(0);
 		}
 	}
 
 	/*
-	 * $$$$$$ added March 17th; ALL ACTIONS that the agent ought to perform
-	 * should be inputted here
+	 * Events are queued using this method
 	 */
 	public void queue(Queueable act) {
+		if (act == null) {
+			return;
+		}
 		if (queueables == null) {
 			queueables = new ArrayList<Queueable>();
 		}
@@ -146,11 +150,16 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/** Sets the default mutable parameters of each agent type. */
-	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
+	public static void setDefaultMutableParams(ComplexAgentParams[] params, LearningAgentParams[] lParams) {
 		defaulParams = params.clone();
 		for (int i = 0; i < params.length; i++) {
 			defaulParams[i] = (ComplexAgentParams) params[i].clone();
 		}
+
+		learningParams = lParams.clone();
+		for (int i = 0; i < params.length; i++) {
+			learningParams[i] = (LearningAgentParams) lParams[i].clone();
+		}		
 	}
 
 	public static void setSimularityCalc(AgentSimilarityCalculator calc) {
@@ -160,6 +169,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private int agentType = 0;
 
 	public ComplexAgentParams params;
+
+	public LearningAgentParams lParams;
 
 	/* energy gauge */
 	private int energy;
@@ -287,6 +298,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				parent1.params.mutationRate));
 		InitFacing();
 
+		if (globals.random.nextBoolean()) {
+			lParams = parent1.lParams;
+		} else {
+			lParams = parent2.lParams;
+		}
+
 		copyConstants(parent1);
 
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent1.info, parent2.info, strat);
@@ -310,6 +327,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	protected ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
 		super(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 		InitFacing();
+
+		lParams = parent.lParams;
 
 		copyConstants(parent);
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent.info, strat);
@@ -348,13 +367,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param doCheat start PD off cheating?
 	 * @param agentData agent parameters
 	 */
-	public ComplexAgent(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
+	public ComplexAgent(int agentType, Location pos, int doCheat, ComplexAgentParams agentData, LearningAgentParams lAgentData) {
 		super(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
 		setConstants(doCheat, agentData);
 
 		InitFacing();
 
 		params = agentData;
+		lParams = lAgentData;
+
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, doCheat);
 		this.agentType = agentType;
 
@@ -537,16 +558,17 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			info.addFoodEnergy(params.foodEnergy);
 
 			// Eating food is ideal!!
-			remember(new MemorableEvent(currTick, +1, "ateFood"));
+			remember(new MemorableEvent(currTick, lParams.foodPleasure, "food"));
 		} else {
 			energy += params.otherFoodEnergy;
 			wasteCounterGain -= params.otherFoodEnergy;
 			info.addOthers(params.otherFoodEnergy);
 
 			// Eating other food has a ratio of goodness compared to eating
-			// normal food
-			float howHappyThisMakesMe = (float) params.otherFoodEnergy / (float) params.foodEnergy;
-			remember(new MemorableEvent(currTick, howHappyThisMakesMe, "ateFood"));
+			// normal food.
+			float howHappyThisMakesMe = (float) params.otherFoodEnergy / (float) params.foodEnergy
+			* lParams.foodPleasure;
+			remember(new MemorableEvent(currTick, howHappyThisMakesMe, "food"));
 		}
 	}
 
@@ -557,8 +579,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		info.addCannibalism(gain);
 		adjacentAgent.die();
 
-		// Eating makes us happy
-		remember(new MemorableEvent(currTick, 1.0f, "ateAgent"));
+		// Bloodily consuming agents makes us happy
+		remember(new MemorableEvent(currTick, lParams.ateAgentPleasure, "ateAgent"));
 	}
 
 	double energyPenalty(boolean log) {
@@ -977,122 +999,84 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
 
 				// Queues the agent to broadcast about the food
-				queue(new SmartAction("broadcast") {
+				queue(new SmartAction(this, "broadcast") {
 
 					@Override
-					public void desiredAction() {
+					public void desiredAction(ComplexAgent agent) {
 						if (params.broadcastMode & canBroadcast()) {
-							broadcastFood(destPos);
+							agent.broadcastFood(destPos);
 
 							// Remember a sense of pleasure from helping out
 							// other agents by broadcasting
-							remember(new MemorableEvent(currTick, 0.1f, "broadcast"));
+							agent.remember(new MemorableEvent(currTick, lParams.broadcastPleasure, "broadcast"));
 						}
 					}
 
 				});
 
 				if (canEat(destPos)) {
-
 					// Queue action to eat the food
-					queue(new SmartAction("food") {
+					queue(new SmartAction(this, "food") {
 
 						@Override
-						public void desiredAction() {
-							eat(destPos);
+						public void desiredAction(ComplexAgent agent) {
+							agent.eat(destPos);
 						}
 
 					});
-
 				}
 
 				if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 
-					/* Initiates the breeding process
-					queue(new SmartAction("breed") {
-
-						@Override
-						public void desiredAction() {
-							// Setting breedPos to non-null will cause the agent
-							// to breed later
-							setBreedPos(getPosition());
-							int tempEnergy = energy;
-
-							// Subtract starting energy and energy penalty from
-							// energy
-							if ((energy -= (params.initEnergy + energyPenalty(true))) > 0) {
-								// Breeding costs energy, therefore the agent
-								// remembers this as a negative thing!
-								float howSadThisMakesMe = (float) energy / (float) tempEnergy;
-								remember(new MemorableEvent(currTick, howSadThisMakesMe, "breed"));
-							}
-
-							setWasteCounterLoss(getWasteCounterLoss() - params.initEnergy);
-							info.useOthers(params.initEnergy);
-						}
-
-						// If breeding did not occur, feel a little better about
-						// breeding
-						@Override
-						public void actionIfUndesireable() {
-							remember(new MemorableEvent(currTick, 0.1f, "breed"));
-						}
-					});
-					 */
-					queue(new BreedInitiationOccurrence(this, 0, breedPartner.id));
+					queue(new BreedInitiationOccurrence(this, 0, "breedInit", breedPartner.id));
 
 				} else {
 					if (!pregnant) {
-
 						// Manages asexual breeding
-						queue(new SmartAction("asexBreed") {
+						queue(new SmartAction(this, "asexBreed") {
 
 							@Override
-							public void desiredAction() {
-								tryAsexBreed();
+							public void desiredAction(ComplexAgent agent) {
+								agent.tryAsexBreed();
 							}
 
 						});
-
 					}
 				}
 			}
 
-			// Apply stepMutators
-			queue(new DefiniteAction() {
-
+			queue(new Occurrence(this, 0, "stepMutate") {
 				@Override
-				public void desiredAction() {
+				MemorableEvent effect(ComplexAgent concernedAgent) {
 					for (StepMutator m : stepMutators)
 						m.onStep(ComplexAgent.this, getPosition(), destPos);
+					return null;
 				}
-
 			});
 
 			// Move the agent to destPos
-			queue(new SmartAction("move-" + destPos.toString()) {
+			queue(new SmartAction(this, "move-" + destPos.toString()) {
 
 				@Override
-				public void desiredAction() {
-					move(destPos);
+				public void desiredAction(ComplexAgent agent) {
+					agent.move(destPos);
 				}
 			});
 
-			// Puts breeding into action
-			queue(new DefiniteAction() {
+			// Try to breed
+			queue(new Occurrence(this, 0, "breed") {
 
 				@Override
-				public void desiredAction() {
-					if (getBreedPos() != null) {
+				MemorableEvent effect(ComplexAgent concernedAgent) {
+					if (concernedAgent.getBreedPos() != null) {
 
-						if (breedPartner == null) {
-							info.addDirectChild();
-							ComplexAgent child = new ComplexAgent(getBreedPos(), ComplexAgent.this,
-									ComplexAgent.this.pdCheater);
+						if (concernedAgent.breedPartner == null) {
+							concernedAgent.getInfo().addDirectChild();
+							ComplexAgent child = new ComplexAgent(concernedAgent.getBreedPos(), concernedAgent,
+									concernedAgent.pdCheater);
 
-							// Retain an undying feeling of love for our
-							// child!!!
-							remember(new MemorableEvent(currTick, +1.0f, "agent-" + child.id));
+							// Retain emotions for our child!
+							concernedAgent.remember(new MemorableEvent(currTick, lParams.emotionForChildren, "agent-" + child.id));
 						} else {
 							// child's strategy is determined by its parents, it
 							// has a
@@ -1101,50 +1085,59 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 							// We like the agent we are breeding with; remember
 							// that
 							// this agent is favourable
-							remember(new MemorableEvent(currTick, +0.5f, "agent-" + breedPartner.id));
+							concernedAgent.remember(new MemorableEvent(currTick, lParams.loveForPartner, "agent-" + breedPartner.id));
 
 							int childStrategy = -1;
-							if (ComplexAgent.this.pdCheater != -1) {
+							if (concernedAgent.pdCheater != -1) {
 								boolean choose = cobweb.globals.random.nextBoolean();
 								if (choose) {
-									childStrategy = ComplexAgent.this.pdCheater;
+									childStrategy = concernedAgent.pdCheater;
 								} else {
-									childStrategy = breedPartner.pdCheater;
+									childStrategy = concernedAgent.breedPartner.pdCheater;
 								}
 							}
 
-							info.addDirectChild();
-							breedPartner.info.addDirectChild();
-							ComplexAgent child = new ComplexAgent(getBreedPos(), ComplexAgent.this, breedPartner,
-									childStrategy);
+							concernedAgent.getInfo().addDirectChild();
+							concernedAgent.breedPartner.getInfo().addDirectChild();
+							ComplexAgent child = new ComplexAgent(concernedAgent.getBreedPos(), concernedAgent,
+									concernedAgent.breedPartner, childStrategy);
 
-							// Retain an undying feeling of love for your
-							// child!!!
-							remember(new MemorableEvent(currTick, +1.0f, "" + child));
-							breedPartner.remember(new MemorableEvent(currTick, +1.0f, "" + child));
+							// Retain an undying feeling of love for our
+							// child
+							MemorableEvent weLoveOurChild = new MemorableEvent(currTick, lParams.emotionForChildren, "" + child);
+							concernedAgent.remember(weLoveOurChild);
+							concernedAgent.breedPartner.remember(weLoveOurChild);
 
-							info.addSexPreg();
+							concernedAgent.getInfo().addSexPreg();
 						}
-						breedPartner = null;
-						pregnant = false; // decide if this boolean is even
-						// necessary
+						concernedAgent.breedPartner = null;
+						concernedAgent.pregnant = false; // Is this boolean even
+						// necessary?
 						setBreedPos(null);
 					}
+					return null;
 				}
-
 			});
 
-			int tempEnergy = energy;
+			// Lose energy from stepping
+			queue(new EnergyChangeOccurrence(this, -params.stepEnergy, "step") {
 
-			if ((energy -= params.stepEnergy) > 0) {
-				// Stepping requires energy, and that makes the agent :(
-				float howSadThisMakesMe = (float) energy / (float) tempEnergy;
-				remember(new MemorableEvent(currTick, howSadThisMakesMe, "step"));
-			}
+				@Override
+				public MemorableEvent effect(ComplexAgent concernedAgent) {
+					MemorableEvent ret = super.effect(concernedAgent);
 
-			setWasteCounterLoss(getWasteCounterLoss() - params.stepEnergy);
-			info.useStepEnergy(params.stepEnergy);
-			info.addStep();
+					concernedAgent.setWasteCounterLoss(getWasteCounterLoss() - concernedAgent.params.stepEnergy);
+					concernedAgent.getInfo().useStepEnergy(params.stepEnergy);
+					concernedAgent.getInfo().addStep();
+					concernedAgent.getInfo().addPathStep(concernedAgent.getPosition());
+
+			//// TODO: double check
+			// setWasteCounterLoss(getWasteCounterLoss() - params.stepEnergy);
+			// info.useStepEnergy(params.stepEnergy);
+			// info.addStep();
+					return ret;
+				}
+			});
 
 		} else if ((adjAgent = getAdjacentAgent()) != null && adjAgent instanceof ComplexAgent
 				&& ((ComplexAgent) adjAgent).info != null) {
@@ -1152,24 +1145,24 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			final ComplexAgent adjacentAgent = (ComplexAgent) adjAgent;
 
-			// Apply contact mutators
-			queue(new DefiniteAction() {
+			queue(new Occurrence(this, 0, "contactMutate") {
 
 				@Override
-				public void desiredAction() {
+				public MemorableEvent effect(ComplexAgent concernedAgent) {
 					for (ContactMutator mut : contactMutators) {
-						mut.onContact(ComplexAgent.this, adjacentAgent);
+						mut.onContact(concernedAgent, adjacentAgent);
 					}
+					return null;
 				}
-
 			});
 
 			if (canEat(adjacentAgent)) {
-				queue(new SmartAction("agent-" + adjacentAgent.id) {
+				//An action to conditionally eat the agent
+				queue(new SmartAction(this, "agent-" + adjacentAgent.id) {
 
 					@Override
-					public void desiredAction() {
-						eat(adjacentAgent);
+					public void desiredAction(ComplexAgent agent) {
+						agent.eat(adjacentAgent);
 					}
 
 					@Override
@@ -1177,21 +1170,20 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 						// 0.3f means we have a positive attitude towards this
 						// agent. If an agent needs has an "appreciation value"
 						// of 0.3 or less it will be eaten
-						return totalMagnitude() < 0.3f;
+						return totalMagnitude() < lParams.eatAgentEmotionalThreshold;
 					}
 
 					@Override
 					public void actionIfUndesireable() {
 						// Agent in question needs to appreciate the fact that
 						// we didn't just EAT HIM ALIVE.
-						adjacentAgent.remember(new MemorableEvent(currTick, +0.75f, "agent-" + id));
+						adjacentAgent.remember(new MemorableEvent(currTick, lParams.sparedEmotion, "agent-" + id));
 					}
 				});
 			}
 
-			// TODO: the code for the whole want2meet and photo_memory deal
-			// could most likely be
-			// made shorter by using MemorableEvent and SmartAction
+			// TODO: the logical structure for want2meet and photo_memory and such
+			// can likely be replaced by using MemorableEvents
 			if (this.pdCheater != -1) {// $$$$$ if playing Prisoner's
 				// Dilemma. Please refer to ComplexEnvironment.load,
 				// "// spawn new random agents for each type"
@@ -1220,11 +1212,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 				if (sim >= params.commSimMin) {
 					// Communicate with the smiliar agent
-					queue(new SmartAction("communicate") {
+					queue(new SmartAction(this, "communicate") {
 
 						@Override
-						public void desiredAction() {
-							communicate(adjacentAgent);
+						public void desiredAction(ComplexAgent agent) {
+							agent.communicate(adjacentAgent);
 						}
 					});
 				}
@@ -1232,13 +1224,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				if (canBreed && sim >= params.breedSimMin
 						&& ((want2meet && adjacentAgent.want2meet) || (pdCheater == -1))) {
 					// Initiate pregnancy
-					queue(new SmartAction("breed") {
+					queue(new SmartAction(this, "breed") {
 
 						@Override
-						public void desiredAction() {
-							pregnant = true;
-							pregPeriod = params.sexualPregnancyPeriod;
-							breedPartner = adjacentAgent;
+						public void desiredAction(ComplexAgent agent) {
+							agent.pregnant = true;
+							agent.pregPeriod = agent.params.sexualPregnancyPeriod;
+							agent.breedPartner = adjacentAgent;
 						}
 					});
 
@@ -1248,13 +1240,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			// to meet
 			if (!pregnant && want2meet && adjacentAgent.want2meet) {
 
-				queue(new SmartAction() {
+				queue(new SmartAction(this) {
 
 					@Override
-					public void desiredAction() {
-						playPDonStep(adjacentAgent, othersID);
+					public void desiredAction(ComplexAgent agent) {
+						agent.playPDonStep(adjacentAgent, othersID);
 					}
-					// TODO: finish this up!
 				});
 
 			}
@@ -1265,69 +1256,68 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		} // end of two agents meet
 		else if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_WASTE)) {
-			// Bumps into waste
-			queue(new DefiniteAction() {
+
+			// Allow agents up to a distance of 5 to see this agent hit the
+			// waste
+			queue(new Occurrence(this, 5, "bumpWaste") {
 
 				@Override
-				public void desiredAction() {
-					energy -= params.wastePen;
+				MemorableEvent effect(ComplexAgent concernedAgent) {
+					concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, -params.wastePen, "bumpWaste"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.wastePen);
 					info.useRockBumpEnergy(params.wastePen);
 					info.addRockBump();
+					return null;
 				}
 			});
 
 		} else {
 			// Rock bump
-			queue(new DefiniteAction() {
+			queue(new Occurrence(this, 0, "bumpRock") {
 
 				@Override
-				public void desiredAction() {
-					energy -= params.stepRockEnergy;
+				MemorableEvent effect(ComplexAgent concernedAgent) {
+					concernedAgent
+					.queue(new EnergyChangeOccurrence(concernedAgent, -params.stepRockEnergy, "bumpRock"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.stepRockEnergy);
 					info.useRockBumpEnergy(params.stepRockEnergy);
 					info.addRockBump();
+					return null;
 				}
 			});
-
 		}
 
-		// Recieve energy penalty
-		queue(new DefiniteAction() {
-
-			@Override
-			public void desiredAction() {
-				energy -= energyPenalty(true);
-			}
-		});
+		// Energy penalty
+		queue(new EnergyChangeOccurrence(this, -(int) energyPenalty(true), "energyPenalty"));
 
 		if (energy <= 0)
-			queue(new SmartAction() {
+			queue(new SmartAction(this) {
 
 				@Override
-				public void desiredAction() {
-					die();
+				public void desiredAction(ComplexAgent agent) {
+					agent.die();
 				}
 			});
 
 		if (energy < params.breedEnergy) {
-			queue(new SmartAction() {
+			queue(new SmartAction(this) {
 
 				@Override
-				public void desiredAction() {
-					pregnant = false;
-					breedPartner = null;
+				public void desiredAction(ComplexAgent agent) {
+					agent.pregnant = false;
+					agent.breedPartner = null;
 				}
 			});
 		}
 
 		if (pregnant) {
 			// Reduce pregnancy period
-			queue(new DefiniteAction() {
+			queue(new Occurrence(this, 0, "preg") {
 
 				@Override
-				public void desiredAction() {
-					pregPeriod--;
+				MemorableEvent effect(ComplexAgent concernedAgent) {
+					concernedAgent.pregPeriod--;
+					return null;
 				}
 			});
 		}
@@ -1344,6 +1334,88 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		int o = (int) Math.round(closeness * (1 << this.params.communicationBits - 1));
 
 		setCommInbox(o);
+	}
+
+	/**
+	 * A call to this method will cause an agent to scan the area around it for occurences that have 
+	 * happened to other agents. This is heavily influenced by the agent's learning parameters. The 
+	 * method will immediatly return if the agent is not set to learn from other agents. An agent will
+	 * disregard occurrences that have happened to agents of a different type if it is not set to 
+	 * learn from dissimilar agents. The agent must be within an Occurrences's observeableDistance in 
+	 * order to process it.
+	 */
+	private void observeOccurrences() {
+		if (!lParams.learnFromOthers) {
+			return;
+		}
+
+		ComplexEnvironment.Location loc = this.getPosition();
+
+		ArrayList<Occurrence> rem = new ArrayList<Occurrence>();
+
+		for (Occurrence oc : allOccurrences) {
+			if (oc.time - currTick >= 0) {
+				ComplexAgent occTarget = oc.target;
+				ComplexEnvironment.Location loc2 = occTarget.getPosition();
+				if (loc.distance(loc2) <= oc.detectableDistance
+						&& (lParams.learnFromDifferentOthers || occTarget.type() == type())) {
+					String desc = null;
+
+					if (facing.equals(cobweb.Environment.DIRECTION_EAST)) {
+						if (loc2.v[1] > loc.v[1]) {
+							desc = "turnRight";
+						} else if (loc2.v[1] != loc.v[1]) {
+							desc = "turnLeft";
+						}
+					} else if (facing.equals(cobweb.Environment.DIRECTION_WEST)) {
+						if (loc2.v[1] > loc.v[1]) {
+							desc = "turnLeft";
+						} else if (loc2.v[1] != loc.v[1]) {
+							desc = "turnRight";
+						}
+					} else if (facing.equals(cobweb.Environment.DIRECTION_NORTH)) {
+						if (loc2.v[0] > loc.v[0]) {
+							desc = "turnRight";
+						} else if (loc2.v[0] != loc.v[0]) {
+							desc = "turnLeft";
+						}
+					} else if (facing.equals(cobweb.Environment.DIRECTION_SOUTH)) {
+						if (loc2.v[0] > loc.v[0]) {
+							desc = "turnLeft";
+						} else if (loc2.v[0] != loc.v[0]) {
+							desc = "turnRight";
+						}
+					}
+
+					if (desc != null) {
+						remember(new MemorableEvent(currTick, oc.event.magnitude, desc){
+							//This information applies to only the present step the agent is about to take;
+							//it will be irrelevant in the future (because new occurrences will be present)
+							@Override
+							public boolean forgetAfterStep() {
+								return true;
+							}
+						});
+					}
+				}
+			} else {
+				rem.add(oc);
+			}
+		}
+
+		allOccurrences.removeAll(rem);		
+	}
+
+	private void purgeMemory() {
+		if (memEvents != null) {
+			ArrayList<MemorableEvent> rem2 = new ArrayList<MemorableEvent>();
+			for (MemorableEvent me : memEvents) {
+				if (me.forgetAfterStep()) {
+					rem2.add(me);
+				}
+			}
+			memEvents.removeAll(rem2);
+		}
 	}
 
 	public void tickNotification(long tick) {
@@ -1366,6 +1438,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				return;
 			}
 		}
+
+		observeOccurrences();
 
 		/* Move/eat/reproduce/etc */
 		controller.controlAgent(this);
@@ -1393,8 +1467,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				}
 			}
 			// Actions are essentially "queued" so once they are irrelevant they
-			// are forgotten
+			// are "forgotten"
 		}
+
+		purgeMemory();
 
 		/* track me */
 		if (tracked)
@@ -1483,7 +1559,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-
 	public void turnLeft() {
 		cobweb.Direction newFacing = new cobweb.Direction(2);
 		newFacing.v[0] = facing.v[1];
@@ -1515,28 +1590,39 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return agentType;
 	}
 
+
 	public void setBreedPos(cobweb.Environment.Location breedPos) {
 		this.breedPos = breedPos;
 	}
+
 
 	public cobweb.Environment.Location getBreedPos() {
 		return breedPos;
 	}
 
+
 	public void setWasteCounterLoss(int wasteCounterLoss) {
 		this.wasteCounterLoss = wasteCounterLoss;
 	}
+
 
 	public int getWasteCounterLoss() {
 		return wasteCounterLoss;
 	}
 
 	// ============QUEUEABLE============
-	public static interface Queueable {
+
+	public static interface Queueable extends Describeable {
 
 		public void happen();
 
 		public boolean isComplete();
+	}
+
+
+	public static interface Describeable {
+
+		public String getDescription();
 	}
 
 	// ============OCCURRENCE============
@@ -1547,11 +1633,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		long time;
 		MemorableEvent event;
 		private boolean hasOccurred = false;
+		String desc;
 
-		public Occurrence(ComplexAgent target, float detectableDistance) {
+		public Occurrence(ComplexAgent target, float detectableDistance, String desc) {
 			this.target = target;
 			time = target.getCurrTick();
 			this.detectableDistance = detectableDistance;
+			this.desc = desc;
+			allOccurrences.add(this);
 		}
 
 		// Effects the agent in whatever way necessary returning a memory of the
@@ -1581,19 +1670,24 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		public boolean isComplete() {
 			return true;
 		}
+
+		public final String getDescription() {
+			return desc;
+		}
 	}
+
 	// ============OCCURRENCE SUBCLASSES============
 
 	public static class EnergyChangeOccurrence extends Occurrence {
 
 		private int amountChanged;
 
-		public EnergyChangeOccurrence(ComplexAgent target, int amountChanged) {
-			this(target, amountChanged, 0);
+		public EnergyChangeOccurrence(ComplexAgent target, int amountChanged, String desc) {
+			this(target, amountChanged, desc, 0);
 		}
 
-		public EnergyChangeOccurrence(ComplexAgent target, float detectableDistance, int amountChanged) {
-			super(target, detectableDistance);
+		public EnergyChangeOccurrence(ComplexAgent target, float detectableDistance, String desc, int amountChanged) {
+			super(target, detectableDistance, desc);
 			this.amountChanged = amountChanged;
 		}
 
@@ -1601,8 +1695,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		public MemorableEvent effect(ComplexAgent concernedAgent) {
 			int originalEnergy = concernedAgent.getEnergy();
 			concernedAgent.changeEnergy(amountChanged);
-			float magnitude = (float) originalEnergy / (float) concernedAgent.getEnergy();
-			return new EnergyMemEvent(time, magnitude, this);
+			float magnitude = (float) amountChanged / (float) originalEnergy;
+			return new EnergyMemEvent(time, magnitude, "energyChange");
 		}
 
 		public int getAmountChanged() {
@@ -1614,8 +1708,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		private long partnerID;
 
-		public BreedInitiationOccurrence(ComplexAgent target, float detectableDistance, long partnerID) {
-			super(target, detectableDistance);
+		public BreedInitiationOccurrence(ComplexAgent target, float detectableDistance, String desc, long partnerID) {
+			super(target, detectableDistance, desc);
 			this.partnerID = partnerID;
 		}
 
@@ -1625,8 +1719,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		@Override
 		public MemorableEvent effect(ComplexAgent concernedAgent) {
-			System.out.println("BREEDING!");
-
 			// Setting breedPos to non-null will cause the agent
 			// to breed later
 			concernedAgent.setBreedPos(concernedAgent.getPosition());
@@ -1635,47 +1727,58 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			// energy
 			int energyLost = (int) (concernedAgent.params.initEnergy + concernedAgent.energyPenalty(true));
 
-			EnergyChangeOccurrence energyChange = new EnergyChangeOccurrence(concernedAgent, 5f, -energyLost);
+			EnergyChangeOccurrence energyChange = new EnergyChangeOccurrence(concernedAgent, 5f, "breed", -energyLost);
 			energyChange.happen();
 
 			concernedAgent.setWasteCounterLoss(concernedAgent.getWasteCounterLoss() - concernedAgent.params.initEnergy);
 
 			concernedAgent.getInfo().useOthers(concernedAgent.params.initEnergy);
 
-			return new BreedMemEvent(time, +0.5f, this);
+			return new BreedInitiationMemEvent(time, +0.5f, "breedInit");
 		}
 
 	}
 
-	// ============SMART_ACTION============
-	public abstract class SmartAction implements Queueable {
+	public static class BreedOccurrence extends Occurrence {
+
+		public BreedOccurrence(ComplexAgent target, float detectableDistance, String desc) {
+			super(target, detectableDistance, desc);
+		}
+
+		@Override
+		public MemorableEvent effect(ComplexAgent concernedAgent) {
+
+			return null;
+		}
+	}
+
+	// ============SMART ACTION============
+
+	public static abstract class SmartAction implements Queueable {
 
 		String desc;
 		boolean isIrrelevant = false;
+		ComplexAgent agent;
 
-		public SmartAction() {
-			this("default");
+		public SmartAction(ComplexAgent agent) {
+			this(agent, "default");
+		}
+
+		public SmartAction(ComplexAgent agent, Object obj) {
+			this(agent, obj.getClass().getName());
 		}
 
 		/**
-		 * Create a SmartAction with no type. Keep in mind that if an action
-		 * ought to be performed regardless of MemorableEvents, there may be no
-		 * point wrapping it in the SmartAction class.
-		 */
-		public SmartAction(Object obj) {
-			this(obj.getClass().getName());
-		}
-
-		/**
-		 * Create a new action with no information other than a type
+		 * Create a new action with no information other than a description
 		 * 
-		 * @param desc A String to describe the action
+		 * @param desc a String to describe the action
 		 */
-		public SmartAction(String desc) {
+		public SmartAction(ComplexAgent agent, String desc) {
 			this.desc = desc;
+			this.agent = agent;
 		}
 
-		String getDescriptor() {
+		public String getDescription() {
 			return desc;
 		}
 
@@ -1695,7 +1798,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 * @param event an event that may or may not be relevant
 		 * @return true if the parameter event is relevant to this action
 		 */
-		boolean eventIsRelated(MemorableEvent event) {
+		public boolean eventIsRelated(MemorableEvent event) {
 			return desc.equals(event.desc);
 		}
 
@@ -1704,8 +1807,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 */
 		final ArrayList<MemorableEvent> getRelatedEvents() {
 			ArrayList<MemorableEvent> ret = new ArrayList<MemorableEvent>();
-			if (memEvents != null) {
-				for (MemorableEvent me : memEvents) {
+			if (getAgent().memEvents != null) {
+				for (MemorableEvent me : getAgent().memEvents) {
 					if (eventIsRelated(me)) {
 						ret.add(me);
 					}
@@ -1729,16 +1832,20 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			float ret = 0;
 
 			for (MemorableEvent me : getRelatedEvents()) {
-				ret += me.getMagnitude();
+				ret += getMagnitudeFromEvent(me);
 			}
 
 			return ret;
 		}
 
+		public float getMagnitudeFromEvent(MemorableEvent event) {
+			return event.getMagnitude();
+		}
+
 		/**
 		 * The action that the agent is questioning whether or not to perform
 		 */
-		abstract void desiredAction();
+		abstract void desiredAction(ComplexAgent agent);
 
 		/**
 		 * What to do if the wantedAction() is undesireable. By default, cancels
@@ -1748,6 +1855,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		void actionIfUndesireable() {
 		}
 
+		ComplexAgent getAgent() {
+			return agent;
+		}
+
 		/**
 		 * Performs desiredAction if it is a desireable thing to do. This is the
 		 * method called by the agent.
@@ -1755,9 +1866,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 * desiredAction() will always be called if ignoreLearning = true.
 		 */
 		public final void happen() {
-			if (ignoreLearning || actionIsDesireable()) {
-				desiredAction();
-				if (ignoreLearning || irrelevantIfActionPerformed()) {
+
+			if (!agent.lParams.shouldLearn || actionIsDesireable()) {
+				desiredAction(getAgent());
+				if (!agent.lParams.shouldLearn || irrelevantIfActionPerformed()) {
 					isIrrelevant = true;
 				}
 			} else {
@@ -1771,19 +1883,35 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		public boolean isComplete() {
 			return isIrrelevant;
 		}
-
 	}
 
-	public abstract class DefiniteAction extends SmartAction {
+	public static class TurnAction extends SmartAction {
+
+		boolean isRightTurn;
+		ComplexAgent agent;
+
+		public TurnAction(ComplexAgent agent, boolean isRightTurn) {
+			super(agent, (isRightTurn ? "Right" : "Left"));
+			this.isRightTurn = isRightTurn;
+			this.agent = agent;
+		}
 
 		@Override
-		final boolean actionIsDesireable() {
-			return true;
+		ComplexAgent getAgent() {
+			return agent;
 		}
-	}
 
-	// ============MEMORABLE_EVENT============
-	public static class MemorableEvent {
+		@Override
+		void desiredAction(ComplexAgent agent) {
+			if (isRightTurn) {
+				agent.turnRight();
+			} else {
+				agent.turnLeft();
+			}
+		}
+	}	// ============MEMORABLE_EVENT============
+
+	public static class MemorableEvent implements Describeable {
 
 		private final long time;
 		private final float magnitude;
@@ -1810,7 +1938,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			return magnitude;
 		}
 
-		public String getDescriptor() {
+		public String getDescription() {
 			return desc;
 		}
 
@@ -1821,33 +1949,32 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		public boolean isDespicable() {
 			return magnitude < 0;
 		}
+
+		public boolean forgetAfterStep() {
+			return false;
+		}
 	}
 
 	// ============MEMORABLE_EVENT SUBCLASSES============
 	public static class EnergyMemEvent extends MemorableEvent {
 
-		EnergyChangeOccurrence occurrence;
-
-		public EnergyMemEvent(long time, float magnitude, EnergyChangeOccurrence occurrence) {
-			super(time, magnitude);
-			this.occurrence = occurrence;
+		public EnergyMemEvent(long time, float magnitude, String desc) {
+			super(time, magnitude, desc);
 		}
+	}
 
-		public int getEnergyChange() {
-			return occurrence.getAmountChanged();
+	public static class BreedInitiationMemEvent extends MemorableEvent {
+
+		public BreedInitiationMemEvent(long time, float magnitude, String desc) {
+			super(time, magnitude, desc);
 		}
-
 	}
 
 	public static class BreedMemEvent extends MemorableEvent {
 
-		BreedInitiationOccurrence occurrence;
-
-		public BreedMemEvent(long time, float magnitude, BreedInitiationOccurrence occurrence) {
-			super(time, magnitude);
-			this.occurrence = occurrence;
+		public BreedMemEvent(long time, float magnitude, String desc) {
+			super(time, magnitude, desc);
 		}
-
 	}
 
 }

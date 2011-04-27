@@ -184,6 +184,8 @@ public class GUI extends JFrame {
 
 	private PDConfigPage pdPage;
 
+	private LearningConfigPage learnPage;
+
 	public GUI() {
 		super();
 		CA = null;
@@ -331,9 +333,6 @@ public class GUI extends JFrame {
 	}
 
 	private void setupConfigPages() {
-
-
-
 		/* Resources panel */
 		removeOldPage(resourcePage);
 		resourcePage = new ResourceConfigPage(p.getFoodParams());
@@ -372,7 +371,9 @@ public class GUI extends JFrame {
 		tempPage = new TemperatureConfigPage(p.getTempParams());
 		tabbedPane.addTab("Temperature", tempPage.getPanel());
 
-		//TODO: stuff here
+		removeOldPage(learnPage);
+		learnPage = new LearningConfigPage(p.getLearningParams().getLearningAgentParams());
+		tabbedPane.addTab("Learning", learnPage.getPanel());
 	}
 
 	private void removeOldPage(ConfigPage r) {

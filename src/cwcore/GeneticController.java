@@ -73,10 +73,56 @@ public class GeneticController implements cobweb.Controller, Serializable{
 
 		switch (actionCode) {
 			case 0:
-				theAgent.turnLeft();
+				//Impulse to turn left; may or may not do so based on its memories
+				theAgent.queue(new ComplexAgent.SmartAction(theAgent, "turnLeft") {
+					@Override
+					void desiredAction(ComplexAgent agent) {
+						agent.turnLeft();
+					}
+
+					@Override
+					public boolean eventIsRelated(ComplexAgent.MemorableEvent event) {
+						return event.getDescription().substring(0, 4).equalsIgnoreCase("turn");
+					}
+
+					@Override
+					public float getMagnitudeFromEvent(ComplexAgent.MemorableEvent event) {
+						//If memory has to do with turning right, the opposite sign of the magnitude of that
+						//event applies (if it is good to turn LEFT, it is bad to turn RIGHT sorta logic)
+						if (event.getDescription().equals("turnRight")) {
+							return event.getMagnitude() * -0.5f;
+						}
+						return super.getMagnitudeFromEvent(event);
+					}					
+
+				});
+				//theAgent.turnLeft();
 				break;
 			case 1:
-				theAgent.turnRight();
+				//Impulse to turn right; may or may not do so based on its memories
+				theAgent.queue(new ComplexAgent.SmartAction(theAgent, "turnRight") {
+					@Override
+					void desiredAction(ComplexAgent agent) {
+						agent.turnRight();
+
+					}
+
+					@Override
+					public boolean eventIsRelated(ComplexAgent.MemorableEvent event) {
+						return event.getDescription().substring(0, 4).equalsIgnoreCase("turn");
+					}
+
+					@Override
+					public float getMagnitudeFromEvent(ComplexAgent.MemorableEvent event) {
+						//If memory has to do with turning left, the opposite sign of the magnitude of that
+						//event applies (if it is good to turn RIGHT, it is bad to turn LEFT.)						
+						if (event.getDescription().equals("turnLeft")) {
+							return event.getMagnitude() * -0.5f;
+						}
+						return super.getMagnitudeFromEvent(event);
+					}
+				});
+				//theAgent.turnRight();
 				break;
 			case 2:
 			case 3:
