@@ -40,6 +40,12 @@ import cwcore.complexParams.ContactMutator;
 import cwcore.complexParams.SpawnMutator;
 import cwcore.complexParams.StepMutator;
 import driver.ControllerFactory;
+import eventlearning.BreedInitiationOccurrence;
+import eventlearning.EnergyChangeOccurrence;
+import eventlearning.MemorableEvent;
+import eventlearning.Occurrence;
+import eventlearning.Queueable;
+import eventlearning.SmartAction;
 
 public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client, Serializable {
 
@@ -75,9 +81,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	private static AgentSimilarityCalculator simCalc;
 
-	private static ArrayList<Occurrence> allOccurrences = new ArrayList<Occurrence>();
+	public static List<Occurrence> allOccurrences = new ArrayList<Occurrence>();
 
-	private Collection<MemorableEvent> memEvents;
+	public Collection<MemorableEvent> memEvents;
 
 	private Collection<Queueable> queueables;
 
@@ -583,7 +589,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		remember(new MemorableEvent(currTick, lParams.ateAgentPleasure, "ateAgent"));
 	}
 
-	double energyPenalty(boolean log) {
+	public double energyPenalty(boolean log) {
 		if (!params.agingMode)
 			return 0.0;
 		double tempAge = currTick - birthTick;
@@ -1047,7 +1053,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			queue(new Occurrence(this, 0, "stepMutate") {
 				@Override
-				MemorableEvent effect(ComplexAgent concernedAgent) {
+				public MemorableEvent effect(ComplexAgent concernedAgent) {
 					for (StepMutator m : stepMutators)
 						m.onStep(ComplexAgent.this, getPosition(), destPos);
 					return null;
@@ -1067,7 +1073,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			queue(new Occurrence(this, 0, "breed") {
 
 				@Override
-				MemorableEvent effect(ComplexAgent concernedAgent) {
+				public MemorableEvent effect(ComplexAgent concernedAgent) {
 					if (concernedAgent.getBreedPos() != null) {
 
 						if (concernedAgent.breedPartner == null) {
@@ -1258,7 +1264,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			queue(new Occurrence(this, 5, "bumpWaste") {
 
 				@Override
-				MemorableEvent effect(ComplexAgent concernedAgent) {
+				public MemorableEvent effect(ComplexAgent concernedAgent) {
 					concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, -params.wastePen, "bumpWaste"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.wastePen);
 					info.useRockBumpEnergy(params.wastePen);
@@ -1272,7 +1278,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			queue(new Occurrence(this, 0, "bumpRock") {
 
 				@Override
-				MemorableEvent effect(ComplexAgent concernedAgent) {
+				public MemorableEvent effect(ComplexAgent concernedAgent) {
 					concernedAgent
 					.queue(new EnergyChangeOccurrence(concernedAgent, -params.stepRockEnergy, "bumpRock"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.stepRockEnergy);
@@ -1311,7 +1317,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			queue(new Occurrence(this, 0, "preg") {
 
 				@Override
-				MemorableEvent effect(ComplexAgent concernedAgent) {
+				public MemorableEvent effect(ComplexAgent concernedAgent) {
 					concernedAgent.pregPeriod--;
 					return null;
 				}
@@ -1384,7 +1390,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 					}
 
 					if (desc != null) {
-						remember(new MemorableEvent(currTick, oc.event.magnitude, desc){
+						remember(new MemorableEvent(currTick, oc.event.getMagnitude(), desc){
 							//This information applies to only the present step the agent is about to take;
 							//it will be irrelevant in the future (because new occurrences will be present)
 							@Override
@@ -1604,347 +1610,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public int getWasteCounterLoss() {
 		return wasteCounterLoss;
-	}
-
-	// ============QUEUEABLE============
-
-	public static interface Queueable extends Describeable {
-
-		public void happen();
-
-		public boolean isComplete();
-	}
-
-
-	public static interface Describeable {
-
-		public String getDescription();
-	}
-
-	// ============OCCURRENCE============
-	public static abstract class Occurrence implements Queueable {
-
-		float detectableDistance;
-		ComplexAgent target;
-		long time;
-		MemorableEvent event;
-		private boolean hasOccurred = false;
-		String desc;
-
-		public Occurrence(ComplexAgent target, float detectableDistance, String desc) {
-			this.target = target;
-			time = target.getCurrTick();
-			this.detectableDistance = detectableDistance;
-			this.desc = desc;
-			allOccurrences.add(this);
-		}
-
-		// Effects the agent in whatever way necessary returning a memory of the
-		// effect
-		abstract MemorableEvent effect(ComplexAgent concernedAgent);
-
-		// Causes the effect to occur, initializes the event, places the memory
-		// in the agent's memory,
-		// returns the event
-		public final void happen() {
-			event = effect(target);
-			target.remember(event);
-			hasOccurred = true;
-		}
-
-		public MemorableEvent getEvent() {
-			if (event == null) {
-				throw new NullPointerException("Must call occur() before calling getEvent()!");
-			}
-			return event;
-		}
-
-		public boolean hasOccurred() {
-			return hasOccurred;
-		}
-
-		public boolean isComplete() {
-			return true;
-		}
-
-		public final String getDescription() {
-			return desc;
-		}
-	}
-
-	// ============OCCURRENCE SUBCLASSES============
-
-	public static class EnergyChangeOccurrence extends Occurrence {
-
-		private int amountChanged;
-
-		public EnergyChangeOccurrence(ComplexAgent target, int amountChanged, String desc) {
-			this(target, amountChanged, desc, 0);
-		}
-
-		public EnergyChangeOccurrence(ComplexAgent target, float detectableDistance, String desc, int amountChanged) {
-			super(target, detectableDistance, desc);
-			this.amountChanged = amountChanged;
-		}
-
-		@Override
-		public MemorableEvent effect(ComplexAgent concernedAgent) {
-			int originalEnergy = concernedAgent.getEnergy();
-			concernedAgent.changeEnergy(amountChanged);
-			float magnitude = (float) amountChanged / (float) originalEnergy;
-			return new EnergyMemEvent(time, magnitude, "energyChange");
-		}
-
-		public int getAmountChanged() {
-			return amountChanged;
-		}
-	}
-
-	public static class BreedInitiationOccurrence extends Occurrence {
-
-		private long partnerID;
-
-		public BreedInitiationOccurrence(ComplexAgent target, float detectableDistance, String desc, long partnerID) {
-			super(target, detectableDistance, desc);
-			this.partnerID = partnerID;
-		}
-
-		public long getPartnerID() {
-			return partnerID;
-		}
-
-		@Override
-		public MemorableEvent effect(ComplexAgent concernedAgent) {
-			// Setting breedPos to non-null will cause the agent
-			// to breed later
-			concernedAgent.setBreedPos(concernedAgent.getPosition());
-
-			// Subtract starting energy and energy penalty from
-			// energy
-			int energyLost = (int) (concernedAgent.params.initEnergy + concernedAgent.energyPenalty(true));
-
-			EnergyChangeOccurrence energyChange = new EnergyChangeOccurrence(concernedAgent, 5f, "breed", -energyLost);
-			energyChange.happen();
-
-			concernedAgent.setWasteCounterLoss(concernedAgent.getWasteCounterLoss() - concernedAgent.params.initEnergy);
-
-			concernedAgent.getInfo().useOthers(concernedAgent.params.initEnergy);
-
-			return new BreedInitiationMemEvent(time, +0.5f, "breedInit");
-		}
-
-	}
-
-	public static class BreedOccurrence extends Occurrence {
-
-		public BreedOccurrence(ComplexAgent target, float detectableDistance, String desc) {
-			super(target, detectableDistance, desc);
-		}
-
-		@Override
-		public MemorableEvent effect(ComplexAgent concernedAgent) {
-
-			return null;
-		}
-	}
-
-	// ============SMART ACTION============
-
-	public static abstract class SmartAction implements Queueable {
-
-		String desc;
-		boolean isIrrelevant = false;
-		ComplexAgent agent;
-
-		public SmartAction(ComplexAgent agent) {
-			this(agent, "default");
-		}
-
-		public SmartAction(ComplexAgent agent, Object obj) {
-			this(agent, obj.getClass().getName());
-		}
-
-		/**
-		 * Create a new action with no information other than a description
-		 * 
-		 * @param desc a String to describe the action
-		 */
-		public SmartAction(ComplexAgent agent, String desc) {
-			this.desc = desc;
-			this.agent = agent;
-		}
-
-		public String getDescription() {
-			return desc;
-		}
-
-		/**
-		 * @return true if the action is no longer relevant (if it has already
-		 *         been performed.)
-		 */
-		boolean irrelevantIfActionPerformed() {
-			return true;
-		}
-
-		boolean irrelevantIfActionFailed() {
-			return true;
-		}
-
-		/**
-		 * @param event an event that may or may not be relevant
-		 * @return true if the parameter event is relevant to this action
-		 */
-		public boolean eventIsRelated(MemorableEvent event) {
-			return desc.equals(event.desc);
-		}
-
-		/*
-		 * @return a list of all events related to this action
-		 */
-		final ArrayList<MemorableEvent> getRelatedEvents() {
-			ArrayList<MemorableEvent> ret = new ArrayList<MemorableEvent>();
-			if (getAgent().memEvents != null) {
-				for (MemorableEvent me : getAgent().memEvents) {
-					if (eventIsRelated(me)) {
-						ret.add(me);
-					}
-				}
-			}
-			return ret;
-		}
-
-		/**
-		 * @return whether or not this action ought to be performed By default
-		 *         returns true if totalMagnitude >= 0
-		 */
-		boolean actionIsDesireable() {
-			return totalMagnitude() >= 0;
-		}
-
-		/**
-		 * @return the sum of the magnitudes of all related events
-		 */
-		final float totalMagnitude() {
-			float ret = 0;
-
-			for (MemorableEvent me : getRelatedEvents()) {
-				ret += getMagnitudeFromEvent(me);
-			}
-
-			return ret;
-		}
-
-		public float getMagnitudeFromEvent(MemorableEvent event) {
-			return event.getMagnitude();
-		}
-
-		/**
-		 * The action that the agent is questioning whether or not to perform
-		 */
-		abstract void desiredAction(ComplexAgent agent);
-
-		/**
-		 * What to do if the wantedAction() is undesireable. By default, cancels
-		 * the action from ever being performed (by stating isIrrelevant =
-		 * false)
-		 */
-		void actionIfUndesireable() {
-		}
-
-		ComplexAgent getAgent() {
-			return agent;
-		}
-
-		/**
-		 * Performs desiredAction if it is a desireable thing to do. This is the
-		 * method called by the agent.
-		 * 
-		 * desiredAction() will always be called if ignoreLearning = true.
-		 */
-		public final void happen() {
-
-			if (!agent.lParams.shouldLearn || actionIsDesireable()) {
-				desiredAction(getAgent());
-				if (!agent.lParams.shouldLearn || irrelevantIfActionPerformed()) {
-					isIrrelevant = true;
-				}
-			} else {
-				actionIfUndesireable();
-				if (irrelevantIfActionFailed()) {
-					isIrrelevant = true;
-				}
-			}
-		}
-
-		public boolean isComplete() {
-			return isIrrelevant;
-		}
-	}
-
-	public static class MemorableEvent implements Describeable {
-
-		private final long time;
-		private final float magnitude;
-		String desc;
-
-		public MemorableEvent(long time, float magnitude) {
-			this(time, magnitude, null);
-		}
-
-		public MemorableEvent(long time, float magnitude, String desc) {
-			if (desc == null) {
-				desc = getClass().getName();
-			}
-			this.time = time;
-			this.magnitude = magnitude;
-			this.desc = desc;
-		}
-
-		public long getTime() {
-			return time;
-		}
-
-		public float getMagnitude() {
-			return magnitude;
-		}
-
-		public String getDescription() {
-			return desc;
-		}
-
-		public boolean isDesireable() {
-			return magnitude > 0;
-		}
-
-		public boolean isDespicable() {
-			return magnitude < 0;
-		}
-
-		public boolean forgetAfterStep() {
-			return false;
-		}
-	}
-
-	// ============MEMORABLE_EVENT SUBCLASSES============
-	public static class EnergyMemEvent extends MemorableEvent {
-
-		public EnergyMemEvent(long time, float magnitude, String desc) {
-			super(time, magnitude, desc);
-		}
-	}
-
-	public static class BreedInitiationMemEvent extends MemorableEvent {
-
-		public BreedInitiationMemEvent(long time, float magnitude, String desc) {
-			super(time, magnitude, desc);
-		}
-	}
-
-	public static class BreedMemEvent extends MemorableEvent {
-
-		public BreedMemEvent(long time, float magnitude, String desc) {
-			super(time, magnitude, desc);
-		}
 	}
 
 }
