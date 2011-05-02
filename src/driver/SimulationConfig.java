@@ -22,7 +22,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import learning.LearningAgentParams;
 import learning.LearningParams;
 
 import org.w3c.dom.Document;
@@ -211,14 +210,12 @@ public class SimulationConfig {
 
 			} else if (nodeName.equals("agent")) {
 				ComplexAgentParams p = new ComplexAgentParams(envParams);
-				LearningAgentParams lp = new LearningAgentParams();
 				p.loadConfig(node);
 				if (p.type < 0)
 					p.type = agent++;
 				if (p.type >= envParams.getAgentTypes())
 					continue;
 				agentParams[p.type] = p;
-				//xxxlearningAgentParams[p.type] = lp;
 
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
@@ -250,13 +247,6 @@ public class SimulationConfig {
 				foodParams[i].type = i;
 			}
 		}
-		/*xxx
-		for (int i = 0; i < learningAgentParams.length; i++) {
-			if (learningAgentParams[i] == null) {
-				learningAgentParams[i] = new LearningAgentParams();
-				learningAgentParams[i].type = i;
-			}
-		}*/
 
 	}
 

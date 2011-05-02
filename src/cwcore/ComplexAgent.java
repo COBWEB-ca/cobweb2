@@ -1881,32 +1881,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	public static class TurnAction extends SmartAction {
-
-		boolean isRightTurn;
-		ComplexAgent agent;
-
-		public TurnAction(ComplexAgent agent, boolean isRightTurn) {
-			super(agent, (isRightTurn ? "Right" : "Left"));
-			this.isRightTurn = isRightTurn;
-			this.agent = agent;
-		}
-
-		@Override
-		ComplexAgent getAgent() {
-			return agent;
-		}
-
-		@Override
-		void desiredAction(ComplexAgent agent) {
-			if (isRightTurn) {
-				agent.turnRight();
-			} else {
-				agent.turnLeft();
-			}
-		}
-	}	// ============MEMORABLE_EVENT============
-
 	public static class MemorableEvent implements Describeable {
 
 		private final long time;
