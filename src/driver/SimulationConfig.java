@@ -319,7 +319,7 @@ public class SimulationConfig {
 		tempParams.saveConfig(temp, d);
 		root.appendChild(temp);
 
-		Node learn = d.createElement("agentLearning");
+		Node learn = d.createElement("Learning");
 		learningParams.saveConfig(learn, d);
 		root.appendChild(learn);
 
