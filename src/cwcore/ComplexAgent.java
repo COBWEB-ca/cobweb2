@@ -47,10 +47,9 @@ import eventlearning.Occurrence;
 import eventlearning.Queueable;
 import eventlearning.SmartAction;
 
-public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client, Serializable {
+public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client, Serializable{
 
 	static class SeeInfo {
-
 		private int dist;
 
 		private int type;
@@ -293,7 +292,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	/**
 	 * Constructor with two parents
-	 * 
+	 *
 	 * @param pos spawn position
 	 * @param parent1 first parent
 	 * @param parent2 second parent
@@ -325,7 +324,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	/**
 	 * Constructor with a parent; standard asexual copy
-	 * 
+	 *
 	 * @param pos spawn position
 	 * @param parent parent
 	 * @param strat PD strategy
@@ -365,9 +364,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**
-	 * Constructor with no parent agent; creates an agent using
-	 * "immaculate conception" technique
-	 * 
+	 * Constructor with no parent agent; creates an agent using "immaculate conception" technique
+	 *
 	 * @param agentType agent type
 	 * @param pos spawn position
 	 * @param doCheat start PD off cheating?
@@ -414,13 +412,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	void broadcastCheating(cobweb.Environment.Location loc) { // []SK
-		// String message = "Cheater encountered (" + loc.v[0] + " , " +
-		// loc.v[1] + ")";
+		// String message = "Cheater encountered (" + loc.v[0] + " , " + loc.v[1] + ")";
 		String message = Long.toString(((ComplexAgent) loc.getAgent()).id);
 		new CommPacket(CommPacket.CHEATER, id, message, energy, params.broadcastEnergyBased, params.broadcastFixedRange);
 		// new CommPacket sent
-		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from
-		// energy
+		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
 	}
 
 	void broadcastFood(cobweb.Environment.Location loc) { // []SK
@@ -494,13 +490,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return -1;
 	}
 
-	// @Override
-	// public Object clone() {
-	// ComplexAgent cp = new ComplexAgent(getAgentType(), pdCheater, params,
-	// facing);
-	// //cp.hibernate();
-	// return cp;
-	// }
+	//@Override
+	//	public Object clone() {
+	//		ComplexAgent cp = new ComplexAgent(getAgentType(), pdCheater, params, facing);
+	//		//cp.hibernate();
+	//		return cp;
+	//	}
 
 	void communicate(ComplexAgent target) {
 		target.setCommInbox(commOutbox);
@@ -594,8 +589,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			return 0.0;
 		double tempAge = currTick - birthTick;
 		assert (tempAge == age);
-		int penaltyValue = Math.min(Math.max(0, energy),
-				(int) (params.agingRate * (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
+		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
+				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
 		if (tracked && log) {
 			info.useExtraEnergy(penaltyValue);
 		}
@@ -745,11 +740,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		Node agent = doc.createElement("Agent");
 
 		Element agentTypeElement = doc.createElement("agentType");
-		agentTypeElement.appendChild(doc.createTextNode(agentType + ""));
+		agentTypeElement.appendChild(doc.createTextNode(agentType +""));
 		agent.appendChild(agentTypeElement);
 
 		Element doCheatElement = doc.createElement("doCheat");
-		doCheatElement.appendChild(doc.createTextNode(pdCheater + ""));
+		doCheatElement.appendChild(doc.createTextNode(pdCheater +""));
 		agent.appendChild(doCheatElement);
 
 		Element paramsElement = doc.createElement("params");
@@ -816,14 +811,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		playPD();
 		adjacentAgent.playPD();
 
-		lastPDMove = adjacentAgent.pdCheater; // Adjacent Agent's action is
-		// assigned to the last move
-		// memory of the
-		// agent
-		adjacentAgent.lastPDMove = pdCheater; // Agent's action is assigned to
-		// the last move memory of the
-		// adjacent
-		// agent
+		lastPDMove = adjacentAgent.pdCheater; // Adjacent Agent's action is assigned to the last move memory of the agent
+		adjacentAgent.lastPDMove = pdCheater; // Agent's action is assigned to the last move memory of the adjacent agent
 
 		/*
 		 * TODO LOW: The ability for the PD game to contend for the Get the food tiles immediately around each agents
@@ -866,9 +855,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/*
-	 * Record the state here for logging. Can also be treated as a "setup"
-	 * function before doing any activities. Might be useful in the future. This
-	 * is only run when tracking is enabled.
+	 * Record the state here for logging. Can also be treated as a "setup" function before doing any activities. Might
+	 * be useful in the future. This is only run when tracking is enabled.
 	 */
 	private void poll() {
 		info.addEnergy(energy);
@@ -976,8 +964,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/*
-	 * return the measure of similiarity between this agent and the 'other'
-	 * ranging from 0.0 to 1.0 (identical)
+	 * return the measure of similiarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
 	 */
 	@Override
 	public double similarity(cobweb.Agent other) {
@@ -1333,7 +1320,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!target.equals(getPosition()))
 			closeness = 1 / target.distance(this.getPosition());
 
-		int o = (int) Math.round(closeness * (1 << this.params.communicationBits - 1));
+		int o =(int)Math.round(closeness * (1 << this.params.communicationBits - 1));
 
 		setCommInbox(o);
 	}
@@ -1535,11 +1522,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 		}
 		/*
-		 * Crowded! IF there is no empty tile in which to drop the waste, we can
-		 * replace a food tile with a waste tile... / This function is assumed
-		 * to add a waste tile! That is, this function assumes an existence of
-		 * at least one food tile that it will be able to replace with a waste
-		 * tile. Nothing happens otherwise.
+		 * Crowded! IF there is no empty tile in which to drop the waste, we can replace a food tile with a waste
+		 * tile... / This function is assumed to add a waste tile! That is, this function assumes an existence of at
+		 * least one food tile that it will be able to replace with a waste tile. Nothing happens otherwise.
 		 */
 		if (!wasteAdded) {
 			for (int i = 0; i < dirList.length; i++) {
