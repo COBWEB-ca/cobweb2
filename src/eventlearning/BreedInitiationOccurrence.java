@@ -1,12 +1,12 @@
 package eventlearning;
 
-import cwcore.ComplexAgent;
+import cwcore.ComplexAgentLearning;
 
 public class BreedInitiationOccurrence extends Occurrence {
 
 	private long partnerID;
 
-	public BreedInitiationOccurrence(ComplexAgent target, float detectableDistance, String desc, long partnerID) {
+	public BreedInitiationOccurrence(ComplexAgentLearning target, float detectableDistance, String desc, long partnerID) {
 		super(target, detectableDistance, desc);
 		this.partnerID = partnerID;
 	}
@@ -16,7 +16,7 @@ public class BreedInitiationOccurrence extends Occurrence {
 	}
 
 	@Override
-	public MemorableEvent effect(ComplexAgent concernedAgent) {
+	public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 		// Setting breedPos to non-null will cause the agent
 		// to breed later
 		concernedAgent.setBreedPos(concernedAgent.getPosition());

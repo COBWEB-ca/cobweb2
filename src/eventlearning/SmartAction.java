@@ -2,20 +2,20 @@ package eventlearning;
 
 import java.util.ArrayList;
 
-import cwcore.ComplexAgent;
+import cwcore.ComplexAgentLearning;
 
 
 public abstract class SmartAction implements Queueable {
 
 	String desc;
 	boolean isIrrelevant = false;
-	ComplexAgent agent;
+	ComplexAgentLearning agent;
 
-	public SmartAction(ComplexAgent agent) {
+	public SmartAction(ComplexAgentLearning agent) {
 		this(agent, "default");
 	}
 
-	public SmartAction(ComplexAgent agent, Object obj) {
+	public SmartAction(ComplexAgentLearning agent, Object obj) {
 		this(agent, obj.getClass().getName());
 	}
 
@@ -24,7 +24,7 @@ public abstract class SmartAction implements Queueable {
 	 * 
 	 * @param desc a String to describe the action
 	 */
-	public SmartAction(ComplexAgent agent, String desc) {
+	public SmartAction(ComplexAgentLearning agent, String desc) {
 		this.desc = desc;
 		this.agent = agent;
 	}
@@ -96,7 +96,7 @@ public abstract class SmartAction implements Queueable {
 	/**
 	 * The action that the agent is questioning whether or not to perform
 	 */
-	public abstract void desiredAction(ComplexAgent agent);
+	public abstract void desiredAction(ComplexAgentLearning agent);
 
 	/**
 	 * What to do if the wantedAction() is undesireable. By default, cancels
@@ -106,7 +106,7 @@ public abstract class SmartAction implements Queueable {
 	public void actionIfUndesireable() {
 	}
 
-	ComplexAgent getAgent() {
+	ComplexAgentLearning getAgent() {
 		return agent;
 	}
 

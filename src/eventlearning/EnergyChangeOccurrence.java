@@ -1,22 +1,22 @@
 package eventlearning;
 
-import cwcore.ComplexAgent;
+import cwcore.ComplexAgentLearning;
 
 public class EnergyChangeOccurrence extends Occurrence {
 
 	private int amountChanged;
 
-	public EnergyChangeOccurrence(ComplexAgent target, int amountChanged, String desc) {
+	public EnergyChangeOccurrence(ComplexAgentLearning target, int amountChanged, String desc) {
 		this(target, amountChanged, desc, 0);
 	}
 
-	public EnergyChangeOccurrence(ComplexAgent target, float detectableDistance, String desc, int amountChanged) {
+	public EnergyChangeOccurrence(ComplexAgentLearning target, float detectableDistance, String desc, int amountChanged) {
 		super(target, detectableDistance, desc);
 		this.amountChanged = amountChanged;
 	}
 
 	@Override
-	public MemorableEvent effect(ComplexAgent concernedAgent) {
+	public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 		int originalEnergy = concernedAgent.getEnergy();
 		concernedAgent.changeEnergy(amountChanged);
 		float magnitude = (float) amountChanged / (float) originalEnergy;

@@ -1,15 +1,15 @@
 package eventlearning;
 
-import cwcore.ComplexAgent;
+import cwcore.ComplexAgentLearning;
 
 public class BreedOccurrence extends Occurrence {
 
-	public BreedOccurrence(ComplexAgent target, float detectableDistance, String desc) {
+	public BreedOccurrence(ComplexAgentLearning target, float detectableDistance, String desc) {
 		super(target, detectableDistance, desc);
 	}
 
 	@Override
-	public MemorableEvent effect(ComplexAgent concernedAgent) {
+	public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 
 		return null;
 	}

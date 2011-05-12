@@ -16,8 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import learning.LearningAgentParams;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -302,9 +300,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private ComplexFoodParams foodData[];
 
-	private ComplexAgentParams agentData[];
-
-	private LearningAgentParams learningData[];
+	protected ComplexAgentParams agentData[];
 
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
@@ -386,8 +382,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					action = 1; // agent defects depending on probability
 			}
 
-			new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone(),
-					(LearningAgentParams) learningData[agentType].clone()); // Default
+			new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
 
 		}
 	}
@@ -483,14 +478,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		clearFlag(FLAG_WASTE);
 	}
 
-	private void copyParamsFromParser(SimulationConfig p) {
+	protected void copyParamsFromParser(SimulationConfig p) {
 		data = p.getEnvParams();
 
 		foodData = p.getFoodParams();
 
 		agentData = p.getAgentParams();
-
-		learningData = p.getLearningParams().getLearningAgentParams();
 
 		PD_PAYOFF_REWARD = data.pdParams.reward;
 		PD_PAYOFF_TEMPTATION = data.pdParams.temptation;
@@ -1061,8 +1054,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				// tiles
 				if (tries < 100) {
 					int agentType = i;
-					new ComplexAgent(agentType, location, doCheat, (ComplexAgentParams) agentData[agentType].clone(),
-							(LearningAgentParams) learningData[agentType].clone()); // Default
+					new ComplexAgent(agentType, location, doCheat, (ComplexAgentParams) agentData[agentType].clone()); // Default
 					// genetic
 					// sequence of agent
 					// type
@@ -1317,7 +1309,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
-		ComplexAgent.setDefaultMutableParams(agentData, learningData);
+		ComplexAgent.setDefaultMutableParams(agentData);
 	}
 
 	@Override
