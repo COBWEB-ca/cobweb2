@@ -191,7 +191,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 
-					queue(new BreedInitiationOccurrence(this, 0, "breedInit", breedPartner.id));
+					queue(new BreedInitiationOccurrence(this, 0, "breedInit", breedPartner));
 
 				} else {
 					if (!pregnant) {
@@ -248,7 +248,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 							// We like the agent we are breeding with; remember
 							// that
 							// this agent is favourable
-							concernedAgent.remember(new MemorableEvent(currTick, lParams.loveForPartner, "agent-" + breedPartner.id));
+							concernedAgent.remember(new MemorableEvent(currTick, lParams.loveForPartner, "agent-" + breedPartner.getID()));
 
 							int childStrategy = -1;
 							if (concernedAgent.pdCheater != -1) {

@@ -333,6 +333,9 @@ public class GUI extends JFrame {
 	}
 
 	private void setupConfigPages() {
+
+
+
 		/* Resources panel */
 		removeOldPage(resourcePage);
 		resourcePage = new ResourceConfigPage(p.getFoodParams());

@@ -98,6 +98,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return blah;
 	}
 
+
 	/** Sets the default mutable parameters of each agent type. */
 	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
 		defaulParams = params.clone();
@@ -430,7 +431,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public SeeInfo distanceLook() {
 		Direction d = facing;
 		cobweb.Environment.Location destPos = getPosition().getAdjacent(d);
-		if (getPosition().checkFlip(d))
+		if (getPosition().checkFlip(d)) 
 			d = d.flip();
 		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
 
@@ -454,7 +455,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_WASTE);
 
 			destPos = destPos.getAdjacent(d);
-			if (getPosition().checkFlip(d))
+			if (getPosition().checkFlip(d)) 
 				d = d.flip();
 		}
 		return new SeeInfo(LOOK_DISTANCE, 0);
@@ -638,15 +639,16 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		Node agent = doc.createElement("Agent");
 
-		Element agentTypeElement = doc.createElement("agentType");
-		agentTypeElement.appendChild(doc.createTextNode(agentType +""));
-		agent.appendChild(agentTypeElement);
+		Element agentTypeElement = doc.createElement("agentType"); 
+		agentTypeElement.appendChild(doc.createTextNode(agentType +"")); 
+		agent.appendChild(agentTypeElement); 
 
-		Element doCheatElement = doc.createElement("doCheat");
-		doCheatElement.appendChild(doc.createTextNode(pdCheater +""));
-		agent.appendChild(doCheatElement);
 
-		Element paramsElement = doc.createElement("params");
+		Element doCheatElement = doc.createElement("doCheat"); 
+		doCheatElement.appendChild(doc.createTextNode(pdCheater +"")); 
+		agent.appendChild(doCheatElement); 
+
+		Element paramsElement = doc.createElement("params"); 
 
 		params.saveConfig(paramsElement, doc);
 
@@ -764,6 +766,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		info.alive();
 	}
 
+
+
 	void receiveBroadcast() {
 		CommPacket commPacket = null;
 
@@ -805,6 +809,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public void setAsexFlag(boolean asexFlag) {
 		this.asexFlag = asexFlag;
 	}
+
 
 	@Override
 	public void setColor(Color c) {
@@ -892,12 +897,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				if (params.broadcastMode & canBroadcast()) {
 					broadcastFood(destPos);
 				}
-
 				if (canEat(destPos)) {
 					eat(destPos);
 				}
-
 				if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
+
 					breedPos = getPosition();
 					energy -= params.initEnergy;
 					energy -= energyPenalty(true);
@@ -916,6 +920,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			move(destPos);
 
 			if (breedPos != null) {
+
 				if (breedPartner == null) {
 					info.addDirectChild();
 					new ComplexAgent(breedPos, this, this.pdCheater);
@@ -931,6 +936,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 							childStrategy = breedPartner.pdCheater;
 						}
 					}
+
 					info.addDirectChild();
 					breedPartner.info.addDirectChild();
 					new ComplexAgent(breedPos, this, breedPartner, childStrategy);
@@ -996,8 +1002,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 			// perform the transaction only if non-pregnant and both agents want to meet
 			if (!pregnant && want2meet && adjacentAgent.want2meet) {
-				playPDonStep(adjacentAgent, othersID);
 
+				playPDonStep(adjacentAgent, othersID);
 			}
 			energy -= params.stepAgentEnergy;
 			setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
@@ -1094,11 +1100,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			pregnant = true;
 		}
 	}
-
 	/**
 	 * Produce waste
 	 */
-
 	private void tryPoop() {
 		boolean produce = false;
 		if (wasteCounterGain <= 0 && params.wasteLimitGain > 0) {

@@ -1,18 +1,19 @@
 package eventlearning;
 
+import cwcore.ComplexAgent;
 import cwcore.ComplexAgentLearning;
 
 public class BreedInitiationOccurrence extends Occurrence {
 
-	private long partnerID;
+	private ComplexAgent partner;
 
-	public BreedInitiationOccurrence(ComplexAgentLearning target, float detectableDistance, String desc, long partnerID) {
+	public BreedInitiationOccurrence(ComplexAgentLearning target, float detectableDistance, String desc, ComplexAgent partner) {
 		super(target, detectableDistance, desc);
-		this.partnerID = partnerID;
+		this.partner = partner;
 	}
 
-	public long getPartnerID() {
-		return partnerID;
+	public ComplexAgent getPartnerID() {
+		return partner;
 	}
 
 	@Override

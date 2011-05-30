@@ -32,6 +32,10 @@ public abstract class Agent {
 
 	protected long id;
 
+	public long getID() {
+		return id;
+	}
+
 	protected Agent(Controller ai) {
 		controller = ai;
 		controller.addClientAgent(this); // this currently does absolutely

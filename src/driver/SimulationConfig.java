@@ -186,11 +186,8 @@ public class SimulationConfig {
 		envParams.loadConfig(root);
 
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
-
 		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
-
 		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
-
 		for (int i = 0; i < envParams.getAgentTypes(); i++)
 			diseaseParams[i] = new DiseaseParams(envParams);
 
@@ -247,7 +244,6 @@ public class SimulationConfig {
 				foodParams[i].type = i;
 			}
 		}
-
 	}
 
 	private void parseDiseaseParams(Node root) {
