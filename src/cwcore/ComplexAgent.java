@@ -723,7 +723,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		/* 0 = cooperate. 1 = defect */
 
 		/*
-		 * Payoff Matrix: 0 0 => 5 5 0 1 => 2 8 1 0 => 8 2 1 1 => 3 3
+		 * Payoff Matrix: 0 0 => 5 5, 0 1 => 2 8, 1 0 => 8 2, 1 1 => 3 3
 		 */
 
 		final int PD_COOPERATE = 0;
@@ -839,9 +839,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// $$$$$$ Modified the following block. we are not talking about RESET
 		// here. Apr 18
 		/*
-		 * agentPDStrategy = 1; // Tit-for-tat or probability based agentPDAction = -1; // The agent's action; 1 =
-		 * cheater, else cooperator $$$$$ this parameter seems useless, there is another PDaction parameter above
-		 * already. Apr 18 lastPDMove = -1; // Remember the opponent's move in the last game
+		 * agentPDStrategy = 1; // Tit-for-tat or probability based
+		 * agentPDAction = -1; // The agent's action; 1 = cheater, else
+		 * cooperator $$$$$ this parameter seems useless, there is another
+		 * PDaction parameter above already. Apr 18 lastPDMove = -1; // Remember
+		 * the opponent's move in the last game
 		 */
 		this.agentPDStrategy = 0; // FIXME agentData.agentPDStrategy;
 		// above all, sometimes a new
