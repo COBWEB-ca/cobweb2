@@ -607,4 +607,66 @@ public class ComplexAgentLearning extends ComplexAgent {
 		return breedPos;
 	}
 
+	@Override
+	public void turnLeft() {
+		//Impulse to turn left; may or may not do so based on its memories
+
+		queue(new SmartAction(this, "turnLeft") {
+			@Override
+			public void desiredAction(ComplexAgentLearning agent) {
+				agent.realTurnLeft();;
+			}
+
+			@Override
+			public boolean eventIsRelated(MemorableEvent event) {
+				return event.getDescription().substring(0, 4).equalsIgnoreCase("turn");
+			}
+
+			@Override
+			public float getMagnitudeFromEvent(MemorableEvent event) {
+				//If memory has to do with turning right, the opposite sign of the magnitude of that
+				//event applies (if it is good to turn LEFT, it is bad to turn RIGHT sorta logic)
+				if (event.getDescription().equals("turnRight")) {
+					return event.getMagnitude() * -0.5f;
+				}
+				return super.getMagnitudeFromEvent(event);
+			}					
+
+		});
+
+	}
+
+	private void realTurnLeft() {
+		super.turnLeft();
+	}
+
+	@Override
+	public void turnRight() {
+		//Impulse to turn right; may or may not do so based on its memories
+		queue(new SmartAction(this, "turnRight") {
+			@Override
+			public void desiredAction(ComplexAgentLearning agent) {
+				agent.realTurnRight();
+			}
+
+			@Override
+			public boolean eventIsRelated(MemorableEvent event) {
+				return event.getDescription().substring(0, 4).equalsIgnoreCase("turn");
+			}
+
+			@Override
+			public float getMagnitudeFromEvent(MemorableEvent event) {
+				//If memory has to do with turning left, the opposite sign of the magnitude of that
+				//event applies (if it is good to turn RIGHT, it is bad to turn LEFT.)						
+				if (event.getDescription().equals("turnLeft")) {
+					return event.getMagnitude() * -0.5f;
+				}
+				return super.getMagnitudeFromEvent(event);
+			}
+		});
+	}
+
+	private void realTurnRight() {
+		super.turnRight();
+	}
 }
