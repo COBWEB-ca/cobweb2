@@ -24,6 +24,7 @@ import temperature.TemperatureMutator;
 import temperature.TemperatureParams;
 import cobweb.Environment.EnvironmentStats;
 import cobweb.Environment.Location;
+import cwcore.AgentSpawner;
 import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
@@ -545,6 +546,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 */
 	public void load(SimulationConfig p) {
 		InitScheduler(p.getEnvParams().schedulerName, p);
+		AgentSpawner.SetType(p.getEnvParams().agentName);
 
 		// TODO: this is a hack to make the applet work when we switch grids and
 		// the static information is not cleared, ComplexAgent should really

@@ -9,6 +9,7 @@ import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfDynamicInstance;
 import cobweb.params.ConfXMLTag;
+import cwcore.ComplexAgent;
 import cwcore.GeneticController;
 import cwcore.GeneticControllerParams;
 
@@ -49,6 +50,13 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	@ConfDisplayName("Controller type")
 	@ConfXMLTag("ControllerName")
 	public String controllerName = GeneticController.class.getName();
+
+	/**
+	 * Class name of the agent object
+	 */
+	@ConfDisplayName("Agent type")
+	@ConfXMLTag("AgentName")
+	public String agentName = ComplexAgent.class.getName();
 
 	/**
 	 * Configuration for the controller object.

@@ -235,7 +235,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 						if (concernedAgent.breedPartner == null) {
 							concernedAgent.getInfo().addDirectChild();
-							ComplexAgentLearning child = new ComplexAgentLearning(concernedAgent.getBreedPos(), concernedAgent,
+							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn(); 
+							child.init(concernedAgent.getBreedPos(), concernedAgent,
 									concernedAgent.pdCheater);
 
 							// Retain emotions for our child!
@@ -262,7 +263,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 							concernedAgent.getInfo().addDirectChild();
 							concernedAgent.breedPartner.getInfo().addDirectChild();
-							ComplexAgentLearning child = new ComplexAgentLearning(concernedAgent.getBreedPos(), concernedAgent,
+							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn(); 
+							child.init(concernedAgent.getBreedPos(), concernedAgent,
 									(ComplexAgentLearning)concernedAgent.breedPartner, childStrategy);
 
 							// Retain an undying feeling of love for our
@@ -483,21 +485,22 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 
-	public ComplexAgentLearning(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection,
+	@Override
+	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection,
 			Location pos) {
-		super(agentT, doCheat, agentData, facingDirection, pos);
+		super.init(agentT, doCheat, agentData, facingDirection, pos);
 		// TODO Auto-generated constructor stub
 	}
 
-	private ComplexAgentLearning(int agentType, Location pos, int doCheat, ComplexAgentParams agentData,
+	private void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData,
 			LearningAgentParams lAgentData) {
-		super(agentType, pos, doCheat, agentData);
+		super.init(agentType, pos, doCheat, agentData);
 
 		lParams = lAgentData;
 	}
 
-	private ComplexAgentLearning(Location pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2, int strat) {
-		super(pos, parent1, parent2, strat);
+	private void init(Location pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2, int strat) {
+		super.init(pos, parent1, parent2, strat);
 
 		if (globals.random.nextBoolean()) {
 			lParams = parent1.lParams;
@@ -508,8 +511,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	}
 
-	private ComplexAgentLearning(Location pos, ComplexAgentLearning parent, int strat) {
-		super(pos, parent, strat);
+	private void init(Location pos, ComplexAgentLearning parent, int strat) {
+		super.init(pos, parent, strat);
 
 		lParams = parent.lParams;
 	}

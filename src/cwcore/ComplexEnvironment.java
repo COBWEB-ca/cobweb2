@@ -382,7 +382,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					action = 1; // agent defects depending on probability
 			}
 
-			new ComplexAgent(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
+			ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
+			child.init(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
 
 		}
 	}
@@ -868,7 +869,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			int pdCheater = Integer.parseInt(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
 
 
-			ComplexAgent cAgent = new ComplexAgent(agentType, pdCheater, params, facing, loc);
+			ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
+			cAgent.init(agentType, pdCheater, params, facing, loc);
 			agentTable.put(loc, cAgent);
 		}
 
@@ -1054,7 +1056,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				// tiles
 				if (tries < 100) {
 					int agentType = i;
-					new ComplexAgent(agentType, location, doCheat, (ComplexAgentParams) agentData[agentType].clone()); // Default
+					ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
+					child.init(agentType, location, doCheat, (ComplexAgentParams) agentData[agentType].clone()); // Default
 					// genetic
 					// sequence of agent
 					// type
