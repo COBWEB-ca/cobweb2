@@ -222,6 +222,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	boolean mustFlip = false;
 
+	public ComplexAgent() {
+
+	}
+
 	/**
 	 * Constructor with two parents
 	 *
@@ -230,8 +234,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param parent2 second parent
 	 * @param strat PD strategy
 	 */
-	protected ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, int strat) {
-		super(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
+	public void init(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, int strat) {
+		init(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
 				parent1.params.mutationRate));
 		InitFacing();
 
@@ -256,8 +260,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param parent parent
 	 * @param strat PD strategy
 	 */
-	protected ComplexAgent(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
-		super(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
+	protected void init(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
+		init(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 		InitFacing();
 
 		copyConstants(parent);
@@ -272,8 +276,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**   */
-	public ComplexAgent(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
-		super(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
+		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
 
 		setConstants(doCheat, agentData);
 		this.facing = facingDirection;
@@ -296,8 +300,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param doCheat start PD off cheating?
 	 * @param agentData agent parameters
 	 */
-	public ComplexAgent(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
-		super(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
+		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
 		setConstants(doCheat, agentData);
 
 		InitFacing();
@@ -922,7 +926,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 				if (breedPartner == null) {
 					info.addDirectChild();
-					new ComplexAgent(breedPos, this, this.pdCheater);
+					ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
+					child.init(breedPos, this, this.pdCheater);
 				} else {
 					// child's strategy is determined by its parents, it has a
 					// 50% chance to get either parent's strategy
@@ -938,7 +943,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 					info.addDirectChild();
 					breedPartner.info.addDirectChild();
-					new ComplexAgent(breedPos, this, breedPartner, childStrategy);
+					ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
+					child.init(breedPos, this, breedPartner, childStrategy);
 					info.addSexPreg();
 				}
 				breedPartner = null;

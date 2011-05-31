@@ -32,15 +32,17 @@ public abstract class Agent {
 
 	protected long id;
 
-	protected Agent(Controller ai) {
+	protected Agent() {
+		id = makeID();
+	}
+
+	protected void init(Controller ai) {
 		controller = ai;
 		controller.addClientAgent(this); // this currently does absolutely
 		// nothing for both simple and
 		// complex implementations of
 		// controller
-
-		id = makeID();
-	}
+	}	
 
 	public long birthday() {
 		return 0L;
