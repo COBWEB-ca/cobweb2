@@ -10,6 +10,7 @@ import cobweb.params.ConfDisplayName;
 import cobweb.params.ConfDynamicInstance;
 import cobweb.params.ConfXMLTag;
 import cwcore.ComplexAgent;
+import cwcore.ComplexEnvironment;
 import cwcore.GeneticController;
 import cwcore.GeneticControllerParams;
 
@@ -57,6 +58,13 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	@ConfDisplayName("Agent type")
 	@ConfXMLTag("AgentName")
 	public String agentName = ComplexAgent.class.getName();
+
+	/**
+	 * Class name of environment object
+	 */
+	@ConfDisplayName("Environment type")
+	@ConfXMLTag("EnvironmentName")
+	public String environmentName = ComplexEnvironment.class.getName();
 
 	/**
 	 * Configuration for the controller object.

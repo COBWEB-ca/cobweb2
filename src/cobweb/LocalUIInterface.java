@@ -466,7 +466,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	private void InitEnvironment(String environmentName, SimulationConfig p) {
 		try {
-			if (theEnvironment == null) {
+			if (theEnvironment == null || !theEnvironment.getClass().equals(Class.forName(environmentName))) {
 				Class<?> environmentClass = Class.forName(environmentName);
 				// Use reflection to find a constructor taking a Scheduler
 				// parameter
@@ -578,7 +578,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
 
-		InitEnvironment("cwcore.ComplexEnvironment", p);
+		InitEnvironment(p.getEnvParams().environmentName, p);
 
 		theScheduler.addSchedulerClient(this);
 		theScheduler.addSchedulerClient(geneticMutator.getTracker());

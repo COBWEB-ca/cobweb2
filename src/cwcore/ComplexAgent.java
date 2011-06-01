@@ -1079,8 +1079,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 		}
 
+		beforeController();
+
 		/* Move/eat/reproduce/etc */
 		controller.controlAgent(this);
+
+		afterController();
 
 		/* track me */
 		if (tracked)
@@ -1093,6 +1097,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		/* Check if broadcasting is enabled */
 		if (params.broadcastMode & !ComplexEnvironment.currentPackets.isEmpty())
 			receiveBroadcast();// []SK
+	}
+
+	protected void beforeController() {
+
+	}
+
+	protected void afterController() {
+
 	}
 
 	public void tickZero() {

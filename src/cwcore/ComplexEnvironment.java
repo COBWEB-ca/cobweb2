@@ -382,10 +382,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					action = 1; // agent defects depending on probability
 			}
 
-			ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
-			child.init(agentType, l, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
+			spawnAgent(action, l, agentType);
 
 		}
+	}
+
+	protected void spawnAgent(int action, cobweb.Environment.Location location, int agentType) {
+		ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
+		child.init(agentType, location, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
 	}
 
 	ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
@@ -1056,11 +1060,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				// tiles
 				if (tries < 100) {
 					int agentType = i;
-					ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
-					child.init(agentType, location, doCheat, (ComplexAgentParams) agentData[agentType].clone()); // Default
-					// genetic
-					// sequence of agent
-					// type
+					spawnAgent(doCheat, location, agentType);
 				}
 			}
 		}

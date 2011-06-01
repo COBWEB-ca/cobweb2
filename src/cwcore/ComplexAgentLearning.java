@@ -1,7 +1,7 @@
 package cwcore;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import learning.LearningAgentParams;
@@ -36,7 +36,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	private static LearningAgentParams learningParams[];
 
-	public static List<Occurrence> allOccurrences = new ArrayList<Occurrence>();
+	public static List<Occurrence> allOccurrences = new LinkedList<Occurrence>();
 
 	public Collection<MemorableEvent> memEvents;
 
@@ -54,7 +54,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			return;
 		}
 		if (memEvents == null) {
-			memEvents = new ArrayList<MemorableEvent>();
+			memEvents = new LinkedList<MemorableEvent>();
 		}
 		memEvents.add(event);
 		if (memEvents.size() > lParams.numMemories) {
@@ -70,7 +70,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			return;
 		}
 		if (queueables == null) {
-			queueables = new ArrayList<Queueable>();
+			queueables = new LinkedList<Queueable>();
 		}
 		queueables.add(act);
 	}
@@ -492,7 +492,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		// TODO Auto-generated constructor stub
 	}
 
-	private void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData,
+	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData,
 			LearningAgentParams lAgentData) {
 		super.init(agentType, pos, doCheat, agentData);
 
@@ -533,7 +533,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 		ComplexEnvironment.Location loc = this.getPosition();
 
-		ArrayList<Occurrence> rem = new ArrayList<Occurrence>();
+		List<Occurrence> rem = new LinkedList<Occurrence>();
 
 		for (Occurrence oc : allOccurrences) {
 			if (oc.time - currTick >= 0) {
@@ -590,7 +590,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	private void purgeMemory() {
 		if (memEvents != null) {
-			ArrayList<MemorableEvent> rem2 = new ArrayList<MemorableEvent>();
+			List<MemorableEvent> rem2 = new LinkedList<MemorableEvent>();
 			for (MemorableEvent me : memEvents) {
 				if (me.forgetAfterStep()) {
 					rem2.add(me);
@@ -671,5 +671,44 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	private void realTurnRight() {
 		super.turnRight();
+	}
+
+
+	@Override
+	protected void afterController() {
+		/*
+		 * Perform all queued actions
+		 */
+		if (queueables != null && !queueables.isEmpty()) {
+			// Use a second Collection to avoid concurrent modification issues
+			List<Queueable> queueablesCopy = new LinkedList<Queueable>();
+			queueablesCopy.addAll(queueables);
+			queueables.clear();
+			/*
+			 * queueables is never iterated therefore a queueable may internally
+			 * add new queueables to the queue without concurrently modifying
+			 */
+			for (Queueable act : queueablesCopy) {
+				act.happen();
+				if (!act.isComplete()) {
+					/*
+					 * The action is not complete therefore it will be performed
+					 * again at the next tickNotification
+					 */
+					queueables.add(act);
+				}
+			}
+			// Actions are essentially "queued" so once they are irrelevant they
+			// are "forgotten"
+		}
+
+		purgeMemory();
+
+	}
+
+	@Override
+	protected void beforeController() {
+		super.beforeController();
+		observeOccurrences();
 	}
 }
