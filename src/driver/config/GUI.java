@@ -30,6 +30,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import cobweb.TypeColorEnumeration;
+import cwcore.ComplexAgentLearning;
 import driver.CobwebApplication;
 import driver.CobwebUserException;
 import driver.SettingsPanel;
@@ -53,10 +54,13 @@ public class GUI extends JFrame {
 			resourcePage.validateUI();
 			agentPage.validateUI();
 			foodwebPage.validateUI();
-			pdPage.validateUI();
+			if (pdPage != null)
+				pdPage.validateUI();
 			geneticPage.validateUI();
 			diseaseConfigPage.validateUI();
 			tempPage.validateUI();
+			if (learnPage != null)
+				learnPage.validateUI();
 
 
 			/* write UI info to xml file */
@@ -251,7 +255,7 @@ public class GUI extends JFrame {
 		// Add the tabbed pane to this panel.
 		j.add(tabbedPane, BorderLayout.CENTER);
 		j.add(buttons, BorderLayout.SOUTH);
-		j.setPreferredSize(new Dimension(718, 513));
+		j.setPreferredSize(new Dimension(750, 513));
 
 		getRootPane().setDefaultButton(ok);
 		add(j);
@@ -351,8 +355,10 @@ public class GUI extends JFrame {
 		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
 
 		removeOldPage(pdPage);
-		pdPage = new PDConfigPage(p.getEnvParams().pdParams);
-		tabbedPane.addTab("PD Options", pdPage.getPanel());
+		if (p.getEnvParams().prisDilemma) {
+			pdPage = new PDConfigPage(p.getEnvParams().pdParams);
+			tabbedPane.addTab("PD Options", pdPage.getPanel());
+		}
 
 		removeOldPage(geneticPage);
 		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
@@ -374,9 +380,12 @@ public class GUI extends JFrame {
 		tempPage = new TemperatureConfigPage(p.getTempParams());
 		tabbedPane.addTab("Temperature", tempPage.getPanel());
 
+
 		removeOldPage(learnPage);
-		learnPage = new LearningConfigPage(p.getLearningParams().getLearningAgentParams());
-		tabbedPane.addTab("Learning", learnPage.getPanel());
+		if (p.getEnvParams().agentName.equals(ComplexAgentLearning.class.getName())) {
+			learnPage = new LearningConfigPage(p.getLearningParams().getLearningAgentParams());
+			tabbedPane.addTab("Learning", learnPage.getPanel());
+		}
 	}
 
 	private void removeOldPage(ConfigPage r) {

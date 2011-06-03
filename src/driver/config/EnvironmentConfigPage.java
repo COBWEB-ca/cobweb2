@@ -12,10 +12,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
+import cwcore.ComplexAgent;
+import cwcore.ComplexAgentLearning;
+import cwcore.ComplexEnvironment;
+import cwcore.ComplexEnvironmentLearning;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import driver.SpringUtilities;
 /**
@@ -42,6 +49,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 	public BoundCheckBox keepOldWaste;
 	public BoundCheckBox keepOldPackets;
 	public BoundCheckBox PrisDilemma;
+	public JCheckBox LearningAgents;
 	public BoundJFormattedTextField randomSeed;
 	public BoundJFormattedTextField initialStones;
 	public BoundJFormattedTextField memory_size;
@@ -125,10 +133,42 @@ public class EnvironmentConfigPage implements ConfigPage {
 		PrisDilemma = new BoundCheckBox(params, "prisDilemma");
 		fieldPane.add(new JLabel(PrisDilemma.getLabelText()));
 		fieldPane.add(PrisDilemma);
+		PrisDilemma.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				for (AgentNumChangeListener x : numChangeListeners) {
+					x.AgentNumChanged(oldAgentNum, params.agentTypeCount);
+				}
+			}
+		});
+
+		LearningAgents = new JCheckBox();
+		fieldPane.add(new JLabel("Learning Agents"));
+		fieldPane.add(LearningAgents);
+		LearningAgents.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (LearningAgents.isSelected()) {
+					params.agentName = ComplexAgentLearning.class.getName();
+					params.environmentName = ComplexEnvironmentLearning.class.getName();
+				} else {
+					params.agentName = ComplexAgent.class.getName();
+					params.environmentName = ComplexEnvironment.class.getName();
+				}
+
+				for (AgentNumChangeListener x : numChangeListeners) {
+					x.AgentNumChanged(oldAgentNum, params.agentTypeCount);
+				}
+			}
+		});
+		LearningAgents.setSelected(params.agentName.equals(ComplexAgentLearning.class.getName()));
+
 
 		panel11.add(fieldPane, BorderLayout.CENTER);
 
-		makeOptionsTable(fieldPane, 5);
+		makeOptionsTable(fieldPane, 6);
 
 		thePanel.add(panel11);
 
