@@ -533,7 +533,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 		ComplexEnvironment.Location loc = this.getPosition();
 
-		List<Occurrence> rem = new LinkedList<Occurrence>();
+		List<Occurrence> newOccList = new LinkedList<Occurrence>();
 
 		for (Occurrence oc : allOccurrences) {
 			if (oc.time - currTick >= 0) {
@@ -580,23 +580,22 @@ public class ComplexAgentLearning extends ComplexAgent {
 						});
 					}
 				}
-			} else {
-				rem.add(oc);
+				newOccList.add(oc);
 			}
 		}
 
-		allOccurrences.removeAll(rem);		
+		allOccurrences = newOccList;		
 	}
 
 	private void purgeMemory() {
 		if (memEvents != null) {
-			List<MemorableEvent> rem2 = new LinkedList<MemorableEvent>();
+			List<MemorableEvent> newMemEvents = new LinkedList<MemorableEvent>();
 			for (MemorableEvent me : memEvents) {
-				if (me.forgetAfterStep()) {
-					rem2.add(me);
+				if (!me.forgetAfterStep()) {
+					newMemEvents.add(me);
 				}
 			}
-			memEvents.removeAll(rem2);
+			memEvents = newMemEvents;
 		}
 	}
 
