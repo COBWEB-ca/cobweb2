@@ -176,7 +176,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); // $$$$$$ added on Feb 18
 		JPanel info = new JPanel();
 		info.setAlignmentX(CENTER_ALIGNMENT);
-		info.add(new JLabel("Cobweb2 2003/2011"));
+		info.add(new JLabel("COBWEB2 2003/2011"));
 		info.add(new JLabel("<html><center>version: <br/>" 
 				+  Versionator.getVersion().replace(" ", "<br/>") 
 				+ "</center></html>"
@@ -194,7 +194,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 		whatDialog.add(info, "Center");
 		whatDialog.add(term, "South");
-		whatDialog.setSize(200, 150);
+		whatDialog.setSize(300, 150);
 		//whatDialog.pack();
 		whatDialog.setVisible(true);
 	}
