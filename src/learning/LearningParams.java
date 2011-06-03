@@ -34,8 +34,6 @@ public class LearningParams implements CobwebParam {
 
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
-		System.out.println("HERE LEARN");
-
 		learningParams = new LearningAgentParams[env.getAgentTypes()];
 
 		NodeList nodeList = root.getChildNodes();
