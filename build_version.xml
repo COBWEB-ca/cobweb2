@@ -12,6 +12,7 @@
     		<arg value="describe" />
     		<arg value="--always" />
     		<arg value="--long" />
+    		<arg value="--dirty=-modified" />
     	</exec>
     	<!-- When cobweb runs from eclipse, there is no jar manifest to put the verison in -->
     	<!-- we put it in a new file instead -->
