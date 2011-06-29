@@ -576,7 +576,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		for (int j = 0; j < foodToDeplete; ++j) {
 			Location loc = locations.removeLast();
 
-			backArray.setLocationBits(loc, backArray.getLocationBits(loc) & ~backArray.getLocationBits(loc));
+			loc.setFlag(FLAG_FOOD, false);
 		}
 		draughtdays[type] = foodData[type].draughtPeriod;
 	}
@@ -705,6 +705,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	private void growFood() {
+
+		for (int y = 0; y < getSize(AXIS_Y); ++y) {
+			for (int x = 0; x < getSize(AXIS_X); ++x) {
+				Location currentPos = getLocation(x, y);
+				// if there's a stone or already food, we simply copy the
+				// information from the old arrays to the new ones
+				backArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
+				backFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
+			}
+		}
 
 		// create a new ArrayEnvironment and a new food type array
 		// loop through all positions
@@ -1401,16 +1411,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// for each agent type, we test to see if its deplete time step has
 		// come, and if so deplete the food random
 		// by the appropriate percentage
-
-		for (int y = 0; y < getSize(AXIS_Y); ++y) {
-			for (int x = 0; x < getSize(AXIS_X); ++x) {
-				Location currentPos = getLocation(x, y);
-				// if there's a stone or already food, we simply copy the
-				// information from the old arrays to the new ones
-				backArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
-				backFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
-			}
-		}
 
 		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			if (foodData[i].depleteRate != 0.0f && foodData[i].growRate > 0
