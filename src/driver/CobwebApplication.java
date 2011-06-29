@@ -174,13 +174,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 				// 18
 				"About Cobweb", true); // $$$$$$ change from "this" to "GUI.frame" specifically for MS Windows. Feb 22
 		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); // $$$$$$ added on Feb 18
+
 		JPanel info = new JPanel();
 		info.setAlignmentX(CENTER_ALIGNMENT);
-		info.add(new JLabel("COBWEB2 2003/2011"));
-		info.add(new JLabel("<html><center>version: <br/>" 
+		info.add(new JLabel("<html><center>COBWEB2 2003/2011<br/>version: <br/>" 
 				+  Versionator.getVersion().replace(" ", "<br/>") 
-				+ "</center></html>"
-				, JLabel.CENTER));
+				+ "</center></html>"));
 
 		JPanel term = new JPanel();
 		JButton close = new JButton("Close");
@@ -192,8 +191,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 			}
 		});
 
-		whatDialog.add(info, "Center");
-		whatDialog.add(term, "South");
+		whatDialog.setLayout(new BorderLayout());
+		whatDialog.add(info, BorderLayout.CENTER);
+		whatDialog.add(term, BorderLayout.SOUTH);
 		whatDialog.setSize(300, 150);
 		//whatDialog.pack();
 		whatDialog.setVisible(true);
