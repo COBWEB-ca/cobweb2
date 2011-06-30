@@ -10,7 +10,6 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <import file="deployJar.xml"/>
     <import file="javadoc.xml"/>
     <path id="JUnit 4.libraryclasspath">
         <pathelement location="../../../../../Program Files (x86)/eclipse/plugins/org.junit_4.8.1.v4_8_1_v20100427-1100/junit.jar"/>
@@ -140,5 +139,48 @@
             </fileset>
             <report format="frames" todir="${junit.output.dir}"/>
         </junitreport>
+    </target>
+	<target name="dateproperties" depends="check-git" if="git.present">
+    	<exec executable="C:\Program Files (x86)\Git\bin\git.exe" outputproperty="gitVersion">
+    		<arg value="describe" />
+    		<arg value="--always" />
+    		<arg value="--long" />
+    		<arg value="--dirty=-modified" />
+    	</exec>
+    	<exec executable="C:\Program Files (x86)\Git\bin\git.exe" outputproperty="gitCommitTimeBorked">
+    		<arg value="log" />
+    		<arg value="-1" />
+    		<arg value='--format="%ai"' />
+    	</exec>
+    	<propertyregex property="gitCommitTime"
+			input="${gitCommitTimeBorked}"
+    		regexp="^([^ ]+) ([0-9]+:[0-9]+):.*"
+			replace="\1-\2"
+			global="true" 
+    		defaultvalue="fail" />
+    	<exec executable="C:\Program Files (x86)\Git\bin\git.exe" outputproperty="gitCommitDate">
+    		<arg value="log" />
+    		<arg value="-1" />
+    		<arg value='--format="%ad"' />
+			<arg value="--date=short" />	
+    	</exec>
+		<tstamp>
+    	    <format property="currentDate" pattern="yyyy-MM-dd" locale="en,CA"/>
+    		<format property="currentTime" pattern="yyyy-MM-dd-HH:mm" locale="en,CA"/>
+        </tstamp>
+		<condition property="fileDate" value="${currentDate}" else="${gitCommitDate}">
+			<contains string="${gitVersion}" substring="modified" />
+		</condition>
+		<condition property="fileTime" value="${currentTime}" else="${gitCommitTime}">
+			<contains string="${gitVersion}" substring="modified" />
+		</condition>
+	</target>
+	<target name="check-git">
+		<available file="C:\Program Files (x86)\Git\bin\git.exe" property="git.present"/>
+	</target>
+	<target name="make_version_file" depends="dateproperties">
+    	<!-- When cobweb runs from eclipse, there is no jar manifest to put the verison in -->
+    	<!-- we put it in a new file instead -->
+    	<echo file="resources/version_file.txt">${gitVersion} ${fileTime}</echo>
     </target>
 </project>
