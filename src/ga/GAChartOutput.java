@@ -78,6 +78,7 @@ public class GAChartOutput implements ActionListener {
 			chart_display_frame.setVisible(true);
 			current_display = gene_value_distribution_panel;
 		}
+		chart_display_frame.repaint();
 	}
 
 	/** Initialize a chart representation of gene status distribution among agents. */
