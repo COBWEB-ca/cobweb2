@@ -1551,7 +1551,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		logStream.print(total_cheaters);
 		logStream.print('\t');
 		logStream.print(total_coops);
-		logStream.println('\t');
+		logStream.print('\t');
+
+		for (String s : ComplexAgent.logDataTotal()) {
+			logStream.print(s);
+			logStream.print('\t');
+		}
+		logStream.println();
 		// logStream.flush();
 	}
 
@@ -1600,7 +1606,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			logStream.print("AgentEnergy\t");
 			logStream.print("Num. Cheat\t");
 			logStream.print("Num. Coop\t");
-			logStream.println();
+			for (String s : ComplexAgent.logHederTotal()) {
+				logStream.print(s);
+				logStream.print('\t');
+			}
 			logStream.println();
 		}
 	}

@@ -602,6 +602,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * @see cobweb.UIInterface#log
 	 */
 	public void log(String filePath) throws java.io.IOException {
+
+		if (logWriter != null)
+			logWriter.close();
+
 		// Open the Writer...
 		logWriter = new BufferedWriter(new FileWriter(filePath), 8*1024);
 		// Fire it off to the environment

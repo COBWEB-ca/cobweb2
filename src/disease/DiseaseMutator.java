@@ -42,7 +42,13 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 	}
 
 	public Collection<String> logDataTotal() {
-		return blank;
+		List<String> l = new LinkedList<String>();
+		int sum = 0;
+		for(int x : sickCount)
+			sum += x;
+
+		l.add(Integer.toString(sum));
+		return l;
 	}
 
 	public Collection<String> logHeadersAgent() {
@@ -52,7 +58,9 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 	}
 
 	public Collection<String> logHeaderTotal() {
-		return blank;
+		List<String> header = new LinkedList<String>();
+		header.add("Diseased");
+		return header;
 	}
 
 	private void makeRandomSick(ComplexAgent agent, float rate) {
