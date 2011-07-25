@@ -120,4 +120,16 @@ public class DiseaseParams extends AbstractReflectionParams {
 		this.transmitTo = n;
 	}
 
+	@ConfXMLTag("vaccinator")
+	@ConfDisplayName("Vaccinator")
+	public boolean vaccinator = false;
+
+	@ConfXMLTag("healer")
+	@ConfDisplayName("Healer")
+	public boolean healer = false;
+
+	@ConfXMLTag("recoveryTime")
+	@ConfDisplayName("Recovery time")
+	public int recoveryTime = 0;
+
 }

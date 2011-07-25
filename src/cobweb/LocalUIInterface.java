@@ -582,6 +582,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 		theScheduler.addSchedulerClient(this);
 		theScheduler.addSchedulerClient(geneticMutator.getTracker());
+		theScheduler.addSchedulerClient(diseaseMutator);
 
 		theScheduler.setSleep(delay);
 
