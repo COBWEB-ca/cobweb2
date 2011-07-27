@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
 import cobweb.ArrayUtilities;
 import cobweb.globals;
 import cobweb.params.ReflectionUtil;
@@ -39,6 +38,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, cobweb.Tick
 		public boolean sick = false;
 		public boolean vaccinated = false;
 		public long sickStart = -1;
+		public float vaccineEffectiveness;
 
 		public State(boolean sick, boolean vaccinated, long sickStart) {
 			this.sick = sick;
@@ -46,9 +46,11 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, cobweb.Tick
 			this.sickStart = sickStart;
 		}
 
-		public State(boolean sick, boolean vaccinated) {
+		public State(boolean sick, boolean vaccinated, float vaccineEffectiveness) {
 			this.sick = sick;
 			this.vaccinated = vaccinated;
+			this.vaccineEffectiveness = vaccineEffectiveness;
+
 		}
 	}
 
@@ -101,7 +103,6 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, cobweb.Tick
 
 			sickCount[agent.type()]++;
 
-			Assert.assertFalse(isVaccinated(agent));
 			sick.put(agent, new State(true, false, time));
 		}
 
@@ -146,18 +147,21 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, cobweb.Tick
 		int te = bumpee.type();
 
 		if (params[tr].vaccinator && !isSick(bumpee) ) {
-			vaccinate(bumpee);
+			vaccinate(bumpee, params[tr].vaccineEffectiveness);
 		}
 
 		if (params[tr].healer && isSick(bumpee)) {
-			sick.remove(bumpee);
-			unSick(bumpee);
+			if (globals.random.nextFloat() < params[tr].healerEffectiveness) {
+				sick.remove(bumpee);
+				unSick(bumpee);
+			}
 		}
 
 		if (!isSick(bumper))
 			return;
 
-		if (isVaccinated(bumpee))
+		if (isVaccinated(bumpee)
+				&& globals.random.nextFloat() < sick.get(bumpee).vaccineEffectiveness)
 			return;
 
 		if (isSick(bumpee))
@@ -186,8 +190,8 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, cobweb.Tick
 		return sick.containsKey(agent) && sick.get(agent).vaccinated;
 	}
 
-	private void vaccinate(ComplexAgent bumpee) {
-		sick.put(bumpee, new State(false, true));
+	private void vaccinate(ComplexAgent bumpee, float effectiveness) {
+		sick.put(bumpee, new State(false, true, effectiveness));
 	}
 
 	@Override

@@ -124,9 +124,17 @@ public class DiseaseParams extends AbstractReflectionParams {
 	@ConfDisplayName("Vaccinator")
 	public boolean vaccinator = false;
 
+	@ConfXMLTag("vaccineEffectiveness")
+	@ConfDisplayName("Vaccine Effectiveness")
+	public float vaccineEffectiveness = 1.0f;
+
 	@ConfXMLTag("healer")
 	@ConfDisplayName("Healer")
 	public boolean healer = false;
+
+	@ConfXMLTag("healerEffectiveness")
+	@ConfDisplayName("Healing Effectiveness")
+	public float healerEffectiveness = 1.0f;
 
 	@ConfXMLTag("recoveryTime")
 	@ConfDisplayName("Recovery time")
