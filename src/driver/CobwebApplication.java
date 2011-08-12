@@ -1156,11 +1156,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 			JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
 					// specifically for MS Windows. Feb 22
 			"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
-		} else if (uiPipe.getCurrentTime() != 0) {
-			JOptionPane.showMessageDialog(
-					CobwebApplication.this, // $$$$$$ change from "displayPanel" to "GUI.frame" specifically for MS Windows. Feb 22
-					"To get a log file, the \"Log\" menu should be clicked before the simulation runs.",
-					"Warning", JOptionPane.WARNING_MESSAGE);
 		} else {
 			CobwebApplication.this.logFileDialog();
 		}
