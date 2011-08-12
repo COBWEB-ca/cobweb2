@@ -1564,50 +1564,32 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	/* Write the Log titles to the file,(called by log (java.io.Writer w)) */
 	public void writeLogTitles() {
 		if (logStream != null) {
-			for (int i = 0; i < data.getAgentTypes(); i++) {
-				// logStream.print("\t\t" + "Type" + (i + 1) + "\t\t\t\t"); //
-				// $$$$$ why this format?
-				logStream.print("\t" + "Type" + (i + 1) + "\t\t\t\t\t\t"); // $$$$$$
-				// change
-				// to
-				// this
-				// on
-				// Apr
-				// 19
-				for (int z = 0; z < ComplexAgent.logHederAgent().size(); z++)
-					logStream.print('\t');
-			}
-			// logStream.print("\t\t\t" + "Total For all Agent types" + "\t\t");
-			// // $$$$$ why this format?
-			logStream.print("\t" + "Total for all Agent Types"); // $$$$$$
-			// change to
-			// this on
-			// Apr 19
-			logStream.println();
-			for (int i = 0; i < data.getAgentTypes(); i++) {
+			for (int i = 1; i <= data.getAgentTypes(); i++) {
 
 				logStream.print("Tick\t");
-				logStream.print("FoodCount\t");
-				logStream.print("AgentCount\t");
-				logStream.print("AveAgentEnergy\t");
-				logStream.print("AgentEnergy\t");
-				logStream.print("Num. Cheat\t");
-				logStream.print("Num. Coop\t");
+				logStream.print("FoodCount " + i + "\t");
+				logStream.print("AgentCount " + i + "\t");
+				logStream.print("AveAgentEnergy " + i + "\t");
+				logStream.print("AgentEnergy " + i + "\t");
+				logStream.print("Cheat " + i + "\t");
+				logStream.print("Coop " + i + "\t");
 				for (String s : ComplexAgent.logHederAgent()) {
 					logStream.print(s);
+					logStream.print(" " + i);
 					logStream.print('\t');
 				}
 			}
 			// One final round of output for total
 			logStream.print("Tick\t");
-			logStream.print("FoodCount\t");
-			logStream.print("AgentCount\t");
-			logStream.print("AveAgentEnergy\t");
-			logStream.print("AgentEnergy\t");
-			logStream.print("Num. Cheat\t");
-			logStream.print("Num. Coop\t");
+			logStream.print("FoodCount T\t");
+			logStream.print("AgentCount T\t");
+			logStream.print("AveAgentEnergy T\t");
+			logStream.print("AgentEnergy T\t");
+			logStream.print("Num. Cheat T\t");
+			logStream.print("Num. Coop T\t");
 			for (String s : ComplexAgent.logHederTotal()) {
 				logStream.print(s);
+				logStream.print(" T");
 				logStream.print('\t');
 			}
 			logStream.println();
