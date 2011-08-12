@@ -335,6 +335,7 @@ public class ComplexAgentInfo {
 		++countAgentBumps;
 	}
 
+	/** Adds to the total energy gained from eating other agents. */
 	public void addCannibalism(int val) {
 		cannibalEnergies[type] += val;
 	}
@@ -362,6 +363,11 @@ public class ComplexAgentInfo {
 	int boundWest = Integer.MAX_VALUE;
 	int boundEast = Integer.MIN_VALUE;
 
+	/**
+	 * Adds the path information of the agent.
+	 * 
+	 * @param loc Location the agent moved to
+	 */
 	public void addPathStep(Location loc) {
 		if (loc.v[0] < boundWest)
 			boundWest = loc.v[0];
@@ -386,6 +392,9 @@ public class ComplexAgentInfo {
 		++sexualPregs;
 	}
 
+	/**
+	 * Increments the number of steps the agent has taken.
+	 */
 	public void addStep() {
 		++countSteps;
 	}

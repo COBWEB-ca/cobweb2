@@ -10,6 +10,11 @@ import cwcore.complexParams.AgentFoodCountable;
 import cwcore.complexParams.SpawnMutator;
 import cwcore.complexParams.StepMutator;
 
+/**
+ * TemperatureMutator is an instance of Step and Spawn Mutator
+ * 
+ * @author ???
+ */
 public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	private TemperatureParams params;
@@ -19,6 +24,10 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	private int bandNumber;
 
 	private int height = -9000;
+	
+	/**
+	 * TemperatureMutator is an instance of Step and Spawn Mutator.
+	 */
 	public TemperatureMutator() {
 		// Nothing
 	}
@@ -73,6 +82,11 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 		onSpawn(agent);
 	}
 
+	/**
+	 * @param agent
+	 * @param to
+	 * @param from
+	 */
 	public void onStep(ComplexAgent agent, Location to, Location from) {
 		TemperatureAgentParams aPar = params.agentParams[agent.type()];
 

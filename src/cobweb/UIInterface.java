@@ -5,7 +5,7 @@ package cobweb;
  * classes; it is also the top-level interface to the simulation.
  * 
  * The Driver (main in an application, or the applet) should create a derivative
- * of UIInterface to initialise the system as appropriate for the context; a
+ * of UIInterface to initialize the system as appropriate for the context; a
  * LocalUIInterface exists for a single application simulation, and a
  * ClientInterface could be implemented to connect to a ServerInterface over
  * TCP/IP.
@@ -60,6 +60,12 @@ public interface UIInterface {
 
 		public void setCurrentFile(String input);
 
+		/**
+		 * Makes the user interface show which simulation configuration file 
+		 * is currently being used.
+		 * 
+		 * @param conf Contains all parameters used for the simulation.
+		 */
 		public void fileOpened(SimulationConfig conf);
 
 		public void setSimulation(UIInterface simulation);
@@ -120,6 +126,11 @@ public interface UIInterface {
 	 */
 	public int getWidth();
 
+	/**
+	 * This is currently being overwritten by the LocalUIInterface.
+	 * 
+	 * @see LocalUIInterface#insertPopulation(String, String)
+	 */
 	public boolean insertPopulation(String popName, String option) throws FileNotFoundException;
 
 	public boolean isRunnable();

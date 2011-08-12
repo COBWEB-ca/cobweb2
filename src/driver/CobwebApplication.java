@@ -50,6 +50,15 @@ import cobweb.UIInterface.MouseMode;
 import cobweb.UIInterface.UIClient;
 import driver.config.GUI;
 
+/**
+ * This class consists of methods to allow the user to use the Cobweb simulation
+ * tool.  It implements all necessary methods defined by the UIClient class, and
+ * makes use of the JFrame class.
+ * 
+ * @author Liang
+ * @since 
+ *
+ */
 public class CobwebApplication extends JFrame implements UIClient {
 
 	private static final String WINDOW_TITLE = "COBWEB 2";
@@ -61,6 +70,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 	private static final long serialVersionUID = 2112476687880153089L;
 
 	// $$$$$$ A file copy method. Feb 11
+	/**
+	 * Copies the contents from the source file to the destination file.  If 
+	 * the destination file does not exist, it will be created.
+	 * 
+	 * @param src The file name of the source file to be copied from
+	 * @param dest The file name of the destination file to be copied to 
+	 * @throws IOException 
+	 */
 	public static void copyFile(String src, String dest) throws IOException {
 		File sourceFile = new File(src);
 		File destFile = new File(dest);
@@ -169,6 +186,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 	 * instead.\n");" Feb 28 if (uiPipe != null)
 	 * uiPipe.writeToTextWindow("Track Agent is disabled for now! Please use the logging function instead.\n"); } }
 	 */
+	
+	/**
+	 * Creates the about dialog box, which contains information pertaining 
+	 * to the Cobweb version being used, and the date it was last modified.
+	 */
 	public void aboutDialog() {
 		final javax.swing.JDialog whatDialog = new javax.swing.JDialog(GUI.frame, // $$$$$$ change from Dialog mult. Feb
 				// 18
@@ -200,6 +222,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	// $$$$$$ Implement "create New Data". Mar 14
+	/**
+	 * Opens an initial simulation settings file using the simulation settings 
+	 * window.  The user can modify the simulation settings and save the 
+	 * settings to a new file.  The method is invoked when the user selects 
+	 * "Create New Data" located under "File" in the main tool bar.
+	 * 
+	 * @see CobwebApplication#onMenuCreateNew()
+	 */
 	public void createNewData() {
 		// $$$$$ a file named as the below name will be automatically created or modified when everytime running the
 		// $$$$$ following code. Please refer to GUI.GUI.close.addActionListener, "/* write UI info to xml file */". Jan
@@ -228,6 +258,16 @@ public class CobwebApplication extends JFrame implements UIClient {
 		 */
 	}
 
+	/**
+	 * Creates a dialog box with contact information about a specified person
+	 * in the credits menu.
+	 * 
+	 * @param parentDialog The credits dialog box that invoked the creation of this dialog box
+	 * @param S The contact information that will be shown in the dialog box.
+	 * @param length The length of the dialog box in pixels
+	 * @param width The width of the dialog box in pixels
+	 * @see CobwebApplication#creditsDialog()
+	 */
 	private void creditDialog(JDialog parentDialog, String[] S, int length, int width) { // $$$$$$ modified on Feb 22
 
 		final javax.swing.JDialog creditDialog = new javax.swing.JDialog(parentDialog, // $$$$$$ change from "this" to
@@ -265,6 +305,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	}
 
+	/**
+	 * The credits dialog box that is created when the user selects "Credits" 
+	 * located under "Help" in the main tool bar.  It contains a list of 
+	 * buttons for important people that can be contacted for more information 
+	 * about Cobweb.  The information can be accessed by clicking on the buttons.
+	 */
 	public void creditsDialog() {
 		final javax.swing.JDialog theDialog = new javax.swing.JDialog(GUI.frame, "Credits", // $$$$$$ change from Dialog
 				// mult. Feb 18
@@ -329,11 +375,21 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	}
 
+	/**
+	 * Returns the name of the file being used by the current simulation.
+	 * 
+	 * @return The name of the current file being used for the current simulation.
+	 */
 	// $$$$$$ Implemented on Mar 14
 	public String getCurrentFile() {
 		return currentFile;
 	}
 
+	/**
+	 * Returns the user interface pipe being used.
+	 * 
+	 * @return User Interface Pipe
+	 */
 	// $$$$$$ get UI. Mar 14
 	public UIInterface getUI() {
 		return uiPipe;
@@ -348,6 +404,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		return displayPanel != null && displayPanel.isReadyToRefresh();
 	}
 
+	/**
+	 * Provides the user interface pipe with the location of the log file to 
+	 * write to.
+	 * 
+	 * @param filePath The file path and file name.
+	 */
 	public void logFile(String filePath) {
 		if (uiPipe != null) {
 			try {
@@ -358,6 +420,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * Allows the user to select the log file to write to.
+	 */
 	public void logFileDialog() {
 		FileDialog theDialog = new FileDialog(this, // $$$$$$ modified from "this". Feb 29
 				"Choose a file to save log to", FileDialog.SAVE);
@@ -367,6 +432,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * Creates the main menu bar, which contains all options to allow the user 
+	 * to modify the simulation, save the simulation, etc.
+	 * 
+	 * @return The menu bar object.
+	 */
 	private JMenuBar makeMenuBar() {
 		// Build the menu items
 		JMenuItem openMenu = new JMenuItem("Open");
@@ -613,6 +684,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 		return myMenuBar;
 	}
 
+	/**
+	 * Copies the current simulation data being used to a temporary file, which 
+	 * can be modified and saved by the user.  
+	 * 
+	 * <p>Used when the user selects "File" -> "Modify Simulation"
+	 * 
+	 * @see CobwebApplication#onMenuModifyCurrent()
+	 */
 	// $$$$$$ Added for "Modify Current Data" menu. This method modifies only the data, but NOT the input file. Feb 12
 	private void openCurrentData() {
 		String currentData = CURRENT_DATA_FILE_NAME + TEMPORARY_FILE_EXTENSION;
@@ -630,6 +709,16 @@ public class CobwebApplication extends JFrame implements UIClient {
 		GUI.createAndShowGUI(this, currentData, true);
 	}
 
+	/**
+	 * Opens the simulation settings window with the current simulation file 
+	 * data.  The user can modify and save the file here.  If the user tries 
+	 * to overwrite data found in the default data file, a dialog box will be 
+	 * created to tell the user the proper way to create new default data.
+	 *   
+	 * <p>Used when the user selects "File" -> "Modify Simulation File"
+	 * 
+	 * @see CobwebApplication#onMenuModifyThis()
+	 */
 	public void openCurrentFile() { // $$$$$ "Modify This File" method
 		// $$$$$ a file named as the below name will be automatically created or modified when everytime running the
 		// following code. Please refer to GUI.GUI.close.addActionListener, "/* write UI info to xml file */". Jan 24
@@ -687,6 +776,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 		uiPipe.setRunnable(true);	
 	}
 
+	/**
+	 *Opens an existing xml file, selected by the user through a dialog box, 
+	 *which contains all the information for a simulation environment.
+	 *
+	 *<p> Used when the user selects "File" -> "Open"
+	 *
+	 *@see CobwebApplication#onMenuOpen()
+	 */
 	public void openFileDialog() {
 		FileDialog theDialog = new FileDialog(GUI.frame, // $$$$$$ modified from "this". Feb 29
 				"Open a State File", FileDialog.LOAD);
@@ -740,6 +837,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 	 * public void trackAgentFile(String filePath) { uiPipe
 	 * .writeToTextWindow("Track Agent is disabled for now! Please use the logging function instead.\n"); }
 	 */
+	
+	/**
+	 * Exits the CobwebApplication.
+	 * 
+	 * <p> Used when the user selects "File" -> "Quit"
+	 * 
+	 * @see CobwebApplication#onMenuQuit()
+	 */
 	public void quitApplication() {
 		if (uiPipe != null) {
 			uiPipe.killScheduler();
@@ -747,12 +852,23 @@ public class CobwebApplication extends JFrame implements UIClient {
 		System.exit(0);
 	}
 
+	/**
+	 * @see DisplayPanel#refresh(boolean)
+	 */
 	public void refresh(boolean wait) {
 		if (displayPanel != null) {
 			displayPanel.refresh(wait);
 		}
 	}
 
+	/**
+	 * Opens a dialog box for the user to select the file he/she would like 
+	 * to report to.
+	 * 
+	 * <p> Used when the user selects "File" -> "Report"
+	 * 
+	 * @see CobwebApplication#onMenuReport()
+	 */
 	public void reportDialog() {
 		FileDialog theDialog = new FileDialog(this, // $$$$$$ modified from "this". Feb 29
 				"Choose a file to save report to", FileDialog.SAVE);
@@ -762,6 +878,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * @param filePath file path and file name
+	 * @see UIInterface#report(String)
+	 */
 	public void reportFile(String filePath) {
 		if (uiPipe != null) {
 			try {
@@ -772,6 +892,13 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * Loads the default files simulation settings for the current simulation.  
+	 * Uses the default file if available.  If not, then it will create a temporary 
+	 * default data file to use.
+	 * 
+	 * <p> Used when the user selects "File" -> "Retrieve Default Data"
+	 */
 	// $$$$$$ Added for the "Retrieve Default Data" menu. Feb 18
 	private void retrieveDefaultData() {
 		// $$$$$$ Two fashions for retrieving default data:
@@ -819,6 +946,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		 */
 	}
 
+	/**
+	 * Saves the current data being used to savingFile.
+	 * 
+	 * @param savingFile Contains the file path and name
+	 * @see CobwebApplication#saveFileDialog()
+	 */
 	/*
 	 * $$$$$$ Modify this method to save test parameters rather than to save the state of the simulation. see
 	 * cobweb.LocalUIInterface#save Feb 12 public void saveFile(String filePath) { if (uiPipe != null) { try {
@@ -842,6 +975,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * Opens the dialog box to allow the user to select the file to save 
+	 * the current data to.
+	 */
 	public void saveFileDialog() {
 		FileDialog theDialog = new FileDialog(GUI.frame, // $$$$$$ modified from "this". Feb 29
 				"Choose a file to save state to", FileDialog.SAVE);
@@ -867,10 +1004,24 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * Sets the current file as input.
+	 * 
+	 * @param input Name of the new current file.
+	 */
 	public void setCurrentFile(String input) {
 		currentFile = input;
 	}
 
+	/**
+	 * Allows the user to select a new file to use as the default data file.  
+	 * The selected file is copied into the default data file if the default 
+	 * data file is writable or doesn’t exist.
+	 * 
+	 * Used when the user selects "File" -> "Set Default Data"
+	 * 
+	 * @see CobwebApplication#onMenuSetDefault()
+	 */
 	// $$$$$$ Implement the "Set Default Data" menu, using the default_data_(reserved).xml file. Feb 21
 	private void setDefaultData() {
 		String defaultData = DEFAULT_DATA_FILE_NAME + CONFIG_FILE_EXTENSION;
@@ -1021,6 +1172,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		uiPipe.start();
 	} // end of UISettings
 
+	
 	private void makeAgentFoodSelectMenu() {
 		JMenuItem foodtype[] = new JMenuItem[uiPipe.countAgentTypes()];
 		JMenuItem agentype[] = new JMenuItem[uiPipe.countAgentTypes()];
@@ -1039,6 +1191,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	
 	private class FoodMouseActionListener implements ActionListener {
 
 		private final int type;
@@ -1072,11 +1225,20 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private UIInterface uiPipe;
 
+	/**
+	 * Connects a user interface (simulation) to the graphical interface of the 
+	 * Cobweb application (uiPipe).
+	 * 
+	 * @param simulation The user interface used for the simulation.
+	 */
 	@Override
 	public void setSimulation(UIInterface simulation) {
 		uiPipe = simulation;
 	}
 
+	/**
+	 * @see CobwebApplication#openFileDialog()
+	 */
 	private void onMenuOpen() {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1086,6 +1248,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ Add "Set Default Data" menu. Feb 21
 	}
 
+	/**
+	 * @see CobwebApplication#setDefaultData()
+	 */
 	private void onMenuSetDefault() {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1093,19 +1258,28 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ Add "Retrieve Default Data" menu. Feb 4
 	}
 
-	// $$$$$$ If a "Test Data" window is open (visible), dispose it (when hitting a menu). Feb 29
+	/**
+	 * If a "Test Data" window is open (visible), dispose it (when hitting a 
+	 * menu). Feb 29
+	 */
 	private void disposeGUIframe() {
 		if (uiPipe != null && GUI.frame != null && GUI.frame.isVisible()) {
 			GUI.frame.dispose();
 		}
 	}
 
+	/**
+	 * @see CobwebApplication#aboutDialog()
+	 */
 	private void onMenuAbout() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		CobwebApplication.this.aboutDialog();
 	}
 
+	/**
+	 * @see CobwebApplication#createNewData()
+	 */
 	private void onMenuCreateNew() {
 		pauseUI(); // $$$$$$ Feb 12
 		if (GUI.frame != null && GUI.frame.isVisible()) {
@@ -1117,12 +1291,18 @@ public class CobwebApplication extends JFrame implements UIClient {
 		CobwebApplication.this.createNewData(); // $$$$$$ implemented on Mar 14
 	}
 
+	/**
+	 * @see CobwebApplication#creditsDialog()
+	 */
 	private void onMenuCredits() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		CobwebApplication.this.creditsDialog();
 	}
 
+	/**
+	 * @see UIInterface#insertPopulation(String, String)
+	 */
 	private void onMenuInsertSample() {
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		if (uiPipe != null) {
@@ -1148,6 +1328,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * @see CobwebApplication#logFileDialog()
+	 */
 	private void onMenuLog() {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1171,6 +1354,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		 */
 	}
 
+	/**
+	 * @see CobwebApplication#openCurrentData()
+	 */
 	private void onMenuModifyCurrent() {
 		pauseUI(); // $$$$$$ Feb 12
 		if (GUI.frame != null && GUI.frame.isVisible()) {
@@ -1183,6 +1369,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ Modified on Mar 14
 	}
 
+	/**
+	 * @see CobwebApplication#openCurrentFile()
+	 */
 	private void onMenuModifyThis() {
 		pauseUI(); // $$$$$$ Feb 12
 		if (GUI.frame != null && GUI.frame.isVisible()) {
@@ -1200,11 +1389,17 @@ public class CobwebApplication extends JFrame implements UIClient {
 		displayPanel.setMouseMode(MouseMode.Observe);
 	}
 
+	/**
+	 * @see CobwebApplication#quitApplication()
+	 */
 	private void onMenuQuit() {
 		CobwebApplication.this.quitApplication();
 		// $$$$$$ Implement "Show/Hide Info" menu. Mar 14
 	}
 
+	/**
+	 * @see UIInterface#clearAgents()
+	 */
 	private void onMenuRemoveAgents() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1219,6 +1414,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ Added on Feb 29
 	}
 
+	/**
+	 * @see UIInterface#clearAgents()
+	 * @see UIInterface#clearFood()
+	 * @see UIInterface#clearStones()
+	 */
 	private void onMenuRemoveAll() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1231,6 +1431,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * @see UIInterface#clearFood()
+	 */
 	private void onMenuRemoveFood() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1243,6 +1446,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// uiPipe.removeComponents(mode);
 	}
 
+	/**
+	 * @see UIInterface#clearStones()
+	 */
 	private void onMenuRemoveStones() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1255,6 +1461,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// uiPipe.removeComponents(mode);
 	}
 
+	/**
+	 * @see UIInterface#clearWaste()
+	 */
 	private void onMenuRemoveWaste() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1267,6 +1476,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// uiPipe.removeComponents(mode);
 	}
 
+	/**
+	 * @see CobwebApplication#reportDialog()
+	 */
 	private void onMenuReport() {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1281,6 +1493,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// CobwebApplication.this.reportDialog();
 	}
 
+	/**
+	 * @see CobwebApplication#retrieveDefaultData()
+	 */
 	private void onMenuRetrieveDefault() {
 		pauseUI(); // $$$$$$ Feb 12
 		if (GUI.frame != null && GUI.frame.isVisible()) {
@@ -1293,6 +1508,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ Added for "Modify Current Data" menu. Feb 12
 	}
 
+	/**
+	 * @see CobwebApplication#saveFileDialog()
+	 */
 	private void onMenuSave() {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1308,6 +1526,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * @see UIInterface#saveCurrentPopulation(String, String, int)
+	 */
 	private void onMenuSaveSample() {
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		if (uiPipe != null) {
@@ -1334,6 +1555,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
+	/**
+	 * Sets the mouse mode to allow adding stones to grid.
+	 * 
+	 * @see DisplayPanel#setMouseMode(MouseMode)
+	 */
 	private void onMenuStones() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
@@ -1341,6 +1567,15 @@ public class CobwebApplication extends JFrame implements UIClient {
 		displayPanel.setMouseMode(MouseMode.AddStone);
 	}
 
+	/**
+	 * Opens a dialog box to allow the user to select the option of replacing the 
+	 * current population, or merge with the the current population.
+	 * 
+	 * <p> Used when the user selects "File" -> "Insert Sample Population"
+	 * 
+	 * @return The option selected by the user.
+	 * @see CobwebApplication#onMenuInsertSample()
+	 */
 	private String openInsertSamplePopOptionsDialog() {
 		JRadioButton b1 = new JRadioButton("Replace current population");
 		JRadioButton b2 = new JRadioButton("Merge with current population");
@@ -1376,6 +1611,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 		return result;
 	}
 
+	/**
+	 * Creates a hash that contains the information of whether the user selected 
+	 * to save as a population or an amount, and what percentage or amount.
+	 * 
+	 * <p>Used when the user selects "File" -> "Save Sample Population"
+	 * 
+	 * @return A hash of the options the user selected.
+	 */
 	private HashMap<String, Object> openSaveSamplePopOptionsDialog() {
 
 		JRadioButton b1 = new JRadioButton("Save a percentage (%) between 1-100");
@@ -1434,6 +1677,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	}
 
+	/**
+	 * @see UIInterface#pause()
+	 */
 	// $$$$$$ A facilitating method to ensure the UI to pause. Feb 12
 	private void pauseUI() {
 		if (uiPipe != null && uiPipe.isRunning()) { // $$$$$$ changed from

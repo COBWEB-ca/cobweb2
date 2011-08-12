@@ -38,6 +38,11 @@ import cwcore.complexParams.ComplexFoodParams;
 import driver.ControllerFactory;
 import driver.SimulationConfig;
 
+/**
+ * This class contains an implementation of the TickScheduler.Client class.
+ * 
+ * @author ???
+ */
 public class ComplexEnvironment extends Environment implements TickScheduler.Client {
 
 	public static class CommManager {
@@ -478,6 +483,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		clearFlag(FLAG_WASTE);
 	}
 
+	/**
+	 * Calls get methods to obtain parameters from the current simulation 
+	 * configuration file.
+	 *  
+	 * @param p The current simulation configuration file.
+	 */
 	private void copyParamsFromParser(SimulationConfig p) {
 		data = p.getEnvParams();
 
@@ -893,6 +904,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		clearAgents();
 	}
 
+	/**
+	 * Loads a new complex environment using the data held within the simulation 
+	 * configuration object, p, and attaches the scheduler to the environment.
+	 * 
+	 * @param s The simulation scheduler used to control the time.
+	 * @param p The simulation configuration settings
+	 * @see cobweb.Environment#load(Scheduler, SimulationConfig)
+	 */
 	@Override
 	public void load(Scheduler s, SimulationConfig p) throws IllegalArgumentException {
 		super.load(s, p);

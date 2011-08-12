@@ -9,10 +9,15 @@ import cobweb.Controller;
 import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.SeeInfo;
 
+/**
+ * This class contains methods that set up the parameters for agents 
+ * that are used to influence the actions of the agents.
+ * 
+ * @author ???
+ *
+ */
 public class GeneticController implements cobweb.Controller, Serializable{
-	/**
-	 *
-	 */
+
 	private static final long serialVersionUID = 8777222590971142868L;
 
 	BehaviorArray ga;
@@ -40,12 +45,21 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		// Nothing
 	}
 
+	/**
+	 * Converts the parameters of the agent into a behavior (turn left or right, 
+	 * step).
+	 * 
+	 *@see cwcore.BehaviorArray
+	 *@see ComplexAgent#turnLeft()
+	 *@see ComplexAgent#turnRight()
+	 *@see ComplexAgent#step()
+	 */
 	public void controlAgent(cobweb.Agent baseAgent) {
 		ComplexAgent theAgent = (ComplexAgent) baseAgent;
 
-		BitField inputCode = new BitField();
+		BitField inputCode = new BitField(); //inputCode = 0
 
-		if (theAgent.getEnergy() > ENERGY_THRESHOLD)
+		if (theAgent.getEnergy() > ENERGY_THRESHOLD) //inputCode = 11
 			inputCode.add(3, 2);
 		else
 			inputCode.add((int) ((double) theAgent.getEnergy()

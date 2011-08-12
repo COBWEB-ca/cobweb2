@@ -5,7 +5,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 
-/** Dimensionality independent notion of a direction */
+/** 
+ * Dimensionality independent notion of a direction.  The integer 
+ * v is a vector representation of the direction, defined by the
+ * environment. 
+*/
 public class Direction {
 
 	public int[] v;

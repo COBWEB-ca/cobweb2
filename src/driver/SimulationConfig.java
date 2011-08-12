@@ -70,6 +70,9 @@ public class SimulationConfig {
 
 	private TemperatureParams tempParams;
 
+	/**
+	 * Creates the default Cobweb simulation parameters.
+	 */
 	public SimulationConfig() {
 		envParams = new ComplexEnvironmentParams();
 
@@ -102,6 +105,14 @@ public class SimulationConfig {
 		this.fileName = ":STREAM:" + file.toString() + ":";
 		loadFile(file);
 	}
+	
+	/**
+	 * Constructor that allows input from a file to configure the simulation parameters.
+	 * 
+	 * @param fileName Name of the file used for simulation configuration.
+	 * @throws FileNotFoundException
+	 * @see {@link SimulationConfig#loadFile(InputStream)}
+	 */
 	public SimulationConfig(String fileName) throws FileNotFoundException {
 		this();
 		this.fileName = fileName;
@@ -116,6 +127,9 @@ public class SimulationConfig {
 		return diseaseParams;
 	}
 
+	/**
+	 * @return The environment parameters for the current simulation.
+	 */
 	public ComplexEnvironmentParams getEnvParams() {
 		return envParams;
 	}
@@ -137,7 +151,24 @@ public class SimulationConfig {
 		return tempParams;
 	}
 
-
+	/**
+	 * This method extracts data from the simulation configuration file and 
+	 * loads the data into the simulation parameters.  It does this by first 
+	 * creating a tree that holds all data from file using the DocumentBuilder 
+	 * class.  Next, the root node of the tree is passed to the 
+	 * AbstractReflectionParams.loadConfig(Node) method for processing.  This 
+	 * processing allows the ConfXMLTags to overwrite the default parameters 
+	 * used when constructing Cobweb environment parameters.
+	 * 
+	 * <p>Once the environment parameters have been extracted successfully, 
+	 * the rest of the Cobweb parameters can be set (temperature, genetics, 
+	 * agents, etc.) using the environment parameters.
+	 * 
+	 * @param file The current simulation configuration file.
+	 * @see cobweb.params.AbstractReflectionParams#loadConfig(Node)
+	 * @see javax.xml.parsers.DocumentBuilder
+	 * @throws IllegalArgumentException Unable to open the simulation configuration file.
+	 */
 	private void loadFile(InputStream file) throws IllegalArgumentException {
 
 		// read these variables from the xml file

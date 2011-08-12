@@ -11,9 +11,20 @@ import cobweb.UIInterface;
 import cobweb.UIInterface.UIClient;
 import driver.config.GUI;
 
-
+/**
+ * This class contains the main method to drive the application.  
+ * 
+ * @author Cobweb Team (Might want to specify)
+ *
+ */
 public class CobwebApplicationRunner {
 
+	/**
+	 * The NullDisplayApplication class is used when the user uses the -hide flag.  
+	 * Otherwise, the CobwebApplication class will be used.
+	 * 
+	 * @see CobwebApplication
+	 */
 	private static final class NullDisplayApplication implements UIClient {
 
 		@Override
@@ -44,6 +55,36 @@ public class CobwebApplicationRunner {
 
 	static UIInterface simulation;
 
+	/**
+	 * The main function is found here for the application version of cobweb.  
+	 * It initializes the simulation and settings using a settings file optionally 
+	 * defined by the user.
+	 * 
+	 * <p>Switches: 
+	 * 
+	 * <p><p> --help Prints the various flags that can be used to run the program:
+	 * Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] 
+	 * [[-open] SettingsFile.xml]"
+	 * 
+	 * <p> -hide When the hide flag is used, the user interface does not initialize 
+	 * (visible is set to false).  If visible is set to false, the User Interface 
+	 * Client will be set to a “NullDisplayApplication” rather than a 
+	 * “CobwebApplication”.  Need to specify an input file to use this switch.
+	 * 
+	 * <p> -open [must specify] If not used, the default is 
+	 * CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME  + 
+	 * CobwebApplication.CONFIG_FILE_EXTENSION otherwise will be set to 
+	 * whatever the user specifies.  The input file contains the initial conditions 
+	 * of the simulation (AgentTypeCount, FoodTypeCount, etc.)
+	 * 
+	 * <p> -log [must specify] Specify the name of the log file.
+	 * 
+	 * <p> -autorun [specify integer >= -1]
+	 * 
+	 * @param args
+	 * @see CobwebApplication#INITIAL_OR_NEW_INPUT_FILE_NAME
+	 * @see CobwebApplication#CONFIG_FILE_EXTENSION
+	 */
 	public static void main(String[] args) {
 
 		// Process Arguments`

@@ -31,6 +31,9 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 
 	Map<ComplexAgent, Boolean> sick = new HashMap<ComplexAgent, Boolean>();
 
+	/**
+	 * DiseaseMutator is an instance of Contanct and Spawn Mutators
+	 */
 	public DiseaseMutator() {
 		sickCount = new int[0];
 	}
