@@ -26,8 +26,6 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, cobweb.Tick
 
 	private DiseaseParams[] params;
 
-	private static final Collection<String> blank = new LinkedList<String>();
-
 	private int sickCount[];
 
 	Map<ComplexAgent, State> sick = new HashMap<ComplexAgent, State>();

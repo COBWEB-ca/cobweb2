@@ -297,18 +297,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	public int count = 0;
 
-	private SimulationConfig[] parsedfiles;
-
-	private SimulationConfig currentParser;
-
-	private int[] pauseAt;
-
-	private int files = 0;
-
-	private int totalfilenum = 0;
-
-	private long tickcounter = 0;
-
 	private JButton pauseButton;
 
 	private boolean runnable = false;
@@ -392,11 +380,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		// timeout.
 		// // ^ odd, works fine
 		// doRefreshNotification();
-	}
-
-	// return current Parser being dealt with
-	public SimulationConfig getcurrentParser() {
-		return currentParser;
 	}
 
 	@Override
@@ -590,11 +573,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		tickNotification(0);
 
 		theClient.fileOpened(p);
-	}
-
-	private void loadNewDataFile(int n) {
-		this.load(parsedfiles[n]);
-		currentParser = parsedfiles[n];
 	}
 
 	/**
@@ -797,18 +775,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	/** ********************************************************************** */
 	public void tickNotification(long tickCount) {
 		myClock = tickCount;
-		if (files < totalfilenum && (tickCount + 1) == (pauseAt[files] + tickcounter)) {
-			this.pause();
-			tickcounter = pauseAt[files];
-			files++;
-			if (files < totalfilenum) {
-				loadNewDataFile(files);
-				this.resume();
-			}
-		}
-		if (pauseAt != null && files >= pauseAt.length) {
-			this.pause();
-		}
 
 		for (TickEventListener listener : tickListeners) {
 			listener.TickPerformed(tickCount);
