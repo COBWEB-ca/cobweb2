@@ -185,35 +185,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	protected boolean pregnant = false;
 
-	private static boolean tracked = false;
-
-	// static-izing the writer. Doesn't seem feasible to have a writer for each
-	// agent.
-	// main issue is speed and also the need to find a graceful way to produce
-	// the output
-	// (dumping 200 .txt files != graceful).
-	private static java.io.Writer writer;
-
 	public static final int LOOK_DISTANCE = 4;
-
-	public static void clearData() {
-		if (tracked)
-			ComplexAgentInfo.resetGroupData();
-	}
-
-	public static void dumpData(long tick) {
-		if (tracked)
-			ComplexAgentInfo.dumpGroupData(tick, writer);
-	}
-
-	public static void setPrintWriter(java.io.Writer w) {
-		writer = w;
-	}
-
-	// static-izing this too. see the comment above
-	public static void tracked() {
-		tracked = true;
-	}
 
 	/** The current tick we are in (or the last tick this agent was notified */
 	protected long currTick = 0;
@@ -349,7 +321,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	private void afterTurnAction() {
-		energy -= energyPenalty(true);
+		energy -= energyPenalty();
 		if (energy <= 0)
 			die();
 		if (!pregnant)
@@ -557,16 +529,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		adjacentAgent.die();
 	}
 
-	public double energyPenalty(boolean log) {
+	public double energyPenalty() {
 		if (!params.agingMode)
 			return 0.0;
 		double tempAge = currTick - birthTick;
 		assert(tempAge == age);
 		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
 				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
-		if (tracked && log) {
-			info.useExtraEnergy(penaltyValue);
-		}
 
 		return penaltyValue;
 	}
@@ -1093,7 +1062,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 					breedPos = getPosition();
 					energy -= params.initEnergy;
-					energy -= energyPenalty(true);
+					energy -= energyPenalty();
 					wasteCounterLoss -= params.initEnergy;
 					info.useOthers(params.initEnergy);
 
@@ -1215,7 +1184,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			info.useRockBumpEnergy(params.stepRockEnergy);
 			info.addRockBump();
 		}
-		energy -= energyPenalty(true);
+		energy -= energyPenalty();
 
 		if (energy <= 0)
 			die();
@@ -1278,10 +1247,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		controller.controlAgent(this);
 
 		afterController();
-
-		/* track me */
-		if (tracked)
-			poll();
 
 		/* Produce waste if able */
 		if (params.wasteMode)

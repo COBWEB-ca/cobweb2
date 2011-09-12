@@ -340,15 +340,6 @@ public abstract class Environment {
 
 	public static final Direction DIRECTION_SOUTHWEST = new Direction(new int[] { -1, +1 });
 
-	/**
-	 * Report to a stream
-	 * 
-	 * @param w Where to log tracking information
-	 * */
-	public static void trackAgent(java.io.Writer w) {
-		throw new RuntimeException("Not implemented, but your Environment subclass should shadow this function");
-	}
-
 	protected Scheduler theScheduler;
 
 	/**

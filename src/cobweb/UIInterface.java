@@ -252,12 +252,6 @@ public interface UIInterface {
 	 */
 	public void start();
 
-	/**
-	 * Request that the trackAgent information from the simulation be stored in
-	 * the file specified.
-	 */
-	public void trackAgent(String filePath) throws IOException;
-
 	public void unObserve();
 
 	/**
