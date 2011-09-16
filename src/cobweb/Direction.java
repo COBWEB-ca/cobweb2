@@ -45,6 +45,10 @@ public class Direction {
 		return true;
 	}
 
+	/**
+	 * Flip the direction 180 degrees and return the new direction.
+	 * @return This direction, flipped 180 degrees.
+	 */
 	public Direction flip() {
 		return new Direction(-v[0], -v[1]);
 	}

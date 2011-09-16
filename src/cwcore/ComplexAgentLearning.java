@@ -28,9 +28,6 @@ import eventlearning.SmartAction;
 
 public class ComplexAgentLearning extends ComplexAgent {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6166561879146733801L;
 
 
@@ -38,15 +35,18 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	public static List<Occurrence> allOccurrences = new LinkedList<Occurrence>();
 
+	/**
+	 * A collection of events in memory.
+	 */
 	public Collection<MemorableEvent> memEvents;
 
 
 	private Collection<Queueable> queueables;
 
-	/*
+	/**
 	 * MemorableEvents are placed in the agent's memory with this method. Earliest memories will
 	 * be forgotten when the memory limit is exceeded.
-	 * 
+	 * <br />
 	 * TODO: Forget memories as time passes
 	 */
 	public void remember(MemorableEvent event) {
@@ -62,22 +62,26 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 	}
 
-	/*
+	/**
 	 * Events are queued using this method
+	 * @param act The action to add to the queue.
 	 */
 	public void queue(Queueable act) {
 		if (act == null) {
 			return;
 		}
+
 		if (queueables == null) {
 			queueables = new LinkedList<Queueable>();
 		}
+
 		queueables.add(act);
 	}
 
 
 	// $$$$$$ Changed March 21st, breedPos used to be local to the step() method
 	private cobweb.Environment.Location breedPos = null;
+
 
 	public LearningAgentParams lParams;
 
@@ -95,6 +99,10 @@ public class ComplexAgentLearning extends ComplexAgent {
 		return currTick;
 	}
 
+	/**
+	 * Add the given amount to the agent's energy.
+	 * @param amount Amount to add.
+	 */
 	public void changeEnergy(int amount) {
 		energy += amount;
 	}

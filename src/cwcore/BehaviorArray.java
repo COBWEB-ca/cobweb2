@@ -7,13 +7,23 @@ import cobweb.RandomNoGenerator;
  * return a set of corresponding output bits. A set of output bits are stored for each permutation and thus the size of
  * this array grow exponentially with the number of input bits.
  *
- * Input: A collection of 6 bit groups combined into a single number: 1) 2 bits for first "seen" object (nothing, agent,
- * food, barrier) 2) 2 bits for distance of "seen" object 3) n bits for memory input (n equal to mem output from
- * previous timestep) 4) m bits for communication code received (m equal to communication from output) 5) 2 bits for
- * orientation (N(00),S(01),E(10),W(11)) 6) 2 bits for agent's current energy level == floor(E/40) and no more than 3
- * Output: A collection of 4 outputs: 1) 2 bits for physical action (0-left, 1-right, 2-stop, 3-step) 2) n bits for
- * memory output (n is user specified) 3) m bits for communication w/ other agents 4) 1 bit for sexual(0)/asexual(1)
- * reproduction
+ * Input: A collection of 6 bit groups combined into a single number: 
+ * <ol>
+ * <li> 2 bits for first "seen" object (nothing, agent, food, barrier) </li>
+ * <li> 2 bits for distance of "seen" object </li>
+ * <li> n bits for memory input (n equal to mem output from previous timestep) </li>
+ * <li> m bits for communication code received (m equal to communication from output) </li>
+ * <li> 2 bits for orientation (N(00),S(01),E(10),W(11)) </li>
+ * <li> 2 bits for agent's current energy level == floor(E/40) and no more than 3 </li>
+ * </ol>
+ * 
+ * Output: A collection of 4 outputs:
+ * <ol>
+ * <li> 2 bits for physical action (0-left, 1-right, 2-stop, 3-step) </li>
+ * <li> n bits for memory output (n is user specified) </li>
+ * <li> m bits for communication w/ other agents </li>
+ * <li> 1 bit for sexual(0)/asexual(1)reproduction </li>
+ * </ol>
  *
  * In addition to associating a group of output bits with each permutation of input bits, BehaviorArray splits the
  * output into functional pieces, and during mutation and similarity operations it examines these pieces individually.
@@ -71,19 +81,33 @@ public class BehaviorArray {
 	private final int[] outputSize;
 
 	private final int inputSize;
-
+	/**
+	 * Mask for all output bits in the form 0, 1, 2.., inputSize - 1
+	 */
 	private final int totalInMask;
-
+	/**
+	 * Mask for all output bits in the form 0, 1, 2.., outputBits - 1
+	 */
 	private final int totalOutMask;
 
 	private int outputBits;
 
+	/**
+	 * totalInts is equal to the totalbits divided by 32 (there's 32 bits in an int) plus 1 since we might have a
+	 * partial int used and the shift operation will round down. Certain methods also assume the existance of this
+	 * extra int
+	 */
 	private int totalInts;
 
 	private final int[] array;
-
+	/**
+	 * number of elements is the number of permutations for the input bits
+	 */
 	private final int size;
 
+	/**
+	 * totalBits is equal to the output size times the number of permutations for the input bits
+	 */
 	private final int totalBits;
 
 	/**
@@ -97,8 +121,8 @@ public class BehaviorArray {
 		 */
 		inputSize = input;
 		outputSize = output;
-
 		outputBits = 0;
+
 		for (int i = 0; i < outputSize.length; ++i) {
 			outputBits += outputSize[i];
 		}
@@ -106,35 +130,17 @@ public class BehaviorArray {
 		if (inputSize > 32) {
 			throw new java.lang.IllegalArgumentException("inputSize exceded 32");
 		}
+
 		if (outputBits > 32) {
 			throw new java.lang.IllegalArgumentException("outputBits exceded 32");
 		}
-		/*
-		 * Mask for all output bits in the form 0,1,2..,outputBits-1
-		 */
+
 		totalOutMask = (1 << (outputBits)) - 1;
-
-		/*
-		 * Mask for all output bits in the form 0,1,2..,inputSize-1
-		 */
 		totalInMask = (1 << (inputSize)) - 1;
-
-		/*
-		 * number of elements is the number of permutations for the input bits
-		 */
 		size = (1 << (inputSize));
-
-		/*
-		 * totalBits is equal to the output size times the number of permutations for the input bits
-		 */
 		totalBits = outputBits * size;
-
-		/*
-		 * totalInts is equal to the totalbits divided by 32 (there's 32 bits in an int) plus 1 since we might have a
-		 * partial int used and the shift operation will round down. Certain methods also assume the existance of this
-		 * extra int
-		 */
 		totalInts = (totalBits >> 5) + 1;
+
 		if (totalInts == 1) {
 			totalInts = 2;
 		}
@@ -221,9 +227,11 @@ public class BehaviorArray {
 	public int[] getOutput(int in) {
 		int[] out = new int[outputSize.length];
 		BitField outputCode = new BitField(get(in & totalInMask));
+
 		for (int i = 0; i < outputSize.length; ++i) {
 			out[i] = outputCode.remove(outputSize[i]);
 		}
+
 		return out;
 	}
 

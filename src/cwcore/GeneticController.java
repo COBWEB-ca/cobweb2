@@ -10,10 +10,13 @@ import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.SeeInfo;
 
 public class GeneticController implements cobweb.Controller, Serializable{
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 8777222590971142868L;
+
+	//true, false, file not found
+	protected final static int TURN_LEFT = 0;
+	protected final static int TURN_RIGHT = 1;
+	protected final static int MOVE_STRAIGHT = 2;
+	protected final static int NONE = 3;
 
 	BehaviorArray ga;
 	int memorySize;
@@ -40,49 +43,79 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		// Nothing
 	}
 
+	/**
+	 * Given the agent's energy, get the amount of energy to add to the array.
+	 * @param energy The agent's energy.
+	 */
+	protected int getEnergy(int energy) {
+		final int maxEnergy = 3;
+
+		if(energy > ENERGY_THRESHOLD) {
+			return maxEnergy;
+		} else {
+			return (int) ((double) energy / (ENERGY_THRESHOLD) * 4.0);
+		}
+	}
+
+	/**
+	 * Given an agent, control the agent.
+	 * @param baseAgent The agent.
+	 */
 	public void controlAgent(cobweb.Agent baseAgent) {
 		ComplexAgent theAgent = (ComplexAgent) baseAgent;
 
-		BitField inputCode = new BitField();
-
-		if (theAgent.getEnergy() > ENERGY_THRESHOLD)
-			inputCode.add(3, 2);
-		else
-			inputCode.add((int) ((double) theAgent.getEnergy()
-					/ (ENERGY_THRESHOLD) * 4.0), 2);
-
-		inputCode.add(theAgent.getIntFacing(), 2);
-
-		SeeInfo get = theAgent.distanceLook();
-		int type = get.getType();
-		int dist = get.getDist();
-		inputCode.add(type, 2);
-		inputCode.add(dist, 2);
-
-		inputCode.add(theAgent.getMemoryBuffer(), memorySize);
-		inputCode.add(theAgent.getCommInbox(), commSize);
+		BitField inputCode = getInputArray(theAgent);
 
 		int[] outputArray = ga.getOutput(inputCode.intValue());
 
 		int actionCode = outputArray[0];
 		theAgent.setMemoryBuffer(outputArray[1]);
 		theAgent.setCommOutbox(outputArray[2]);
+		//whether to breed 
 		theAgent.setAsexFlag(outputArray[3] != 0);
 
 		theAgent.setCommInbox(0);
 
 		switch (actionCode) {
-			case 0:
+			case TURN_LEFT:
 				theAgent.turnLeft();
 				break;
-			case 1:
+			case TURN_RIGHT:
 				theAgent.turnRight();
 				break;
-			case 2:
-			case 3:
+			case MOVE_STRAIGHT:
+			case NONE:
 				theAgent.step();
+				break;
 		}
+	}
 
+	/**
+	 * Given an agent, read all information for it and compound it into an array.
+	 * @param theAgent The agent.
+	 * @return The input array.
+	 */
+	private BitField getInputArray(ComplexAgent theAgent) {
+		BitField inputCode = new BitField();
+
+		//add the energy info to the array
+		inputCode.add(getEnergy(theAgent.getEnergy()), 2);
+
+		//add the direction the agent is facing to the array
+		inputCode.add(theAgent.getIntFacing(), 2);
+
+		//add the viewing info to the array
+		SeeInfo get = theAgent.distanceLook();
+		inputCode.add(get.getType(), 2);
+		inputCode.add(get.getDist(), 2);
+
+		//add the memory buffer to the array
+		inputCode.add(theAgent.getMemoryBuffer(), memorySize);
+
+		//add the communications to the array
+		inputCode.add(theAgent.getCommInbox(), commSize);
+
+		return inputCode;
 	}
 
 	public CobwebParam getParams() {
