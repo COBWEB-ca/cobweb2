@@ -111,14 +111,18 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		simCalc = calc;
 	}
 
+	/**
+	 * The agent's type.
+	 */
 	protected int agentType = 0;
-
 
 	public ComplexAgentParams params;
 
-	/* energy gauge */
+	/**
+	 * Energy gauge 
+	 */
 	protected int energy;
-	/* Prisoner's Dilemma */
+	/** Prisoner's Dilemma */
 	private int agentPDStrategy; // tit-for-tat or probability
 	int pdCheater; // The agent's action; 1 == cheater, else
 	// cooperator
