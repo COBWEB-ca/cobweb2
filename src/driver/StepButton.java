@@ -5,10 +5,10 @@ import javax.swing.JButton;
 import javax.swing.JTextField;
 
 /**
+ *This class represents the button responsible for advancing 
+ *the application by one time tick.
  *
- * @author skinawy This class represents the button responsible for advancing
- *         the appliaction by one time tick.
- *
+ * @author skinawy
  */
 public class StepButton extends JButton implements
 		java.awt.event.ActionListener {

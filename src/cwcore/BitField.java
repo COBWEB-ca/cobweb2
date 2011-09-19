@@ -1,7 +1,7 @@
 package cwcore;
 
 /**
- * The BitField class is used to store several numbers in a field of bits. This class is used for, amoung other things,
+ * The BitField class is used to store several numbers in a field of bits. This class is used for, among other things,
  * combining different input numbers into a single index number for use with BehaviorArray
  * 
  * BitField is first-in, last-out.

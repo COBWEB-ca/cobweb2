@@ -94,6 +94,10 @@ public abstract class Environment {
 				v[i] = axisPos[i];
 		}
 
+		/**
+		 * @param dir The direction of the agent
+		 * @return True if axis wraps and the next location is off the map
+		 */
 		public boolean checkFlip(Direction dir) {
 			int y = v[1] + dir.v[1];
 			return (y < 0 || y >= getSize(AXIS_Y)) && getAxisWrap(AXIS_Y);
@@ -481,7 +485,9 @@ public abstract class Environment {
 
 	}
 
-	/** Returns a random location. */
+	/** 
+	 * @return Random location. 
+	 */
 	public Location getRandomLocation() {
 		Location l;
 		do {
@@ -513,6 +519,11 @@ public abstract class Environment {
 		return l;
 	}
 
+	/**
+	 * This is currently being overwritten by the ComplexEnvironment class.
+	 * 
+	 * @see cwcore.ComplexEnvironment#insertPopulation(String, String)
+	 */
 	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
 		// TODO Auto-generated method stub
 		return false;
@@ -521,8 +532,11 @@ public abstract class Environment {
 	/**
 	 * Load environment from parameters
 	 * 
+	 * <p>This is currently being overwritten by the ComplexEnvironment class.
+	 * 
 	 * @param scheduler the Scheduler to use
 	 * @param parameters the parameters
+	 * @see cwcore.ComplexEnvironment#load(Scheduler, SimulationConfig)
 	 **/
 	public void load(Scheduler scheduler, SimulationConfig parameters) throws IllegalArgumentException {
 		tileColors = new Color[parameters.getEnvParams().getWidth() * parameters.getEnvParams().getHeight()];

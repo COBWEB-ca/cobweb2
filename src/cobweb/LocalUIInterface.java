@@ -30,6 +30,13 @@ import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
 import driver.SimulationConfig;
 
+/**
+ * This class provides the definitions for a user interface that is running 
+ * on a local machine.  
+ * 
+ * @author ???
+ *
+ */
 public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
 
 	/**
@@ -321,19 +328,27 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * 
 	 * @param client the UIClient to notify of new frame data.
 	 */
-
 	public LocalUIInterface(UIClient client) {
 		theClient = client;
 	}
 
+	/**
+	 * @see ComplexEnvironment#addAgent(int, int, int)
+	 */
 	public void addAgent(int x, int y, int type) {
 		theEnvironment.addAgent(x, y, type);
 	}
 
+	/**
+	 * @see ComplexEnvironment#addFood(int, int, int)
+	 */
 	public void addFood(int x, int y, int type) {
 		theEnvironment.addFood(x, y, type);
 	}
 
+	/**
+	 * @see ComplexEnvironment#addStone(int, int)
+	 */
 	public void addStone(int x, int y) {
 		theEnvironment.addStone(x, y);
 	}
@@ -447,6 +462,14 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		return theEnvironment.getSize(0);
 	}
 
+	/**
+	 * Initialize the specified Environment class.  The environment is created using the 
+	 * environmentName.load method.
+	 * 
+	 * @param environmentName Class name of the environment used in this simulation.
+	 * @param p Simulation parameters that can be defined by the simulation data file (xml file).
+	 * @see Environment#load(Scheduler, SimulationConfig)
+	 */
 	private void InitEnvironment(String environmentName, SimulationConfig p) {
 		try {
 			if (theEnvironment == null || !theEnvironment.getClass().equals(Class.forName(environmentName))) {
@@ -469,8 +492,13 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Initialize the specified Scheduler class with state data read from the
-	 * Reader. This is a private helper to the LocalUIInterface constructor.
+	 * Initialize the specified Scheduler class with state data read from the 
+	 * reader. The type of scheduler used can be determined by the "scheduler" field 
+	 * in the simulation data file being used.  This is a private helper to the 
+	 * LocalUIInterface constructor.
+	 * 
+	 * @param schedulerName Class name of the scheduler used in this simulation.
+	 * @param p Simulation parameters that can be defined by the simulation data file (xml file).
 	 */
 	private void InitScheduler(String schedulerName, SimulationConfig p) {
 		try {
@@ -491,6 +519,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		}
 	}
 
+	/**
+	 * @see Environment#insertPopulation(String, String)
+	 */
 	@Override
 	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
 
@@ -524,8 +555,14 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Initialize the specified environment class with state data read from the
-	 * Reader. This is a private helper to the LocalUIInterface constructor.
+	 * Initialize the specified environment class with state data read from the 
+	 * reader. It first adds the various mutators used to modify actions in the 
+	 * event that the agent spawns, steps, or contacts another agent.  It then 
+	 * uses the simulation parameters to modify the properties of the mutators.  
+	 * It then initializes the simulation environment (InitEnvironment) using 
+	 * the simulation configuration object.  Finally, it will start the scheduler, 
+	 * which will start the simulation.  This is a private helper to the 
+	 * LocalUIInterface constructor.
 	 */
 	public void load(SimulationConfig p) {
 		InitScheduler(p.getEnvParams().schedulerName, p);
@@ -772,7 +809,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		// Nothing
 	}
 
-	/** ********************************************************************** */
+	/** 
+	 * A check is made to see if the simulation has completed.  If so, the next simulation 
+	 * will be loaded.
+	 */
 	public void tickNotification(long tickCount) {
 		myClock = tickCount;
 

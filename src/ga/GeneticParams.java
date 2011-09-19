@@ -87,6 +87,10 @@ public class GeneticParams extends AbstractReflectionParams {
 			return field.hashCode();
 		}
 
+		/**
+		 * 
+		 * @param f
+		 */
 		public Phenotype(Field f) {
 			if (f != null &&
 					(f.getAnnotation(GeneMutatable.class) == null || f.getAnnotation(ConfDisplayName.class) == null))
@@ -208,6 +212,9 @@ public class GeneticParams extends AbstractReflectionParams {
 	private static final Pattern geneValRE = Pattern.compile("agent(\\d+)gene(\\d+)");
 	private static final Pattern phenotypeRE = Pattern.compile("linkedphenotype(\\d+)");
 
+	/**
+	 * 
+	 */
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		super.loadConfig(root);

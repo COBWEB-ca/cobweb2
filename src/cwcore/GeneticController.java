@@ -9,6 +9,13 @@ import cobweb.Controller;
 import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.SeeInfo;
 
+/**
+ * This class contains methods that set up the parameters for agents 
+ * that are used to influence the actions of the agents.
+ * 
+ * @author ???
+ *
+ */
 public class GeneticController implements cobweb.Controller, Serializable{
 	private static final long serialVersionUID = 8777222590971142868L;
 
@@ -57,9 +64,15 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		}
 	}
 
+
 	/**
-	 * Given an agent, control the agent.
-	 * @param baseAgent The agent.
+	 * Converts the parameters of the agent into a behavior (turn left or right, 
+	 * step).
+	 * 
+	 *@see cwcore.BehaviorArray
+	 *@see ComplexAgent#turnLeft()
+	 *@see ComplexAgent#turnRight()
+	 *@see ComplexAgent#step()
 	 */
 	public void controlAgent(cobweb.Agent baseAgent) {
 		ComplexAgent theAgent = (ComplexAgent) baseAgent;
@@ -144,7 +157,9 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		memorySize = p.memorySize;
 	}
 
-	/** sexual reproduction
+	/** 
+	 * sexual reproduction
+	 * 
 	 * @param parent1 first parent
 	 * @param parent2 second parent
 	 * @param mutationRate mutation rate
