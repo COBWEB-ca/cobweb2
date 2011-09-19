@@ -125,7 +125,9 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		memorySize = p.memorySize;
 	}
 
-	/** sexual reproduction
+	/** 
+	 * sexual reproduction
+	 * 
 	 * @param parent1 first parent
 	 * @param parent2 second parent
 	 * @param mutationRate mutation rate

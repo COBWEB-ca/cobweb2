@@ -34,6 +34,9 @@ import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
 import disease.DiseaseParams;
 
+/**
+ * Used to organize, modify, and access simulation parameters.
+ */
 public class SimulationConfig {
 	private static void removeIgnorableWSNodes(Element parent) {
 		Node nextNode = parent.getFirstChild();
@@ -100,6 +103,11 @@ public class SimulationConfig {
 
 	}
 
+	/**
+	 * Constructor that allows input from a file stream to configure simulation parameters.
+	 * 
+	 * @param file Input file stream.
+	 */
 	public SimulationConfig(InputStream file) {
 		this();
 		this.fileName = ":STREAM:" + file.toString() + ":";
@@ -119,34 +127,51 @@ public class SimulationConfig {
 		loadFile(new FileInputStream(fileName));
 	}
 
+	/**
+	 * @return Agent parameters
+	 */
 	public ComplexAgentParams[] getAgentParams() {
 		return agentParams;
 	}
 
+	/**
+	 * @return Disease parameters
+	 */
 	public DiseaseParams[] getDiseaseParams() {
 		return diseaseParams;
 	}
 
 	/**
-	 * @return The environment parameters for the current simulation.
+	 * @return Environment parameters
 	 */
 	public ComplexEnvironmentParams getEnvParams() {
 		return envParams;
 	}
 
+	/**
+	 * @return Simulation configuration file name
+	 */
 	public String getFilename() {
 		return fileName;
 	}
 
+	/**
+	 * @return Food parameters
+	 */
 	public ComplexFoodParams[] getFoodParams() {
 		return foodParams;
 	}
 
+	/**
+	 * @return Genetic parameters
+	 */
 	public GeneticParams getGeneticParams() {
 		return geneticParams;
 	}
 
-
+	/**
+	 * @return Temperature parameters
+	 */
 	public TemperatureParams getTempParams() {
 		return tempParams;
 	}

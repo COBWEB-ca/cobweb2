@@ -19,7 +19,7 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 	private static final long serialVersionUID = -710912579485485125L;
 
 	/**
-	 * This method allows the extraction of data from a configuration 
+	 * Allows the extraction of data from a configuration 
 	 * file for any Cobweb parameters.  The data is passed in as the 
 	 * root node of a tree containing the data.
 	 * 
@@ -71,6 +71,14 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 		}
 	}
 
+	/**
+	 * Saves data fields from any object implementing the CobwebParam interface to a 
+	 * data file, doc.
+	 * 
+	 * @param obj Cobweb parameter object.
+	 * @param config Initial node to add data fields to.
+	 * @param doc Data file fields are saved to.
+	 */
 	private static void saveTaggedFields(CobwebParam obj, Node config, Document doc) {
 		Class<?> T = obj.getClass();
 

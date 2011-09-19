@@ -71,10 +71,30 @@ public interface UIInterface {
 		public void setSimulation(UIInterface simulation);
 	}
 
+	/**
+	 * Add agent at location (x, y) of type, type.
+	 * 
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @param type Agent type.
+	 */
 	public void addAgent(int x, int y, int type);
 
+	/**
+	 * Add food at location (x, y) of type, type.
+	 * 
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @param type Agent type.
+	 */
 	public void addFood(int x, int y, int type);
 
+	/**
+	 * Add a stone at location (x, y)
+	 * 
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 */
 	public void addStone(int x, int y);
 
 	public void AddTickEventListener(TickEventListener listener);

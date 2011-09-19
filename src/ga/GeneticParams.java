@@ -87,6 +87,10 @@ public class GeneticParams extends AbstractReflectionParams {
 			return field.hashCode();
 		}
 
+		/**
+		 * 
+		 * @param f
+		 */
 		public Phenotype(Field f) {
 			if (f != null &&
 					(f.getAnnotation(GeneMutatable.class) == null || f.getAnnotation(ConfDisplayName.class) == null))

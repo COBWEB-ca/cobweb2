@@ -62,22 +62,26 @@ public class CobwebApplicationRunner {
 	 * 
 	 * <p>Switches: 
 	 * 
-	 * <p><p> --help Prints the various flags that can be used to run the program:
+	 * <p><p> --help 
+	 * <br>Prints the various flags that can be used to run the program:
 	 * Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] 
 	 * [[-open] SettingsFile.xml]"
 	 * 
-	 * <p> -hide When the hide flag is used, the user interface does not initialize 
+	 * <p> -hide 
+	 * <br>When the hide flag is used, the user interface does not initialize 
 	 * (visible is set to false).  If visible is set to false, the User Interface 
 	 * Client will be set to a “NullDisplayApplication” rather than a 
 	 * “CobwebApplication”.  Need to specify an input file to use this switch.
 	 * 
-	 * <p> -open [must specify] If not used, the default is 
+	 * <p> -open [must specify] 
+	 * <br>If not used, the default is 
 	 * CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME  + 
 	 * CobwebApplication.CONFIG_FILE_EXTENSION otherwise will be set to 
 	 * whatever the user specifies.  The input file contains the initial conditions 
 	 * of the simulation (AgentTypeCount, FoodTypeCount, etc.)
 	 * 
-	 * <p> -log [must specify] Specify the name of the log file.
+	 * <p> -log [must specify] 
+	 * <br>Specify the name of the log file.
 	 * 
 	 * <p> -autorun [specify integer >= -1]
 	 * 

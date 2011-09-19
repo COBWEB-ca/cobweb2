@@ -343,14 +343,23 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		theClient = client;
 	}
 
+	/**
+	 * @see ComplexEnvironment#addAgent(int, int, int)
+	 */
 	public void addAgent(int x, int y, int type) {
 		theEnvironment.addAgent(x, y, type);
 	}
 
+	/**
+	 * @see ComplexEnvironment#addFood(int, int, int)
+	 */
 	public void addFood(int x, int y, int type) {
 		theEnvironment.addFood(x, y, type);
 	}
 
+	/**
+	 * @see ComplexEnvironment#addStone(int, int)
+	 */
 	public void addStone(int x, int y) {
 		theEnvironment.addStone(x, y);
 	}
@@ -815,7 +824,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		// Nothing
 	}
 
-	/** ********************************************************************** */
+	/** 
+	 * A check is made to see if the simulation has completed.  If so, the next simulation 
+	 * will be loaded.
+	 */
 	public void tickNotification(long tickCount) {
 		myClock = tickCount;
 		if (files < totalfilenum && (tickCount + 1) == (pauseAt[files] + tickcounter)) {

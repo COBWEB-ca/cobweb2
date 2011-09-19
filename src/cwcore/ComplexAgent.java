@@ -539,7 +539,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**
-	 * The agent eats the adjacent agent by killing it and gaining, 
+	 * The agent eats the adjacent agent by killing it and gaining 
 	 * energy from it.
 	 * 
 	 * @param adjacentAgent The agent being eaten.
@@ -637,9 +637,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	/**
 	 * North = 0
-	 * East = 1
-	 * South = 2
-	 * West = 3
+	 * <br>East = 1
+	 * <br>South = 2
+	 * <br>West = 3
 	 * 
 	 * @return A number representation of the direction the agent is facing.
 	 */
@@ -661,7 +661,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**
-	 * Provide a random facing for the agent.
+	 * Provide a random direction for the agent to face.
 	 */
 	private void InitFacing() {
 		double f = cobweb.globals.random.nextFloat();
@@ -679,6 +679,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return asexFlag;
 	}
 
+	/**
+	 * The agent will remember the last variable number of agents that 
+	 * cheated it.  How many cheaters it remembers is determined by its 
+	 * PD memory size.
+	 * 
+	 * @param othersID In a game of PD, the opposing agents ID
+	 */
 	private void iveBeenCheated(int othersID) {
 
 		if (params.pdMemory > 0) {
@@ -758,6 +765,25 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
+	/**
+	 * This method initializes the agents actions in an iterated prisoner's 
+	 * dilemma game.  The agent can use the following strategies described 
+	 * by the agentPDStrategy integer:
+	 * 
+	 * <p>0. Default
+	 * 
+	 * <p>The agents decision to defect or cooperate is chosen randomly.  
+	 * The probability of choosing either is determined by the agents 
+	 * pdCoopProb parameter.
+	 * 
+	 * <p>1. Tit for Tat
+	 * 
+	 * <p>The agent will initially begin with a cooperate, but will then choose 
+	 * whatever the opposing agent chose last.  For example, the agent begins 
+	 * with a cooperate, but if the opposing agent has chosen to defect, then 
+	 * the agent will choose to defect next round.
+	 * 
+	 */
 	public void playPD() {
 
 		double coopProb = params.pdCoopProb / 100.0d; // static value for now
@@ -784,6 +810,45 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return;
 	}
 
+	/**
+	 *Prisoner's dilemma is played between the two agents using the strategies 
+	 *assigned in playPD().  The agent will use its PD memory to remember agents 
+	 *that cheat it, which will affect whether an agent will want to meet another,
+	 *and its credibility.
+	 *
+	 *<p>How Prisoner's Dilemma is played:
+	 *
+	 *<p>Prisoner's dilemma is a game between two agents when they come in to 
+	 *contact with each other.  The game determines how much energy each agent 
+	 *receives after contact.  Each agent has two options: cooperate or defect.
+	 *The agents choice to cooperate or defect is determined by the strategy the 
+	 *agent is using (see playPD() method).  The agents choices can lead to 
+	 *one of four outcomes:
+	 *
+	 *<p> 1. REWARD for mutual cooperation (Both agents cooperate)
+	 *
+	 *<p> 2. SUCKER's payoff (Opposing agent defects; this agent cooperates)
+	 *
+	 *<p> 3. TEMPTATION to defect (Opposing agent cooperates; this agent defects)
+	 *
+	 *<p> 4. PUNISHMENT for mutual defection (Both agents defect)
+	 *
+	 *<p>The best strategy for both agents is to cooperate.  However, if an agent 
+	 *chooses to defect when the other cooperates, the defecting agent will have 
+	 *a greater advantage.  For a true game of PD, the energy scores for each 
+	 *outcome should follow this rule: TEMPTATION > REWARD > PUNISHMENT > SUCKER
+	 *
+	 *<p>Here is an example of how much energy an agent could receive:
+	 *<br> REWARD     =>     5
+	 *<br> SUCKER     =>     2
+	 *<br> TEMPTATION =>     8
+	 *<br> PUNISHMENT =>     3
+	 *
+	 * @param adjacentAgent Agent playing PD with
+	 * @param othersID ID of the adjacent agent.
+	 * @see ComplexAgent#playPD()
+	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
+	 */
 	private void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
 		playPD();
 		adjacentAgent.playPD();
@@ -798,10 +863,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 */
 
 		/* 0 = cooperate. 1 = defect */
-
-		/*
-		 * Payoff Matrix: 0 0 => 5 5 0 1 => 2 8 1 0 => 8 2 1 1 => 3 3
-		 */
 
 		final int PD_COOPERATE = 0;
 		final int PD_DEFECT = 1;
@@ -980,7 +1041,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * will be made to see if the child can be produced now.  If the agent was not 
 	 * pregnant, then a-sexual breeding will be attempted.
 	 * 
-	 * <p>This method will then iterate through all step mutators used in the simulation 
+	 * <p>This method will then iterate through all  mutators used in the simulation 
 	 * and call onStep for each step mutator.  The agent will then move.  If it 
 	 * was found that the agent was ready to produce a child, then a new agent 
 	 * is created.

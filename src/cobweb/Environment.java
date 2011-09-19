@@ -485,7 +485,9 @@ public abstract class Environment {
 
 	}
 
-	/** Returns a random location. */
+	/** 
+	 * @return Random location. 
+	 */
 	public Location getRandomLocation() {
 		Location l;
 		do {

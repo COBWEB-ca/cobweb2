@@ -166,19 +166,30 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 		// public, no parameter constructor for serialization
 	}
 
+	/**
+	 * @return Number of agent types.
+	 */
 	public int getAgentTypes() {
 		return agentTypeCount;
 	}
 
+	/**
+	 * @return Number of food types.
+	 */
 	public int getFoodTypes() {
 		return foodTypeCount;
 	}
 
-
+	/**
+	 * @return Height of the grid.
+	 */
 	public int getHeight() {
 		return height;
 	}
 
+	/**
+	 * @return Width of the grid.
+	 */
 	public int getWidth() {
 		return width;
 	}
