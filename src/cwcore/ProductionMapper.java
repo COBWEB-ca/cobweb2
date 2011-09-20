@@ -91,6 +91,10 @@ public class ProductionMapper {
 			for (int j = 0; j < y; j++) {
 				float val = getValueAtLocation(i, j);
 				int amount = 255 - (int) ((Math.min(val, maxValue) / maxValue) * 255f);
+				// FIXME: threading bug when speed set to max simulation speed, amount ends up out of range
+				if (amount < 0 || amount > 255) {
+					amount = 128;
+				}
 				ret[i][j] = new Color(amount, amount, 255);
 			}
 		}
