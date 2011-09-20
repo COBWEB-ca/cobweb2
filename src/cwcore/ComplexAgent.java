@@ -1296,7 +1296,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (params.wasteMode && shouldPoop())
 			tryPoop();
 
-		if (true || params.productionMode) {
+		if (params.productionMode) {
 			tryProduction();
 		}
 
@@ -1412,46 +1412,22 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			// In an area of low demand
 			return roll(prodParams.lowDemandProdChance);
 		} else if (locationValue <= prodParams.sweetDemandThreshold) {
-			/**
-			 * //ORIGINAL WORK:
+			/*
+			 * The sweet spot is an inverted parabola, the vertex is 100% probability in the middle of the sweet spot 
+			 * (between lowDemandThreshold and sweetDemandThreshold)
+			 * the tips are sweetDemandStartChance probability at the thresholds.
 			 * 
-			 * //Let: d = prodParams.lowDemandThreshold // e =
-			 * prodParams.sweetDemandThreshold // f =
-			 * prodParams.sweetDemandStartChance
-			 * 
-			 * // root 1: (d, 0) // root 2: (e, 0) // vertex: ((d + e) / 2, 1 -
-			 * f)
-			 * 
-			 * // y = a(x - h)^2 + k
-			 * 
-			 * // h = (d + e) / 2 // k = 1 - f // x = d // y = 0
-			 * 
-			 * // 0 = a(d - ((d + e) / 2))^2 + (1 - f) // f - 1 = a(d - ((d + e)
-			 * / 2))^2 // a = (f - 1) / (d - ((d + e) / 2) ^ 2
-			 * 
-			 * float d = prodParams.lowDemandThreshold; float e =
-			 * prodParams.sweetDemandThreshold; float f =
-			 * prodParams.sweetDemandStartChance;
-			 * 
-			 * float h = (d + e) * 0.5f; float k = 1 - f; float a = -k / (d -
-			 * h); a *= a;
-			 * 
-			 * float x = locationValue; // y = a(x - h)^2 + k float y = (a * (x
-			 * - h) * (x - h)) + k;
-			 * 
-			 * float chance = y + f;
 			 */
 
-			// COMPRESSED WORK:
-			float h = (prodParams.lowDemandThreshold + prodParams.sweetDemandThreshold) * 0.5f;
-			float a = (prodParams.sweetDemandStartChance - 1) / (prodParams.lowDemandThreshold - h);
-			a *= a;
+			// parabola shape
+			float peak = (prodParams.lowDemandThreshold + prodParams.sweetDemandThreshold) * 0.5f;
+			float width = prodParams.sweetDemandThreshold - prodParams.lowDemandThreshold;
+			// position along standard parabola
+			float x = (locationValue - peak) / (width / 2);
+			// parabola value
+			float y = x * x  * (1-prodParams.sweetDemandStartChance);
 
-			float x = locationValue - h;
-			// y = a(x - h)^2 + k
-			float y = (a * x * x) + (1f - prodParams.sweetDemandStartChance);
-
-			float chance = prodParams.sweetDemandStartChance + y;
+			float chance = prodParams.sweetDemandStartChance + (1 - y);
 
 			// Sweet spot; perfect balance of competition and attraction here;
 			// likelihood of producing products here
