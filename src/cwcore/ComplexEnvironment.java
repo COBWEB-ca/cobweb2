@@ -2,6 +2,7 @@ package cwcore;
 
 import ga.GATracker;
 
+import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JDialog;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,6 +37,7 @@ import cobweb.TypeColorEnumeration;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
+import cwcore.complexParams.ProductionParams;
 import driver.ControllerFactory;
 import driver.SimulationConfig;
 
@@ -217,7 +220,79 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	static class Waste {
+	protected abstract static class Drop {
+		//Gold colored drops
+		final static Color DROP_COLOR = new Color(238, 201, 0);
+
+		public Drop() {
+
+		}
+
+		abstract boolean isActive(long val);
+
+		abstract void reset(long time, int weight, float rate);
+
+		@Override
+		public final Drop clone() {
+			try {
+				return clone(getClass().newInstance());
+			} catch (InstantiationException ex) {
+				ex.printStackTrace();
+			} catch (IllegalAccessException ex) {
+				ex.printStackTrace();
+			}
+			return null;
+		}
+
+		public Drop clone(Drop instance) {
+			return instance;
+		}
+
+		public Color getColor() {
+			return DROP_COLOR;
+		}
+
+		public boolean canStep() {
+			return true;
+		}
+	}
+
+	public static class Product extends Drop {
+		public Product(float value, Agent owner) {
+			this.value = value;
+			this.owner = owner;
+		}
+
+		Agent owner;
+		private float value;
+
+		@Override
+		boolean isActive(long val) {
+			return true;
+		}
+
+		@Override
+		void reset(long time, int weight, float rate) {
+
+		}
+
+		public void setValue(float value) {
+			this.value = value;
+		}
+
+		public float getValue() {
+			return value;
+		}
+
+		@Override
+		public Product clone(Drop instance) {
+			Product ret = (Product) super.clone(instance);	
+			ret.value = value;
+			return ret;
+		}
+	}
+
+	public static class Waste extends Drop {
 
 		private int initialWeight;
 
@@ -229,7 +304,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		private boolean valid;
 
+		public Waste() {
+			this(0, 0, 0);
+		}
+
 		public Waste(long birthTick, int weight, float rate) {
+			super();
 			initialWeight = weight;
 			this.birthTick = birthTick;
 			this.rate = rate;
@@ -239,11 +319,23 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			this.valid = true;
 		}
 
+		@Override
+		public Waste clone(Drop instance) {
+			Waste ret = (Waste) super.clone(instance);
+			ret.initialWeight = initialWeight;
+			ret.birthTick = birthTick;
+			ret.rate = rate;
+			ret.threshold = threshold;
+			ret.valid = valid;
+			return ret;
+		}
+
 		/* Call me sparsely, especially when the age is really old */
 		public double getAmount(long tick) {
 			return initialWeight * Math.pow(Math.E, -rate * (tick - birthTick));
 		}
 
+		@Override
 		public boolean isActive(long tick) {
 			if (!valid)
 				return false;
@@ -254,6 +346,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			return true;
 		}
 
+		@Override
 		public void reset(long newBirthTick, int weight, float newRate) {
 			initialWeight = weight;
 			this.birthTick = newBirthTick;
@@ -262,6 +355,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
 			// skinawy
 			valid = true;
+		}
+
+		@Override
+		public Color getColor() {
+			return wasteColor;
+		}
+
+		@Override
+		public boolean canStep() {
+			return false;
 		}
 	}
 
@@ -273,7 +376,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public static final int FLAG_AGENT = 3;
 
-	public static final int FLAG_WASTE = 4;
+	public static final int FLAG_DROP = 4;
 
 	public static final int INIT_LAST_MOVE = 0; // Initial last move set to
 	// cooperate
@@ -285,6 +388,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public static int PD_PAYOFF_TEMPTATION;
 
 	public static int PD_PAYOFF_PUNISHMENT;
+
+	public static ComplexEnvironment COMPLEX_ENVIRONMENT_REFERENCE;
 
 	public static final List<CommPacket> currentPackets = new ArrayList<CommPacket>();
 
@@ -302,9 +407,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	protected ComplexAgentParams agentData[];
 
+	protected ProductionParams prodData[];
+
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
+
+	private JDialog prodShader;
 
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
@@ -315,22 +424,32 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private static final int WASTE_CODE = 4;
 
-	public static void addWaste(long tick, int x, int y, int val, float rate) {
-		if (wastearray[x][y] != null)
-			wastearray[x][y].reset(tick, val, rate);
-		else
-			wastearray[x][y] = new Waste(tick, val, rate);
+	public ComplexEnvironment() {
+		super();
+		COMPLEX_ENVIRONMENT_REFERENCE = this;
+		prodMapper = new ProductionMapper(this);
 	}
+
+	public static void setDrop(Location loc, Drop d) {
+		dropArray[loc.v[0]][loc.v[1]] = d;
+
+		if (d instanceof Product) {
+			prodMapper.addProduct((Product) d, loc);
+		}
+	}
+
 
 	// Returns current location's food type
 	public static int getFoodType(cobweb.Environment.Location l) {
 		return foodarray[l.v[0]][l.v[1]];
 	}
 
+
 	public static void trackAgent(java.io.Writer w) {
 		ComplexAgent.setPrintWriter(w);
 		ComplexAgent.tracked();
 	}
+
 
 	GATracker gaTracker;
 
@@ -340,16 +459,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private cobweb.ArrayEnvironment array;
 
-	/*
-	 * Waste tile array to store the data per waste tile. Needed to allow
-	 * depletion of waste
-	 */
-	private static Waste[][] wastearray;
-
 	private ComplexEnvironmentParams data = new ComplexEnvironmentParams();
 
 	// Food array contains type and their locations
 	private static int[][] foodarray = new int[0][];
+
+	/*
+	 * Waste tile array to store the data per waste tile. Needed to allow
+	 * depletion of waste
+	 */
+	public static Drop[][] dropArray;	
 
 	private Agent observedAgent = null;
 
@@ -361,6 +480,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	int mostFood[];
 
+	public static ProductionMapper prodMapper;
+
 	@Override
 	public synchronized void addAgent(int x, int y, int type) {
 		super.addAgent(x, y, type);
@@ -368,7 +489,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
 		if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
-				&& !l.testFlag(ComplexEnvironment.FLAG_WASTE)) {
+				&& !l.testFlag(ComplexEnvironment.FLAG_DROP)) {
 			int agentType = type;
 			if (data.prisDilemma) {
 
@@ -389,7 +510,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	protected void spawnAgent(int action, cobweb.Environment.Location location, int agentType) {
 		ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
-		child.init(agentType, location, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
+		child.init(agentType, location, action, (ComplexAgentParams) agentData[agentType].clone(),
+				(ProductionParams) prodData[agentType].clone()); // Default
 	}
 
 	ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
@@ -434,8 +556,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		if (l.testFlag(FLAG_FOOD))
 			l.setFlag(FLAG_FOOD, false);
-		if (l.testFlag(FLAG_WASTE))
-			l.setFlag(FLAG_WASTE, false);
+		if (l.testFlag(FLAG_DROP))
+			l.setFlag(FLAG_DROP, false);
 
 		l.setFlag(ComplexEnvironment.FLAG_STONE, true);
 
@@ -480,7 +602,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	public synchronized void clearWaste() {
 		super.clearWaste();
-		clearFlag(FLAG_WASTE);
+		clearFlag(FLAG_DROP);
 	}
 
 	protected void copyParamsFromParser(SimulationConfig p) {
@@ -489,6 +611,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		foodData = p.getFoodParams();
 
 		agentData = p.getAgentParams();
+
+		prodData = p.getProdParams();
 
 		PD_PAYOFF_REWARD = data.pdParams.reward;
 		PD_PAYOFF_TEMPTATION = data.pdParams.temptation;
@@ -598,7 +722,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 			} while (j < DROP_ATTEMPTS_MAX
 					&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_FOOD)
-							|| l.testFlag(ComplexEnvironment.FLAG_WASTE) || l.getAgent() != null));
+							|| l.testFlag(ComplexEnvironment.FLAG_DROP) || l.getAgent() != null));
 
 			if (j < DROP_ATTEMPTS_MAX) {
 				l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
@@ -617,8 +741,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				if (currentPos.testFlag(FLAG_STONE))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
 
-				else if (currentPos.testFlag(FLAG_WASTE))
-					tileColors[tileIndex++] = wasteColor;
+				else if (currentPos.testFlag(FLAG_DROP)){
+					tileColors[tileIndex++] = dropArray[currentPos.v[0]][currentPos.v[1]].getColor();
+				}
 
 				else if (currentPos.testFlag(FLAG_FOOD))
 					tileColors[tileIndex++] = colorMap.getColor(getFoodType(currentPos), 0 /* agentTypeCount */);
@@ -701,6 +826,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	/* Return the current tick number, tickCount (long) */
 	public long getTickCount() {
 		return tickCount;
+	}
+
+	public int getWidth() {
+		return data.width;
+	}
+
+	public int getHeight() {
+		return data.height;
 	}
 
 	@Override
@@ -842,8 +975,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		for (int i = 0 ; i < agents.getLength(); i++){
 			ComplexAgentParams params = new ComplexAgentParams(data);
+			ProductionParams prodParams = new ProductionParams();
+
 			Node agent = agents.item(i);
 			Element element = (Element) agent;
+
 			NodeList paramsElement = element.getElementsByTagName("params");
 			Element paramNode = (Element) paramsElement.item(0);			
 
@@ -884,7 +1020,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 
 			ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
-			cAgent.init(agentType, pdCheater, params, facing, loc);
+			cAgent.init(agentType, pdCheater, params, prodParams, facing, loc);
 			agentTable.put(loc, cAgent);
 		}
 
@@ -961,7 +1097,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		setupLocationCache();
 		cwcore.ComplexAgentInfo.initialize(data.getAgentTypes());
 
-		if (wastearray == null || !data.keepOldWaste) {
+		if (dropArray == null || !data.keepOldWaste) {
 			loadNewWaste();
 		} else {
 			loadOldWaste();
@@ -986,7 +1122,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			do {
 				l = getRandomLocation();
 			} while ((tries++ < 100)
-					&& ((l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_WASTE)) && l
+					&& ((l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_DROP)) && l
 							.getAgent() == null));
 			if (tries < 100)
 				l.setFlag(ComplexEnvironment.FLAG_STONE, true);
@@ -1064,7 +1200,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 						// on
 						// stone
 						// tiles
-						|| location.testFlag(ComplexEnvironment.FLAG_WASTE))); // nor
+						|| location.testFlag(ComplexEnvironment.FLAG_DROP))); // nor
 				// on
 				// waste
 				// tiles
@@ -1084,7 +1220,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				do {
 					l = getRandomLocation();
 				} while ((tries++ < 100)
-						&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_WASTE)));
+						&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_DROP)));
 				if (tries < 100)
 					l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
 				setFoodType(l, i);
@@ -1093,13 +1229,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	private void loadNewWaste() {
-		wastearray = new Waste[data.width][data.height];
-
-
+		dropArray = new Drop[data.width][data.height];
+		prodMapper = new ProductionMapper(data.width * data.height, this);
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
-				Location pos = getLocation(x, y);
-				pos.setFlag(FLAG_WASTE, false);
+				getLocation(x, y).setFlag(FLAG_DROP, false);
 			}
 		}
 	}
@@ -1119,7 +1253,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					}
 					int theType = ((ComplexAgent) currentPos.getAgent()).getAgentType();
 					((ComplexAgent) currentPos.getAgent()).setConstants(((ComplexAgent) currentPos.getAgent())
-							.getAgentPDAction(), agentData[theType]); // Default
+							.getAgentPDAction(), agentData[theType], prodData[theType]); // Default
 					// genetic
 					// sequence of
 					// agent type
@@ -1141,24 +1275,24 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	private void loadOldWaste() {
-		Waste[][] oldWasteArray = wastearray;
-		wastearray = new Waste[data.width][data.height];
+		Drop[][] oldWasteArray = dropArray;
+		dropArray = new Drop[data.width][data.height];
 
 		int width = Math.min(data.width, oldWasteArray.length);
 		int height = Math.min(data.height, oldWasteArray[0].length);
 		for (int i = 0; i < width; i++)
 			for (int j = 0; j < height; j++)
-				wastearray[i][j] = oldWasteArray[i][j];
+				dropArray[i][j] = oldWasteArray[i][j];
 
 		// Add in-bounds old waste to the new scheduler and update new
 		// constants
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (wastearray[currentPos.v[0]][currentPos.v[1]] != null) {
+				if (dropArray[currentPos.v[0]][currentPos.v[1]] != null) {
 					currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 					currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
-					currentPos.setFlag(ComplexEnvironment.FLAG_WASTE, true);
+					currentPos.setFlag(ComplexEnvironment.FLAG_DROP, true);
 				}
 			}
 		}
@@ -1322,7 +1456,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
-		ComplexAgent.setDefaultMutableParams(agentData);
+		ComplexAgent.setDefaultMutableParams(agentData, prodData);
 	}
 
 	@Override
@@ -1357,7 +1491,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				} else
 					setLocationBits(l, getLocationBits(l) & ~MASK_TYPE);
 				break;
-			case FLAG_WASTE:
+			case FLAG_DROP:
 				// Sanity check
 				if ((getLocationBits(l) & (FOOD_CODE | STONE_CODE)) != 0)
 					break;
@@ -1392,11 +1526,24 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				return ((getLocationBits(l) & MASK_TYPE) == STONE_CODE);
 			case FLAG_FOOD:
 				return ((getLocationBits(l) & MASK_TYPE) == FOOD_CODE);
-			case FLAG_WASTE:
+			case FLAG_DROP:
 				return ((getLocationBits(l) & MASK_TYPE) == WASTE_CODE);
 			default:
 				return false;
 		}
+	}
+
+	public JDialog getProdShader() {
+		return prodShader;
+	}
+
+	public void setProdShader(JDialog d) {
+		if (d != prodShader && prodShader != null) {
+			prodShader.setVisible(false);
+			prodShader.setEnabled(false);
+			prodShader.dispose();
+		}
+		prodShader = d;
 	}
 
 	/**
@@ -1407,8 +1554,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * depletion, food growth, and random food-"dropping".
 	 */
 	public void tickNotification(long tick) {
-
 		++tickCount;
+
+		if (prodShader != null) {
+			if (!prodShader.isVisible()) {
+				prodShader = null;
+			} else {
+				prodShader.repaint();
+			}
+		}
+
 		updateWaste();
 
 		// for each agent type, we test to see if its deplete time step has
@@ -1459,14 +1614,18 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	private void updateWaste() {
-		for (int i = 0; i < wastearray.length; i++) {
-			for (int j = 0; j < wastearray[i].length; j++) {
+		for (int i = 0; i < dropArray.length; i++) {
+			for (int j = 0; j < dropArray[i].length; j++) {
 				Location l = getLocation(i, j);
-				if (l.testFlag(ComplexEnvironment.FLAG_WASTE) == false)
+				if (l.testFlag(ComplexEnvironment.FLAG_DROP) == false)
 					continue;
-				if (!wastearray[i][j].isActive(getTickCount())) {
-					l.setFlag(ComplexEnvironment.FLAG_WASTE, false);
-					wastearray[l.v[0]][l.v[1]] = null; // consider deactivating
+				Drop d = dropArray[i][j];
+				if (!d.isActive(getTickCount())) {
+					l.setFlag(ComplexEnvironment.FLAG_DROP, false);
+					if (d instanceof Product) {
+						prodMapper.remProduct((Product)d, getLocation(i, j));
+					}
+					dropArray[i][j] = null; // consider deactivating
 					// and not deleting
 				}
 			}

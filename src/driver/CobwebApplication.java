@@ -17,6 +17,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -48,6 +49,8 @@ import cobweb.LocalUIInterface.TickEventListener;
 import cobweb.UIInterface;
 import cobweb.UIInterface.MouseMode;
 import cobweb.UIInterface.UIClient;
+import cwcore.ComplexEnvironment;
+import cwcore.ProductionMapper;
 import driver.config.GUI;
 
 public class CobwebApplication extends JFrame implements UIClient {
@@ -125,6 +128,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	private Logger myLogger = Logger.getLogger("COBWEB2");
 
 	private JFrame aiGraph;
+	private JDialog prodGraph;
 
 	private JPanel mainPanel;
 	private JLabel tickDisplay;
@@ -155,6 +159,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		JMenuBar myMenuBar = makeMenuBar();
 
 		setJMenuBar(myMenuBar);
+
+		setLocationRelativeTo(null);
+
 		setVisible(true);
 	}
 
@@ -603,6 +610,59 @@ public class CobwebApplication extends JFrame implements UIClient {
 			}
 		});
 		viewMenu.add(viewLinearAI);
+
+		final JCheckBoxMenuItem viewProdMapper = new JCheckBoxMenuItem("Production map", false);
+
+		viewProdMapper.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				ComplexEnvironment ce = ComplexEnvironment.COMPLEX_ENVIRONMENT_REFERENCE;
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					ProductionMapper prodMapper = ComplexEnvironment.prodMapper;
+					JDialog jd = prodMapper.createDialog(ce.getWidth(), ce.getHeight());
+					jd.addWindowListener(new WindowListener(){
+						@Override
+						public void windowActivated(WindowEvent arg0) {							
+						}
+
+						@Override
+						public void windowClosed(WindowEvent arg0) {
+							viewProdMapper.setSelected(false);
+						}
+
+						@Override
+						public void windowClosing(WindowEvent arg0) {							
+						}
+
+						@Override
+						public void windowDeactivated(WindowEvent arg0) {							
+						}
+
+						@Override
+						public void windowDeiconified(WindowEvent arg0) {							
+						}
+
+						@Override
+						public void windowIconified(WindowEvent arg0) {
+							// TODO Auto-generated method stub
+
+						}
+
+						@Override
+						public void windowOpened(WindowEvent arg0) {
+							// TODO Auto-generated method stub
+
+						}
+
+
+					});
+					ce.setProdShader(jd);
+				} else {
+					ce.setProdShader(null);
+				}
+			}
+		});
+		viewMenu.add(viewProdMapper);
 
 		// Assemble the menus into a menu bar
 		JMenuBar myMenuBar = new JMenuBar();

@@ -5,6 +5,7 @@ package cwcore;
 
 import cobweb.Agent;
 import cobweb.Controller;
+import cobweb.Environment;
 import cobweb.globals;
 import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.SeeInfo;
@@ -57,6 +58,30 @@ public class LinearWeightsController implements cobweb.Controller {
 		} else {
 			return;
 		}
+
+		if (params.prodHuntChance > globals.random.nextFloat()) {
+			//0 = target ahead, 1 = target behind, 2 = target left, 3 = target right
+			int switcher = 0;
+
+			ComplexEnvironment e = (ComplexEnvironment) agent.getPosition().getEnvironment();
+
+			Environment.Location ahead = agent.getPosition().getAdjacent(agent.facing);
+			float step = e.prodMapper.getValueAtLocation(ahead);
+			Environment.Location back = agent.getPosition().getAdjacent(agent.facing.flip());
+			float reverse = e.prodMapper.getValueAtLocation(back);
+
+			if (step == 0 || step > reverse) {
+				agent.step();
+			} else {
+				if (globals.random.nextBoolean()) {
+					agent.turnLeft();
+				} else {
+					agent.turnRight();
+				}
+			}
+			return;
+		}
+
 		SeeInfo get = agent.distanceLook();
 		int type = get.getType();
 		int dist = get.getDist();
@@ -67,7 +92,7 @@ public class LinearWeightsController implements cobweb.Controller {
 						(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0,
 						type == ComplexEnvironment.FLAG_FOOD ? 
 								(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0,
-								type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? 
+								type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_DROP ? 
 										(ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0,
 										agent.getIntFacing() / 2, (double) agent.getMemoryBuffer() / (1 << memSize - 1),
 										(double) agent.getCommInbox() / (1 << commSize - 1), Math.max(agent.getAge() / 100.0, 2),

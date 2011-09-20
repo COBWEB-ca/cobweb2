@@ -53,6 +53,9 @@ public class GUI extends JFrame {
 			environmentPage.validateUI();
 			resourcePage.validateUI();
 			agentPage.validateUI();
+			if (prodPage != null) {
+				prodPage.validateUI();
+			}
 			foodwebPage.validateUI();
 			if (pdPage != null)
 				pdPage.validateUI();
@@ -99,6 +102,9 @@ public class GUI extends JFrame {
 				environmentPage.validateUI();
 				resourcePage.validateUI();
 				agentPage.validateUI();
+				if (prodPage != null) {
+					prodPage.validateUI();
+				}
 				foodwebPage.validateUI();
 				pdPage.validateUI();
 				geneticPage.validateUI();
@@ -183,6 +189,8 @@ public class GUI extends JFrame {
 	private TemperatureConfigPage tempPage;
 
 	private AgentConfigPage agentPage;
+
+	private ProductionConfigPage prodPage;
 
 	private FoodwebConfigPage foodwebPage;
 
@@ -349,6 +357,11 @@ public class GUI extends JFrame {
 		removeOldPage(agentPage);
 		agentPage = new AgentConfigPage(p.getAgentParams());
 		tabbedPane.addTab("Agents", agentPage.getPanel());
+
+		/* Production panel */
+		removeOldPage(prodPage);
+		prodPage = new ProductionConfigPage(p.getProdParams());
+		tabbedPane.addTab("Production", prodPage.getPanel());
 
 		removeOldPage(foodwebPage);
 		foodwebPage = new FoodwebConfigPage(p.getAgentParams());

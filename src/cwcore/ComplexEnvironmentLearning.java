@@ -2,6 +2,7 @@ package cwcore;
 
 import learning.LearningAgentParams;
 import cwcore.complexParams.ComplexAgentParams;
+import cwcore.complexParams.ProductionParams;
 import driver.SimulationConfig;
 
 
@@ -22,13 +23,14 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 
 	@Override
 	public void setDefaultMutableAgentParam() {
-		ComplexAgentLearning.setDefaultMutableParams(agentData, learningData);
+		ComplexAgentLearning.setDefaultMutableParams(agentData, learningData, prodData);
 	}
 
 	@Override
 	protected void spawnAgent(int action, Location location, int agentType) {
 		ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn();
 		child.init(agentType, location, action, (ComplexAgentParams) agentData[agentType].clone(),
+				(ProductionParams)prodData[agentType].clone(),
 				(LearningAgentParams)learningData[agentType].clone()); // Default
 	}
 }

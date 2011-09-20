@@ -37,6 +37,9 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	@ConfXMLTag("FoodTypeCount")
 	public int foodTypeCount = 4;
 
+	@ConfDisplayName("Production types")
+	@ConfXMLTag("ProdTypeCount")	
+	public int prodTypeCount = 4;
 
 	/**
 	 * Class name of the scheduler object.
@@ -184,6 +187,10 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 
 	public int getAgentTypes() {
 		return agentTypeCount;
+	}
+
+	public int getProdTypes() {
+		return prodTypeCount;
 	}
 
 	public int getFoodTypes() {

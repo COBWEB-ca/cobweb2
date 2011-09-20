@@ -21,11 +21,16 @@ import cobweb.Environment;
 import cobweb.Environment.Location;
 import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
+import cobweb.globals;
 import cwcore.ComplexEnvironment.CommManager;
 import cwcore.ComplexEnvironment.CommPacket;
+import cwcore.ComplexEnvironment.Drop;
+import cwcore.ComplexEnvironment.Product;
+import cwcore.ComplexEnvironment.Waste;
 import cwcore.complexParams.AgentMutator;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ContactMutator;
+import cwcore.complexParams.ProductionParams;
 import cwcore.complexParams.SpawnMutator;
 import cwcore.complexParams.StepMutator;
 import driver.ControllerFactory;
@@ -51,14 +56,18 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
+	private ProductionParams prodParams;
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5310096345506441368L;
 
 	/** Default mutable parameters of each agent type. */
 
-	private static ComplexAgentParams defaulParams[];
+	private static ComplexAgentParams defaultParams[];
+
+	private static ProductionParams defaultProdParams[];
 
 	protected static AgentSimilarityCalculator simCalc;
 
@@ -98,12 +107,17 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return blah;
 	}
 
-
-	/** Sets the default mutable parameters of each agent type. */
-	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
-		defaulParams = params.clone();
+	public static void setDefaultMutableParams(ComplexAgentParams[] params, ProductionParams[] pParams) {
+		defaultParams = params.clone();
 		for (int i = 0; i < params.length; i++) {
-			defaulParams[i] = (ComplexAgentParams) params[i].clone();
+			defaultParams[i] = (ComplexAgentParams) params[i].clone();
+		}
+
+		if (pParams != null) {
+			defaultProdParams = pParams.clone();
+			for (int i = 0; i < pParams.length; i++) {
+				defaultProdParams[i] = (ProductionParams) pParams[i].clone();
+			}
 		}
 	}
 
@@ -223,7 +237,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	boolean mustFlip = false;
 
 	public ComplexAgent() {
-
+		prodParams = new ProductionParams();
 	}
 
 	/**
@@ -276,10 +290,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**   */
-	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
+	public void init(int agentT, int doCheat, ComplexAgentParams agentData, ProductionParams prodData, Direction facingDirection, Location pos) {
 		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
-
-		setConstants(doCheat, agentData);
+		setConstants(doCheat, agentData, prodData);
 		this.facing = facingDirection;
 
 		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentT, doCheat);
@@ -300,9 +313,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param doCheat start PD off cheating?
 	 * @param agentData agent parameters
 	 */
-	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
+	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData, ProductionParams prodData) {
 		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
-		setConstants(doCheat, agentData);
+		setConstants(doCheat, agentData, prodData);
 
 		InitFacing();
 
@@ -374,8 +387,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
 			return false;
 		// and clear of wastes
-		if (destPos.testFlag(ComplexEnvironment.FLAG_WASTE))
-			return false;
+		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
+			return ComplexEnvironment.dropArray[destPos.v[0]][destPos.v[1]].canStep();
 		// as well as other agents...
 		if (destPos.getAgent() != null)
 			return false;
@@ -418,7 +431,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	public void copyConstants(ComplexAgent p) {
-		setConstants(p.pdCheater, (ComplexAgentParams) defaulParams[p.getAgentType()].clone());
+		setConstants(p.pdCheater, (ComplexAgentParams) defaultParams[p.getAgentType()].clone(),
+				(ProductionParams) defaultProdParams[p.getAgentType()].clone());
 	}
 
 	@Override
@@ -455,8 +469,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_FOOD);
 
-			if (destPos.testFlag(ComplexEnvironment.FLAG_WASTE))
-				return new SeeInfo(dist, ComplexEnvironment.FLAG_WASTE);
+			if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
+				return new SeeInfo(dist, ComplexEnvironment.FLAG_DROP);
 
 			destPos = destPos.getAdjacent(d);
 			if (getPosition().checkFlip(d)) 
@@ -493,9 +507,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!params.agingMode)
 			return 0.0;
 		double tempAge = currTick - birthTick;
-		assert(tempAge == age);
-		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
-				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
+		assert (tempAge == age);
+		int penaltyValue = Math.min(Math.max(0, energy),
+				(int) (params.agingRate * (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
 		if (tracked && log) {
 			info.useExtraEnergy(penaltyValue);
 		}
@@ -632,8 +646,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
 			return ComplexEnvironment.FLAG_FOOD;
 		// waste check
-		if (destPos.testFlag(ComplexEnvironment.FLAG_WASTE))
-			return ComplexEnvironment.FLAG_WASTE;
+		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
+			return ComplexEnvironment.FLAG_DROP;
 
 		// Return an empty tile
 		return 0;
@@ -828,9 +842,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		this.commOutbox = commOutbox;
 	}
 
-	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
-
+	public void setConstants(int pdCheat, ComplexAgentParams agentData, ProductionParams prodData) {
 		this.params = agentData;
+		this.prodParams = prodData;
 
 		this.agentType = agentData.type;
 
@@ -864,6 +878,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// See ComplexEnvironment.load(cobweb.Scheduler s, Parser p/*
 		// java.io.Reader r */) @ if (keepOldAgents[0]) {...
 
+	}
+
+	public void setConstants(ProductionParams prodData) {
+		this.prodParams = prodData;
 	}
 
 	public void setMemoryBuffer(int memoryBuffer) {
@@ -1017,13 +1035,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			info.addAgentBump();
 
 		} // end of two agents meet
-		else if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_WASTE)) {
-			// Bumps into waste
-			energy -= params.wastePen;
-			wasteCounterLoss -= params.wastePen;
-			info.useRockBumpEnergy(params.wastePen);
-			info.addRockBump();
-		} else {
+		else {
 			// Rock bump
 			energy -= params.stepRockEnergy;
 			wasteCounterLoss -= params.stepRockEnergy;
@@ -1031,6 +1043,32 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			info.addRockBump();
 		}
 		energy -= energyPenalty(true);
+
+		if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
+			// Bumps into waste
+			int x = destPos.v[0];
+			int y = destPos.v[1];
+			Drop d = ComplexEnvironment.dropArray[x][y];
+
+			if (!d.canStep()) {
+				energy -= params.wastePen;
+				wasteCounterLoss -= params.wastePen;
+				info.useRockBumpEnergy(params.wastePen);
+				info.addRockBump();
+			} else if (d instanceof Product) {
+				Product p = (Product) d;
+				if (p.owner != this && globals.random.nextFloat() <= 0.5f) {
+					ComplexEnvironment.prodMapper.remProduct(p, 
+							getPosition().getEnvironment().getLocation(x, y));
+					ComplexEnvironment.dropArray[x][y] = null;
+					destPos.setFlag(ComplexEnvironment.FLAG_DROP, false);
+					// TODO: Reward p.owner for selling his product!
+					// Reward this agent for buying a product! (and punish it
+					// for paying for it?)
+					// Should agents have currency to use for buying products?
+				}
+			}
+		}
 
 		if (energy <= 0)
 			die();
@@ -1091,8 +1129,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			poll();
 
 		/* Produce waste if able */
-		if (params.wasteMode)
+		if (params.wasteMode) {
 			tryPoop();
+		}
+
+		if (true || params.productionMode) {
+			tryProduction();
+		}
 
 		/* Check if broadcasting is enabled */
 		if (params.broadcastMode & !ComplexEnvironment.currentPackets.isEmpty())
@@ -1118,60 +1161,191 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			pregnant = true;
 		}
 	}
+
+	private boolean shouldPoop() {
+		if (wasteCounterGain <= 0 && params.wasteLimitGain > 0) {
+			wasteCounterGain += params.wasteLimitGain;
+			return true;
+		} else if (getWasteCounterLoss() <= 0 && params.wasteLimitLoss > 0) {
+			setWasteCounterLoss(getWasteCounterLoss() + params.wasteLimitLoss);
+			return true;
+		}
+		return false;
+	}
+
+	private void forceDrop(Drop d) {
+		boolean added = false;
+
+		// For this method, "adjacent" implies tiles around the agent including
+		// tiles that are diagonally adjacent
+
+		cobweb.Environment.Location loc;
+
+		// Place the drop at an available location adjacent to the agent
+		for (int i = 0; i < dirList.length; i++) {
+			loc = getPosition().getAdjacent(dirList[i]);
+			if (loc != null && loc.getAgent() == null && !loc.testFlag(ComplexEnvironment.FLAG_STONE)
+					&& !loc.testFlag(ComplexEnvironment.FLAG_DROP) && !loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+				loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+				loc.setFlag(ComplexEnvironment.FLAG_STONE, false);
+				loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
+				ComplexEnvironment.setDrop(loc, d);
+				break;
+			}
+		}
+
+		// In the case that every adjacent location is occupied:
+		if (!added) {
+			for (int i = 0; i < dirList.length; i++) {
+				loc = getPosition().getAdjacent(dirList[i]);
+				if (loc != null && loc.getAgent() == null && loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+					loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
+					ComplexEnvironment.setDrop(loc, d);
+					break;
+				}
+			}
+		}
+	}
+
+	private boolean roll(float chance) {
+		return chance > globals.random.nextFloat();
+	}
+
+	boolean shouldProduce() {
+		if (prodParams == null || !roll(prodParams.initProdChance)) {
+			return false;
+		}
+
+		float locationValue = ComplexEnvironment.prodMapper.getValueAtLocation(position);
+
+		if (locationValue > prodParams.highDemandCutoff) {
+			return false;
+		}
+
+		float rand = globals.random.nextFloat();
+
+		// ADDITIONS:
+		// Learning agents should adapt to products
+
+		if (locationValue <= prodParams.lowDemandThreshold) {
+			// In an area of low demand
+			return roll(prodParams.lowDemandProdChance);
+		} else if (locationValue <= prodParams.sweetDemandThreshold) {
+			/**
+			 * //ORIGINAL WORK:
+			 * 
+			 * //Let: d = prodParams.lowDemandThreshold // e =
+			 * prodParams.sweetDemandThreshold // f =
+			 * prodParams.sweetDemandStartChance
+			 * 
+			 * // root 1: (d, 0) // root 2: (e, 0) // vertex: ((d + e) / 2, 1 -
+			 * f)
+			 * 
+			 * // y = a(x - h)^2 + k
+			 * 
+			 * // h = (d + e) / 2 // k = 1 - f // x = d // y = 0
+			 * 
+			 * // 0 = a(d - ((d + e) / 2))^2 + (1 - f) // f - 1 = a(d - ((d + e)
+			 * / 2))^2 // a = (f - 1) / (d - ((d + e) / 2) ^ 2
+			 * 
+			 * float d = prodParams.lowDemandThreshold; float e =
+			 * prodParams.sweetDemandThreshold; float f =
+			 * prodParams.sweetDemandStartChance;
+			 * 
+			 * float h = (d + e) * 0.5f; float k = 1 - f; float a = -k / (d -
+			 * h); a *= a;
+			 * 
+			 * float x = locationValue; // y = a(x - h)^2 + k float y = (a * (x
+			 * - h) * (x - h)) + k;
+			 * 
+			 * float chance = y + f;
+			 */
+
+			// COMPRESSED WORK:
+			float h = (prodParams.lowDemandThreshold + prodParams.sweetDemandThreshold) * 0.5f;
+			float a = (prodParams.sweetDemandStartChance - 1) / (prodParams.lowDemandThreshold - h);
+			a *= a;
+
+			float x = locationValue - h;
+			// y = a(x - h)^2 + k
+			float y = (a * x * x) + (1f - prodParams.sweetDemandStartChance);
+
+			float chance = prodParams.sweetDemandStartChance + y;
+
+			// Sweet spot; perfect balance of competition and attraction here;
+			// likelihood of producing products here
+			// is modelled by a parabola
+			return roll(chance);
+		}
+
+		// locationValue > 10f; Very high competition in this area!
+		// The higher the value the lower the production chances are.
+
+		// Let: d = prodParams.sweetDemandThreshold
+		// e = prodParams.highDemandCutoff
+		// f = prodParams.highDemandProdChance
+		//
+		// p1 = (d, f);
+		// p2 = (e, 0);
+		//
+		// rise = f - 0 = f;
+		// run = d - e
+		//
+		// m = f / (d - e)
+		//
+		// y = mx + b
+		//
+		// b = y - mx
+		// b = 0 - me
+		// b = -(f / (d -e))e
+		//
+		// y = ((f - e) / d)x + e
+
+		float d = prodParams.sweetDemandThreshold;
+		float e = prodParams.highDemandCutoff;
+		float f = prodParams.highDemandProdChance;
+
+		float rise = f;
+		float run = d - e;
+
+		float m = rise / run;
+
+		float b = -1 * m * e;
+
+		// y = mx + b
+		float y = (m * locationValue) + b;
+
+		// p1 = (sweetDemandThreshold, prodParams.highDemandProdChance)
+		// p2 = (
+		// minChance
+
+		return roll(y);
+	}
+
+	private void tryProduction() {
+		if (shouldProduce()) {
+			// Healthy agents produce high-value products, and vice-versa
+			Product p = new Product((float) energy / (float) params.initEnergy, this);
+
+			if (position.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+				position.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			}
+
+			position.setFlag(ComplexEnvironment.FLAG_DROP, true);
+
+			ComplexEnvironment.setDrop(position, p);
+
+			// forceDrop(p, this));
+		}
+	}
+
 	/**
 	 * Produce waste
 	 */
 	private void tryPoop() {
-		boolean produce = false;
-		if (wasteCounterGain <= 0 && params.wasteLimitGain > 0) {
-			produce = true;
-			wasteCounterGain += params.wasteLimitGain;
-		} else if (getWasteCounterLoss() <= 0 && params.wasteLimitLoss > 0) {
-			produce = true;
-			setWasteCounterLoss(getWasteCounterLoss() + params.wasteLimitLoss);
-		}
-		if (!produce)
-			return;
-
-		boolean wasteAdded = false;
-		/* Output a waste somewhere "close" (rad 1 from currentPosition) */
-		for (int i = 0; i < dirList.length; i++) {
-			cobweb.Environment.Location foo = getPosition().getAdjacent(dirList[i]);
-			if (foo == null)
-				continue;
-			if (foo.getAgent() == null && !foo.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !foo.testFlag(ComplexEnvironment.FLAG_WASTE) && !foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-				foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-				foo.setFlag(ComplexEnvironment.FLAG_STONE, false);
-				foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
-				ComplexEnvironment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
-				wasteAdded = true;
-				i = dirList.length + 100;
-				break;
-			}
-		}
-		/*
-		 * Crowded! IF there is no empty tile in which to drop the waste, we can replace a food tile with a waste
-		 * tile... / This function is assumed to add a waste tile! That is, this function assumes an existence of at
-		 * least one food tile that it will be able to replace with a waste tile. Nothing happens otherwise.
-		 */
-		if (!wasteAdded) {
-			for (int i = 0; i < dirList.length; i++) {
-				cobweb.Environment.Location foo = getPosition().getAdjacent(dirList[i]);
-				if (foo == null)
-					continue;
-
-				if (foo.getAgent() == null && foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-					/* Hack: don't put a waste tile on top of an agent */
-					/* Nuke a food pile */
-					foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-					foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
-					ComplexEnvironment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
-					wasteAdded = true;
-					i = dirList.length + 100;
-					break;
-				}
-			}
+		if (shouldPoop()) {
+			forceDrop(new Waste(currTick, params.wasteInit, params.wasteDecay));
 		}
 	}
 

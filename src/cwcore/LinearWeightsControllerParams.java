@@ -14,6 +14,8 @@ public class LinearWeightsControllerParams implements CobwebParam {
 
 	public double[][] data = new double[LinearWeightsController.INPUT_COUNT][LinearWeightsController.OUTPUT_COUNT];
 
+	public float prodHuntChance = 0.6f;
+
 	public LinearWeightsControllerParams copy() {
 		LinearWeightsControllerParams p = new LinearWeightsControllerParams();
 		p.data = new double[data.length][data[0].length];

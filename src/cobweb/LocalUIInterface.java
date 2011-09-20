@@ -123,9 +123,11 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 		/** Width of the frame info, in tiles */
 		int width;
+		private int totalWidth;
 
 		/** Height of the frame info, in tiles */
 		int height;
+		private int totalHeight;
 
 		/**
 		 * width * height array of colors for the tiles; The color for a
@@ -166,11 +168,13 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 			// Grid lines
 			g.setColor(COLOR_GRIDLINES);
+			totalWidth = tileWidth * width;
 			for (int y = 0; y <= height; y++) {
-				g.drawLine(0, y * tileHeight, tileWidth * width, y * tileHeight);
+				g.drawLine(0, y * tileHeight, totalWidth, y * tileHeight);
 			}
+			totalHeight = tileHeight * height;
 			for (int x = 0; x <= width; x++) {
-				g.drawLine(x * tileWidth, 0, x * tileWidth, tileHeight * height);
+				g.drawLine(x * tileWidth, 0, x * tileWidth, totalHeight);
 			}
 
 			// Agents
