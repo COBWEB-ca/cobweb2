@@ -30,22 +30,52 @@ import cwcore.complexParams.SpawnMutator;
 import cwcore.complexParams.StepMutator;
 import driver.ControllerFactory;
 
+/**
+ * Consists of implementations of the TickScheduler.Client and the 
+ * Serializable classes, and is an extension of the cobweb.Agent class. 
+ * 
+ * <p>During each tick of a simulation, each ComplexAgent instance will 
+ * be used to call the tickNotification method.  This is done in the 
+ * TickScheduler.doTick private method. 
+ * 
+ * @author ???
+ * @see cobweb.Agent
+ * @see ComplexAgent#tickNotification(long)
+ * @see java.io.Serializable
+ *
+ */
 public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client, Serializable{
 
+	/**
+	 * This class provides the information of what an agent sees.
+	 *
+	 */
 	static class SeeInfo {
 		private int dist;
 
 		private int type;
 
+		/**
+		 * Contains the information of what the agent sees.
+		 * 
+		 * @param d Distance to t.
+		 * @param t Type of object seen.
+		 */
 		public SeeInfo(int d, int t) {
 			dist = d;
 			type = t;
 		}
 
+		/**
+		 * @return How far away the object is.
+		 */
 		public int getDist() {
 			return dist;
 		}
 
+		/**
+		 * @return What the agent sees (rock, food, etc.)
+		 */
 		public int getType() {
 			return type;
 		}
@@ -346,6 +376,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
 	}
 
+	/**
+	 * Creates a new communication packet.  The energy to broadcast is 
+	 * deducted here.
+	 * 
+	 * @param loc The location of food.
+	 */
 	void broadcastFood(cobweb.Environment.Location loc) { // []SK
 		String message = loc.toString();
 		new CommPacket(CommPacket.FOOD, id, message, energy, params.broadcastEnergyBased, params.broadcastFixedRange);
@@ -353,14 +389,25 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
 	}
 
-	boolean canBroadcast() {
+	/**
+	 * @return True if agent has enough energy to broadcast
+	 */
+	protected boolean canBroadcast() {
 		return energy > params.broadcastEnergyMin;
 	}
 
+	/**
+	 * @param destPos The location of the agents next position.
+	 * @return True if agent can eat this type of food.
+	 */
 	public boolean canEat(cobweb.Environment.Location destPos) {
 		return params.foodweb.canEatFood[ComplexEnvironment.getFoodType(destPos)];
 	}
 
+	/**
+	 * @param adjacentAgent The agent attempting to eat.
+	 * @return True if the agent can eat this type of agent.
+	 */
 	protected boolean canEat(ComplexAgent adjacentAgent) {
 		boolean caneat = false;
 		caneat = params.foodweb.canEatAgent[adjacentAgent.getAgentType()];
@@ -370,6 +417,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return caneat;
 	}
 
+	/**
+	 * @param destPos The location of the agents next position.
+	 * @return True if location exists and is not occupied by anything
+	 */
 	boolean canStep(Location destPos) {
 		// The position must be valid...
 		if (destPos == null)
@@ -436,6 +487,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		info.setDeath(((ComplexEnvironment) position.getEnvironment()).getTickCount());
 	}
 
+	/**
+	 * This method allows the agent to see what is in front of it.
+	 * 
+	 * @return What the agent sees and at what distance.
+	 */
 	public SeeInfo distanceLook() {
 		Direction d = facing;
 		cobweb.Environment.Location destPos = getPosition().getAdjacent(d);
@@ -469,6 +525,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return new SeeInfo(LOOK_DISTANCE, 0);
 	}
 
+	/**
+	 * The agent eats the food (food flag is set to false), and 
+	 * gains energy and waste according to the food type.
+	 * 
+	 * @param destPos Location of food.
+	 */
 	public void eat(cobweb.Environment.Location destPos) {
 		// TODO: CHECK if setting flag before determining type is ok
 		// Eat first before we can produce waste, of course.
@@ -485,6 +547,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
+	/**
+	 * The agent eats the adjacent agent by killing it and gaining 
+	 * energy from it.
+	 * 
+	 * @param adjacentAgent The agent being eaten.
+	 */
 	protected void eat(ComplexAgent adjacentAgent) {
 		int gain = (int) (adjacentAgent.energy * params.agentFoodEnergy);
 		energy += gain;
@@ -564,7 +632,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				getPosition().v[1]), new Point2D(facing.v[0], facing.v[1]));
 	}
 
-	// return agent's energy
+	/**
+	 * return Agent's energy
+	 */
 	@Override
 	public int getEnergy() {
 		return energy;
@@ -574,6 +644,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return info;
 	}
 
+	/**
+	 * North = 0
+	 * <br>East = 1
+	 * <br>South = 2
+	 * <br>West = 3
+	 * 
+	 * @return A number representation of the direction the agent is facing.
+	 */
 	public int getIntFacing() {
 		if (facing.equals(cobweb.Environment.DIRECTION_NORTH))
 			return 0;
@@ -591,7 +669,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return memoryBuffer;
 	}
 
-	// Provide a random facing for the agent.
+	/**
+	 * Provide a random direction for the agent to face.
+	 */
 	private void InitFacing() {
 		double f = cobweb.globals.random.nextFloat();
 		if (f < 0.25)
@@ -608,6 +688,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return asexFlag;
 	}
 
+	/**
+	 * The agent will remember the last variable number of agents that 
+	 * cheated it.  How many cheaters it remembers is determined by its 
+	 * PD memory size.
+	 * 
+	 * @param othersID In a game of PD, the opposing agents ID
+	 */
 	protected void iveBeenCheated(int othersID) {
 
 		if (params.pdMemory > 0) {
@@ -688,7 +775,23 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**
-	 * This method determines the action of the agent in a PD game
+	 * This method initializes the agents actions in an iterated prisoner's 
+	 * dilemma game.  The agent can use the following strategies described 
+	 * by the agentPDStrategy integer:
+	 * 
+	 * <p>0. Default
+	 * 
+	 * <p>The agents decision to defect or cooperate is chosen randomly.  
+	 * The probability of choosing either is determined by the agents 
+	 * pdCoopProb parameter.
+	 * 
+	 * <p>1. Tit for Tat
+	 * 
+	 * <p>The agent will initially begin with a cooperate, but will then choose 
+	 * whatever the opposing agent chose last.  For example, the agent begins 
+	 * with a cooperate, but if the opposing agent has chosen to defect, then 
+	 * the agent will choose to defect next round.
+	 * 
 	 */
 	public void playPD() {
 
@@ -716,7 +819,46 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return;
 	}
 
-	void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
+	/**
+	 *Prisoner's dilemma is played between the two agents using the strategies 
+	 *assigned in playPD().  The agent will use its PD memory to remember agents 
+	 *that cheat it, which will affect whether an agent will want to meet another,
+	 *and its credibility.
+	 *
+	 *<p>How Prisoner's Dilemma is played:
+	 *
+	 *<p>Prisoner's dilemma is a game between two agents when they come in to 
+	 *contact with each other.  The game determines how much energy each agent 
+	 *receives after contact.  Each agent has two options: cooperate or defect.
+	 *The agents choice to cooperate or defect is determined by the strategy the 
+	 *agent is using (see playPD() method).  The agents choices can lead to 
+	 *one of four outcomes:
+	 *
+	 *<p> 1. REWARD for mutual cooperation (Both agents cooperate)
+	 *
+	 *<p> 2. SUCKER's payoff (Opposing agent defects; this agent cooperates)
+	 *
+	 *<p> 3. TEMPTATION to defect (Opposing agent cooperates; this agent defects)
+	 *
+	 *<p> 4. PUNISHMENT for mutual defection (Both agents defect)
+	 *
+	 *<p>The best strategy for both agents is to cooperate.  However, if an agent 
+	 *chooses to defect when the other cooperates, the defecting agent will have 
+	 *a greater advantage.  For a true game of PD, the energy scores for each 
+	 *outcome should follow this rule: TEMPTATION > REWARD > PUNISHMENT > SUCKER
+	 *
+	 *<p>Here is an example of how much energy an agent could receive:
+	 *<br> REWARD     =>     5
+	 *<br> SUCKER     =>     2
+	 *<br> TEMPTATION =>     8
+	 *<br> PUNISHMENT =>     3
+	 *
+	 * @param adjacentAgent Agent playing PD with
+	 * @param othersID ID of the adjacent agent.
+	 * @see ComplexAgent#playPD()
+	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
+	 */
+	public void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
 		playPD();
 		adjacentAgent.playPD();
 
@@ -730,10 +872,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 */
 
 		/* 0 = cooperate. 1 = defect */
-
-		/*
-		 * Payoff Matrix: 0 0 => 5 5, 0 1 => 2 8, 1 0 => 8 2, 1 1 => 3 3
-		 */
 
 		final int PD_COOPERATE = 0;
 		final int PD_DEFECT = 1;
@@ -832,6 +970,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		this.commOutbox = commOutbox;
 	}
 
+	/**
+	 * Sets the complex agents parameters.
+	 * 
+	 * @param pdCheat
+	 * @param agentData The ComplexAgentParams used for this complex agent.
+	 */
 	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
 
 		this.params = agentData;
@@ -875,7 +1019,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/*
-	 * return the measure of similiarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
+	 * return the measure of similarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
 	 */
 	@Override
 	public double similarity(cobweb.Agent other) {
@@ -892,6 +1036,47 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return 0.5; // ((GeneticController) controller).similarity(other);
 	}
 
+	/**
+	 * During a step, the agent can encounter four different circumstances: 
+	 * 1. Nothing is in its way.  
+	 * 2. Contact with another agent.  
+	 * 3. Run into waste.
+	 * 4. Run into a rock.
+	 * 
+	 * <p> 1. Nothing in its way: 
+	 * 
+	 * <p>If the agent can move into the next position, the first thing it will do 
+	 * is check for food.  If it finds food, then the agent may 
+	 * broadcast a message containing the location of the food.  The agent may 
+	 * then eat the food.  If after eating the food the agent was pregnant, a check 
+	 * will be made to see if the child can be produced now.  If the agent was not 
+	 * pregnant, then a-sexual breeding will be attempted.
+	 * 
+	 * <p>This method will then iterate through all  mutators used in the simulation 
+	 * and call onStep for each step mutator.  The agent will then move.  If it 
+	 * was found that the agent was ready to produce a child, then a new agent 
+	 * is created.
+	 * 
+	 * <p> 2. Contact with another agent:
+	 * 
+	 * <p> Contact mutators are iterated through and the onContact method is called 
+	 * for each used within the simulation.  The agent will eat the agent if it can.  
+	 * 
+	 * <p> If prisoner's dilemma is being used for this simulation, then a check is 
+	 * made to see if both agents want to meet each other (True if no bad memories of 
+	 * adjacent agent).  If the adjacent agent was not eaten and both agents want to 
+	 * meet each other, then the possibility of breeding will be looked in to.  If 
+	 * breeding is not possible, then prisoner's dilemma will be played.  If prisoner's 
+	 * dilemma is not used, then only breeding is checked for.
+	 * 
+	 * <p> An energy penalty is deducted for bumping into another agent.
+	 * 
+	 * <p> 3 and 4. Run into waste/rock:
+	 * 
+	 * <p> Energy penalties are deducted from the agent.
+	 * 
+	 * @see ComplexAgent#playPDonStep(ComplexAgent, int)
+	 */
 	public void step() {
 		cobweb.Agent adjAgent;
 		mustFlip = getPosition().checkFlip(facing);
@@ -1062,6 +1247,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		setCommInbox(o);
 	}
 
+	/**
+	 * Controls what happens to the agent on this tick.  If the 
+	 * agent is still alive, what happens to the agent is determined 
+	 * by the controller.
+	 * 
+	 * @param tick The time in the simulation
+	 * @see cobweb.Controller#controlAgent(cobweb.Agent)
+	 */
 	public void tickNotification(long tick) {
 		if (!isAlive())
 			return;
@@ -1075,7 +1268,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		age++;
 
-		/* Time to die, Agent Bond */
+		/* Time to die, Agent (mister) Bond */
 		if (params.agingMode) {
 			if ((currTick - birthTick) >= params.agingLimit) {
 				die();
@@ -1115,6 +1308,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// nothing
 	}
 
+	/**
+	 * If the agent has enough energy to breed, is randomly chosen to breed, 
+	 * and its asexFlag is true, then the agent will be pregnant and set to 
+	 * produce a child agent after the agent's asexPregnancyPeriod is up.
+	 */
 	void tryAsexBreed() {
 		if (asexFlag && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
 				&& cobweb.globals.random.nextFloat() < params.asexualBreedChance) {
@@ -1179,6 +1377,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
+	/**
+	 * This method makes the agent turn left.  It does this by updating 
+	 * the direction of the agent and subtracts the amount of 
+	 * energy it took to turn.
+	 */
 	public void turnLeft() {
 		cobweb.Direction newFacing = new cobweb.Direction(2);
 		newFacing.v[0] = facing.v[1];
@@ -1191,7 +1394,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		afterTurnAction();
 	}
 
-
+	/**
+	 * This method makes the agent turn right.  It does this by updating 
+	 * the direction of the agent subtracts the amount of energy it took 
+	 * to turn.
+	 */
 	public void turnRight() {
 		cobweb.Direction newFacing = new cobweb.Direction(2);
 		newFacing.v[0] = -facing.v[1];

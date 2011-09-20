@@ -4,6 +4,14 @@ import java.lang.reflect.Field;
 
 public class ReflectionUtil {
 
+	/**
+	 * Adds <code>factor</code> to the value of <code>field</code> contained 
+	 * within the parameters, <code>object</code>.
+	 * 
+	 * @param object Parameters.
+	 * @param field Field to be added to.
+	 * @param factor Factor added to field value.
+	 */
 	public static void addField(Object object, Field field, float factor) {
 		try {
 			Object o;
@@ -24,7 +32,14 @@ public class ReflectionUtil {
 		}
 	}
 
-
+	/**
+	 * Multiplies <code>factor</code> to the value of <code>field</code> contained 
+	 * within the parameters, <code>object</code>.
+	 * 
+	 * @param object Parameters.
+	 * @param field Field to be multiplied with.
+	 * @param factor Factor multiplied to field value.
+	 */
 	public static void multiplyField(Object object, Field field, float factor) {
 		try {
 			Object o;

@@ -17,7 +17,8 @@ public class TickScheduler implements Scheduler {
 
 	/**
 	 * The TickScheduler client interface is quite trivial; tickNotification is
-	 * called on each client each tick.
+	 * called on each client each tick.  A client is any object that needs to be 
+	 * modified during a tick (examples are agents, and environments).
 	 */
 	public static interface Client {
 
@@ -27,8 +28,17 @@ public class TickScheduler implements Scheduler {
 		public void tickZero();
 	}
 
+	/**
+	 * Contains the run method used for the simulation thread.
+	 * 
+	 * @author
+	 *
+	 */
 	private class SchedulerRunnable implements Runnable {
 
+		/**
+		 * Contains the main loop to control the simulation.
+		 */
 		public void run() {
 			doZeroTick();
 			long frameCount = 0;
@@ -92,6 +102,12 @@ public class TickScheduler implements Scheduler {
 		clientV.add((Client) theClient);
 	}
 
+	/**
+	 * Calls tick notifications for each client (agents, 
+	 * environment, etc.) within the simulation.
+	 * 
+	 * @see Client#tickNotification(long)
+	 */
 	private synchronized void doTick() {
 
 		CommManager commManager = new CommManager();
@@ -151,6 +167,12 @@ public class TickScheduler implements Scheduler {
 		tickCount = 0;
 	}
 
+	/**
+	 * Sets running to true, and notifies the simulation thread 
+	 * of this.
+	 * 
+	 * @see java.lang.Object#notifyAll()
+	 */
 	public synchronized void resumeScheduler() {
 		running = true;
 		notifyAll();
@@ -177,6 +199,9 @@ public class TickScheduler implements Scheduler {
 		slowdown = time;
 	}
 
+	/**
+	 * Causes the simulation thread to begin execution.
+	 */
 	public synchronized void startScheduler() {
 		if (!myThread.isAlive()) {
 			myThread.start();

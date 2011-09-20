@@ -9,10 +9,23 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
+/**
+ * This class contains the methods necessary to extract data from the 
+ * fields in the simulation configuration files.
+ * 
+ * @author ???
+ */
 public abstract class AbstractReflectionParams implements CobwebParam {
 	private static final long serialVersionUID = -710912579485485125L;
 
+	/**
+	 * Allows the extraction of data from a configuration 
+	 * file for any Cobweb parameters.  The data is passed in as the 
+	 * root node of a tree containing the data.
+	 * 
+	 * @param obj The type of object parameters. 
+	 * @param config The root node of the tree.
+	 */
 	private static void loadTaggedFields(CobwebParam obj, Node config) {
 		Class<?> T = obj.getClass();
 
@@ -58,6 +71,14 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 		}
 	}
 
+	/**
+	 * Saves data fields from any object implementing the CobwebParam interface to a 
+	 * data file, doc.
+	 * 
+	 * @param obj Cobweb parameter object.
+	 * @param config Initial node to add data fields to.
+	 * @param doc Data file fields are saved to.
+	 */
 	private static void saveTaggedFields(CobwebParam obj, Node config, Document doc) {
 		Class<?> T = obj.getClass();
 
@@ -92,10 +113,23 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 		}
 	}
 
+	/**
+	 * Calls loadTaggedFields using the Cobweb parameter type.
+	 * 
+	 * @param root The root node of the data tree.
+	 * @see AbstractReflectionParams#loadTaggedFields(CobwebParam, Node)
+	 */
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		loadTaggedFields(this, root);
 	}
 
+	/**
+	 * Calls saveTaggedFields using the Cobweb parameter type.
+	 * 
+	 * @param root The root node of the data tree.
+	 * @param document The document that the data will be saved to.
+	 * @see AbstractReflectionParams#saveTaggedFields(CobwebParam, Node, Document)
+	 */
 	public void saveConfig(Node root, Document document) {
 		saveTaggedFields(this, root, document);
 	}
