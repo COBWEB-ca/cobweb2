@@ -218,7 +218,7 @@ public class SurvivorAgent extends ComplexAgent {
 		int eatIndex = this.getBestFoodIndex();
 		Food f = this.carriedFood.remove(eatIndex);
 		//TODO note that this won't work right now since this method doesn't exist
-		this.eat(f);
+		//		this.eat(f);
 	}
 
 	/**
@@ -229,6 +229,6 @@ public class SurvivorAgent extends ComplexAgent {
 		int eatIndex = (int) Math.floor(Math.random() * this.carriedFood.size());
 		Food f = this.carriedFood.remove(eatIndex);
 		//TODO note that this won't work right now since this method doesn't exist
-		this.eat(f);
+		//		this.eat(f);
 	}
 }
