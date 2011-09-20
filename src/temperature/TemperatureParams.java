@@ -16,6 +16,9 @@ public class TemperatureParams implements CobwebParam {
 
 	private static final long serialVersionUID = -4024670457346662550L;
 
+	/**
+	 * An area where the temperature is constant.
+	 */
 	@ConfDisplayName("Band")
 	public float[] tempBands = new float[TEMPERATURE_BANDS];
 
@@ -23,6 +26,12 @@ public class TemperatureParams implements CobwebParam {
 
 	private final AgentFoodCountable env;
 
+	/**
+	 * Constructor sets the environment parameters, and temperature agent type 
+	 * parameters.
+	 * 
+	 * @param env Environment parameters.
+	 */
 	public TemperatureParams(AgentFoodCountable env) {
 		this.env = env;
 

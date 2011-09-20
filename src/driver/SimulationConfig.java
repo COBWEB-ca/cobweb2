@@ -37,6 +37,9 @@ import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
 import disease.DiseaseParams;
 
+/**
+ * Used to organize, modify, and access simulation parameters.
+ */
 public class SimulationConfig {
 	private static void removeIgnorableWSNodes(Element parent) {
 		Node nextNode = parent.getFirstChild();
@@ -77,6 +80,9 @@ public class SimulationConfig {
 
 	private TemperatureParams tempParams;
 
+	/**
+	 * Creates the default Cobweb simulation parameters.
+	 */
 	public SimulationConfig() {
 		envParams = new ComplexEnvironmentParams();
 
@@ -107,46 +113,75 @@ public class SimulationConfig {
 		//xxxlearningAgentParams = learningParams.getLearningParams();
 	}
 
+	/**
+	 * Constructor that allows input from a file stream to configure simulation parameters.
+	 * 
+	 * @param file Input file stream.
+	 */
 	public SimulationConfig(InputStream file) {
 		this();
 		this.fileName = ":STREAM:" + file.toString() + ":";
 		loadFile(file);
 	}
+
+	/**
+	 * Constructor that allows input from a file to configure the simulation parameters.
+	 * 
+	 * @param fileName Name of the file used for simulation configuration.
+	 * @throws FileNotFoundException
+	 * @see {@link SimulationConfig#loadFile(InputStream)}
+	 */
 	public SimulationConfig(String fileName) throws FileNotFoundException {
 		this();
 		this.fileName = fileName;
 		loadFile(new FileInputStream(fileName));
 	}
 
+	/**
+	 * @return Agent parameters
+	 */
 	public ComplexAgentParams[] getAgentParams() {
 		return agentParams;
 	}
 
-	/*xxxpublic LearningAgentParams[] getLearningAgentParams() {
-		return learningAgentParams;
-	}*/
-
+	/**
+	 * @return Disease parameters
+	 */
 	public DiseaseParams[] getDiseaseParams() {
 		return diseaseParams;
 	}
 
+	/**
+	 * @return Environment parameters
+	 */
 	public ComplexEnvironmentParams getEnvParams() {
 		return envParams;
 	}
 
+	/**
+	 * @return Simulation configuration file name
+	 */
 	public String getFilename() {
 		return fileName;
 	}
 
+	/**
+	 * @return Food parameters
+	 */
 	public ComplexFoodParams[] getFoodParams() {
 		return foodParams;
 	}
 
+	/**
+	 * @return Genetic parameters
+	 */
 	public GeneticParams getGeneticParams() {
 		return geneticParams;
 	}
 
-
+	/**
+	 * @return Temperature parameters
+	 */
 	public TemperatureParams getTempParams() {
 		return tempParams;
 	}
@@ -156,6 +191,24 @@ public class SimulationConfig {
 	}
 
 
+	/**
+	 * This method extracts data from the simulation configuration file and 
+	 * loads the data into the simulation parameters.  It does this by first 
+	 * creating a tree that holds all data from file using the DocumentBuilder 
+	 * class.  Next, the root node of the tree is passed to the 
+	 * AbstractReflectionParams.loadConfig(Node) method for processing.  This 
+	 * processing allows the ConfXMLTags to overwrite the default parameters 
+	 * used when constructing Cobweb environment parameters.
+	 * 
+	 * <p>Once the environment parameters have been extracted successfully, 
+	 * the rest of the Cobweb parameters can be set (temperature, genetics, 
+	 * agents, etc.) using the environment parameters.
+	 * 
+	 * @param file The current simulation configuration file.
+	 * @see cobweb.params.AbstractReflectionParams#loadConfig(Node)
+	 * @see javax.xml.parsers.DocumentBuilder
+	 * @throws IllegalArgumentException Unable to open the simulation configuration file.
+	 */
 	private void loadFile(InputStream file) throws IllegalArgumentException {
 
 		// read these variables from the xml file

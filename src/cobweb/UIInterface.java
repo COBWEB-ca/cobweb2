@@ -5,7 +5,7 @@ package cobweb;
  * classes; it is also the top-level interface to the simulation.
  * 
  * The Driver (main in an application, or the applet) should create a derivative
- * of UIInterface to initialise the system as appropriate for the context; a
+ * of UIInterface to initialize the system as appropriate for the context; a
  * LocalUIInterface exists for a single application simulation, and a
  * ClientInterface could be implemented to connect to a ServerInterface over
  * TCP/IP.
@@ -60,15 +60,41 @@ public interface UIInterface {
 
 		public void setCurrentFile(String input);
 
+		/**
+		 * Makes the user interface show which simulation configuration file 
+		 * is currently being used.
+		 * 
+		 * @param conf Contains all parameters used for the simulation.
+		 */
 		public void fileOpened(SimulationConfig conf);
 
 		public void setSimulation(UIInterface simulation);
 	}
 
+	/**
+	 * Add agent at location (x, y) of type, type.
+	 * 
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @param type Agent type.
+	 */
 	public void addAgent(int x, int y, int type);
 
+	/**
+	 * Add food at location (x, y) of type, type.
+	 * 
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 * @param type Agent type.
+	 */
 	public void addFood(int x, int y, int type);
 
+	/**
+	 * Add a stone at location (x, y)
+	 * 
+	 * @param x X coordinate.
+	 * @param y Y coordinate.
+	 */
 	public void addStone(int x, int y);
 
 	public void AddTickEventListener(TickEventListener listener);
@@ -120,6 +146,11 @@ public interface UIInterface {
 	 */
 	public int getWidth();
 
+	/**
+	 * This is currently being overwritten by the LocalUIInterface.
+	 * 
+	 * @see LocalUIInterface#insertPopulation(String, String)
+	 */
 	public boolean insertPopulation(String popName, String option) throws FileNotFoundException;
 
 	public boolean isRunnable();

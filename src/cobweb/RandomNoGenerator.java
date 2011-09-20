@@ -2,6 +2,9 @@ package cobweb;
 
 import java.util.Random;
 
+/**
+ * Random number generator
+ */
 public class RandomNoGenerator extends Random {
 
 	private long seed;

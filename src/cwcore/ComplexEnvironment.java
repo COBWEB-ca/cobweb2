@@ -38,6 +38,9 @@ import cwcore.complexParams.ComplexFoodParams;
 import driver.ControllerFactory;
 import driver.SimulationConfig;
 
+/**
+ * This class contains an implementation of the TickScheduler.Client class.
+ */
 public class ComplexEnvironment extends Environment implements TickScheduler.Client {
 
 	public static class CommManager {
@@ -217,6 +220,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
+	/**
+	 * Contains methods
+	 *  
+	 */
 	static class Waste {
 
 		private int initialWeight;
@@ -361,6 +368,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	int mostFood[];
 
+	/**
+	 * 
+	 */
 	@Override
 	public synchronized void addAgent(int x, int y, int type) {
 		super.addAgent(x, y, type);
@@ -483,6 +493,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		clearFlag(FLAG_WASTE);
 	}
 
+	/**
+	 * Stores the following types of parameters into ComplexEnvironment 
+	 * member variables as well as Prisoner's Dilemma payoffs:
+	 * 
+	 * <p>ComplexEnvironmentParams
+	 * <br>ComplexFoodParams
+	 * <br>ComplexAgentParams
+	 *  
+	 * @param p The current simulation configuration file.
+	 */
 	protected void copyParamsFromParser(SimulationConfig p) {
 		data = p.getEnvParams();
 
@@ -807,6 +827,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	}
 
+	/**
+	 * 
+	 * @param fileName 
+	 * @param option
+	 * @return 
+	 */
 	@Override
 	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
 
@@ -892,6 +918,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return true;
 	}
 
+	/**
+	 * Removes all old agents.
+	 */
 	private void killOldAgents() {
 		// if keepOldAgents is false then we want to kill all of the agents
 		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
@@ -909,6 +938,20 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		clearAgents();
 	}
 
+	/**
+	 * Loads a new complex environment using the data held within the simulation 
+	 * configuration object, p.  The following actions are performed during a load:
+	 * 
+	 * <p>1. Attaches the scheduler, s, to the environment.
+	 * <br>2. Stores parameters from the file or stream in to ComplexEnvironment.
+	 * <br>3. Sets up location cache, and environment food and waste arrays.
+	 * <br>4. Keeps or removes old agents.
+	 * <br>5. Adds new stones, food, and agents.
+	 * 
+	 * @param s The simulation scheduler used to control the time.
+	 * @param p The simulation configuration settings
+	 * @see cobweb.Environment#load(Scheduler, SimulationConfig)
+	 */
 	@Override
 	public void load(Scheduler s, SimulationConfig p) throws IllegalArgumentException {
 		super.load(s, p);
@@ -979,7 +1022,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			// keep commPackets.list
 		}
 
-		// add a random amount of new stones
+		// add stones in to random locations
 		for (int i = 0; i < data.initialStones; ++i) {
 			cobweb.Environment.Location l;
 			int tries = 0;
@@ -992,7 +1035,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				l.setFlag(ComplexEnvironment.FLAG_STONE, true);
 		}
 
-		// add random amounts of new food for each type
+		// add food to random locations
 		if (data.dropNewFood) {
 			loadNewFood();
 		}
@@ -1009,6 +1052,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
+	/**
+	 * Initializes drought days for each food type to zero.  Also checks to see if 
+	 * food deplete rates and times are valid for each food type.  Valid random food 
+	 * deplete rates and times will be generated using the environments random number 
+	 * generator for each invalid entry.
+	 */
 	private void loadFoodMode() {
 		draughtdays = new int[data.getFoodTypes()];
 		for (int i = 0; i < data.getFoodTypes(); ++i) {
@@ -1020,6 +1069,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
+	/**
+	 * Places agents in random locations.  If prisoner's dilemma is being used, 
+	 * a number of cheaters that is dependent on the probability of being a cheater
+	 * are randomly assigned to agents.
+	 */
 	private void loadNewAgents() {
 		int doCheat = -1; // $$$$$ -1: not play Prisoner's Dilemma
 		for (int i = 0; i < data.getAgentTypes(); ++i) {
@@ -1076,6 +1130,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
+	/**
+	 * Randomly places food in the environment.
+	 */
 	private void loadNewFood() {
 		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			for (int j = 0; j < foodData[i].initial; ++j) {
@@ -1092,6 +1149,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
+	/**
+	 * Creates a new waste array and initializes each location as having 
+	 * no waste.
+	 */
 	private void loadNewWaste() {
 		wastearray = new Waste[data.width][data.height];
 
@@ -1104,6 +1165,15 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
+	/**
+	 * Searches through each location to find every old agent.  Each agent that is found 
+	 * is added to the scheduler if the scheduler is new.  Agents that are off the new 
+	 * environment are removed from the environment.
+	 * 
+	 * @param sFlag True if using a new scheduler
+	 * @param oldH Height of old environment
+	 * @param oldW Width of old environment
+	 */
 	private void loadOldAgents(boolean sFlag, int oldH, int oldW) {
 		// Add in-bounds old agents to the new scheduler and update new
 		// constants
@@ -1130,6 +1200,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		removeOffgridAgents(oldH, oldW);
 	}
 
+	/**
+	 * Removes old agents that are off the new environment.
+	 * 
+	 * @param oldH Old environment height
+	 * @param oldW Old environment width
+	 */
 	private void removeOffgridAgents(int oldH, int oldW) {
 		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
 			Location l = a.getPosition();
@@ -1140,6 +1216,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	}
 
+	/**
+	 * Resizes old waste array to create a new waste array while keeping waste data 
+	 * that was stored in old waste array.
+	 */
 	private void loadOldWaste() {
 		Waste[][] oldWasteArray = wastearray;
 		wastearray = new Waste[data.width][data.height];
@@ -1330,8 +1410,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// Nothing
 	}
 
-	/*
-	 * setFlag flags the location as a food/stone location. It does nothing if
+	/**
+	 * Flags locations as a food/stone/waste location. It does nothing if
 	 * the square is already occupied (for example, setFlag((0,0),FOOD,true)
 	 * does nothing when (0,0) is a stone
 	 */
@@ -1400,7 +1480,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/**
-	 * tickNotification is the method called by the scheduler each of its
+	 * tickNotification is the method called by the scheduler for each of its
 	 * clients for every tick of the simulation. For environment,
 	 * tickNotification performs all of the per-tick tasks necessary for the
 	 * environment to function properly. These tasks include managing food
@@ -1458,6 +1538,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// Nothing
 	}
 
+	/**
+	 * 
+	 */
 	private void updateWaste() {
 		for (int i = 0; i < wastearray.length; i++) {
 			for (int j = 0; j < wastearray[i].length; j++) {
@@ -1473,7 +1556,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	/*
+	/**
 	 * Write to Log file: FoodCount, AgentCount, Average Agent Energy and Agent
 	 * Energy at the most recent ticks ( by tick and by Agent/Food preference)
 	 */

@@ -16,6 +16,12 @@ import cwcore.AgentSimilarityCalculator;
 import cwcore.ComplexAgent;
 import cwcore.complexParams.SpawnMutator;
 
+/**
+ * GeneticsMutator is an instance of SpawnMutator.
+ * 
+ * @author
+ * @see SpawnMutator
+ */
 public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator {
 
 	private GeneticParams params;
@@ -26,11 +32,20 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 
 	private static final Collection<String> blank = new LinkedList<String>();
 
+	/**
+	 * GeneticsMutator is an instance of SpawnMutator.
+	 */
 	public GeneticsMutator() {
 		// Nothing
 	}
 
 
+	/**
+	 * Returns the genes of agent.  If the agent does not currently have genes, they will be created.
+	 * 
+	 * @param agent The complex agent that the genes will come from.
+	 * @return The genetic code of agent
+	 */
 	private GeneticCode getGene(ComplexAgent agent) {
 		if (!agent.isAlive())
 			return null;
@@ -165,6 +180,12 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		mutateAgentAttributes(agent);
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param params The parameters used in the simulation data file (xml file).
+	 * @param agentCount The number of agent types.
+	 */
 	public void setParams(GeneticParams params, int agentCount) {
 		this.params = params;
 		if (tracker == null)

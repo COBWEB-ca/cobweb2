@@ -22,6 +22,7 @@ public abstract class SmartAction implements Queueable {
 	/**
 	 * Create a new action with no information other than a description
 	 * 
+	 * @param agent the target agent
 	 * @param desc a String to describe the action
 	 */
 	public SmartAction(ComplexAgentLearning agent, String desc) {
