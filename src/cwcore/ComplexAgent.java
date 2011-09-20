@@ -1248,6 +1248,55 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**
+	 * Auto-update turn-related parameters. Kill the agent if necessary.
+	 * @param tick The time in the simulation
+	 */
+	private void updateAgent(long tick) {
+		//update current tick
+		currTick = tick;
+
+		/* Hack to find the birth tick... */
+		if (birthTick == 0)
+			birthTick = currTick;
+
+		//age the agent
+		age++;
+
+		/* Time to die, Agent (mister) Bond */
+		if (params.agingMode) {
+			if ((currTick - birthTick) >= params.agingLimit) {
+				die();
+				return;
+			}
+		}
+
+		//receive broadcasts
+	}
+
+	/**
+	 * Perform this method after control method.
+	 * Make the agent produce waste and send all queued broadcast messages.
+	 */
+	private void endUpdateAgent() {
+		/* Produce waste if able */
+		if (params.wasteMode)
+			tryPoop();
+
+		/* Check if broadcasting is enabled */
+		if (params.broadcastMode && !ComplexEnvironment.currentPackets.isEmpty())
+			receiveBroadcast();// []SK
+	}
+
+	/**
+	 * Move, eat, reproduce, etc.
+	 * This method is meant to control the agent.
+	 * Override this method in subclasses.
+	 */
+	protected void control() {
+		controller.controlAgent(this);
+	}
+
+	/**
 	 * Controls what happens to the agent on this tick.  If the 
 	 * agent is still alive, what happens to the agent is determined 
 	 * by the controller.
@@ -1259,50 +1308,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!isAlive())
 			return;
 
-		/* The current tick */
-		currTick = tick;
+		//all actions to be taken before controller
+		this.updateAgent(tick);
 
-		/* Hack to find the birth tick... */
-		if (birthTick == 0)
-			birthTick = currTick;
+		this.control();
 
-		age++;
-
-		/* Time to die, Agent (mister) Bond */
-		if (params.agingMode) {
-			if ((currTick - birthTick) >= params.agingLimit) {
-				die();
-				return;
-			}
-		}
-
-		beforeController();
-
-		/* Move/eat/reproduce/etc */
-		controller.controlAgent(this);
-
-		afterController();
-
-		/* track me */
-		if (tracked)
-			poll();
-
-		/* Produce waste if able */
-		if (params.wasteMode)
-			tryPoop();
-
-		/* Check if broadcasting is enabled */
-		if (params.broadcastMode & !ComplexEnvironment.currentPackets.isEmpty())
-			receiveBroadcast();// []SK
+		//all actions to be taken after controller
+		this.endUpdateAgent();
 	}
 
-	protected void beforeController() {
-
-	}
-
-	protected void afterController() {
-
-	}
 
 	public void tickZero() {
 		// nothing

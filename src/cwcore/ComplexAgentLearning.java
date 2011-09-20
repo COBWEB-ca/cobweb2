@@ -650,6 +650,17 @@ public class ComplexAgentLearning extends ComplexAgent {
 		super.turnLeft();
 	}
 
+
+	@Override
+	protected void control() {
+		beforeController();
+
+		/* Move/eat/reproduce/etc */
+		controller.controlAgent(this);
+
+		afterController();
+	}
+
 	@Override
 	public void turnRight() {
 		//Impulse to turn right; may or may not do so based on its memories
@@ -681,7 +692,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 
-	@Override
 	protected void afterController() {
 		/*
 		 * Perform all queued actions
@@ -713,9 +723,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	}
 
-	@Override
 	protected void beforeController() {
-		super.beforeController();
 		observeOccurrences();
 	}
 }

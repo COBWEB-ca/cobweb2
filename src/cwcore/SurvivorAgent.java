@@ -1,6 +1,9 @@
 package cwcore;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+
+import cobweb.Environment;
 
 /**
  * Added functionality over ComplexAgent:
@@ -21,6 +24,16 @@ public class SurvivorAgent extends ComplexAgent {
 	 */
 	private static final long serialVersionUID = -3614238409591026125L;
 
+	/*************************************************************************************
+	 * ****************************** STATIC VARIABLES ***********************************
+	 *************************************************************************************/
+
+	/**
+	 * TODO set this in XML
+	 * The maximum number of food sources this agent can remember at a time.
+	 */
+	private final int MAX_FOOD_SOURCE_MEMORY = 1;
+
 	/**
 	 * TODO set this in XML
 	 * The maximum carrying capacity for this agent.
@@ -28,20 +41,18 @@ public class SurvivorAgent extends ComplexAgent {
 	private final int MAX_CARRY_CAPACITY = 2;
 
 	/**
-	 * A collection of carried food.
-	 */
-	private ArrayList<Food> carriedFood;
-
-	/**
 	 * TODO set this in XML
+	 * TODO maybe add this to DNA
+	 * Refer to this variable when food is being eaten.
 	 * If set to true, eat the food with the most benefit.
 	 * If set to false, eat the food at random.
 	 */
-	private static final boolean EAT_SMART = true;
+	private final boolean EAT_SMART = true;
 
 	/**
 	 * TODO set this in XML
-	 * Refer to this variable when a piece of food is being added to the full inventory.
+	 * TODO maybe add this to DNA
+	 * Refer to this variable when food is being added to a full inventory.
 	 * If set to false, do not add the food.
 	 * If set to true, compare this food with the inventory food of the lowest benefit.
 	 * If this food has larger benefit, then drop the food with the lowest benefit and add this food.
@@ -49,12 +60,112 @@ public class SurvivorAgent extends ComplexAgent {
 	private final boolean CARRY_SMART = false;
 
 	/**
+	 * TODO set this in XML
+	 * TODO maybe add this to DNA
+	 * Refer to this variable when remembering food locations.
+	 * If set to true, remember the location of the highest-yield food.
+	 * If set to false, remember the most recently-added location.
+	 * TODO in the future, viable options are:
+	 * 1. REMEMBER_CLOSEST (closest)
+	 * 2. REMEMBER_NEWEST (most recently memorized)
+	 * 3. REMEMBER_HIGH_YIELD (location with highest-yield food)
+	 * 4. REMEMBER_SMART (weighting of yield, competition for food, and distance)
+	 */
+	private final boolean REMEMBER_SMART = false;
+
+	/*************************************************************************************
+	 * ****************************** INSTANCE VARIABLES *********************************
+	 *************************************************************************************/
+
+	/**
+	 * Inventory of carried food.
+	 */
+	private ArrayList<Food> carriedFood;
+
+	/**
+	 * Memory of locations of food sources.
+	 */
+	private LinkedList<Environment.Location> foodSources;
+
+	/*************************************************************************************
+	 * ****************************** CONSTRUCTOR ****************************************
+	 *************************************************************************************/
+
+	/**
 	 * Create a new Survivor Agent.
 	 */
 	public SurvivorAgent () {
 		//carried food is an array list
 		this.carriedFood = new ArrayList<Food>();
+		this.foodSources = new LinkedList<Environment.Location>();
+	}
 
+	/**
+	 * This method 
+	 */
+	@Override
+	public void control() {
+
+	}
+
+	/*************************************************************************************
+	 * ****************************** FUNCTIONS ******************************************
+	 *************************************************************************************/
+
+
+	/**
+	 * Memorise the location of the given food source.
+	 * If agent's memory is full, agent forgets oldest food source.
+	 * @param foodSourceLocation Location of a food source.
+	 */
+	public void rememberFoodSource(Environment.Location foodSourceLocation) {
+		foodSources.add(foodSourceLocation);
+
+		while(foodSources.size() > this.MAX_FOOD_SOURCE_MEMORY) {
+			this.foodSources.remove();
+		}
+	}
+
+	/**
+	 * Return the location of a food source.
+	 * If memories are empty, return null.
+	 * TODO for now return the oldest one.
+	 * @return The location of a food source.
+	 */
+	public Environment.Location rememberFoodSourceLocation() {
+		if(this.foodSources.isEmpty()) {
+			return null;
+		} else {
+			if(this.REMEMBER_SMART) {
+				return this.highYieldRemember();
+			} else {
+				return this.stupidRemember();
+			}
+		}
+	}
+
+	/**
+	 * Return the location of the food source with the highest-yield food.
+	 * If memories are empty, return null.
+	 * TODO NOT IMPLEMENTED YET
+	 * @return The location of a food source.
+	 */
+	private Environment.Location highYieldRemember() {
+		//TODO for now
+		return this.stupidRemember();
+	}
+
+	/**
+	 * Return the location of the newest remembered food source.
+	 * If memories are empty, return null.
+	 * @return The location of a food source.
+	 */
+	private Environment.Location stupidRemember() {
+		if(this.foodSources.isEmpty()) {
+			return null;
+		} else {
+			return this.foodSources.getLast();
+		}
 	}
 
 	/**
