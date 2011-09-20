@@ -1,7 +1,6 @@
 package cwcore;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Added functionality over ComplexAgent:
@@ -31,7 +30,7 @@ public class SurvivorAgent extends ComplexAgent {
 	/**
 	 * A collection of carried food.
 	 */
-	private Collection<Food> carriedFood;
+	private ArrayList<Food> carriedFood;
 
 	/**
 	 * TODO set this in XML
@@ -66,9 +65,34 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @return True if food was added, false otherwise.
 	 */
 	private boolean smartCarryFood(Food food) {
-		//TODO add functionality
-		//For now just does stupid carry
-		return this.stupidCarryFood(food);
+		int worstIndex = this.getWorstFoodIndex();
+		int worstBenefit = this.getFoodBenefit(this.carriedFood.get(worstIndex));
+
+		int thisBenefit = this.getFoodBenefit(food);
+
+		if(thisBenefit > worstBenefit) {
+			this.dropFood(worstIndex);
+			this.carriedFood.add(food);
+			return true;
+		} else {
+			return false;
+		}		
+	}
+
+	/**
+	 * Drop the food at the given index in the inventory.
+	 * Return the food that was dropped.
+	 * If the index is invalid, return null.
+	 * TODO for now just removes from inventory
+	 * @param foodIndex Index in the food inventory.
+	 * @return The food that was dropped.
+	 */
+	public Food dropFood(int foodIndex) {
+		if(foodIndex >= 0 && foodIndex < this.carriedFood.size()) {
+			return this.carriedFood.remove(foodIndex);
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -109,13 +133,61 @@ public class SurvivorAgent extends ComplexAgent {
 		int foodType = f.getType();
 
 		if(foodType == this.type()) {
-			//return the comp.
-			//TODO for now
-			return 1;
+			return params.foodEnergy;
 		} else {
-			//return the non-comp.
-			//TODO for now
-			return 0;
+			return params.otherFoodEnergy;
+		}
+	}
+
+	/**
+	 * Return the index in food where the food has highest benefit.
+	 * If inventory is empty, return -1.
+	 * TODO This is basically a call to MAX. Maybe implement PQ?
+	 * @return The index in food where the food has highest benefit.
+	 */
+	private int getBestFoodIndex() {
+		if(this.carriedFood.isEmpty()) {
+			return -1;
+		} else {
+			int bestIndex = 0;
+			int bestBenefit = -1;
+			int benefit;
+
+			for(int i = 0; i < this.carriedFood.size(); i++) {
+				benefit = this.getFoodBenefit(this.carriedFood.get(i));
+
+				if(benefit > bestBenefit) {
+					bestIndex = i;
+				}
+			}
+
+			return bestIndex;
+		}
+	}
+
+	/**
+	 * Return the index in food where the food has lowest benefit.
+	 * If inventory is empty, return -1.
+	 * TODO This is basically a call to MIN. Maybe implement PQ?
+	 * @return The index in food where the food has lowest benefit.
+	 */
+	private int getWorstFoodIndex() {
+		if(this.carriedFood.isEmpty()) {
+			return -1;
+		} else {
+			int worstIndex = 0;
+			int worstBenefit = -1;
+			int benefit;
+
+			for(int i = 0; i < this.carriedFood.size(); i++) {
+				benefit = this.getFoodBenefit(this.carriedFood.get(i));
+
+				if(benefit < worstBenefit) {
+					worstIndex = i;
+				}
+			}
+
+			return worstIndex;
 		}
 	}
 
@@ -127,7 +199,7 @@ public class SurvivorAgent extends ComplexAgent {
 	public boolean eatCarriedFood() {
 		if(!this.carriedFood.isEmpty()){
 			if(EAT_SMART) {
-				this.eatSmartCarriedFood();
+				this.smartEatCarriedFood();
 			} else {
 				this.eatRandomCarriedFood();
 			}
@@ -139,36 +211,24 @@ public class SurvivorAgent extends ComplexAgent {
 	}
 
 	/**
-	 * Return the index in food where the food has highest benefit.
-	 * @return The index in food where the food has highest benefit.
-	 */
-	private Food getBestFood() {
-		if(this.carriedFood.isEmpty()) {
-			return null;
-		} else {
-			//TODO for now does this, not fully implemented
-			return ((ArrayList<Food>) this.carriedFood).get(0);
-		}
-	}
-
-	/**
 	 * Eat the carried food with the greatest benefit.
+	 * Remove that food from the inventory.
 	 */
-	private void eatSmartCarriedFood() {
-		//TODO not implemented yet
-		//		Food f = getBestFood();
-
-		//get the food at index eatIndex and put it into Food f
-		//remove the food at eatIndex
-		//eat food F
+	private void smartEatCarriedFood() {
+		int eatIndex = this.getBestFoodIndex();
+		Food f = this.carriedFood.remove(eatIndex);
+		//TODO note that this won't work right now since this method doesn't exist
+		this.eat(f);
 	}
 
 	/**
-	 * Eat a random piece of food in the carried collection.
+	 * Eat a random piece of food from the inventory.
+	 * Remove that food from the inventory.
 	 */
 	private void eatRandomCarriedFood() {
-		//get a number between 0 and the size(food)
-		//remove that food
-		//eat that food
+		int eatIndex = (int) Math.floor(Math.random() * this.carriedFood.size());
+		Food f = this.carriedFood.remove(eatIndex);
+		//TODO note that this won't work right now since this method doesn't exist
+		this.eat(f);
 	}
 }
