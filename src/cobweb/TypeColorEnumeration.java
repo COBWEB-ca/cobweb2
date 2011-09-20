@@ -7,8 +7,11 @@ public class TypeColorEnumeration implements ColorLookup {
 
 	private static ColorSpace space = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 
-	private static Color[] table = { Color.yellow, Color.cyan, Color.green, Color.red, Color.orange, Color.blue,
-		Color.magenta, Color.pink };
+	//private static Color[] table = { Color.yellow, Color.cyan, Color.green, Color.red, Color.orange, Color.blue,
+	//	Color.magenta, Color.pink };
+
+	private static Color[] table = { new Color(255, 200, 200), new Color(200, 255, 200), new Color(200, 200, 255), new Color(255, 255, 200), Color.orange, Color.blue,
+		Color.magenta, Color.pink };	
 
 	private static TypeColorEnumeration instance = new TypeColorEnumeration();
 
