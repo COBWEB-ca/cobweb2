@@ -756,14 +756,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	@Override
 	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
-
-
 		if (option.equals("replace")) {
 			clearAgents();
 		}
 
 		//Load XML file
 		FileInputStream file = new FileInputStream(fileName);
+
+		System.out.println("+++++ " + fileName);
 
 		// DOM initialization
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -797,6 +797,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			NodeList paramsElement = element.getElementsByTagName("params");
 			Element paramNode = (Element) paramsElement.item(0);			
 
+
+			//NodeList prodParamsElement = element.getElementsByTagName("prodParams");
+			//Element prodParamNode = (Element) prodParamsElement.item(0);
+
 			NodeList agentTypeElement = element.getElementsByTagName("agentType");
 			NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
 
@@ -825,6 +829,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 			// parameters
 			params.loadConfig(paramNode);
+			//prodParams.loadConfig(prodParamNode);
 
 			// agentType
 			int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());

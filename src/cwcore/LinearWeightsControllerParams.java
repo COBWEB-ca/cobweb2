@@ -28,7 +28,8 @@ public class LinearWeightsControllerParams implements CobwebParam {
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		try {
 			NodeList inps = root.getChildNodes();
-			for (int o = 0; o < inps.getLength(); o++) {
+			int o;
+			for (o = 0; o < inps.getLength(); o++) {
 				Node inp = inps.item(o);
 				int inpid = Integer.parseInt(inp.getAttributes().getNamedItem("id").getNodeValue());
 				NodeList outps = inp.getChildNodes();
@@ -38,6 +39,10 @@ public class LinearWeightsControllerParams implements CobwebParam {
 					data[inpid][outpid] = Double.parseDouble(outp.getFirstChild().getNodeValue());
 				}
 			}
+			//System.out.println("HERE!");
+			//Node prodChance = inps.item(++o);
+			//prodHuntChance = Float.parseFloat(prodChance.getFirstChild().getNodeValue());
+			//System.out.println(prodHuntChance);
 		} catch (DOMException ex) {
 			loadOldConf(root);
 		}
@@ -67,7 +72,14 @@ public class LinearWeightsControllerParams implements CobwebParam {
 				outp.setTextContent(Double.toString(data[o][i]));
 				inp.appendChild(outp);
 			}
+
+			//Element prodChance = document.createElement("prodHuntChance");
+			//System.out.println("SAVED");
+			//prodChance.setAttribute("chance", ".");
+			//prodChance.setTextContent(Float.toString(prodHuntChance));
+
 			root.appendChild(inp);
+			//root.appendChild(prodChance);
 		}
 	}
 
