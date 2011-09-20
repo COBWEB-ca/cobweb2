@@ -49,11 +49,12 @@ public class SurvivorAgent extends ComplexAgent {
 	private final boolean CARRY_SMART = false;
 
 	/**
-	 * Create a new CommAgent.
+	 * Create a new Survivor Agent.
 	 */
 	public SurvivorAgent () {
 		//carried food is an array list
 		this.carriedFood = new ArrayList<Food>();
+
 	}
 
 	/**
@@ -65,18 +66,26 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @return True if food was added, false otherwise.
 	 */
 	private boolean smartCarryFood(Food food) {
-		int worstIndex = this.getWorstFoodIndex();
-		int worstBenefit = this.getFoodBenefit(this.carriedFood.get(worstIndex));
-
-		int thisBenefit = this.getFoodBenefit(food);
-
-		if(thisBenefit > worstBenefit) {
-			this.dropFood(worstIndex);
+		if(this.carriedFood.size() < this.MAX_CARRY_CAPACITY) {
 			this.carriedFood.add(food);
 			return true;
+		} else if (this.MAX_CARRY_CAPACITY > 0) {
+			int worstIndex = this.getWorstFoodIndex();
+			//shouldn't return -1 because carriedFood is full
+			int worstBenefit = this.getFoodBenefit(this.carriedFood.get(worstIndex));
+			int thisBenefit = this.getFoodBenefit(food);
+
+			if(thisBenefit > worstBenefit) {
+				this.dropFood(worstIndex);
+				this.carriedFood.add(food);
+				return true;
+			} else {
+				return false;
+			}	
 		} else {
+			//go here if MAX_CARRY_CAPACITY set to 0
 			return false;
-		}		
+		}
 	}
 
 	/**
@@ -103,11 +112,11 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @return True if food was added, false otherwise.
 	 */
 	private boolean stupidCarryFood(Food food) {
-		if(this.carriedFood.size() == this.MAX_CARRY_CAPACITY) {
-			return false;
-		} else {
+		if(this.carriedFood.size() < this.MAX_CARRY_CAPACITY) {
 			this.carriedFood.add(food);
 			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -127,9 +136,14 @@ public class SurvivorAgent extends ComplexAgent {
 
 	/**
 	 * Return the food benefit of the given food to this agent.
+	 * If food is null, return 0.
 	 * @return Food benefit of the given food.
 	 */
 	public int getFoodBenefit(Food f) {
+		if(f == null) {
+			return 0;
+		}
+
 		int foodType = f.getType();
 
 		if(foodType == this.type()) {
@@ -150,14 +164,15 @@ public class SurvivorAgent extends ComplexAgent {
 			return -1;
 		} else {
 			int bestIndex = 0;
-			int bestBenefit = -1;
-			int benefit;
+			int bestBenefit = -1, benefit;
 
 			for(int i = 0; i < this.carriedFood.size(); i++) {
 				benefit = this.getFoodBenefit(this.carriedFood.get(i));
 
-				if(benefit > bestBenefit) {
+				//i == 0 check or fails for sets where highest benefit < -1
+				if(i == 0 || benefit > bestBenefit) {
 					bestIndex = i;
+					bestBenefit = benefit;
 				}
 			}
 
@@ -176,14 +191,15 @@ public class SurvivorAgent extends ComplexAgent {
 			return -1;
 		} else {
 			int worstIndex = 0;
-			int worstBenefit = -1;
-			int benefit;
+			int worstBenefit = -1, benefit;
 
 			for(int i = 0; i < this.carriedFood.size(); i++) {
 				benefit = this.getFoodBenefit(this.carriedFood.get(i));
 
-				if(benefit < worstBenefit) {
+				//i == 0 check otherwise always returns -1
+				if(i == 0 || benefit < worstBenefit) {
 					worstIndex = i;
+					worstBenefit = benefit;
 				}
 			}
 
@@ -212,23 +228,29 @@ public class SurvivorAgent extends ComplexAgent {
 
 	/**
 	 * Eat the carried food with the greatest benefit.
+	 * Don't eat anything if inventory is empty.
 	 * Remove that food from the inventory.
 	 */
 	private void smartEatCarriedFood() {
-		int eatIndex = this.getBestFoodIndex();
-		Food f = this.carriedFood.remove(eatIndex);
-		//TODO note that this won't work right now since this method doesn't exist
-		//		this.eat(f);
+		if(!this.carriedFood.isEmpty()) {
+			int eatIndex = this.getBestFoodIndex();
+			Food f = this.carriedFood.remove(eatIndex);
+			//TODO note that this won't work right now since this method doesn't exist
+			//		this.eat(f);
+		}
 	}
 
 	/**
 	 * Eat a random piece of food from the inventory.
+	 * Don't eat anything if inventory is empty.
 	 * Remove that food from the inventory.
 	 */
 	private void eatRandomCarriedFood() {
-		int eatIndex = (int) Math.floor(Math.random() * this.carriedFood.size());
-		Food f = this.carriedFood.remove(eatIndex);
-		//TODO note that this won't work right now since this method doesn't exist
-		//		this.eat(f);
+		if(!this.carriedFood.isEmpty()) {
+			int eatIndex = (int) Math.floor(Math.random() * this.carriedFood.size());
+			Food f = this.carriedFood.remove(eatIndex);
+			//TODO note that this won't work right now since this method doesn't exist
+			//		this.eat(f);
+		}
 	}
 }
