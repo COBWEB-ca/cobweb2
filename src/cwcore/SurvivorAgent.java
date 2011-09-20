@@ -3,8 +3,6 @@ package cwcore;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import cobweb.Environment;
-
 /**
  * Added functionality over ComplexAgent:
  * 
@@ -66,12 +64,41 @@ public class SurvivorAgent extends ComplexAgent {
 	 * If set to true, remember the location of the highest-yield food.
 	 * If set to false, remember the most recently-added location.
 	 * TODO in the future, viable options are:
-	 * 1. REMEMBER_CLOSEST (closest)
-	 * 2. REMEMBER_NEWEST (most recently memorized)
-	 * 3. REMEMBER_HIGH_YIELD (location with highest-yield food)
-	 * 4. REMEMBER_SMART (weighting of yield, competition for food, and distance)
+	 * <ol>
+	 * <li> REMEMBER_CLOSEST (closest) </li>
+	 * <li> REMEMBER_NEWEST (most recently memorized) </li>
+	 * <li> REMEMBER_HIGH_YIELD (location with highest-yield food) </li>
+	 * <li> REMEMBER_SMART (weighting of yield, competition for food, and distance) </li>
+	 * </ol>
 	 */
 	private final boolean REMEMBER_SMART = false;
+
+	/*************************************************************************************
+	 * ************************************ ENUM *****************************************
+	 *************************************************************************************/
+
+	/**
+	 * The possible states for this agent.
+	 */
+	protected enum State {
+		/*
+		 * Looking for a food source.
+		 */
+		HUNGRY,
+		/*
+		 * Exploring area.
+		 */
+		EXPLORING
+	}
+
+	/**
+	 * Possible primitive actions for this agent.
+	 */
+	protected enum Action {
+		TURN_LEFT,
+		TURN_RIGHT,
+		MOVE_FORWARD
+	}
 
 	/*************************************************************************************
 	 * ****************************** INSTANCE VARIABLES *********************************
@@ -85,7 +112,12 @@ public class SurvivorAgent extends ComplexAgent {
 	/**
 	 * Memory of locations of food sources.
 	 */
-	private LinkedList<Environment.Location> foodSources;
+	private LinkedList<FoodSource> foodSources;
+
+	/**
+	 * This agent's state.
+	 */
+	private State state;
 
 	/*************************************************************************************
 	 * ****************************** CONSTRUCTOR ****************************************
@@ -97,29 +129,98 @@ public class SurvivorAgent extends ComplexAgent {
 	public SurvivorAgent () {
 		//carried food is an array list
 		this.carriedFood = new ArrayList<Food>();
-		this.foodSources = new LinkedList<Environment.Location>();
+		this.foodSources = new LinkedList<FoodSource>();
 	}
 
 	/**
-	 * This method 
+	 * Method to call at beginning of turn.
 	 */
 	@Override
-	public void control() {
+	protected void control() {
+		switch(this.state) {
+			case HUNGRY:
+				this.findFood();
+				break;
+			case EXPLORING:
+				this.explore();
+				break;
+		}
 
+		//end turn here
+	}
+
+	/**
+	 * Find food. Eat it.
+	 */
+	protected void findFood() {
+		//look around for food.
+		//if you see food, go to it
+		//if you do not, move to memorable locations
+		//if none of the above, turn in random direction
+	}
+
+	/**
+	 * Wander aimlessly. Memorise food sources.
+	 */
+	protected void explore() {
+		boolean seeFoodSource;
+		Action nextAction;
+
+
+		//Look for unfamiliar food source
+		//TODO for now
+		seeFoodSource = false;
+
+		if(seeFoodSource) {
+			//get direction to food source
+			//TODO for now
+			nextAction = Action.MOVE_FORWARD;
+		} else {
+			nextAction = this.getRandomAction();
+		}		
+
+		this.doMove(nextAction);
 	}
 
 	/*************************************************************************************
 	 * ****************************** FUNCTIONS ******************************************
 	 *************************************************************************************/
 
+	/**
+	 * Perform the given move.
+	 * @param action The action to perform.
+	 */
+	protected void doMove(Action action) {
+		switch(action) {
+			case TURN_LEFT:
+				super.turnLeft();
+				break;
+			case TURN_RIGHT:
+				super.turnRight();
+				break;
+			case MOVE_FORWARD:
+				super.step();
+				break;
+		}
+	}
+
+	/**
+	 * Return a random action.
+	 * @return Random action.
+	 */
+	private Action getRandomAction() {
+		int numActions = Action.values().length;
+		int actionIndex = (int) Math.floor(Math.random() * numActions);
+		return Action.values()[actionIndex];
+	}
 
 	/**
 	 * Memorise the location of the given food source.
 	 * If agent's memory is full, agent forgets oldest food source.
-	 * @param foodSourceLocation Location of a food source.
+	 * @param foodSource A food source.
 	 */
-	public void rememberFoodSource(Environment.Location foodSourceLocation) {
-		foodSources.add(foodSourceLocation);
+	protected void rememberFoodSource(FoodSource foodSource) {
+		foodSources.add(foodSource);
 
 		while(foodSources.size() > this.MAX_FOOD_SOURCE_MEMORY) {
 			this.foodSources.remove();
@@ -129,10 +230,9 @@ public class SurvivorAgent extends ComplexAgent {
 	/**
 	 * Return the location of a food source.
 	 * If memories are empty, return null.
-	 * TODO for now return the oldest one.
 	 * @return The location of a food source.
 	 */
-	public Environment.Location rememberFoodSourceLocation() {
+	protected FoodSource rememberFoodSourceLocation() {
 		if(this.foodSources.isEmpty()) {
 			return null;
 		} else {
@@ -147,12 +247,15 @@ public class SurvivorAgent extends ComplexAgent {
 	/**
 	 * Return the location of the food source with the highest-yield food.
 	 * If memories are empty, return null.
-	 * TODO NOT IMPLEMENTED YET
 	 * @return The location of a food source.
 	 */
-	private Environment.Location highYieldRemember() {
-		//TODO for now
-		return this.stupidRemember();
+	private FoodSource highYieldRemember() {
+		if(this.foodSources.isEmpty()) {
+			return null;
+		} else {
+			int bestIndex = this.getBestFoodSourceIndex();
+			return this.foodSources.get(bestIndex);
+		}
 	}
 
 	/**
@@ -160,7 +263,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * If memories are empty, return null.
 	 * @return The location of a food source.
 	 */
-	private Environment.Location stupidRemember() {
+	private FoodSource stupidRemember() {
 		if(this.foodSources.isEmpty()) {
 			return null;
 		} else {
@@ -207,7 +310,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param foodIndex Index in the food inventory.
 	 * @return The food that was dropped.
 	 */
-	public Food dropFood(int foodIndex) {
+	protected Food dropFood(int foodIndex) {
 		if(foodIndex >= 0 && foodIndex < this.carriedFood.size()) {
 			return this.carriedFood.remove(foodIndex);
 		} else {
@@ -237,7 +340,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param food The food to carry.
 	 * @return True if the food was equipped (added to inventory), false otherwise.
 	 */
-	public boolean carryFood(Food food) {
+	protected boolean carryFood(Food food) {
 		if(this.CARRY_SMART) {
 			return this.smartCarryFood(food);
 		} else {
@@ -250,7 +353,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * If food is null, return 0.
 	 * @return Food benefit of the given food.
 	 */
-	public int getFoodBenefit(Food f) {
+	protected int getFoodBenefit(Food f) {
 		if(f == null) {
 			return 0;
 		}
@@ -261,6 +364,41 @@ public class SurvivorAgent extends ComplexAgent {
 			return params.foodEnergy;
 		} else {
 			return params.otherFoodEnergy;
+		}
+	}
+
+	/**
+	 * Return the food benefit of the given food type to this agent.
+	 * @return Food benefit of the given food.
+	 */
+	protected int getFoodBenefit(int type) {
+		return this.getFoodBenefit(new Food(type));
+	}
+
+	/**
+	 * Return the index in memory where the food has highest benefit.
+	 * If memory is empty, return -1.
+	 * TODO This is basically a call to MAX. Maybe implement PQ?
+	 * @return The index in memory where the food has highest benefit.
+	 */
+	private int getBestFoodSourceIndex() {
+		if(this.foodSources.isEmpty()) {
+			return -1;
+		} else {
+			int bestIndex = 0;
+			int bestBenefit = -1, benefit;
+
+			for(int i = 0; i < this.foodSources.size(); i++) {
+				benefit = this.getFoodBenefit(this.foodSources.get(i).getType());
+
+				//i == 0 check or fails for sets where highest benefit < -1
+				if(i == 0 || benefit > bestBenefit) {
+					bestIndex = i;
+					bestBenefit = benefit;
+				}
+			}
+
+			return bestIndex;
 		}
 	}
 
@@ -323,7 +461,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * Return whether food was eaten.
 	 * @return True if food was eaten, false otherwise.
 	 */
-	public boolean eatCarriedFood() {
+	protected boolean eatCarriedFood() {
 		if(!this.carriedFood.isEmpty()){
 			if(EAT_SMART) {
 				this.smartEatCarriedFood();

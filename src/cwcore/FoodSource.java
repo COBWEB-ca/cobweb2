@@ -1,5 +1,7 @@
 package cwcore;
 
+import cobweb.Environment;
+
 /**
  * A mine of food.
  */
@@ -21,12 +23,27 @@ public class FoodSource {
 	private int type;
 
 	/**
+	 * Location of this food source.
+	 */
+	private Environment.Location coords;
+
+	/**
 	 * Create a new food source with the g
 	 */
-	public FoodSource(int startFood, int type) {
+	public FoodSource(int startFood, int type, Environment.Location location) {
 		this.startFood = startFood;
 		this.foodLeft = startFood;
 		this.type = type;
+
+		this.coords = location;
+	}
+
+	/**
+	 * Return the location of this food source.
+	 * @return The location of this food source.
+	 */
+	public Environment.Location getLocation() {
+		return this.coords;
 	}
 
 	/**
@@ -44,5 +61,13 @@ public class FoodSource {
 	 */
 	public boolean isEmpty() {
 		return this.foodLeft == 0;
+	}
+
+	/**
+	 * Return the type of food this food source produces.
+	 * @return Type of food this food source produces.
+	 */
+	public int getType() {
+		return this.type;
 	}
 }
