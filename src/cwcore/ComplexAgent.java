@@ -21,12 +21,15 @@ import cobweb.Environment;
 import cobweb.Environment.Location;
 import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
+import cobweb.globals;
 import cwcore.ComplexEnvironment.Drop;
+import cwcore.ComplexEnvironment.Product;
 import cwcore.ComplexEnvironment.Waste;
 import cwcore.broadcast.BroadcastPacket;
 import cwcore.complexParams.AgentMutator;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ContactMutator;
+import cwcore.complexParams.ProductionParams;
 import cwcore.complexParams.SpawnMutator;
 import cwcore.complexParams.StepMutator;
 import driver.ControllerFactory;
@@ -82,14 +85,18 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
+	private ProductionParams prodParams;
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5310096345506441368L;
 
 	/** Default mutable parameters of each agent type. */
 
 	private static ComplexAgentParams defaultParams[];
+
+	private static ProductionParams defaultProdParams[];
 
 	protected static AgentSimilarityCalculator simCalc;
 
@@ -130,10 +137,17 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/** Sets the default mutable parameters of each agent type. */
-	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
+	public static void setDefaultMutableParams(ComplexAgentParams[] params, ProductionParams[] pParams) {
 		defaultParams = params.clone();
 		for (int i = 0; i < params.length; i++) {
 			defaultParams[i] = (ComplexAgentParams) params[i].clone();
+		}
+
+		if (pParams != null) {
+			defaultProdParams = pParams.clone();
+			for (int i = 0; i < pParams.length; i++) {
+				defaultProdParams[i] = (ProductionParams) pParams[i].clone();
+			}
 		}
 	}
 
@@ -227,7 +241,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	protected ComplexEnvironment environment;
 
 	public ComplexAgent() {
-
+		prodParams = new ProductionParams();
 	}
 
 	/**
@@ -282,9 +296,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**   */
-	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
+	public void init(int agentT, int doCheat, ComplexAgentParams agentData, ProductionParams prodData, Direction facingDirection, Location pos) {
 		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
-		setConstants(doCheat, agentData);
+		setConstants(doCheat, agentData, prodData);
 		this.facing = facingDirection;
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
@@ -306,9 +320,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param doCheat start PD off cheating?
 	 * @param agentData agent parameters
 	 */
-	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
+	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData, ProductionParams prodData) {
 		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
-		setConstants(doCheat, agentData);
+		setConstants(doCheat, agentData, prodData);
 
 		InitFacing();
 
@@ -443,7 +457,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	public void copyConstants(ComplexAgent p) {
-		setConstants(p.pdCheater, (ComplexAgentParams) defaultParams[p.getAgentType()].clone());
+		setConstants(p.pdCheater, (ComplexAgentParams) defaultParams[p.getAgentType()].clone(),
+				(ProductionParams) defaultProdParams[p.getAgentType()].clone());
 	}
 
 	@Override
@@ -535,9 +550,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!params.agingMode)
 			return 0.0;
 		double tempAge = currTick - birthTick;
-		assert(tempAge == age);
-		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
-				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
+		assert (tempAge == age);
+		int penaltyValue = Math.min(Math.max(0, energy),
+				(int) (params.agingRate * (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
 
 		return penaltyValue;
 	}
@@ -938,9 +953,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param pdCheat
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
-	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
-
+	public void setConstants(int pdCheat, ComplexAgentParams agentData, ProductionParams prodData) {
 		this.params = agentData;
+		this.prodParams = prodData;
 
 		this.agentType = agentData.type;
 
@@ -974,6 +989,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// See ComplexEnvironment.load(cobweb.Scheduler s, Parser p/*
 		// java.io.Reader r */) @ if (keepOldAgents[0]) {...
 
+	}
+
+	public void setConstants(ProductionParams prodData) {
+		this.prodParams = prodData;
 	}
 
 	public void setMemoryBuffer(int memoryBuffer) {
@@ -1066,6 +1085,32 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			info.addRockBump();
 		}
 		energy -= energyPenalty();
+
+		if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
+			// Bumps into waste
+			int x = destPos.v[0];
+			int y = destPos.v[1];
+			Drop d = environment.dropArray[x][y];
+
+			if (!d.canStep()) {
+				energy -= params.wastePen;
+				wasteCounterLoss -= params.wastePen;
+				info.useRockBumpEnergy(params.wastePen);
+				info.addRockBump();
+			} else if (d instanceof Product) {
+				Product p = (Product) d;
+				if (p.owner != this && globals.random.nextFloat() <= 0.5f) {
+					environment.prodMapper.remProduct(p, 
+							getPosition().getEnvironment().getLocation(x, y));
+					environment.dropArray[x][y] = null;
+					destPos.setFlag(ComplexEnvironment.FLAG_DROP, false);
+					// TODO: Reward p.owner for selling his product!
+					// Reward this agent for buying a product! (and punish it
+					// for paying for it?)
+					// Should agents have currency to use for buying products?
+				}
+			}
+		}
 
 		if (energy <= 0)
 			die();
@@ -1251,6 +1296,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (params.wasteMode && shouldPoop())
 			tryPoop();
 
+		if (true || params.productionMode) {
+			tryProduction();
+		}
+
 		/* Check if broadcasting is enabled */
 		if (params.broadcastMode)
 			receiveBroadcast();
@@ -1298,7 +1347,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 */
 	private void tryPoop() {
 		forceDrop(new Waste(currTick, params.wasteInit, params.wasteDecay));
-	}	
+	}
 
 	private void forceDrop(Drop d) {
 		boolean added = false;
@@ -1336,6 +1385,138 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 					break;
 				}
 			}
+		}
+	}
+
+	private boolean roll(float chance) {
+		return chance > globals.random.nextFloat();
+	}
+
+	boolean shouldProduce() {
+		if (prodParams == null || !roll(prodParams.initProdChance)) {
+			return false;
+		}
+
+		float locationValue = environment.prodMapper.getValueAtLocation(position);
+
+		if (locationValue > prodParams.highDemandCutoff) {
+			return false;
+		}
+
+		float rand = globals.random.nextFloat();
+
+		// ADDITIONS:
+		// Learning agents should adapt to products
+
+		if (locationValue <= prodParams.lowDemandThreshold) {
+			// In an area of low demand
+			return roll(prodParams.lowDemandProdChance);
+		} else if (locationValue <= prodParams.sweetDemandThreshold) {
+			/**
+			 * //ORIGINAL WORK:
+			 * 
+			 * //Let: d = prodParams.lowDemandThreshold // e =
+			 * prodParams.sweetDemandThreshold // f =
+			 * prodParams.sweetDemandStartChance
+			 * 
+			 * // root 1: (d, 0) // root 2: (e, 0) // vertex: ((d + e) / 2, 1 -
+			 * f)
+			 * 
+			 * // y = a(x - h)^2 + k
+			 * 
+			 * // h = (d + e) / 2 // k = 1 - f // x = d // y = 0
+			 * 
+			 * // 0 = a(d - ((d + e) / 2))^2 + (1 - f) // f - 1 = a(d - ((d + e)
+			 * / 2))^2 // a = (f - 1) / (d - ((d + e) / 2) ^ 2
+			 * 
+			 * float d = prodParams.lowDemandThreshold; float e =
+			 * prodParams.sweetDemandThreshold; float f =
+			 * prodParams.sweetDemandStartChance;
+			 * 
+			 * float h = (d + e) * 0.5f; float k = 1 - f; float a = -k / (d -
+			 * h); a *= a;
+			 * 
+			 * float x = locationValue; // y = a(x - h)^2 + k float y = (a * (x
+			 * - h) * (x - h)) + k;
+			 * 
+			 * float chance = y + f;
+			 */
+
+			// COMPRESSED WORK:
+			float h = (prodParams.lowDemandThreshold + prodParams.sweetDemandThreshold) * 0.5f;
+			float a = (prodParams.sweetDemandStartChance - 1) / (prodParams.lowDemandThreshold - h);
+			a *= a;
+
+			float x = locationValue - h;
+			// y = a(x - h)^2 + k
+			float y = (a * x * x) + (1f - prodParams.sweetDemandStartChance);
+
+			float chance = prodParams.sweetDemandStartChance + y;
+
+			// Sweet spot; perfect balance of competition and attraction here;
+			// likelihood of producing products here
+			// is modelled by a parabola
+			return roll(chance);
+		}
+
+		// locationValue > 10f; Very high competition in this area!
+		// The higher the value the lower the production chances are.
+
+		// Let: d = prodParams.sweetDemandThreshold
+		// e = prodParams.highDemandCutoff
+		// f = prodParams.highDemandProdChance
+		//
+		// p1 = (d, f);
+		// p2 = (e, 0);
+		//
+		// rise = f - 0 = f;
+		// run = d - e
+		//
+		// m = f / (d - e)
+		//
+		// y = mx + b
+		//
+		// b = y - mx
+		// b = 0 - me
+		// b = -(f / (d -e))e
+		//
+		// y = ((f - e) / d)x + e
+
+		float d = prodParams.sweetDemandThreshold;
+		float e = prodParams.highDemandCutoff;
+		float f = prodParams.highDemandProdChance;
+
+		float rise = f;
+		float run = d - e;
+
+		float m = rise / run;
+
+		float b = -1 * m * e;
+
+		// y = mx + b
+		float y = (m * locationValue) + b;
+
+		// p1 = (sweetDemandThreshold, prodParams.highDemandProdChance)
+		// p2 = (
+		// minChance
+
+		return roll(y);
+	}
+
+	private void tryProduction() {
+		if (shouldProduce()) {
+			// Healthy agents produce high-value products, and vice-versa
+			Product p = new Product((float) energy / (float) params.initEnergy, this);
+
+			if (position.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+				position.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			}
+
+			position.setFlag(ComplexEnvironment.FLAG_DROP, true);
+
+			environment.setDrop(position, p);
+
+			// forceDrop(p, this));
 		}
 	}
 

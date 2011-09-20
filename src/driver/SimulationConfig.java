@@ -35,6 +35,7 @@ import cwcore.ComplexAgentLearning;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
+import cwcore.complexParams.ProductionParams;
 import disease.DiseaseParams;
 
 /**
@@ -69,7 +70,9 @@ public class SimulationConfig {
 
 	private ComplexAgentParams[] agentParams;
 
-	//xxxprivate LearningAgentParams[] learningAgentParams;
+	private ProductionParams[] prodParams;
+
+	// xxxprivate LearningAgentParams[] learningAgentParams;
 
 	private LearningParams learningParams;
 
@@ -103,6 +106,12 @@ public class SimulationConfig {
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			diseaseParams[i] = new DiseaseParams(envParams);
 			diseaseParams[i].type = i;
+		}
+
+		prodParams = new ProductionParams[envParams.getAgentTypes()];
+		for (int i = 0; i < envParams.getAgentTypes(); i++) {
+			prodParams[i] = new ProductionParams();
+			prodParams[i].type = i;
 		}
 
 		tempParams = new TemperatureParams(envParams);
@@ -144,6 +153,14 @@ public class SimulationConfig {
 	public ComplexAgentParams[] getAgentParams() {
 		return agentParams;
 	}
+
+	/*xxxpublic LearningAgentParams[] getLearningAgentParams() {
+		return learningAgentParams;
+	}*/
+	public ProductionParams[] getProdParams() {
+		return prodParams;
+	}
+
 
 	/**
 	 * @return Disease parameters
@@ -241,6 +258,7 @@ public class SimulationConfig {
 		envParams.loadConfig(root);
 
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
+		prodParams = new ProductionParams[envParams.getAgentTypes()];
 		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
 		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
 		for (int i = 0; i < envParams.getAgentTypes(); i++)
@@ -252,6 +270,7 @@ public class SimulationConfig {
 
 		NodeList nodes = root.getChildNodes();
 		int agent = 0;
+		int prod = 0;
 		int food = 0;
 		for (int j = 0; j < nodes.getLength(); j++) {
 			Node node = nodes.item(j);
@@ -268,6 +287,14 @@ public class SimulationConfig {
 				if (p.type >= envParams.getAgentTypes())
 					continue;
 				agentParams[p.type] = p;
+			} else if (nodeName.equals("production")) {
+				ProductionParams p = new ProductionParams();
+				p.loadConfig(node);
+				if (p.type < 0)
+					p.type = prod++;
+				if (p.type >= envParams.getAgentTypes())
+					continue;
+				prodParams[p.type] = p;
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
 				p.loadConfig(node);
@@ -290,6 +317,12 @@ public class SimulationConfig {
 			if (agentParams[i] == null) {
 				agentParams[i] = new ComplexAgentParams(envParams);
 				agentParams[i].type = i;
+			}
+		}
+		for (int i = 0; i < prodParams.length; i++) {
+			if (prodParams[i] == null) {
+				prodParams[i] = new ProductionParams();
+				prodParams[i].type = i;
 			}
 		}
 		for (int i = 0; i < foodParams.length; i++) {
@@ -333,6 +366,12 @@ public class SimulationConfig {
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			Node node = d.createElement("agent");
 			agentParams[i].saveConfig(node, d);
+			root.appendChild(node);
+		}
+
+		for (int i = 0; i < envParams.getProdTypes(); i++) {
+			Node node = d.createElement("production");
+			prodParams[i].saveConfig(node, d);
 			root.appendChild(node);
 		}
 
@@ -395,6 +434,7 @@ public class SimulationConfig {
 	public void SetAgentTypeCount(int count) {
 		this.envParams.agentTypeCount = count;
 		this.envParams.foodTypeCount = count;
+		this.envParams.prodTypeCount = count;
 
 		{ 
 			ComplexAgentParams[] n = Arrays.copyOf(this.agentParams, count);
@@ -436,6 +476,15 @@ public class SimulationConfig {
 			}
 
 			this.diseaseParams = n;
+		}
+		{
+			ProductionParams[] n = Arrays.copyOf(prodParams, count);
+
+			for (int i = 0; i < this.prodParams.length && i < count; i++) {
+				n[i] = new ProductionParams();
+				n[i].type = i;
+			}
+			this.prodParams = n;
 		}
 		{
 			this.geneticParams.resize(envParams);

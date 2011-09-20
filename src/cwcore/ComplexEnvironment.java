@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import javax.swing.JDialog;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,6 +38,7 @@ import cwcore.broadcast.PacketConduit;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
+import cwcore.complexParams.ProductionParams;
 import driver.ControllerFactory;
 import driver.SimulationConfig;
 
@@ -68,6 +70,35 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		public boolean canStep() {
 			return true;
 		}
+	}
+
+	public static class Product extends Drop {
+		public Product(float value, Agent owner) {
+			this.value = value;
+			this.owner = owner;
+		}
+
+		Agent owner;
+		private float value;
+
+		@Override
+		public boolean isActive(long val) {
+			return true;
+		}
+
+		@Override
+		public void reset(long time, int weight, float rate) {
+
+		}
+
+		public void setValue(float value) {
+			this.value = value;
+		}
+
+		public float getValue() {
+			return value;
+		}
+
 	}
 
 	public static class Waste extends Drop {
@@ -170,9 +201,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	protected ComplexAgentParams agentData[];
 
+	protected ProductionParams prodData[];
+
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
+
+	private JDialog prodShader;
 
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
@@ -185,6 +220,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public void setDrop(Location loc, Drop d) {
 		dropArray[loc.v[0]][loc.v[1]] = d;
+
+		if (d instanceof Product) {
+			prodMapper.addProduct((Product) d, loc);
+		}
 	}
 
 
@@ -229,6 +268,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		commManager = new PacketConduit();
 	}
 
+	public ProductionMapper prodMapper;
+
 	@Override
 	public synchronized void addAgent(int x, int y, int type) {
 		super.addAgent(x, y, type);
@@ -257,7 +298,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	protected void spawnAgent(int action, cobweb.Environment.Location location, int agentType) {
 		ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
-		child.init(agentType, location, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
+		child.init(agentType, location, action, (ComplexAgentParams) agentData[agentType].clone(),
+				(ProductionParams) prodData[agentType].clone()); // Default
 	}
 
 	ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
@@ -367,6 +409,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		foodData = p.getFoodParams();
 
 		agentData = p.getAgentParams();
+
+		prodData = p.getProdParams();
 
 		PD_PAYOFF_REWARD = data.pdParams.reward;
 		PD_PAYOFF_TEMPTATION = data.pdParams.temptation;
@@ -745,8 +789,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		for (int i = 0 ; i < agents.getLength(); i++){
 			ComplexAgentParams params = new ComplexAgentParams(data);
+			ProductionParams prodParams = new ProductionParams();
+
 			Node agent = agents.item(i);
 			Element element = (Element) agent;
+
 			NodeList paramsElement = element.getElementsByTagName("params");
 			Element paramNode = (Element) paramsElement.item(0);			
 
@@ -787,7 +834,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 
 			ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
-			cAgent.init(agentType, pdCheater, params, facing, loc);
+			cAgent.init(agentType, pdCheater, params, prodParams, facing, loc);
 			agentTable.put(loc, cAgent);
 		}
 
@@ -1032,6 +1079,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	private void loadNewWaste() {
 		dropArray = new Drop[data.width][data.height];
+		prodMapper = new ProductionMapper(data.width * data.height, this);
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				getLocation(x, y).setFlag(FLAG_DROP, false);
@@ -1063,7 +1111,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					}
 					int theType = ((ComplexAgent) currentPos.getAgent()).getAgentType();
 					((ComplexAgent) currentPos.getAgent()).setConstants(((ComplexAgent) currentPos.getAgent())
-							.getAgentPDAction(), agentData[theType]); // Default
+							.getAgentPDAction(), agentData[theType], prodData[theType]); // Default
 					// genetic
 					// sequence of
 					// agent type
@@ -1276,7 +1324,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
-		ComplexAgent.setDefaultMutableParams(agentData);
+		ComplexAgent.setDefaultMutableParams(agentData, prodData);
 	}
 
 	@Override
@@ -1353,6 +1401,19 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
+	public JDialog getProdShader() {
+		return prodShader;
+	}
+
+	public void setProdShader(JDialog d) {
+		if (d != prodShader && prodShader != null) {
+			prodShader.setVisible(false);
+			prodShader.setEnabled(false);
+			prodShader.dispose();
+		}
+		prodShader = d;
+	}
+
 	/**
 	 * tickNotification is the method called by the scheduler for each of its
 	 * clients for every tick of the simulation. For environment,
@@ -1427,6 +1488,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				Drop d = dropArray[i][j];
 				if (!d.isActive(getTickCount())) {
 					l.setFlag(ComplexEnvironment.FLAG_DROP, false);
+					if (d instanceof Product) {
+						prodMapper.remProduct((Product)d, getLocation(i, j));
+					}
 					dropArray[i][j] = null; // consider deactivating
 					// and not deleting
 				}

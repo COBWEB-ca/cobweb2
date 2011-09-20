@@ -206,6 +206,13 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 	@ConfXMLTag("wasteMode")
 	public boolean wasteMode = false;
 
+	/** 
+	 * Enable production
+	 */
+	@ConfDisplayName("Production")
+	@ConfXMLTag("productionMode")
+	public boolean productionMode;
+
 	/**
 	 * Energy lost when stepping into waste. 
 	 */

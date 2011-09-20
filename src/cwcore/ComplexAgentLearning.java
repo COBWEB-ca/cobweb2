@@ -10,6 +10,7 @@ import cobweb.Environment.Location;
 import cobweb.globals;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ContactMutator;
+import cwcore.complexParams.ProductionParams;
 import cwcore.complexParams.StepMutator;
 import eventlearning.BreedInitiationOccurrence;
 import eventlearning.EnergyChangeOccurrence;
@@ -85,8 +86,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	public LearningAgentParams lParams;
 
-	public static void setDefaultMutableParams(ComplexAgentParams[] params, LearningAgentParams[] lParams) {
-		ComplexAgent.setDefaultMutableParams(params);	
+	public static void setDefaultMutableParams(ComplexAgentParams[] params, LearningAgentParams[] lParams, ProductionParams[] pParams) {
+		ComplexAgent.setDefaultMutableParams(params, pParams);	
 
 		learningParams = lParams.clone();
 		for (int i = 0; i < params.length; i++) {
@@ -494,15 +495,15 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 
 	@Override
-	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection,
+	public void init(int agentT, int doCheat, ComplexAgentParams agentData, ProductionParams prodData, Direction facingDirection,
 			Location pos) {
-		super.init(agentT, doCheat, agentData, facingDirection, pos);
+		super.init(agentT, doCheat, agentData, prodData, facingDirection, pos);
 		// TODO Auto-generated constructor stub
 	}
 
-	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData,
+	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData, ProductionParams prodData,
 			LearningAgentParams lAgentData) {
-		super.init(agentType, pos, doCheat, agentData);
+		super.init(agentType, pos, doCheat, agentData, prodData);
 
 		lParams = lAgentData;
 	}

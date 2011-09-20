@@ -186,6 +186,8 @@ public class GUI extends JFrame {
 
 	private AgentConfigPage agentPage;
 
+	private ProductionConfigPage prodPage;
+
 	private FoodwebConfigPage foodwebPage;
 
 	private PDConfigPage pdPage;
@@ -351,6 +353,11 @@ public class GUI extends JFrame {
 		removeOldPage(agentPage);
 		agentPage = new AgentConfigPage(p.getAgentParams());
 		tabbedPane.addTab("Agents", agentPage.getPanel());
+
+		/* Production panel */
+		removeOldPage(prodPage);
+		prodPage = new ProductionConfigPage(p.getProdParams());
+		tabbedPane.addTab("Production", prodPage.getPanel());
 
 		removeOldPage(foodwebPage);
 		foodwebPage = new FoodwebConfigPage(p.getAgentParams());
