@@ -418,7 +418,7 @@ public class SurvivorAgent extends ComplexAgent {
 			for(int i = 0; i < this.carriedFood.size(); i++) {
 				benefit = this.getFoodBenefit(this.carriedFood.get(i));
 
-				//i == 0 check or fails for sets where highest benefit < -1
+				//check i == 0 otherwise fails for sets where highest benefit < -1
 				if(i == 0 || benefit > bestBenefit) {
 					bestIndex = i;
 					bestBenefit = benefit;
