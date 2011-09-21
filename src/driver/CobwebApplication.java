@@ -175,18 +175,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		setVisible(true);
 	}
 
-	/*
-	 * // $$$$$$ Modified on Feb 22 public void trackAgentFileDialog() { boolean isTrackAgentUsed = false; // $$$$$$
-	 * added on Feb 22 if (isTrackAgentUsed == true) { FileDialog theDialog = new FileDialog(GUI.frame, // $$$$$$
-	 * modified from "this". Feb 29 "Choose a file to save Track Agent report to", FileDialog.SAVE);
-	 * theDialog.setVisible(true); if (theDialog.getFile() != null) trackAgentFile(theDialog.getDirectory() +
-	 * theDialog.getFile()); // $$$$$$ The following added on Feb 22 } else { JOptionPane.showMessageDialog(GUI.frame,
-	 * "Track Agent is disabled for now!  Please use the logging function instead."); // $$$$$$ added on Feb 22 //
-	 * $$$$$$ Modified from "uiPipe.writeToTextWindow("Track Agent is disabled for now! Please use the logging function
-	 * instead.\n");" Feb 28 if (uiPipe != null)
-	 * uiPipe.writeToTextWindow("Track Agent is disabled for now! Please use the logging function instead.\n"); } }
-	 */
-	
 	/**
 	 * Creates the about dialog box, which contains information pertaining 
 	 * to the Cobweb version being used, and the date it was last modified.
@@ -520,9 +508,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 				onMenuLog();
 			}
 		});
-		// JMenuItem trackAgentMenu = new JMenuItem("Track Agent");
-		// trackAgentMenu.setActionCommand("Track Agent");
-		// trackAgentMenu.addActionListener(theListener);
 		JMenuItem quitMenu = new JMenuItem("Quit");
 		quitMenu.setActionCommand("Quit");
 		quitMenu.addActionListener(new ActionListener() {
@@ -646,7 +631,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		fileMenu.add(saveMenu);
 		fileMenu.add(reportMenu);
 		fileMenu.add(logMenu);
-		// fileMenu.add(trackAgentMenu);
 		fileMenu.add(new JSeparator());
 		fileMenu.add(quitMenu);
 
@@ -833,11 +817,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
-	/*
-	 * public void trackAgentFile(String filePath) { uiPipe
-	 * .writeToTextWindow("Track Agent is disabled for now! Please use the logging function instead.\n"); }
-	 */
-	
 	/**
 	 * Exits the CobwebApplication.
 	 * 
@@ -1016,7 +995,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	/**
 	 * Allows the user to select a new file to use as the default data file.  
 	 * The selected file is copied into the default data file if the default 
-	 * data file is writable or doesn’t exist.
+	 * data file is writable or doesnï¿½t exist.
 	 * 
 	 * Used when the user selects "File" -> "Set Default Data"
 	 * 
@@ -1172,7 +1151,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		uiPipe.start();
 	} // end of UISettings
 
-	
+
 	private void makeAgentFoodSelectMenu() {
 		JMenuItem foodtype[] = new JMenuItem[uiPipe.countAgentTypes()];
 		JMenuItem agentype[] = new JMenuItem[uiPipe.countAgentTypes()];
@@ -1191,7 +1170,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
-	
+
 	private class FoodMouseActionListener implements ActionListener {
 
 		private final int type;
@@ -1334,19 +1313,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 	private void onMenuLog() {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-		// $$$$$$ Check whether "Log" menu is clicked before the simulation runs. Feb 12
+
 		if (uiPipe == null) {
-			JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
-					// specifically for MS Windows. Feb 22
+			JOptionPane.showMessageDialog(GUI.frame, 
 			"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
 		} else {
 			CobwebApplication.this.logFileDialog();
 		}
-		/*
-		 * } else if (e.getActionCommand().compareTo("Track Agent") == 0) { pauseUI(); // $$$$$$ Feb 12
-		 * disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-		 * CobwebApplication.this.trackAgentFileDialog();
-		 */
+
 	}
 
 	/**

@@ -334,11 +334,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return foodarray[l.v[0]][l.v[1]];
 	}
 
-	public static void trackAgent(java.io.Writer w) {
-		ComplexAgent.setPrintWriter(w);
-		ComplexAgent.tracked();
-	}
-
 	GATracker gaTracker;
 
 	private java.io.PrintWriter logStream;

@@ -1,6 +1,7 @@
 package driver;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.swing.JOptionPane;
@@ -55,6 +56,9 @@ public class CobwebApplicationRunner {
 
 	static UIInterface simulation;
 
+	static boolean visible = true;
+
+
 	/**
 	 * The main function is found here for the application version of cobweb.  
 	 * It initializes the simulation and settings using a settings file optionally 
@@ -70,8 +74,8 @@ public class CobwebApplicationRunner {
 	 * <p> -hide 
 	 * <br>When the hide flag is used, the user interface does not initialize 
 	 * (visible is set to false).  If visible is set to false, the User Interface 
-	 * Client will be set to a “NullDisplayApplication” rather than a 
-	 * “CobwebApplication”.  Need to specify an input file to use this switch.
+	 * Client will be set to a NullDisplayApplication rather than a 
+	 * CobwebApplication.  Need to specify an input file to use this switch.
 	 * 
 	 * <p> -open [must specify] 
 	 * <br>If not used, the default is 
@@ -89,6 +93,7 @@ public class CobwebApplicationRunner {
 	 * @see CobwebApplication#INITIAL_OR_NEW_INPUT_FILE_NAME
 	 * @see CobwebApplication#CONFIG_FILE_EXTENSION
 	 */
+
 	public static void main(String[] args) {
 
 		// Process Arguments`
@@ -96,7 +101,6 @@ public class CobwebApplicationRunner {
 		String inputFileName = "";
 		String logFileName = "";
 		boolean autostart = false;
-		boolean visible = true;
 		int finalstep = 0;
 
 		if (args.length > 0) {
@@ -191,23 +195,16 @@ public class CobwebApplicationRunner {
 		}
 		CA.setCurrentFile(inputFileName); // $$$$$$ added on Mar 14
 
-		SimulationConfig defaultconf;
+		SimulationConfig defaultconf = null;
 		try {
 			defaultconf = new SimulationConfig(inputFileName);
-			simulation.load(defaultconf);
-		} catch (Exception ex) {
-			// CA.setEnabled(false); // $$$$$$ to make sure the "Cobweb Application" frame disables when ever the
-			// "Test Data" window showing. Feb 28
-			// $$$$$ a file named as the above name will be automatically created or modified when everytime running the
-			// $$$$$ following code. Please refer to GUI.GUI.close.addActionListener, "/* write UI info to xml file */". Jan
-			// 24
-			if (visible && CA instanceof CobwebApplication) {
-				GUI.createAndShowGUI((CobwebApplication)CA, inputFileName, false);
-				System.out.println("Exception with SimulationConfig");
-			}
+		} catch (FileNotFoundException ex) {
+			defaultconf = new SimulationConfig();
+		} catch (Exception e) {
+			error("Cannot load " + inputFileName + "");
 		}
 
-
+		simulation.load(defaultconf);
 
 
 		// $$$$$$ Added to check if the new data file is hidden. Feb 22
@@ -262,6 +259,14 @@ public class CobwebApplicationRunner {
 			}
 
 			simulation.AddTickEventListener(new AutoStopTickListener(finalstep));
+		}
+	}
+
+	private static void error(String string) {
+		if (visible) {
+			throw new CobwebUserException(string);
+		} else {
+			System.err.println(string);
 		}
 	}
 

@@ -457,7 +457,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 
 		// Energy penalty
-		queue(new EnergyChangeOccurrence(this, -(int) energyPenalty(true), "energyPenalty"));
+		queue(new EnergyChangeOccurrence(this, -(int) energyPenalty(), "energyPenalty"));
 
 		if (energy <= 0)
 			queue(new SmartAction(this) {

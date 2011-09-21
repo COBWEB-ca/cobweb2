@@ -150,7 +150,7 @@
     	<exec executable="C:\Program Files (x86)\Git\bin\git.exe" outputproperty="gitCommitTimeBorked">
     		<arg value="log" />
     		<arg value="-1" />
-    		<arg value='--format="%ai"' />
+    		<arg value='--format="%ci"' />
     	</exec>
     	<propertyregex property="gitCommitTime"
 			input="${gitCommitTimeBorked}"

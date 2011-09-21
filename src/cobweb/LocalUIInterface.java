@@ -26,7 +26,6 @@ import cobweb.Environment.EnvironmentStats;
 import cobweb.Environment.Location;
 import cwcore.AgentSpawner;
 import cwcore.ComplexAgent;
-import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
 import driver.SimulationConfig;
 
@@ -823,13 +822,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	public void tickZero() {
 		refresh(true);
-	}
-
-	public void trackAgent(String filePath) throws java.io.IOException {
-		// Open the writer...
-		java.io.FileWriter outStream = new java.io.FileWriter(filePath);
-		// Fire it off to the environment
-		ComplexEnvironment.trackAgent(outStream);
 	}
 
 	public void unObserve() {

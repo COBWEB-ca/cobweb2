@@ -111,6 +111,8 @@ public class SimulationConfig {
 		learningParams = new LearningParams(envParams);
 
 		//xxxlearningAgentParams = learningParams.getLearningParams();
+
+		fileName = "default simulation";
 	}
 
 	/**
