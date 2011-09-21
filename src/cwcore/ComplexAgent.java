@@ -532,18 +532,24 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param destPos Location of food.
 	 */
 	public void eat(cobweb.Environment.Location destPos) {
-		// TODO: CHECK if setting flag before determining type is ok
-		// Eat first before we can produce waste, of course.
-		destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-		// Gain Energy according to the food type.
-		if (ComplexEnvironment.getFoodType(destPos) == agentType) {
-			energy += params.foodEnergy;
-			wasteCounterGain -= params.foodEnergy;
-			info.addFoodEnergy(params.foodEnergy);
-		} else {
-			energy += params.otherFoodEnergy;
-			wasteCounterGain -= params.otherFoodEnergy;
-			info.addOthers(params.otherFoodEnergy);
+		//agent can only eat once per turn
+		if(!this.hasEaten) {
+			// TODO: CHECK if setting flag before determining type is ok
+			// Eat first before we can produce waste, of course.
+			destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			// Gain Energy according to the food type.
+			if (ComplexEnvironment.getFoodType(destPos) == agentType) {
+				energy += params.foodEnergy;
+				wasteCounterGain -= params.foodEnergy;
+				info.addFoodEnergy(params.foodEnergy);
+			} else {
+				energy += params.otherFoodEnergy;
+				wasteCounterGain -= params.otherFoodEnergy;
+				info.addOthers(params.otherFoodEnergy);
+			}
+
+			//set eaten flag
+			this.hasEaten = true;
 		}
 	}
 
@@ -1248,6 +1254,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**
+	 * Set to true when an agent has eaten in that tick, false otherwise.
+	 * Reset every tick.
+	 */
+	protected boolean hasEaten = false;
+
+	/**
 	 * Auto-update turn-related parameters. Kill the agent if necessary.
 	 * @param tick The time in the simulation
 	 */
@@ -1269,6 +1281,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				return;
 			}
 		}
+
+		//reset this flag at beginning of every tick
+		this.hasEaten = false;
 
 		//receive broadcasts
 	}
