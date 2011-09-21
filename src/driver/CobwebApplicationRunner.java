@@ -2,6 +2,7 @@ package driver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.swing.JOptionPane;
@@ -200,6 +201,13 @@ public class CobwebApplicationRunner {
 			defaultconf = new SimulationConfig(inputFileName);
 		} catch (FileNotFoundException ex) {
 			defaultconf = new SimulationConfig();
+			try {
+				defaultconf.write(new FileOutputStream(inputFileName));
+				defaultconf = new SimulationConfig(inputFileName);
+			}
+			catch (Exception e) {
+				throw new RuntimeException("Could not write default configuration file");
+			}
 		} catch (Exception e) {
 			error("Cannot load " + inputFileName + "");
 		}
