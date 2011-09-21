@@ -1232,7 +1232,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * Auto-update turn-related parameters. Kill the agent if necessary.
 	 * @param tick The time in the simulation
 	 */
-	private void updateAgent(long tick) {
+	private final void updateAgent(long tick) {
 		//update current tick
 		currTick = tick;
 
@@ -1261,7 +1261,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * Perform this method after control method.
 	 * Make the agent produce waste and send all queued broadcast messages.
 	 */
-	private void endUpdateAgent() {
+	private final void endUpdateAgent() {
 		/* Produce waste if able */
 		if (params.wasteMode)
 			tryPoop();
