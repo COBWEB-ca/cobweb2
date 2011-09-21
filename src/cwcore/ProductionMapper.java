@@ -4,11 +4,13 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 import cobweb.Environment;
 import cobweb.Environment.Location;
 import cobweb.TickScheduler.Client;
 import cwcore.ComplexEnvironment.Product;
+import driver.util.WaitableJComponent;
 
 public class ProductionMapper {
 
@@ -26,30 +28,32 @@ public class ProductionMapper {
 	}
 
 	public boolean addProduct(Product p, Environment.Location loc) {
-		maxValue = 0;
+		float newMax = 0;
 		for (int x = 0; x < vals.length; x++) {
 			for (int y = 0; y < vals[x].length; y++) {
 				float value = getDifAtLoc(p, loc, e.getLocation(x, y));
 				vals[x][y] += value;
-				if (vals[x][y] > maxValue) {
-					maxValue = vals[x][y];
+				if (vals[x][y] > newMax) {
+					newMax = vals[x][y];
 				}
 			}
 		}
+		maxValue = newMax;
 		return true;
 	}
 
 	public boolean remProduct(Product p, Location loc) {
-		maxValue = 0;
+		float newMax = 0;
 		for (int x = 0; x < vals.length; x++) {
 			for (int y = 0; y < vals[x].length; y++) {
 				float value = getDifAtLoc(p, loc, e.getLocation(x, y));
 				vals[x][y] -= value;
-				if (vals[x][y] > maxValue) {
-					maxValue = vals[x][y];
+				if (vals[x][y] > newMax) {
+					newMax = vals[x][y];
 				}				
 			}
 		}
+		maxValue = newMax;
 		return true;
 	}
 
@@ -87,13 +91,15 @@ public class ProductionMapper {
 
 	private Color[][] getTileColors(int x, int y) {
 		Color[][] ret = new Color[x][y];
+		float lockedMax = maxValue;
+
 		for (int i = 0; i < x; i++) {
 			for (int j = 0; j < y; j++) {
 				float val = getValueAtLocation(i, j);
-				int amount = 255 - (int) ((Math.min(val, maxValue) / maxValue) * 255f);
+				int amount = 255 - (int) ((Math.min(val, lockedMax) / lockedMax) * 255f);
 				// FIXME: threading bug when speed set to max simulation speed, amount ends up out of range
-				if (amount < 0 || amount > 255) {
-					amount = 128;
+				if (amount > 255) {
+					amount = 255;
 				}
 				ret[i][j] = new Color(amount, amount, 255);
 			}
@@ -101,11 +107,14 @@ public class ProductionMapper {
 		return ret;
 	}
 
-	public JDialog createDialog(final int x, final int y) {
-		return new Disp(x, y);
+	Disp display = null;
+
+	public JFrame createDialog(final int x, final int y) {
+		display = new Disp(x, y);
+		return display;
 	}
 
-	private class Disp extends JDialog implements Client {
+	private class Disp extends JFrame implements Client {
 		/**
 		 * 
 		 */
@@ -113,38 +122,62 @@ public class ProductionMapper {
 		int x;
 		int y;
 
+		WaitableJComponent display;
+
 		private Disp(int x, int y) {
-			super();
+
+			super("Production Map");
 			this.x = x;
 			this.y = y;
-			setModal(false);
-			setAlwaysOnTop(false);
-			setSize(400, 400);
+
+
 			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			display = new ProductionPanel();
+			this.setSize(400, 400);
+			this.add(display);
+
 			setVisible(true);
 		}
 
-		@Override
-		public void paint(Graphics g) {
-			int w = getWidth();
-			int h = getHeight();
-			final float tw = (float) w / (float) x;
-			final float th = (float) h / (float) y;			
+		public void refresh() {
+			display.refresh(false);
+		}
 
-			final Color[][] tiles = getTileColors(x, y);
-			for (int xc = 0; xc < x; xc++) {
-				for (int yc = 0; yc < y; yc++) {
-					g.setColor(tiles[xc][yc]);
-					g.fillRect((int) (xc * tw), (int) (yc * th), (int) tw, (int) th);
+		class ProductionPanel extends WaitableJComponent {
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponents(g);
+
+				int w = getWidth();
+				int h = getHeight();
+				final int tw = w / x;
+				final int th = h / y;
+
+				int shiftX = (w - x * tw) / 2;
+				int shiftY = (h - y * th) / 2;
+
+				g.translate(shiftX, shiftY);
+
+				final Color[][] tiles = getTileColors(x, y);
+				for (int xc = 0; xc < x; xc++) {
+					for (int yc = 0; yc < y; yc++) {
+						g.setColor(tiles[xc][yc]);
+						g.fillRect(xc * tw, yc * th, tw, th);
+					}
 				}
+
 			}
 		}
 
+		@Override
 		public void tickNotification(long time) {
-			repaint();
+			refresh();
 		}
 
+		@Override
 		public void tickZero() {
+			// the goggles
 		}
 	}
+
 }

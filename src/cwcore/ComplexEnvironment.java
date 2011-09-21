@@ -12,7 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -207,7 +207,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
 
-	private JDialog prodShader;
+	private JFrame prodShader;
 
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
@@ -1406,17 +1406,20 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	public JDialog getProdShader() {
+	public JFrame getProdShader() {
 		return prodShader;
 	}
 
-	public void setProdShader(JDialog d) {
+	public void setProdShader(JFrame d) {
 		if (d != prodShader && prodShader != null) {
+			theScheduler.removeSchedulerClient(prodShader);
 			prodShader.setVisible(false);
 			prodShader.setEnabled(false);
 			prodShader.dispose();
 		}
 		prodShader = d;
+		if (prodShader != null)
+			theScheduler.addSchedulerClient(prodShader);
 	}
 
 	/**
