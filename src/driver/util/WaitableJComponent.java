@@ -1,5 +1,7 @@
 package driver.util;
 
+import java.lang.reflect.InvocationTargetException;
+
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -26,27 +28,28 @@ public class WaitableJComponent extends JComponent implements SynchronousDisplay
 	};
 
 	public void refresh(boolean wait) {
-		if (wait && !donePaint)
-			return;
-
-		donePaint = false;
-		repaint();
-
 		if (wait) {
-			if (!SwingUtilities.isEventDispatchThread())
+			donePaint = false;
+			repaint();
+			// Wait for displayPanel to repaint
+			if (SwingUtilities.isEventDispatchThread()) {
+				// When we are in the Swing thread, repaint() executes synchronously
+				donePaint = true;
+			} else {
+				// Otherwise we need to wait for Swing thread to finish the repaint
 				try {
 					SwingUtilities.invokeAndWait(donePaintMarker);
-				} catch (Exception ex) {
-					throw new RuntimeException(ex);
+				} catch (InterruptedException ex) {
+					donePaint = true;
+				} catch (InvocationTargetException ex) {
+					donePaint = true;
 				}
-
-			else
-				donePaint = true;
-
-		} else {
-
-			if (!SwingUtilities.isEventDispatchThread())
-				SwingUtilities.invokeLater(donePaintMarker);
+			}
+		} else if (donePaint) {
+			// Start painting a new frame without waiting
+			donePaint = false;
+			repaint();
+			SwingUtilities.invokeLater(donePaintMarker);
 		}
 	}
 
