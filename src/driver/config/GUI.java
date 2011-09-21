@@ -47,21 +47,11 @@ public class GUI extends JFrame {
 	private final class OkButtonListener implements ActionListener {
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-			/*
-			 * this fragment of code is necessary to update the last cell of the table before saving it
-			 */
-			environmentPage.validateUI();
-			resourcePage.validateUI();
-			agentPage.validateUI();
-			foodwebPage.validateUI();
-			if (pdPage != null)
-				pdPage.validateUI();
-			geneticPage.validateUI();
-			diseaseConfigPage.validateUI();
-			tempPage.validateUI();
-			if (learnPage != null)
-				learnPage.validateUI();
-
+			try {
+				validateSettings();
+			} catch (IllegalArgumentException ex) {
+				throw new CobwebUserException("Parameter error: " + ex.getMessage(), ex);
+			}
 
 			/* write UI info to xml file */
 			try {
@@ -91,19 +81,31 @@ public class GUI extends JFrame {
 				CA.getUI().setRunnable(true);
 			}
 		}
+
+
+	}
+
+	protected void validateSettings() {
+		/*
+		 * this fragment of code is necessary to update the last cell of the table before saving it
+		 */
+		environmentPage.validateUI();
+		resourcePage.validateUI();
+		agentPage.validateUI();
+		foodwebPage.validateUI();
+		if (pdPage != null)
+			pdPage.validateUI();
+		geneticPage.validateUI();
+		diseaseConfigPage.validateUI();
+		tempPage.validateUI();
+		if (learnPage != null)
+			learnPage.validateUI();
 	}
 
 	private final class SaveAsButtonListener implements java.awt.event.ActionListener {
 		public void actionPerformed(java.awt.event.ActionEvent e) {
 			try {
-				environmentPage.validateUI();
-				resourcePage.validateUI();
-				agentPage.validateUI();
-				foodwebPage.validateUI();
-				pdPage.validateUI();
-				geneticPage.validateUI();
-				diseaseConfigPage.validateUI();
-				tempPage.validateUI();
+				validateSettings();
 			} catch (IllegalArgumentException ex) {
 				throw new CobwebUserException("Parameter error: " + ex.getMessage(), ex);
 			}
