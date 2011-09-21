@@ -6,14 +6,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.lang.reflect.InvocationTargetException;
-
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 
 import cobweb.Agent;
 import cobweb.UIInterface;
 import cobweb.UIInterface.MouseMode;
+import driver.util.WaitableJComponent;
 
 /**
  * DisplayPanel is a Panel derivative useful for displaying a cobweb simulation. It uses an offscreen image to buffer
@@ -21,13 +18,7 @@ import cobweb.UIInterface.MouseMode;
  * required in Cobweb, but it does automate display handling. Future enhancement: implement a ScrollingDisplayPanel for
  * large simulations.
  */
-public class DisplayPanel extends JComponent implements ComponentListener {
-
-	private final class MarkDonePainting implements Runnable {
-		public void run() {
-			donePainting = true;
-		}
-	}
+public class DisplayPanel extends WaitableJComponent implements ComponentListener {
 
 	/**
 	 * Mouse event listener for the simulation display panel
@@ -275,8 +266,6 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 
 	private boolean donePainting = true;
 
-	private final Runnable markReadyRefresh = new MarkDonePainting();
-
 	public DisplayPanel(UIInterface ui) {
 		theUI = ui;
 		addComponentListener(this);
@@ -319,15 +308,6 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 		// nothing
 	}
 
-	/**
-	 * Is the display grid done repainting since the last refresh(false) ?
-	 *
-	 * @return true when repaint is done
-	 */
-	public boolean isReadyToRefresh() {
-		return donePainting;
-	}
-
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -338,37 +318,6 @@ public class DisplayPanel extends JComponent implements ComponentListener {
 		g.translate(borderLeft, borderHeight);
 		theUI.draw(g, tileWidth, tileHeight);
 		g.translate(-borderLeft, -borderHeight);
-	}
-
-	/**
-	 * Refreshes the display grid
-	 *
-	 * @param wait wait for repaint to finish before returning?
-	 */
-	public void refresh(boolean wait) {
-		if (wait) {
-			donePainting = false;
-			repaint();
-			// Wait for displayPanel to repaint
-			if (SwingUtilities.isEventDispatchThread()) {
-				// When we are in the Swing thread, repaint() executes synchronously
-				donePainting = true;
-			} else {
-				// Otherwise we need to wait for Swing thread to finish the repaint
-				try {
-					SwingUtilities.invokeAndWait(markReadyRefresh);
-				} catch (InterruptedException ex) {
-					donePainting = true;
-				} catch (InvocationTargetException ex) {
-					donePainting = true;
-				}
-			}
-		} else if (donePainting) {
-			// Start painting a new frame without waiting
-			donePainting = false;
-			repaint();
-			SwingUtilities.invokeLater(markReadyRefresh);
-		}
 	}
 
 	public void setMouseMode(MouseMode mode) {

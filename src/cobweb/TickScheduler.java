@@ -45,9 +45,6 @@ public class TickScheduler implements Scheduler {
 
 			// Main loop
 			while (!done) {
-				cwcore.ComplexAgent.dumpData(tickCount);
-				cwcore.ComplexAgent.clearData();
-
 				if (!done && !running) {
 					myWait(100);
 					theUI.refresh(false);
