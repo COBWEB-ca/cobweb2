@@ -70,4 +70,14 @@ public class FoodSource {
 	public int getType() {
 		return this.type;
 	}
+
+	/**
+	 * Compare two food sources. Return true if they are the same food sources, false otherwise.
+	 * @param other Another (or the same) food source.
+	 * @return True if they are the same food source, false otherwise.
+	 */
+	public boolean equals(FoodSource other) {
+		//assume that only one food source can occupy the same set of coordinates
+		return this.getLocation() == other.getLocation();
+	}
 }
