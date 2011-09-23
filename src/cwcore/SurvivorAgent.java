@@ -3,6 +3,8 @@ package cwcore;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import cobweb.Environment;
+
 /**
  * Added functionality over ComplexAgent:
  * 
@@ -73,6 +75,13 @@ public class SurvivorAgent extends ComplexAgent {
 	 */
 	private final boolean REMEMBER_SMART = false;
 
+	/**
+	 * If the agent has less than this amount of energy, it's hungry.
+	 * TODO allow user to configure this.
+	 * TODO pass this on in DNA
+	 */
+	private final int HUNGER_THRESHOLD = GeneticController.ENERGY_THRESHOLD / 2;
+
 	/*************************************************************************************
 	 * ************************************ ENUM *****************************************
 	 *************************************************************************************/
@@ -137,6 +146,10 @@ public class SurvivorAgent extends ComplexAgent {
 	 */
 	@Override
 	protected void control() {
+		//figures out the state
+		state = isHungry() ? State.HUNGRY : State.EXPLORING;
+
+		//acts on the state
 		switch(this.state) {
 			case HUNGRY:
 				this.findFood();
@@ -153,10 +166,49 @@ public class SurvivorAgent extends ComplexAgent {
 	 * Find food. Eat it.
 	 */
 	protected void findFood() {
-		//look around for food.
-		//if you see food, go to it
-		//if you do not, move to memorable locations
-		//if none of the above, turn in random direction
+		//this is linear because can only eat once per tick
+
+		if(this.carriedFood.isEmpty()) {
+			SeeInfo si = this.distanceLook();
+
+			if(si.getType() == ComplexEnvironment.FLAG_FOOD) {
+				int dist = si.getDist();
+
+				//get the location of the food
+				Environment.Location foodLocation = this.position.add(dist, this.facing);
+
+				//get the food source object at that location
+				//TODO for now
+				FoodSource source = null;
+
+				//memorize the food source
+				this.rememberFoodSource(source);
+
+				//if it's adjacent
+				if(dist == 1) {
+					//eat the food
+					Food f = source.getFood();
+					//TODO add eat method here
+				} else {
+					//move to the location
+					this.moveToLocation(foodLocation);
+				}
+			} else {
+				if(this.foodSources.isEmpty()) {
+					//move randomly
+					this.explore();
+				} else {
+					//find a food source location
+					Environment.Location foodLocation = this.rememberFoodSourceLocation().getLocation();
+
+					//move to the food source
+					this.moveToLocation(foodLocation);
+				}
+			}
+		} else {
+			//eat the carried food
+			this.eatCarriedFood();
+		}
 	}
 
 	/**
@@ -187,6 +239,22 @@ public class SurvivorAgent extends ComplexAgent {
 	 *************************************************************************************/
 
 	/**
+	 * Move to the given location.
+	 * @param coords Coordinates of the location.
+	 */
+	protected void moveToLocation(Environment.Location coords) {
+
+	}
+
+	/**
+	 * Return true if this agent is hungry, false otherwise.
+	 * @return True if the agent is hungry, false otherwise.
+	 */
+	protected boolean isHungry() {
+		return this.energy < this.HUNGER_THRESHOLD;
+	}
+
+	/**
 	 * Perform the given move.
 	 * @param action The action to perform.
 	 */
@@ -215,15 +283,22 @@ public class SurvivorAgent extends ComplexAgent {
 	}
 
 	/**
-	 * Memorise the location of the given food source.
+	 * Memorise the location of the given food source, if it is new.
 	 * If agent's memory is full, agent forgets oldest food source.
 	 * @param foodSource A food source.
+	 * @return True if the food source was remembered, was otherwise.
 	 */
-	protected void rememberFoodSource(FoodSource foodSource) {
-		foodSources.add(foodSource);
+	protected boolean rememberFoodSource(FoodSource foodSource) {
+		if(foodSources.contains(foodSource)) {
+			return false;
+		} else {
+			foodSources.add(foodSource);
 
-		while(foodSources.size() > this.MAX_FOOD_SOURCE_MEMORY) {
-			this.foodSources.remove();
+			while(foodSources.size() > this.MAX_FOOD_SOURCE_MEMORY) {
+				this.foodSources.remove();
+			}
+
+			return true;
 		}
 	}
 
