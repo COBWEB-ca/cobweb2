@@ -184,6 +184,24 @@ public abstract class Environment {
 		}
 
 		/**
+		 * Return a new location by moving in a certain direction, in a certain distance
+		 * from the current location.
+		 * @param distance Number of tiles you wish to move.
+		 * @param dir The direction you wish to move in.
+		 * @return The resultant location.
+		 */
+		public Location add(int distance, Direction dir) {
+			int[] addComponents = dir.v;
+			int[] newCoords = new int[addComponents.length];
+
+			for(int i = 0; i < addComponents.length; i++) {
+				newCoords[i] += addComponents[i] * distance;
+			}
+
+			return getLocation(newCoords[0], newCoords[1]);
+		}
+
+		/**
 		 * Similar to the other getAdjacent call, but this is a single-axis
 		 * version
 		 */
@@ -261,8 +279,8 @@ public abstract class Environment {
 		public void saveAsANode(Node node, Document doc) {
 
 			for (int i : v) {
-				Element locationElement = doc.createElement("axisPos"); 
-				locationElement.appendChild(doc.createTextNode(i +""));
+				Element locationElement = doc.createElement("axisPos");
+				locationElement.appendChild(doc.createTextNode(i + ""));
 				node.appendChild(locationElement);
 			}
 
@@ -472,18 +490,18 @@ public abstract class Environment {
 
 	public int getPopByPercentage(double amount) {
 
-		return (int)(getCurrentPopulation()* (amount / 100));
+		return (int) (getCurrentPopulation() * (amount / 100));
 
 	}
 
-	/** 
-	 * @return Random location. 
+	/**
+	 * @return Random location.
 	 */
 	public Location getRandomLocation() {
 		Location l;
 		do {
-			l = getLocation(cobweb.globals.random.nextInt(getSize(AXIS_X)), cobweb.globals.random
-					.nextInt(getSize(AXIS_Y)));
+			l = getLocation(cobweb.globals.random.nextInt(getSize(AXIS_X)),
+					cobweb.globals.random.nextInt(getSize(AXIS_Y)));
 		} while (!l.isValid());
 		return l;
 	}
@@ -497,7 +515,6 @@ public abstract class Environment {
 	public abstract int getSize(int axis);
 
 	public abstract EnvironmentStats getStatistics();
-
 
 	public abstract int getTypeCount();
 
@@ -523,7 +540,8 @@ public abstract class Environment {
 	/**
 	 * Load environment from parameters
 	 * 
-	 * <p>This is currently being overwritten by the ComplexEnvironment class.
+	 * <p>
+	 * This is currently being overwritten by the ComplexEnvironment class.
 	 * 
 	 * @param scheduler the Scheduler to use
 	 * @param parameters the parameters
@@ -558,7 +576,6 @@ public abstract class Environment {
 		// Nothing
 	}
 
-
 	/**
 	 * Removes stone at given position
 	 * 
@@ -569,13 +586,13 @@ public abstract class Environment {
 		// Nothing
 	}
 
-
 	/** Report to a stream */
 	public abstract void report(java.io.Writer w);
 
 	/** Save to a stream */
 	public abstract void save(java.io.Writer w);
-	/** Save a sample population as an XML file */ 
+
+	/** Save a sample population as an XML file */
 	public boolean savePopulation(String popName, String option, int amount) {
 
 		int totalPop;
@@ -603,11 +620,12 @@ public abstract class Environment {
 
 		int currentPopCount = 1;
 
-		for (Location l : agentTable.keySet()){
-			if (currentPopCount > totalPop) break;
-			Node node = ((ComplexAgent)agentTable.get(l)).makeNode(d);
+		for (Location l : agentTable.keySet()) {
+			if (currentPopCount > totalPop)
+				break;
+			Node node = ((ComplexAgent) agentTable.get(l)).makeNode(d);
 
-			Element locationElement = d.createElement("location"); 
+			Element locationElement = d.createElement("location");
 
 			l.saveAsANode(locationElement, d);
 			node.appendChild(locationElement);
