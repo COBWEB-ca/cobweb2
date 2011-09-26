@@ -9,7 +9,7 @@ import org.w3c.dom.Node;
  * Dimensionality independent notion of a direction.  The integer 
  * v is a vector representation of the direction, defined by the
  * environment. 
-*/
+ */
 public class Direction {
 
 	public int[] v;
@@ -28,6 +28,41 @@ public class Direction {
 
 	public Direction(int[] initV) {
 		v = initV;
+	}
+
+	/**
+	 * Return the angle (between -pi and pi) between the x and y coordinates
+	 * of this direction vector. The angle is in standard position.
+	 * @return An angle between -pi and pi.
+	 */
+	private final double angle() {
+		return Math.atan2(v[1], v[0]);
+	}
+
+	/**
+	 * Returns this direction, rotated 90 degrees to the left.
+	 * @return The direction if the current direction was rotated to the left.
+	 */
+	public Direction rotateLeft() {
+		double newAngle = this.angle() + (Math.PI  / 2);
+
+		double x = Math.round(Math.cos(newAngle));
+		double y = Math.round(Math.sin(newAngle));
+
+		return new Direction((int) x, (int) y);
+	}
+
+	/**
+	 * Returns this direction, rotated 90 degrees to the right.
+	 * @return The direction if the current direction was rotated to the right.
+	 */
+	public Direction rotateRight() {
+		double newAngle = this.angle() - (Math.PI / 2);
+
+		double x = Math.round(Math.cos(newAngle));
+		double y = Math.round(Math.sin(newAngle));
+
+		return new Direction((int) x, (int) y);
 	}
 
 	/**
