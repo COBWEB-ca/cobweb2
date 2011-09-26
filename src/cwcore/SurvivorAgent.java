@@ -29,6 +29,16 @@ public class SurvivorAgent extends ComplexAgent {
 	 *************************************************************************************/
 
 	/**
+	 * The maximum distance the agent can see.
+	 */
+	private final int MAX_SEE_SQUARE_DIST = 16;
+
+	/**
+	 * The maximum angle the agent can see from the direction it is facing.
+	 */
+	private final double MAX_SEE_ANGLE = Math.PI / 4;
+
+	/**
 	 * TODO set this in XML
 	 * The maximum number of food sources this agent can remember at a time.
 	 */
@@ -239,11 +249,34 @@ public class SurvivorAgent extends ComplexAgent {
 	 *************************************************************************************/
 
 	/**
+	 * Return true if the agent can see the given tile, false otherwise.
+	 * @param tile The tile being examined.
+	 * @return True if the agent can see the tile, false otherwise.
+	 */
+	private final boolean canSee(final Environment.Location tile) {
+		double facingAngle = this.facing.angle();
+		double targetAngle = this.position.angleTo(tile);
+
+		return Math.abs(targetAngle - facingAngle) <= this.MAX_SEE_ANGLE &&
+		this.position.distanceSquare(tile) <= this.MAX_SEE_SQUARE_DIST;
+	} 
+
+	/**
 	 * Move to the given location.
 	 * @param coords Coordinates of the location.
 	 */
 	protected void moveToLocation(Environment.Location coords) {
+		//TODO path-finding is not fully implemented
 
+		//simple path-finding algos here
+
+		//TODO maybe have different path-finding algos, which take different 
+
+		//very human algo.
+		//go to the place which is in the "general" direction of the destination
+		//if none exists, go to a random spot
+
+		//gen. dir. = the resultant square will make the distance >=
 	}
 
 	/**
