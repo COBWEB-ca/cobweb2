@@ -5,7 +5,6 @@ package cwcore;
 
 import cobweb.Agent;
 import cobweb.Controller;
-import cobweb.Environment;
 import cobweb.globals;
 import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.SeeInfo;
@@ -58,7 +57,6 @@ public class LinearWeightsController implements cobweb.Controller {
 		} else {
 			return;
 		}
-
 		SeeInfo get = agent.distanceLook();
 		int type = get.getType();
 		int dist = get.getDist();

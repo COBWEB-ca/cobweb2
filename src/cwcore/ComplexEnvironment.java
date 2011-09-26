@@ -12,7 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.JFrame;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,6 +22,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import production.Product;
+import production.ProductionMapper;
 import cobweb.Agent;
 import cobweb.ArrayEnvironment;
 import cobweb.ColorLookup;
@@ -70,35 +71,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		public boolean canStep() {
 			return true;
 		}
-	}
-
-	public static class Product extends Drop {
-		public Product(float value, Agent owner) {
-			this.value = value;
-			this.owner = owner;
-		}
-
-		Agent owner;
-		private float value;
-
-		@Override
-		public boolean isActive(long val) {
-			return true;
-		}
-
-		@Override
-		public void reset(long time, int weight, float rate) {
-
-		}
-
-		public void setValue(float value) {
-			this.value = value;
-		}
-
-		public float getValue() {
-			return value;
-		}
-
 	}
 
 	public static class Waste extends Drop {
@@ -207,8 +179,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
 
-	private JFrame prodShader;
-
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
 
@@ -220,10 +190,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public void setDrop(Location loc, Drop d) {
 		dropArray[loc.v[0]][loc.v[1]] = d;
+	}
 
-		if (d instanceof Product) {
-			prodMapper.addProduct((Product) d, loc);
-		}
+	public void addProduct(Location loc, Product prod) {
+		prodMapper.addProduct(prod, loc);
+		setDrop(loc, prod);
 	}
 
 
@@ -756,14 +727,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	@Override
 	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
+
+
 		if (option.equals("replace")) {
 			clearAgents();
 		}
 
 		//Load XML file
 		FileInputStream file = new FileInputStream(fileName);
-
-		System.out.println("+++++ " + fileName);
 
 		// DOM initialization
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -1404,22 +1375,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			default:
 				return false;
 		}
-	}
-
-	public JFrame getProdShader() {
-		return prodShader;
-	}
-
-	public void setProdShader(JFrame d) {
-		if (d != prodShader && prodShader != null) {
-			theScheduler.removeSchedulerClient(prodShader);
-			prodShader.setVisible(false);
-			prodShader.setEnabled(false);
-			prodShader.dispose();
-		}
-		prodShader = d;
-		if (prodShader != null)
-			theScheduler.addSchedulerClient(prodShader);
 	}
 
 	/**

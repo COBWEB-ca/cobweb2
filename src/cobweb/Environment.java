@@ -686,16 +686,4 @@ public abstract class Environment {
 	public abstract int getFood(int x, int y);
 
 	public abstract boolean hasStone(int x, int y);
-
-	protected static class Product {
-		int creatorType;
-
-		public Product(ComplexAgent ag) {
-			creatorType = ag.getAgentType();
-		}
-
-		public void reset() {
-
-		}
-	}	
 }

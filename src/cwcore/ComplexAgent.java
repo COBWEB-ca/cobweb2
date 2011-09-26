@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import production.Product;
 import cobweb.ColorLookup;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
@@ -23,7 +24,6 @@ import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
 import cobweb.globals;
 import cwcore.ComplexEnvironment.Drop;
-import cwcore.ComplexEnvironment.Product;
 import cwcore.ComplexEnvironment.Waste;
 import cwcore.broadcast.BroadcastPacket;
 import cwcore.complexParams.AgentMutator;
@@ -88,7 +88,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private ProductionParams prodParams;
 
 	/**
-	 *
+	 * 
 	 */
 	private static final long serialVersionUID = -5310096345506441368L;
 
@@ -241,7 +241,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	protected ComplexEnvironment environment;
 
 	public ComplexAgent() {
-		prodParams = new ProductionParams();
+
 	}
 
 	/**
@@ -550,9 +550,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!params.agingMode)
 			return 0.0;
 		double tempAge = currTick - birthTick;
-		assert (tempAge == age);
-		int penaltyValue = Math.min(Math.max(0, energy),
-				(int) (params.agingRate * (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
+		assert(tempAge == age);
+		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
+				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
 
 		return penaltyValue;
 	}
@@ -954,6 +954,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
 	public void setConstants(int pdCheat, ComplexAgentParams agentData, ProductionParams prodData) {
+
 		this.params = agentData;
 		this.prodParams = prodData;
 
@@ -989,10 +990,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// See ComplexEnvironment.load(cobweb.Scheduler s, Parser p/*
 		// java.io.Reader r */) @ if (keepOldAgents[0]) {...
 
-	}
-
-	public void setConstants(ProductionParams prodData) {
-		this.prodParams = prodData;
 	}
 
 	public void setMemoryBuffer(int memoryBuffer) {
@@ -1094,7 +1091,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			if (d.canStep() && d instanceof Product) {
 				Product p = (Product) d;
-				if (p.owner != this && globals.random.nextFloat() <= 0.5f) {
+				if (p.getOwner() != this && globals.random.nextFloat() <= 0.5f) {
 					environment.prodMapper.remProduct(p, 
 							getPosition().getEnvironment().getLocation(x, y));
 					environment.dropArray[x][y] = null;
@@ -1342,7 +1339,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 */
 	private void tryPoop() {
 		forceDrop(new Waste(currTick, params.wasteInit, params.wasteDecay));
-	}
+	}	
 
 	private void forceDrop(Drop d) {
 		boolean added = false;
@@ -1382,7 +1379,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 		}
 	}
-
 	private boolean roll(float chance) {
 		return chance > globals.random.nextFloat();
 	}
@@ -1397,8 +1393,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (locationValue > prodParams.highDemandCutoff) {
 			return false;
 		}
-
-		float rand = globals.random.nextFloat();
 
 		// ADDITIONS:
 		// Learning agents should adapt to products
@@ -1485,9 +1479,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			position.setFlag(ComplexEnvironment.FLAG_DROP, true);
 
-			environment.setDrop(position, p);
-
-			// forceDrop(p, this));
+			environment.addProduct(position, p);
 		}
 	}
 

@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
+import production.Disp;
+import production.ProductionMapper;
 import temperature.TemperatureMutator;
 import temperature.TemperatureParams;
 import cobweb.Environment.EnvironmentStats;
@@ -74,6 +76,58 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		@Override
 		public String getName() {
 			return "AI Weight Stats";
+		}
+
+		@Override
+		public void setClosedCallback(ViewerClosedCallback onClosed) {
+			this.onClosed = onClosed;
+
+		}
+	}
+
+	private final class ProductionViewer implements ViewerPlugin {
+
+		private Disp productionDisplay;
+		private ViewerClosedCallback onClosed;
+
+		@Override
+		public void on() {
+			ProductionMapper newMapper = ((ComplexEnvironment) theEnvironment).prodMapper;
+			Disp jd = newMapper.createDialog();
+
+			if (productionDisplay != null) {
+				theScheduler.removeSchedulerClient(productionDisplay);
+				productionDisplay.setVisible(false);
+				productionDisplay.setEnabled(false);
+				productionDisplay.dispose();
+			}
+
+			productionDisplay = jd;
+
+			jd.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					onClosed.viewerClosed();
+				}
+			});
+
+			theScheduler.addSchedulerClient(productionDisplay);
+		}
+
+		@Override
+		public void off() {
+			if (productionDisplay != null) {
+				theScheduler.removeSchedulerClient(productionDisplay);
+				productionDisplay.setVisible(false);
+				productionDisplay.setEnabled(false);
+				productionDisplay.dispose();
+			}
+			productionDisplay = null;
+		}
+
+		@Override
+		public String getName() {
+			return "Production map";
 		}
 
 		@Override
@@ -694,6 +748,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		if (simulationConfig.getEnvParams().controllerName.equals(LinearWeightsController.class.getName())) {
 			viewers.add(new LinearAIViewer());
 		}
+
+		viewers.add(new ProductionViewer());
 	}
 
 	/**

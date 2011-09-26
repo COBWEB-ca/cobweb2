@@ -1,16 +1,10 @@
-package cwcore;
+package production;
 
 import java.awt.Color;
-import java.awt.Graphics;
-
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 
 import cobweb.Environment;
 import cobweb.Environment.Location;
-import cobweb.TickScheduler.Client;
-import cwcore.ComplexEnvironment.Product;
-import driver.util.WaitableJComponent;
+import cwcore.ComplexEnvironment;
 
 public class ProductionMapper {
 
@@ -89,7 +83,7 @@ public class ProductionMapper {
 		return getValueAtLocation(loc);
 	}
 
-	private Color[][] getTileColors(int x, int y) {
+	Color[][] getTileColors(int x, int y) {
 		Color[][] ret = new Color[x][y];
 		float lockedMax = maxValue;
 
@@ -101,7 +95,8 @@ public class ProductionMapper {
 				if (amount > 255) {
 					amount = 255;
 				}
-				ret[i][j] = new Color(amount, amount, 255);
+
+				ret[i][j] = new Color(amount / 2 + 127, amount, 255);
 			}
 		}
 		return ret;
@@ -109,75 +104,9 @@ public class ProductionMapper {
 
 	Disp display = null;
 
-	public JFrame createDialog(final int x, final int y) {
-		display = new Disp(x, y);
+	public Disp createDialog() {
+		display = new Disp(this, this.e.getWidth(), this.e.getHeight());
 		return display;
-	}
-
-	private class Disp extends JFrame implements Client {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 8153897860751883610L;
-		int x;
-		int y;
-
-		WaitableJComponent display;
-
-		private Disp(int x, int y) {
-
-			super("Production Map");
-			this.x = x;
-			this.y = y;
-
-
-			setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			display = new ProductionPanel();
-			this.setSize(400, 400);
-			this.add(display);
-
-			setVisible(true);
-		}
-
-		public void refresh() {
-			display.refresh(false);
-		}
-
-		class ProductionPanel extends WaitableJComponent {
-			@Override
-			protected void paintComponent(Graphics g) {
-				super.paintComponents(g);
-
-				int w = getWidth();
-				int h = getHeight();
-				final int tw = w / x;
-				final int th = h / y;
-
-				int shiftX = (w - x * tw) / 2;
-				int shiftY = (h - y * th) / 2;
-
-				g.translate(shiftX, shiftY);
-
-				final Color[][] tiles = getTileColors(x, y);
-				for (int xc = 0; xc < x; xc++) {
-					for (int yc = 0; yc < y; yc++) {
-						g.setColor(tiles[xc][yc]);
-						g.fillRect(xc * tw, yc * th, tw, th);
-					}
-				}
-
-			}
-		}
-
-		@Override
-		public void tickNotification(long time) {
-			refresh();
-		}
-
-		@Override
-		public void tickZero() {
-			// the goggles
-		}
 	}
 
 }

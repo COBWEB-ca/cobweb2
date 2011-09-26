@@ -72,7 +72,7 @@ public class SimulationConfig {
 
 	private ProductionParams[] prodParams;
 
-	// xxxprivate LearningAgentParams[] learningAgentParams;
+	//xxxprivate LearningAgentParams[] learningAgentParams;
 
 	private LearningParams learningParams;
 
@@ -480,7 +480,7 @@ public class SimulationConfig {
 		{
 			ProductionParams[] n = Arrays.copyOf(prodParams, count);
 
-			for (int i = 0; i < this.prodParams.length && i < count; i++) {
+			for (int i = prodParams.length; i < count; i++) {
 				n[i] = new ProductionParams();
 				n[i].type = i;
 			}
