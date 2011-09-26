@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +31,7 @@ import cobweb.RandomNoGenerator;
 import cobweb.Scheduler;
 import cobweb.TickScheduler;
 import cobweb.TypeColorEnumeration;
+import cwcore.broadcast.PacketConduit;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
@@ -42,183 +42,6 @@ import driver.SimulationConfig;
  * This class contains an implementation of the TickScheduler.Client class.
  */
 public class ComplexEnvironment extends Environment implements TickScheduler.Client {
-
-	public static class CommManager {
-
-		private boolean broadcastBlocked = false;
-
-		/**
-		 * adds packets to the list of packets
-		 * 
-		 * @param packet packet
-		 */
-		public void addPacketToList(CommPacket packet) {
-			if (!broadcastBlocked)
-				currentPackets.add(packet);
-			blockBroadcast();
-		}
-
-		public void blockBroadcast() {
-			broadcastBlocked = true;
-		}
-
-		// with every time step, the persistence of the packets should be
-		// decremented
-		public void decrementPersistence() {
-			int pValue;
-			for (int i = 0; i < currentPackets.size(); i++) {
-				pValue = --currentPackets.get(i).persistence;
-				if (pValue <= 0)
-					removePacketfromList(currentPackets.get(i));
-			}
-		}
-
-		/**
-		 * returns the packet with the specified ID
-		 * 
-		 * @return CommPacket
-		 */
-		public CommPacket getPacket(int packetId) {
-			int i = 0;
-			while (packetId != (currentPackets.get(i)).packetId & i < currentPackets.size()) {
-				i++;
-			}
-			return currentPackets.get(i);
-		}
-
-		public boolean packetInRange(int range, cobweb.Environment.Location broadcastPos,
-				cobweb.Environment.Location position) {
-			if (Math.abs(position.v[0] - broadcastPos.v[0]) > range)
-				return false;
-			if (Math.abs(position.v[1] - broadcastPos.v[1]) > range)
-				return false;
-			return true;
-		}
-
-		/**
-		 * removes packets from the list of packets
-		 * 
-		 * @param packet packet to remove
-		 */
-		public void removePacketfromList(CommPacket packet /* int packetId */) {
-			currentPackets.remove(/* getPacket(packetId) */packet);
-		}
-
-		public void unblockBroadcast() {
-			broadcastBlocked = false;
-		}
-
-	}
-
-	public static class CommPacket {
-
-		private static final int DEFAULT = 1;
-
-		public static final int FOOD = 1;
-
-		public static final int CHEATER = 2;
-
-		CommManager commManager = new CommManager();
-
-		private static int packetCounter;
-
-		private int packetId; // Unique ID for each communication packet
-
-		private int type; // Type of packet (Food or ). This is an enumerated
-		// number that can be extended
-
-		private long dispatcherId; // ID of sending agent (or entity)...could
-		// be modified to take an Object type
-
-		// According to this sender ID, other members may decide whether or not
-		// to accept this message
-		private String content; // Content of message. e.g. Cheater with ID 1234
-		// encountered...migth be enumerated
-
-		// e.g. Food found at location 34,43
-		private int radius; // Reach over the whole environment or just a
-		// certain neighborhood
-
-		private int persistence; // how many time steps should the packet
-
-		/**
-		 * Constructor
-		 * 
-		 * 
-		 */
-		public CommPacket(int type, long dispatcherId, String content, int energy, boolean energyBased, int fixedRange) {
-
-			this.packetId = ++packetCounter;
-			this.type = type;
-			this.dispatcherId = dispatcherId;
-			this.content = content; // could be a message or an enumerated type
-			// depending on the type
-			if (!energyBased)
-				this.radius = getRadius(energy);
-			else
-				this.radius = fixedRange;
-			this.persistence = DEFAULT;
-
-			// CommManager commManager = new CommManager();
-			commManager.addPacketToList(this);
-		}
-
-		// stay there. By default, a packet will
-		// persist for one time step (value 1)
-
-		public String getContent() {
-			return content;
-		}
-
-		public long getDispatcherId() {
-			return dispatcherId;
-		}
-
-		public int getPacketId() {
-			return packetId;
-		}
-
-		public int getPersistence() {
-			return persistence;
-		}
-
-		public int getRadius() {
-			return radius;
-		}
-
-		private int getRadius(int energy) {
-			return energy / 10 + 1; // limiting minimum to 1 unit of
-			// radius
-		}
-
-		public int getType() {
-			return type;
-		}
-
-		public void setContent(String content) {
-			this.content = content;
-		}
-
-		public void setDispatcherId(int dispatcherId) {
-			this.dispatcherId = dispatcherId;
-		}
-
-		public void setPacketId(int packetId) {
-			this.packetId = packetId;
-		}
-
-		public void setPersistence(int persistence) {
-			this.persistence = persistence;
-		}
-
-		public void setRadius(int radius) {
-			this.radius = radius;
-		}
-
-		public void setType(int type) {
-			this.type = type;
-		}
-	}
 
 	/**
 	 * Contains methods
@@ -285,15 +108,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public static final int INIT_LAST_MOVE = 0; // Initial last move set to
 	// cooperate
 
-	public static int PD_PAYOFF_REWARD;
+	public int PD_PAYOFF_REWARD;
 
-	public static int PD_PAYOFF_SUCKER;
+	public int PD_PAYOFF_SUCKER;
 
-	public static int PD_PAYOFF_TEMPTATION;
+	public int PD_PAYOFF_TEMPTATION;
 
-	public static int PD_PAYOFF_PUNISHMENT;
-
-	public static final List<CommPacket> currentPackets = new ArrayList<CommPacket>();
+	public int PD_PAYOFF_PUNISHMENT;
 
 	/*
 	 * All variables that will by referenced by the parser must be declared as
@@ -322,7 +143,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private static final int WASTE_CODE = 4;
 
-	public static void addWaste(long tick, int x, int y, int val, float rate) {
+	public void addWaste(long tick, int x, int y, int val, float rate) {
 		if (wastearray[x][y] != null)
 			wastearray[x][y].reset(tick, val, rate);
 		else
@@ -330,7 +151,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	// Returns current location's food type
-	public static int getFoodType(cobweb.Environment.Location l) {
+	public int getFoodType(cobweb.Environment.Location l) {
 		return foodarray[l.v[0]][l.v[1]];
 	}
 
@@ -346,12 +167,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * Waste tile array to store the data per waste tile. Needed to allow
 	 * depletion of waste
 	 */
-	private static Waste[][] wastearray;
+	private Waste[][] wastearray;
 
 	private ComplexEnvironmentParams data = new ComplexEnvironmentParams();
 
 	// Food array contains type and their locations
-	private static int[][] foodarray = new int[0][];
+	private int[][] foodarray = new int[0][];
 
 	private Agent observedAgent = null;
 
@@ -362,6 +183,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	ArrayEnvironment backArray;
 
 	int mostFood[];
+
+	public PacketConduit commManager;
+
+	public ComplexEnvironment() {
+		commManager = new PacketConduit();
+	}
 
 	/**
 	 * 
@@ -1013,8 +840,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			killOldAgents();
 		}
 
-		if (data.keepOldPackets) {
-			// keep commPackets.list
+		if (!data.keepOldPackets) {
+			commManager.clearPackets();
 		}
 
 		// add stones in to random locations
@@ -1482,8 +1309,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * depletion, food growth, and random food-"dropping".
 	 */
 	public void tickNotification(long tick) {
-
 		++tickCount;
+
+		commManager.decrementPersistence();
+		commManager.unblockBroadcast();
+
 		updateWaste();
 
 		// for each agent type, we test to see if its deplete time step has

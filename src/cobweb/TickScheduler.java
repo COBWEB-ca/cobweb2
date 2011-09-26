@@ -6,7 +6,6 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import cwcore.ComplexEnvironment.CommManager;
 import driver.SimulationConfig;
 
 /**
@@ -106,10 +105,6 @@ public class TickScheduler implements Scheduler {
 	 * @see Client#tickNotification(long)
 	 */
 	private synchronized void doTick() {
-
-		CommManager commManager = new CommManager();
-		commManager.decrementPersistence();
-		commManager.unblockBroadcast();
 		++tickCount;
 
 		for (Client client : new Vector<Client>(clientV)) {

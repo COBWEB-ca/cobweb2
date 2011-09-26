@@ -123,7 +123,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	@Override
 	public void eat(cobweb.Environment.Location destPos) {
-		if (ComplexEnvironment.getFoodType(destPos) == agentType) {
+		if (environment.getFoodType(destPos) == agentType) {
 			// Eating food is ideal!!
 			remember(new MemorableEvent(currTick, lParams.foodPleasure, "food"));
 		} else {

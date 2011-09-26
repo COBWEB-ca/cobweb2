@@ -26,6 +26,7 @@ import cobweb.Environment.EnvironmentStats;
 import cobweb.Environment.Location;
 import cwcore.AgentSpawner;
 import cwcore.ComplexAgent;
+import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
 import driver.SimulationConfig;
 
@@ -317,6 +318,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	Logger myLogger = Logger.getLogger("COBWEB2");
 
+	private SimulationConfig simulationConfig;
+
 	/**
 	 * Construct a LocalUIInterface from a specified state file URL.
 	 * 
@@ -564,6 +567,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * LocalUIInterface constructor.
 	 */
 	public void load(SimulationConfig p) {
+		this.simulationConfig = p;
 		InitScheduler(p.getEnvParams().schedulerName, p);
 		AgentSpawner.SetType(p.getEnvParams().agentName);
 

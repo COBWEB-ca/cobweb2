@@ -21,8 +21,7 @@ import cobweb.Environment;
 import cobweb.Environment.Location;
 import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
-import cwcore.ComplexEnvironment.CommManager;
-import cwcore.ComplexEnvironment.CommPacket;
+import cwcore.broadcast.BroadcastPacket;
 import cwcore.complexParams.AgentMutator;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ContactMutator;
@@ -224,6 +223,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	boolean mustFlip = false;
 
+	protected ComplexEnvironment environment;
+
 	public ComplexAgent() {
 
 	}
@@ -243,7 +244,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		copyConstants(parent1);
 
-		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent1.info, parent2.info, strat);
+		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		info = environment.addAgentInfo(agentType, parent1.info, parent2.info, strat);
 
 		move(pos);
 
@@ -267,7 +269,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		InitFacing();
 
 		copyConstants(parent);
-		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, parent.info, strat);
+		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		info = environment.addAgentInfo(agentType, parent.info, strat);
 
 		move(pos);
 
@@ -284,7 +287,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		setConstants(doCheat, agentData);
 		this.facing = facingDirection;
 
-		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentT, doCheat);
+		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		info = environment.addAgentInfo(agentT, doCheat);
 
 		move(pos);
 
@@ -309,7 +313,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		InitFacing();
 
 		params = agentData;
-		info = ((ComplexEnvironment) (pos.getEnvironment())).addAgentInfo(agentType, doCheat);
+		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		info = environment.addAgentInfo(agentType, doCheat);
 		this.agentType = agentType;
 
 		move(pos);
@@ -339,7 +344,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	void broadcastCheating(cobweb.Environment.Location loc) { // []SK
 		// String message = "Cheater encountered (" + loc.v[0] + " , " + loc.v[1] + ")";
 		String message = Long.toString(((ComplexAgent) loc.getAgent()).id);
-		new CommPacket(CommPacket.CHEATER, id, message, energy, params.broadcastEnergyBased, params.broadcastFixedRange);
+		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, id, message, energy
+				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
+		environment.commManager.addPacketToList(msg);
 		// new CommPacket sent
 		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
 	}
@@ -352,7 +359,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 */
 	void broadcastFood(cobweb.Environment.Location loc) { // []SK
 		String message = loc.toString();
-		new CommPacket(CommPacket.FOOD, id, message, energy, params.broadcastEnergyBased, params.broadcastFixedRange);
+		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, id, message, energy
+				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
+		environment.commManager.addPacketToList(msg);
 		// new CommPacket sent
 		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
 	}
@@ -369,7 +378,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @return True if agent can eat this type of food.
 	 */
 	public boolean canEat(cobweb.Environment.Location destPos) {
-		return params.foodweb.canEatFood[ComplexEnvironment.getFoodType(destPos)];
+		return params.foodweb.canEatFood[environment.getFoodType(destPos)];
 	}
 
 	/**
@@ -418,15 +427,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 
-	int checkforBroadcasts() {
-		CommManager commManager = new CommManager();
-		CommPacket commPacket = null;
-		for (int i = 0; i < ComplexEnvironment.currentPackets.size(); i++) {
-			commPacket = ComplexEnvironment.currentPackets.get(i);
-			if (commManager.packetInRange(commPacket.getRadius(), getPosition(), getPosition()))
-				return i;
-		}
-		return -1;
+	BroadcastPacket checkforBroadcasts() {
+		return environment.commManager.findPacket(getPosition());
 	}
 
 	//@Override
@@ -504,7 +506,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// Eat first before we can produce waste, of course.
 		destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 		// Gain Energy according to the food type.
-		if (ComplexEnvironment.getFoodType(destPos) == agentType) {
+		if (environment.getFoodType(destPos) == agentType) {
 			energy += params.foodEnergy;
 			wasteCounterGain -= params.foodEnergy;
 			info.addFoodEnergy(params.foodEnergy);
@@ -629,6 +631,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return 0;
 	}
 
+	public Direction getFacing() {
+		return facing;
+	}
 
 	public int getMemoryBuffer() {
 		return memoryBuffer;
@@ -843,25 +848,25 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		if (pdCheater == PD_COOPERATE && adjacentAgent.pdCheater == PD_COOPERATE) {
 			/* REWARD */
-			energy += ComplexEnvironment.PD_PAYOFF_REWARD;
-			adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_REWARD;
+			energy += environment.PD_PAYOFF_REWARD;
+			adjacentAgent.energy += environment.PD_PAYOFF_REWARD;
 
 		} else if (pdCheater == PD_COOPERATE && adjacentAgent.pdCheater == PD_DEFECT) {
 			/* SUCKER */
-			energy += ComplexEnvironment.PD_PAYOFF_SUCKER;
-			adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_TEMPTATION;
+			energy += environment.PD_PAYOFF_SUCKER;
+			adjacentAgent.energy += environment.PD_PAYOFF_TEMPTATION;
 
 			iveBeenCheated(othersID);
 
 		} else if (pdCheater == PD_DEFECT && adjacentAgent.pdCheater == PD_COOPERATE) {
 			/* TEMPTATION */
-			energy += ComplexEnvironment.PD_PAYOFF_TEMPTATION;
-			adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_SUCKER;
+			energy += environment.PD_PAYOFF_TEMPTATION;
+			adjacentAgent.energy += environment.PD_PAYOFF_SUCKER;
 
 		} else if (pdCheater == PD_DEFECT && adjacentAgent.pdCheater == PD_DEFECT) {
 			/* PUNISHMENT */
-			energy += ComplexEnvironment.PD_PAYOFF_PUNISHMENT;
-			adjacentAgent.energy += ComplexEnvironment.PD_PAYOFF_PUNISHMENT; // $$$$$$
+			energy += environment.PD_PAYOFF_PUNISHMENT;
+			adjacentAgent.energy += environment.PD_PAYOFF_PUNISHMENT; // $$$$$$
 
 			iveBeenCheated(othersID);
 		}
@@ -880,19 +885,22 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 
 	void receiveBroadcast() {
-		CommPacket commPacket = null;
+		BroadcastPacket commPacket = null;
 
-		commPacket = ComplexEnvironment.currentPackets.get(checkforBroadcasts());
+		commPacket = checkforBroadcasts();
+		if (commPacket == null)
+			return;
+
 		// check if dispatcherId is in list
 		// TODO what does this do?
 		checkCredibility(commPacket.getDispatcherId());
 
 		int type = commPacket.getType();
 		switch (type) {
-			case CommPacket.FOOD:
+			case BroadcastPacket.FOOD:
 				receiveFoodBroadcast(commPacket);
 				break;
-			case CommPacket.CHEATER:
+			case BroadcastPacket.CHEATER:
 				receiveCheatingBroadcast(commPacket);
 				break;
 			default:
@@ -901,14 +909,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	void receiveCheatingBroadcast(CommPacket commPacket) {
+	void receiveCheatingBroadcast(BroadcastPacket commPacket) {
 		String message = commPacket.getContent();
 		long cheaterId = 0;
 		cheaterId = Long.parseLong(message);
 		photo_memory[photo_num] = cheaterId;
 	}
 
-	void receiveFoodBroadcast(CommPacket commPacket) {
+	void receiveFoodBroadcast(BroadcastPacket commPacket) {
 		String message = commPacket.getContent();
 		String[] xy = message.substring(1, message.length() - 1).split(",");
 		int x = Integer.parseInt(xy[0]);
@@ -1253,8 +1261,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			tryPoop();
 
 		/* Check if broadcasting is enabled */
-		if (params.broadcastMode & !ComplexEnvironment.currentPackets.isEmpty())
-			receiveBroadcast();// []SK
+		if (params.broadcastMode)
+			receiveBroadcast();
 	}
 
 	protected void beforeController() {
@@ -1307,7 +1315,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 				foo.setFlag(ComplexEnvironment.FLAG_STONE, false);
 				foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
-				ComplexEnvironment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
+				environment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
 				wasteAdded = true;
 				i = dirList.length + 100;
 				break;
@@ -1329,7 +1337,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 					/* Nuke a food pile */
 					foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 					foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
-					ComplexEnvironment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
+					environment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
 					wasteAdded = true;
 					i = dirList.length + 100;
 					break;
