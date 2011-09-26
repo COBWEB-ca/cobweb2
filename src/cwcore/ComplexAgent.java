@@ -1307,15 +1307,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		boolean wasteAdded = false;
 		/* Output a waste somewhere "close" (rad 1 from currentPosition) */
 		for (int i = 0; i < dirList.length; i++) {
-			cobweb.Environment.Location foo = getPosition().getAdjacent(dirList[i]);
-			if (foo == null)
+			cobweb.Environment.Location loc = getPosition().getAdjacent(dirList[i]);
+			if (loc == null)
 				continue;
-			if (foo.getAgent() == null && !foo.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !foo.testFlag(ComplexEnvironment.FLAG_WASTE) && !foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-				foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-				foo.setFlag(ComplexEnvironment.FLAG_STONE, false);
-				foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
-				environment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
+			if (loc.getAgent() == null && !loc.testFlag(ComplexEnvironment.FLAG_STONE)
+					&& !loc.testFlag(ComplexEnvironment.FLAG_WASTE) && !loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+				loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+				loc.setFlag(ComplexEnvironment.FLAG_STONE, false);
+				loc.setFlag(ComplexEnvironment.FLAG_WASTE, true);
+				environment.addWaste(currTick, loc.v[0], loc.v[1], params.wasteInit, params.wasteDecay);
 				wasteAdded = true;
 				i = dirList.length + 100;
 				break;
@@ -1328,16 +1328,16 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		 */
 		if (!wasteAdded) {
 			for (int i = 0; i < dirList.length; i++) {
-				cobweb.Environment.Location foo = getPosition().getAdjacent(dirList[i]);
-				if (foo == null)
+				cobweb.Environment.Location loc = getPosition().getAdjacent(dirList[i]);
+				if (loc == null)
 					continue;
 
-				if (foo.getAgent() == null && foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+				if (loc.getAgent() == null && loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
 					/* Hack: don't put a waste tile on top of an agent */
 					/* Nuke a food pile */
-					foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-					foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
-					environment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
+					loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					loc.setFlag(ComplexEnvironment.FLAG_WASTE, true);
+					environment.addWaste(currTick, loc.v[0], loc.v[1], params.wasteInit, params.wasteDecay);
 					wasteAdded = true;
 					i = dirList.length + 100;
 					break;
