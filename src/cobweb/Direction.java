@@ -35,7 +35,7 @@ public class Direction {
 	 * of this direction vector. The angle is in standard position.
 	 * @return An angle between -pi and pi.
 	 */
-	private final double angle() {
+	public final double angle() {
 		return Math.atan2(v[1], v[0]);
 	}
 
