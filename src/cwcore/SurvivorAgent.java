@@ -249,11 +249,19 @@ public class SurvivorAgent extends ComplexAgent {
 	 *************************************************************************************/
 
 	/**
+	 * Examine the surroundings and return a linked list of all the locations which the agent can see.
+	 */
+	//	protected final LinkedList<Environment.Location> lookAround() {
+	//
+	//	}
+
+
+	/**
 	 * Return true if the agent can see the given tile, false otherwise.
 	 * @param tile The tile being examined.
 	 * @return True if the agent can see the tile, false otherwise.
 	 */
-	private final boolean canSee(final Environment.Location tile) {
+	protected final boolean canSee(final Environment.Location tile) {
 		double facingAngle = this.facing.angle();
 		double targetAngle = this.position.angleTo(tile);
 
