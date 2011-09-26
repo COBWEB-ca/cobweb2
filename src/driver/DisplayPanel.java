@@ -264,8 +264,6 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 
-	private boolean donePainting = true;
-
 	public DisplayPanel(UIInterface ui) {
 		theUI = ui;
 		addComponentListener(this);

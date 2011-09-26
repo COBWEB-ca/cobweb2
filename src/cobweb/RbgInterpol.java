@@ -6,7 +6,7 @@ import java.awt.color.ColorSpace;
 @Deprecated
 public class RbgInterpol implements ColorLookup {
 
-	public static int rbgRange = 1 << 24 - 1;
+	public static int rbgRange = (1 << 24) - 1;
 
 	private static ColorSpace space = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 

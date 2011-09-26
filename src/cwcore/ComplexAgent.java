@@ -1207,7 +1207,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!target.equals(getPosition()))
 			closeness = 1 / target.distance(this.getPosition());
 
-		int o =(int)Math.round(closeness * (1 << this.params.communicationBits - 1));
+		int o =(int)Math.round(closeness * ((1 << this.params.communicationBits) - 1));
 
 		setCommInbox(o);
 	}
