@@ -43,8 +43,7 @@ import disease.DiseaseParams;
 public class SimulationConfig {
 	private static void removeIgnorableWSNodes(Element parent) {
 		Node nextNode = parent.getFirstChild();
-		for (Node child = parent.getFirstChild();
-		nextNode != null;) {
+		for (Node child = parent.getFirstChild(); nextNode != null;) {
 			child = nextNode;
 			nextNode = child.getNextSibling();
 			if (child.getNodeType() == Node.TEXT_NODE) {
@@ -269,7 +268,6 @@ public class SimulationConfig {
 				if (p.type >= envParams.getAgentTypes())
 					continue;
 				agentParams[p.type] = p;
-
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
 				p.loadConfig(node);

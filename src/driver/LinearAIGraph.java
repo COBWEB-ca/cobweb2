@@ -28,6 +28,8 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 	DefaultCategoryDataset catd = new DefaultCategoryDataset();
 	JFreeChart chart;
 
+	private Timer refreshTimer;
+
 	public LinearAIGraph() {
 		super("AI output distribution");
 
@@ -40,8 +42,8 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 
 		this.add(chartPan);
 		this.addWindowListener(this);
-		Timer t = new Timer(100, this);
-		t.start();
+		refreshTimer = new Timer(100, this);
+		this.pack();
 	}
 
 	public void windowActivated(WindowEvent e) {
@@ -53,7 +55,7 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 	}
 
 	public void windowClosing(WindowEvent e) {
-		// Nothing
+		refreshTimer.stop();
 	}
 
 	public void windowDeactivated(WindowEvent e) {
@@ -69,9 +71,12 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 	}
 
 	public void windowOpened(WindowEvent e) {
-		// Nothing
+		refreshTimer.start();
 	}
 
+	/**
+	 * Refresh timer function
+	 */
 	public void actionPerformed(ActionEvent arg0) {
 		double data[] = LinearWeightsController.getRunningOutputMean();
 		for (int i = 0; i < LinearWeightsController.OUTPUT_COUNT; i++) {

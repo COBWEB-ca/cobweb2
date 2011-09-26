@@ -32,4 +32,6 @@ public interface DrawingHandler {
 	 */
 	public abstract void newTileColors(int width, int height, Color[] tileColors);
 
+	public abstract void newDrop(Point2D position, Color color);
+
 }

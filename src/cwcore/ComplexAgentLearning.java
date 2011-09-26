@@ -424,7 +424,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			info.addAgentBump();
 
 		} // end of two agents meet
-		else if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_WASTE)) {
+		else if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
 
 			// Allow agents up to a distance of 5 to see this agent hit the
 			// waste

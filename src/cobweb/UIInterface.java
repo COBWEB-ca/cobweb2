@@ -31,6 +31,7 @@ package cobweb;
 import java.awt.Graphics;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.swing.JButton;
 import javax.swing.JTextField;
@@ -272,4 +273,6 @@ public interface UIInterface {
 	public abstract int getFood(int x, int y);
 
 	public abstract boolean hasStone(int x, int y);
+
+	public Collection<ViewerPlugin> getViewers();
 }
