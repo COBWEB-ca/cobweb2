@@ -95,6 +95,18 @@ public abstract class Environment {
 		}
 
 		/**
+		 * Return the angle in radians from this position to the given position.
+		 * The angle is between -pi and pi. Angle 0 starts in the east vector direction.
+		 * @param location The target location.
+		 * @return The angle to the target location in radians.
+		 */
+		public final double angleTo(Location location) {
+			double deltaX = (location.v[0] - this.v[0]);
+			double deltaY = (location.v[1] - this.v[1]);
+			return Math.atan2(deltaY, deltaX);
+		}
+
+		/**
 		 * @param dir The direction of the agent
 		 * @return True if axis wraps and the next location is off the map
 		 */
