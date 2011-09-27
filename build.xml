@@ -161,7 +161,7 @@
     	<exec executable="C:\Program Files (x86)\Git\bin\git.exe" outputproperty="gitCommitDate">
     		<arg value="log" />
     		<arg value="-1" />
-    		<arg value='--format="%ad"' />
+    		<arg value='--format="%cd"' />
 			<arg value="--date=short" />	
     	</exec>
 		<tstamp>
