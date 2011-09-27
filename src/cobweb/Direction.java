@@ -14,10 +14,6 @@ public class Direction {
 
 	public int[] v;
 
-	//	public static void main(String args[]) {
-	//		while()
-	//	}
-
 	/**
 	 * Return the string representation of this direction.
 	 * @return The string representation of this direction.
@@ -34,6 +30,8 @@ public class Direction {
 
 			builder.append(Integer.toString(this.v[i]));
 		}
+
+		builder.append(")");
 
 		return builder.toString();
 	}
