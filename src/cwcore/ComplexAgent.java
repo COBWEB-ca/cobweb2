@@ -484,7 +484,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_AGENT);
 
 			// If there's food there, return the food...
-			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+			if (destPos.getFoodSource() != null)
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_FOOD);
 
 			if (destPos.testFlag(ComplexEnvironment.FLAG_WASTE))
@@ -503,6 +503,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * 
 	 * @param destPos Location of food.
 	 */
+	@Deprecated
 	public void eat(cobweb.Environment.Location destPos) {
 		//agent can only eat once per turn
 		if(!this.hasEaten) {
@@ -511,6 +512,28 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 			// Gain Energy according to the food type.
 			if (ComplexEnvironment.getFoodType(destPos) == agentType) {
+				energy += params.foodEnergy;
+				wasteCounterGain -= params.foodEnergy;
+				info.addFoodEnergy(params.foodEnergy);
+			} else {
+				energy += params.otherFoodEnergy;
+				wasteCounterGain -= params.otherFoodEnergy;
+				info.addOthers(params.otherFoodEnergy);
+			}
+
+			//set eaten flag
+			this.hasEaten = true;
+		}
+	}
+
+	public void eat(Food food) {
+		//agent can only eat once per turn
+		if(!this.hasEaten) {
+			// TODO: CHECK if setting flag before determining type is ok
+			// Eat first before we can produce waste, of course.
+			//destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			// Gain Energy according to the food type.
+			if (food.getType() == agentType) {
 				energy += params.foodEnergy;
 				wasteCounterGain -= params.foodEnergy;
 				info.addFoodEnergy(params.foodEnergy);
@@ -695,7 +718,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (destPos.getAgent() != null)
 			return ComplexEnvironment.FLAG_STONE;
 		// If there's food there, return the food...
-		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+		if (destPos.getFoodSource() != null)
 			return ComplexEnvironment.FLAG_FOOD;
 		// waste check
 		if (destPos.testFlag(ComplexEnvironment.FLAG_WASTE))
@@ -1061,12 +1084,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			// Check for food...
 			cobweb.Environment.Location breedPos = null;
-			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+			if (destPos.getFoodSource() != null) {
 				if (params.broadcastMode & canBroadcast()) {
 					broadcastFood(destPos);
 				}
 				if (canEat(destPos)) {
-					eat(destPos);
+					eat(destPos.getFoodSource().getFood());
+					destPos.removeFoodSource();
 				}
 				if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 
@@ -1340,8 +1364,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			if (foo == null)
 				continue;
 			if (foo.getAgent() == null && !foo.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !foo.testFlag(ComplexEnvironment.FLAG_WASTE) && !foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-				foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					&& !foo.testFlag(ComplexEnvironment.FLAG_WASTE) && foo.getFoodSource() == null) {
 				foo.setFlag(ComplexEnvironment.FLAG_STONE, false);
 				foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
 				ComplexEnvironment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
@@ -1361,10 +1384,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				if (foo == null)
 					continue;
 
-				if (foo.getAgent() == null && foo.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+				if (foo.getAgent() == null && foo.getFoodSource() != null) {
 					/* Hack: don't put a waste tile on top of an agent */
 					/* Nuke a food pile */
-					foo.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					foo.removeFoodSource();
 					foo.setFlag(ComplexEnvironment.FLAG_WASTE, true);
 					ComplexEnvironment.addWaste(currTick, foo.v[0], foo.v[1], params.wasteInit, params.wasteDecay);
 					wasteAdded = true;

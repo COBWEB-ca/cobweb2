@@ -134,7 +134,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 			remember(new MemorableEvent(currTick, howHappyThisMakesMe, "food"));
 		}
 
-		super.eat(destPos);
+		super.eat(destPos.getFoodSource().getFood());
+		destPos.removeFoodSource();
 	}
 
 	@Override
@@ -167,7 +168,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		if (canStep(destPos)) {
 
 			// Check for food...
-			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+			if (destPos.getFoodSource() != null) {
 
 				// Queues the agent to broadcast about the food
 				queue(new SmartAction(this, "broadcast") {

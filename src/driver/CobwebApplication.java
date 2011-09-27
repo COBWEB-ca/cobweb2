@@ -1385,7 +1385,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	/**
 	 * @see UIInterface#clearAgents()
-	 * @see UIInterface#clearFood()
+	 * @see UIInterface#clearFoodSources()
 	 * @see UIInterface#clearStones()
 	 */
 	private void onMenuRemoveAll() {
@@ -1395,7 +1395,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ modified on Feb 29
 		if (uiPipe != null) {
 			uiPipe.clearAgents();
-			uiPipe.clearFood();
+			uiPipe.clearFoodSources();
 			uiPipe.clearStones();
 		}
 	}
@@ -1409,7 +1409,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		/* remove all food */
 		// $$$$$$ modified on Feb 29
 		if (uiPipe != null) {
-			uiPipe.clearFood();
+			uiPipe.clearFoodSources();
 		}
 		// mode = -2;
 		// uiPipe.removeComponents(mode);

@@ -232,7 +232,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		void setOn(int x, int y) {
-			theUI.addFood(x, y, mytype);
+			theUI.addFoodSource(x, y, mytype);
 		}
 
 		@Override

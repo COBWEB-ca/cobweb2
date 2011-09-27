@@ -26,6 +26,7 @@ import cobweb.Environment.EnvironmentStats;
 import cobweb.Environment.Location;
 import cwcore.AgentSpawner;
 import cwcore.ComplexAgent;
+import cwcore.ComplexEnvironment;
 import disease.DiseaseMutator;
 import driver.SimulationConfig;
 
@@ -341,8 +342,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	/**
 	 * @see ComplexEnvironment#addFood(int, int, int)
 	 */
-	public void addFood(int x, int y, int type) {
-		theEnvironment.addFood(x, y, type);
+	public void addFoodSource(int x, int y, int type) {
+		theEnvironment.addFoodSource(x, y, type);
 	}
 
 	/**
@@ -361,8 +362,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		theEnvironment.clearAgents();
 	}
 
-	public void clearFood() {
-		theEnvironment.clearFood();
+	public void clearFoodSources() {
+		theEnvironment.clearFoodSources();
 	}
 
 	public void clearStones() {
@@ -688,7 +689,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	public void removeFood(int x, int y) {
-		theEnvironment.removeFood(x, y);
+		theEnvironment.removeFoodSource(x, y);
 	}
 
 	public void removeStone(int x, int y) {
