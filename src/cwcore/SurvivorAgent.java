@@ -229,29 +229,20 @@ public class SurvivorAgent extends ComplexAgent {
 	protected LinkedList<FoodSource> lookForFood() {
 		LinkedList<FoodSource> food = new LinkedList<FoodSource>();
 
-		Environment.Location forwardTile = this.position, nextTile;
-		int sideDist;
-		Direction rightDir = this.facing.rotateRight();
-		Direction leftDir = this.facing.rotateLeft();
+		LinkedList<Environment.Location> visibleTiles = this.getVisibleSquares();
+		Environment.Location loc;
+		boolean hasFoodSource = false;
+		FoodSource source = null;
 
-		for(int forwardDist = 0; forwardDist * forwardDist <= this.MAX_SEE_SQUARE_DIST; forwardDist++) {
-			forwardTile = forwardTile.add(1, this.facing);
+		while(!visibleTiles.isEmpty()) {
+			loc = visibleTiles.remove();
 
-			sideDist = 0;
-			nextTile = forwardTile;
+			//check whether there is a food source at loc
 
-			while(this.canSee(nextTile)) {
-				//check for food at nextTile
-				//TODO check for food
+			if(hasFoodSource) {
+				//get the food source at that location
 
-
-				nextTile = forwardTile.add(sideDist, rightDir);
-				//check for food at symmetrical tile
-
-
-
-				//set the next Tile to be examined to be sideDist away
-				nextTile = forwardTile.add(++sideDist, leftDir);
+				food.add(source);
 			}
 		}
 
@@ -287,8 +278,6 @@ public class SurvivorAgent extends ComplexAgent {
 		//after looking around, do a random action
 		nextAction = this.getRandomAction();
 		this.doMove(nextAction);
-
-		//this is a change
 	}
 
 	/*************************************************************************************
@@ -306,13 +295,53 @@ public class SurvivorAgent extends ComplexAgent {
 
 		return Math.abs(targetAngle - facingAngle) <= this.MAX_SEE_ANGLE &&
 		this.position.distanceSquare(tile) <= this.MAX_SEE_SQUARE_DIST;
-	} 
+	}
+
+	/**
+	 * Return a linked list of all the squares that the agent can currently see.
+	 * @return A linked list of all the locations the agent can currently see.
+	 */
+	protected final LinkedList<Environment.Location> getVisibleSquares() {
+		LinkedList<Environment.Location> l = new LinkedList<Environment.Location>();
+
+		Environment.Location nextTile, forwardTile = this.position;
+		int sideDist;
+		Direction leftDir = this.facing.rotateLeft();
+		Direction rightDir = this.facing.rotateRight();
+
+		for(int forwardDist = 0; forwardDist * forwardDist < this.MAX_SEE_SQUARE_DIST; forwardDist++) {
+			forwardTile = forwardTile.add(1, this.facing);
+			sideDist = 0;
+			nextTile = forwardTile;
+
+			while(this.canSee(nextTile)) {
+				//add the tile on the left
+				l.add(nextTile);
+
+				//get symmetrical tile
+				nextTile = forwardTile.add(sideDist, rightDir);
+				//add symmetrical tile
+				l.add(nextTile);
+
+				//get the next tile to check
+				nextTile = forwardTile.add(++sideDist, leftDir);
+			}
+		}
+
+		return l;
+	}
 
 	/**
 	 * Move to the given location.
 	 * @param coords Coordinates of the location.
 	 */
 	protected void moveToLocation(Environment.Location coords) {
+		//get the closest square to the destination that i can see
+		//move to that square
+
+		//get a linked list of all the locations that you can see 
+
+
 		//TODO path-finding is not fully implemented
 
 		//simple path-finding algos here
@@ -323,7 +352,7 @@ public class SurvivorAgent extends ComplexAgent {
 		//go to the place which is in the "general" direction of the destination
 		//if none exists, go to a random spot
 
-		//gen. dir. = the resultant square will make the distance >=
+		//gen. dir. = the resultant square will make the distance <= to destination
 	}
 
 	/**
