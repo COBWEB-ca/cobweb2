@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import cobweb.Direction;
 import cobweb.Environment;
+import cobweb.Node;
 
 /**
  * Added functionality over ComplexAgent:
@@ -79,7 +80,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * TODO in the future, viable options are:
 	 * <ol>
 	 * <li> REMEMBER_CLOSEST (closest) </li>
-	 * <li> REMEMBER_NEWEST (most recently memorized) </li>
+	 * <li> REMEMBER_NEWEST (most recently memorised) </li>
 	 * <li> REMEMBER_HIGH_YIELD (location with highest-yield food) </li>
 	 * <li> REMEMBER_SMART (weighting of yield, competition for food, and distance) </li>
 	 * </ol>
@@ -192,7 +193,7 @@ public class SurvivorAgent extends ComplexAgent {
 				//TODO for now
 				FoodSource source = null;
 
-				//memorize the food source
+				//memorise the food source
 				this.rememberFoodSource(source);
 
 				//if it's adjacent
@@ -231,7 +232,9 @@ public class SurvivorAgent extends ComplexAgent {
 
 		LinkedList<Environment.Location> visibleTiles = this.getVisibleSquares();
 		Environment.Location loc;
+		//TODO for now
 		boolean hasFoodSource = false;
+		//TODO for now
 		FoodSource source = null;
 
 		while(!visibleTiles.isEmpty()) {
@@ -336,23 +339,86 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param coords Coordinates of the location.
 	 */
 	protected void moveToLocation(Environment.Location coords) {
-		//get the closest square to the destination that i can see
-		//move to that square
+		Action a;
 
-		//get a linked list of all the locations that you can see 
+		//get the tile that's the closest to the 
+
+		//can I see my destination
+
+		if(this.position.distanceSquare(coords) < this.MAX_SEE_SQUARE_DIST) {
+			if(this.canSee(coords)) {
 
 
-		//TODO path-finding is not fully implemented
+				//find path to coords
+			} else {
+				a = this.getTurnDirection(coords);
+			}
+		} else {
+			Environment.Location waypoint = this.getClosestPoint(coords);
 
-		//simple path-finding algos here
+			if(this.canSee(waypoint)) {
+				//find path to waypoint
+			} else {
+				a = this.getTurnDirection(waypoint);
+			}
+		}
 
-		//TODO maybe have different path-finding algos, which take different 
+		this.doMove(a);
+	}
 
-		//very human algo.
-		//go to the place which is in the "general" direction of the destination
-		//if none exists, go to a random spot
+	/**
+	 * Return the direction the agent should turn to see the given location.
+	 * Tell the agent to move forward if no action is necessary.
+	 * @param coords The location.
+	 * @return The action for the agent - turn right or left.
+	 */
+	protected Action getTurnDirection (Environment.Location coords) {
 
-		//gen. dir. = the resultant square will make the distance <= to destination
+		if(this.canSee(coords)) {
+			return Action.MOVE_FORWARD;
+		}
+
+		double angle = this.facing.angle() - this.position.angleTo(coords);
+
+
+
+		if(angle < Math.PI) {
+			return Action.TURN_RIGHT;
+		} else {
+			return Action.TURN_LEFT;
+		}
+	}
+
+	private Environment.Location getClosestPoint(Environment.Location destination) {
+		//get a t s.t. |b - a|^2 * t^2 <= MAX_SEE_DIST_SQ
+
+		//the distance squared from here to dest |b-a|^2
+		int distSqToDest = this.position.distanceSquare(destination);
+
+		//t
+		int t = (int) Math.floor(Math.sqrt(((double) distSqToDest) / this.MAX_SEE_SQUARE_DIST));
+
+		int x = this.position.v[0] + t * (destination.v[0] - this.position.v[0]);
+		int y = this.position.v[1] + t * (destination.v[1] - this.position.v[1]);
+
+		return this.environment.getLocation(x, y);
+	}
+
+	private void tracePath() {
+		LinkedList<Environment.Location> visibleTiles = this.getVisibleSquares();
+		Environment.Location loc;
+
+		LinkedList<Node> unvisited = new LinkedList<Node>();
+		Node current = new Node(0, this.position);
+		current.visited = true;
+
+		while(!visibleTiles.isEmpty()) {
+			loc = visibleTiles.remove();
+			unvisited.add(new Node(this.MAX_SEE_SQUARE_DIST + 1, loc));
+		}
+
+		//		nodes.add(new Node(0, this.position));
+
 	}
 
 	/**
