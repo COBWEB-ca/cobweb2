@@ -3,6 +3,7 @@ package cwcore;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import cobweb.Direction;
 import cobweb.Environment;
 
 /**
@@ -222,39 +223,77 @@ public class SurvivorAgent extends ComplexAgent {
 	}
 
 	/**
+	 * Look around for food. Return a linked list of all food sources found.
+	 * @return Linked list of all food sources found.
+	 */
+	protected LinkedList<FoodSource> lookForFood() {
+		LinkedList<FoodSource> food = new LinkedList<FoodSource>();
+
+		Environment.Location forwardTile = this.position, nextTile;
+		int sideDist;
+		Direction rightDir = this.facing.rotateRight();
+		Direction leftDir = this.facing.rotateLeft();
+
+		for(int forwardDist = 0; forwardDist * forwardDist <= this.MAX_SEE_SQUARE_DIST; forwardDist++) {
+			forwardTile = forwardTile.add(1, this.facing);
+
+			sideDist = 0;
+			nextTile = forwardTile;
+
+			while(this.canSee(nextTile)) {
+				//check for food at nextTile
+				//TODO check for food
+
+
+				nextTile = forwardTile.add(sideDist, rightDir);
+				//check for food at symmetrical tile
+
+
+
+				//set the next Tile to be examined to be sideDist away
+				nextTile = forwardTile.add(++sideDist, leftDir);
+			}
+		}
+
+		return food;
+	}
+
+	/**
+	 * Remember all the food sources that the agent has seen.
+	 * @param seenFood The food sources that have been seen by the agent this turn.
+	 * @return True if some new food sources were remembered, false otherwise.
+	 */
+	protected boolean rememberNewFood (LinkedList<FoodSource> seenFood) {
+		boolean added = false;
+
+		while(!seenFood.isEmpty()) {
+			added = added && this.rememberFoodSource(seenFood.removeFirst());
+		}
+
+		return added;
+	}
+
+	/**
 	 * Wander aimlessly. Memorise food sources.
 	 */
 	protected void explore() {
-		boolean seeFoodSource;
+		//true if new food source spotted, false otherwise
+		boolean seeNewFoodSource;
 		Action nextAction;
 
+		LinkedList<FoodSource> seenFood = this.lookForFood();
+		seeNewFoodSource = this.rememberNewFood(seenFood);
 
-		//Look for unfamiliar food source
-		//TODO for now
-		seeFoodSource = false;
-
-		if(seeFoodSource) {
-			//get direction to food source
-			//TODO for now
-			nextAction = Action.MOVE_FORWARD;
-		} else {
-			nextAction = this.getRandomAction();
-		}		
-
+		//after looking around, do a random action
+		nextAction = this.getRandomAction();
 		this.doMove(nextAction);
+
+		//this is a change
 	}
 
 	/*************************************************************************************
 	 * ****************************** FUNCTIONS ******************************************
 	 *************************************************************************************/
-
-	/**
-	 * Examine the surroundings and return a linked list of all the locations which the agent can see.
-	 */
-	//	protected final LinkedList<Environment.Location> lookAround() {
-	//
-	//	}
-
 
 	/**
 	 * Return true if the agent can see the given tile, false otherwise.
