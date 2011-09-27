@@ -14,6 +14,30 @@ public class Direction {
 
 	public int[] v;
 
+	//	public static void main(String args[]) {
+	//		while()
+	//	}
+
+	/**
+	 * Return the string representation of this direction.
+	 * @return The string representation of this direction.
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("(");
+
+		for(int i = 0; i < v.length; i++) {
+			if(i > 0) {
+				builder.append(", ");
+			}
+
+			builder.append(Integer.toString(this.v[i]));
+		}
+
+		return builder.toString();
+	}
+
 	/**
 	 * Return a random cardinal direction.
 	 * @return A random cardinal direction.
