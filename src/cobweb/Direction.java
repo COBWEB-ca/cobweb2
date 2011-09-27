@@ -14,6 +14,20 @@ public class Direction {
 
 	public int[] v;
 
+	/**
+	 * Return a random cardinal direction.
+	 * @return A random cardinal direction.
+	 */
+	public static Direction getRandom() {
+		//we get 0, 1/2, 1, 1.5
+		double random = Math.floor(Math.random() * 4) / 2;
+
+		int x = (int) Math.cos(Math.PI * random);
+		int y = (int) Math.sin(Math.PI * random);
+
+		return new Direction(x, y);
+	}
+
 	public Direction(Direction dir) {
 		v = dir.v.clone();
 	}
