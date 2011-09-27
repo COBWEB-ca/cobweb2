@@ -1092,12 +1092,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			int y = destPos.v[1];
 			Drop d = environment.dropArray[x][y];
 
-			if (!d.canStep()) {
-				energy -= params.wastePen;
-				wasteCounterLoss -= params.wastePen;
-				info.useRockBumpEnergy(params.wastePen);
-				info.addRockBump();
-			} else if (d instanceof Product) {
+			if (d.canStep() && d instanceof Product) {
 				Product p = (Product) d;
 				if (p.owner != this && globals.random.nextFloat() <= 0.5f) {
 					environment.prodMapper.remProduct(p, 
