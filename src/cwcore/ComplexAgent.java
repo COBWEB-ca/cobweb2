@@ -1142,7 +1142,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 
 		for (StepMutator m : stepMutators)
-			m.onStep(this, getPosition(), destPos);
+			m.onStep(this, destPos, getPosition());
 
 		move(destPos);
 
