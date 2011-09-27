@@ -60,19 +60,26 @@ public class LinearWeightsController implements cobweb.Controller {
 		SeeInfo get = agent.distanceLook();
 		int type = get.getType();
 		int dist = get.getDist();
+
+		/* careful with this block, eclipse likes to screw up the tabs!
+		 * if it breaks upon saving, undo and save again, this should save it without breaking
+		 */
 		double variables[] = {
-				1.0,
-				((double) agent.getEnergy() / (ENERGY_THRESHOLD)),
-				type == ComplexEnvironment.FLAG_AGENT ? 
-						(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0,
-						type == ComplexEnvironment.FLAG_FOOD ? 
-								(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0,
-								type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_WASTE ? 
-										(ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0,
-										agent.getIntFacing() / 2, (double) agent.getMemoryBuffer() / (1 << memSize - 1),
-										(double) agent.getCommInbox() / (1 << commSize - 1), Math.max(agent.getAge() / 100.0, 2),
-										globals.random.nextGaussian() 
+				1.0, // v[0] 
+				((double) agent.getEnergy() / (ENERGY_THRESHOLD)), // v[1]
+				type == ComplexEnvironment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0, // v[2]
+				type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0, // v[3]
+				type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_DROP ? (ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0, // v[4]
+				agent.getIntFacing() / 2, // v[5] 
+				(double) agent.getMemoryBuffer() / ((1 << memSize) - 1), // v[6]
+				(double) agent.getCommInbox() / ((1 << commSize) - 1), // v[7]
+				Math.max(agent.getAge() / 100.0, 2), // v[8]
+				globals.random.nextGaussian() // v[9]
 		};
+		if (memSize == 0)
+			variables[6] = 0;
+		if (commSize == 0)
+			variables[7] = 0;
 
 		double memout = 0.0;
 		double commout = 0.0;

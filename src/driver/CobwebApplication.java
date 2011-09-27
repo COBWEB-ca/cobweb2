@@ -48,6 +48,8 @@ import cobweb.LocalUIInterface.TickEventListener;
 import cobweb.UIInterface;
 import cobweb.UIInterface.MouseMode;
 import cobweb.UIInterface.UIClient;
+import cobweb.ViewerClosedCallback;
+import cobweb.ViewerPlugin;
 import driver.config.GUI;
 
 /**
@@ -141,8 +143,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private Logger myLogger = Logger.getLogger("COBWEB2");
 
-	private JFrame aiGraph;
-
 	private JPanel mainPanel;
 	private JLabel tickDisplay;
 
@@ -172,6 +172,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		JMenuBar myMenuBar = makeMenuBar();
 
 		setJMenuBar(myMenuBar);
+
+		setLocationRelativeTo(null);
+
 		setVisible(true);
 	}
 
@@ -640,24 +643,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// helpMenu.add(new JSeparator()); // $$$$$$ silenced on Mar 28
 		helpMenu.add(creditsMenu);
 
-		JMenu viewMenu = new JMenu("View");
-		JCheckBoxMenuItem viewLinearAI = new JCheckBoxMenuItem("AI Weight Stats", false);
-
-		viewLinearAI.addItemListener(new ItemListener() {
-
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					aiGraph = new LinearAIGraph();
-					aiGraph.pack();
-					aiGraph.setVisible(true);
-				} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-					aiGraph.setVisible(false);
-					aiGraph.setEnabled(false);
-					aiGraph = null;
-				}
-			}
-		});
-		viewMenu.add(viewLinearAI);
+		viewMenu = new JMenu("View");
 
 		// Assemble the menus into a menu bar
 		JMenuBar myMenuBar = new JMenuBar();
@@ -751,8 +737,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 		UIsettings();
 
 		displayPanel.setUI(uiPipe);
-
-		makeAgentFoodSelectMenu();
 
 		File f = new File(conf.getFilename());
 		setTitle(WINDOW_TITLE + "  - " + f.getName());
@@ -1079,6 +1063,66 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	public void UIsettings() {
 
+		createDefaultUI();
+
+		makeAgentFoodSelectMenu();
+
+		makeViewMenu();
+
+		tickField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusGained(FocusEvent e) {
+				tickField.repaint();
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				tickField.repaint();
+			}
+		});
+
+		uiPipe.setTimeStopField(tickField);
+
+		uiPipe.AddTickEventListener(new TickEventListener() {
+			public void TickPerformed(long currentTick) {
+
+				tickDisplay.setText("Tick: " + NumberFormat.getIntegerInstance().format(currentTick));
+			}
+		});
+
+		uiPipe.setPauseButton(pauseButton); // $$$$$$ Mar 20
+
+		validate();
+		uiPipe.start();
+	} // end of UISettings
+
+	private void makeViewMenu() {
+		viewMenu.removeAll();
+		for (final ViewerPlugin viewer : uiPipe.getViewers()) {
+			final JCheckBoxMenuItem box = new JCheckBoxMenuItem(viewer.getName(), false);
+
+			box.addItemListener(new ItemListener() {
+
+				public void itemStateChanged(ItemEvent e) {
+					if (e.getStateChange() == ItemEvent.SELECTED) {
+						viewer.on();
+					} else if (e.getStateChange() == ItemEvent.DESELECTED) {
+						viewer.off();
+					}
+				}
+			});
+			ViewerClosedCallback onClosed = new ViewerClosedCallback() {
+				@Override
+				public void viewerClosed() {
+					box.setSelected(false);
+				}
+			};
+			viewer.setClosedCallback(onClosed);
+			viewMenu.add(box);
+		}
+	}
+
+	protected void createDefaultUI() {
 		if (mainPanel == null) {
 			mainPanel = new JPanel();
 			mainPanel.setLayout(new BorderLayout());
@@ -1121,35 +1165,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		} else {
 			pauseButton.setUI(uiPipe);
 		}
-
-		makeAgentFoodSelectMenu();
-
-		tickField.addFocusListener(new FocusAdapter() {
-			@Override
-			public void focusGained(FocusEvent e) {
-				tickField.repaint();
-			}
-
-			@Override
-			public void focusLost(FocusEvent e) {
-				tickField.repaint();
-			}
-		});
-
-		uiPipe.setTimeStopField(tickField);
-
-		uiPipe.AddTickEventListener(new TickEventListener() {
-			public void TickPerformed(long currentTick) {
-
-				tickDisplay.setText("Tick: " + NumberFormat.getIntegerInstance().format(currentTick));
-			}
-		});
-
-		uiPipe.setPauseButton(pauseButton); // $$$$$$ Mar 20
-
-		validate();
-		uiPipe.start();
-	} // end of UISettings
+	}
 
 
 	private void makeAgentFoodSelectMenu() {
@@ -1203,6 +1219,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	private UIInterface uiPipe;
+
+	private JMenu viewMenu;
 
 	/**
 	 * Connects a user interface (simulation) to the graphical interface of the 

@@ -4,12 +4,16 @@ import ga.GeneticsMutator;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -26,7 +30,10 @@ import cobweb.Environment.EnvironmentStats;
 import cobweb.Environment.Location;
 import cwcore.AgentSpawner;
 import cwcore.ComplexAgent;
+import cwcore.ComplexEnvironment;
+import cwcore.LinearWeightsController;
 import disease.DiseaseMutator;
+import driver.LinearAIGraph;
 import driver.SimulationConfig;
 
 /**
@@ -37,6 +44,44 @@ import driver.SimulationConfig;
  *
  */
 public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
+
+	private final class LinearAIViewer implements ViewerPlugin {
+
+		private LinearAIGraph aiGraph;
+		private ViewerClosedCallback onClosed;
+
+		@Override
+		public void on() {
+			aiGraph = new LinearAIGraph();
+			aiGraph.setVisible(true);
+			aiGraph.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					onClosed.viewerClosed();
+				}
+			});
+		}
+
+		@Override
+		public void off() {
+			if (aiGraph == null)
+				return;
+			aiGraph.setVisible(false);
+			aiGraph.setEnabled(false);
+			aiGraph = null;
+		}
+
+		@Override
+		public String getName() {
+			return "AI Weight Stats";
+		}
+
+		@Override
+		public void setClosedCallback(ViewerClosedCallback onClosed) {
+			this.onClosed = onClosed;
+
+		}
+	}
 
 	/**
 	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo
@@ -144,6 +189,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 		List<PathDrawInfo> paths;
 
+		public List<DropDrawInfo> drops = new LinkedList<DropDrawInfo>();
+
 		private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 		/**
@@ -170,13 +217,25 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 				}
 			}
 
+			int half =(int)( tileWidth / 2.0f + 0.5f); 
+
+			for (DropDrawInfo drop : drops) {
+				int x = drop.pos.x;
+				int y = drop.pos.y;
+				g.setColor(drop.col);
+				g.fillRect(x * tileWidth + 0, y * tileHeight + 0, half, half);
+				g.fillRect(x * tileWidth + half, y * tileHeight + half, half, half);
+			}
+
 			// Grid lines
 			g.setColor(COLOR_GRIDLINES);
+			int totalWidth = tileWidth * width;
 			for (int y = 0; y <= height; y++) {
-				g.drawLine(0, y * tileHeight, tileWidth * width, y * tileHeight);
+				g.drawLine(0, y * tileHeight, totalWidth, y * tileHeight);
 			}
+			int totalHeight = tileHeight * height;
 			for (int x = 0; x <= width; x++) {
-				g.drawLine(x * tileWidth, 0, x * tileWidth, tileHeight * height);
+				g.drawLine(x * tileWidth, 0, x * tileWidth, totalHeight);
 			}
 
 			// Agents
@@ -200,6 +259,17 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 					g.drawLine(x - 1, y * tileHeight, x, (y + 1) * tileHeight);
 				}
 			}
+		}
+
+	}
+
+	private static class DropDrawInfo {
+		public Point2D pos;
+		public Color col;
+
+		public DropDrawInfo(Point2D pos, Color col) {
+			this.pos = pos;
+			this.col = col;
 		}
 
 	}
@@ -316,6 +386,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	private Writer logWriter;
 
 	Logger myLogger = Logger.getLogger("COBWEB2");
+
+	private SimulationConfig simulationConfig;
 
 	/**
 	 * Construct a LocalUIInterface from a specified state file URL.
@@ -564,6 +636,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * LocalUIInterface constructor.
 	 */
 	public void load(SimulationConfig p) {
+		this.simulationConfig = p;
 		InitScheduler(p.getEnvParams().schedulerName, p);
 		AgentSpawner.SetType(p.getEnvParams().agentName);
 
@@ -605,10 +678,22 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 		theScheduler.setSleep(delay);
 
+		setupViewers();
+
 		theScheduler.startScheduler();
 		tickNotification(0);
 
 		theClient.fileOpened(p);
+	}
+
+	private void setupViewers() {
+		for (ViewerPlugin viewer : viewers) {
+			viewer.off();
+		}
+		viewers.clear();
+		if (simulationConfig.getEnvParams().controllerName.equals(LinearWeightsController.class.getName())) {
+			viewers.add(new LinearAIViewer());
+		}
 	}
 
 	/**
@@ -642,6 +727,11 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	public void newTileColors(int width, int height, java.awt.Color[] tileColors) {
 		newDrawingInfo = new DrawInfo(width, height, tileColors);
 
+	}
+
+	@Override
+	public void newDrop(Point2D position, Color color) {
+		newDrawingInfo.drops .add(new DropDrawInfo(position, color));
 	}
 
 	public void observe(int x, int y) {
@@ -868,5 +958,13 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	@Override
 	public boolean hasStone(int x, int y) {
 		return theEnvironment.hasStone(x, y);
+	}
+
+
+	private Set<ViewerPlugin> viewers = new HashSet<ViewerPlugin>();
+
+	@Override
+	public Collection<ViewerPlugin> getViewers() {
+		return viewers;
 	}
 }

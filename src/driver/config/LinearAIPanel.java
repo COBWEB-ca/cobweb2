@@ -3,10 +3,16 @@
  */
 package driver.config;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Random;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -18,8 +24,8 @@ import javax.swing.table.DefaultTableModel;
 import cwcore.LinearWeightsController;
 import cwcore.LinearWeightsControllerParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
-import driver.SimulationConfig;
 import driver.SettingsPanel;
+import driver.SimulationConfig;
 
 /**
  * @author Igor
@@ -43,6 +49,25 @@ public class LinearAIPanel extends SettingsPanel {
 
 	private JScrollPane scrollpane;
 
+	private DoubleMatrixModel matrixModel;
+
+	private final class RandomButtonListener implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Random r = new Random();
+			for (int i = 0; i < matrixModel.data.length; i++) {
+				for (int j = 0; j < matrixModel.data[i].length; j++) {
+					matrixModel.data[i][j] = (double)Math.round(r.nextGaussian() * 1000) / 1000;
+				}
+			}
+			matrixModel.reloadData();
+		}
+	}
+
+
+
+
 	private class DoubleMatrixModel extends DefaultTableModel {
 
 		/**
@@ -59,6 +84,10 @@ public class LinearAIPanel extends SettingsPanel {
 			setColumnCount(outputNames.length);
 			setColumnIdentifiers(outputNames);
 			setRowCount(inputNames.length );
+			reloadData();
+		}
+
+		protected void reloadData() {
 			for (int i = 0; i < data.length; i++) {
 				for (int j = 0; j < data[i].length; j++) {
 					this.setValueAt(new Double(data[i][j]), i, j);
@@ -97,13 +126,25 @@ public class LinearAIPanel extends SettingsPanel {
 
 		removeAll();
 
-		matrix = new JTable(new DoubleMatrixModel(LinearWeightsController.inputNames, LinearWeightsController.outputNames, params.data));
+		matrixModel = new DoubleMatrixModel(LinearWeightsController.inputNames, LinearWeightsController.outputNames, params.data);
+		matrix = new JTable(matrixModel);
 
 		scrollpane = new JScrollPane(matrix);
 
+		JPanel panel = new JPanel();
+		BorderLayout bl = new BorderLayout();
+		panel.setLayout(bl);
+		panel.add(scrollpane, BorderLayout.CENTER);
+
+		JPanel randomPanel = new JPanel();
+		JButton randomButton = new JButton("Randomize");
+		randomButton.addActionListener(new RandomButtonListener());
+		randomPanel.add(randomButton);
+		panel.add(randomPanel, BorderLayout.SOUTH);
+
 		prettyTable();
 
-		this.add(scrollpane);
+		this.add(panel);
 	}
 
 
