@@ -99,13 +99,9 @@ public abstract class Environment {
 		 * @return A linked list of all adjacent tiles to this location.
 		 */
 		public final LinkedList<Location> getAdjacentTiles() {
-			//get the cardinal directions.
-
 			double angle;
 			int x, y;
 			Direction vector;
-			Location tile;
-
 			LinkedList<Location> tiles = new LinkedList<Location>();
 
 			for(int i = 0; i < 4; i++) {
@@ -113,9 +109,7 @@ public abstract class Environment {
 				x = (int) Math.floor(Math.cos(angle));
 				y = (int) Math.floor(Math.sin(angle));
 				vector = new Direction(x, y);
-
-				tile = this.add(1, vector);
-				tiles.add(tile);
+				tiles.add(this.add(1, vector));
 			}
 
 			return tiles;
