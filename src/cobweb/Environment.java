@@ -95,6 +95,33 @@ public abstract class Environment {
 		}
 
 		/**
+		 * Return a linked list of all the adjacent tiles to this tile.
+		 * @return A linked list of all adjacent tiles to this location.
+		 */
+		public final LinkedList<Location> getAdjacentTiles() {
+			//get the cardinal directions.
+
+			double angle;
+			int x, y;
+			Direction vector;
+			Location tile;
+
+			LinkedList<Location> tiles = new LinkedList<Location>();
+
+			for(int i = 0; i < 4; i++) {
+				angle = Math.PI * (1 / 2);
+				x = (int) Math.floor(Math.cos(angle));
+				y = (int) Math.floor(Math.sin(angle));
+				vector = new Direction(x, y);
+
+				tile = this.add(1, vector);
+				tiles.add(tile);
+			}
+
+			return tiles;
+		}
+
+		/**
 		 * Return the angle in radians from this position to the given position.
 		 * The angle is between -pi and pi. Angle 0 starts in the east vector direction.
 		 * @param location The target location.
@@ -256,20 +283,13 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Is the location adjacent in a true distance measure sense (diagonal
-		 * is adjacent)? Different from city block distance, as a city block
-		 * distance of 2 Can be 2 steps on the same axis (not adjacent), or 1
-		 * step on 2 axes (adjacent)
+		 * Return true whether the given location is immediately adjacent to this location.
+		 * Adjacency means next to IN THE CARDINAL DIRECTIONS.
+		 * @param l The location being tested for adjacency.
+		 * @return True if the given location is adjacent, false otherwise.
 		 */
 		public boolean isAdjacent(Location l) {
-			int distSquare = distanceSquare(l);
-			// Equivalent locations are NOT adjacent!
-			if (distSquare == 0)
-				return false;
-			// Must be within a distance of sqrt(1 * dimensionality)
-			if (distSquare > v.length)
-				return false;
-			return true;
+			return this.distanceSquare(l) == 1;
 		}
 
 		/**
