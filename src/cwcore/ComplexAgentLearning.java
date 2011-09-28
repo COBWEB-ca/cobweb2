@@ -578,8 +578,9 @@ public class ComplexAgentLearning extends ComplexAgent {
 						}
 					}
 
-					if (desc != null) {
-						remember(new MemorableEvent(currTick, oc.event.getMagnitude(), desc){
+					// TODO: why are some events null?
+					if (desc != null && oc.hasOccurred() && oc.getEvent() != null) {
+						remember(new MemorableEvent(currTick, oc.getEvent().getMagnitude(), desc){
 							//This information applies to only the present step the agent is about to take;
 							//it will be irrelevant in the future (because new occurrences will be present)
 							@Override
