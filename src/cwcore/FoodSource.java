@@ -129,6 +129,14 @@ public class FoodSource {
 	}
 
 	/**
+	 * @param type Food source type
+	 * @author RickyD
+	 */
+	public void setType (int type) {
+		this.type = type;
+	}
+
+	/**
 	 * Compare two food sources. Return true if they are the same food sources, false otherwise.
 	 * @param other Another (or the same) food source.
 	 * @return True if they are the same food source, false otherwise.
@@ -137,6 +145,4 @@ public class FoodSource {
 		//assume that only one food source can occupy the same set of coordinates
 		return this.getLocation() == other.getLocation();
 	}
-
-
 }

@@ -490,7 +490,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_AGENT);
 
 			// If there's food there, return the food...
-			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+			if (destPos.getFoodSource() != null)
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_FOOD);
 
 			if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
@@ -509,6 +509,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * 
 	 * @param destPos Location of food.
 	 */
+	@Deprecated
 	public void eat(cobweb.Environment.Location destPos) {
 		//agent can only eat once per turn
 		if(!this.hasEaten) {
@@ -517,6 +518,28 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 			// Gain Energy according to the food type.
 			if (environment.getFoodType(destPos) == agentType) {
+				energy += params.foodEnergy;
+				wasteCounterGain -= params.foodEnergy;
+				info.addFoodEnergy(params.foodEnergy);
+			} else {
+				energy += params.otherFoodEnergy;
+				wasteCounterGain -= params.otherFoodEnergy;
+				info.addOthers(params.otherFoodEnergy);
+			}
+
+			//set eaten flag
+			this.hasEaten = true;
+		}
+	}
+
+	public void eat(Food food) {
+		//agent can only eat once per turn
+		if(!this.hasEaten) {
+			// TODO: CHECK if setting flag before determining type is ok
+			// Eat first before we can produce waste, of course.
+			//destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			// Gain Energy according to the food type.
+			if (food.getType() == agentType) {
 				energy += params.foodEnergy;
 				wasteCounterGain -= params.foodEnergy;
 				info.addFoodEnergy(params.foodEnergy);
@@ -704,7 +727,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (destPos.getAgent() != null)
 			return ComplexEnvironment.FLAG_STONE;
 		// If there's food there, return the food...
-		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+		if (destPos.getFoodSource() != null)
 			return ComplexEnvironment.FLAG_FOOD;
 		// waste check
 		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))

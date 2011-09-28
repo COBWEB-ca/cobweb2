@@ -88,7 +88,7 @@ public interface UIInterface {
 	 * @param y Y coordinate.
 	 * @param type Agent type.
 	 */
-	public void addFood(int x, int y, int type);
+	public void addFoodSource(int x, int y, int type);
 
 	/**
 	 * Add a stone at location (x, y)
@@ -102,7 +102,7 @@ public interface UIInterface {
 
 	public void clearAgents();
 
-	public void clearFood();
+	public void clearFoodSources();
 
 	public void clearStones();
 
