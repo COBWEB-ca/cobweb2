@@ -423,7 +423,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			throw new IllegalArgumentException("stone here already");
 		}
 		l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-		FoodSource f = new FoodSource (1, type, l);
+		FoodSource f = new FoodSource (1, type, l, 0, 0);
 		//setFoodType(l, type);
 		foodSourceTable.put(l, f);
 
@@ -836,7 +836,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			for (int x = 0; x < getSize(AXIS_X); ++x) {
 				if (foodarray[x][y] > 0) {
 					Location l = getUserDefinedLocation(x,y);
-					foodSourceTable.put(l, new FoodSource(1, foodarray[x][y], l));
+					foodSourceTable.put(l, new FoodSource(1, foodarray[x][y], l, 1, 1));
 				}
 			}
 		}
