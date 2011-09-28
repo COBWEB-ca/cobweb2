@@ -625,7 +625,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		queue(new SmartAction(this, "turnLeft") {
 			@Override
 			public void desiredAction(ComplexAgentLearning agent) {
-				agent.realTurnLeft();;
+				ComplexAgentLearning.super.turnLeft();
 			}
 
 			@Override
@@ -647,17 +647,24 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	}
 
-	private void realTurnLeft() {
-		super.turnLeft();
+	@Override
+	protected void control() {
+		observeOccurrences();
+
+		/* Queue all actions */
+		controller.controlAgent(this);
+
+		performQueuedActions();
 	}
 
 	@Override
 	public void turnRight() {
 		//Impulse to turn right; may or may not do so based on its memories
+		// Queue an action instead of executing it directly
 		queue(new SmartAction(this, "turnRight") {
 			@Override
 			public void desiredAction(ComplexAgentLearning agent) {
-				agent.realTurnRight();
+				ComplexAgentLearning.super.turnRight();
 			}
 
 			@Override
@@ -677,13 +684,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		});
 	}
 
-	private void realTurnRight() {
-		super.turnRight();
-	}
-
-
-	@Override
-	protected void afterController() {
+	protected void performQueuedActions() {
 		/*
 		 * Perform all queued actions
 		 */
@@ -712,11 +713,5 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 		purgeMemory();
 
-	}
-
-	@Override
-	protected void beforeController() {
-		super.beforeController();
-		observeOccurrences();
 	}
 }

@@ -155,14 +155,18 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		simCalc = calc;
 	}
 
+	/**
+	 * The agent's type.
+	 */
 	protected int agentType = 0;
-
 
 	public ComplexAgentParams params;
 
-	/* energy gauge */
+	/**
+	 * Energy gauge 
+	 */
 	protected int energy;
-	/* Prisoner's Dilemma */
+	/** Prisoner's Dilemma */
 	private int agentPDStrategy; // tit-for-tat or probability
 	int pdCheater; // The agent's action; 1 == cheater, else
 	// cooperator
@@ -260,6 +264,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		copyConstants(parent1);
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, parent1.info, parent2.info, strat);
 
 		move(pos);
@@ -285,6 +290,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		copyConstants(parent);
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, parent.info, strat);
 
 		move(pos);
@@ -302,6 +308,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		this.facing = facingDirection;
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentT, doCheat);
 
 		move(pos);
@@ -328,6 +335,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		params = agentData;
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, doCheat);
 		this.agentType = agentType;
 
@@ -1249,6 +1257,53 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**
+	 * Auto-update turn-related parameters. Kill the agent if necessary.
+	 * @param tick The time in the simulation
+	 */
+	private final void updateAgent(long tick) {
+		//update current tick
+		currTick = tick;
+
+		//age the agent
+		age++;
+
+		/* Time to die, Agent (mister) Bond */
+		if (params.agingMode) {
+			if ((currTick - birthTick) >= params.agingLimit) {
+				die();
+				return;
+			}
+		}
+
+		/* Check if broadcasting is enabled */
+		if (params.broadcastMode)
+			receiveBroadcast();
+	}
+
+	/**
+	 * Perform this method after control method.
+	 * Make the agent produce waste and send all queued broadcast messages.
+	 */
+	private final void endUpdateAgent() {
+		/* Produce waste if able */
+		if (params.wasteMode && shouldPoop())
+			tryPoop();
+
+		if (params.productionMode) {
+			tryProduction();
+		}
+	}
+
+	/**
+	 * Move, eat, reproduce, etc.
+	 * This method is meant to control the agent.
+	 * Override this method in subclasses.
+	 */
+	protected void control() {
+		controller.controlAgent(this);
+	}
+
+	/**
 	 * Controls what happens to the agent on this tick.  If the 
 	 * agent is still alive, what happens to the agent is determined 
 	 * by the controller.
@@ -1260,50 +1315,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!isAlive())
 			return;
 
-		/* The current tick */
-		currTick = tick;
+		//all actions to be taken before controller
+		this.updateAgent(tick);
 
-		/* Hack to find the birth tick... */
-		if (birthTick == 0)
-			birthTick = currTick;
+		this.control();
 
-		age++;
-
-		/* Time to die, Agent (mister) Bond */
-		if (params.agingMode) {
-			if ((currTick - birthTick) >= params.agingLimit) {
-				die();
-				return;
-			}
-		}
-
-		beforeController();
-
-		/* Move/eat/reproduce/etc */
-		controller.controlAgent(this);
-
-		afterController();
-
-		/* Produce waste if able */
-		if (params.wasteMode && shouldPoop())
-			tryPoop();
-
-		if (params.productionMode) {
-			tryProduction();
-		}
-
-		/* Check if broadcasting is enabled */
-		if (params.broadcastMode)
-			receiveBroadcast();
+		//all actions to be taken after controller
+		this.endUpdateAgent();
 	}
 
-	protected void beforeController() {
-
-	}
-
-	protected void afterController() {
-
-	}
 
 	public void tickZero() {
 		// nothing
