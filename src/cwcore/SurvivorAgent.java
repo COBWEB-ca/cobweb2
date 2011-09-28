@@ -339,7 +339,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param coords Coordinates of the location.
 	 */
 	protected void moveToLocation(Environment.Location coords) {
-		Action a;
+		Action a = null;
 
 		//get the tile that's the closest to the 
 

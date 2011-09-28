@@ -250,6 +250,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		copyConstants(parent1);
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, parent1.info, parent2.info, strat);
 
 		move(pos);
@@ -275,6 +276,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		copyConstants(parent);
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, parent.info, strat);
 
 		move(pos);
@@ -292,6 +294,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		this.facing = facingDirection;
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentT, doCheat);
 
 		move(pos);
@@ -318,6 +321,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		params = agentData;
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, doCheat);
 		this.agentType = agentType;
 
@@ -1235,10 +1239,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//update current tick
 		currTick = tick;
 
-		/* Hack to find the birth tick... */
-		if (birthTick == 0)
-			birthTick = currTick;
-
 		//age the agent
 		age++;
 
@@ -1253,7 +1253,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//reset this flag at beginning of every tick
 		this.hasEaten = false;
 
-		//receive broadcasts
+		/* Check if broadcasting is enabled */
+		if (params.broadcastMode)
+			receiveBroadcast();
 	}
 
 	/**
@@ -1264,10 +1266,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		/* Produce waste if able */
 		if (params.wasteMode && shouldPoop())
 			tryPoop();
-
-		/* Check if broadcasting is enabled */
-		if (params.broadcastMode)
-			receiveBroadcast();
 	}
 
 	/**
