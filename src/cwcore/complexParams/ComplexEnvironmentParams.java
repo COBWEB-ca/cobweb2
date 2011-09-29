@@ -5,14 +5,11 @@ package cwcore.complexParams;
 
 import cobweb.TickScheduler;
 import cobweb.params.AbstractReflectionParams;
-import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
-import cobweb.params.ConfDynamicInstance;
 import cobweb.params.ConfXMLTag;
 import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;
 import cwcore.GeneticController;
-import cwcore.GeneticControllerParams;
 
 /**
  * Parameters for the ComplexEnvironment
@@ -65,14 +62,6 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	@ConfDisplayName("Environment type")
 	@ConfXMLTag("EnvironmentName")
 	public String environmentName = ComplexEnvironment.class.getName();
-
-	/**
-	 * Configuration for the controller object.
-	 */
-	@ConfXMLTag("ControllerConfig")
-	@ConfDynamicInstance(ControllerLoader.class)
-	public CobwebParam controllerParams = new GeneticControllerParams();
-
 
 	/**
 	 * Width of the grid.

@@ -115,13 +115,13 @@ public class LinearAIPanel extends SettingsPanel {
 	@Override
 	public void bindToParser(SimulationConfig p) {
 		ComplexEnvironmentParams ep = p.getEnvParams();
-		if (!(ep.controllerParams instanceof LinearWeightsControllerParams)) {
+		if (!(p.getControllerParams() instanceof LinearWeightsControllerParams)) {
 			p.getEnvParams().controllerName = LinearWeightsController.class.getName();
 			if (params == null)
 				params = new LinearWeightsControllerParams();
-			p.getEnvParams().controllerParams = params;
+			p.setControllerParams(params);
 		} else {
-			params = (LinearWeightsControllerParams) p.getEnvParams().controllerParams;
+			params = (LinearWeightsControllerParams) p.getControllerParams();
 		}
 
 		removeAll();
