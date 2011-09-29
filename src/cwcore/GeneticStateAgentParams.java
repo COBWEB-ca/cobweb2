@@ -16,6 +16,13 @@ public class GeneticStateAgentParams implements CobwebParam {
 	private static final String STATES_ELEMENT = "StateSize";
 	public List<StateSize> stateSizes = new LinkedList<StateSize>();
 
+	public GeneticStateAgentParams() {
+		StateSize ss = new StateSize();
+		ss.name = "ProdHunt";
+		ss.size = 0;
+		stateSizes.add(ss);
+	}
+
 
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {

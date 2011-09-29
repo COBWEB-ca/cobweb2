@@ -1,5 +1,8 @@
 package cwcore;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -14,7 +17,15 @@ public class LinearWeightsControllerParams implements CobwebParam, ControllerPar
 
 	private static final long serialVersionUID = 8856565519749448009L;
 
-	public double[][] data = new double[LinearWeightsController.INPUT_COUNT][LinearWeightsController.OUTPUT_COUNT];
+	public double[][] data;
+
+	public static List<String> pluginNames = new LinkedList<String>() {{
+		this.add("ProdHunt");
+	}};
+
+	public LinearWeightsControllerParams() {
+		data = new double[LinearWeightsController.INPUT_COUNT + pluginNames.size()][LinearWeightsController.OUTPUT_COUNT];
+	}
 
 	public LinearWeightsControllerParams copy() {
 		LinearWeightsControllerParams p = new LinearWeightsControllerParams();

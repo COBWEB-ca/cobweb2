@@ -8,6 +8,7 @@ import java.io.Serializable;
 import cobweb.Controller;
 import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.SeeInfo;
+import cwcore.state.StateParameter;
 
 /**
  * This class contains methods that set up the parameters for agents 
@@ -36,6 +37,8 @@ public class GeneticController implements cobweb.Controller, Serializable{
 	public static final int ENERGY_THRESHOLD = 160;
 
 	private GeneticControllerParams params;
+
+	private int type;
 
 	public GeneticController() {
 		// Nothing
@@ -128,6 +131,13 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		//add the communications to the array
 		inputCode.add(theAgent.getCommInbox(), commSize);
 
+		for (StateSize ss : params.agentParams.agentParams[theAgent.type()].stateSizes) {
+			StateParameter sp = theAgent.environment.getStateParameter(ss.name);
+			double value = sp.getValue(theAgent);
+			int val = (int) Math.round(value * ((1 << ss.size) - 1));
+			inputCode.add(val, ss.size);
+		}
+
 		return inputCode;
 	}
 
@@ -138,13 +148,19 @@ public class GeneticController implements cobweb.Controller, Serializable{
 	public void removeClientAgent(cobweb.Agent a) {
 		// Nothing
 	}
-	public void setupFromEnvironment(int memory, int comm, CobwebParam params) {
+
+	public void setupFromEnvironment(int memory, int comm, CobwebParam params, int type) {
 		memorySize = memory;
 		commSize = comm;
 		this.params = (GeneticControllerParams) params;
 		int[] outputArray = { OUTPUT_BITS, memorySize, commSize, 1 };
-		ga = new BehaviorArray(INPUT_BITS + memorySize + commSize,
-				outputArray);
+
+		int inputSize = INPUT_BITS + memorySize + commSize;
+		for (StateSize ss : this.params.agentParams.agentParams[type].stateSizes) {
+			inputSize += ss.size;
+		}
+
+		ga = new BehaviorArray(inputSize, outputArray);
 		ga.randomInit(this.params.randomSeed);
 	}
 	public void setupFromParent(Controller parent, float mutationRate) {
@@ -155,6 +171,7 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		GeneticController p = (GeneticController) parent;
 		ga = p.ga.copy(mutationRate);
 		memorySize = p.memorySize;
+		this.params = p.params;
 	}
 
 	/** 
@@ -173,6 +190,7 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		GeneticController p2 = (GeneticController) parent2;
 		ga = p.ga.splice(p2.ga).copy(mutationRate);
 		memorySize = p.memorySize;
+		this.params = p.params;
 	}
 
 	/** return the measure of similiarity between this agent and the 'other'

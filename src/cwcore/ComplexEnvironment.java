@@ -8,8 +8,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -40,6 +42,8 @@ import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
 import cwcore.complexParams.ProductionParams;
+import cwcore.state.StateParameter;
+import cwcore.state.StatePlugin;
 import driver.ControllerFactory;
 import driver.SimulationConfig;
 
@@ -950,6 +954,19 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		if (data.spawnNewAgents) {
 			loadNewAgents();
 		}
+
+		plugins.add(prodMapper);
+
+		setupPlugins();
+
+	}
+
+	private void setupPlugins() {
+		for (StatePlugin plugin : plugins) {
+			for (StateParameter param : plugin.getParameters()) {
+				pluginMap.put(param.getName(), param);
+			}
+		}
 	}
 
 	/**
@@ -1607,6 +1624,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	public boolean hasStone(int x, int y) {
 		return testFlag(getUserDefinedLocation(x, y), FLAG_STONE);
+	}
+
+	private List<StatePlugin> plugins = new LinkedList<StatePlugin>();
+
+	private Map<String, StateParameter> pluginMap = new HashMap<String, StateParameter>();
+
+	public StateParameter getStateParameter(String name) {
+		return pluginMap.get(name);
 	}
 
 

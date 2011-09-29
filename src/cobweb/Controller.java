@@ -45,7 +45,7 @@ public interface Controller {
 	 * @param commBits communication size
 	 * @param params other parameters
 	 */
-	public void setupFromEnvironment(int memoryBits, int commBits, CobwebParam params);
+	public void setupFromEnvironment(int memoryBits, int commBits, CobwebParam params, int type);
 
 	/**
 	 * Sets controller up based on parameters of the asexual breeding parent

@@ -303,7 +303,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	/**   */
 	public void init(int agentT, int doCheat, ComplexAgentParams agentData, ProductionParams prodData, Direction facingDirection, Location pos) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentT));
 		setConstants(doCheat, agentData, prodData);
 		this.facing = facingDirection;
 
@@ -328,7 +328,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param agentData agent parameters
 	 */
 	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData, ProductionParams prodData) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType));
 		setConstants(doCheat, agentData, prodData);
 
 		InitFacing();
@@ -1099,7 +1099,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			if (d.canStep() && d instanceof Product) {
 				Product p = (Product) d;
-				if (p.getOwner() != this && globals.random.nextFloat() <= 0.5f) {
+				if (p.getOwner() != this && globals.random.nextFloat() <= 0.9f) {
 					environment.prodMapper.remProduct(p, 
 							getPosition().getEnvironment().getLocation(x, y));
 					environment.dropArray[x][y] = null;

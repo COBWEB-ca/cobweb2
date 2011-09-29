@@ -1,12 +1,17 @@
 package production;
 
 import java.awt.Color;
+import java.util.LinkedList;
+import java.util.List;
 
 import cobweb.Environment;
 import cobweb.Environment.Location;
+import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;
+import cwcore.state.StateParameter;
+import cwcore.state.StatePlugin;
 
-public class ProductionMapper {
+public class ProductionMapper implements StatePlugin {
 
 	private ComplexEnvironment e;
 	private float[][] vals;
@@ -19,6 +24,8 @@ public class ProductionMapper {
 	public ProductionMapper(int numProducts, Environment e) {
 		this.e = (ComplexEnvironment) e;
 		vals = new float[this.e.getWidth()][this.e.getHeight()];
+		params = new LinkedList<StateParameter>();
+		params.add(new ProductHunt());
 	}
 
 	public boolean addProduct(Product p, Environment.Location loc) {
@@ -107,6 +114,40 @@ public class ProductionMapper {
 	public Disp createDialog() {
 		display = new Disp(this, this.e.getWidth(), this.e.getHeight());
 		return display;
+	}
+
+	public class ProductHunt implements StateParameter {
+
+		@Override
+		public String getName() {
+			return "ProdHunt";
+		}
+
+		@Override
+		public double getValue(ComplexAgent agent) {
+			Location here = agent.getPosition();
+			Location ahead = here.getAdjacent(agent.getFacing());
+			if (!ahead.isValid()) {
+				return 0;
+			}
+
+			float a = getValueAtLocation(here);
+			float b = getValueAtLocation(ahead);
+
+			float max = Math.max(a, b);
+			if (max == 0)
+				return 0;
+
+			return b / max;
+		}
+
+	}
+
+	private List<StateParameter> params;
+
+	@Override
+	public List<StateParameter> getParameters() {
+		return params;
 	}
 
 }

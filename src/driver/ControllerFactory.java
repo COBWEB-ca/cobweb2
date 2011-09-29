@@ -17,9 +17,9 @@ public class ControllerFactory {
 		params = cobwebParams;
 	}
 
-	public static Controller createNew(int memory, int comm) {
+	public static Controller createNew(int memory, int comm, int type) {
 		Controller c = newInstance();
-		c.setupFromEnvironment(memory, comm, params);
+		c.setupFromEnvironment(memory, comm, params, type);
 		return c;
 	}
 
