@@ -1125,7 +1125,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				broadcastFood(destPos);
 			}
 			if (canEat(destPos)) {
-				eat(destPos);
+				eat(destPos.getFoodSource().getFood());
+				destPos.removeFoodSource();
 			}
 			if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 
