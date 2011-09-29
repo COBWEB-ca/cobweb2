@@ -7,8 +7,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cobweb.params.CobwebParam;
+import cwcore.complexParams.AgentFoodCountable;
+import cwcore.complexParams.ControllerParams;
 
-public class LinearWeightsControllerParams implements CobwebParam {
+public class LinearWeightsControllerParams implements CobwebParam, ControllerParams {
 
 	private static final long serialVersionUID = 8856565519749448009L;
 
@@ -67,6 +69,18 @@ public class LinearWeightsControllerParams implements CobwebParam {
 			}
 			root.appendChild(inp);
 		}
+	}
+
+	@Override
+	public void setTypeCount(int count) {
+		// TODO Auto-generated method stub
+		// Doesn't do anything so far
+	}
+
+	@Override
+	public void resize(AgentFoodCountable envParams) {
+		// TODO Auto-generated method stub
+		// Doesn't do anything so far
 	}
 
 }

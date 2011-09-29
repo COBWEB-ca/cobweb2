@@ -941,7 +941,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 
 		try {
-			ControllerFactory.Init(data.controllerName, data.controllerParams);
+			ControllerFactory.Init(data.controllerName, p.getControllerParams());
 		} catch (ClassNotFoundException ex) {
 			throw new RuntimeException(ex);
 		}
