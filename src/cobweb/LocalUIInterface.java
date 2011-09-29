@@ -616,7 +616,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * Kill the simulation. Calls killScheduler on the scheduler.
 	 */
 	public void killScheduler() {
-		theScheduler.killScheduler();
+		if (theScheduler != null)
+			theScheduler.killScheduler();
+
 		try {
 			if (logWriter != null)
 				logWriter.close();

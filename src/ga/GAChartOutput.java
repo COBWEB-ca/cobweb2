@@ -43,10 +43,10 @@ public class GAChartOutput implements ActionListener {
 	private JFrame chart_display_frame;
 
 	/** Buttons that display GA outputs on the chart frame. */
-	private JButton gene_status_distribution_button
-		= new JButton("Genotype-Phenotype Correlation Value");
-	private JButton gene_value_distribution_button
-		= new JButton("Genotype Value");
+	private JButton gene_status_distribution_button =
+		new JButton("Genotype-Phenotype Correlation Value");
+	private JButton gene_value_distribution_button =
+		new JButton("Genotype Value");
 
 	/** Current component on display. */
 	private JPanel current_display;
@@ -199,16 +199,35 @@ public class GAChartOutput implements ActionListener {
 
 	/** Update the gene_status_distribution data */
 	public void updateGeneStatusDistributionData(double[][][] value, double[][][] status) {
-		for (int j = 0; j < geneCount; j++) {
-			for (int i = 0; i < numAgentTypes; i++) {
-				double[][] new_status = {gene_status_distribution_range, status[i][j]};
-				String key = "Agent " + (i+1);
-				gene_status_distribution_data[j].addSeries(key, new_status);
-				double[][] new_values = {gene_value_distribution_range, value[i][j]};
-				gene_value_distribution_data[j].addSeries(key, new_values);
+		/* 
+		 * Collecting all data into one array, then replacing everything at once
+		 * to hopefully fix race condition in JFreeChart
+		 */
+		double[][][][][] new_datasets = new double[geneCount][][][][];
+
+		if (refreshWaiter.isReadyToRefresh()) {
+			for (int j = 0; j < geneCount; j++) {
+				new_datasets[j] = new double[numAgentTypes][2][][];
+
+				for (int i = 0; i < numAgentTypes; i++) {
+					double[][] newx = {gene_status_distribution_range, status[i][j]};
+					new_datasets[j][i][0] = newx;
+					double[][] newy = {gene_value_distribution_range, value[i][j]};
+					new_datasets[j][i][1] = newy;
+				}
 			}
+
+			for (int j = 0; j < geneCount; j++) {
+				for (int i = 0; i < numAgentTypes; i++) {
+					String key = "Agent " + (i+1);
+					gene_status_distribution_data[j].addSeries(key, new_datasets[j][i][0]);
+					gene_value_distribution_data[j].addSeries(key, new_datasets[j][i][1]);
+				}
+			}
+
+			// If wait is true, there might be a deadlock pressing the stop button
+			refreshWaiter.refresh(false);
 		}
-		if (refreshWaiter.isReadyToRefresh())
-			refreshWaiter.refresh(true);
+
 	}
 }
