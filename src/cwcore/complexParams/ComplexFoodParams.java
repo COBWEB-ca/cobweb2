@@ -20,7 +20,7 @@ public class ComplexFoodParams extends AbstractReflectionParams {
 	public int type = -1;
 
 	/**
-	 * Amount of food dropped on the grid initially
+	 * Amount of food sources dropped on the grid initially
 	 */
 	@ConfDisplayName("Initial amount")
 	@ConfXMLTag("Food")
@@ -64,6 +64,13 @@ public class ComplexFoodParams extends AbstractReflectionParams {
 	@ConfDisplayName("Draught period")
 	@ConfXMLTag("DraughtPeriod")
 	public int draughtPeriod = 0;
+
+	/**
+	 * How much food is in the food source initially
+	 */
+	@ConfDisplayName("Food Quantity")
+	@ConfXMLTag("Quantity")
+	public int quantity = 1;
 
 	public ComplexFoodParams() {
 		// public, no parameter constructor for serialization

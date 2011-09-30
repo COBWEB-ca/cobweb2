@@ -1120,12 +1120,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	protected void onstepFreeTile(cobweb.Environment.Location destPos) {
 		// Check for food...
 		cobweb.Environment.Location breedPos = null;
-		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+		if (destPos.getFoodSource() != null) {
 			if (params.broadcastMode & canBroadcast()) {
 				broadcastFood(destPos);
 			}
 			if (canEat(destPos)) {
-				eat(destPos);
+				eat(destPos.getFoodSource().getFood());
 			}
 			if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 
@@ -1370,8 +1370,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		for (int i = 0; i < dirList.length; i++) {
 			loc = getPosition().getAdjacent(dirList[i]);
 			if (loc != null && loc.getAgent() == null && !loc.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !loc.testFlag(ComplexEnvironment.FLAG_DROP) && !loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-				loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					&& !loc.testFlag(ComplexEnvironment.FLAG_DROP) && loc.getFoodSource() == null) {
+				loc.removeFoodSource();
 				loc.setFlag(ComplexEnvironment.FLAG_STONE, false);
 				loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
 				environment.setDrop(loc, d);
@@ -1387,8 +1387,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!added) {
 			for (int i = 0; i < dirList.length; i++) {
 				loc = getPosition().getAdjacent(dirList[i]);
-				if (loc != null && loc.getAgent() == null && loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-					loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+				if (loc != null && loc.getAgent() == null && loc.getFoodSource() != null) {
+					loc.removeFoodSource();
 					loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
 					environment.setDrop(loc, d);
 					break;

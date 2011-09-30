@@ -135,7 +135,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 
 		super.eat(destPos.getFoodSource().getFood());
-		destPos.removeFoodSource();
 	}
 
 	@Override

@@ -209,10 +209,14 @@ public abstract class Environment {
 			int[] newCoords = new int[addComponents.length];
 
 			for(int i = 0; i < addComponents.length; i++) {
+				newCoords[i] = this.v[i];
 				newCoords[i] += addComponents[i] * distance;
+
+				if (newCoords[i] >= Environment.this.getSize(i) || newCoords[i] < 0)
+					return null;
 			}
 
-			return getLocation(newCoords[0], newCoords[1]);
+			return getUserDefinedLocation(newCoords[0], newCoords[1]);
 		}
 
 		/**
@@ -356,6 +360,9 @@ public abstract class Environment {
 
 	}
 
+	/**
+	 * All locations within simulation.
+	 */
 	private Location[][] locationCache;
 
 	/** Axis constants, to make dimensionality make sense */
@@ -518,7 +525,6 @@ public abstract class Environment {
 
 	// Syntactic sugar for common cases
 	public Location getLocation(int x, int y) {
-
 		if (locationCache[x][y] == null)
 			locationCache[x][y] = new Location(new int[] { x, y });
 		return locationCache[x][y];
