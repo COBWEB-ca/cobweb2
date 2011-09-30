@@ -3,10 +3,15 @@
  */
 package driver.config;
 
+import java.awt.BorderLayout;
 import java.text.NumberFormat;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.table.TableColumnModel;
 
 import cwcore.GeneticController;
 import cwcore.GeneticControllerParams;
@@ -36,14 +41,38 @@ final class GeneticAIPanel extends SettingsPanel {
 	}
 
 	private void updateBoxes() {
+		setLayout(new BorderLayout());
 		seed = new BoundJFormattedTextField(params, "randomSeed", NumberFormat
 				.getIntegerInstance());
 		this.removeAll();
 		seed.setColumns(5);
-		this.add(new JLabel(seed.getLabelText()));
-		this.add(seed);
+		JPanel random = new JPanel();
+		random.add(new JLabel(seed.getLabelText()));
+		random.add(seed);
 		JButton makeRandom = new JButton("Generate");
 		makeRandom.addActionListener(new SeedRandomListener(seed));
-		add(makeRandom);
+		random.add(makeRandom);
+
+		this.add(random, BorderLayout.NORTH);
+
+		JPanel agentPanel = new JPanel();
+		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
+		GUI.makeGroupPanel(agentPanel, "Agent Parameters");
+
+		MixedValueJTable agentParamTable = new MixedValueJTable();
+		agentParamTable.setModel(new ConfigTableModel(params.agentParams.agentParams, "Agent "));
+
+		TableColumnModel agParamColModel = agentParamTable.getColumnModel();
+		// Get the column at index pColumn, and set its preferred width.
+		agParamColModel.getColumn(0).setPreferredWidth(200);
+
+		GUI.colorHeaders(agentParamTable, true);
+		JScrollPane agentScroll = new JScrollPane(agentParamTable);
+		// Add the scroll pane to this panel.
+		agentPanel.add(agentScroll);
+
+		this.add(agentPanel, BorderLayout.CENTER);
+
+
 	}
 }

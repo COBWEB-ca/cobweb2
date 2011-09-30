@@ -8,12 +8,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cobweb.params.CobwebParam;
+import cobweb.params.ConfDisplayName;
 
 
 public class GeneticStateAgentParams implements CobwebParam {
 
 	private static final String STATE_ELEMENT = "State";
 	private static final String STATES_ELEMENT = "StateSize";
+
+	@ConfDisplayName("state")
 	public List<StateSize> stateSizes = new LinkedList<StateSize>();
 
 	public GeneticStateAgentParams() {
