@@ -5,7 +5,7 @@
     <scheduler>cobweb.TickScheduler</scheduler>
     <ControllerName>cwcore.GeneticController</ControllerName>
     <ControllerConfig>
-        <RandomSeed>42</RandomSeed>
+        <RandomSeed>4</RandomSeed>
     </ControllerConfig>
     <Width>50</Width>
     <Height>50</Height>
@@ -17,7 +17,7 @@
     <keepOldAgents>false</keepOldAgents>
     <spawnNewAgents>true</spawnNewAgents>
     <keepOldPackets>false</keepOldPackets>
-    <randomStones>150</randomStones>
+    <randomStones>0</randomStones>
     <likeFoodProb>0.0</likeFoodProb>
     <PrisDilemma>false</PrisDilemma>
     <memorySize>10</memorySize>
