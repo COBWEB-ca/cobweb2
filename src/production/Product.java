@@ -5,7 +5,7 @@ import java.awt.Color;
 import cobweb.Agent;
 import cwcore.ComplexEnvironment.Drop;
 
-public class Product extends Drop {
+public class Product implements Drop {
 	public Product(float value, Agent owner) {
 		this.value = value;
 		this.owner = owner;
@@ -41,5 +41,10 @@ public class Product extends Drop {
 	@Override
 	public Color getColor() {
 		return MY_COLOR;
+	}
+
+	@Override
+	public boolean canStep() {
+		return true;
 	}
 }

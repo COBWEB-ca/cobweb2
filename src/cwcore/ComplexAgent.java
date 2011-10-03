@@ -1099,7 +1099,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			if (d.canStep() && d instanceof Product) {
 				Product p = (Product) d;
-				if (p.getOwner() != this && globals.random.nextFloat() <= 0.9f) {
+				if (p.getOwner() != this && globals.random.nextFloat() <= 0.3f) {
 					environment.prodMapper.remProduct(p, 
 							getPosition().getEnvironment().getLocation(x, y));
 					environment.dropArray[x][y] = null;

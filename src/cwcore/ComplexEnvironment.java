@@ -56,28 +56,19 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * Contains methods
 	 *  
 	 */
-	public abstract static class Drop {
-		//Gold colored drops
-		final static Color DROP_COLOR = new Color(238, 201, 0);
-
-		public Drop() {
-
-		}
-
+	public static interface Drop {
 		public abstract boolean isActive(long val);
 
 		public abstract void reset(long time, int weight, float rate);
 
-		public Color getColor() {
-			return DROP_COLOR;
-		}
+		public Color getColor();
 
-		public boolean canStep() {
-			return true;
-		}
+		public boolean canStep();
 	}
 
-	public static class Waste extends Drop {
+	public static class Waste implements Drop {
+
+		private static final java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
 
 		private int initialWeight;
 
@@ -180,8 +171,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	protected ProductionParams prodData[];
 
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
-
-	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
 
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
