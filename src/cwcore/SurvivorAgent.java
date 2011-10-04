@@ -1,6 +1,7 @@
 package cwcore;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 
 import cobweb.Direction;
@@ -140,6 +141,28 @@ public class SurvivorAgent extends ComplexAgent {
 	 */
 	private State state;
 
+	/**
+	 * The agent's path.
+	 */
+	private LinkedList<Environment.Location> path;
+
+	/**
+	 * Destination for the agent.
+	 */
+	private Environment.Location destination;
+
+	/**
+	 * Keeps track of number of turns made to get around obsticles.
+	 * Used in simple path finding.
+	 */
+	private int numTurns;
+
+	/**
+	 * True if encountered an obstacle last turn.
+	 * Used in simple path finding.
+	 */
+	private boolean lastTurnObstacle = false;
+
 	/*************************************************************************************
 	 * ****************************** CONSTRUCTOR ****************************************
 	 *************************************************************************************/
@@ -151,6 +174,9 @@ public class SurvivorAgent extends ComplexAgent {
 		//carried food is an array list
 		this.carriedFood = new ArrayList<Food>();
 		this.foodSources = new LinkedList<FoodSource>();
+		this.path = new LinkedList<Environment.Location>();
+
+		this.destination = null;
 	}
 
 	/**
@@ -331,36 +357,122 @@ public class SurvivorAgent extends ComplexAgent {
 			}
 		}
 
+
+
 		return l;
 	}
 
 	/**
+	 * Given all the squares this agent can theoretically see, remove all the 
+	 * squares made invisible by obstructions. Return the rest.
+	 * @param visibleSquares Linked list of theoretically visible squares.
+	 * @return Linked list tiles NOT blocked by rocks.
+	 */
+	protected LinkedList<Environment.Location> removeBlockedSquares(LinkedList<Environment.Location> visibleSquares) {
+		Environment.Location tile;
+
+		for(int i = 0; i < visibleSquares.size(); i++) {
+			tile = visibleSquares.get(i);
+
+			if(environment.testFlag(tile, ComplexEnvironment.FLAG_STONE)) {
+				visibleSquares = this.removeSquares(visibleSquares, tile);
+			}
+		}
+
+		return visibleSquares;
+	}
+
+	/**
+	 * Remove all tiles blocked by the given rock.
+	 * @param tiles List of tiles.
+	 * @param rockLocation Location of the rock.
+	 * @return List of tiles NOT blocked by the rock.
+	 */
+	protected final LinkedList<Environment.Location> removeSquares(LinkedList<Environment.Location> tiles, Environment.Location rockLocation) {
+		Environment.Location tile;
+
+		for(int i = 0; i < tiles.size(); i++) {
+			tile = tiles.get(i);
+
+			if(this.isBeyondLineSegment(this.position, rockLocation, tile)) {
+				tiles.remove(i);
+			}
+		}
+
+		return tiles;
+	}
+
+	/**
+	 * Return true if the point test is on the line connecting a and b, but beyond b from a.
+	 * @param start Starting point of line segment (pt. a).
+	 * @param end Ending point of line segment (pt. b).
+	 * @param test Point being tested.
+	 * @return False if the point is not on the line connecting a and b OR if it is between a and b on the line. True otherwise.
+	 */
+	protected final boolean isBeyondLineSegment(Environment.Location start, Environment.Location end, Environment.Location test){
+		int dim = start.v.length;
+		int start_component, end_component, test_component;
+
+		float epsilon = 0.2f;
+
+		float t = 1, last_t = 1;
+
+		for(int i = 0; i < dim; i++) {
+			start_component = start.v[i];
+			end_component = end.v[i];
+			test_component = test.v[i];
+
+			if(end_component == start_component) {
+				t = 0;
+			} else {
+				t = ((float)(test_component - start_component)) / (end_component - start_component);
+			}
+
+			epsilon = (float) (Math.min(t, last_t) * 0.2);
+
+			if(i == 0 || Math.abs(t - last_t) < epsilon) {
+				last_t = t;
+			} else {
+				//too far from line segment
+				return false;
+			}
+		}
+
+		//here the point is on the line
+		//check if it is between a and b. if not, return true
+
+		return t > 1;
+	}
+
+	public static void main(String[] args) {
+
+	}
+
+
+	/**
 	 * Move to the given location.
+	 * If already at the given location, perform a random move.
 	 * @param coords Coordinates of the location.
 	 */
 	protected void moveToLocation(Environment.Location coords) {
 		Action a = null;
 
-		//get the tile that's the closest to the 
-
-		//can I see my destination
-
-		if(this.position.distanceSquare(coords) < this.MAX_SEE_SQUARE_DIST) {
+		if(this.position.distanceSquare(coords) > this.MAX_SEE_SQUARE_DIST) {
+			//if agent is too far from destination to pathfind to the destination
+			Environment.Location waypoint = this.getClosestPoint(coords);
+			//then move pathfind to the closest point to the destination
+			this.moveToLocation(waypoint);
+		} else {
 			if(this.canSee(coords)) {
-
-
-				//find path to coords
+				//pathfind to the coordinates
 			} else {
 				a = this.getTurnDirection(coords);
 			}
-		} else {
-			Environment.Location waypoint = this.getClosestPoint(coords);
+		}
 
-			if(this.canSee(waypoint)) {
-				//find path to waypoint
-			} else {
-				a = this.getTurnDirection(waypoint);
-			}
+		//If no move is found, perform a random move
+		if(a == null) {
+			a = this.getRandomAction();
 		}
 
 		this.doMove(a);
@@ -373,16 +485,11 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @return The action for the agent - turn right or left.
 	 */
 	protected Action getTurnDirection (Environment.Location coords) {
-
-		if(this.canSee(coords)) {
-			return Action.MOVE_FORWARD;
-		}
-
 		double angle = this.facing.angle() - this.position.angleTo(coords);
 
-
-
-		if(angle < Math.PI) {
+		if(angle < this.MAX_SEE_ANGLE && angle > -1 * this.MAX_SEE_ANGLE) {
+			return Action.MOVE_FORWARD;
+		} else if((angle < Math.PI && angle > this.MAX_SEE_ANGLE) || (angle < -1 * Math.PI)) {
 			return Action.TURN_RIGHT;
 		} else {
 			return Action.TURN_LEFT;
@@ -404,22 +511,6 @@ public class SurvivorAgent extends ComplexAgent {
 		return this.environment.getLocation(x, y);
 	}
 
-	private void tracePath() {
-		LinkedList<Environment.Location> visibleTiles = this.getVisibleSquares();
-		Environment.Location loc;
-
-		LinkedList<Node> unvisited = new LinkedList<Node>();
-		Node current = new Node(0, this.position);
-		current.visited = true;
-
-		while(!visibleTiles.isEmpty()) {
-			loc = visibleTiles.remove();
-			unvisited.add(new Node(this.MAX_SEE_SQUARE_DIST + 1, loc));
-		}
-
-		//		nodes.add(new Node(0, this.position));
-
-	}
 
 	/**
 	 * Return true if this agent is hungry, false otherwise.
@@ -751,5 +842,85 @@ public class SurvivorAgent extends ComplexAgent {
 			//TODO note that this won't work right now since this method doesn't exist
 			//		this.eat(f);
 		}
+	}
+
+	/********************************************************************************
+	 ************************************* PATHFINDING ******************************
+	 ********************************************************************************/
+
+
+
+	/**
+	 * Trace a path to the destination.
+	 * Set the instance variable path to the path found.
+	 * @param destination The destination square.
+	 * TODO for now do not use this.
+	 */
+	private void tracePath(Environment.Location destination) {
+		LinkedList<Environment.Location> visibleTiles = this.getVisibleSquares();
+		Environment.Location loc;
+
+		LinkedList<Node> unvisited = new LinkedList<Node>();
+		HashSet<Environment.Location> visited = new HashSet<Environment.Location>();
+
+		Node current = new Node(0, this.position);
+		current.visited = true;
+
+		while(!visibleTiles.isEmpty()) {
+			loc = visibleTiles.remove();
+			unvisited.add(new Node(this.MAX_SEE_SQUARE_DIST + 1, loc));
+		}
+
+		//mark the neighbours
+	}
+
+	private void visit(LinkedList<Node> unvisited, Node current) {
+		this.markNeighbours(unvisited, current);
+		current.setVisited();
+
+		Node next = this.getNextNode(unvisited);
+		this.visit(unvisited, next);
+	}
+
+	private final Node getNextNode(final LinkedList<Node> unvisited) {
+		Node minNode = unvisited.getFirst(), n;
+		int min = minNode.distance;
+
+		for(int i = 1; i < unvisited.size(); i++) {
+			n = unvisited.get(i);
+
+			if(n.distance < min) {
+				minNode = n;
+			}
+		}
+
+		return minNode;
+	}
+
+	private void markNeighbours(LinkedList<Node> unvisited, Node current) {
+		Node neighbour;
+		Environment.Location here = current.getLocation();
+
+		for(int i = 0; i < unvisited.size(); i++) {
+			neighbour = unvisited.get(i);
+
+			if(neighbour.getLocation().equals(current)) {
+				neighbour.distance = current.distance + 1;
+			}
+		}
+	}
+
+	private LinkedList<Environment.Location> getUnvisitedNeighbours(LinkedList<Environment.Location> neighbours, HashSet<Environment.Location> visited) {
+		Environment.Location current;
+
+		for(int i = 0; i < neighbours.size(); i++) {
+			current = neighbours.get(i);
+
+			if(visited.contains(current)) {
+				neighbours.remove(i);
+			}
+		}
+
+		return neighbours;
 	}
 }
