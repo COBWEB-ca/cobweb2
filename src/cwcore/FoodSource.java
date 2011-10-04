@@ -2,7 +2,6 @@ package cwcore;
 
 import java.util.LinkedList;
 
-import cobweb.Direction;
 import cobweb.Environment;
 
 /**
@@ -65,7 +64,7 @@ public class FoodSource {
 	/**
 	 * Spread all seeds. Return the locations where the seeds successfully germinate.
 	 */
-	protected final LinkedList<Environment.Location> spreadSeeds() {
+	private final LinkedList<Environment.Location> spreadSeeds() {
 		Environment.Location randomLoc;
 		double prob;
 		LinkedList<Environment.Location> goodSpots = new LinkedList<Environment.Location>();
@@ -74,7 +73,7 @@ public class FoodSource {
 			randomLoc = this.coords.getEnvironment().getRandomFreeLocation();
 			prob = probGerminate(this.coords.distanceSquare(randomLoc));
 
-			if(this.rollRandom(prob)) {
+			if(rollRandom(prob)) {
 				goodSpots.add(randomLoc);
 			}
 		}
@@ -101,36 +100,32 @@ public class FoodSource {
 	}
 
 	/**
-	 * Check if the food source reproduces. If it does, return the offspring.
+	 * Check if the food source reproduces. If it does, return the offspring(s).
 	 * If no reproduction takes place, return null.
-	 * @return The offspring if successful, null on failure.
+	 * @return The offspring(s) if successful, empty list on failure.
 	 * TODO for now creates exact copies
 	 */
-	public FoodSource reproduce() {
-		if(this.rollRandom(this.sporeProb)) {
-			//get a random direction
-			Direction randDir;
-			Environment.Location newCoords;
+	public LinkedList<FoodSource> reproduce() {
+		LinkedList<FoodSource> children = new LinkedList<FoodSource>();
 
-			//the spawn point for the offspring is adjacent to the position of this food source
-			//in the random direction
-			do {
-				randDir = Direction.getRandom();
-				newCoords = this.coords.add(1, randDir);
-			} while (newCoords == null);
+		if(rollRandom(this.sporeProb)) {
+			LinkedList<Environment.Location> goodSpots = this.spreadSeeds();
 
-			return new FoodSource(this.startFood, this.type, newCoords, this.depletionRate, this.sporeProb);
-		} else {
-			return null;
-		}
+			while(!goodSpots.isEmpty()) {
+				children.add(new FoodSource(this.startFood, this.type, goodSpots.pop(), this.depletionRate, this.sporeProb));
+			}
+		} 
+
+		return children;
 	}
 
 	/**
 	 * Return true if the event with given probability occurred, false otherwise.
+	 * TODO move this somewhere more logical
 	 * @param prob The probability of the event occurring.
 	 * @return True if the event occurred, false otherwise.
 	 */
-	public boolean rollRandom(double prob) {
+	public static final boolean rollRandom(double prob) {
 		if(prob == 0) {
 			return false;
 		} else {
@@ -142,7 +137,7 @@ public class FoodSource {
 	 * Return the location of this food source.
 	 * @return The location of this food source.
 	 */
-	public Environment.Location getLocation() {
+	public final Environment.Location getLocation() {
 		return this.coords;
 	}
 
@@ -150,7 +145,7 @@ public class FoodSource {
 	 * Remove a piece of food from the food source.
 	 * @return A piece of food that is of the same type as the food source. Null, if no food.
 	 */
-	public Food getFood() {
+	public final Food getFood() {
 		this.startFood--;
 
 		return new Food(this.type);
@@ -160,7 +155,7 @@ public class FoodSource {
 	 * Return true if the food source is depleted, false otherwise.
 	 * @return True if food source is empty, false otherwise.
 	 */
-	public boolean isEmpty() {
+	public final boolean isEmpty() {
 		return this.foodLeft == 0;
 	}
 
@@ -168,7 +163,7 @@ public class FoodSource {
 	 * Return the type of food this food source produces.
 	 * @return Type of food this food source produces.
 	 */
-	public int getType() {
+	public final int getType() {
 		return this.type;
 	}
 
@@ -176,7 +171,7 @@ public class FoodSource {
 	 * @param type Food source type
 	 * @author RickyD
 	 */
-	public void setType (int type) {
+	public final void setType (int type) {
 		this.type = type;
 	}
 

@@ -638,12 +638,18 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return data.getAgentTypes();
 	}
 
+	/**
+	 * Call on each food source to reproduce. Add the offsprings to the food source hash table.
+	 */
 	private void growFood() {
-
 		for (FoodSource food : new LinkedList<FoodSource>(foodSourceTable.values())) {
-			FoodSource newFood = food.reproduce();
-			if (newFood != null)
-				foodSourceTable.put(newFood.getLocation(), newFood);
+			LinkedList<FoodSource> newFood = food.reproduce();
+			FoodSource f;
+
+			while(!newFood.isEmpty()) {
+				f = newFood.pop();
+				foodSourceTable.put(f.getLocation(), f);
+			}
 		}
 	}
 
