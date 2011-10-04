@@ -353,6 +353,25 @@ public abstract class Environment {
 		}
 
 		/**
+		 * Return true if this location is empty, false otherwise.
+		 * @return True if this location is empty, false otherwise.
+		 */
+		public boolean isEmpty() {
+			ComplexEnvironment.Flag[] flags = ComplexEnvironment.Flag.values();
+			int flag;
+
+			for(int i = 0; i < flags.length; i++) {
+				flag = ComplexEnvironment.getFlagNum(flags[i]);
+
+				if(this.testFlag(flag)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		/**
 		 * Test the flag associated with the constant flag in this location. The
 		 * valid values for flag are implementation defined.
 		 */
@@ -766,4 +785,19 @@ public abstract class Environment {
 	public abstract int getFood(int x, int y);
 
 	public abstract boolean hasStone(int x, int y);
+
+
+	/**
+	 * Get a random location with no objects on it.
+	 * @return A location.
+	 */
+	public final Location getRandomFreeLocation() {
+		Location l = null;
+
+		while(l.equals(null) || !l.isEmpty()) {
+			l = this.getRandomLocation();
+		}
+
+		return l;
+	}
 }
