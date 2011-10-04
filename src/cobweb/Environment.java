@@ -792,11 +792,11 @@ public abstract class Environment {
 	 * @return A location.
 	 */
 	public final Location getRandomFreeLocation() {
-		Location l = null;
+		Location l;
 
-		while(l.equals(null) || !l.isEmpty()) {
+		do {
 			l = this.getRandomLocation();
-		}
+		} while (!l.isEmpty());
 
 		return l;
 	}
