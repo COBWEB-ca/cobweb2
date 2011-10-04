@@ -44,6 +44,22 @@ import driver.SimulationConfig;
  */
 public class ComplexEnvironment extends Environment implements TickScheduler.Client {
 
+
+
+	/**
+	 * Get a random location with no objects on it.
+	 * @return A location.
+	 */
+	public Location getRandomFreeLocation() {
+		Location l = null;
+
+		while(l.equals(null) || !l.isEmpty()) {
+			l = this.getRandomLocation();
+		}
+
+		return l;
+	}
+
 	/**
 	 * Contains methods
 	 *  
@@ -135,6 +151,35 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	private static final int DROP_ATTEMPTS_MAX = 5;
+
+	//Can't we do this some better way?
+
+	/**
+	 * Flags for the different entities possible at a location
+	 */
+	public static enum Flag {
+		STONE,
+		FOOD,
+		AGENT,
+		DROP
+	}
+
+	/**
+	 * Return the integer associated with that flag.
+	 * @param f The flag
+	 * @return Integer associated with that flag.
+	 */
+	public static int getFlagNum(Flag f) {
+		Flag[] flags = Flag.values();
+
+		for(int i = 0; i < flags.length; i++) {
+			if(f.equals(flags[i])) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
 
 	public static final int FLAG_STONE = 1;
 
