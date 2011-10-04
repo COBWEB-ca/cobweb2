@@ -46,19 +46,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 
 
-	/**
-	 * Get a random location with no objects on it.
-	 * @return A location.
-	 */
-	public Location getRandomFreeLocation() {
-		Location l = null;
-
-		while(l.equals(null) || !l.isEmpty()) {
-			l = this.getRandomLocation();
-		}
-
-		return l;
-	}
 
 	/**
 	 * Contains methods

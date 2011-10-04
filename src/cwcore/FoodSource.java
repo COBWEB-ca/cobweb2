@@ -1,5 +1,7 @@
 package cwcore;
 
+import java.util.LinkedList;
+
 import cobweb.Direction;
 import cobweb.Environment;
 
@@ -8,7 +10,12 @@ import cobweb.Environment;
  */
 public class FoodSource {
 	/**
-	 * The probability per turn that this food source will reproduce.
+	 * The number of seeds this food source currently has.
+	 */
+	private int numSeeds;
+
+	/**
+	 * The probability per turn that this food source will reproduce by spreading all its seeds.
 	 */
 	private double sporeProb;
 
@@ -56,6 +63,37 @@ public class FoodSource {
 	}
 
 	/**
+	 * Spread all seeds. Return the locations where the seeds successfully germinate.
+	 */
+	protected final LinkedList<Environment.Location> spreadSeeds() {
+		Environment.Location randomLoc;
+		double prob;
+		LinkedList<Environment.Location> goodSpots = new LinkedList<Environment.Location>();
+
+		for(int i = 0; i < numSeeds; i++) {		
+			randomLoc = this.coords.getEnvironment().getRandomFreeLocation();
+			prob = probGerminate(this.coords.distanceSquare(randomLoc));
+
+			if(this.rollRandom(prob)) {
+				goodSpots.add(randomLoc);
+			}
+		}
+
+		return goodSpots;
+	}
+
+	/**
+	 * Return the probability that a seed that landed at the given square
+	 * distance from this food source will successfully germinate.
+	 * @param distanceSq Square distance from this food source.
+	 * @return The probability that the seed germinates.
+	 */
+	public static double probGerminate(int distanceSq) {
+		//P(d^2) = e^(-2d^2 / e)
+		return Math.pow(Math.E, -2 * distanceSq / Math.E);
+	}
+
+	/**
 	 * Deplete this food source once.
 	 */
 	public void deplete() {
@@ -96,7 +134,7 @@ public class FoodSource {
 		if(prob == 0) {
 			return false;
 		} else {
-			return Math.random() < prob;
+			return cobweb.globals.random.nextFloat() < prob;
 		}
 	}
 
