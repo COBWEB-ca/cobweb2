@@ -24,6 +24,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import cwcore.ComplexAgent;
+import cwcore.ComplexEnvironment;
+import cwcore.FoodSource;
 import driver.SimulationConfig;
 
 /**
@@ -228,10 +230,14 @@ public abstract class Environment {
 			int[] newCoords = new int[addComponents.length];
 
 			for(int i = 0; i < addComponents.length; i++) {
+				newCoords[i] = this.v[i];
 				newCoords[i] += addComponents[i] * distance;
+
+				if (newCoords[i] >= Environment.this.getSize(i) || newCoords[i] < 0)
+					return null;
 			}
 
-			return getLocation(newCoords[0], newCoords[1]);
+			return getUserDefinedLocation(newCoords[0], newCoords[1]);
 		}
 
 		/**
@@ -247,11 +253,17 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Get the agent at this location. A location may only contain a single
-		 * agent.
+		 * @return The agent at this location. A location may only contain a single agent.
 		 */
 		public Agent getAgent() {
 			return Environment.this.getAgent(this);
+		}
+
+		/**
+		 * @return The food source at this location.  A location may only contain a single food source.
+		 */
+		public FoodSource getFoodSource() {
+			return Environment.this.getFoodSource(this);
 		}
 
 		/** @return the environment which contains this location */
@@ -265,6 +277,10 @@ public abstract class Environment {
 		 */
 		public int getField(int field) {
 			return Environment.this.getField(this, field);
+		}
+
+		public void removeFoodSource() {
+			Environment.this.removeFoodSource(this);
 		}
 
 		// Support for containers...
@@ -358,6 +374,9 @@ public abstract class Environment {
 
 	}
 
+	/**
+	 * All locations within simulation.
+	 */
 	private Location[][] locationCache;
 
 	/** Axis constants, to make dimensionality make sense */
@@ -393,6 +412,11 @@ public abstract class Environment {
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 	protected java.util.Hashtable<Location, Agent> samplePop = new Hashtable<Location, Agent>();
 
+	/**
+	 * The implementation uses a hash table to store food sources, as we assume there
+	 * are many more locations than food sources.
+	 */
+	protected java.util.Hashtable<Location, FoodSource> foodSourceTable = new Hashtable<Location, FoodSource>();
 	private static DrawingHandler myUI;
 
 	public static DrawingHandler getUIPipe() {
@@ -423,7 +447,7 @@ public abstract class Environment {
 	 * @param y y coordinate
 	 * @param type agent type
 	 */
-	public void addFood(int x, int y, int type) {
+	public void addFoodSource(int x, int y, int type) {
 		// Nothing
 	}
 
@@ -449,8 +473,11 @@ public abstract class Environment {
 		agentTable.clear();
 	}
 
-	public void clearFood() {
-		// Nothing
+	public void clearFoodSources() {
+		for (FoodSource f : new LinkedList<FoodSource>(foodSourceTable.values())) {
+			f.getLocation().removeFoodSource();
+		}
+		foodSourceTable.clear();
 	}
 
 	public void clearStones() {
@@ -473,6 +500,10 @@ public abstract class Environment {
 
 	private Agent getAgent(Location l) {
 		return agentTable.get(l);
+	}
+
+	private FoodSource getFoodSource(Location l) {
+		return foodSourceTable.get(l);
 	}
 
 	public java.util.Collection<Agent> getAgentCollection() {
@@ -508,10 +539,14 @@ public abstract class Environment {
 
 	// Syntactic sugar for common cases
 	public Location getLocation(int x, int y) {
-
 		if (locationCache[x][y] == null)
 			locationCache[x][y] = new Location(new int[] { x, y });
 		return locationCache[x][y];
+	}
+
+	private void removeFoodSource(Location l) {
+		l.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+		foodSourceTable.remove(l);
 	}
 
 	public int getPopByPercentage(double amount) {
@@ -598,8 +633,9 @@ public abstract class Environment {
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 */
-	public void removeFood(int x, int y) {
-		// Nothing
+	public void removeFoodSource(int x, int y) {
+		Location l = getUserDefinedLocation(x, y);
+		l.removeFoodSource();
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package ga;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
@@ -19,6 +18,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 
 import cobweb.ColorLookup;
 import cobweb.TypeColorEnumeration;
+import driver.util.JComponentWaiter;
 
 
 public class GAChartOutput implements ActionListener {
@@ -43,13 +43,13 @@ public class GAChartOutput implements ActionListener {
 	private JFrame chart_display_frame;
 
 	/** Buttons that display GA outputs on the chart frame. */
-	private JButton gene_status_distribution_button
-		= new JButton("Genotype-Phenotype Correlation Value");
-	private JButton gene_value_distribution_button
-		= new JButton("Genotype Value");
+	private JButton gene_status_distribution_button =
+		new JButton("Genotype-Phenotype Correlation Value");
+	private JButton gene_value_distribution_button =
+		new JButton("Genotype Value");
 
 	/** Current component on display. */
-	private Component current_display;
+	private JPanel current_display;
 
 	/** Update frequency of chart (time step per update) */
 	public int update_frequency = 1;
@@ -58,8 +58,8 @@ public class GAChartOutput implements ActionListener {
 
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 
-			/* Give focus to the gene_status_distribution plot and remove
-			 * chart currently displayed from the display frame.*/
+		/* Give focus to the gene_status_distribution plot and remove
+		 * chart currently displayed from the display frame.*/
 		if (e.getSource().equals(gene_status_distribution_button)) {
 			chart_display_frame.remove(current_display);
 			chart_display_frame.getContentPane()
@@ -88,13 +88,13 @@ public class GAChartOutput implements ActionListener {
 		for (int i = 0; i < geneCount; i++) {
 			gene_status_distribution_data[i] = new DefaultXYDataset();
 			gene_status_distribution_chart[i] = ChartFactory.createXYAreaChart(
-		             "Gene " + (i+1) + " : " + names[i],
-		             "Phenotype Multiplier", "Number of Agents",
-		             gene_status_distribution_data[i], PlotOrientation.VERTICAL,
-		             true,    // legend?
-		             true,    // tooltips?
-		             false    // URLs?
-		         );
+					"Gene " + (i+1) + " : " + names[i],
+					"Phenotype Multiplier", "Number of Agents",
+					gene_status_distribution_data[i], PlotOrientation.VERTICAL,
+					true,    // legend?
+					true,    // tooltips?
+					false    // URLs?
+			);
 
 			XYItemRenderer renderer = gene_status_distribution_chart[i].getXYPlot().getRenderer();
 
@@ -103,12 +103,12 @@ public class GAChartOutput implements ActionListener {
 			}
 
 			ChartPanel cp = new ChartPanel(gene_status_distribution_chart[i]);
-	        gene_status_distribution_panel.add(cp);
-	        gene_status_distribution_chart[i].addChangeListener(cp);
+			gene_status_distribution_panel.add(cp);
+			gene_status_distribution_chart[i].addChangeListener(cp);
 		}
 		chart_display_frame.getContentPane().add(gene_status_distribution_panel, BorderLayout.CENTER);
 		current_display = gene_status_distribution_panel;
-        initGeneStatusDistributionRangeVector(); // Initialize x vector
+		initGeneStatusDistributionRangeVector(); // Initialize x vector
 	}
 
 	private int numAgentTypes;
@@ -126,20 +126,17 @@ public class GAChartOutput implements ActionListener {
 		gene_status_distribution_data  = new DefaultXYDataset[geneCount];
 		gene_value_distribution_data = new DefaultXYDataset[geneCount];
 
-		chart_display_frame = new JFrame();
-
-		chart_display_frame.setName("Genotype Value Distribution");
 		gene_value_distribution_panel = new JPanel(new GridLayout(1,geneCount));
 		for (int i = 0; i < geneCount; i++) {
 			gene_value_distribution_data[i] = new DefaultXYDataset();
 			gene_value_distribution_chart[i] = ChartFactory.createXYAreaChart(
 					"Gene " + (i+1) + " : " + names[i],
-		             "Gene Value", "Number of Agents",
-		             gene_value_distribution_data[i], PlotOrientation.VERTICAL,
-		             true,    // legend?
-		             true,    // tooltips?
-		             false    // URLs?
-		         );
+					"Gene Value", "Number of Agents",
+					gene_value_distribution_data[i], PlotOrientation.VERTICAL,
+					true,    // legend?
+					true,    // tooltips?
+					false    // URLs?
+			);
 
 			XYItemRenderer renderer = gene_value_distribution_chart[i].getXYPlot().getRenderer();
 			for (int agent = 0; agent < numAgentTypes; agent++) {
@@ -147,11 +144,10 @@ public class GAChartOutput implements ActionListener {
 			}
 
 
-	        ChartPanel cp = new ChartPanel(gene_value_distribution_chart[i]);
-	        gene_value_distribution_panel.add(cp);
-	        gene_value_distribution_chart[i].addChangeListener(cp);
+			ChartPanel cp = new ChartPanel(gene_value_distribution_chart[i]);
+			gene_value_distribution_panel.add(cp);
+			gene_value_distribution_chart[i].addChangeListener(cp);
 		}
-		chart_display_frame.getContentPane().add(gene_value_distribution_panel, BorderLayout.CENTER);
 		current_display = gene_value_distribution_panel;
 		initGeneValueDistributionRangeVector(); // Initialize x vector
 
@@ -160,6 +156,7 @@ public class GAChartOutput implements ActionListener {
 			chart_display_frame = null;
 		}
 		chart_display_frame = new JFrame("Gene Statistics");
+		refreshWaiter = new JComponentWaiter(chart_display_frame);
 		JPanel button_panel = new JPanel();
 
 		// If we are tracking the gene status distribution
@@ -198,17 +195,39 @@ public class GAChartOutput implements ActionListener {
 		// Nothing
 	}
 
+	JComponentWaiter refreshWaiter;
+
 	/** Update the gene_status_distribution data */
 	public void updateGeneStatusDistributionData(double[][][] value, double[][][] status) {
-		for (int j = 0; j < geneCount; j++) {
-			for (int i = 0; i < numAgentTypes; i++) {
-				double[][] new_status = {gene_status_distribution_range, status[i][j]};
-				String key = "Agent " + (i+1);
-				gene_status_distribution_data[j].addSeries(key, new_status);
-				double[][] new_values = {gene_value_distribution_range, value[i][j]};
-				gene_value_distribution_data[j].addSeries(key, new_values);
+		/* 
+		 * Collecting all data into one array, then replacing everything at once
+		 * to hopefully fix race condition in JFreeChart
+		 */
+		double[][][][][] new_datasets = new double[geneCount][][][][];
+
+		if (refreshWaiter.isReadyToRefresh()) {
+			for (int j = 0; j < geneCount; j++) {
+				new_datasets[j] = new double[numAgentTypes][2][][];
+
+				for (int i = 0; i < numAgentTypes; i++) {
+					double[][] newx = {gene_status_distribution_range, status[i][j]};
+					new_datasets[j][i][0] = newx;
+					double[][] newy = {gene_value_distribution_range, value[i][j]};
+					new_datasets[j][i][1] = newy;
+				}
 			}
+
+			for (int j = 0; j < geneCount; j++) {
+				for (int i = 0; i < numAgentTypes; i++) {
+					String key = "Agent " + (i+1);
+					gene_status_distribution_data[j].addSeries(key, new_datasets[j][i][0]);
+					gene_value_distribution_data[j].addSeries(key, new_datasets[j][i][1]);
+				}
+			}
+
+			// If wait is true, there might be a deadlock pressing the stop button
+			refreshWaiter.refresh(false);
 		}
-		chart_display_frame.repaint();
+
 	}
 }

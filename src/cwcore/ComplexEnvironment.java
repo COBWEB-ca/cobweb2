@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -190,7 +189,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	// Returns current location's food type
 	public int getFoodType(cobweb.Environment.Location l) {
-		return foodarray[l.v[0]][l.v[1]];
+		return l.getFoodSource().getType();
 	}
 
 	GATracker gaTracker;
@@ -203,9 +202,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private ComplexEnvironmentParams data = new ComplexEnvironmentParams();
 
-	// Food array contains type and their locations
-	private static int[][] foodarray = new int[0][];
-
 	/*
 	 * Waste tile array to store the data per waste tile. Needed to allow
 	 * depletion of waste
@@ -216,11 +212,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private int draughtdays[];
 
-	int[][] backFoodArray;
-
 	ArrayEnvironment backArray;
-
-	int mostFood[];
 
 	public PacketConduit commManager;
 
@@ -278,7 +270,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
-	public synchronized void addFood(int x, int y, int type) {
+	public synchronized void addFoodSource(int x, int y, int type) {
 
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
@@ -286,7 +278,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			throw new IllegalArgumentException("stone here already");
 		}
 		l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-		setFoodType(l, type);
+		FoodSource f = new FoodSource (foodData[type].quantity, type, l, 
+				foodData[type].depleteRate, foodData[type].growRate);
+		foodSourceTable.put(l, f);
 
 		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
 		fillTileColors(tileColors);
@@ -300,8 +294,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			return;
 		}
 
-		if (l.testFlag(FLAG_FOOD))
-			l.setFlag(FLAG_FOOD, false);
+		if (l.getFoodSource() != null)
+			l.removeFoodSource();
 		if (l.testFlag(FLAG_DROP))
 			l.setFlag(FLAG_DROP, false);
 
@@ -322,7 +316,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				Location currentPos = getLocation(x, y);
 
 				if (currentPos.testFlag(flag)) {
-					currentPos.setFlag(flag, false);
+					if (flag == ComplexEnvironment.FLAG_FOOD)
+						currentPos.removeFoodSource();
+					else
+						currentPos.setFlag(flag, false);
 				}
 			}
 		}
@@ -334,8 +331,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * -4: remove waste
 	 */
 	@Override
-	public synchronized void clearFood() {
-		super.clearFood();
+	public synchronized void clearFoodSources() {
+		super.clearFoodSources();
 		clearFlag(FLAG_FOOD);
 	}
 
@@ -416,7 +413,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+				if (currentPos.getFoodSource() != null)
 					++foodCount;
 			}
 		}
@@ -429,7 +426,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+				if (currentPos.getFoodSource() != null)
 					if (getFoodType(currentPos) == foodType)
 						++foodCount;
 			}
@@ -447,19 +444,19 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// and we destroy the food at the positions occupying the last N
 		// spots in our vector
 		LinkedList<Location> locations = new LinkedList<Location>();
-		for (int x = 0; x < getSize(AXIS_X); ++x)
+		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
+				if (currentPos.getFoodSource() != null && getFoodType(currentPos) == type)
 					locations.add(environmentRandom.nextInt(locations.size() + 1), currentPos);
 			}
+		}
 
 		int foodToDeplete = (int) (locations.size() * foodData[type].depleteRate);
 
 		for (int j = 0; j < foodToDeplete; ++j) {
 			Location loc = locations.removeLast();
-
-			loc.setFlag(FLAG_FOOD, false);
+			loc.removeFoodSource();
 		}
 		draughtdays[type] = foodData[type].draughtPeriod;
 	}
@@ -475,16 +472,19 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				l = getRandomLocation();
 
 			} while (j < DROP_ATTEMPTS_MAX
-					&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_FOOD)
+					&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.getFoodSource() != null
 							|| l.testFlag(ComplexEnvironment.FLAG_DROP) || l.getAgent() != null));
 
 			if (j < DROP_ATTEMPTS_MAX) {
-				l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-				setFoodType(l, type);
+				addFoodSource(l.v[0], l.v[1], type);
 			}
 		}
 	}
 
+	/**
+	 * Fills tile colour array with colours corresponding to whether there is 
+	 * a food source, a stone, waste, or nothing.
+	 */
 	@Override
 	public void fillTileColors(java.awt.Color[] tileColors) {
 		int tileIndex = 0;
@@ -495,7 +495,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				if (currentPos.testFlag(FLAG_STONE))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
 
-				else if (currentPos.testFlag(FLAG_FOOD))
+				else if (currentPos.getFoodSource() != null)
 					tileColors[tileIndex++] = colorMap.getColor(getFoodType(currentPos), 0 /* agentTypeCount */);
 
 				else
@@ -608,100 +608,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private void growFood() {
 
-		for (int y = 0; y < getSize(AXIS_Y); ++y) {
-			for (int x = 0; x < getSize(AXIS_X); ++x) {
-				Location currentPos = getLocation(x, y);
-				// if there's a stone or already food, we simply copy the
-				// information from the old arrays to the new ones
-				backArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
-				backFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
-			}
+		for (FoodSource food : new LinkedList<FoodSource>(foodSourceTable.values())) {
+			FoodSource newFood = food.reproduce();
+			if (newFood != null)
+				foodSourceTable.put(newFood.getLocation(), newFood);
 		}
-
-		// create a new ArrayEnvironment and a new food type array
-		// loop through all positions
-		for (int y = 0; y < getSize(AXIS_Y); ++y) {
-			for (int x = 0; x < getSize(AXIS_X); ++x) {
-				Location currentPos = getLocation(x, y);
-				// if there's a stone or already food, we simply copy the
-				// information from the old arrays to the new ones
-				if ((array.getLocationBits(currentPos) & MASK_TYPE) == 0) {
-					// otherwise, we want to see if we should grow food here
-					// the following code block tests all adjacent squares
-					// to this one and counts how many have food
-					// as well how many of each food type exist
-
-					double foodCount = 0;
-					Arrays.fill(mostFood, 0);
-
-					Location checkPos = currentPos.getAdjacent(DIRECTION_NORTH);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						foodCount++;
-						mostFood[getFoodType(checkPos)]++;
-					}
-					checkPos = currentPos.getAdjacent(DIRECTION_SOUTH);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						foodCount++;
-						mostFood[getFoodType(checkPos)]++;
-					}
-					checkPos = currentPos.getAdjacent(DIRECTION_EAST);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						foodCount++;
-						mostFood[getFoodType(checkPos)]++;
-					}
-					checkPos = currentPos.getAdjacent(DIRECTION_WEST);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-						foodCount++;
-						mostFood[getFoodType(checkPos)]++;
-					}
-
-					// and if we have found any adjacent food, theres a
-					// chance we want to grow food here
-					if (foodCount > 0) {
-
-						int max = 0;
-						int growingType;
-
-						// find the food that exists in the largest quantity
-						for (int i = 1; i < mostFood.length; ++i)
-							if (mostFood[i] > mostFood[max])
-								max = i;
-
-						// give the max food an extra chance to be chosen
-
-						if (data.likeFoodProb >= cobweb.globals.random.nextFloat()) {
-							growingType = max;
-						} else {
-							growingType = environmentRandom.nextInt(data.getFoodTypes());
-						}
-
-						// finally, we grow food according to a certain
-						// amount of random chance
-						if (foodCount * foodData[growingType].growRate > 100 * environmentRandom.nextFloat()) {
-							backArray.setLocationBits(currentPos, FOOD_CODE);
-							// setFoodType (currentPos, growMe);
-							backFoodArray[currentPos.v[0]][currentPos.v[1]] = growingType;
-						} else {
-							backArray.setLocationBits(currentPos, 0);
-							backFoodArray[currentPos.v[0]][currentPos.v[1]] = -123154534;
-						}
-					} else {
-						backArray.setLocationBits(currentPos, 0);
-						backFoodArray[currentPos.v[0]][currentPos.v[1]] = -123154534;
-					}
-				}
-			}
-		}
-
-		// The tile array we've just computed becomes the current tile array
-		ArrayEnvironment swapArray = array;
-		array = backArray;
-		backArray = swapArray;
-
-		int[][] swapFoodArray = foodarray;
-		foodarray = backFoodArray;
-		backFoodArray = swapFoodArray;
-
 	}
 
 	/**
@@ -869,14 +780,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		if (data.keepOldArray) {
 			int[] boardIndices = { data.width, data.height };
 			array = new cobweb.ArrayEnvironment(data.width, data.height, array);
-			foodarray = cobweb.ArrayUtilities.resizeArray(foodarray, boardIndices);
 		} else {
 			array = new cobweb.ArrayEnvironment(data.width, data.height);
-			foodarray = new int[data.width][data.height];
 		}
 		backArray = new ArrayEnvironment(data.width, data.height);
-		backFoodArray = new int[data.width][data.height];
-		mostFood = new int[data.getFoodTypes()];
 
 		setupLocationCache();
 		cwcore.ComplexAgentInfo.initialize(data.getAgentTypes());
@@ -1019,9 +926,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					l = getRandomLocation();
 				} while ((tries++ < 100)
 						&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_DROP)));
-				if (tries < 100)
-					l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
-				setFoodType(l, i);
+				if (tries < 100) {
+					addFoodSource(l.v[0], l.v[1], i);
+				}
 			}
 		}
 	}
@@ -1110,7 +1017,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
 				if (dropArray[currentPos.v[0]][currentPos.v[1]] != null) {
-					currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					currentPos.removeFoodSource();
 					currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
 					currentPos.setFlag(ComplexEnvironment.FLAG_DROP, true);
 				}
@@ -1227,10 +1134,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
-	public synchronized void removeFood(int x, int y) {
-		super.removeFood(x, y);
-		Location l = getLocation(x, y);
-		l.setFlag(FLAG_FOOD, false);
+	public synchronized void removeFoodSource(int x, int y) {
+		super.removeFoodSource(x, y);
 	}
 
 	@Override
@@ -1325,9 +1230,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	// Sets Food Type in foodarray [];
-	public void setFoodType(cobweb.Environment.Location l, int i) {
-		foodarray[l.v[0]][l.v[1]] = i;
+	/**
+	 * @param l Location of food source.
+	 * @param type Type of food source. 
+	 */
+	public void setFoodType(cobweb.Environment.Location l, int type) {
+		l.getFoodSource().setType(type);
 	}
 
 	protected void setLocationBits(cobweb.Environment.Location l, int bits) {
@@ -1404,6 +1312,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		if (observedAgent != null && !observedAgent.isAlive()) {
 			observedAgent = null;
 		}
+
+		for (FoodSource f : new LinkedList<FoodSource>(foodSourceTable.values())) {
+			if (f.isEmpty())
+				foodSourceTable.remove(f.getLocation());
+		}
+
+
 	}
 
 	public void tickZero() {
@@ -1569,12 +1484,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	@Override
 	public boolean hasFood(int x, int y) {
-		return testFlag(getUserDefinedLocation(x, y), FLAG_FOOD);
+		Location l = getUserDefinedLocation(x, y);
+		return (l.getFoodSource() != null);
 	}
 
 	@Override
 	public int getFood(int x, int y) {
-		return foodarray[x][y];
+		Location l = getUserDefinedLocation(x, y);
+		return l.getFoodSource().getType();
 	}
 
 	@Override

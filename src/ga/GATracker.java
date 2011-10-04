@@ -78,9 +78,6 @@ public class GATracker implements Client {
 			track_gene_value_distribution = false;
 		if (track_gene_value_distribution) {
 			charOutput = new GAChartOutput(typeCount, geneCount, names);
-			// Initialize chart output
-			charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
-			plotGeneValueDistribution();
 		}
 		frameskip = 0;
 	}

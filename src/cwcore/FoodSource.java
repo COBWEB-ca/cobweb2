@@ -71,10 +71,15 @@ public class FoodSource {
 	public FoodSource reproduce() {
 		if(this.rollRandom(this.sporeProb)) {
 			//get a random direction
-			Direction randDir = Direction.getRandom();
+			Direction randDir;
+			Environment.Location newCoords;
+
 			//the spawn point for the offspring is adjacent to the position of this food source
 			//in the random direction
-			Environment.Location newCoords = this.coords.add(1, randDir);
+			do {
+				randDir = Direction.getRandom();
+				newCoords = this.coords.add(1, randDir);
+			} while (newCoords == null);
 
 			return new FoodSource(this.startFood, this.type, newCoords, this.depletionRate, this.sporeProb);
 		} else {
@@ -105,10 +110,11 @@ public class FoodSource {
 
 	/**
 	 * Remove a piece of food from the food source.
-	 * @return A piece of food that is of the same type as the food source.
+	 * @return A piece of food that is of the same type as the food source. Null, if no food.
 	 */
 	public Food getFood() {
 		this.startFood--;
+
 		return new Food(this.type);
 	}
 
@@ -129,6 +135,14 @@ public class FoodSource {
 	}
 
 	/**
+	 * @param type Food source type
+	 * @author RickyD
+	 */
+	public void setType (int type) {
+		this.type = type;
+	}
+
+	/**
 	 * Compare two food sources. Return true if they are the same food sources, false otherwise.
 	 * @param other Another (or the same) food source.
 	 * @return True if they are the same food source, false otherwise.
@@ -137,6 +151,4 @@ public class FoodSource {
 		//assume that only one food source can occupy the same set of coordinates
 		return this.getLocation() == other.getLocation();
 	}
-
-
 }

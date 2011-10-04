@@ -7,7 +7,7 @@ public abstract class Occurrence implements Queueable {
 	public float detectableDistance;
 	public ComplexAgentLearning target;
 	public long time;
-	public MemorableEvent event;
+	private MemorableEvent event;
 	private boolean hasOccurred = false;
 	String desc;
 
@@ -33,8 +33,8 @@ public abstract class Occurrence implements Queueable {
 	}
 
 	public MemorableEvent getEvent() {
-		if (event == null) {
-			throw new NullPointerException("Must call occur() before calling getEvent()!");
+		if (!hasOccurred) {
+			throw new IllegalStateException("Cannot get event that has not occured");
 		}
 		return event;
 	}

@@ -233,6 +233,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		copyConstants(parent1);
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, parent1.info, parent2.info, strat);
 
 		move(pos);
@@ -258,6 +259,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		copyConstants(parent);
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, parent.info, strat);
 
 		move(pos);
@@ -275,6 +277,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		this.facing = facingDirection;
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentT, doCheat);
 
 		move(pos);
@@ -301,6 +304,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		params = agentData;
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
+		birthTick = environment.getTickCount();
 		info = environment.addAgentInfo(agentType, doCheat);
 		this.agentType = agentType;
 
@@ -464,7 +468,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_AGENT);
 
 			// If there's food there, return the food...
-			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+			if (destPos.getFoodSource() != null)
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_FOOD);
 
 			if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
@@ -483,6 +487,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * 
 	 * @param destPos Location of food.
 	 */
+	@Deprecated
 	public void eat(cobweb.Environment.Location destPos) {
 		//agent can only eat once per turn
 		if(!this.hasEaten) {
@@ -491,6 +496,28 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 			// Gain Energy according to the food type.
 			if (environment.getFoodType(destPos) == agentType) {
+				energy += params.foodEnergy;
+				wasteCounterGain -= params.foodEnergy;
+				info.addFoodEnergy(params.foodEnergy);
+			} else {
+				energy += params.otherFoodEnergy;
+				wasteCounterGain -= params.otherFoodEnergy;
+				info.addOthers(params.otherFoodEnergy);
+			}
+
+			//set eaten flag
+			this.hasEaten = true;
+		}
+	}
+
+	public void eat(Food food) {
+		//agent can only eat once per turn
+		if(!this.hasEaten) {
+			// TODO: CHECK if setting flag before determining type is ok
+			// Eat first before we can produce waste, of course.
+			//destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			// Gain Energy according to the food type.
+			if (food.getType() == agentType) {
 				energy += params.foodEnergy;
 				wasteCounterGain -= params.foodEnergy;
 				info.addFoodEnergy(params.foodEnergy);
@@ -670,7 +697,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (destPos.getAgent() != null)
 			return ComplexEnvironment.FLAG_STONE;
 		// If there's food there, return the food...
-		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+		if (destPos.getFoodSource() != null)
 			return ComplexEnvironment.FLAG_FOOD;
 		// waste check
 		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
@@ -1063,12 +1090,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	protected void onstepFreeTile(cobweb.Environment.Location destPos) {
 		// Check for food...
 		cobweb.Environment.Location breedPos = null;
-		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+		if (destPos.getFoodSource() != null) {
 			if (params.broadcastMode & canBroadcast()) {
 				broadcastFood(destPos);
 			}
 			if (canEat(destPos)) {
-				eat(destPos);
+				eat(destPos.getFoodSource().getFood());
 			}
 			if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 
@@ -1085,7 +1112,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 
 		for (StepMutator m : stepMutators)
-			m.onStep(this, getPosition(), destPos);
+			m.onStep(this, destPos, getPosition());
 
 		move(destPos);
 
@@ -1205,10 +1232,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//update current tick
 		currTick = tick;
 
-		/* Hack to find the birth tick... */
-		if (birthTick == 0)
-			birthTick = currTick;
-
 		//age the agent
 		age++;
 
@@ -1223,7 +1246,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//reset this flag at beginning of every tick
 		this.hasEaten = false;
 
-		//receive broadcasts
+		/* Check if broadcasting is enabled */
+		if (params.broadcastMode)
+			receiveBroadcast();
 	}
 
 	/**
@@ -1234,10 +1259,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		/* Produce waste if able */
 		if (params.wasteMode && shouldPoop())
 			tryPoop();
-
-		/* Check if broadcasting is enabled */
-		if (params.broadcastMode)
-			receiveBroadcast();
 	}
 
 	/**
@@ -1319,8 +1340,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		for (int i = 0; i < dirList.length; i++) {
 			loc = getPosition().getAdjacent(dirList[i]);
 			if (loc != null && loc.getAgent() == null && !loc.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !loc.testFlag(ComplexEnvironment.FLAG_DROP) && !loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-				loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+					&& !loc.testFlag(ComplexEnvironment.FLAG_DROP) && loc.getFoodSource() == null) {
+				loc.removeFoodSource();
 				loc.setFlag(ComplexEnvironment.FLAG_STONE, false);
 				loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
 				environment.setDrop(loc, d);
@@ -1336,8 +1357,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!added) {
 			for (int i = 0; i < dirList.length; i++) {
 				loc = getPosition().getAdjacent(dirList[i]);
-				if (loc != null && loc.getAgent() == null && loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-					loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+				if (loc != null && loc.getAgent() == null && loc.getFoodSource() != null) {
+					loc.removeFoodSource();
 					loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
 					environment.setDrop(loc, d);
 					break;
