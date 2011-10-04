@@ -81,6 +81,7 @@ public class FoodSource {
 				newCoords = this.coords.add(1, randDir);
 			} while (newCoords == null);
 
+			newCoords.setFlag(ComplexEnvironment.FLAG_FOOD, true);
 			return new FoodSource(this.startFood, this.type, newCoords, this.depletionRate, this.sporeProb);
 		} else {
 			return null;

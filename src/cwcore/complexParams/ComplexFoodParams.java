@@ -22,8 +22,8 @@ public class ComplexFoodParams extends AbstractReflectionParams {
 	/**
 	 * Amount of food sources dropped on the grid initially
 	 */
-	@ConfDisplayName("Initial amount")
-	@ConfXMLTag("Food")
+	@ConfDisplayName("Initial food sources")
+	@ConfXMLTag("InitialFoodSources")
 	public int initial = 20;
 
 	/**
@@ -35,18 +35,26 @@ public class ComplexFoodParams extends AbstractReflectionParams {
 	public float dropRate = 0;
 
 	/**
-	 * Rate at which food grows around existing food.
+	 * Mean growth rate at which food grows around existing food.
 	 * The chance food will grow at a specific cell, given there are N cells 
 	 * with food touching this cell from top/bottom/left/right is: 
 	 * N * growRate / 100
 	 */
-	@ConfDisplayName("Growth rate")
-	@ConfXMLTag("FoodGrow")
-	public int growRate = 4;
+	@ConfDisplayName("Mean growth rate")
+	@ConfXMLTag("MeanGrowRate")
+	public double growRate = 0.15;
+
+	/**
+	 * Standard deviation of food source growth rates.
+	 */
+	@ConfDisplayName("Growth rate variability")
+	@ConfXMLTag("VarGrowRate")
+	public float varGrowRate = 4;
 
 	/**
 	 * Fraction of the food that will disappear when the deplete time comes.
 	 */
+
 	@ConfDisplayName("Depletion rate")
 	@ConfXMLTag("FoodDeplete")
 	public float depleteRate = 0.9f;
@@ -68,9 +76,10 @@ public class ComplexFoodParams extends AbstractReflectionParams {
 	/**
 	 * How much food is in the food source initially
 	 */
-	@ConfDisplayName("Food Quantity")
+	@ConfDisplayName("Initial Food Quantity")
 	@ConfXMLTag("Quantity")
 	public int quantity = 1;
+
 
 	public ComplexFoodParams() {
 		// public, no parameter constructor for serialization
