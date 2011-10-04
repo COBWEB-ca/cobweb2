@@ -47,6 +47,8 @@ import driver.ControllerFactory;
  */
 public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.Client, Serializable{
 
+
+
 	/**
 	 * This class provides the information of what an agent sees.
 	 *

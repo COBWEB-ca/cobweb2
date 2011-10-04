@@ -10,6 +10,7 @@ import cobweb.Environment;
 public class FoodSource {
 	/**
 	 * The number of seeds this food source currently has.
+	 * TODO read this from XML file
 	 */
 	private int numSeeds;
 
@@ -47,6 +48,11 @@ public class FoodSource {
 	private Environment.Location coords;
 
 	/**
+	 * The environment in which this food source is contained.
+	 */
+	private Environment environment;
+
+	/**
 	 * Create a new food source with the given amount of starting food,
 	 */
 	public FoodSource(int startFood, int type, Environment.Location location, double depleteRate,
@@ -59,22 +65,27 @@ public class FoodSource {
 		this.sporeProb = reproductionProb;
 
 		this.coords = location;
+		this.environment = this.coords.getEnvironment();
+
+		//TODO read from XML or get this passed
+		this.numSeeds = 50;
 	}
 
 	/**
 	 * Spread all seeds. Return the locations where the seeds successfully germinate.
 	 */
 	private final LinkedList<Environment.Location> spreadSeeds() {
-		Environment.Location randomLoc;
-		double prob;
 		LinkedList<Environment.Location> goodSpots = new LinkedList<Environment.Location>();
+		Environment.Location landingSite;
+		double probGerminate;
 
-		for(int i = 0; i < numSeeds; i++) {		
-			randomLoc = this.coords.getEnvironment().getRandomFreeLocation();
-			prob = probGerminate(this.coords.distanceSquare(randomLoc));
+		for(int i = 0; i < this.numSeeds; i++) {
+			//get the seed landing spot
+			landingSite = this.getRandomSeedLandingSite();
+			probGerminate = probGerminate(this.coords.distanceSquare(landingSite));
 
-			if(rollRandom(prob)) {
-				goodSpots.add(randomLoc);
+			if(rollRandom(probGerminate)) {
+				goodSpots.add(landingSite);
 			}
 		}
 
@@ -88,8 +99,36 @@ public class FoodSource {
 	 * @return The probability that the seed germinates.
 	 */
 	public static double probGerminate(int distanceSq) {
-		//P(d^2) = e^(-2d^2 / e)
-		return Math.pow(Math.E, -2 * distanceSq / Math.E);
+		//P(d) = e^(-2d / e)
+		return Math.pow(Math.E, -2 * Math.sqrt(distanceSq) / Math.E);
+	}
+
+	/**
+	 * Return a random landing site for a seed dispersed by this food source.
+	 * The landing sites are normally distributed around this location.
+	 * @return The location of the landing site.
+	 */
+	public Environment.Location getRandomSeedLandingSite() {
+		//most of normal distribution is contained within 3 standard deviations from mean (99.7%)
+
+		int randX, randY;
+		double sx, sy;
+		Environment.Location randLoc;
+
+		do {
+			//get the standard deviations for x and y
+			sy = (this.environment.getSize(Environment.AXIS_Y) - this.coords.v[1]) / 3;
+			sx = (this.environment.getSize(Environment.AXIS_X) - this.coords.v[0]) / 3;
+
+			//get random coordinates for x and y based on transformation of standard normal
+			randX = (int) Math.floor(cobweb.globals.random.nextGaussian() * sx + this.coords.v[0]);
+			randY = (int) Math.floor(cobweb.globals.random.nextGaussian() * sy + this.coords.v[1]);
+
+			randLoc = this.environment.getLocation(randX, randY);
+			//make sure that the coordinates are valid (99.7%) AND that they are not the same as these
+		} while (!randLoc.isValid() || randLoc.equals(this.coords));
+
+		return randLoc;
 	}
 
 	/**
