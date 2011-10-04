@@ -109,7 +109,7 @@ public class FoodSource {
 	 * @return The location of the landing site.
 	 */
 	public Environment.Location getRandomSeedLandingSite() {
-		//most of normal distribution is contained within 3 standard deviations from mean (99.7%)
+
 
 		int randX, randY;
 		double sx, sy;
@@ -117,8 +117,8 @@ public class FoodSource {
 
 		do {
 			//get the standard deviations for x and y
-			sy = (this.environment.getSize(Environment.AXIS_Y) - this.coords.v[1]) / 3;
-			sx = (this.environment.getSize(Environment.AXIS_X) - this.coords.v[0]) / 3;
+			sy = this.getStdDev(Environment.AXIS_Y);
+			sx = this.getStdDev(Environment.AXIS_X);
 
 			//get random coordinates for x and y based on transformation of standard normal
 			randX = (int) Math.floor(cobweb.globals.random.nextGaussian() * sx + this.coords.v[0]);
@@ -129,6 +129,21 @@ public class FoodSource {
 		} while (!randLoc.isValid() || randLoc.equals(this.coords));
 
 		return randLoc;
+	}
+
+	/**
+	 * Helper function for seed scattering.
+	 * Return the standard deviation computed for the given axis from this point.
+	 * @param axis The axis along which to compute the standard deviation.
+	 * @return The standard deviation being used.
+	 */
+	private double getStdDev(int axis) {
+		//most of normal distribution is contained within 3 standard deviations from mean (99.7%)
+
+		int distTop = this.environment.getSize(axis) - this.coords.v[axis];
+		int distBottom = this.coords.v[axis];
+
+		return Math.min(distTop, distBottom) / 3;
 	}
 
 	/**
