@@ -68,7 +68,15 @@ public class FoodSource {
 		this.environment = this.coords.getEnvironment();
 
 		//TODO read from XML or get this passed
-		this.numSeeds = 50;
+		this.numSeeds = 20;
+	}
+
+	/**
+	 * Return the number of seeds this food source produces.
+	 * @return The number of seeds this food source produces.
+	 */
+	public int getNumSeeds() {
+		return this.numSeeds;
 	}
 
 	/**
@@ -77,14 +85,13 @@ public class FoodSource {
 	private final LinkedList<Environment.Location> spreadSeeds() {
 		LinkedList<Environment.Location> goodSpots = new LinkedList<Environment.Location>();
 		Environment.Location landingSite;
-		double probGerminate;
 
 		for(int i = 0; i < this.numSeeds; i++) {
 			//get the seed landing spot
 			landingSite = this.getRandomSeedLandingSite();
-			probGerminate = probGerminate(this.coords.distanceSquare(landingSite));
 
-			if(rollRandom(probGerminate)) {
+			//if the seed germinates
+			if(rollRandom(probGerminate(landingSite))) {
 				goodSpots.add(landingSite);
 			}
 		}
@@ -93,13 +100,20 @@ public class FoodSource {
 	}
 
 	/**
-	 * Return the probability that a seed that landed at the given square
-	 * distance from this food source will successfully germinate.
-	 * @param distanceSq Square distance from this food source.
+	 * Return the probability that a seed that landed at the given square will successfully germinate.
+	 * If the seed landed on a non-empty square, the probability is 0.
+	 * If the square is empty, the probability decays exponentially away from this square.
+	 * @param seedLandingSite The tile on which the seed landed.
 	 * @return The probability that the seed germinates.
 	 */
-	public static double probGerminate(int distanceSq) {
-		//P(d) = e^(-2d / e)
+	private double probGerminate(Environment.Location seedLandingSite) {
+		if(!seedLandingSite.isEmpty()) {
+			return 0;
+		} 
+
+		int distanceSq = this.coords.distanceSquare(seedLandingSite);
+
+		//P(d^2) = e^(-2d^2 / e)
 		return Math.pow(Math.E, -2 * Math.sqrt(distanceSq) / Math.E);
 	}
 
@@ -109,8 +123,6 @@ public class FoodSource {
 	 * @return The location of the landing site.
 	 */
 	public Environment.Location getRandomSeedLandingSite() {
-
-
 		int randX, randY;
 		double sx, sy;
 		Environment.Location randLoc;
@@ -126,7 +138,7 @@ public class FoodSource {
 
 			randLoc = this.environment.getLocation(randX, randY);
 			//make sure that the coordinates are valid (99.7%) AND that they are not the same as these
-		} while (!randLoc.isValid() || randLoc.equals(this.coords));
+		} while (randLoc == null);
 
 		return randLoc;
 	}
@@ -140,10 +152,12 @@ public class FoodSource {
 	private double getStdDev(int axis) {
 		//most of normal distribution is contained within 3 standard deviations from mean (99.7%)
 
-		int distTop = this.environment.getSize(axis) - this.coords.v[axis];
-		int distBottom = this.coords.v[axis];
+		//		int distTop = this.environment.getSize(axis) / 6 - this.coords.v[axis];
+		//		int distBottom = this.coords.v[axis];
+		//
+		//		return Math.min(distTop, distBottom) / 3;
 
-		return Math.min(distTop, distBottom) / 3;
+		return this.environment.getSize(axis) / 6.0;
 	}
 
 	/**

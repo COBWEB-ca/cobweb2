@@ -642,14 +642,37 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * Call on each food source to reproduce. Add the offsprings to the food source hash table.
 	 */
 	private void growFood() {
+
+		//		long sum = 0;
+		//		int numFood = foodSourceTable.size();
+
 		for (FoodSource food : new LinkedList<FoodSource>(foodSourceTable.values())) {
 			LinkedList<FoodSource> newFood = food.reproduce();
 			FoodSource f;
+
+			//			sum += this.reproductiveSuccess(food, newFood.size());
 
 			while(!newFood.isEmpty()) {
 				f = newFood.pop();
 				foodSourceTable.put(f.getLocation(), f);
 			}
+		}
+
+		//		System.out.println("=== New tick ===");
+		//		System.out.println("Average reproductive success was " + (sum / numFood) + "%");
+	}
+
+	/**
+	 * Return the reproductive success rate of the given food source as a percent
+	 * @param f
+	 * @param numOffspring
+	 * @return
+	 */
+	private int reproductiveSuccess(FoodSource f, int numOffspring) {
+		if(f.getNumSeeds() == 0) {
+			return 0;
+		} else {
+			return Math.round(numOffspring * 100 / f.getNumSeeds());
 		}
 	}
 

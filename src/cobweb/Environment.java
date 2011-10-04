@@ -94,6 +94,9 @@ public abstract class Environment {
 			v = new int[Environment.this.getAxisCount()];
 			for (int i = 0; i < Environment.this.getAxisCount(); ++i)
 				v[i] = axisPos[i];
+
+			if (!isValid())
+				throw new RuntimeException();
 		}
 
 		/**
@@ -557,10 +560,43 @@ public abstract class Environment {
 	protected abstract int getField(Location l, int field);
 
 	// Syntactic sugar for common cases
+
+	/**
+	 * Scale down the coordinate until it makes sense to put it on the grid.
+	 * @param coord The value of the coordinate.
+	 * @param axis The axis along which the coordinate is set.
+	 * @return The scaled down coordinate.
+	 * TODO wrap properly
+	 */
+	private int scaleCoord(int coord, int axis) {
+		int max = this.getSize(axis);
+
+		while(coord < 0) {
+			coord += max;
+		}
+
+		while(coord >= max) {
+			coord -= max;
+		}
+
+		return coord;
+	}
+
+	/**
+	 * Return the location if it is valid.
+	 * Create the location if it is valid but is not yet created.
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 * @return The location.
+	 */
 	public Location getLocation(int x, int y) {
+		x = this.scaleCoord(x, AXIS_X);
+		y = this.scaleCoord(y, AXIS_Y);
+
 		if (locationCache[x][y] == null)
 			locationCache[x][y] = new Location(new int[] { x, y });
 		return locationCache[x][y];
+
 	}
 
 	private void removeFoodSource(Location l) {
