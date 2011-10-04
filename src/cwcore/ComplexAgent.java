@@ -141,17 +141,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		simCalc = calc;
 	}
 
-	/**
-	 * The agent's type.
-	 */
-	protected int agentType = 0;
-
 	public ComplexAgentParams params;
 
-	/**
-	 * Energy gauge 
-	 */
-	protected int energy;
 	/** Prisoner's Dilemma */
 	private int agentPDStrategy; // tit-for-tat or probability
 	int pdCheater; // The agent's action; 1 == cheater, else
@@ -167,8 +158,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private int photo_num = 0;
 	protected boolean want2meet = false;
 	boolean cooperate;
-	private long birthTick = 0;
-	protected long age = 0;
 
 	/* Waste variables */
 	private int wasteCounterGain;
@@ -186,10 +175,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	// pregnancyPeriod is set value while pregPeriod constantly changes
 	protected int pregPeriod;
-
-	protected boolean pregnant = false;
-
-	public static final int LOOK_DISTANCE = 4;
 
 	/** The current tick we are in (or the last tick this agent was notified */
 	protected long currTick = 0;
@@ -221,8 +206,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		contactMutators.clear();
 		stepMutators.clear();
 	}
-
-	protected cobweb.Direction facing = cobweb.Environment.DIRECTION_NORTH;
 
 	private static Set<SpawnMutator> spawnMutators = new LinkedHashSet<SpawnMutator>();
 
@@ -338,11 +321,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (pregnant) {
 			pregPeriod--;
 		}
-	}
-
-	@Override
-	public long birthday() {
-		return birthTick;
 	}
 
 	void broadcastCheating(cobweb.Environment.Location loc) { // []SK
@@ -471,7 +449,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		cobweb.Environment.Location destPos = getPosition().getAdjacent(d);
 		if (getPosition().checkFlip(d)) 
 			d = d.flip();
-		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
+		for (int dist = 1; dist <= MAX_SEE_SQUARE_DIST; ++dist) {
 
 			// We are looking at the wall
 			if (destPos == null)
@@ -496,7 +474,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			if (getPosition().checkFlip(d)) 
 				d = d.flip();
 		}
-		return new SeeInfo(LOOK_DISTANCE, 0);
+		return new SeeInfo(MAX_SEE_SQUARE_DIST, 0);
 	}
 
 	/**
@@ -558,10 +536,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			return null;
 		}
 		return destPos.getAgent();
-	}
-
-	public long getAge() {
-		return age;
 	}
 
 	@Override
@@ -639,10 +613,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (facing.equals(cobweb.Environment.DIRECTION_WEST))
 			return 3;
 		return 0;
-	}
-
-	public Direction getFacing() {
-		return facing;
 	}
 
 	public int getMemoryBuffer() {
@@ -1408,12 +1378,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		info.useTurning(params.turnRightEnergy);
 		info.addTurn();
 		afterTurnAction();
-	}
-
-
-	@Override
-	public int type() {
-		return agentType;
 	}
 
 	public void setWasteCounterLoss(int wasteCounterLoss) {
