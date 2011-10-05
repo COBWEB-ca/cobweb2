@@ -14,7 +14,13 @@ public class FoodSource extends CellObject {
 	 * The number of seeds this food source currently has.
 	 * TODO read this from XML file
 	 */
-	private int numSeeds;
+	private final int numSeeds = 10;
+
+	/**
+	 * The maximum age of this food source.
+	 * TODO read this from XML file
+	 */
+	private final int maxAge = 40;
 
 	/**
 	 * The probability per turn that this food source will reproduce by spreading all its seeds.
@@ -25,8 +31,14 @@ public class FoodSource extends CellObject {
 	 * The depletion rate of the food.
 	 * Every turn, the food this food source contains will be governed by:
 	 * F_now = F_last * (1 - depletionRate)
+	 * TODO not read anymore
 	 */
 	private double depletionRate; 
+
+	/**
+	 * Maximum food that this food source can contain at a given tick.
+	 */
+	private int maxFood;
 
 	/**
 	 * The amount of food left in the food source.
@@ -50,12 +62,22 @@ public class FoodSource extends CellObject {
 	private Environment environment;
 
 	/**
+	 * The age of this food source.
+	 */
+	private int age;
+
+	/**
 	 * Create a new food source with the given amount of starting food,
 	 */
 	public FoodSource(int startFood, int type, Environment.Location location, double depleteRate,
 			double reproductionProb) {
-		this.startFood = startFood;
+		this.startFood = 0;
+		this.age = 0;
+
+		this.maxFood = startFood;
+
 		this.foodLeft = startFood;
+
 		this.type = type;
 
 		this.depletionRate = depleteRate;
@@ -63,9 +85,10 @@ public class FoodSource extends CellObject {
 
 		this.position = location;
 		this.environment = this.position.getEnvironment();
+	}
 
-		//TODO read from XML or get this passed
-		this.numSeeds = 10;
+	public void age() {
+		this.age++;
 	}
 
 	/**
@@ -159,9 +182,11 @@ public class FoodSource extends CellObject {
 
 	/**
 	 * Deplete this food source once.
+	 * TODO someone, please call this function
 	 */
 	public void deplete() {
-		this.foodLeft = (int) Math.round(this.foodLeft * (1 - this.depletionRate));
+		//now the food left changes according to the age of the food source
+		this.foodLeft = (int) Math.round(-1 * this.maxFood * Math.pow((this.age - this.maxAge / 2), 2));
 	}
 
 	/**
@@ -203,7 +228,7 @@ public class FoodSource extends CellObject {
 	 * @return A piece of food that is of the same type as the food source. Null, if no food.
 	 */
 	public final Food getFood() {
-		this.startFood--;
+		this.foodLeft--;
 
 		return new Food(this.type);
 	}
