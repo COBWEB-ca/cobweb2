@@ -47,96 +47,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 
 
-	/**
-	 * Contains methods
-	 *  
-	 */
-	public abstract static class Drop {
-		//Gold colored drops
-		final static Color DROP_COLOR = new Color(238, 201, 0);
-
-		public Drop() {
-
-		}
-
-		public abstract boolean isActive(long val);
-
-		public abstract void reset(long time, int weight, float rate);
-
-		public Color getColor() {
-			return DROP_COLOR;
-		}
-
-		public boolean canStep() {
-			return true;
-		}
-	}
-
-	public static class Waste extends Drop {
-
-		private int initialWeight;
-
-		private long birthTick;
-
-		private float rate;
-
-		private double threshold;
-
-		private boolean valid;
-
-		public Waste() {
-			this(0, 0, 0);
-		}
-
-		public Waste(long birthTick, int weight, float rate) {
-			super();
-			initialWeight = weight;
-			this.birthTick = birthTick;
-			this.rate = rate;
-			// to avoid recalculating every tick
-			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
-			// skinawy
-			this.valid = true;
-		}
-
-		/* Call me sparsely, especially when the age is really old */
-		public double getAmount(long tick) {
-			return initialWeight * Math.pow(Math.E, -rate * (tick - birthTick));
-		}
-
-		@Override
-		public boolean isActive(long tick) {
-			if (!valid)
-				return false;
-			if (getAmount(tick) < threshold) {
-				valid = false;
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public void reset(long newBirthTick, int weight, float newRate) {
-			initialWeight = weight;
-			this.birthTick = newBirthTick;
-			this.rate = newRate;
-			// to avoid recalculating every tick
-			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
-			// skinawy
-			valid = true;
-		}
-
-		@Override
-		public Color getColor() {
-			return wasteColor;
-		}
-
-		@Override
-		public boolean canStep() {
-			return false;
-		}
-	}
-
 	private static final int DROP_ATTEMPTS_MAX = 5;
 
 	//Can't we do this some better way?
@@ -148,11 +58,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		STONE,
 		FOOD,
 		AGENT,
-		DROP
+		DROP,
+		SEED
 	}
 
 	/**
 	 * Return the integer associated with that flag.
+	 * If the flag object is not valid, return -1.
 	 * @param f The flag
 	 * @return Integer associated with that flag.
 	 */
@@ -161,7 +73,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		for(int i = 0; i < flags.length; i++) {
 			if(f.equals(flags[i])) {
-				return i;
+				return i + 1;
 			}
 		}
 
@@ -175,6 +87,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public static final int FLAG_AGENT = 3;
 
 	public static final int FLAG_DROP = 4;
+
+	public static final int FLAG_SEED = 5;
 
 	public static final int INIT_LAST_MOVE = 0; // Initial last move set to
 	// cooperate
@@ -203,7 +117,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
-	private static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
+	static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
 
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
