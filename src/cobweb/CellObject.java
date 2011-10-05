@@ -7,7 +7,7 @@ package cobweb;
  */
 public abstract class CellObject {
 
-	protected Environment.Location coords;
+	protected Environment.Location position;
 
 	/**
 	 * Return true if the other object can be placed on top of this one.
@@ -22,6 +22,6 @@ public abstract class CellObject {
 	 * @return The location of this object.
 	 */
 	public final Environment.Location getLocation() {
-		return coords;
+		return position;
 	}
 }
