@@ -2,12 +2,14 @@ package cwcore;
 
 import java.util.LinkedList;
 
+import cobweb.Agent;
+import cobweb.CellObject;
 import cobweb.Environment;
 
 /**
  * A mine of food.
  */
-public class FoodSource {
+public class FoodSource extends CellObject {
 	/**
 	 * The number of seeds this food source currently has.
 	 * TODO read this from XML file
@@ -43,11 +45,6 @@ public class FoodSource {
 	private int type;
 
 	/**
-	 * Location of this food source.
-	 */
-	private Environment.Location coords;
-
-	/**
 	 * The environment in which this food source is contained.
 	 */
 	private Environment environment;
@@ -64,11 +61,11 @@ public class FoodSource {
 		this.depletionRate = depleteRate;
 		this.sporeProb = reproductionProb;
 
-		this.coords = location;
-		this.environment = this.coords.getEnvironment();
+		this.position = location;
+		this.environment = this.position.getEnvironment();
 
 		//TODO read from XML or get this passed
-		this.numSeeds = 20;
+		this.numSeeds = 10;
 	}
 
 	/**
@@ -111,7 +108,7 @@ public class FoodSource {
 			return 0;
 		} 
 
-		int distanceSq = this.coords.distanceSquare(seedLandingSite);
+		int distanceSq = this.position.distanceSquare(seedLandingSite);
 
 		//P(d^2) = e^(-2d^2 / e)
 		return Math.pow(Math.E, -2 * Math.sqrt(distanceSq) / Math.E);
@@ -133,8 +130,8 @@ public class FoodSource {
 			sx = this.getStdDev(Environment.AXIS_X);
 
 			//get random coordinates for x and y based on transformation of standard normal
-			randX = (int) Math.floor(cobweb.globals.random.nextGaussian() * sx + this.coords.v[0]);
-			randY = (int) Math.floor(cobweb.globals.random.nextGaussian() * sy + this.coords.v[1]);
+			randX = (int) Math.floor(cobweb.globals.random.nextGaussian() * sx + this.position.v[0]);
+			randY = (int) Math.floor(cobweb.globals.random.nextGaussian() * sy + this.position.v[1]);
 
 			randLoc = this.environment.getLocation(randX, randY);
 			//make sure that the coordinates are valid (99.7%) AND that they are not the same as these
@@ -202,14 +199,6 @@ public class FoodSource {
 	}
 
 	/**
-	 * Return the location of this food source.
-	 * @return The location of this food source.
-	 */
-	public final Environment.Location getLocation() {
-		return this.coords;
-	}
-
-	/**
 	 * Remove a piece of food from the food source.
 	 * @return A piece of food that is of the same type as the food source. Null, if no food.
 	 */
@@ -251,5 +240,15 @@ public class FoodSource {
 	public boolean equals(FoodSource other) {
 		//assume that only one food source can occupy the same set of coordinates
 		return this.getLocation() == other.getLocation();
+	}
+
+	/**
+	 * Only an agent or waste can go on top of a food source.
+	 * @param other Another cell object.
+	 * @return True if other is an agent or food, false otherwise.
+	 */
+	@Override
+	public boolean canPlaceOnTop(CellObject other) {
+		return other instanceof Agent || other instanceof Waste;
 	}
 }
