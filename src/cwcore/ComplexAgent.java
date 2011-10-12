@@ -1318,6 +1318,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//all actions to be taken before controller
 		this.updateAgent(tick);
 
+		// If updateAgent called die();
+		if (!isAlive())
+			return;
+
 		this.control();
 
 		//all actions to be taken after controller
