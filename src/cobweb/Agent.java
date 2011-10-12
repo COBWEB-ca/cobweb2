@@ -1,5 +1,11 @@
 package cobweb;
 
+import cwcore.ComplexAgent;
+import cwcore.ComplexAgentInfo;
+import cwcore.ComplexEnvironment;
+import cwcore.Food;
+import cwcore.complexParams.ComplexAgentParams;
+
 /**
  * The Agent class represents the physical notion of an Agent in a simulation 
  * (living or not, location, colour).  Instances of the Agent class are not 
@@ -43,12 +49,32 @@ public abstract class Agent {
 		return nextID++;
 	}
 
+	/** 
+	 * The current tick we are in (or the last tick this agent was notified 
+	 */
+	protected long currTick = 0;
+
 	/**
 	 * Reset the id of this agent.
 	 */
 	public static void resetIDSequence() {
 		nextID = 1;
 	}
+
+	/**
+	 * True if asexual reproduction is an option.
+	 */
+	protected boolean asexFlag;
+
+	/**
+	 * pregnancyPeriod is set value while pregPeriod constantly changes
+	 */
+	protected int pregPeriod;
+
+	/**
+	 * FIXME: This probably should be in Complex agent only.
+	 */
+	public int pdCheater;
 
 	/**
 	 * True if agent is alive.
@@ -61,9 +87,29 @@ public abstract class Agent {
 	protected Environment.Location position;
 
 	/**
+	 * Environment agent is located in.
+	 */
+	protected ComplexEnvironment environment;
+
+	/**
 	 * TODO move to complex agent???
 	 */
 	protected Controller controller;
+
+	/**
+	 * Agent parameters.
+	 */
+	public static ComplexAgentParams params;
+
+	/**
+	 * default parameters.
+	 */
+	private static ComplexAgentParams defaultParams [];
+
+	/**
+	 * Agent info
+	 */
+	protected ComplexAgentInfo info;
 
 	/**
 	 * The tick in which this agent was born.
@@ -86,6 +132,16 @@ public abstract class Agent {
 	protected int energy;
 
 	/**
+	 * Accumulated waste gain.
+	 */
+	protected int wasteCounterGain;
+
+	/**
+	 * Accumulated waste loss.
+	 */
+	protected int wasteCounterLoss;
+
+	/**
 	 * Whether the agent is pregnant or not.
 	 */
 	protected boolean pregnant = false;
@@ -104,6 +160,12 @@ public abstract class Agent {
 	 * The direction in which the agent is facing.
 	 */
 	protected Direction facing;
+
+	/**
+	 * Set to true when an agent has eaten in that tick, false otherwise.
+	 * Reset every tick.
+	 */
+	protected boolean hasEaten = false;
 
 	/**
 	 * Return the direction the agent is currently facing.
@@ -151,6 +213,151 @@ public abstract class Agent {
 		// complex implementations of
 		// controller
 	}	
+
+	/** Sets the default mutable parameters of each agent type. */
+	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
+		defaultParams = params.clone();
+		for (int i = 0; i < params.length; i++) {
+			defaultParams[i] = (ComplexAgentParams) params[i].clone();
+		}
+	}
+
+	/**
+	 * Sets the agents parameters.
+	 * 
+	 * @param pdCheat
+	 * @param agentData The ComplexAgentParams used for this complex agent.
+	 */
+	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
+
+		this.params = agentData;
+
+		this.agentType = agentData.type;
+
+		energy = agentData.initEnergy;
+		wasteCounterGain = params.wasteLimitGain;
+		setWasteCounterLoss(params.wasteLimitLoss);
+
+	}
+
+	public void setWasteCounterLoss(int wasteCounterLoss) {
+		this.wasteCounterLoss = wasteCounterLoss;
+	}
+
+	/**
+	 * Copies the parameters from an Agent to be used for this
+	 * agent
+	 * 
+	 * @param p Agent parameters copied.
+	 */
+	public void copyConstants(Agent p) {
+		setConstants(p.pdCheater, (ComplexAgentParams) defaultParams[p.getAgentType()].clone());
+	}
+
+	/**
+	 * @param destPos The location of the agents next position.
+	 * @return True if agent can eat this type of food.
+	 */
+	public boolean canEat(cobweb.Environment.Location destPos) {
+		return params.foodweb.canEatFood[environment.getFoodType(destPos)];
+	}
+
+	/**
+	 * @param adjacentAgent The agent attempting to eat.
+	 * @return True if the agent can eat this type of agent.
+	 */
+	protected boolean canEat(ComplexAgent adjacentAgent) {
+		boolean caneat = false;
+		caneat = params.foodweb.canEatAgent[adjacentAgent.getAgentType()];
+		if (this.energy > params.breedEnergy)
+			caneat = false;
+
+		return caneat;
+	}
+
+	/**
+	 * The agent eats the adjacent agent by killing it and gaining 
+	 * energy from it.
+	 * 
+	 * @param adjacentAgent The agent being eaten.
+	 */
+	protected void eat(ComplexAgent adjacentAgent) {
+		int gain = (int) (adjacentAgent.energy * params.agentFoodEnergy);
+		energy += gain;
+		wasteCounterGain -= gain;
+		info.addCannibalism(gain);
+		adjacentAgent.die();
+	}
+
+	/**
+	 * The agent will eat and, as a result, will gain energy from 
+	 * the food if it has not eaten in this tick already.
+	 * 
+	 * @param food Food object being eaten.
+	 */
+	protected void eat(Food food) {
+		//agent can only eat once per turn
+		if(!this.hasEaten) 
+			// Eat first before we can produce waste, of course.
+
+			// Gain Energy according to the food type.
+			if (food.getType() == agentType) {
+				energy += params.foodEnergy;
+				wasteCounterGain -= params.foodEnergy;
+				info.addFoodEnergy(params.foodEnergy);
+			} else {
+				energy += params.otherFoodEnergy;
+				wasteCounterGain -= params.otherFoodEnergy;
+				info.addOthers(params.otherFoodEnergy);
+			}
+
+		//set eaten flag
+		this.hasEaten = true;
+	}
+
+	/**
+	 * If the agent changed directions this tick.  The 
+	 * agent will perform these actions.
+	 */
+	private void afterTurnAction() {
+		energy -= energyPenalty();
+		if (energy <= 0)
+			die();
+		if (!pregnant)
+			tryAsexBreed();
+		if (pregnant) {
+			pregPeriod--;
+		}
+	}
+
+	/**
+	 * If the agent has enough energy to breed, is randomly chosen to breed, 
+	 * and its asexFlag is true, then the agent will be pregnant and set to 
+	 * produce a child agent after the agent's asexPregnancyPeriod is up.
+	 */
+	protected void tryAsexBreed() {
+		if (asexFlag && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
+				&& cobweb.globals.random.nextFloat() < params.asexualBreedChance) {
+			pregPeriod = params.asexPregnancyPeriod;
+			pregnant = true;
+		}
+	}
+
+	/**
+	 * As the agent ages, it will lose more energy.
+	 * 
+	 * @return Energy penalty
+	 */
+	public double energyPenalty() {
+		if (!params.agingMode)
+			return 0.0;
+		double tempAge = currTick - birthTick;
+		assert(tempAge == age);
+		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
+				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
+
+		return penaltyValue;
+	}
 
 	/**
 	 * Return the agent's tick of birth.
@@ -261,6 +468,40 @@ public abstract class Agent {
 		}
 	}
 
+	/**
+	 * This method makes the agent turn left.  It does this by updating 
+	 * the direction of the agent and subtracts the amount of 
+	 * energy it took to turn.
+	 */
+	public void turnLeft() {
+		cobweb.Direction newFacing = new cobweb.Direction(2);
+		newFacing.v[0] = facing.v[1];
+		newFacing.v[1] = -facing.v[0];
+		facing = newFacing;
+		energy -= params.turnLeftEnergy;
+		setWasteCounterLoss(getWasteCounterLoss() - params.turnLeftEnergy);
+		info.useTurning(params.turnLeftEnergy);
+		info.addTurn();
+		afterTurnAction();
+	}
+
+	/**
+	 * This method makes the agent turn right.  It does this by updating 
+	 * the direction of the agent subtracts the amount of energy it took 
+	 * to turn.
+	 */
+	public void turnRight() {
+		cobweb.Direction newFacing = new cobweb.Direction(2);
+		newFacing.v[0] = -facing.v[1];
+		newFacing.v[1] = facing.v[0];
+		facing = newFacing;
+		energy -= params.turnRightEnergy;
+		setWasteCounterLoss(getWasteCounterLoss() - params.turnRightEnergy);
+		info.useTurning(params.turnRightEnergy);
+		info.addTurn();
+		afterTurnAction();
+	}
+
 	public abstract void setColor(java.awt.Color c);
 
 	public abstract double similarity(Agent other);
@@ -275,5 +516,19 @@ public abstract class Agent {
 	 */
 	public final int type() {
 		return this.agentType;
+	}
+
+	/**
+	 * @see ComplexAgentParams#type
+	 */
+	public int getAgentType() {
+		return params.type;
+	}
+
+	/**
+	 * @see Agent#wasteCounterLoss
+	 */
+	public int getWasteCounterLoss() {
+		return wasteCounterLoss;
 	}
 }

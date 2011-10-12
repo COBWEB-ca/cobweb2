@@ -42,7 +42,7 @@ public class ComplexFoodParams extends AbstractReflectionParams {
 	 */
 	@ConfDisplayName("Mean growth rate")
 	@ConfXMLTag("MeanGrowRate")
-	public double growRate = 0.15;
+	public double growRate = 1;
 
 	/**
 	 * Standard deviation of food source growth rates.
