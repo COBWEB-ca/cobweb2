@@ -4,8 +4,6 @@ import ga.GeneticsMutator;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -24,8 +22,7 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
-import production.Disp;
-import production.ProductionMapper;
+import production.ProductionViewer;
 import temperature.TemperatureMutator;
 import temperature.TemperatureParams;
 import cobweb.Environment.EnvironmentStats;
@@ -46,59 +43,6 @@ import driver.SimulationConfig;
  *
  */
 public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
-
-
-	private final class ProductionViewer implements ViewerPlugin {
-
-		private Disp productionDisplay;
-		private ViewerClosedCallback onClosed;
-
-		@Override
-		public void on() {
-			ProductionMapper newMapper = ((ComplexEnvironment) theEnvironment).prodMapper;
-			Disp jd = newMapper.createDialog();
-
-			if (productionDisplay != null) {
-				theScheduler.removeSchedulerClient(productionDisplay);
-				productionDisplay.setVisible(false);
-				productionDisplay.setEnabled(false);
-				productionDisplay.dispose();
-			}
-
-			productionDisplay = jd;
-
-			jd.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					onClosed.viewerClosed();
-				}
-			});
-
-			theScheduler.addSchedulerClient(productionDisplay);
-		}
-
-		@Override
-		public void off() {
-			if (productionDisplay != null) {
-				theScheduler.removeSchedulerClient(productionDisplay);
-				productionDisplay.setVisible(false);
-				productionDisplay.setEnabled(false);
-				productionDisplay.dispose();
-			}
-			productionDisplay = null;
-		}
-
-		@Override
-		public String getName() {
-			return "Production map";
-		}
-
-		@Override
-		public void setClosedCallback(ViewerClosedCallback onClosed) {
-			this.onClosed = onClosed;
-
-		}
-	}
 
 	/**
 	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo
@@ -714,7 +658,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 			viewers.add(new LinearAIViewer());
 		}
 
-		viewers.add(new ProductionViewer());
+		viewers.add(new ProductionViewer(theEnvironment, theScheduler));
 	}
 
 	/**
