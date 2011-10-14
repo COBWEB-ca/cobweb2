@@ -1,7 +1,19 @@
 package cobweb;
 
-
+/**
+ * A temporary location
+ * @author Daniel Kats
+ */
 public class TempLocation {
+
+	public static void setAxes(int xAxisSize, int yAxisSize) {
+		TempLocation.X_AXIS_SIZE = xAxisSize;
+		TempLocation.Y_AXIS_SIZE = yAxisSize;
+	}
+
+	/**
+	 * For testing.
+	 */
 	public static void main(String args[]) {
 		//create a new location...	
 
@@ -23,7 +35,11 @@ public class TempLocation {
 		System.out.println("Min square distance is " + dist);
 	}
 
-	public static void printLegend() {
+	/**
+	 * For testing.
+	 * Prints the legend.
+	 */
+	private static void printLegend() {
 		FlipDir[] vals = FlipDir.values();
 
 		for(int i = 0; i < vals.length; i++) {
@@ -31,7 +47,13 @@ public class TempLocation {
 		}
 	}
 
-	public static String printNum(int j) {
+	/**
+	 * For testing.
+	 * Convert a number into a number spanning 3 chars.
+	 * @param j The int.
+	 * @return String spanning 3 chars.
+	 */
+	private static String printNum(int j) {
 		StringBuilder s = new StringBuilder();
 
 		if(j < -9) {
@@ -47,7 +69,11 @@ public class TempLocation {
 		return s.toString();
 	}
 
-	public static void printPoints(TempLocation[] points) {
+	/**
+	 * For testing. Print the grid with the wrapped points.
+	 * @param points The wrapped points.
+	 */
+	private static void printPoints(TempLocation[] points) {
 		TempLocation current;
 
 		System.out.print("   ");
@@ -91,6 +117,9 @@ public class TempLocation {
 		}
 	}
 
+	/**
+	 * Compare one location to another.
+	 */
 	@Override
 	public boolean equals(Object other) {
 		if (!(other instanceof TempLocation)) {
@@ -102,11 +131,19 @@ public class TempLocation {
 		return otherCoord.v[0] == this.v[0] && otherCoord.v[1] == this.v[1];
 	}
 
+	/**
+	 * Convert the coordinate to a string.
+	 */
 	@Override
 	public String toString() {
 		return "(" + this.v[0] + ", " + this.v[1] + ")";
 	}
 
+	/**
+	 * For testing.
+	 * Generate random temp. location.
+	 * @return A random temp. location.
+	 */
 	public static TempLocation randomGen() {
 		int x = (int) (Math.random() * TempLocation.X_AXIS_SIZE);
 		int y = (int) (Math.random() * TempLocation.Y_AXIS_SIZE);
@@ -116,19 +153,28 @@ public class TempLocation {
 
 	public int[] v;
 
-	private static final int X_AXIS_SIZE = 10;
+	private static int X_AXIS_SIZE = 10;
 
-	private static final int Y_AXIS_SIZE = 10;
+	private static int Y_AXIS_SIZE = 10;
 
+	/**
+	 * For testing.
+	 * Directions to flip.
+	 * @author Daniel Kats
+	 */
 	private static enum FlipDir {
 		B_NONE,
 		UP,
 		DOWN,
 		LEFT,
-		RIGHT,
-		A_NONE
+		RIGHT
 	}
 
+	/**
+	 * Create a new temp. location.
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 */
 	public TempLocation(int x, int y) {
 		this.v = new int[2];
 		v[0] = x;
