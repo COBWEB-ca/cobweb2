@@ -350,14 +350,6 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Set the flag associated with the constant flag in this location. The
-		 * valid values for flag are implementation defined.
-		 */
-		public void setFlag(int flag, boolean state) {
-			Environment.this.setFlag(this, flag, state);
-		}
-
-		/**
 		 * Return true if this location is empty, false otherwise.
 		 * @return True if this location is empty, false otherwise.
 		 */
@@ -374,14 +366,6 @@ public abstract class Environment {
 			}
 
 			return true;
-		}
-
-		/**
-		 * Test the flag associated with the constant flag in this location. The
-		 * valid values for flag are implementation defined.
-		 */
-		public boolean testFlag(int flag) {
-			return Environment.this.testFlag(this, flag);
 		}
 
 		@Override
@@ -798,17 +782,9 @@ public abstract class Environment {
 	 */
 	protected abstract void setField(Location l, int field, int value);
 
-	/** Core implementation of setFlag; this is what could be accelerated in C++ */
-	protected abstract void setFlag(Location l, int flag, boolean state);
-
 	protected void setupLocationCache() {
 		locationCache = new Location[getSize(AXIS_X)][getSize(AXIS_Y)];
 	}
-
-	/**
-	 * Core implementation of testFlag; this is what could be accelerated in C++
-	 */
-	protected abstract boolean testFlag(Location l, int flag);
 
 	public abstract void unObserve();
 

@@ -25,6 +25,7 @@ import org.xml.sax.SAXException;
 
 import cobweb.Agent;
 import cobweb.ArrayEnvironment;
+import cobweb.CellObject;
 import cobweb.ColorLookup;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
@@ -539,7 +540,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return agentInfoVector.size();
 	}
 
-	protected int getLocationBits(cobweb.Environment.Location l) {
+	protected List<CellObject> getLocationBits(cobweb.Environment.Location l) {
 		return array.getLocationBits(l);
 	}
 
@@ -1169,47 +1170,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/**
-	 * Flags locations as a food/stone/waste location. It does nothing if
-	 * the square is already occupied (for example, setFlag((0,0),FOOD,true)
-	 * does nothing when (0,0) is a stone
-	 */
-	@Override
-	protected void setFlag(cobweb.Environment.Location l, int flag, boolean state) {
-		switch (flag) {
-			case FLAG_STONE:
-				// Sanity check
-				if ((getLocationBits(l) & (FOOD_CODE | WASTE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~MASK_TYPE) | STONE_CODE);
-				} else {
-					setLocationBits(l, getLocationBits(l) & ~MASK_TYPE);
-				}
-				break;
-			case FLAG_FOOD:
-				// Sanity check
-				if ((getLocationBits(l) & (STONE_CODE | WASTE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~MASK_TYPE) | FOOD_CODE);
-				} else
-					setLocationBits(l, getLocationBits(l) & ~MASK_TYPE);
-				break;
-			case FLAG_DROP:
-				// Sanity check
-				if ((getLocationBits(l) & (FOOD_CODE | STONE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~MASK_TYPE) | WASTE_CODE);
-				} else {
-					setLocationBits(l, getLocationBits(l) & ~MASK_TYPE);
-				}
-				break;
-			default:
-		}
-	}
-
-	/**
 	 * @param l Location of food source.
 	 * @param type Type of food source. 
 	 */
@@ -1217,27 +1177,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		l.getFoodSource().setType(type);
 	}
 
-	protected void setLocationBits(cobweb.Environment.Location l, int bits) {
-		array.setLocationBits(l, bits);
-	}
-
 	/* $$$$$$ Set the current tick number, tickCount (long). Apr 19 */
 	public void setTickCount(long tick) {
 		tickCount = tick;
-	}
-
-	@Override
-	protected boolean testFlag(cobweb.Environment.Location l, int flag) {
-		switch (flag) {
-			case FLAG_STONE:
-				return ((getLocationBits(l) & MASK_TYPE) == STONE_CODE);
-			case FLAG_FOOD:
-				return ((getLocationBits(l) & MASK_TYPE) == FOOD_CODE);
-			case FLAG_DROP:
-				return ((getLocationBits(l) & MASK_TYPE) == WASTE_CODE);
-			default:
-				return false;
-		}
 	}
 
 	/**

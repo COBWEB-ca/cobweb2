@@ -1,5 +1,7 @@
 package cobweb;
 
+import java.util.List;
+
 
 public class ArrayEnvironment {
 
@@ -7,30 +9,30 @@ public class ArrayEnvironment {
 
 	private int height;
 
-	private int[][] locationBits;
+	private List<CellObject>[][] locations;
 
 	public ArrayEnvironment(int w, int h) {
 		width = w;
 		height = h;
-		locationBits = new int[w][h];
+		locations = new List[w][h];
 	}
 
 	public ArrayEnvironment(int w, int h, ArrayEnvironment a) {
 		width = w;
 		height = h;
-		locationBits = cobweb.ArrayUtilities.resizeArray(a.getBitArray(), w, h);
+		locations = cobweb.ArrayUtilities.resizeArray(a.getLocations(), w, h);
 	}
 
 	public int getAxisCount() {
 		return 2;
 	}
 
-	public int[][] getBitArray() {
-		return locationBits;
+	public List<CellObject>[][] getLocations() {
+		return locations;
 	}
 
-	public int getLocationBits(cobweb.Environment.Location l) {
-		return locationBits[l.v[0]][l.v[1]];
+	public List<CellObject> getLocationBits(cobweb.Environment.Location l) {
+		return locations[l.v[0]][l.v[1]];
 	}
 
 	public int getSize(int axis) {
@@ -44,7 +46,4 @@ public class ArrayEnvironment {
 		}
 	}
 
-	public void setLocationBits(cobweb.Environment.Location l, int bits) {
-		locationBits[l.v[0]][l.v[1]] = bits;
-	}
 }
