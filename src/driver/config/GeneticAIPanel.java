@@ -3,16 +3,21 @@
  */
 package driver.config;
 
+import java.awt.BorderLayout;
 import java.text.NumberFormat;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.table.TableColumnModel;
 
 import cwcore.GeneticController;
 import cwcore.GeneticControllerParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
-import driver.SimulationConfig;
 import driver.SettingsPanel;
+import driver.SimulationConfig;
 
 final class GeneticAIPanel extends SettingsPanel {
 	private static final long serialVersionUID = 1139521733160862828L;
@@ -22,28 +27,52 @@ final class GeneticAIPanel extends SettingsPanel {
 	@Override
 	public void bindToParser(SimulationConfig p) {
 		ComplexEnvironmentParams ep = p.getEnvParams();
-		if (!(ep.controllerParams instanceof GeneticControllerParams)) {
+		if (!(p.getControllerParams() instanceof GeneticControllerParams)) {
 			p.getEnvParams().controllerName = GeneticController.class.getName();
 			if (params == null)
 				params = new GeneticControllerParams();
 
-			p.getEnvParams().controllerParams = params;
+			p.setControllerParams(params);
 
 		} else {
-			params = (GeneticControllerParams) ep.controllerParams;
+			params = (GeneticControllerParams) p.getControllerParams();
 		}
 		updateBoxes();
 	}
 
 	private void updateBoxes() {
+		setLayout(new BorderLayout());
 		seed = new BoundJFormattedTextField(params, "randomSeed", NumberFormat
 				.getIntegerInstance());
 		this.removeAll();
 		seed.setColumns(5);
-		this.add(new JLabel(seed.getLabelText()));
-		this.add(seed);
+		JPanel random = new JPanel();
+		random.add(new JLabel(seed.getLabelText()));
+		random.add(seed);
 		JButton makeRandom = new JButton("Generate");
 		makeRandom.addActionListener(new SeedRandomListener(seed));
-		add(makeRandom);
+		random.add(makeRandom);
+
+		this.add(random, BorderLayout.NORTH);
+
+		JPanel agentPanel = new JPanel();
+		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
+		GUI.makeGroupPanel(agentPanel, "Agent Parameters");
+
+		MixedValueJTable agentParamTable = new MixedValueJTable();
+		agentParamTable.setModel(new ConfigTableModel(params.agentParams.agentParams, "Agent "));
+
+		TableColumnModel agParamColModel = agentParamTable.getColumnModel();
+		// Get the column at index pColumn, and set its preferred width.
+		agParamColModel.getColumn(0).setPreferredWidth(200);
+
+		GUI.colorHeaders(agentParamTable, true);
+		JScrollPane agentScroll = new JScrollPane(agentParamTable);
+		// Add the scroll pane to this panel.
+		agentPanel.add(agentScroll);
+
+		this.add(agentPanel, BorderLayout.CENTER);
+
+
 	}
 }

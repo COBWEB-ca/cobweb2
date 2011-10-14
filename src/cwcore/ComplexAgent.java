@@ -289,7 +289,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	/**   */
 	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentT));
 		setConstants(doCheat, agentData);
 		this.facing = facingDirection;
 
@@ -314,7 +314,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param agentData agent parameters
 	 */
 	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType));
 		setConstants(doCheat, agentData);
 
 		InitFacing();
@@ -1075,6 +1075,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 		energy -= energyPenalty();
 
+		if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
+			// Bumps into waste
+			int x = destPos.v[0];
+			int y = destPos.v[1];
+			Drop d = environment.dropArray[x][y];
+			d.onStep(this);
+
+		}
+
 		if (energy <= 0)
 			die();
 
@@ -1276,6 +1285,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		//all actions to be taken before controller
 		this.updateAgent(tick);
+
+		// If updateAgent called die();
+		if (!isAlive())
+			return;
 
 		this.control();
 
