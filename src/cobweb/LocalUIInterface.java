@@ -35,7 +35,7 @@ import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;
 import cwcore.LinearWeightsController;
 import disease.DiseaseMutator;
-import driver.LinearAIGraph;
+import driver.LinearAIViewer;
 import driver.SimulationConfig;
 
 /**
@@ -47,43 +47,6 @@ import driver.SimulationConfig;
  */
 public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
 
-	private final class LinearAIViewer implements ViewerPlugin {
-
-		private LinearAIGraph aiGraph;
-		private ViewerClosedCallback onClosed;
-
-		@Override
-		public void on() {
-			aiGraph = new LinearAIGraph();
-			aiGraph.setVisible(true);
-			aiGraph.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					onClosed.viewerClosed();
-				}
-			});
-		}
-
-		@Override
-		public void off() {
-			if (aiGraph == null)
-				return;
-			aiGraph.setVisible(false);
-			aiGraph.setEnabled(false);
-			aiGraph = null;
-		}
-
-		@Override
-		public String getName() {
-			return "AI Weight Stats";
-		}
-
-		@Override
-		public void setClosedCallback(ViewerClosedCallback onClosed) {
-			this.onClosed = onClosed;
-
-		}
-	}
 
 	private final class ProductionViewer implements ViewerPlugin {
 
