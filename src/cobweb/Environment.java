@@ -94,6 +94,9 @@ public abstract class Environment {
 			v = new int[Environment.this.getAxisCount()];
 			for (int i = 0; i < Environment.this.getAxisCount(); ++i)
 				v[i] = axisPos[i];
+
+			if (!isValid())
+				throw new RuntimeException();
 		}
 
 		/**
@@ -353,6 +356,25 @@ public abstract class Environment {
 		}
 
 		/**
+		 * Return true if this location is empty, false otherwise.
+		 * @return True if this location is empty, false otherwise.
+		 */
+		public boolean isEmpty() {
+			ComplexEnvironment.Flag[] flags = ComplexEnvironment.Flag.values();
+			int flag;
+
+			for(int i = 0; i < flags.length; i++) {
+				flag = ComplexEnvironment.getFlagNum(flags[i]);
+
+				if(this.testFlag(flag)) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		/**
 		 * Test the flag associated with the constant flag in this location. The
 		 * valid values for flag are implementation defined.
 		 */
@@ -538,10 +560,43 @@ public abstract class Environment {
 	protected abstract int getField(Location l, int field);
 
 	// Syntactic sugar for common cases
+
+	/**
+	 * Scale down the coordinate until it makes sense to put it on the grid.
+	 * @param coord The value of the coordinate.
+	 * @param axis The axis along which the coordinate is set.
+	 * @return The scaled down coordinate.
+	 * TODO wrap properly
+	 */
+	private int scaleCoord(int coord, int axis) {
+		int max = this.getSize(axis);
+
+		while(coord < 0) {
+			coord += max;
+		}
+
+		while(coord >= max) {
+			coord -= max;
+		}
+
+		return coord;
+	}
+
+	/**
+	 * Return the location if it is valid.
+	 * Create the location if it is valid but is not yet created.
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 * @return The location.
+	 */
 	public Location getLocation(int x, int y) {
+		x = this.scaleCoord(x, AXIS_X);
+		y = this.scaleCoord(y, AXIS_Y);
+
 		if (locationCache[x][y] == null)
 			locationCache[x][y] = new Location(new int[] { x, y });
 		return locationCache[x][y];
+
 	}
 
 	private void removeFoodSource(Location l) {
@@ -766,4 +821,19 @@ public abstract class Environment {
 	public abstract int getFood(int x, int y);
 
 	public abstract boolean hasStone(int x, int y);
+
+
+	/**
+	 * Get a random location with no objects on it.
+	 * @return A location.
+	 */
+	public final Location getRandomFreeLocation() {
+		Location l;
+
+		do {
+			l = this.getRandomLocation();
+		} while (!l.isEmpty());
+
+		return l;
+	}
 }

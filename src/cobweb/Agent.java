@@ -12,7 +12,17 @@ import cwcore.complexParams.ComplexAgentParams;
  * responsible for implementing the intelligence of the Agent, this is deferred 
  * to the Agent.Controller class.
  */
-public abstract class Agent {
+public abstract class Agent extends CellObject {
+
+	/**
+	 * Cannot place anything on top of an agent.
+	 * @param other Another cell object.
+	 * @return False.
+	 */
+	@Override
+	public final boolean canPlaceOnTop(CellObject other) {
+		return false;
+	}
 
 	/**
 	 * The possible actions for this agent.
@@ -80,11 +90,6 @@ public abstract class Agent {
 	 * True if agent is alive.
 	 */
 	private boolean alive = true;
-
-	/**
-	 * Position of this agent.
-	 */
-	protected Environment.Location position;
 
 	/**
 	 * Environment agent is located in.
