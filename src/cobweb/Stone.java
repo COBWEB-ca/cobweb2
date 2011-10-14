@@ -20,7 +20,7 @@ public class Stone extends CellObject {
 	 * @return False.
 	 */
 	@Override
-	public boolean canPlaceOnTop(CellObject other) {
+	public boolean canCoverWith(CellObject other) {
 		//cannot place anything on top of a stone.
 		return false;
 	}

@@ -15,7 +15,7 @@ public abstract class CellObject {
 	 * @param other Another cell object.
 	 * @return True if can place the other object on top of this one.
 	 */
-	public abstract boolean canPlaceOnTop(CellObject other);
+	public abstract boolean canCoverWith(CellObject other);
 
 	/**
 	 * Return the location of this object.

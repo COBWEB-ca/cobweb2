@@ -20,7 +20,7 @@ public abstract class Agent extends CellObject {
 	 * @return False.
 	 */
 	@Override
-	public final boolean canPlaceOnTop(CellObject other) {
+	public final boolean canCoverWith(CellObject other) {
 		return false;
 	}
 

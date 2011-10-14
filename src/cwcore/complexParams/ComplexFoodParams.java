@@ -9,7 +9,7 @@ import cobweb.params.ConfXMLTag;
  */
 public class ComplexFoodParams extends AbstractReflectionParams {
 	/**
-	 *
+	 * Auto-generated serialization ID.
 	 */
 	private static final long serialVersionUID = 4935757387466603476L;
 
