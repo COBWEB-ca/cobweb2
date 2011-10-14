@@ -7,8 +7,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -36,6 +38,8 @@ import cwcore.broadcast.PacketConduit;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ComplexEnvironmentParams;
 import cwcore.complexParams.ComplexFoodParams;
+import cwcore.state.StateParameter;
+import cwcore.state.StatePlugin;
 import driver.ControllerFactory;
 import driver.SimulationConfig;
 
@@ -43,8 +47,6 @@ import driver.SimulationConfig;
  * This class contains an implementation of the TickScheduler.Client class.
  */
 public class ComplexEnvironment extends Environment implements TickScheduler.Client {
-
-
 
 
 	private static final int DROP_ATTEMPTS_MAX = 5;
@@ -121,8 +123,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
-	static java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
-
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
 
@@ -135,7 +135,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public void setDrop(Location loc, Drop d) {
 		dropArray[loc.v[0]][loc.v[1]] = d;
 	}
-
 
 	// Returns current location's food type
 	public int getFoodType(cobweb.Environment.Location l) {
@@ -637,6 +636,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			ComplexAgentParams params = new ComplexAgentParams(data);
 			Node agent = agents.item(i);
 			Element element = (Element) agent;
+
 			NodeList paramsElement = element.getElementsByTagName("params");
 			Element paramNode = (Element) paramsElement.item(0);			
 
@@ -804,7 +804,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 
 		try {
-			ControllerFactory.Init(data.controllerName, data.controllerParams);
+			ControllerFactory.Init(data.controllerName, p.getControllerParams());
 		} catch (ClassNotFoundException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -812,6 +812,17 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		// spawn new random agents for each type
 		if (data.spawnNewAgents) {
 			loadNewAgents();
+		}
+
+		setupPlugins();
+
+	}
+
+	private void setupPlugins() {
+		for (StatePlugin plugin : plugins) {
+			for (StateParameter param : plugin.getParameters()) {
+				pluginMap.put(param.getName(), param);
+			}
 		}
 	}
 
@@ -1328,6 +1339,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				Drop d = dropArray[i][j];
 				if (!d.isActive(getTickCount())) {
 					l.setFlag(ComplexEnvironment.FLAG_DROP, false);
+					d.expire();
 					dropArray[i][j] = null; // consider deactivating
 					// and not deleting
 				}
@@ -1483,6 +1495,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	public boolean hasStone(int x, int y) {
 		return testFlag(getUserDefinedLocation(x, y), FLAG_STONE);
+	}
+
+	private List<StatePlugin> plugins = new LinkedList<StatePlugin>();
+
+	private Map<String, StateParameter> pluginMap = new HashMap<String, StateParameter>();
+
+	public StateParameter getStateParameter(String name) {
+		return pluginMap.get(name);
 	}
 
 

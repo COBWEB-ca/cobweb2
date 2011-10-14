@@ -13,6 +13,7 @@ import javax.swing.table.AbstractTableModel;
 import cobweb.params.CobwebParam;
 import cobweb.params.ConfDisplayName;
 import cobweb.params.ReflectionUtil;
+import cwcore.complexParams.NamedParam;
 
 /**
  * Table model that binds to CobwebParam object exposed fields
@@ -45,49 +46,148 @@ public class ConfigTableModel extends AbstractTableModel {
 			if (display == null)
 				continue;
 
-			if (!f.getType().isArray()) {
-
-				fields.add(new MyField(f));
-				rowNames.add(display.value());
-			} else {
+			if (f.getType().isArray()) {
 				int len;
 				try {
 					len = Array.getLength(f.get(data[0]));
 					for (int i = 0; i < len; i++){
-						fields.add(new MyField(f, i));
+						fields.add(new MyArrayField(f, i));
 						rowNames.add(display.value() + " " + (i + 1));
 					}
 				} catch (IllegalAccessException ex) {
 					throw new IllegalArgumentException("Unable to access field " + f.getName(), ex);
 				}
+			} else if (List.class.isAssignableFrom(f.getType())) {
+				try {
+					@SuppressWarnings("unchecked")
+					List<NamedParam> col = (List<NamedParam>) f.get(data[0]);
+					for (int i = 0; i < col.size(); i++) {
+						NamedParam param = col.get(i);
+						fields.add(new MyNamedField(f, i));
+						rowNames.add(param.getName());
+					}
+
+				} catch (IllegalArgumentException ex) {
+					throw new RuntimeException(ex);
+				} catch (IllegalAccessException ex) {
+					throw new RuntimeException(ex);
+				}
+			} else {
+				fields.add(new MyField(f));
+				rowNames.add(display.value());
 			}
 		}
 	}
 
+	protected class MyNamedField extends MyArrayField {
+
+		public MyNamedField(Field f, int i) {
+			super(f, i);
+		}
+
+		@Override
+		public String toString() {
+			return super.toString() + "(list)";
+		}
+
+		@Override
+		public Object getValue(CobwebParam param) {
+			Object value = null;
+			try {
+				@SuppressWarnings("unchecked")
+				List<NamedParam> list = (List<NamedParam>) this.field.get(param);
+				NamedParam p = list.get(index);
+				value = p.getField().get(p);
+			} catch (IllegalAccessException ex) {
+				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
+			}
+			return value;
+		}
+
+		@Override
+		public void setValue(CobwebParam cobwebParam, Object value) {
+			try {
+				@SuppressWarnings("unchecked")
+				List<NamedParam> list = (List<NamedParam>) this.field.get(cobwebParam);
+				fromBoxedToField(list.get(index), list.get(index).getField(), value);
+			} catch (IllegalAccessException ex) {
+				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
+			}
+		}
+
+	}
+
+	protected class MyArrayField extends MyField {
+		protected int index;
+
+		public MyArrayField(Field f, int i) {
+			super(f);
+			this.index = i;
+		}
+
+		@Override
+		public String toString() {
+			return field.toString() + "[" + index + "]";
+		}
+
+		@Override
+		public Object getValue(CobwebParam param) {
+			Object value = null;
+			try {
+				value = Array.get(this.field.get(param), this.index);
+			} catch (IllegalAccessException ex) {
+				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
+			}
+			return value;
+		}
+
+		@Override
+		public void setValue(CobwebParam cobwebParam, Object value) {
+			try {
+				Object array = field.get(cobwebParam);
+				int index = this.index;
+				fromBoxedToElement(array, index, value);
+			} catch (IllegalAccessException ex) {
+				throw new IllegalArgumentException("Tagged field is not public: " + field.getName(), ex);
+			} catch (IllegalArgumentException ex) {
+				return;
+				//throw new CobwebUserException("Invalid Value");
+			}
+
+		}
+	}
 
 	private class MyField {
 		public MyField(Field f) {
 			field = f;
 		}
-		public MyField(Field f, int i) {
-			field = f;
-			index = i;
-			array = true;
-		}
-		private Field field;
-		private int index;
-		private boolean array = false;
+
+		protected Field field;
 
 		@Override
 		public String toString() {
-			String out;
+			return field.toString();
+		}
 
-			if (!array)
-				out = field.toString();
-			else
-				out = field.toString() + "[" + index + "]";
-
-			return out;
+		public Object getValue(CobwebParam param) {
+			Object value = null;
+			try {
+				value = this.field.get(param);
+			} catch (IllegalAccessException ex) {
+				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
+			}
+			return value;
+		}
+		public void setValue(CobwebParam cobwebParam, Object value) {
+			Field f = this.field;
+			try {
+				fromBoxedToField(cobwebParam, f, value);
+			} catch (IllegalAccessException ex) {
+				throw new IllegalArgumentException("Tagged field is not public: " + f.getName(), ex);
+			} catch (IllegalArgumentException ex) {
+				return;
+				//throw new CobwebUserException("Invalid Value");
+			}
 		}
 	}
 
@@ -121,16 +221,7 @@ public class ConfigTableModel extends AbstractTableModel {
 			return rowNames.get(row);
 
 		MyField mf = fields.get(row);
-		Object value;
-		try {
-			if (!mf.array)
-				value = mf.field.get(data[col-1]);
-			else
-				value = Array.get(mf.field.get(data[col-1]), mf.index);
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException("This field seems to be broken: " + mf.toString() , ex);
-		}
-		return value;
+		return mf.getValue(data[col-1]);
 	}
 
 	@Override
@@ -140,22 +231,7 @@ public class ConfigTableModel extends AbstractTableModel {
 
 		MyField mf = fields.get(row);
 
-		Field f = mf.field;
-		try {
-			if (!mf.array) {
-				CobwebParam o = data[col-1];
-				fromBoxedToField(o, f, value);
-			} else {
-				Object array = f.get(data[col-1]);
-				int index = mf.index;
-				fromBoxedToElement(array, index, value);
-			}
-		} catch (IllegalAccessException ex) {
-			throw new IllegalArgumentException("Tagged field is not public: " + f.getName(), ex);
-		} catch (IllegalArgumentException ex) {
-			return;
-			//throw new CobwebUserException("Invalid Value");
-		}
+		mf.setValue(data[col-1], value);
 	}
 
 	private static final void fromBoxedToElement(Object array, int index, Object value) {

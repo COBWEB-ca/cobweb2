@@ -9,22 +9,19 @@ import cobweb.CellObject;
  *  
  */
 public abstract class Drop extends CellObject {
-	//Gold colored drops
-	final static Color DROP_COLOR = new Color(238, 201, 0);
-
-	public Drop() {
-
-	}
-
 	public abstract boolean isActive(long val);
 
 	public abstract void reset(long time, int weight, float rate);
 
-	public Color getColor() {
-		return DROP_COLOR;
+	public abstract Color getColor();
+
+	public abstract boolean canStep();
+
+	public void expire() {
+
 	}
 
-	public boolean canStep() {
-		return true;
+	public void onStep(ComplexAgent agent) {
+
 	}
 }

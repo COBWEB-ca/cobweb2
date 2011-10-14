@@ -59,9 +59,11 @@ public class Waste extends Drop {
 		valid = true;
 	}
 
+	final static Color WASTE_COLOR = new Color(238, 201, 0);
+
 	@Override
 	public Color getColor() {
-		return ComplexEnvironment.wasteColor;
+		return WASTE_COLOR;
 	}
 
 	@Override
@@ -77,5 +79,10 @@ public class Waste extends Drop {
 	@Override
 	public boolean canCoverWith(CellObject other) {
 		return false;
+	}
+
+	@Override
+	public void onStep(ComplexAgent agent) {
+		throw new IllegalStateException("Agents can't step on waste");
 	}
 }

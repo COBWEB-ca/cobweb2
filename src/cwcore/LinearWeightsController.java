@@ -8,6 +8,7 @@ import cobweb.Controller;
 import cobweb.globals;
 import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.SeeInfo;
+import cwcore.state.StateParameter;
 
 public class LinearWeightsController implements cobweb.Controller {
 
@@ -64,22 +65,25 @@ public class LinearWeightsController implements cobweb.Controller {
 		/* careful with this block, eclipse likes to screw up the tabs!
 		 * if it breaks upon saving, undo and save again, this should save it without breaking
 		 */
-		double variables[] = {
-				1.0, // v[0] 
-				((double) agent.getEnergy() / (ENERGY_THRESHOLD)), // v[1]
-				type == ComplexEnvironment.FLAG_AGENT ?	(ComplexAgent.MAX_SEE_SQUARE_DIST - dist) / (double) ComplexAgent.MAX_SEE_SQUARE_DIST : 0, // v[2]
-				type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.MAX_SEE_SQUARE_DIST - dist) / (double) ComplexAgent.MAX_SEE_SQUARE_DIST : 0, // v[3]
-				type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_DROP ? (ComplexAgent.MAX_SEE_SQUARE_DIST - dist) / 4 : 0, // v[4]
-				agent.getIntFacing() / 2, // v[5] 
-				(double) agent.getMemoryBuffer() / ((1 << memSize) - 1), // v[6]
-				(double) agent.getCommInbox() / ((1 << commSize) - 1), // v[7]
-				Math.max(agent.getAge() / 100.0, 2), // v[8]
-				globals.random.nextGaussian() // v[9]
-		};
-		if (memSize == 0)
-			variables[6] = 0;
-		if (commSize == 0)
-			variables[7] = 0;
+		double variables[] = new double[INPUT_COUNT + LinearWeightsControllerParams.pluginNames.size()];
+		variables[0] = 1.0;
+		variables[1] = ((double) agent.getEnergy() / (ENERGY_THRESHOLD));
+		variables[2] = type == ComplexEnvironment.FLAG_AGENT ?	(ComplexAgent.MAX_SEE_SQUARE_DIST - dist) / (double) ComplexAgent.MAX_SEE_SQUARE_DIST : 0;
+		variables[3] = type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.MAX_SEE_SQUARE_DIST - dist) / (double) ComplexAgent.MAX_SEE_SQUARE_DIST : 0;
+		variables[4] = type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_DROP ? (ComplexAgent.MAX_SEE_SQUARE_DIST - dist) / 4 : 0;
+		variables[5] = agent.getIntFacing() / 2;
+		variables[6] = memSize == 0 ? 0 : (double) agent.getMemoryBuffer() / ((1 << memSize) - 1);
+		variables[7] = commSize == 0 ? 0 : (double) agent.getCommInbox() / ((1 << commSize) - 1);
+		variables[8] = Math.max(agent.getAge() / 100.0, 2);
+		variables[9] = globals.random.nextGaussian();
+		{
+			int i = 10;
+			for (String plugin : LinearWeightsControllerParams.pluginNames) {
+				StateParameter sp = agent.environment.getStateParameter(plugin);
+				variables[i] = sp.getValue(agent);
+				i++;
+			}
+		}
 
 		double memout = 0.0;
 		double commout = 0.0;
@@ -90,7 +94,7 @@ public class LinearWeightsController implements cobweb.Controller {
 		for (int eq = 0; eq < OUTPUT_COUNT; eq++) {
 			double res = 0.0;
 			variables[9] = globals.random.nextGaussian();
-			for (int v = 0; v < INPUT_COUNT; v++) {
+			for (int v = 0; v < variables.length; v++) {
 				res += params.data[v][eq] * variables[v];
 			}
 
@@ -128,7 +132,7 @@ public class LinearWeightsController implements cobweb.Controller {
 	}
 
 	private void mutate(float mutation) {
-		mutationCounter += INPUT_COUNT * OUTPUT_COUNT * mutation;
+		mutationCounter += params.data.length * params.data[0].length * mutation;
 		while (mutationCounter > 1) {
 			int i = globals.random.nextInt(params.data.length);
 			int j = globals.random.nextInt(params.data[i].length);
@@ -149,7 +153,7 @@ public class LinearWeightsController implements cobweb.Controller {
 		this.params = (LinearWeightsControllerParams) params;
 	}
 
-	public void setupFromEnvironment(int memSize, int commSize, CobwebParam params) {
+	public void setupFromEnvironment(int memSize, int commSize, CobwebParam params, int type) {
 		this.params = (LinearWeightsControllerParams) params;
 		this.memSize = memSize;
 		this.commSize = commSize;
