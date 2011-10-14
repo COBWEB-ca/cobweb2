@@ -58,9 +58,9 @@ public class ConfigTableModel extends AbstractTableModel {
 					throw new IllegalArgumentException("Unable to access field " + f.getName(), ex);
 				}
 			} else if (List.class.isAssignableFrom(f.getType())) {
-				List<NamedParam> col;
 				try {
-					col = (List<NamedParam>) f.get(data[0]);
+					@SuppressWarnings("unchecked")
+					List<NamedParam> col = (List<NamedParam>) f.get(data[0]);
 					for (int i = 0; i < col.size(); i++) {
 						NamedParam param = col.get(i);
 						fields.add(new MyNamedField(f, i));
@@ -68,11 +68,9 @@ public class ConfigTableModel extends AbstractTableModel {
 					}
 
 				} catch (IllegalArgumentException ex) {
-					// TODO Auto-generated catch block
-					ex.printStackTrace();
+					throw new RuntimeException(ex);
 				} catch (IllegalAccessException ex) {
-					// TODO Auto-generated catch block
-					ex.printStackTrace();
+					throw new RuntimeException(ex);
 				}
 			} else {
 				fields.add(new MyField(f));
@@ -96,6 +94,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		public Object getValue(CobwebParam param) {
 			Object value = null;
 			try {
+				@SuppressWarnings("unchecked")
 				List<NamedParam> list = (List<NamedParam>) this.field.get(param);
 				NamedParam p = list.get(index);
 				value = p.getField().get(p);
@@ -108,6 +107,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		@Override
 		public void setValue(CobwebParam cobwebParam, Object value) {
 			try {
+				@SuppressWarnings("unchecked")
 				List<NamedParam> list = (List<NamedParam>) this.field.get(cobwebParam);
 				fromBoxedToField(list.get(index), list.get(index).getField(), value);
 			} catch (IllegalAccessException ex) {
