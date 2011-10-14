@@ -111,6 +111,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private static RandomNoGenerator environmentRandom;
 
+	/**
+	 * The food params for this environment.
+	 * What does this encompass?
+	 */
 	private ComplexFoodParams foodData[];
 
 	protected ComplexAgentParams agentData[];
@@ -1244,11 +1248,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * depletion, food growth, and random food-"dropping".
 	 */
 	public void tickNotification(long tick) {
+		//1 tick has passed
 		++tickCount;
 
+		//XXX what does this do?
 		commManager.decrementPersistence();
 		commManager.unblockBroadcast();
 
+		//XXX why is waste evaluated at the beginning of the tick instead of at the end?
 		updateWaste();
 
 		// for each agent type, we test to see if its deplete time step has
@@ -1262,7 +1269,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			}
 		}
 
+		//what is foodData?
+
+		//what does this variable refer to?
 		boolean shouldGrow = false;
+
 		for (int i = 0; i < data.getAgentTypes(); ++i) {
 			if (foodData[i].growRate > 0) {
 				shouldGrow = true;

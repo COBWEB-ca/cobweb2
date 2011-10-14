@@ -221,6 +221,8 @@ public abstract class Environment {
 			return retVal;
 		}
 
+
+
 		/**
 		 * Return a new location by moving in a certain direction, in a certain distance
 		 * from the current location.

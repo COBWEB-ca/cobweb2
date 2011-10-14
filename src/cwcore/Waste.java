@@ -75,7 +75,7 @@ public class Waste extends Drop {
 	 * @return False.
 	 */
 	@Override
-	public boolean canPlaceOnTop(CellObject other) {
+	public boolean canCoverWith(CellObject other) {
 		return false;
 	}
 }

@@ -78,7 +78,7 @@ public class Seed extends CellObject {
 	 * @return True for agent and waste, false otherwise.
 	 */
 	@Override
-	public boolean canPlaceOnTop(CellObject other) {
+	public boolean canCoverWith(CellObject other) {
 		return other instanceof Agent || other instanceof Waste;
 	}
 }

@@ -21,8 +21,6 @@ import cobweb.Environment;
 import cobweb.Environment.Location;
 import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
-import cwcore.ComplexEnvironment.Drop;
-import cwcore.ComplexEnvironment.Waste;
 import cwcore.broadcast.BroadcastPacket;
 import cwcore.complexParams.AgentMutator;
 import cwcore.complexParams.ComplexAgentParams;
