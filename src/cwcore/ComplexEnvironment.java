@@ -24,7 +24,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import production.Product;
 import production.ProductionMapper;
 import cobweb.Agent;
 import cobweb.ArrayEnvironment;
@@ -64,6 +63,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		public Color getColor();
 
 		public boolean canStep();
+
+		public void expire();
+
+		public void onStep(ComplexAgent agent);
 	}
 
 	public static class Waste implements Drop {
@@ -131,6 +134,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		public boolean canStep() {
 			return false;
 		}
+
+		@Override
+		public void expire() {
+			// nothing so far
+		}
+
+		@Override
+		public void onStep(ComplexAgent agent) {
+			throw new IllegalStateException("Agents can't step on waste");
+		}
 	}
 
 	private static final int DROP_ATTEMPTS_MAX = 5;
@@ -184,12 +197,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public void setDrop(Location loc, Drop d) {
 		dropArray[loc.v[0]][loc.v[1]] = d;
 	}
-
-	public void addProduct(Location loc, Product prod) {
-		prodMapper.addProduct(prod, loc);
-		setDrop(loc, prod);
-	}
-
 
 	// Returns current location's food type
 	public int getFoodType(cobweb.Environment.Location l) {
@@ -1457,9 +1464,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				Drop d = dropArray[i][j];
 				if (!d.isActive(getTickCount())) {
 					l.setFlag(ComplexEnvironment.FLAG_DROP, false);
-					if (d instanceof Product) {
-						prodMapper.remProduct((Product)d, getLocation(i, j));
-					}
+					d.expire();
 					dropArray[i][j] = null; // consider deactivating
 					// and not deleting
 				}

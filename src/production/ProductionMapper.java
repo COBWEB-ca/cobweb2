@@ -1,8 +1,10 @@
 package production;
 
 import java.awt.Color;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import cobweb.Environment;
 import cobweb.Environment.Location;
@@ -28,7 +30,7 @@ public class ProductionMapper implements StatePlugin {
 		params.add(new ProductHunt());
 	}
 
-	public boolean addProduct(Product p, Environment.Location loc) {
+	void addProduct(Product p, Environment.Location loc) {
 		float newMax = 0;
 		for (int x = 0; x < vals.length; x++) {
 			for (int y = 0; y < vals[x].length; y++) {
@@ -40,14 +42,17 @@ public class ProductionMapper implements StatePlugin {
 			}
 		}
 		maxValue = newMax;
-		return true;
 	}
 
-	public boolean remProduct(Product p, Location loc) {
+	void remProduct(Product p) {
+		Location loc = p.loc;
+		e.dropArray[loc.v[0]][loc.v[1]] = null;
+		loc.setFlag(ComplexEnvironment.FLAG_DROP, false);
+
 		float newMax = 0;
 		for (int x = 0; x < vals.length; x++) {
 			for (int y = 0; y < vals[x].length; y++) {
-				float value = getDifAtLoc(p, loc, e.getLocation(x, y));
+				float value = getDifAtLoc(p, p.getLocation(), e.getLocation(x, y));
 				vals[x][y] -= value;
 				if (vals[x][y] > newMax) {
 					newMax = vals[x][y];
@@ -55,7 +60,6 @@ public class ProductionMapper implements StatePlugin {
 			}
 		}
 		maxValue = newMax;
-		return true;
 	}
 
 	private float getDifAtLoc(Product source, Location loc, Location loc2) {
@@ -148,6 +152,19 @@ public class ProductionMapper implements StatePlugin {
 	@Override
 	public List<StateParameter> getParameters() {
 		return params;
+	}
+
+	Set<Product> products = new LinkedHashSet<Product>();
+
+	public Product createProduct(float value, ComplexAgent owner) {
+		Location loc = owner.getPosition();
+		Product prod = new Product(value, owner, loc, this);
+		addProduct(prod, loc);
+
+		e.setDrop(loc, prod);
+		products.add(prod);
+
+		return prod;
 	}
 
 }

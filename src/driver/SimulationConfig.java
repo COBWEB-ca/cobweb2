@@ -386,7 +386,7 @@ public class SimulationConfig {
 			root.appendChild(node);
 		}
 
-		for (int i = 0; i < envParams.getProdTypes(); i++) {
+		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			Node node = d.createElement("production");
 			prodParams[i].saveConfig(node, d);
 			root.appendChild(node);
@@ -455,7 +455,6 @@ public class SimulationConfig {
 	public void SetAgentTypeCount(int count) {
 		this.envParams.agentTypeCount = count;
 		this.envParams.foodTypeCount = count;
-		this.envParams.prodTypeCount = count;
 
 		{ 
 			ComplexAgentParams[] n = Arrays.copyOf(this.agentParams, count);

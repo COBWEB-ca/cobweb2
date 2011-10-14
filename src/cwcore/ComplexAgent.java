@@ -1096,20 +1096,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			int x = destPos.v[0];
 			int y = destPos.v[1];
 			Drop d = environment.dropArray[x][y];
+			d.onStep(this);
 
-			if (d.canStep() && d instanceof Product) {
-				Product p = (Product) d;
-				if (p.getOwner() != this && globals.random.nextFloat() <= 0.3f) {
-					environment.prodMapper.remProduct(p, 
-							getPosition().getEnvironment().getLocation(x, y));
-					environment.dropArray[x][y] = null;
-					destPos.setFlag(ComplexEnvironment.FLAG_DROP, false);
-					// TODO: Reward p.owner for selling his product!
-					// Reward this agent for buying a product! (and punish it
-					// for paying for it?)
-					// Should agents have currency to use for buying products?
-				}
-			}
 		}
 
 		if (energy <= 0)
@@ -1495,7 +1483,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	private void tryProduction() {
 		if (shouldProduce()) {
 			// Healthy agents produce high-value products, and vice-versa
-			Product p = new Product((float) energy / (float) params.initEnergy, this);
+			Product p = environment.prodMapper.createProduct((float) energy / (float) params.initEnergy, this);
 
 			if (position.testFlag(ComplexEnvironment.FLAG_FOOD)) {
 				position.setFlag(ComplexEnvironment.FLAG_FOOD, false);
@@ -1503,7 +1491,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			position.setFlag(ComplexEnvironment.FLAG_DROP, true);
 
-			environment.addProduct(position, p);
 		}
 	}
 
