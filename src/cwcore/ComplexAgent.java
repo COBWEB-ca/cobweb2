@@ -1277,7 +1277,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (params.wasteMode && shouldPoop())
 			tryPoop();
 
-		if (params.productionMode) {
+		if (prodParams.productionMode) {
 			tryProduction();
 		}
 	}

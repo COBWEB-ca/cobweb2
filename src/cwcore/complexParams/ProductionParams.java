@@ -19,6 +19,14 @@ public class ProductionParams extends AbstractReflectionParams {
 	 */
 	@ConfXMLTag("Index")
 	public int type = -1;
+	
+	/** 
+	 * Enable production
+	 */
+	@ConfDisplayName("Production")
+	@ConfXMLTag("productionMode")
+	public boolean productionMode;
+	
 
 	@ConfXMLTag("InitProdChance")
 	@ConfDisplayName("Initial production percentage roll")	
