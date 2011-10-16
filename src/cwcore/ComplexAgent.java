@@ -15,6 +15,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import cobweb.ColorLookup;
+import cobweb.Controller;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
 import cobweb.Environment;
@@ -131,6 +132,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	//	public ComplexAgentParams params;
 
+	protected int pdCheater;
 	/** Prisoner's Dilemma */
 	private int agentPDStrategy; // tit-for-tat or probability
 	//int pdCheater; // The agent's action; 1 == cheater, else
@@ -149,9 +151,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	private int memoryBuffer;
 
+	protected Controller controller;
 
 	protected ComplexAgent breedPartner;
-	private Color color = Color.lightGray;
 
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
@@ -198,8 +200,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param strat PD strategy
 	 */
 	public void init(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, int strat) {
-		init(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
-				parent1.params.mutationRate));
+		this.controller = ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
+				parent1.params.mutationRate);
 		InitFacing();
 
 		copyConstants(parent1);
@@ -226,7 +228,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param strat PD strategy
 	 */
 	protected void init(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
-		init(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
+		this.controller = ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate);
 		InitFacing();
 
 		copyConstants(parent);
@@ -244,7 +246,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	/**   */
 	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		this.controller = ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits);
 		setConstants(doCheat, agentData);
 		this.facing = facingDirection;
 
@@ -269,7 +271,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param agentData agent parameters
 	 */
 	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		this.controller = ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits);
 		setConstants(doCheat, agentData);
 
 		InitFacing();
@@ -349,26 +351,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	/**
-	 * @param destPos The location of the agents next position.
-	 * @return True if location exists and is not occupied by anything
-	 */
-	boolean canStep(Location destPos) {
-		// The position must be valid...
-		if (destPos == null)
-			return false;
-		// and the destination must be clear of stones
-		if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
-			return false;
-		// and clear of wastes
-		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
-			return environment.dropArray[destPos.v[0]][destPos.v[1]].canStep();
-		// as well as other agents...
-		if (destPos.getAgent() != null)
-			return false;
-		return true;
-	}
-
 	boolean checkCredibility(long agentId) {
 		// check if dispatcherId is in list
 		// if (agentId != null) {
@@ -446,27 +428,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return new SeeInfo(MAX_SEE_SQUARE_DIST, 0);
 	}
 
-	cobweb.Agent getAdjacentAgent() {
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
-		if (destPos == null) {
-			return null;
-		}
-		return destPos.getAgent();
-	}
-
-	@Override
 	public int getAgentPDAction() {
 		return pdCheater;
 	}
 
-	@Override
 	public int getAgentPDStrategy() {
 		return agentPDStrategy;
-	}
-
-	@Override
-	public Color getColor() {
-		return color;
 	}
 
 	public int getCommInbox() {
@@ -493,14 +460,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// based on agent type
 		theUI.newAgent(getColor(), colorMap.getColor(agentType, 1), stratColor, new Point2D(getPosition().v[0],
 				getPosition().v[1]), new Point2D(facing.v[0], facing.v[1]));
-	}
-
-	/**
-	 * return Agent's energy
-	 */
-	@Override
-	public int getEnergy() {
-		return energy;
 	}
 
 	public ComplexAgentInfo getInfo() {
@@ -718,7 +677,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param adjacentAgent Agent playing PD with
 	 * @param othersID ID of the adjacent agent.
 	 * @see ComplexAgent#playPD()
-	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
 	 */
 	public void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
 		playPD();
@@ -810,12 +768,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		this.asexFlag = asexFlag;
 	}
 
-
-	@Override
-	public void setColor(Color c) {
-		color = c;
-	}
-
 	public void setCommInbox(int commInbox) {
 		this.commInbox = commInbox;
 	}
@@ -827,12 +779,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	/**
 	 * Sets the complex agents parameters.
 	 * 
-	 * @param pdCheat
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
-	@Override
 	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
-		super.setConstants(pdCheat, agentData);
+		//Agent class does not use PD
+		setConstants(agentData);
 
 		this.pdCheater = pdCheat;
 
@@ -863,12 +814,23 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	}
 
+	public void copyConstants(ComplexAgent agent) {
+		super.copyConstants(agent);
+
+		//FIXME: Not sure what parameters are inherited here:
+		this.pdCheater = agent.pdCheater;
+		this.photo_memory = new long[params.pdMemory];
+		this.agentPDStrategy = agent.agentPDStrategy;
+		this.lastPDMove = agent.lastPDMove;
+
+	}
+
 	public void setMemoryBuffer(int memoryBuffer) {
 		this.memoryBuffer = memoryBuffer;
 	}
 
-	/*
-	 * return the measure of similarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
+	/**
+	 * @return the measure of similarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
 	 */
 	@Override
 	public double similarity(cobweb.Agent other) {
@@ -877,7 +839,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return // ((GeneticController) controller)
 		// .similarity((GeneticController) ((ComplexAgent) other)
 		// .getController());
-		((LinearWeightsController) controller).similarity((LinearWeightsController) other.getController());
+		((LinearWeightsController) controller).similarity((LinearWeightsController) ((ComplexAgent) other).getController());
 	}
 
 	@Override
@@ -1083,6 +1045,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
 		info.useAgentBumpEnergy(params.stepAgentEnergy);
 		info.addAgentBump();
+	}
+
+	/**
+	 * @return Controller?
+	 */
+	public Controller getController() {
+		return controller;
 	}
 
 	private void thinkAboutFoodLocation(int x, int y) {

@@ -582,9 +582,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	/**
 	 * Return the reproductive success rate of the given food source as a percent
-	 * @param f
-	 * @param numOffspring
-	 * @return
 	 */
 	private int reproductiveSuccess(FoodSource f, int numOffspring) {
 		if(f.getNumSeeds() == 0) {
@@ -594,12 +591,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	/**
-	 * 
-	 * @param fileName 
-	 * @param option
-	 * @return 
-	 */
 	@Override
 	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
 

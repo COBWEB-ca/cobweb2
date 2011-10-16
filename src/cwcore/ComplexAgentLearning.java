@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import learning.LearningAgentParams;
+import cobweb.Agent;
 import cobweb.Direction;
 import cobweb.Environment.Location;
 import cobweb.globals;
@@ -138,7 +139,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	protected void eat(ComplexAgent adjacentAgent) {
+	protected void eat(Agent adjacentAgent) {
 		super.eat(adjacentAgent);
 		// Bloodily consuming agents makes us happy
 		remember(new MemorableEvent(currTick, lParams.ateAgentPleasure, "ateAgent"));

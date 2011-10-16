@@ -129,8 +129,7 @@ public class SimulationConfig {
 	 * Constructor that allows input from a file to configure the simulation parameters.
 	 * 
 	 * @param fileName Name of the file used for simulation configuration.
-	 * @throws FileNotFoundException
-	 * @see {@link SimulationConfig#loadFile(InputStream)}
+	 * @throws FileNotFoundException if fileName not found
 	 */
 	public SimulationConfig(String fileName) throws FileNotFoundException {
 		this();

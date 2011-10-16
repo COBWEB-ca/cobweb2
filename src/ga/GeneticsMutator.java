@@ -19,7 +19,6 @@ import cwcore.complexParams.SpawnMutator;
 /**
  * GeneticsMutator is an instance of SpawnMutator.
  * 
- * @author
  * @see SpawnMutator
  */
 public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator {

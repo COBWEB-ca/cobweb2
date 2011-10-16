@@ -1,6 +1,8 @@
 package cobweb;
 
-import cwcore.ComplexAgent;
+import java.awt.Color;
+
+import cobweb.Environment.Location;
 import cwcore.ComplexAgentInfo;
 import cwcore.ComplexEnvironment;
 import cwcore.Food;
@@ -34,14 +36,16 @@ public abstract class Agent extends CellObject {
 	}
 
 	/**
-	 * The unique identifier for this agent.
+	 * The unique identifier for the next agent.
 	 */
 	private static long nextID = 1;
 
+	/**
+	 * The unique identifier for this agent
+	 */
 	protected long id;
 
 	/**
-	 * Return this agent's unique identifier.
 	 * @return The unique identifier for this agent.
 	 */
 	public long getID() {
@@ -82,9 +86,9 @@ public abstract class Agent extends CellObject {
 	protected int pregPeriod;
 
 	/**
-	 * FIXME: This probably should be in Complex agent only.
+	 * Colour of the agent.
 	 */
-	public int pdCheater;
+	private Color color = Color.lightGray;
 
 	/**
 	 * True if agent is alive.
@@ -97,14 +101,9 @@ public abstract class Agent extends CellObject {
 	protected ComplexEnvironment environment;
 
 	/**
-	 * TODO move to complex agent???
-	 */
-	protected Controller controller;
-
-	/**
 	 * Agent parameters.
 	 */
-	public static ComplexAgentParams params;
+	public ComplexAgentParams params;
 
 	/**
 	 * default parameters.
@@ -181,15 +180,6 @@ public abstract class Agent extends CellObject {
 	}
 
 	/**
-	 * Return this agent's remaining energy.
-	 * Not final, so subclasses can overwrite this.
-	 * @return The agent's remaining energy.
-	 */
-	public int getEnergy() {
-		return this.energy;
-	}
-
-	/**
 	 * Age this agent by 1 tick.
 	 */
 	public final void age() {
@@ -211,14 +201,6 @@ public abstract class Agent extends CellObject {
 		id = makeID();
 	}
 
-	protected void init(Controller ai) {
-		controller = ai;
-		controller.addClientAgent(this); // this currently does absolutely
-		// nothing for both simple and
-		// complex implementations of
-		// controller
-	}	
-
 	/** Sets the default mutable parameters of each agent type. */
 	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
 		defaultParams = params.clone();
@@ -230,10 +212,9 @@ public abstract class Agent extends CellObject {
 	/**
 	 * Sets the agents parameters.
 	 * 
-	 * @param pdCheat
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
-	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
+	public void setConstants(ComplexAgentParams agentData) {
 
 		this.params = agentData;
 
@@ -245,6 +226,9 @@ public abstract class Agent extends CellObject {
 
 	}
 
+	/**
+	 * @param wasteCounterLoss waste counter loss.
+	 */
 	public void setWasteCounterLoss(int wasteCounterLoss) {
 		this.wasteCounterLoss = wasteCounterLoss;
 	}
@@ -256,7 +240,7 @@ public abstract class Agent extends CellObject {
 	 * @param p Agent parameters copied.
 	 */
 	public void copyConstants(Agent p) {
-		setConstants(p.pdCheater, (ComplexAgentParams) defaultParams[p.getAgentType()].clone());
+		setConstants((ComplexAgentParams) defaultParams[p.getAgentType()].clone());
 	}
 
 	/**
@@ -271,7 +255,7 @@ public abstract class Agent extends CellObject {
 	 * @param adjacentAgent The agent attempting to eat.
 	 * @return True if the agent can eat this type of agent.
 	 */
-	protected boolean canEat(ComplexAgent adjacentAgent) {
+	protected boolean canEat(Agent adjacentAgent) {
 		boolean caneat = false;
 		caneat = params.foodweb.canEatAgent[adjacentAgent.getAgentType()];
 		if (this.energy > params.breedEnergy)
@@ -286,7 +270,7 @@ public abstract class Agent extends CellObject {
 	 * 
 	 * @param adjacentAgent The agent being eaten.
 	 */
-	protected void eat(ComplexAgent adjacentAgent) {
+	protected void eat(Agent adjacentAgent) {
 		int gain = (int) (adjacentAgent.energy * params.agentFoodEnergy);
 		energy += gain;
 		wasteCounterGain -= gain;
@@ -402,32 +386,15 @@ public abstract class Agent extends CellObject {
 
 		position.setAgent(null);
 		alive = false;
-		controller.removeClientAgent(this);
 		position.getEnvironment().getScheduler().removeSchedulerClient(this);
 	}
 
 	/**
-	 * TODO move to ComplexAgent
-	 * @return int AgentPDAction
+	 * Extracts pertinent information about the agent so the user interface 
+	 * used can draw it.
+	 * 
+	 * @param theUI The user interface responsible for drawing the agent.
 	 */
-	public abstract int getAgentPDAction();
-
-	/**
-	 * TODO move to ComplexAgent
-	 * @return int AgentPDStrategy
-	 */
-	public abstract int getAgentPDStrategy();
-
-	public abstract java.awt.Color getColor();
-
-	/**
-	 * TODO what is this?
-	 * @return
-	 */
-	public Controller getController() {
-		return controller;
-	}
-
 	public abstract void getDrawInfo(DrawingHandler theUI);
 
 	/**
@@ -507,7 +474,39 @@ public abstract class Agent extends CellObject {
 		afterTurnAction();
 	}
 
-	public abstract void setColor(java.awt.Color c);
+	/**
+	 * @param destPos The location of the agents next position.
+	 * @return True if location exists and is not occupied by anything
+	 */
+	protected boolean canStep(Location destPos) {
+		// The position must be valid...
+		if (destPos == null)
+			return false;
+		// and the destination must be clear of stones
+		if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
+			return false;
+		// and clear of wastes
+		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
+			return environment.dropArray[destPos.v[0]][destPos.v[1]].canStep();
+		// as well as other agents...
+		if (destPos.getAgent() != null)
+			return false;
+		return true;
+	}
+
+	/**
+	 * @see Agent#color
+	 */
+	public void setColor(Color c) {
+		this.color = c;
+	}
+
+	/**
+	 * @return The colour of the agent
+	 */
+	public Color getColor() {
+		return this.color;
+	}
 
 	public abstract double similarity(Agent other);
 
@@ -527,13 +526,31 @@ public abstract class Agent extends CellObject {
 	 * @see ComplexAgentParams#type
 	 */
 	public int getAgentType() {
-		return params.type;
+		return this.params.type;
 	}
 
 	/**
 	 * @see Agent#wasteCounterLoss
 	 */
 	public int getWasteCounterLoss() {
-		return wasteCounterLoss;
+		return this.wasteCounterLoss;
+	}
+
+	/**
+	 * @return Agent's energy
+	 */
+	public int getEnergy() {
+		return this.energy;
+	}
+
+	/**
+	 * @return Adjacent facing agent.
+	 */
+	public Agent getAdjacentAgent() {
+		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
+		if (destPos == null) {
+			return null;
+		}
+		return destPos.getAgent();
 	}
 }

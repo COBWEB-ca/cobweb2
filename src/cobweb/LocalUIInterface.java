@@ -411,7 +411,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * @see ComplexEnvironment#addFood(int, int, int)
+	 * @see ComplexEnvironment#addFoodSource(int, int, int)
 	 */
 	public void addFoodSource(int x, int y, int type) {
 		theEnvironment.addFoodSource(x, y, type);
