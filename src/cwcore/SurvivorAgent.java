@@ -219,7 +219,7 @@ public class SurvivorAgent extends ComplexAgent {
 				//TODO for now
 				FoodSource source = null;
 
-				//memorise the food source
+				//memorize the food source
 				this.rememberFoodSource(source);
 
 				//if it's adjacent

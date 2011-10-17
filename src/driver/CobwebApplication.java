@@ -58,7 +58,6 @@ import driver.config.GUI;
  * makes use of the JFrame class.
  * 
  * @author Liang
- * @since 
  *
  */
 public class CobwebApplication extends JFrame implements UIClient {
@@ -78,7 +77,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	 * 
 	 * @param src The file name of the source file to be copied from
 	 * @param dest The file name of the destination file to be copied to 
-	 * @throws IOException 
+	 * @throws IOException If file not found.
 	 */
 	public static void copyFile(String src, String dest) throws IOException {
 		File sourceFile = new File(src);
@@ -1419,7 +1418,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	/**
-	 * @see UIInterface#clearFood()
+	 * @see UIInterface#clearFoodSources()
 	 */
 	private void onMenuRemoveFood() {
 		// pauseUI(); // $$$$$$ Feb 12

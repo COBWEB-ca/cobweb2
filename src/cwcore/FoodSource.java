@@ -71,7 +71,7 @@ public class FoodSource extends CellObject {
 	 */
 	public FoodSource(int startFood, int type, Environment.Location location, double depleteRate,
 			double reproductionProb) {
-		this.startFood = 0;
+		this.startFood = startFood;
 		this.age = 0;
 
 		this.maxFood = startFood;

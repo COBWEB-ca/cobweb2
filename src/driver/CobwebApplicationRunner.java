@@ -90,7 +90,6 @@ public class CobwebApplicationRunner {
 	 * 
 	 * <p> -autorun [specify integer >= -1]
 	 * 
-	 * @param args
 	 * @see CobwebApplication#INITIAL_OR_NEW_INPUT_FILE_NAME
 	 * @see CobwebApplication#CONFIG_FILE_EXTENSION
 	 */

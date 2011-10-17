@@ -4,8 +4,6 @@ import ga.GeneticsMutator;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -33,7 +31,7 @@ import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;
 import cwcore.LinearWeightsController;
 import disease.DiseaseMutator;
-import driver.LinearAIGraph;
+import driver.LinearAIViewer;
 import driver.SimulationConfig;
 
 /**
@@ -44,44 +42,6 @@ import driver.SimulationConfig;
  *
  */
 public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
-
-	private final class LinearAIViewer implements ViewerPlugin {
-
-		private LinearAIGraph aiGraph;
-		private ViewerClosedCallback onClosed;
-
-		@Override
-		public void on() {
-			aiGraph = new LinearAIGraph();
-			aiGraph.setVisible(true);
-			aiGraph.addWindowListener(new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) {
-					onClosed.viewerClosed();
-				}
-			});
-		}
-
-		@Override
-		public void off() {
-			if (aiGraph == null)
-				return;
-			aiGraph.setVisible(false);
-			aiGraph.setEnabled(false);
-			aiGraph = null;
-		}
-
-		@Override
-		public String getName() {
-			return "AI Weight Stats";
-		}
-
-		@Override
-		public void setClosedCallback(ViewerClosedCallback onClosed) {
-			this.onClosed = onClosed;
-
-		}
-	}
 
 	/**
 	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo
@@ -411,7 +371,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * @see ComplexEnvironment#addFood(int, int, int)
+	 * @see ComplexEnvironment#addFoodSource(int, int, int)
 	 */
 	public void addFoodSource(int x, int y, int type) {
 		theEnvironment.addFoodSource(x, y, type);

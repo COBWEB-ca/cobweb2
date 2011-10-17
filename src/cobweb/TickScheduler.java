@@ -30,7 +30,6 @@ public class TickScheduler implements Scheduler {
 	/**
 	 * Contains the run method used for the simulation thread.
 	 * 
-	 * @author
 	 *
 	 */
 	private class SchedulerRunnable implements Runnable {

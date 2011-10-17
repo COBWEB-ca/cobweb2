@@ -15,6 +15,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import cobweb.ColorLookup;
+import cobweb.Controller;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
 import cobweb.Environment;
@@ -87,10 +88,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 */
 	private static final long serialVersionUID = -5310096345506441368L;
 
-	/** Default mutable parameters of each agent type. */
-
-	private static ComplexAgentParams defaultParams[];
-
 	protected static AgentSimilarityCalculator simCalc;
 
 	public static Collection<String> logDataAgent(int i) {
@@ -129,23 +126,16 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return blah;
 	}
 
-	/** Sets the default mutable parameters of each agent type. */
-	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
-		defaultParams = params.clone();
-		for (int i = 0; i < params.length; i++) {
-			defaultParams[i] = (ComplexAgentParams) params[i].clone();
-		}
-	}
-
 	public static void setSimularityCalc(AgentSimilarityCalculator calc) {
 		simCalc = calc;
 	}
 
-	public ComplexAgentParams params;
+	//	public ComplexAgentParams params;
 
+	protected int pdCheater;
 	/** Prisoner's Dilemma */
 	private int agentPDStrategy; // tit-for-tat or probability
-	int pdCheater; // The agent's action; 1 == cheater, else
+	//int pdCheater; // The agent's action; 1 == cheater, else
 	// cooperator
 	private int lastPDMove; // Remember the opponent's move in the last game
 
@@ -159,25 +149,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	protected boolean want2meet = false;
 	boolean cooperate;
 
-	/* Waste variables */
-	private int wasteCounterGain;
-	private int wasteCounterLoss;
-
 	private int memoryBuffer;
 
+	protected Controller controller;
 
 	protected ComplexAgent breedPartner;
-	private Color color = Color.lightGray;
-
-	private boolean asexFlag;
-
-	protected ComplexAgentInfo info;
-
-	// pregnancyPeriod is set value while pregPeriod constantly changes
-	protected int pregPeriod;
-
-	/** The current tick we are in (or the last tick this agent was notified */
-	protected long currTick = 0;
 
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
@@ -211,8 +187,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	boolean mustFlip = false;
 
-	protected ComplexEnvironment environment;
-
 	public ComplexAgent() {
 
 	}
@@ -226,8 +200,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param strat PD strategy
 	 */
 	public void init(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, int strat) {
-		init(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
-				parent1.params.mutationRate));
+		this.controller = ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
+				parent1.params.mutationRate);
 		InitFacing();
 
 		copyConstants(parent1);
@@ -254,7 +228,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param strat PD strategy
 	 */
 	protected void init(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
-		init(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
+		this.controller = ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate);
 		InitFacing();
 
 		copyConstants(parent);
@@ -272,7 +246,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	/**   */
 	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		this.controller = ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentT);
 		setConstants(doCheat, agentData);
 		this.facing = facingDirection;
 
@@ -297,7 +271,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param agentData agent parameters
 	 */
 	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits));
+		this.controller = ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType);
 		setConstants(doCheat, agentData);
 
 		InitFacing();
@@ -314,17 +288,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this);
-	}
-
-	private void afterTurnAction() {
-		energy -= energyPenalty();
-		if (energy <= 0)
-			die();
-		if (!pregnant)
-			tryAsexBreed();
-		if (pregnant) {
-			pregPeriod--;
-		}
 	}
 
 	void broadcastCheating(cobweb.Environment.Location loc) { // []SK
@@ -360,44 +323,32 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**
-	 * @param destPos The location of the agents next position.
-	 * @return True if agent can eat this type of food.
+	 * The agent eats the food (food flag is set to false), and 
+	 * gains energy and waste according to the food type.
+	 * 
+	 * @param destPos Location of food.
 	 */
-	public boolean canEat(cobweb.Environment.Location destPos) {
-		return params.foodweb.canEatFood[environment.getFoodType(destPos)];
-	}
+	@Deprecated
+	public void eat(cobweb.Environment.Location destPos) {
+		//agent can only eat once per turn
+		if(!this.hasEaten) {
+			// TODO: CHECK if setting flag before determining type is ok
+			// Eat first before we can produce waste, of course.
+			destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			// Gain Energy according to the food type.
+			if (environment.getFoodType(destPos) == agentType) {
+				energy += params.foodEnergy;
+				wasteCounterGain -= params.foodEnergy;
+				info.addFoodEnergy(params.foodEnergy);
+			} else {
+				energy += params.otherFoodEnergy;
+				wasteCounterGain -= params.otherFoodEnergy;
+				info.addOthers(params.otherFoodEnergy);
+			}
 
-	/**
-	 * @param adjacentAgent The agent attempting to eat.
-	 * @return True if the agent can eat this type of agent.
-	 */
-	protected boolean canEat(ComplexAgent adjacentAgent) {
-		boolean caneat = false;
-		caneat = params.foodweb.canEatAgent[adjacentAgent.getAgentType()];
-		if (this.energy > params.breedEnergy)
-			caneat = false;
-
-		return caneat;
-	}
-
-	/**
-	 * @param destPos The location of the agents next position.
-	 * @return True if location exists and is not occupied by anything
-	 */
-	boolean canStep(Location destPos) {
-		// The position must be valid...
-		if (destPos == null)
-			return false;
-		// and the destination must be clear of stones
-		if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
-			return false;
-		// and clear of wastes
-		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
-			return environment.dropArray[destPos.v[0]][destPos.v[1]].canStep();
-		// as well as other agents...
-		if (destPos.getAgent() != null)
-			return false;
-		return true;
+			//set eaten flag
+			this.hasEaten = true;
+		}
 	}
 
 	boolean checkCredibility(long agentId) {
@@ -426,10 +377,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	void communicate(ComplexAgent target) {
 		target.setCommInbox(commOutbox);
-	}
-
-	public void copyConstants(ComplexAgent p) {
-		setConstants(p.pdCheater, (ComplexAgentParams) defaultParams[p.getAgentType()].clone());
 	}
 
 	@Override
@@ -481,107 +428,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return new SeeInfo(MAX_SEE_SQUARE_DIST, 0);
 	}
 
-	/**
-	 * The agent eats the food (food flag is set to false), and 
-	 * gains energy and waste according to the food type.
-	 * 
-	 * @param destPos Location of food.
-	 */
-	@Deprecated
-	public void eat(cobweb.Environment.Location destPos) {
-		//agent can only eat once per turn
-		if(!this.hasEaten) {
-			// TODO: CHECK if setting flag before determining type is ok
-			// Eat first before we can produce waste, of course.
-			destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-			// Gain Energy according to the food type.
-			if (environment.getFoodType(destPos) == agentType) {
-				energy += params.foodEnergy;
-				wasteCounterGain -= params.foodEnergy;
-				info.addFoodEnergy(params.foodEnergy);
-			} else {
-				energy += params.otherFoodEnergy;
-				wasteCounterGain -= params.otherFoodEnergy;
-				info.addOthers(params.otherFoodEnergy);
-			}
-
-			//set eaten flag
-			this.hasEaten = true;
-		}
-	}
-
-	public void eat(Food food) {
-		//agent can only eat once per turn
-		if(!this.hasEaten) {
-			// TODO: CHECK if setting flag before determining type is ok
-			// Eat first before we can produce waste, of course.
-			//destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-			// Gain Energy according to the food type.
-			if (food.getType() == agentType) {
-				energy += params.foodEnergy;
-				wasteCounterGain -= params.foodEnergy;
-				info.addFoodEnergy(params.foodEnergy);
-			} else {
-				energy += params.otherFoodEnergy;
-				wasteCounterGain -= params.otherFoodEnergy;
-				info.addOthers(params.otherFoodEnergy);
-			}
-
-			//set eaten flag
-			this.hasEaten = true;
-		}
-	}
-
-	/**
-	 * The agent eats the adjacent agent by killing it and gaining 
-	 * energy from it.
-	 * 
-	 * @param adjacentAgent The agent being eaten.
-	 */
-	protected void eat(ComplexAgent adjacentAgent) {
-		int gain = (int) (adjacentAgent.energy * params.agentFoodEnergy);
-		energy += gain;
-		wasteCounterGain -= gain;
-		info.addCannibalism(gain);
-		adjacentAgent.die();
-	}
-
-	public double energyPenalty() {
-		if (!params.agingMode)
-			return 0.0;
-		double tempAge = currTick - birthTick;
-		assert(tempAge == age);
-		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
-				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
-
-		return penaltyValue;
-	}
-
-	cobweb.Agent getAdjacentAgent() {
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
-		if (destPos == null) {
-			return null;
-		}
-		return destPos.getAgent();
-	}
-
-	@Override
 	public int getAgentPDAction() {
 		return pdCheater;
 	}
 
-	@Override
 	public int getAgentPDStrategy() {
 		return agentPDStrategy;
-	}
-
-	public int getAgentType() {
-		return params.type;
-	}
-
-	@Override
-	public Color getColor() {
-		return color;
 	}
 
 	public int getCommInbox() {
@@ -608,14 +460,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// based on agent type
 		theUI.newAgent(getColor(), colorMap.getColor(agentType, 1), stratColor, new Point2D(getPosition().v[0],
 				getPosition().v[1]), new Point2D(facing.v[0], facing.v[1]));
-	}
-
-	/**
-	 * return Agent's energy
-	 */
-	@Override
-	public int getEnergy() {
-		return energy;
 	}
 
 	public ComplexAgentInfo getInfo() {
@@ -833,7 +677,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param adjacentAgent Agent playing PD with
 	 * @param othersID ID of the adjacent agent.
 	 * @see ComplexAgent#playPD()
-	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
 	 */
 	public void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
 		playPD();
@@ -925,12 +768,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		this.asexFlag = asexFlag;
 	}
 
-
-	@Override
-	public void setColor(Color c) {
-		color = c;
-	}
-
 	public void setCommInbox(int commInbox) {
 		this.commInbox = commInbox;
 	}
@@ -942,19 +779,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	/**
 	 * Sets the complex agents parameters.
 	 * 
-	 * @param pdCheat
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
 	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
-
-		this.params = agentData;
-
-		this.agentType = agentData.type;
+		//Agent class does not use PD
+		setConstants(agentData);
 
 		this.pdCheater = pdCheat;
-		energy = agentData.initEnergy;
-		wasteCounterGain = params.wasteLimitGain;
-		setWasteCounterLoss(params.wasteLimitLoss);
 
 		photo_memory = new long[params.pdMemory];
 
@@ -983,12 +814,23 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	}
 
+	public void copyConstants(ComplexAgent agent) {
+		super.copyConstants(agent);
+
+		//FIXME: Not sure what parameters are inherited here:
+		this.pdCheater = agent.pdCheater;
+		this.photo_memory = new long[params.pdMemory];
+		this.agentPDStrategy = agent.agentPDStrategy;
+		this.lastPDMove = agent.lastPDMove;
+
+	}
+
 	public void setMemoryBuffer(int memoryBuffer) {
 		this.memoryBuffer = memoryBuffer;
 	}
 
-	/*
-	 * return the measure of similarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
+	/**
+	 * @return the measure of similarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
 	 */
 	@Override
 	public double similarity(cobweb.Agent other) {
@@ -997,7 +839,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return // ((GeneticController) controller)
 		// .similarity((GeneticController) ((ComplexAgent) other)
 		// .getController());
-		((LinearWeightsController) controller).similarity((LinearWeightsController) other.getController());
+		((LinearWeightsController) controller).similarity((LinearWeightsController) ((ComplexAgent) other).getController());
 	}
 
 	@Override
@@ -1073,6 +915,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			info.addRockBump();
 		}
 		energy -= energyPenalty();
+
+		if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
+			// Bumps into waste
+			int x = destPos.v[0];
+			int y = destPos.v[1];
+			Drop d = environment.dropArray[x][y];
+			d.onStep(this);
+
+		}
 
 		if (energy <= 0)
 			die();
@@ -1205,6 +1056,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		info.addAgentBump();
 	}
 
+	/**
+	 * @return Controller?
+	 */
+	public Controller getController() {
+		return controller;
+	}
+
 	private void thinkAboutFoodLocation(int x, int y) {
 		Location target = this.getPosition().getEnvironment().getLocation(x, y);
 
@@ -1217,12 +1075,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		setCommInbox(o);
 	}
-
-	/**
-	 * Set to true when an agent has eaten in that tick, false otherwise.
-	 * Reset every tick.
-	 */
-	protected boolean hasEaten = false;
 
 	/**
 	 * Auto-update turn-related parameters. Kill the agent if necessary.
@@ -1285,6 +1137,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//all actions to be taken before controller
 		this.updateAgent(tick);
 
+		// If updateAgent called die();
+		if (!isAlive())
+			return;
+
 		this.control();
 
 		//all actions to be taken after controller
@@ -1296,18 +1152,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// nothing
 	}
 
-	/**
-	 * If the agent has enough energy to breed, is randomly chosen to breed, 
-	 * and its asexFlag is true, then the agent will be pregnant and set to 
-	 * produce a child agent after the agent's asexPregnancyPeriod is up.
-	 */
-	void tryAsexBreed() {
-		if (asexFlag && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
-				&& cobweb.globals.random.nextFloat() < params.asexualBreedChance) {
-			pregPeriod = params.asexPregnancyPeriod;
-			pregnant = true;
-		}
-	}
+
 
 	private boolean shouldPoop() {
 		if (wasteCounterGain <= 0 && params.wasteLimitGain > 0) {
@@ -1367,47 +1212,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	/**
-	 * This method makes the agent turn left.  It does this by updating 
-	 * the direction of the agent and subtracts the amount of 
-	 * energy it took to turn.
-	 */
-	public void turnLeft() {
-		cobweb.Direction newFacing = new cobweb.Direction(2);
-		newFacing.v[0] = facing.v[1];
-		newFacing.v[1] = -facing.v[0];
-		facing = newFacing;
-		energy -= params.turnLeftEnergy;
-		setWasteCounterLoss(getWasteCounterLoss() - params.turnLeftEnergy);
-		info.useTurning(params.turnLeftEnergy);
-		info.addTurn();
-		afterTurnAction();
-	}
-
-	/**
-	 * This method makes the agent turn right.  It does this by updating 
-	 * the direction of the agent subtracts the amount of energy it took 
-	 * to turn.
-	 */
-	public void turnRight() {
-		cobweb.Direction newFacing = new cobweb.Direction(2);
-		newFacing.v[0] = -facing.v[1];
-		newFacing.v[1] = facing.v[0];
-		facing = newFacing;
-		energy -= params.turnRightEnergy;
-		setWasteCounterLoss(getWasteCounterLoss() - params.turnRightEnergy);
-		info.useTurning(params.turnRightEnergy);
-		info.addTurn();
-		afterTurnAction();
-	}
-
-	public void setWasteCounterLoss(int wasteCounterLoss) {
-		this.wasteCounterLoss = wasteCounterLoss;
-	}
 
 
-	public int getWasteCounterLoss() {
-		return wasteCounterLoss;
-	}
+
 
 }
