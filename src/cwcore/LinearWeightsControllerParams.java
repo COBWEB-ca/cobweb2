@@ -1,5 +1,8 @@
 package cwcore;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -7,12 +10,22 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import cobweb.params.CobwebParam;
+import cwcore.complexParams.AgentFoodCountable;
+import cwcore.complexParams.ControllerParams;
 
-public class LinearWeightsControllerParams implements CobwebParam {
+public class LinearWeightsControllerParams implements CobwebParam, ControllerParams {
 
 	private static final long serialVersionUID = 8856565519749448009L;
 
-	public double[][] data = new double[LinearWeightsController.INPUT_COUNT][LinearWeightsController.OUTPUT_COUNT];
+	public double[][] data;
+
+	public static List<String> pluginNames = new LinkedList<String>() {{
+
+	}};
+
+	public LinearWeightsControllerParams() {
+		data = new double[LinearWeightsController.INPUT_COUNT + pluginNames.size()][LinearWeightsController.OUTPUT_COUNT];
+	}
 
 	public LinearWeightsControllerParams copy() {
 		LinearWeightsControllerParams p = new LinearWeightsControllerParams();
@@ -67,6 +80,18 @@ public class LinearWeightsControllerParams implements CobwebParam {
 			}
 			root.appendChild(inp);
 		}
+	}
+
+	@Override
+	public void setTypeCount(int count) {
+		// TODO Auto-generated method stub
+		// Doesn't do anything so far
+	}
+
+	@Override
+	public void resize(AgentFoodCountable envParams) {
+		// TODO Auto-generated method stub
+		// Doesn't do anything so far
 	}
 
 }

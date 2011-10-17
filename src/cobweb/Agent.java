@@ -98,7 +98,7 @@ public abstract class Agent extends CellObject {
 	/**
 	 * Environment agent is located in.
 	 */
-	protected ComplexEnvironment environment;
+	public ComplexEnvironment environment;
 
 	/**
 	 * Agent parameters.

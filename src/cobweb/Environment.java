@@ -158,16 +158,18 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Distance squared; useful because sometimes the sqrt is irrelevant, as
-		 * in isAdjacent.
+		 * Calculate the square distance between two points.
+		 * Non-naive - i.e. takes topology into account.
 		 */
 		public int distanceSquare(Location l) {
-			int dist = 0;
-			for (int i = 0; i < v.length; ++i) {
-				int delta = v[i] - l.v[i];
-				dist += delta * delta;
-			}
-			return dist;
+			//set the coordinates of the grid
+			TempLocation.setAxes(Environment.this.getSize(AXIS_X), Environment.this.getSize(AXIS_Y));
+
+			//create matching temporary points
+			TempLocation thisPlace = new TempLocation(this.v[0], this.v[1]);
+			TempLocation other = new TempLocation(l.v[0], l.v[1]);
+
+			return thisPlace.distanceSquaredTo(other);
 		}
 
 		@Override
