@@ -158,18 +158,14 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Calculate the square distance between two points.
-		 * Non-naive - i.e. takes topology into account.
+		 * Distance squared; useful because sometimes the sqrt is irrelevant, as
+		 * in isAdjacent.
 		 */
 		public int distanceSquare(Location l) {
-			//set the coordinates of the grid
-			TempLocation.setAxes(Environment.this.getSize(AXIS_X), Environment.this.getSize(AXIS_Y));
+			TempLocation start = new TempLocation(this.v[0], this.v[1]);
+			TempLocation end = new TempLocation(l.v[0], l.v[1]);
 
-			//create matching temporary points
-			TempLocation thisPlace = new TempLocation(this.v[0], this.v[1]);
-			TempLocation other = new TempLocation(l.v[0], l.v[1]);
-
-			return thisPlace.distanceSquaredTo(other);
+			return Environment.this.factory.distanceSquaredTo(start, end);
 		}
 
 		@Override
@@ -455,6 +451,8 @@ public abstract class Environment {
 
 	private Color[] tileColors;
 
+	private TempLocationFactory factory;
+
 	/**
 	 * Adds agent at given position
 	 * 
@@ -669,6 +667,8 @@ public abstract class Environment {
 	 **/
 	public void load(Scheduler scheduler, SimulationConfig parameters) throws IllegalArgumentException {
 		tileColors = new Color[parameters.getEnvParams().getWidth() * parameters.getEnvParams().getHeight()];
+
+		factory = new TempLocationFactory(parameters.getEnvParams().getWidth(), parameters.getEnvParams().getHeight());
 	}
 
 	/** Log to a stream */
