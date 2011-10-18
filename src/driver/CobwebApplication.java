@@ -58,7 +58,6 @@ import driver.config.GUI;
  * makes use of the JFrame class.
  * 
  * @author Liang
- * @since 
  *
  */
 public class CobwebApplication extends JFrame implements UIClient {

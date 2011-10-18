@@ -19,9 +19,7 @@ public class LinearWeightsControllerParams implements CobwebParam, ControllerPar
 
 	public double[][] data;
 
-	public static List<String> pluginNames = new LinkedList<String>() {{
-
-	}};
+	public static List<String> pluginNames = new LinkedList<String>();
 
 	public LinearWeightsControllerParams() {
 		data = new double[LinearWeightsController.INPUT_COUNT + pluginNames.size()][LinearWeightsController.OUTPUT_COUNT];
@@ -84,13 +82,11 @@ public class LinearWeightsControllerParams implements CobwebParam, ControllerPar
 
 	@Override
 	public void setTypeCount(int count) {
-		// TODO Auto-generated method stub
 		// Doesn't do anything so far
 	}
 
 	@Override
 	public void resize(AgentFoodCountable envParams) {
-		// TODO Auto-generated method stub
 		// Doesn't do anything so far
 	}
 
