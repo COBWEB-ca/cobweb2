@@ -81,12 +81,7 @@ public abstract class Agent {
 	/**
 	 * @return int AgentPDAction
 	 */
-	public abstract int getAgentPDAction();
-
-	/**
-	 * @return int AgentPDStrategy
-	 */
-	public abstract int getAgentPDStrategy();
+	public abstract boolean getAgentPDActionCheat();
 
 	public abstract java.awt.Color getColor();
 

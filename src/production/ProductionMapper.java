@@ -131,7 +131,7 @@ public class ProductionMapper implements StatePlugin {
 		public double getValue(ComplexAgent agent) {
 			Location here = agent.getPosition();
 			Location ahead = here.getAdjacent(agent.getFacing());
-			if (!ahead.isValid()) {
+			if (ahead == null || !ahead.isValid()) {
 				return 0;
 			}
 

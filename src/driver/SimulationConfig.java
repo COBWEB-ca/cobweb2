@@ -144,7 +144,7 @@ public class SimulationConfig {
 	 * 
 	 * @param fileName Name of the file used for simulation configuration.
 	 * @throws FileNotFoundException
-	 * @see {@link SimulationConfig#loadFile(InputStream)}
+	 * @see SimulationConfig#loadFile(InputStream)
 	 */
 	public SimulationConfig(String fileName) throws FileNotFoundException {
 		this();

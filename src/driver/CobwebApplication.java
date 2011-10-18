@@ -19,7 +19,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -58,7 +57,6 @@ import driver.config.GUI;
  * makes use of the JFrame class.
  * 
  * @author Liang
- * @since 
  *
  */
 public class CobwebApplication extends JFrame implements UIClient {
@@ -1313,12 +1311,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				theDialog.setVisible(true);
 				if (theDialog.getFile() != null) {
 					//Load the XML file
-					try {
-						uiPipe.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option);
-					} catch (FileNotFoundException ex) {
-						// TODO Auto-generated catch block
-						ex.printStackTrace();
-					}
+					uiPipe.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option);
 				}
 			}
 

@@ -225,7 +225,7 @@ public class ComplexAgentInfo {
 		}
 	}
 
-	private int action = 0;
+	private boolean cheater = false;
 
 	private long parent1 = -1;
 
@@ -307,28 +307,28 @@ public class ComplexAgentInfo {
 		agentAgingEnergies = new int[typesCount];
 	}
 
-	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, ComplexAgentInfo p2, int strat) {
+	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, ComplexAgentInfo p2, boolean cheat) {
 		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
 		parent1 = p1 != null ? p1.agentNumber : -1;
 		parent2 = p2 != null ? p2.agentNumber : -1;
-		action = strat;
+		cheater = cheat;
 	}
 
-	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, int strat) {
+	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, boolean cheat) {
 		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
 		parent1 = p1 != null ? p1.agentNumber : -1;
-		action = strat;
+		cheater = cheat;
 	}
 
-	public ComplexAgentInfo(int num, int type, long birth, int strat) {
+	public ComplexAgentInfo(int num, int type, long birth, boolean cheat) {
 		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
-		action = strat;
+		cheater = cheat;
 	}
 
 	public void addAgentBump() {
@@ -486,7 +486,7 @@ public class ComplexAgentInfo {
 		pw.print("\t" + countAgentBumps);
 		pw.print("\t" + countRockBumps);
 
-		if (action == 1) {
+		if (cheater) {
 			pw.print("\tcheat");
 		} else {
 			pw.print("\tcooperate");
@@ -505,8 +505,8 @@ public class ComplexAgentInfo {
 		path = null;
 	}
 
-	public void setStrategy(int strat) {
-		action = strat;
+	public void setStrategy(boolean cheat) {
+		cheater = cheat;
 	}
 
 	public void useAgentBumpEnergy(int val) {

@@ -14,6 +14,8 @@ import cobweb.params.CobwebParam;
 public class GeneticStateParams implements CobwebParam {
 
 
+	private static final long serialVersionUID = -7136336946033726870L;
+
 	public GeneticStateAgentParams[] agentParams;
 
 	int typeCount = 4;
