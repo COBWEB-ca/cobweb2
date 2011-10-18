@@ -259,8 +259,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 							// this agent is favourable
 							concernedAgent.remember(new MemorableEvent(currTick, lParams.loveForPartner, "agent-" + breedPartner.getID()));
 
-							int childStrategy = -1;
-							if (concernedAgent.pdCheater != -1) {
+							boolean childStrategy = false;
+							{
 								boolean choose = cobweb.globals.random.nextBoolean();
 								if (choose) {
 									childStrategy = concernedAgent.pdCheater;
@@ -351,13 +351,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				});
 			}
 
-			// TODO: the logical structure for want2meet and photo_memory and such
-			// can likely be replaced by using MemorableEvents
-			if (this.pdCheater != -1) {// $$$$$ if playing Prisoner's
-				// Dilemma. Please refer to ComplexEnvironment.load,
-				// "// spawn new random agents for each type"
-				want2meet = true;
-			}
+			want2meet = true;
 
 			final int othersID = adjacentAgent.info.getAgentNumber();
 			// scan the memory array, is the 'other' agents ID is found in the
@@ -391,7 +385,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 
 				if (canBreed && sim >= params.breedSimMin
-						&& ((want2meet && adjacentAgent.want2meet) || (pdCheater == -1))) {
+						&& (want2meet && adjacentAgent.want2meet)) {
 					// Initiate pregnancy
 					queue(new SmartAction(this, "breed") {
 
@@ -494,20 +488,19 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 
 	@Override
-	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection,
+	public void init(int agentT, ComplexAgentParams agentData, Direction facingDirection,
 			Location pos) {
-		super.init(agentT, doCheat, agentData, facingDirection, pos);
-		// TODO Auto-generated constructor stub
+		super.init(agentT, agentData, facingDirection, pos);
+		throw new IllegalArgumentException("Cannot initialize ComplexAgentLearning without LearningAgentParams");
 	}
 
-	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData,
-			LearningAgentParams lAgentData) {
-		super.init(agentType, pos, doCheat, agentData);
+	public void init(int agentType, Location pos, ComplexAgentParams agentData, LearningAgentParams lAgentData) {
+		super.init(agentType, pos, agentData);
 
 		lParams = lAgentData;
 	}
 
-	private void init(Location pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2, int strat) {
+	private void init(Location pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2, boolean strat) {
 		super.init(pos, parent1, parent2, strat);
 
 		if (globals.random.nextBoolean()) {
@@ -519,8 +512,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	}
 
-	private void init(Location pos, ComplexAgentLearning parent, int strat) {
-		super.init(pos, parent, strat);
+	private void init(Location pos, ComplexAgentLearning parent, boolean cheat) {
+		super.init(pos, parent, cheat);
 
 		lParams = parent.lParams;
 	}

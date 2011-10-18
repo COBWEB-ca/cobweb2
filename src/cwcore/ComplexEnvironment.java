@@ -238,32 +238,20 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	public synchronized void addAgent(int x, int y, int type) {
 		super.addAgent(x, y, type);
-		int action = -1; // $$$$$ -1: not play Prisoner's Dilemma
 		cobweb.Environment.Location l;
 		l = getUserDefinedLocation(x, y);
 		if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
 				&& !l.testFlag(ComplexEnvironment.FLAG_DROP)) {
 			int agentType = type;
-			if (data.prisDilemma) {
 
-				action = 0;
-
-				double coopProb = agentData[agentType].pdCoopProb / 100.0d; // static
-
-				float rnd = cobweb.globals.random.nextFloat();
-
-				if (rnd > coopProb)
-					action = 1; // agent defects depending on probability
-			}
-
-			spawnAgent(action, l, agentType);
+			spawnAgent(l, agentType);
 
 		}
 	}
 
-	protected void spawnAgent(int action, cobweb.Environment.Location location, int agentType) {
+	protected void spawnAgent(cobweb.Environment.Location location, int agentType) {
 		ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
-		child.init(agentType, location, action, (ComplexAgentParams) agentData[agentType].clone()); // Default
+		child.init(agentType, location, (ComplexAgentParams) agentData[agentType].clone()); // Default
 	}
 
 	ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
@@ -271,15 +259,15 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return info;
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2, int action) {
+	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2, boolean action) {
 		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, p2, action));
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, int action) {
+	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, boolean action) {
 		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, action));
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT, int action) {
+	ComplexAgentInfo addAgentInfo(int agentT, boolean action) {
 		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, action));
 	}
 
@@ -795,11 +783,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());
 
 			// doCheat
-			int pdCheater = Integer.parseInt(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
+			boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
 
 
 			ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
-			cAgent.init(agentType, pdCheater, params, facing, loc);
+			cAgent.init(agentType, params, facing, loc);
+			cAgent.pdCheater = pdCheater;
 			agentTable.put(loc, cAgent);
 		}
 
@@ -975,56 +964,20 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * are randomly assigned to agents.
 	 */
 	private void loadNewAgents() {
-		int doCheat = -1; // $$$$$ -1: not play Prisoner's Dilemma
 		for (int i = 0; i < data.getAgentTypes(); ++i) {
-			double coopProb = agentData[i].pdCoopProb / 100.0d; // static value
-			// for now
-			// $$$$$$ added
-			// for the below
-			// else
-			// block.
-			// Apr 18
 
 			for (int j = 0; j < agentData[i].initialAgents; ++j) {
-				if (data.prisDilemma) {
-					if (agentData[i].pdTitForTat) {
-						doCheat = 0; // spawn cooperating agent
-					} else {
-						// $$$$$$ change from the first silent line to the
-						// following three. Apr 18
-						// action = 1;
-						doCheat = 0;
-						float rnd = cobweb.globals.random.nextFloat();
-						// System.out.println("rnd: " + rnd);
-						// System.out.println("coopProb: " + coopProb);
-						if (rnd > coopProb)
-							doCheat = 1; // agent defects depending on
-						// probability
-					}
-
-				}
 
 				cobweb.Environment.Location location;
 				int tries = 0;
 				do {
 					location = getRandomLocation();
-				} while ((tries++ < 100) && ((location.getAgent() != null) // don't
-						// spawn
-						// on
-						// top
-						// of
-						// agents
-						|| location.testFlag(ComplexEnvironment.FLAG_STONE) // nor
-						// on
-						// stone
-						// tiles
-						|| location.testFlag(ComplexEnvironment.FLAG_DROP))); // nor
-				// on
-				// waste
-				// tiles
+				} while ((tries++ < 100) && ((location.getAgent() != null) // don't spawn on top of agents
+						|| location.testFlag(ComplexEnvironment.FLAG_STONE) // nor on stone tiles
+						|| location.testFlag(ComplexEnvironment.FLAG_DROP))); // nor on waste tiles
 				if (tries < 100) {
 					int agentType = i;
-					spawnAgent(doCheat, location, agentType);
+					spawnAgent(location, agentType);
 				}
 			}
 		}
@@ -1085,8 +1038,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 						getScheduler().addSchedulerClient(currentPos.getAgent());
 					}
 					int theType = ((ComplexAgent) currentPos.getAgent()).getAgentType();
-					((ComplexAgent) currentPos.getAgent()).setConstants(((ComplexAgent) currentPos.getAgent())
-							.getAgentPDAction(), agentData[theType]); // Default
+					((ComplexAgent) currentPos.getAgent()).setConstants(agentData[theType]); // Default
 					// genetic
 					// sequence of
 					// agent type
@@ -1154,12 +1106,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		java.util.Enumeration<cobweb.Agent> e = getAgents();
 		while (e.hasMoreElements()) {
 			ComplexAgent agent = (ComplexAgent) e.nextElement();
-			if (agent.getAgentPDAction() == 0) {
+			if (!agent.getAgentPDActionCheat()) {
 				coops++;
 				stratArray[0] = coops;
-			} else if (agent.getAgentPDAction() == 1) { // $$$$$$ add
-				// " if (agent.getAgentPDAction() == 1) ".
-				// Apr 19
+			} else if (agent.getAgentPDActionCheat()) {
 				cheaters++;
 				stratArray[1] = cheaters;
 			}
@@ -1175,10 +1125,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		java.util.Enumeration<cobweb.Agent> e = getAgents();
 		while (e.hasMoreElements()) {
 			ComplexAgent agent = (ComplexAgent) e.nextElement();
-			if (agent.getAgentType() == agentType && agent.getAgentPDAction() == 0) {
+			if (agent.getAgentType() == agentType && !agent.getAgentPDActionCheat()) {
 				coops++;
 				stratArray[0] = coops;
-			} else if (agent.getAgentType() == agentType && agent.getAgentPDAction() == 1) {
+			} else if (agent.getAgentType() == agentType && agent.getAgentPDActionCheat()) {
 				cheaters++;
 				stratArray[1] = cheaters;
 			}
@@ -1612,6 +1562,10 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public StateParameter getStateParameter(String name) {
 		return pluginMap.get(name);
+	}
+
+	public boolean isPDenabled() {
+		return data.prisDilemma;
 	}
 
 

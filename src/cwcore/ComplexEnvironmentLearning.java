@@ -8,7 +8,6 @@ import driver.SimulationConfig;
 public class ComplexEnvironmentLearning extends ComplexEnvironment {
 
 	public ComplexEnvironmentLearning() {
-		// TODO Auto-generated constructor stub
 		super();
 	}
 
@@ -26,9 +25,9 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 	}
 
 	@Override
-	protected void spawnAgent(int action, Location location, int agentType) {
+	protected void spawnAgent(Location location, int agentType) {
 		ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn();
-		child.init(agentType, location, action, (ComplexAgentParams) agentData[agentType].clone(),
+		child.init(agentType, location, (ComplexAgentParams) agentData[agentType].clone(),
 				(LearningAgentParams)learningData[agentType].clone()); // Default
 	}
 }
