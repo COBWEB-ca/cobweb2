@@ -132,12 +132,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	//	public ComplexAgentParams params;
 
-	protected int pdCheater;
 	/** Prisoner's Dilemma */
-	private int agentPDStrategy; // tit-for-tat or probability
-	//int pdCheater; // The agent's action; 1 == cheater, else
-	// cooperator
-	private int lastPDMove; // Remember the opponent's move in the last game
+	boolean pdCheater; // The agent's action; 1 == cheater, else cooperator
+	private boolean lastPDcheated; // Remember the opponent's move in the last game
 
 	private int commInbox;
 
@@ -199,9 +196,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param parent2 second parent
 	 * @param strat PD strategy
 	 */
-	public void init(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, int strat) {
-		this.controller = ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
-				parent1.params.mutationRate);
+	public void init(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, boolean strat) {
+		init(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
+				parent1.params.mutationRate));
 		InitFacing();
 
 		copyConstants(parent1);
@@ -220,21 +217,26 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 
+	private void init(Controller controller) {
+		this.controller = controller;
+		controller.addClientAgent(this);
+	}
+
 	/**
 	 * Constructor with a parent; standard asexual copy
 	 *
 	 * @param pos spawn position
 	 * @param parent parent
-	 * @param strat PD strategy
+	 * @param cheat PD strategy
 	 */
-	protected void init(cobweb.Environment.Location pos, ComplexAgent parent, int strat) {
-		this.controller = ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate);
+	protected void init(cobweb.Environment.Location pos, ComplexAgent parent, boolean cheat) {
+		init(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 		InitFacing();
 
 		copyConstants(parent);
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		birthTick = environment.getTickCount();
-		info = environment.addAgentInfo(agentType, parent.info, strat);
+		info = environment.addAgentInfo(agentType, parent.info, cheat);
 
 		move(pos);
 
@@ -245,14 +247,14 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	/**   */
-	public void init(int agentT, int doCheat, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
-		this.controller = ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentT);
-		setConstants(doCheat, agentData);
+	public void init(int agentT, ComplexAgentParams agentData, Direction facingDirection, Location pos) {
+		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentT));
+		setConstants(agentData);
 		this.facing = facingDirection;
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		birthTick = environment.getTickCount();
-		info = environment.addAgentInfo(agentT, doCheat);
+		info = environment.addAgentInfo(agentT, pdCheater);
 
 		move(pos);
 
@@ -267,19 +269,18 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 *
 	 * @param agentType agent type
 	 * @param pos spawn position
-	 * @param doCheat start PD off cheating?
 	 * @param agentData agent parameters
 	 */
-	public void init(int agentType, Location pos, int doCheat, ComplexAgentParams agentData) {
-		this.controller = ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType);
-		setConstants(doCheat, agentData);
+	public void init(int agentType, Location pos, ComplexAgentParams agentData) {
+		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType));
+		setConstants(agentData);
 
 		InitFacing();
 
 		params = agentData;
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		birthTick = environment.getTickCount();
-		info = environment.addAgentInfo(agentType, doCheat);
+		info = environment.addAgentInfo(agentType, pdCheater);
 		this.agentType = agentType;
 
 		move(pos);
@@ -428,14 +429,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return new SeeInfo(MAX_SEE_SQUARE_DIST, 0);
 	}
 
-	public int getAgentPDAction() {
-		return pdCheater;
-	}
-
-	public int getAgentPDStrategy() {
-		return agentPDStrategy;
-	}
-
 	public int getCommInbox() {
 		return commInbox;
 	}
@@ -451,7 +444,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		// is agents action is 1, it's a cheater therefore it's
 		// graphical representation will a have red boundary
-		if (pdCheater == 1) {
+		if (pdCheater) {
 			stratColor = Color.red;
 		} else {
 			// cooperator, black boundary
@@ -619,19 +612,12 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		double coopProb = params.pdCoopProb / 100.0d; // static value for now
 
 		if (params.pdTitForTat) { // if true then agent is playing TitForTat
-			agentPDStrategy = 1; // set Strategy to 1 i.e. TitForTat
-			if (lastPDMove == -1)// if this is the first move
-				lastPDMove = 0; // start by cooperating
-			// might include probability bias within TitForTat strategy...not
-			// currently implemented
-			pdCheater = lastPDMove;
+			pdCheater = lastPDcheated;
 		} else {
-			agentPDStrategy = 0; // $$$$$$ added to ensure Strategy is set to
-			// 0, i.e. probability. Apr 22
-			pdCheater = 0; // agent is assumed to cooperate
+			pdCheater = false; // agent is assumed to cooperate
 			float rnd = cobweb.globals.random.nextFloat();
 			if (rnd > coopProb)
-				pdCheater = 1; // agent defects depending on
+				pdCheater = true; // agent defects depending on
 			// probability
 		}
 
@@ -679,12 +665,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @see ComplexAgent#playPD()
 	 */
 	public void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
+		if (!environment.isPDenabled())
+			return;
+
 		playPD();
 		adjacentAgent.playPD();
 
-		lastPDMove = adjacentAgent.pdCheater; // Adjacent Agent's action is assigned to the last move memory of the
+		lastPDcheated = adjacentAgent.pdCheater; // Adjacent Agent's action is assigned to the last move memory of the
 		// agent
-		adjacentAgent.lastPDMove = pdCheater; // Agent's action is assigned to the last move memory of the adjacent
+		adjacentAgent.lastPDcheated = pdCheater; // Agent's action is assigned to the last move memory of the adjacent
 		// agent
 
 		/*
@@ -693,8 +682,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		/* 0 = cooperate. 1 = defect */
 
-		final int PD_COOPERATE = 0;
-		final int PD_DEFECT = 1;
+		final boolean PD_COOPERATE = false;
+		final boolean PD_DEFECT = true;
 
 		if (pdCheater == PD_COOPERATE && adjacentAgent.pdCheater == PD_COOPERATE) {
 			/* REWARD */
@@ -781,30 +770,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * 
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
-	public void setConstants(int pdCheat, ComplexAgentParams agentData) {
-		//Agent class does not use PD
-		setConstants(agentData);
-
-		this.pdCheater = pdCheat;
+	@Override
+	public void setConstants(ComplexAgentParams agentData) {
+		super.setConstants(agentData);
 
 		photo_memory = new long[params.pdMemory];
 
-		// $$$$$$ Modified the following block. we are not talking about RESET
-		// here. Apr 18
-		/*
-		 * agentPDStrategy = 1; // Tit-for-tat or probability based
-		 * agentPDAction = -1; // The agent's action; 1 = cheater, else
-		 * cooperator $$$$$ this parameter seems useless, there is another
-		 * PDaction parameter above already. Apr 18 lastPDMove = -1; // Remember
-		 * the opponent's move in the last game
-		 */
-		this.agentPDStrategy = 0; // FIXME agentData.agentPDStrategy;
-		// above all, sometimes a new
-		// agent need copy PDStrategy
-		// from its parent. See
-		// copyConstants( ComplexAgent p
-		// )
-		this.lastPDMove = 0; // FIXME agentData.lastPDMove;
+		this.lastPDcheated = false;
 		// "KeepOldAgents" need pass this
 		// parameter. (as a reasonable side
 		// effect, the parameter of a parent
@@ -820,8 +792,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//FIXME: Not sure what parameters are inherited here:
 		this.pdCheater = agent.pdCheater;
 		this.photo_memory = new long[params.pdMemory];
-		this.agentPDStrategy = agent.agentPDStrategy;
-		this.lastPDMove = agent.lastPDMove;
+		this.lastPDcheated = agent.lastPDcheated;
 
 	}
 
@@ -976,8 +947,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			} else {
 				// child's strategy is determined by its parents, it has a
 				// 50% chance to get either parent's strategy
-				int childStrategy = -1;
-				if (this.pdCheater != -1) {
+				boolean childStrategy = false;
+				{
 					boolean choose = cobweb.globals.random.nextBoolean();
 					if (choose) {
 						childStrategy = this.pdCheater;
@@ -1010,10 +981,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			eat(adjacentAgent);
 		}
 
-		if (this.pdCheater != -1) {// $$$$$ if playing Prisoner's
-			// Dilemma. Please refer to ComplexEnvironment.load, "// spawn new random agents for each type"
-			want2meet = true;
-		}
+		want2meet = true;
 
 		int othersID = adjacentAgent.info.getAgentNumber();
 		// scan the memory array, is the 'other' agents ID is found in the array,
@@ -1039,7 +1007,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 
 			if (canBreed && sim >= params.breedSimMin
-					&& ((want2meet && adjacentAgent.want2meet) || (pdCheater == -1))) {
+					&& (want2meet && adjacentAgent.want2meet)) {
 				pregnant = true;
 				pregPeriod = params.sexualPregnancyPeriod;
 				breedPartner = adjacentAgent;
@@ -1210,6 +1178,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 				}
 			}
 		}
+	}
+
+	public boolean getAgentPDActionCheat() {
+		return pdCheater;
 	}
 
 

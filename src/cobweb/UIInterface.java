@@ -29,7 +29,6 @@ package cobweb;
  */
 
 import java.awt.Graphics;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -152,7 +151,7 @@ public interface UIInterface {
 	 * 
 	 * @see LocalUIInterface#insertPopulation(String, String)
 	 */
-	public boolean insertPopulation(String popName, String option) throws FileNotFoundException;
+	public boolean insertPopulation(String popName, String option);
 
 	public boolean isRunnable();
 

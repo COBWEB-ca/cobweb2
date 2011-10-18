@@ -13,6 +13,8 @@ import cobweb.params.ConfDisplayName;
 
 public class GeneticStateAgentParams implements CobwebParam {
 
+	private static final long serialVersionUID = -6295295048720208502L;
+
 	private static final String STATE_ELEMENT = "State";
 	private static final String STATES_ELEMENT = "StateSize";
 

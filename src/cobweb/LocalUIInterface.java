@@ -5,7 +5,6 @@ import ga.GeneticsMutator;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -554,7 +553,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 * @see Environment#insertPopulation(String, String)
 	 */
 	@Override
-	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
+	public boolean insertPopulation(String fileName, String option) {
 
 		return theEnvironment.insertPopulation(fileName, option);
 	}
