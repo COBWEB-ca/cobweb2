@@ -711,13 +711,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/**
-	 * 
+	 * TODO: Check if this works, possibly rewrite
 	 * @param fileName 
 	 * @param option
 	 * @return 
 	 */
 	@Override
-	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
+	public boolean insertPopulation(String fileName, String option) {
 
 
 		if (option.equals("replace")) {
@@ -725,7 +725,12 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 
 		//Load XML file
-		FileInputStream file = new FileInputStream(fileName);
+		FileInputStream file;
+		try {
+			file = new FileInputStream(fileName);
+		} catch (FileNotFoundException ex) {
+			throw new RuntimeException(ex);
+		}
 
 		// DOM initialization
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

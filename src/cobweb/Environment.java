@@ -544,10 +544,7 @@ public abstract class Environment {
 	 * 
 	 * @see cwcore.ComplexEnvironment#insertPopulation(String, String)
 	 */
-	public boolean insertPopulation(String fileName, String option) throws FileNotFoundException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	public abstract boolean insertPopulation(String fileName, String option);
 
 	/**
 	 * Load environment from parameters
