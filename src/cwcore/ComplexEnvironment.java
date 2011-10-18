@@ -32,7 +32,6 @@ import cobweb.Environment;
 import cobweb.Point2D;
 import cobweb.RandomNoGenerator;
 import cobweb.Scheduler;
-import cobweb.TempLocationFactory;
 import cobweb.TickScheduler;
 import cobweb.TypeColorEnumeration;
 import cwcore.broadcast.PacketConduit;
@@ -166,13 +165,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public PacketConduit commManager;
 
-	private TempLocationFactory factory;
-
 	public ComplexEnvironment() {
 		super();
 		commManager = new PacketConduit();
-
-		factory = new TempLocationFactory(this.getSize(Environment.AXIS_X), this.getSize(Environment.AXIS_Y));
 	}
 
 	@Override
