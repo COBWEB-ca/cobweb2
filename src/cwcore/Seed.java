@@ -81,4 +81,12 @@ public class Seed extends CellObject {
 	public boolean canCoverWith(CellObject other) {
 		return other instanceof Agent || other instanceof Waste;
 	}
+
+	/**
+	 * Seeds can't move.
+	 */
+	@Override
+	public boolean canMove() {
+		return false;
+	}
 }

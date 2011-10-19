@@ -276,4 +276,12 @@ public class FoodSource extends CellObject {
 	public boolean canCoverWith(CellObject other) {
 		return other instanceof Agent || other instanceof Waste;
 	}
+
+	/**
+	 * Food Sources cannot move.
+	 */
+	@Override
+	public boolean canMove() {
+		return false;
+	}
 }

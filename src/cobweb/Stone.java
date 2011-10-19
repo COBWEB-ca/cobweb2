@@ -24,4 +24,12 @@ public class Stone extends CellObject {
 		//cannot place anything on top of a stone.
 		return false;
 	}
+
+	/**
+	 * Stones can't move.
+	 */
+	@Override
+	public boolean canMove() {
+		return false;
+	}
 }

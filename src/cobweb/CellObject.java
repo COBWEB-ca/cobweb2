@@ -10,6 +10,12 @@ public abstract class CellObject {
 	protected Environment.Location position;
 
 	/**
+	 * Return true if this thing can move, false otherwise.
+	 * @return True if the object can move, false otherwise.
+	 */
+	public abstract boolean canMove();
+
+	/**
 	 * Return true if the other object can be placed on top of this one.
 	 * Return false otherwise.
 	 * @param other Another cell object.
