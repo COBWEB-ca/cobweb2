@@ -1184,6 +1184,16 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return pdCheater;
 	}
 
+	/**
+	 * Whether the agent can swim or not.
+	 */
+	private final boolean canSwim = false;
+
+	@Override
+	public boolean canSwim() {
+		return this.canSwim;
+	}
+
 
 
 

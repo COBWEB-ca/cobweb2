@@ -72,6 +72,14 @@ public class Waste extends Drop {
 	}
 
 	/**
+	 * Waste can't move.
+	 */
+	@Override
+	public boolean canMove() {
+		return false;
+	}
+
+	/**
 	 * Nothing can go on top of waste.
 	 * @param other Another cell object.
 	 * @return False.

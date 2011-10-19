@@ -17,6 +17,22 @@ import cwcore.complexParams.ComplexAgentParams;
 public abstract class Agent extends CellObject {
 
 	/**
+	 * Return true if the agent can swim, false otherwise.\
+	 * TODO by swim it is meant that the agent can walk on water (Jesus)
+	 * @return True if the agent can swim, false otherwise.
+	 */
+	public abstract boolean canSwim();
+
+	/**
+	 * Agents can move.
+	 * TODO if this changes, remove from here.
+	 */
+	@Override
+	public boolean canMove() {
+		return true;
+	}
+
+	/**
 	 * Cannot place anything on top of an agent.
 	 * @param other Another cell object.
 	 * @return False.
