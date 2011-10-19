@@ -1221,9 +1221,4 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public boolean canSwim() {
 		return this.canSwim;
 	}
-
-
-
-
-
 }
