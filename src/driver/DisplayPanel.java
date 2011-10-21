@@ -21,38 +21,108 @@ import driver.util.WaitableJComponent;
 public class DisplayPanel extends WaitableJComponent implements ComponentListener {
 
 	/**
-	 * Mouse event listener for the simulation display panel
-	 *
+	 * The number of pixels that make up the width of a single grid tile.
+	 */
+	private int tileWidth = 0;
+
+	/**
+	 * The number of pixels that make up the height of a single grid tile.
+	 */
+	private int tileHeight = 0;
+
+	/**
+	 * The width of the grid, in pixels.
+	 * Initially set to -1 when not yet calculated.
+	 */
+	private int gridPixelWidth = -1;
+
+	/**
+	 * The height of the grid, in pixels.
+	 * Initially set to -1, when not yet calculated.
+	 */
+	private int gridPixelHeight = -1;
+
+	/**
+	 * Calculate the dimensions of this grid and set the appropriate variables.
+	 * Calculated from the width of a single tile and the number of tile on the map.
+	 */
+	private void calculateGridDimensions() {
+		this.gridPixelWidth = this.tileWidth  * this.mapWidth;
+		this.gridPixelHeight = this.tileHeight * this.mapHeight;
+	}
+
+	/**
+	 * Return true if the given pixel is on the grid, false otherwise.
+	 * @param x The x coordinate of the pixel.
+	 * @param y The y coordinate of the pixel.
+	 * @return True if the pixel is on the grid, false otherwise.
+	 */
+	private boolean pixelIsOnGrid(int x, int y) {
+		if(this.gridPixelHeight == -1 || this.gridPixelWidth == -1) {
+			this.calculateGridDimensions();
+		}
+
+		return x >= 0 && x < this.gridPixelWidth
+		&& y >= 0 && y < this.gridPixelHeight;
+	}
+
+	/**
+	 * The mouse event listener for the simulation display panel.
+	 * Extend this to add listeners for different cell objects.
 	 */
 	private abstract class Mouse extends MouseAdapter {
 
-
+		/**
+		 * Converts from screen pixel coordinates into tile x-y coordinates.
+		 * If the coordinates are valid, return true. Return false otherwise.
+		 * @param x Screen x coordinate.
+		 * @param y Screen y coordinate.
+		 * @param out The array in which to return the tile coordinates.
+		 * @return True if the coordinates are valid, false otherwise.
+		 */
 		private boolean convertCoords(int x, int y, int[] out) {
 			x -= borderLeft;
 			y -= borderHeight;
-			if (!(     x >= 0 && x < tileWidth  * mapWidth 
-					&& y >= 0 && y < tileHeight * mapHeight)) {
+
+			if (!pixelIsOnGrid(x, y)) {
 				return false;
 			}
 
-			int realX = x / tileWidth;
-			int realY = y / tileHeight;
+			out[0] = x / tileWidth;
+			out[1] = y / tileHeight;
 
-			out[0] = realX;
-			out[1] = realY;
 			return true;
 		}
 
+		/**
+		 * When the mouse is clicked on the grid, trigger the click grid event.
+		 */
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			dragMode = DragMode.Click;
+
 			int[] out = { 0, 0 };
+
 			if (convertCoords(e.getX(), e.getY(), out)) {
 				click(out[0], out[1]);
 			}
 		}
 
+		/**
+		 * Trigger this event when the mouse is clicked on the grid.
+		 * @param x The x coordinate of the click.
+		 * @param y The y coordinate of the click.
+		 */
+		private void click(int x, int y) {
+			if(!canClick(x, y))
+				return;
 
+			if (canSetOn(x, y)) {
+				setOn(x, y);
+			} else if (canSetOff(x, y)) {
+				setOff(x, y);
+			}
+		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
@@ -68,19 +138,6 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 			int[] out = {0,0};
 			if (convertCoords(e.getX(), e.getY(), out)) {
 				dragMode = drag(out[0], out[1], dragMode);
-			}
-		}
-
-
-
-		private void click(int x, int y) {
-			if(!canClick(x, y))
-				return;
-
-			if (canSetOn(x, y)) {
-				setOn(x, y);
-			} else if (canSetOff(x, y)) {
-				setOff(x, y);
 			}
 		}
 
@@ -140,7 +197,8 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	}
 
-	private class StoneMouseListener extends Mouse {
+	private class StoneMouseListener extends Mouse { 
+
 
 		@Override
 		public boolean canClick(int x, int y) {
@@ -248,9 +306,6 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private static final int PADDING = 10;
 
-	private int tileWidth = 0;
-
-	private int tileHeight = 0;
 
 	private int borderLeft = 0;
 
@@ -281,6 +336,9 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		addMouseMotionListener(myMouse);
 	}
 
+	/**
+	 * The way the mouse was clicked.
+	 */
 	enum DragMode {
 		Click,
 		DragStart,
