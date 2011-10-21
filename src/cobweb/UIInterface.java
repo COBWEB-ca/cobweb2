@@ -273,5 +273,6 @@ public interface UIInterface {
 
 	public abstract boolean hasStone(int x, int y);
 
+
 	public Collection<ViewerPlugin> getViewers();
 }

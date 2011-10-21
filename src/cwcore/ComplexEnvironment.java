@@ -223,6 +223,30 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		fillTileColors(tileColors);
 	}
 
+
+	@Override
+	public synchronized void addWater(int x, int y) {
+		cobweb.Environment.Location l;
+
+		l = getUserDefinedLocation(x, y);
+
+		if(l.getAgent() != null) {
+			return;
+		}
+
+		if(l.getFoodSource() != null) {
+			l.removeFoodSource();
+		}
+
+		if(l.testFlag(FLAG_DROP))
+			l.setFlag(FLAG_DROP, false);
+
+		l.setFlag(ComplexEnvironment.FLAG_STONE, true);
+
+		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
+		fillTileColors(tileColors);
+	}
+
 	@Override
 	public synchronized void addStone(int x, int y) {
 		cobweb.Environment.Location l;

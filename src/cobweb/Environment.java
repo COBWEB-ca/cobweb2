@@ -56,6 +56,8 @@ import driver.SimulationConfig;
  */
 public abstract class Environment {
 
+	public abstract void addWater(int x, int y);
+
 	public static class EnvironmentStats {
 
 		public long[] agentCounts;

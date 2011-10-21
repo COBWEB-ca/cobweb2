@@ -99,16 +99,13 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 	}
 
-	// $$$$$$ Add a greeting string for the textWindow. Mar 25
 	public static final String GREETINGS = "Welcome to COBWEB 2";
 
-	private String midFile; // $$$$$$ added for supporting "Modify Current Data", to temporary save the name when adding
-	// a file. Feb 14
+	private String midFile; 
 
-	private String currentFile; // $$$$$$ added for saving current used file name. Mar 14
+	private String currentFile;
 
-	private DisplayPanel displayPanel; // $$$$$$ added to avoid duplicately information lines shown in textWindow. Apr
-	// 1
+	private DisplayPanel displayPanel; 
 
 	private PauseButton pauseButton;
 

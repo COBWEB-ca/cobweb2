@@ -1,6 +1,7 @@
 package cobweb;
 
 
+
 /**
  * Any object occupying a cell.
  * @author Daniel Kats

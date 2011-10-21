@@ -51,7 +51,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 */
 	private static class AgentDrawInfo {
 
-		/** Solid color of the agent. */
+		/** Solid colour of the agent. */
 		java.awt.Color agentColor;
 
 		java.awt.Color type;
@@ -381,6 +381,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 */
 	public void addStone(int x, int y) {
 		theEnvironment.addStone(x, y);
+	}
+
+	public void addWater(int x, int y) {
+		theEnvironment.addWater(x, y);
 	}
 
 	public void AddTickEventListener(TickEventListener listener) {
