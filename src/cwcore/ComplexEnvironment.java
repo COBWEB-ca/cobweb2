@@ -30,6 +30,7 @@ import cobweb.ColorLookup;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
 import cobweb.Environment;
+import cobweb.Location;
 import cobweb.Point2D;
 import cobweb.RandomNoGenerator;
 import cobweb.Scheduler;
@@ -138,7 +139,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	// Returns current location's food type
-	public int getFoodType(cobweb.Environment.Location l) {
+	public int getFoodType(cobweb.Location l) {
 		return l.getFoodSource().getType();
 	}
 
@@ -174,7 +175,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	public synchronized void addAgent(int x, int y, int type) {
 		super.addAgent(x, y, type);
-		cobweb.Environment.Location l;
+		cobweb.Location l;
 		l = getUserDefinedLocation(x, y);
 		if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
 				&& !l.testFlag(ComplexEnvironment.FLAG_DROP)) {
@@ -185,7 +186,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	protected void spawnAgent(cobweb.Environment.Location location, int agentType) {
+	protected void spawnAgent(cobweb.Location location, int agentType) {
 		ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
 		child.init(agentType, location, (ComplexAgentParams) agentData[agentType].clone()); // Default
 	}
@@ -210,7 +211,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	public synchronized void addFoodSource(int x, int y, int type) {
 
-		cobweb.Environment.Location l;
+		cobweb.Location l;
 		l = getUserDefinedLocation(x, y);
 		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
 			throw new IllegalArgumentException("stone here already");
@@ -227,7 +228,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	@Override
 	public synchronized void addWater(int x, int y) {
-		cobweb.Environment.Location l;
+		Location l;
 
 		l = getUserDefinedLocation(x, y);
 
@@ -250,7 +251,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	@Override
 	public synchronized void addStone(int x, int y) {
-		cobweb.Environment.Location l;
+		Location l;
 		l = getUserDefinedLocation(x, y);
 		if (l.getAgent() != null) {
 			return;
@@ -440,7 +441,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		float foodDrop = foodData[type].dropRate;
 		while (environmentRandom.nextFloat() < foodDrop) {
 			--foodDrop;
-			cobweb.Environment.Location l;
+			cobweb.Location l;
 			int j = 0;
 			do {
 				++j;
@@ -532,7 +533,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	// Ignored; this model has no fields
 	@Override
-	protected int getField(cobweb.Environment.Location l, int field) {
+	protected int getField(cobweb.Location l, int field) {
 		return 0;
 	}
 
@@ -540,7 +541,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return agentInfoVector.size();
 	}
 
-	protected List<CellObject> getLocationBits(cobweb.Environment.Location l) {
+	protected List<CellObject> getLocationBits(cobweb.Location l) {
 		return array.getLocationBits(l);
 	}
 
@@ -816,7 +817,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		// add stones in to random locations
 		for (int i = 0; i < data.initialStones; ++i) {
-			cobweb.Environment.Location l;
+			cobweb.Location l;
 			int tries = 0;
 			do {
 				l = getRandomLocation();
@@ -882,7 +883,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 			for (int j = 0; j < agentData[i].initialAgents; ++j) {
 
-				cobweb.Environment.Location location;
+				cobweb.Location location;
 				int tries = 0;
 				do {
 					location = getRandomLocation();
@@ -903,7 +904,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	private void loadNewFood() {
 		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			for (int j = 0; j < foodData[i].initial; ++j) {
-				cobweb.Environment.Location l;
+				cobweb.Location l;
 				int tries = 0;
 				do {
 					l = getRandomLocation();
@@ -1057,7 +1058,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	@Override
 	public void observe(int x, int y) {
-		cobweb.Environment.Location l = getUserDefinedLocation(x, y);
+		cobweb.Location l = getUserDefinedLocation(x, y);
 		/* A tile can only consist of: STONE or WASTE or (FOOD|AGENT) */
 		observedAgent = l.getAgent();
 	}
@@ -1165,7 +1166,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
-	protected void setField(cobweb.Environment.Location l, int field, int value) {
+	protected void setField(cobweb.Location l, int field, int value) {
 		// Nothing
 	}
 
@@ -1173,7 +1174,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * @param l Location of food source.
 	 * @param type Type of food source. 
 	 */
-	public void setFoodType(cobweb.Environment.Location l, int type) {
+	public void setFoodType(cobweb.Location l, int type) {
 		l.getFoodSource().setType(type);
 	}
 

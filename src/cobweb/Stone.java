@@ -11,7 +11,7 @@ public class Stone extends CellObject {
 	 * Create a new stone at the given position.
 	 * @param position The location of the stone.
 	 */
-	public Stone(Environment.Location position) {
+	public Stone(Location position) {
 		this.position = position;
 	}
 

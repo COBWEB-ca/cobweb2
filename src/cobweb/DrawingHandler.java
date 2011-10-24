@@ -3,7 +3,6 @@ package cobweb;
 import java.awt.Color;
 import java.util.List;
 
-import cobweb.Environment.Location;
 
 public interface DrawingHandler {
 

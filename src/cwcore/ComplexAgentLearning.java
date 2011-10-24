@@ -7,7 +7,7 @@ import java.util.List;
 import learning.LearningAgentParams;
 import cobweb.Agent;
 import cobweb.Direction;
-import cobweb.Environment.Location;
+import cobweb.Location;
 import cobweb.globals;
 import cwcore.complexParams.ComplexAgentParams;
 import cwcore.complexParams.ContactMutator;
@@ -81,7 +81,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 
 	// $$$$$$ Changed March 21st, breedPos used to be local to the step() method
-	private cobweb.Environment.Location breedPos = null;
+	private cobweb.Location breedPos = null;
 
 
 	public LearningAgentParams lParams;
@@ -109,7 +109,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	void broadcastFood(cobweb.Environment.Location loc) { // []SK
+	void broadcastFood(cobweb.Location loc) { // []SK
 		super.broadcastFood(loc);
 
 		// Deduct broadcasting cost from energy
@@ -122,8 +122,10 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 	}
 
-	@Override
-	public void eat(cobweb.Environment.Location destPos) {
+	/**
+	 * FIXME: use the new eat method
+	 */
+	public void eat(cobweb.Location destPos) {
 		if (environment.getFoodType(destPos) == agentType) {
 			// Eating food is ideal!!
 			remember(new MemorableEvent(currTick, lParams.foodPleasure, "food"));
@@ -135,7 +137,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			remember(new MemorableEvent(currTick, howHappyThisMakesMe, "food"));
 		}
 
-		super.eat(destPos.getFoodSource().getFood());
+		eat(destPos.getFoodSource().getFood());
 	}
 
 	@Override
@@ -163,7 +165,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	public void step() {
 		cobweb.Agent adjAgent;
 		mustFlip = getPosition().checkFlip(facing);
-		final cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
+		final cobweb.Location destPos = getPosition().getAdjacent(facing);
 
 		if (canStep(destPos)) {
 
@@ -533,14 +535,14 @@ public class ComplexAgentLearning extends ComplexAgent {
 			return;
 		}
 
-		ComplexEnvironment.Location loc = this.getPosition();
+		Location loc = this.getPosition();
 
 		List<Occurrence> newOccList = new LinkedList<Occurrence>();
 
 		for (Occurrence oc : allOccurrences) {
 			if (oc.time - currTick >= 0) {
 				ComplexAgentLearning occTarget = oc.target;
-				ComplexEnvironment.Location loc2 = occTarget.getPosition();
+				Location loc2 = occTarget.getPosition();
 				if (loc.distance(loc2) <= oc.detectableDistance
 						&& (lParams.learnFromDifferentOthers || occTarget.type() == type())) {
 					String desc = null;
@@ -603,12 +605,12 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 
-	public void setBreedPos(cobweb.Environment.Location breedPos) {
+	public void setBreedPos(cobweb.Location breedPos) {
 		this.breedPos = breedPos;
 	}
 
 
-	public cobweb.Environment.Location getBreedPos() {
+	public cobweb.Location getBreedPos() {
 		return breedPos;
 	}
 

@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import cobweb.Agent;
 import cobweb.CellObject;
 import cobweb.Environment;
+import cobweb.Location;
 
 /**
  * A mine of food.
@@ -69,7 +70,7 @@ public class FoodSource extends CellObject {
 	/**
 	 * Create a new food source with the given amount of starting food,
 	 */
-	public FoodSource(int startFood, int type, Environment.Location location, double depleteRate,
+	public FoodSource(int startFood, int type, Location location, double depleteRate,
 			double reproductionProb) {
 		this.startFood = startFood;
 		this.age = 0;
@@ -102,9 +103,9 @@ public class FoodSource extends CellObject {
 	/**
 	 * Spread all seeds. Return the locations where the seeds successfully germinate.
 	 */
-	private final LinkedList<Environment.Location> spreadSeeds() {
-		LinkedList<Environment.Location> goodSpots = new LinkedList<Environment.Location>();
-		Environment.Location landingSite;
+	private final LinkedList<Location> spreadSeeds() {
+		LinkedList<Location> goodSpots = new LinkedList<Location>();
+		Location landingSite;
 
 		for(int i = 0; i < this.numSeeds; i++) {
 			//get the seed landing spot
@@ -126,7 +127,7 @@ public class FoodSource extends CellObject {
 	 * @param seedLandingSite The tile on which the seed landed.
 	 * @return The probability that the seed germinates.
 	 */
-	private double probGerminate(Environment.Location seedLandingSite) {
+	private double probGerminate(Location seedLandingSite) {
 		if(!seedLandingSite.isEmpty()) {
 			return 0;
 		} 
@@ -142,10 +143,10 @@ public class FoodSource extends CellObject {
 	 * The landing sites are normally distributed around this location.
 	 * @return The location of the landing site.
 	 */
-	public Environment.Location getRandomSeedLandingSite() {
+	public Location getRandomSeedLandingSite() {
 		int randX, randY;
 		double sx, sy;
-		Environment.Location randLoc;
+		Location randLoc;
 
 		do {
 			//get the standard deviations for x and y
@@ -199,7 +200,7 @@ public class FoodSource extends CellObject {
 		LinkedList<FoodSource> children = new LinkedList<FoodSource>();
 
 		if(rollRandom(this.sporeProb)) {
-			LinkedList<Environment.Location> goodSpots = this.spreadSeeds();
+			LinkedList<Location> goodSpots = this.spreadSeeds();
 
 			while(!goodSpots.isEmpty()) {
 				children.add(new FoodSource(this.startFood, this.type, goodSpots.pop(), this.depletionRate, this.sporeProb));

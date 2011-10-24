@@ -3,7 +3,7 @@ package cwcore.broadcast;
 import java.util.ArrayList;
 import java.util.List;
 
-import cobweb.Environment.Location;
+import cobweb.Location;
 
 public class PacketConduit {
 

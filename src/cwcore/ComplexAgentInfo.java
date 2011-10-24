@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import cobweb.Environment.Location;
+import cobweb.Location;
 
 public class ComplexAgentInfo {
 

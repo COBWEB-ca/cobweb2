@@ -31,7 +31,7 @@ public class ArrayEnvironment {
 		return locations;
 	}
 
-	public List<CellObject> getLocationBits(cobweb.Environment.Location l) {
+	public List<CellObject> getLocationBits(cobweb.Location l) {
 		return locations[l.v[0]][l.v[1]];
 	}
 

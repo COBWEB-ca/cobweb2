@@ -1,6 +1,6 @@
 package cwcore.broadcast;
 
-import cobweb.Environment.Location;
+import cobweb.Location;
 
 public class BroadcastPacket {
 

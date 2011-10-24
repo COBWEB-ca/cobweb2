@@ -2,19 +2,19 @@ package cobweb;
 
 
 public class Node {
-	private Environment.Location tile;
+	private Location tile;
 
 	public int distance;
 
 	public boolean visited;
 
-	public Node(int distance, Environment.Location tile) {
+	public Node(int distance, Location tile) {
 		this.distance = distance;
 		this.tile = tile;
 		this.visited = false;
 	}
 
-	public Environment.Location getLocation() {
+	public Location getLocation() {
 		return this.tile;
 	}
 

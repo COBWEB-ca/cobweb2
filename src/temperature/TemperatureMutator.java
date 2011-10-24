@@ -3,7 +3,7 @@ package temperature;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import cobweb.Environment.Location;
+import cobweb.Location;
 import cobweb.params.ReflectionUtil;
 import cwcore.ComplexAgent;
 import cwcore.complexParams.AgentFoodCountable;

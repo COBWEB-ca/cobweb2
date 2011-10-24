@@ -7,7 +7,7 @@ import java.util.Iterator;
 import cobweb.Agent;
 import cobweb.CellObject;
 import cobweb.Direction;
-import cobweb.Environment;
+import cobweb.Location;
 import cwcore.Food;
 
 /**
@@ -63,7 +63,7 @@ public class Water extends CellObject {
 	/**
 	 * Create a new water tile.
 	 */
-	public Water(Environment.Location coords) {
+	public Water(Location coords) {
 		this.position = coords;
 		this.color = Color.blue;
 	}

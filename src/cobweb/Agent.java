@@ -2,7 +2,6 @@ package cobweb;
 
 import java.awt.Color;
 
-import cobweb.Environment.Location;
 import cwcore.ComplexAgentInfo;
 import cwcore.ComplexEnvironment;
 import cwcore.Food;
@@ -263,7 +262,7 @@ public abstract class Agent extends CellObject {
 	 * @param destPos The location of the agents next position.
 	 * @return True if agent can eat this type of food.
 	 */
-	public boolean canEat(cobweb.Environment.Location destPos) {
+	public boolean canEat(cobweb.Location destPos) {
 		return params.foodweb.canEatFood[environment.getFoodType(destPos)];
 	}
 
@@ -417,7 +416,7 @@ public abstract class Agent extends CellObject {
 	 * Return the agent's current position.
 	 * @return The location this Agent occupies.
 	 */
-	public Environment.Location getPosition() {
+	public Location getPosition() {
 		return position;
 	}
 
@@ -433,7 +432,7 @@ public abstract class Agent extends CellObject {
 	 * Sets the position of the Agent.
 	 * @param newPos The new position of the agent.
 	 */
-	public void move(Environment.Location newPos) {
+	public void move(Location newPos) {
 		newPos.setAgent(this);
 		if (position != null)
 			position.setAgent(null);
@@ -572,7 +571,7 @@ public abstract class Agent extends CellObject {
 	 * @return Adjacent facing agent.
 	 */
 	public Agent getAdjacentAgent() {
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
+		cobweb.Location destPos = getPosition().getAdjacent(facing);
 		if (destPos == null) {
 			return null;
 		}

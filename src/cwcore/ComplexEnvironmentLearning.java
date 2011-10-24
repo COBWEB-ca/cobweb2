@@ -1,5 +1,6 @@
 package cwcore;
 
+import cobweb.Location;
 import learning.LearningAgentParams;
 import cwcore.complexParams.ComplexAgentParams;
 import driver.SimulationConfig;

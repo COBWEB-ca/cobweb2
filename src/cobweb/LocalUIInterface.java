@@ -24,7 +24,6 @@ import javax.swing.JTextField;
 import temperature.TemperatureMutator;
 import temperature.TemperatureParams;
 import cobweb.Environment.EnvironmentStats;
-import cobweb.Environment.Location;
 import cwcore.AgentSpawner;
 import cwcore.ComplexAgent;
 import cwcore.ComplexEnvironment;

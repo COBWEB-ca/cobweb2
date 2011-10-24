@@ -19,7 +19,7 @@ import cobweb.Controller;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
 import cobweb.Environment;
-import cobweb.Environment.Location;
+import cobweb.Location;
 import cobweb.Point2D;
 import cobweb.TypeColorEnumeration;
 import cwcore.broadcast.BroadcastPacket;
@@ -196,7 +196,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param parent2 second parent
 	 * @param strat PD strategy
 	 */
-	public void init(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, boolean strat) {
+	public void init(cobweb.Location pos, ComplexAgent parent1, ComplexAgent parent2, boolean strat) {
 		init(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
 				parent1.params.mutationRate));
 		InitFacing();
@@ -229,7 +229,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param parent parent
 	 * @param cheat PD strategy
 	 */
-	protected void init(cobweb.Environment.Location pos, ComplexAgent parent, boolean cheat) {
+	protected void init(cobweb.Location pos, ComplexAgent parent, boolean cheat) {
 		init(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 		InitFacing();
 
@@ -291,7 +291,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			mutator.onSpawn(this);
 	}
 
-	void broadcastCheating(cobweb.Environment.Location loc) { // []SK
+	void broadcastCheating(cobweb.Location loc) { // []SK
 		// String message = "Cheater encountered (" + loc.v[0] + " , " + loc.v[1] + ")";
 		String message = Long.toString(((ComplexAgent) loc.getAgent()).id);
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, id, message, energy
@@ -307,7 +307,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * 
 	 * @param loc The location of food.
 	 */
-	void broadcastFood(cobweb.Environment.Location loc) { // []SK
+	void broadcastFood(cobweb.Location loc) { // []SK
 		String message = loc.toString();
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, id, message, energy
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
@@ -321,35 +321,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 */
 	protected boolean canBroadcast() {
 		return energy > params.broadcastEnergyMin;
-	}
-
-	/**
-	 * The agent eats the food (food flag is set to false), and 
-	 * gains energy and waste according to the food type.
-	 * 
-	 * @param destPos Location of food.
-	 */
-	@Deprecated
-	public void eat(cobweb.Environment.Location destPos) {
-		//agent can only eat once per turn
-		if(!this.hasEaten) {
-			// TODO: CHECK if setting flag before determining type is ok
-			// Eat first before we can produce waste, of course.
-			destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-			// Gain Energy according to the food type.
-			if (environment.getFoodType(destPos) == agentType) {
-				energy += params.foodEnergy;
-				wasteCounterGain -= params.foodEnergy;
-				info.addFoodEnergy(params.foodEnergy);
-			} else {
-				energy += params.otherFoodEnergy;
-				wasteCounterGain -= params.otherFoodEnergy;
-				info.addOthers(params.otherFoodEnergy);
-			}
-
-			//set eaten flag
-			this.hasEaten = true;
-		}
 	}
 
 	boolean checkCredibility(long agentId) {
@@ -398,7 +369,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 */
 	public SeeInfo distanceLook() {
 		Direction d = facing;
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(d);
+		cobweb.Location destPos = getPosition().getAdjacent(d);
 		if (getPosition().checkFlip(d)) 
 			d = d.flip();
 		for (int dist = 1; dist <= MAX_SEE_SQUARE_DIST; ++dist) {
@@ -523,7 +494,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	public long look() {
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
+		cobweb.Location destPos = getPosition().getAdjacent(facing);
 		// If the position is invalid, then we're looking at a stone...
 		if (destPos == null)
 			return ComplexEnvironment.FLAG_STONE;
@@ -862,7 +833,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public void step() {
 		cobweb.Agent adjAgent;
 		mustFlip = getPosition().checkFlip(facing);
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
+		cobweb.Location destPos = getPosition().getAdjacent(facing);
 
 		if (canStep(destPos)) {
 
@@ -909,9 +880,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	protected void onstepFreeTile(cobweb.Environment.Location destPos) {
+	protected void onstepFreeTile(cobweb.Location destPos) {
 		// Check for food...
-		cobweb.Environment.Location breedPos = null;
+		cobweb.Location breedPos = null;
 		if (destPos.getFoodSource() != null) {
 			if (params.broadcastMode & canBroadcast()) {
 				broadcastFood(destPos);
@@ -1147,7 +1118,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// For this method, "adjacent" implies tiles around the agent including
 		// tiles that are diagonally adjacent
 
-		cobweb.Environment.Location loc;
+		cobweb.Location loc;
 
 		// Place the drop at an available location adjacent to the agent
 		for (int i = 0; i < dirList.length; i++) {

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import cobweb.Direction;
-import cobweb.Environment;
+import cobweb.Location;
 import cobweb.Node;
 
 /**
@@ -144,12 +144,12 @@ public class SurvivorAgent extends ComplexAgent {
 	/**
 	 * The agent's path.
 	 */
-	private LinkedList<Environment.Location> path;
+	private LinkedList<Location> path;
 
 	/**
 	 * Destination for the agent.
 	 */
-	private Environment.Location destination;
+	private Location destination;
 
 	/**
 	 * Keeps track of number of turns made to get around obsticles.
@@ -174,7 +174,7 @@ public class SurvivorAgent extends ComplexAgent {
 		//carried food is an array list
 		this.carriedFood = new ArrayList<Food>();
 		this.foodSources = new LinkedList<FoodSource>();
-		this.path = new LinkedList<Environment.Location>();
+		this.path = new LinkedList<Location>();
 
 		this.destination = null;
 	}
@@ -213,7 +213,7 @@ public class SurvivorAgent extends ComplexAgent {
 				int dist = si.getDist();
 
 				//get the location of the food
-				Environment.Location foodLocation = this.position.add(dist, this.facing);
+				Location foodLocation = this.position.add(dist, this.facing);
 
 				//get the food source object at that location
 				//TODO for now
@@ -237,7 +237,7 @@ public class SurvivorAgent extends ComplexAgent {
 					this.explore();
 				} else {
 					//find a food source location
-					Environment.Location foodLocation = this.rememberFoodSourceLocation().getLocation();
+					Location foodLocation = this.rememberFoodSourceLocation().getLocation();
 
 					//move to the food source
 					this.moveToLocation(foodLocation);
@@ -256,8 +256,8 @@ public class SurvivorAgent extends ComplexAgent {
 	protected LinkedList<FoodSource> lookForFood() {
 		LinkedList<FoodSource> food = new LinkedList<FoodSource>();
 
-		LinkedList<Environment.Location> visibleTiles = this.getVisibleSquares();
-		Environment.Location loc;
+		LinkedList<Location> visibleTiles = this.getVisibleSquares();
+		Location loc;
 		//TODO for now
 		boolean hasFoodSource = false;
 		//TODO for now
@@ -318,7 +318,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param tile The tile being examined.
 	 * @return True if the agent can see the tile, false otherwise.
 	 */
-	protected final boolean canSee(final Environment.Location tile) {
+	protected final boolean canSee(final Location tile) {
 		double facingAngle = this.facing.angle();
 		double targetAngle = this.position.angleTo(tile);
 
@@ -330,10 +330,10 @@ public class SurvivorAgent extends ComplexAgent {
 	 * Return a linked list of all the squares that the agent can currently see.
 	 * @return A linked list of all the locations the agent can currently see.
 	 */
-	protected final LinkedList<Environment.Location> getVisibleSquares() {
-		LinkedList<Environment.Location> l = new LinkedList<Environment.Location>();
+	protected final LinkedList<Location> getVisibleSquares() {
+		LinkedList<Location> l = new LinkedList<Location>();
 
-		Environment.Location nextTile, forwardTile = this.position;
+		Location nextTile, forwardTile = this.position;
 		int sideDist;
 		Direction leftDir = this.facing.rotateLeft();
 		Direction rightDir = this.facing.rotateRight();
@@ -368,8 +368,8 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param visibleSquares Linked list of theoretically visible squares.
 	 * @return Linked list tiles NOT blocked by rocks.
 	 */
-	protected LinkedList<Environment.Location> removeBlockedSquares(LinkedList<Environment.Location> visibleSquares) {
-		Environment.Location tile;
+	protected LinkedList<Location> removeBlockedSquares(LinkedList<Location> visibleSquares) {
+		Location tile;
 
 		for(int i = 0; i < visibleSquares.size(); i++) {
 			tile = visibleSquares.get(i);
@@ -388,8 +388,8 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param rockLocation Location of the rock.
 	 * @return List of tiles NOT blocked by the rock.
 	 */
-	protected final LinkedList<Environment.Location> removeSquares(LinkedList<Environment.Location> tiles, Environment.Location rockLocation) {
-		Environment.Location tile;
+	protected final LinkedList<Location> removeSquares(LinkedList<Location> tiles, Location rockLocation) {
+		Location tile;
 
 		for(int i = 0; i < tiles.size(); i++) {
 			tile = tiles.get(i);
@@ -409,7 +409,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param test Point being tested.
 	 * @return False if the point is not on the line connecting a and b OR if it is between a and b on the line. True otherwise.
 	 */
-	protected final boolean isBeyondLineSegment(Environment.Location start, Environment.Location end, Environment.Location test){
+	protected final boolean isBeyondLineSegment(Location start, Location end, Location test){
 		int dim = start.v.length;
 		int start_component, end_component, test_component;
 
@@ -454,12 +454,12 @@ public class SurvivorAgent extends ComplexAgent {
 	 * If already at the given location, perform a random move.
 	 * @param coords Coordinates of the location.
 	 */
-	protected void moveToLocation(Environment.Location coords) {
+	protected void moveToLocation(Location coords) {
 		Action a = null;
 
 		if(this.position.distanceSquare(coords) > this.MAX_SEE_SQUARE_DIST) {
 			//if agent is too far from destination to pathfind to the destination
-			Environment.Location waypoint = this.getClosestPoint(coords);
+			Location waypoint = this.getClosestPoint(coords);
 			//then move pathfind to the closest point to the destination
 			this.moveToLocation(waypoint);
 		} else {
@@ -484,7 +484,7 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param coords The location.
 	 * @return The action for the agent - turn right or left.
 	 */
-	protected Action getTurnDirection (Environment.Location coords) {
+	protected Action getTurnDirection (Location coords) {
 		double angle = this.facing.angle() - this.position.angleTo(coords);
 
 		if(angle < this.MAX_SEE_ANGLE && angle > -1 * this.MAX_SEE_ANGLE) {
@@ -496,7 +496,7 @@ public class SurvivorAgent extends ComplexAgent {
 		}
 	}
 
-	private Environment.Location getClosestPoint(Environment.Location destination) {
+	private Location getClosestPoint(Location destination) {
 		//get a t s.t. |b - a|^2 * t^2 <= MAX_SEE_DIST_SQ
 
 		//the distance squared from here to dest |b-a|^2
@@ -856,12 +856,12 @@ public class SurvivorAgent extends ComplexAgent {
 	 * @param destination The destination square.
 	 * TODO for now do not use this.
 	 */
-	private void tracePath(Environment.Location destination) {
-		LinkedList<Environment.Location> visibleTiles = this.getVisibleSquares();
-		Environment.Location loc;
+	private void tracePath(Location destination) {
+		LinkedList<Location> visibleTiles = this.getVisibleSquares();
+		Location loc;
 
 		LinkedList<Node> unvisited = new LinkedList<Node>();
-		HashSet<Environment.Location> visited = new HashSet<Environment.Location>();
+		HashSet<Location> visited = new HashSet<Location>();
 
 		Node current = new Node(0, this.position);
 		current.visited = true;
@@ -899,7 +899,7 @@ public class SurvivorAgent extends ComplexAgent {
 
 	private void markNeighbours(LinkedList<Node> unvisited, Node current) {
 		Node neighbour;
-		Environment.Location here = current.getLocation();
+		Location here = current.getLocation();
 
 		for(int i = 0; i < unvisited.size(); i++) {
 			neighbour = unvisited.get(i);
@@ -910,8 +910,8 @@ public class SurvivorAgent extends ComplexAgent {
 		}
 	}
 
-	private LinkedList<Environment.Location> getUnvisitedNeighbours(LinkedList<Environment.Location> neighbours, HashSet<Environment.Location> visited) {
-		Environment.Location current;
+	private LinkedList<Location> getUnvisitedNeighbours(LinkedList<Location> neighbours, HashSet<Location> visited) {
+		Location current;
 
 		for(int i = 0; i < neighbours.size(); i++) {
 			current = neighbours.get(i);

@@ -8,7 +8,7 @@ package cobweb;
  */
 public abstract class CellObject {
 
-	protected Environment.Location position;
+	protected Location position;
 
 	/**
 	 * Return true if this thing can move, false otherwise.
@@ -28,7 +28,7 @@ public abstract class CellObject {
 	 * Return the location of this object.
 	 * @return The location of this object.
 	 */
-	public final Environment.Location getLocation() {
+	public final Location getLocation() {
 		return position;
 	}
 }

@@ -1,6 +1,6 @@
 package cwcore.complexParams;
 
-import cobweb.Environment.Location;
+import cobweb.Location;
 import cwcore.ComplexAgent;
 
 /**
