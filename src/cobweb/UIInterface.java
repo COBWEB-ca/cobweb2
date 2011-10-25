@@ -68,6 +68,10 @@ public interface UIInterface {
 		 */
 		public void fileOpened(SimulationConfig conf);
 
+		/**
+		 * 
+		 * @param simulation UIInterface
+		 */
 		public void setSimulation(UIInterface simulation);
 	}
 
@@ -173,7 +177,7 @@ public interface UIInterface {
 	 */
 	public void log(String filePath) throws java.io.IOException;
 
-	/*
+	/**
 	 * for interactive component selection : (int x, int y) location of the
 	 * component int mode : 1 - stones 2-food 3-agents int type : applies to
 	 * type of food or agents, selected by the user.
@@ -236,7 +240,7 @@ public interface UIInterface {
 
 	public void setRunnable(boolean ready);
 
-	/*
+	/**
 	 * set the tick number where the application will pause. tickfield obtained
 	 * from the user. See CobwebApplication
 	 */
