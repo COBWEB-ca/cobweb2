@@ -266,6 +266,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		fillTileColors(tileColors);
 	}
 
+	/**
+	 * Removes all agents from the environment.
+	 */
 	@Override
 	public synchronized void clearAgents() {
 		super.clearAgents();
@@ -291,18 +294,28 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * mode -1: remove stones mode -2: remove food mode -3: remove agents mode
 	 * -4: remove waste
 	 */
+
+	/**
+	 * Removes all food sources from the environment.
+	 */
 	@Override
 	public synchronized void clearFoodSources() {
 		super.clearFoodSources();
 		clearFlag(FLAG_FOOD);
 	}
 
+	/**
+	 * Removes all stones from the environment.
+	 */
 	@Override
 	public synchronized void clearStones() {
 		super.clearStones();
 		clearFlag(FLAG_STONE);
 	}
 
+	/**
+	 * Clears all waste from the environment.
+	 */
 	@Override
 	public synchronized void clearWaste() {
 		super.clearWaste();
@@ -1037,9 +1050,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return stratArray;
 	}
 
-	/*
+	/**
 	 * This gets called when the user clicks on a tile without selecting outside
-	 * of edit mode
+	 * of edit mode.  Sets observed agent if agent is clicked on.
 	 */
 	@Override
 	public void observe(int x, int y) {
@@ -1446,28 +1459,53 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
+	/**
+	 * @param x Scrutinized X coordinate.
+	 * @param y Scrutinized Y coordinate.
+	 * @return True if an agent is at this location.
+	 */
 	@Override
 	public boolean hasAgent(int x, int y) {
 		return getUserDefinedLocation(x, y).getAgent() != null;
 	}
 
+	/**
+	 * @param x X coordinate of agent location.
+	 * @param y Y coordinate of agent location.
+	 * @return Agent at specified location.
+	 */
 	@Override
 	public Agent getAgent(int x, int y) {
 		return getUserDefinedLocation(x, y).getAgent();
 	}
 
+	/**
+	 * @param x Scrutinized x coordinate.
+	 * @param y Scrutinized y coordinate.
+	 * @return True if a food source exists at scrutinized location.
+	 */
 	@Override
 	public boolean hasFood(int x, int y) {
 		Location l = getUserDefinedLocation(x, y);
 		return (l.getFoodSource() != null);
 	}
 
+	/**
+	 * @param x X coordinate of food source.
+	 * @param y Y coordinate of food source.
+	 * @return Type of food source at this location.
+	 */
 	@Override
 	public int getFood(int x, int y) {
 		Location l = getUserDefinedLocation(x, y);
 		return l.getFoodSource().getType();
 	}
 
+	/**
+	 * @param x Scrutinized X coordinate.
+	 * @param y Scrutinized Y coordinate.
+	 * @return True if stone exists at this location.
+	 */
 	@Override
 	public boolean hasStone(int x, int y) {
 		return testFlag(getUserDefinedLocation(x, y), FLAG_STONE);

@@ -36,9 +36,6 @@ import driver.SimulationConfig;
 /**
  * This class provides the definitions for a user interface that is running 
  * on a local machine.  
- * 
- * @author ???
- *
  */
 public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.TickScheduler.Client {
 
@@ -54,23 +51,36 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		/** Solid colour of the agent. */
 		java.awt.Color agentColor;
 
+		/** Agent type colour to distinguish agents from other types**/
 		java.awt.Color type;
 
+		/** Border colour of the agent corresponding to strategy used.**/
 		java.awt.Color action;
 
 		/** Position in tile coordinates */
 		Point2D position;
 
 		/**
-		 * Facing vector; not normalised, but only the sign of each component is
+		 * Facing vector; not normalized, but only the sign of each component is
 		 * considered.
 		 */
 		Point2D facing;
 
+		/** X coordinates for the three vertices of the agent triangle. **/
 		private int[] xPts = new int[3];
 
+		/** Y coordinates for the three vertices of the agent triangle. **/
 		private int[] yPts = new int[3];
 
+		/**
+		 * Constructor
+		 * 
+		 * @param bodyColor Overall colour of the agent.
+		 * @param dotColor Dot colour corresponding to agent type.
+		 * @param borderColor Border colour corresponding to agent strategy.
+		 * @param position Grid position of the agent.
+		 * @param direction Facing direction of the agent.
+		 */
 		private AgentDrawInfo(Color bodyColor, Color dotColor, Color borderColor, Point2D position, Point2D direction) {
 			agentColor = bodyColor;
 			type = dotColor;
@@ -79,6 +89,13 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 			facing = direction;
 		}
 
+		/**
+		 * Draws the agent.
+		 * 
+		 * @param g Graphics
+		 * @param tileWidth Width, in pixels, of a single tile.
+		 * @param tileHeight Height, in pixels, of a single tile.
+		 */
 		void draw(Graphics g, int tileWidth, int tileHeight) {
 			g.setColor(agentColor);
 			int topLeftX = position.x * tileWidth;
@@ -124,10 +141,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	/**
 	 * DrawInfo stores the frame data for the draw method to display. DrawInfo's
 	 * are built by calling newTileColors and newAgent in response to a
-	 * getDrawInfo call on the Environment or on an Agent. Note that DrawInfo is
-	 * a private class, and only LocalUIInterface knows of it's existence. For
-	 * this reason, DrawInfo is local to LocalUIInterface, and LocalUIInterface
-	 * reads DrawInfo members directly.
+	 * getDrawInfo call on the Environment or on an Agent. 
+	 * 
+	 * <p>Note that DrawInfo is a private class, and only LocalUIInterface knows 
+	 * of it's existence.
 	 */
 	private static class DrawInfo {
 
@@ -146,6 +163,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		/** Linked list of AgentDrawInfo for the display of agents. */
 		List<AgentDrawInfo> agents;
 
+		/** Linked list of PathDrawInfo for the display of agent paths. */
 		List<PathDrawInfo> paths;
 
 		public List<DropDrawInfo> drops = new LinkedList<DropDrawInfo>();
@@ -153,9 +171,13 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 		/**
-		 * Construct a DrawInfo width specific width, height and tile colors.
+		 * Construct a DrawInfo with specific width, height and tile colors.
 		 * The tiles array is not copied; the caller is assumed to "give" the
 		 * array to the drawing info, and not keep any local references around.
+		 * 
+		 * @param w Width of the grid.
+		 * @param h Height of the grid.
+		 * @param tiles Colours of each tile.
 		 */
 		DrawInfo(int w, int h, java.awt.Color[] tiles) {
 			width = w;
@@ -165,7 +187,13 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 			paths = new LinkedList<PathDrawInfo>();
 		}
 
-		/** Draw the tiles and the agents. */
+		/** 
+		 * Draws the tiles and the agents. 
+		 * 
+		 * @param g Graphics
+		 * @param tileHeight Height, in pixels, of a single tile.
+		 * @param tileWidth Width, in pixels, of a single tile.
+		 */
 		void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
 			// Tiles
 			int tileIndex = 0;
@@ -233,14 +261,33 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	}
 
+	/**
+	 * PathDrawInfo stores draw information for an agents path.
+	 * 
+	 * <p>Note that PathDrawInfo is a private class, and only LocalUIInterface knows 
+	 * of it's existence.
+	 */
 	private static class PathDrawInfo {
 
+		/** Path of the agent **/
 		private final List<Location> path;
 
+		/**
+		 * Constructor.
+		 * 
+		 * @param path List of location constituting the agents path.
+		 */
 		public PathDrawInfo(List<Location> path) {
 			this.path = new LinkedList<Location>(path);
 		}
 
+		/**
+		 * Draw the path of the agent.
+		 * 
+		 * @param g Graphics
+		 * @param tileWidth Width, in pixels, of a single tile.
+		 * @param tileHeight Height, in pixels, of a single tile.
+		 */
 		public void draw(Graphics g, int tileWidth, int tileHeight) {
 			Iterator<Location> itr = path.iterator();
 			if (!itr.hasNext()) {
@@ -305,6 +352,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	long delay = 1;
 
+	/** Grid line colour. **/
 	private static final Color COLOR_GRIDLINES = Color.lightGray;
 
 	private final Set<TickEventListener> tickListeners = new LinkedHashSet<TickEventListener>();
@@ -324,6 +372,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	private UIInterface.UIClient theClient;
 
+	/** Environment the interface is displaying **/
 	private Environment theEnvironment;
 
 	private volatile Scheduler theScheduler;
@@ -383,6 +432,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		theEnvironment.addStone(x, y);
 	}
 
+	/**
+	 * @see ComplexEnvironment#addWater(int, int)
+	 */
 	public void addWater(int x, int y) {
 		theEnvironment.addWater(x, y);
 	}
@@ -392,23 +444,37 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		listener.TickPerformed(myClock);
 	}
 
+	/**
+	 * @see ComplexEnvironment#clearAgents()
+	 */
 	public void clearAgents() {
 		theEnvironment.clearAgents();
 	}
 
+	/**
+	 * @see ComplexEnvironment#clearFoodSources()
+	 */
 	public void clearFoodSources() {
 		theEnvironment.clearFoodSources();
 	}
 
+	/**
+	 * @see ComplexEnvironment#clearStones()
+	 */
 	public void clearStones() {
 		theEnvironment.clearStones();
 	}
 
+	/**
+	 * @see ComplexEnvironment#clearWaste()
+	 */
 	public void clearWaste() {
 		theEnvironment.clearWaste();
 	}
 
-	/* return number of TYPES of agents in the environment */
+	/**
+	 * @return Number of types of agents in the environment 
+	 */
 	public int countAgentTypes() {
 		return theEnvironment.getTypeCount();
 	}
@@ -444,8 +510,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Returns the height, in tiles, of the environment.
-	 * 
 	 * @return 0 if there is no valid frame data, otherwise returns the height
 	 *         of the frame data.
 	 */
@@ -453,6 +517,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		return theEnvironment.getSize(1);
 	}
 
+	/**
+	 * @return Pause button object.
+	 */
 	public JButton getPauseButton() {
 		return pauseButton;
 	}
@@ -474,6 +541,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		return stopTime;
 	}
 
+	/**
+	 * @see Scheduler#getTime()
+	 */
 	public long getTime() {
 		return theScheduler.getTime();
 	}
@@ -492,6 +562,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 *         the frame data.
 	 */
 
+	/**
+	 * @return Number of tiles in X axis.
+	 */
 	public int getWidth() {
 		return theEnvironment.getSize(0);
 	}
@@ -558,7 +631,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 */
 	@Override
 	public boolean insertPopulation(String fileName, String option) {
-
 		return theEnvironment.insertPopulation(fileName, option);
 	}
 
@@ -677,17 +749,35 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		theEnvironment.log(logWriter);
 	}
 
+	/**
+	 * Adds new agent information to drawing information.
+	 * 
+	 * @param agentColor The solid colour of the agent.
+	 * @param facing Direction the agent is facing.
+	 * @param position Grid position.
+	 * @param strategyColor The border colour of the agent.
+	 * @param typeColor To distinguish agents of different types (dot colour).
+	 */
 	public void newAgent(java.awt.Color agentColor, java.awt.Color typeColor, java.awt.Color strategyColor,
 			Point2D position, Point2D facing) {
 		newDrawingInfo.agents.add(new AgentDrawInfo(agentColor, typeColor, strategyColor, position, facing));
 	}
 
+	/**
+	 * Adds new path information to drawing information.
+	 * 
+	 * @param path List of locations constituting an agent's path.
+	 */
 	public void newPath(List<Location> path) {
 		newDrawingInfo.paths.add(new PathDrawInfo(path));
 	}
 
 	/**
 	 * Notify the UI of new tile colors.
+	 * 
+	 * @param width Number of tiles in X axis.
+	 * @param height Number of tile in Y axis.
+	 * @param tileColors Array of colours of each tile.
 	 */
 	public void newTileColors(int width, int height, java.awt.Color[] tileColors) {
 		newDrawingInfo = new DrawInfo(width, height, tileColors);
@@ -696,9 +786,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	@Override
 	public void newDrop(Point2D position, Color color) {
-		newDrawingInfo.drops .add(new DropDrawInfo(position, color));
+		newDrawingInfo.drops.add(new DropDrawInfo(position, color));
 	}
 
+	/**
+	 * @see ComplexEnvironment#observe(int, int)
+	 */
 	public void observe(int x, int y) {
 		theEnvironment.observe(x, y);
 	}
@@ -738,14 +831,23 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		theClient.refresh(wait);
 	}
 
+	/**
+	 * @see ComplexEnvironment#removeAgent(int, int)
+	 */
 	public void removeAgent(int x, int y) {
 		theEnvironment.removeAgent(x, y);
 	}
 
+	/**
+	 * @see ComplexEnvironment#removeFoodSource(int, int)
+	 */
 	public void removeFood(int x, int y) {
 		theEnvironment.removeFoodSource(x, y);
 	}
 
+	/**
+	 * @see ComplexEnvironment#removeStone(int, int)
+	 */
 	public void removeStone(int x, int y) {
 		theEnvironment.removeStone(x, y);
 	}
@@ -777,6 +879,9 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		}
 	}
 
+	/**
+	 * @see Scheduler#resetTime()
+	 */
 	public void reset() {
 		theScheduler.resetTime();
 	}
@@ -900,26 +1005,41 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		myLogger.info(s);
 	}
 
+	/**
+	 * @see ComplexEnvironment#hasAgent(int, int)
+	 */
 	@Override
 	public boolean hasAgent(int x, int y) {
 		return theEnvironment.hasAgent(x, y);
 	}
 
+	/**
+	 * @see ComplexEnvironment#getAgent(int, int)
+	 */
 	@Override
 	public Agent getAgent(int x, int y) {
 		return theEnvironment.getAgent(x, y);
 	}
 
+	/**
+	 * @see ComplexEnvironment#hasFood(int, int)
+	 */
 	@Override
 	public boolean hasFood(int x, int y) {
 		return theEnvironment.hasFood(x, y);
 	}
 
+	/**
+	 * @see ComplexEnvironment#getFood(int, int)
+	 */
 	@Override
 	public int getFood(int x, int y) {
 		return theEnvironment.getFood(x, y);
 	}
 
+	/**
+	 * @see ComplexEnvironment#hasStone(int, int)
+	 */
 	@Override
 	public boolean hasStone(int x, int y) {
 		return theEnvironment.hasStone(x, y);
