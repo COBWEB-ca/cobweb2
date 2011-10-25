@@ -524,9 +524,18 @@ public abstract class Agent extends CellObject {
 		return this.color;
 	}
 
+	/**
+	 * XXX What does this do????
+	 * @param other
+	 * @return
+	 */
 	public abstract double similarity(Agent other);
 
-
+	/**
+	 * XXX What does this do????
+	 * @param other
+	 * @return
+	 */
 	public abstract double similarity(int other);
 
 

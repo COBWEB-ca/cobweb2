@@ -1,6 +1,8 @@
-package water;
+package cell;
 
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import cobweb.Agent;
 import cobweb.CellObject;
@@ -21,6 +23,14 @@ import cwcore.Food;
  */
 public class Water extends CellObject {
 
+	/**
+	 * Water is blue.
+	 * @return Color of water.
+	 */
+	public Color getColor() {
+		return Color.blue;
+	}
+
 	//we must create a 3D cobweb...
 
 	/**
@@ -36,7 +46,15 @@ public class Water extends CellObject {
 	/**
 	 * The food contained in this water tile.
 	 */
-	ArrayList<Food> food;
+	private ArrayList<Food> food;
+
+	/**
+	 * Return an iterator over the food.
+	 * @return The food in this blood.
+	 */
+	public Iterator<Food> getFood() {
+		return food.iterator();
+	}
 
 	/**
 	 * Create a new water tile.
