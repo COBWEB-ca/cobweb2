@@ -25,6 +25,24 @@ import cwcore.Food;
 public class Water extends CellObject {
 
 	/**
+	 * The maximum concentration of food in a single water tile.
+	 */
+	private static final int MAX_FOOD_CONC = 1000000;
+
+	/**
+	 * Add some food to this water.
+	 * @param f Food to add.
+	 * @return Whether the food was added.
+	 */
+	public boolean addFood(Food f) {
+		if(food.size() < MAX_FOOD_CONC) {
+			return food.add(f);
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Water is blue.
 	 * @return Color of water.
 	 */

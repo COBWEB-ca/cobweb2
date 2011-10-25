@@ -2,7 +2,7 @@ package cell;
 
 import java.awt.Color;
 
-import cobweb.Environment.Location;
+import cobweb.Location;
 
 /**
  * A tile of blood. Blood is like water, except it's red.

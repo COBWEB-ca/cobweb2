@@ -1,7 +1,6 @@
 package cobweb;
 
 
-
 /**
  * Any object occupying a cell.
  * @author Daniel Kats
@@ -32,5 +31,8 @@ public abstract class CellObject {
 		return position;
 	}
 
-	public abstract void onStep(Agent a);
+	public void onStep(Agent a) {
+		// TODO Auto-generated method stub
+
+	}
 }

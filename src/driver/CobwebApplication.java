@@ -115,6 +115,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private JMenuItem stoneMenu;
 
+	private JMenuItem waterMenu;
+
 	private JMenuItem observeMenu;
 
 	private JMenu foodMenu;
@@ -544,6 +546,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 			}
 		});
 
+		waterMenu = new JMenuItem("Select Water");
+		waterMenu.setActionCommand("Select Water");
+		waterMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				onMenuWater();
+			}
+		});
+
 		stoneMenu = new JMenuItem("Select Stones");
 		stoneMenu.setActionCommand("Select Stones");
 		stoneMenu.addActionListener(new ActionListener() {
@@ -599,6 +609,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		JMenu EditMenu = new JMenu("Edit");
 		EditMenu.add(observeMenu);
 		EditMenu.add(stoneMenu);
+		EditMenu.add(waterMenu);
 		EditMenu.add(agentMenu);
 		EditMenu.add(foodMenu);
 		EditMenu.add(new JSeparator());
@@ -1542,6 +1553,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		/* switch to stone selection mode */
 		displayPanel.setMouseMode(MouseMode.AddStone);
+	}
+
+	private void onMenuWater() {
+		disposeGUIframe();
+		displayPanel.setMouseMode(MouseMode.AddWater);
 	}
 
 	/**

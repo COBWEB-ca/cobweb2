@@ -41,7 +41,7 @@ import driver.SimulationConfig;
 public interface UIInterface {
 
 	public static enum MouseMode {
-		Observe, AddStone, AddFood, AddAgent
+		Observe, AddStone, AddFood, AddAgent, AddWater
 	}
 
 	/**
@@ -276,6 +276,12 @@ public interface UIInterface {
 	public abstract int getFood(int x, int y);
 
 	public abstract boolean hasStone(int x, int y);
+
+	public abstract boolean hasWater(int x, int y);
+
+	public abstract void addWater(int x, int y);
+
+	public abstract void removeWater(int x, int y);
 
 
 	public Collection<ViewerPlugin> getViewers();

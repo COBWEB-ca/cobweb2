@@ -90,6 +90,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private static final int FOOD_CODE = 2;
 
+	private static final int WATER_CODE = 8;
+
 	private static final int WASTE_CODE = 4;
 
 	public void setDrop(Location loc, Drop d) {
@@ -197,7 +199,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		if(l.testFlag(FLAG_DROP))
 			l.setFlag(FLAG_DROP, false);
 
-		l.setFlag(ComplexEnvironment.FLAG_STONE, true);
+		l.setFlag(ComplexEnvironment.FLAG_WATER, true);
 
 		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
 		fillTileColors(tileColors);
@@ -425,6 +427,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 				if (currentPos.testFlag(FLAG_STONE))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
 
+				else if (currentPos.testFlag(FLAG_WATER)) {
+					tileColors[tileIndex++] = java.awt.Color.blue;
+				}
 				else if (currentPos.getFoodSource() != null)
 					tileColors[tileIndex++] = colorMap.getColor(getFoodType(currentPos), 0 /* agentTypeCount */);
 
@@ -1071,6 +1076,13 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
+	public synchronized void removeWater(int x, int y) {
+		super.removeWater(x, y);
+		Location l = getLocation(x, y);
+		l.setFlag(FLAG_WATER, false);
+	}
+
+	@Override
 	public void report(java.io.Writer w) {
 		java.io.PrintWriter pw = new java.io.PrintWriter(w, false);
 
@@ -1391,6 +1403,11 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	public boolean hasStone(int x, int y) {
 		return testFlag(getUserDefinedLocation(x, y), FLAG_STONE);
+	}
+
+	@Override
+	public boolean hasWater(int x, int y) {
+		return testFlag(getUserDefinedLocation(x, y), FLAG_WATER);
 	}
 
 	private List<StatePlugin> plugins = new LinkedList<StatePlugin>();

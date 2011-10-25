@@ -24,7 +24,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import cwcore.ComplexAgent;
-import cwcore.ComplexEnvironment;
 import cwcore.FoodSource;
 import driver.SimulationConfig;
 
@@ -270,8 +269,19 @@ public abstract class Environment {
 
 	}
 
+	/**
+	 * Remove all the food sources at the given location.
+	 * @param l The given location.
+	 */
 	void removeFoodSource(Location l) {
-		l.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+		List<CellObject> cellobjects = l.getCellObjects();
+
+		for(int i = 0; i <= cellobjects.size(); i++) {
+			if(cellobjects.get(i) instanceof FoodSource) {
+				cellobjects.remove(i);
+			}
+		}
+
 		foodSourceTable.remove(l);
 	}
 
@@ -370,6 +380,10 @@ public abstract class Environment {
 	 * @param y y coordinate
 	 */
 	public void removeStone(int x, int y) {
+		// Nothing
+	}
+
+	public void removeWater(int x, int y) {
 		// Nothing
 	}
 
@@ -478,6 +492,8 @@ public abstract class Environment {
 	public abstract int getFood(int x, int y);
 
 	public abstract boolean hasStone(int x, int y);
+
+	public abstract boolean hasWater(int x, int y);
 
 
 	/**

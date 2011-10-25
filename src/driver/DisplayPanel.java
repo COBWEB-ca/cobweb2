@@ -197,6 +197,33 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	}
 
+	private class WaterMouseListener extends Mouse {
+		@Override
+		public boolean canClick(int x, int y) {
+			return !theUI.hasAgent(x, y);
+		}
+
+		@Override
+		boolean canSetOn(int x, int y) {
+			return !canSetOff(x, y);
+		}
+
+		@Override
+		boolean canSetOff(int x, int y) {
+			return theUI.hasWater(x, y);
+		}
+
+		@Override
+		void setOn(int x, int y) {
+			theUI.addWater(x, y);
+		}
+
+		@Override
+		void setOff(int x, int y) {
+			theUI.removeWater(x, y);
+		}
+	}
+
 	private class StoneMouseListener extends Mouse { 
 
 
@@ -380,6 +407,9 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		switch (mode) {
 			case AddStone:
 				setMouse(new StoneMouseListener());
+				break;
+			case AddWater:
+				setMouse(new WaterMouseListener());
 				break;
 			case Observe:
 				setMouse(new ObserveMouseListener());

@@ -1051,4 +1051,14 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	public Collection<ViewerPlugin> getViewers() {
 		return viewers;
 	}
+
+	@Override
+	public boolean hasWater(int x, int y) {
+		return theEnvironment.hasWater(x, y);
+	}
+
+	@Override
+	public void removeWater(int x, int y) {
+		theEnvironment.removeWater(x, y);
+	}
 }
