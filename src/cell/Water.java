@@ -116,4 +116,10 @@ public class Water extends CellObject {
 	public boolean canMove() {
 		return true;
 	}
+
+	@Override
+	public void onStep(Agent a) {
+		//FIXME: Implement me
+		throw new RuntimeException("FIXME: Implement me");
+	}
 }

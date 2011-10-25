@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -122,6 +123,10 @@ public abstract class Environment {
 
 	TempLocationFactory factory;
 
+	protected cobweb.ArrayEnvironment array;
+
+	protected ArrayEnvironment backArray;
+
 	/**
 	 * Adds agent at given position
 	 * 
@@ -224,11 +229,6 @@ public abstract class Environment {
 		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
 
 	}
-
-	/**
-	 * Core implementation of getField; this is what could be accelerated in C++
-	 */
-	protected abstract int getField(Location l, int field);
 
 	// Syntactic sugar for common cases
 
@@ -460,11 +460,6 @@ public abstract class Environment {
 			agentTable.remove(l);
 	}
 
-	/**
-	 * Core implementation of setField; this is what could be accelerated in C++
-	 */
-	protected abstract void setField(Location l, int field, int value);
-
 	protected void setupLocationCache() {
 		locationCache = new Location[getSize(AXIS_X)][getSize(AXIS_Y)];
 	}
@@ -497,5 +492,9 @@ public abstract class Environment {
 		} while (!l.isEmpty());
 
 		return l;
+	}
+
+	protected List<CellObject> getLocationBits(cobweb.Location l) {
+		return array.getLocationBits(l);
 	}
 }

@@ -494,19 +494,7 @@ public abstract class Agent extends CellObject {
 	 * @return True if location exists and is not occupied by anything
 	 */
 	protected boolean canStep(Location destPos) {
-		// The position must be valid...
-		if (destPos == null)
-			return false;
-		// and the destination must be clear of stones
-		if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
-			return false;
-		// and clear of wastes
-		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
-			return environment.dropArray[destPos.v[0]][destPos.v[1]].canStep();
-		// as well as other agents...
-		if (destPos.getAgent() != null)
-			return false;
-		return true;
+		return destPos.canCoverWith(this);
 	}
 
 	/**

@@ -32,4 +32,9 @@ public class Stone extends CellObject {
 	public boolean canMove() {
 		return false;
 	}
+
+	@Override
+	public void onStep(Agent a) {
+		throw new IllegalStateException("Agents can't step on stones");
+	}
 }

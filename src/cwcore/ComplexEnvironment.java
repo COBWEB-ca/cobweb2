@@ -25,7 +25,6 @@ import org.xml.sax.SAXException;
 
 import cobweb.Agent;
 import cobweb.ArrayEnvironment;
-import cobweb.CellObject;
 import cobweb.ColorLookup;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
@@ -52,47 +51,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 
 	private static final int DROP_ATTEMPTS_MAX = 5;
-
-	//Can't we do this some better way?
-
-	/**
-	 * Flags for the different entities possible at a location
-	 */
-	public static enum Flag {
-		STONE,
-		FOOD,
-		AGENT,
-		DROP,
-		SEED
-	}
-
-	/**
-	 * Return the integer associated with that flag.
-	 * If the flag object is not valid, return -1.
-	 * @param f The flag
-	 * @return Integer associated with that flag.
-	 */
-	public static int getFlagNum(Flag f) {
-		Flag[] flags = Flag.values();
-
-		for(int i = 0; i < flags.length; i++) {
-			if(f.equals(flags[i])) {
-				return i + 1;
-			}
-		}
-
-		return -1;
-	}
-
-	public static final int FLAG_STONE = 1;
-
-	public static final int FLAG_FOOD = 2;
-
-	public static final int FLAG_AGENT = 3;
-
-	public static final int FLAG_DROP = 4;
-
-	public static final int FLAG_SEED = 5;
 
 	public static final int INIT_LAST_MOVE = 0; // Initial last move set to
 	// cooperate
@@ -149,8 +107,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	private Vector<ComplexAgentInfo> agentInfoVector = new Vector<ComplexAgentInfo>();
 
-	private cobweb.ArrayEnvironment array;
-
 	private ComplexEnvironmentParams data = new ComplexEnvironmentParams();
 
 	/*
@@ -162,8 +118,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	private Agent observedAgent = null;
 
 	private int draughtdays[];
-
-	ArrayEnvironment backArray;
 
 	public PacketConduit commManager;
 
@@ -531,18 +485,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	// Ignored; this model has no fields
-	@Override
-	protected int getField(cobweb.Location l, int field) {
-		return 0;
-	}
-
 	public int getInfoNum() {
 		return agentInfoVector.size();
-	}
-
-	protected List<CellObject> getLocationBits(cobweb.Location l) {
-		return array.getLocationBits(l);
 	}
 
 	@Override
@@ -1163,11 +1107,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
 		ComplexAgent.setDefaultMutableParams(agentData);
-	}
-
-	@Override
-	protected void setField(cobweb.Location l, int field, int value) {
-		// Nothing
 	}
 
 	/**

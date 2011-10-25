@@ -21,7 +21,4 @@ public abstract class Drop extends CellObject {
 
 	}
 
-	public void onStep(ComplexAgent agent) {
-
-	}
 }

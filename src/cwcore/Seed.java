@@ -89,4 +89,9 @@ public class Seed extends CellObject {
 	public boolean canMove() {
 		return false;
 	}
+
+	@Override
+	public void onStep(Agent a) {
+		//Nothing 
+	}
 }

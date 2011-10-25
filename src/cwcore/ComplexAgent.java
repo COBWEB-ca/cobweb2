@@ -14,6 +14,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import cobweb.Agent;
+import cobweb.CellObject;
 import cobweb.ColorLookup;
 import cobweb.Controller;
 import cobweb.Direction;
@@ -858,13 +860,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 		energy -= energyPenalty();
 
-		if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
-			// Bumps into waste
-			int x = destPos.v[0];
-			int y = destPos.v[1];
-			Drop d = environment.dropArray[x][y];
-			d.onStep(this);
-
+		for (CellObject c : destPos.getCellObjects()) {
+			c.onStep(this);
 		}
 
 		if (energy <= 0)
@@ -1123,12 +1120,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		// Place the drop at an available location adjacent to the agent
 		for (int i = 0; i < dirList.length; i++) {
 			loc = getPosition().getAdjacent(dirList[i]);
-			if (loc != null && loc.getAgent() == null && !loc.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !loc.testFlag(ComplexEnvironment.FLAG_DROP) && loc.getFoodSource() == null) {
-				loc.removeFoodSource();
-				loc.setFlag(ComplexEnvironment.FLAG_STONE, false);
-				loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
-				environment.setDrop(loc, d);
+			if (loc != null && loc.getAgent() == null && loc.canCoverWith(d)) {
+				loc.addCellObject(d);
 				break;
 			}
 		}
@@ -1142,9 +1135,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			for (int i = 0; i < dirList.length; i++) {
 				loc = getPosition().getAdjacent(dirList[i]);
 				if (loc != null && loc.getAgent() == null && loc.getFoodSource() != null) {
-					loc.removeFoodSource();
-					loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
-					environment.setDrop(loc, d);
+					loc.addCellObject(d);
 					break;
 				}
 			}
@@ -1163,5 +1154,11 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	@Override
 	public boolean canSwim() {
 		return this.canSwim;
+	}
+
+	@Override
+	public void onStep(Agent a) {
+		//FIXME: Implement me
+		throw new RuntimeException("FIXME: Implement me");		
 	}
 }

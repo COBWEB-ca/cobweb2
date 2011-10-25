@@ -31,4 +31,6 @@ public abstract class CellObject {
 	public final Location getLocation() {
 		return position;
 	}
+
+	public abstract void onStep(Agent a);
 }

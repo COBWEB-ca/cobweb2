@@ -2,12 +2,12 @@ package cobweb;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import cwcore.ComplexEnvironment;
 import cwcore.FoodSource;
 
 /**
@@ -225,14 +225,6 @@ public class Location implements Serializable {
 		return this.environment;
 	}
 
-	/**
-	 * Get the value of the field associated with the constant field in this
-	 * location. The valid values for field are implementation defined.
-	 */
-	public int getField(int field) {
-		return this.environment.getField(this, field);
-	}
-
 	public void removeFoodSource() {
 		this.environment.removeFoodSource(this);
 	}
@@ -291,30 +283,11 @@ public class Location implements Serializable {
 	}
 
 	/**
-	 * Set the value of the field associated with the constant field in this
-	 * location. The valid values for field are implementation defined.
-	 */
-	public void setField(int field, int value) {
-		this.environment.setField(this, field, value);
-	}
-
-	/**
 	 * Return true if this location is empty, false otherwise.
 	 * @return True if this location is empty, false otherwise.
 	 */
 	public boolean isEmpty() {
-		ComplexEnvironment.Flag[] flags = ComplexEnvironment.Flag.values();
-		int flag;
-
-		for(int i = 0; i < flags.length; i++) {
-			flag = ComplexEnvironment.getFlagNum(flags[i]);
-
-			if(this.testFlag(flag)) {
-				return false;
-			}
-		}
-
-		return true;
+		return getCellObjects().isEmpty();
 	}
 
 	@Override
@@ -329,4 +302,19 @@ public class Location implements Serializable {
 		return out.toString();
 	}
 
+	public List<CellObject> getCellObjects() {
+		return environment.getLocationBits(this);
+	}
+
+	public boolean canCoverWith(CellObject o) {
+		for (CellObject co : getCellObjects()) {
+			if (!co.canCoverWith(o))
+				return false;
+		}
+		return true;
+	}
+
+	public void addCellObject(CellObject o) {
+		getCellObjects().add(o);
+	}
 }

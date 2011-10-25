@@ -2,6 +2,7 @@ package cwcore;
 
 import java.awt.Color;
 
+import cobweb.Agent;
 import cobweb.CellObject;
 
 
@@ -90,7 +91,7 @@ public class Waste extends Drop {
 	}
 
 	@Override
-	public void onStep(ComplexAgent agent) {
+	public void onStep(Agent agent) {
 		throw new IllegalStateException("Agents can't step on waste");
 	}
 }
