@@ -17,6 +17,7 @@ import cwcore.Food;
  * <ol>
  * <li>Single layer(surface)</li>
  * <li>Waste cannot go on water</li>
+ * <li>Water contains some concentration of food (single type)</li>
  * </ol>
  * 
  * @author Daniel Kats
@@ -27,11 +28,9 @@ public class Water extends CellObject {
 	 * Water is blue.
 	 * @return Color of water.
 	 */
-	public Color getColor() {
-		return Color.blue;
+	public final Color getColor() {
+		return this.color;
 	}
-
-	//we must create a 3D cobweb...
 
 	/**
 	 * The speed of the current, which governs how fast this tile moves.
@@ -57,10 +56,16 @@ public class Water extends CellObject {
 	}
 
 	/**
+	 * The color of the water.
+	 */
+	protected Color color;
+
+	/**
 	 * Create a new water tile.
 	 */
 	public Water(Environment.Location coords) {
 		this.position = coords;
+		this.color = Color.blue;
 	}
 
 	/**

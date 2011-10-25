@@ -9,21 +9,13 @@ import cobweb.Environment.Location;
  * @author Daniel Kats
  */
 public class Blood extends Water {
-
-	/**
-	 * Blood is red.
-	 * @return Color of blood.
-	 */
-	@Override
-	public Color getColor() {
-		return Color.red;
-	}
-
 	/**
 	 * Create a new blood tile.
 	 * @param coords Given coordinates.
 	 */
 	public Blood(Location coords) {
 		super(coords);
+		//blood is red
+		this.color = Color.red;
 	}
 }

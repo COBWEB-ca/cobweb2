@@ -2,6 +2,7 @@ package cwcore;
 
 /*
  * Note that there are no setter methods.
+
  * It type and Location can only be set through the constructor.
  */
 

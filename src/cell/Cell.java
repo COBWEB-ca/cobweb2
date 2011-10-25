@@ -44,6 +44,10 @@ public class Cell extends Agent {
 		}
 	}
 
+	/**
+	 * Draw the cell as a circle. Each cell is the same size???
+	 * The type of cell 
+	 */
 	@Override
 	public void getDrawInfo(DrawingHandler theUI) {
 		// TODO Auto-generated method stub
