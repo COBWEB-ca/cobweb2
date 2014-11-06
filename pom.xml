@@ -1,14 +1,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>cobweb</groupId>
 	<artifactId>cobweb2</artifactId>
 	<version>2011-10-12-prodhunt</version>
 	<name>COBWEB2</name>
 	<description>COBWEB (Complexity &amp; Organized Behaviour Within Environmental Bounds) is a computer simulation model which can be used for research in a variety of fields such as ecology, health, psychology, economic geography, climate change impacts and ethics.</description>
+	<url>https://cobweb-ca.github.io/</url>
+	<scm>
+		<url>https://github.com/COBWEB-ca/cobweb2</url>
+	</scm>
+
 	<build>
 		<plugins>
+
 			<plugin>
+				<!-- Compile -->
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
@@ -16,7 +24,9 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+
 			<plugin>
+				<!-- Save git version information -->
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
 				<version>2.1.11</version>
@@ -28,7 +38,6 @@
 					</execution>
 				</executions>
 				<configuration>
-					<verbose>true</verbose>
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<generateGitPropertiesFilename>src/main/resources/git.properties</generateGitPropertiesFilename>
 					<dateFormat>yyyy-MM-dd-HH:mm</dateFormat>
@@ -46,7 +55,9 @@
 					</gitDescribe>
 				</configuration>
 			</plugin>
+
 			<plugin>
+				<!-- Set jar main class -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.5</version>
@@ -58,7 +69,9 @@
 					</archive>
 				</configuration>
 			</plugin>
+
 			<plugin>
+				<!-- Include dependencies in uber jar -->
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<version>2.3</version>
@@ -78,12 +91,9 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
-	<url>https://cobweb-ca.github.io/</url>
-	<scm>
-		<url>https://github.com/COBWEB-ca/cobweb2</url>
-	</scm>
 
 	<profiles>
 		<profile>
