@@ -84,6 +84,41 @@
 	<scm>
 		<url>https://github.com/COBWEB-ca/cobweb2</url>
 	</scm>
+
+	<profiles>
+		<profile>
+			<!-- Profile for generating production jars for distribution -->
+			<id>production</id>
+			<build>
+				<plugins>
+
+					<plugin>
+						<!-- Sign jar -->
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jarsigner-plugin</artifactId>
+						<version>1.3.2</version>
+						<executions>
+							<execution>
+								<id>sign</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<!-- Jar signing keystore is separate from source repo -->
+							<keystore>cobweb2.jks</keystore>
+							<alias>cobweb2</alias>
+							<!-- Provide password on maven command line -->
+							<storepass>${keystore.password}</storepass>
+						</configuration>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.jfree</groupId>
