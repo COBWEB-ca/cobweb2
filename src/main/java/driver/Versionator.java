@@ -24,9 +24,17 @@ public class Versionator {
 				String description = properties.getProperty("git.commit.id.describe");
 
 				if (description != null) {
-					String dateType = description.endsWith("-modified") ? "git.build.time" : "git.commit.time";
-					String date = properties.getProperty(dateType);
-					version = description + " " + date;
+					if (description.endsWith("-modified")) {
+						version = String.format("%1$s (%2$s) %3$s",
+								description,
+								properties.getProperty("git.branch"),
+								properties.getProperty("git.build.time"));
+					}
+					else {
+						version = String.format("%1$s %2$s",
+								description,
+								properties.getProperty("git.commit.time"));
+					}
 				}
 			} catch (Exception ex) {
 				// nothing
