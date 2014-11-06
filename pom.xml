@@ -114,6 +114,58 @@
 						</configuration>
 					</plugin>
 
+					<plugin>
+						<!-- Copy jars into website download/applet/webstart structure -->
+						<artifactId>maven-antrun-plugin</artifactId>
+						<configuration>
+							<tasks>
+								<!-- Unsigned applet -->
+								<copy
+									file="${project.build.directory}/${project.build.finalName}-shaded.jar"
+									tofile="${project.build.directory}/cobweb-site/apps/cobweb2-latest-unsigned.jar" />
+								<!-- Signed Web Start -->
+								<copy
+									file="${project.build.directory}/${project.build.finalName}.jar"
+									tofile="${project.build.directory}/cobweb-site/apps/cobweb2-latest.jar" />
+								<!-- Signed download -->
+								<copy
+									file="${project.build.directory}/${project.build.finalName}.jar"
+									todir="${project.build.directory}/cobweb-site/downloads/files" />
+							</tasks>
+						</configuration>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<!-- Copy website download/applet/webstart structure -->
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>2.7</version>
+						<executions>
+							<execution>
+								<phase>install</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}/cobweb-site</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/cobweb-site/resources</directory>
+											<filtering>false</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
 				</plugins>
 			</build>
 		</profile>

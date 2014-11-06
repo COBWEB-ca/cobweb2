@@ -28,7 +28,7 @@
 </security>
 <resources>
   <j2se version="1.6+" initial-heap-size="128m" max-heap-size="768m" />
-  <jar href="cobweb2-latest-signed.jar" />
+  <jar href="cobweb2-latest.jar" />
 </resources>
 <application-desc main-class="driver.CobwebApplicationRunner"/>
 </jnlp>
