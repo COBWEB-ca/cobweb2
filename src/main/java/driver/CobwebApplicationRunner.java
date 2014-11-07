@@ -160,8 +160,7 @@ public class CobwebApplicationRunner {
 		//Create CobwebApplication and threads; this is not done earlier so 
 		// that argument errors will result in quick exits.
 
-		boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf(
-		"-agentlib:jdwp") > 0;
+		boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
 
 		if (!isDebug) {
 			MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
