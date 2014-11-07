@@ -69,4 +69,9 @@ public class ProductionViewer implements ViewerPlugin {
 		this.onClosed = onClosed;
 
 	}
+
+	@Override
+	public void dispose() {
+		// nothing
+	}
 }

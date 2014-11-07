@@ -43,4 +43,9 @@ public class LinearAIViewer implements ViewerPlugin {
 		this.onClosed = onClosed;
 
 	}
+
+	@Override
+	public void dispose() {
+		// nothing
+	}
 }
