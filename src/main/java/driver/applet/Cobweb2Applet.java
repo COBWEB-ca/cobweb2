@@ -140,7 +140,6 @@ public class Cobweb2Applet extends JApplet {
 
 		ui.setVisible(true);
 		statsUpdater = new LiveStats(ui.getUIPipe());
-		ui.AddTickEventListener(statsUpdater);
 	}
 
 

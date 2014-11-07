@@ -32,6 +32,7 @@ import cwcore.ComplexEnvironment;
 import cwcore.LinearWeightsController;
 import disease.DiseaseMutator;
 import driver.LinearAIViewer;
+import driver.LiveStats;
 import driver.SimulationConfig;
 
 /**
@@ -650,7 +651,7 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	private void setupViewers() {
 		for (ViewerPlugin viewer : viewers) {
-			viewer.off();
+			viewer.dispose();
 		}
 		viewers.clear();
 		if (simulationConfig.getEnvParams().controllerName.equals(LinearWeightsController.class.getName())) {
@@ -658,6 +659,8 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		}
 
 		viewers.add(new ProductionViewer(theEnvironment, theScheduler));
+
+		viewers.add(new LiveStats(this));
 	}
 
 	/**

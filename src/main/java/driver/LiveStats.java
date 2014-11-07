@@ -1,5 +1,8 @@
 package driver;
 
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
 import javax.swing.JFrame;
 
 import org.jfree.chart.ChartFactory;
@@ -12,11 +15,13 @@ import org.jfree.data.xy.XYSeriesCollection;
 import cobweb.Environment.EnvironmentStats;
 import cobweb.LocalUIInterface.TickEventListener;
 import cobweb.UIInterface;
+import cobweb.ViewerClosedCallback;
+import cobweb.ViewerPlugin;
 
 
-public class LiveStats implements TickEventListener {
+public class LiveStats implements TickEventListener, ViewerPlugin {
 
-	JFrame graph = new JFrame("Statistics");
+	JFrame graph = new JFrame("Population");
 
 	int frame = 0;
 
@@ -42,6 +47,14 @@ public class LiveStats implements TickEventListener {
 
 	public LiveStats(UIInterface ui) {
 		this.ui = ui;
+		graph.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				if (onClosed != null)
+					onClosed.viewerClosed();
+			}
+		});
+
 		graph.setSize(500, 500);
 		ChartPanel cp = new ChartPanel(plot, true);
 		graph.add(cp);
@@ -50,6 +63,14 @@ public class LiveStats implements TickEventListener {
 
 		data.addSeries(agentData);
 		data.addSeries(foodData);
+
+		ui.AddTickEventListener(this);
+	}
+
+	@Override
+	public void dispose() {
+		ui.RemoveTickEventListener(this);
+		graph.dispose();
 	}
 
 	public void TickPerformed(long currentTick) {
@@ -77,6 +98,28 @@ public class LiveStats implements TickEventListener {
 
 	public void toggleGraphVisible() {
 		graph.setVisible(!graph.isVisible());
+	}
+
+	@Override
+	public String getName() {
+		return "Population Graph";
+	}
+
+	@Override
+	public void on() {
+		graph.setVisible(true);
+
+	}
+
+	@Override
+	public void off() {
+		graph.setVisible(false);
+	}
+
+	ViewerClosedCallback onClosed;
+	@Override
+	public void setClosedCallback(ViewerClosedCallback onClosed) {
+		this.onClosed = onClosed;
 	}
 
 }
