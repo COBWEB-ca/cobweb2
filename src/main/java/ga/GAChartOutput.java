@@ -20,7 +20,7 @@ import cobweb.ColorLookup;
 import cobweb.TypeColorEnumeration;
 import driver.util.JComponentWaiter;
 
-
+// TODO: turn into ViewerPlugin
 public class GAChartOutput implements ActionListener {
 
 	/** Charts that represent GA outputs */
