@@ -17,12 +17,12 @@ public class TemperatureConfigPage implements ConfigPage {
 
 	public TemperatureConfigPage(TemperatureParams params) {
 
-		ConfigTableModel ctm = new ConfigTableModel(params, "Temperature");
+		ConfigTableModel ctm = new ConfigTableModel(params, "Abiotic Factor");
 		bandsConf = new MixedValueJTable();
 		bandsConf.setModel(ctm);
 		JScrollPane sp = new JScrollPane(bandsConf);
 		sp.setPreferredSize(new Dimension(200, 200));
-		GUI.makeGroupPanel(sp, "Environment Temperature");
+		GUI.makeGroupPanel(sp, "Environment Bands");
 
 		ConfigTableModel agentConf = new ConfigTableModel(params.agentParams, "Agent");
 		agentTable = new MixedValueJTable();
