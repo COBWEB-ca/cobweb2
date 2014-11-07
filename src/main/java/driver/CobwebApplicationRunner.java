@@ -240,11 +240,11 @@ public class CobwebApplicationRunner {
 			}
 		}
 
+		final Object runCompletedMonitor = new Object();
+
 		if (autostart) {
 			System.out.println(String.format("Running '%1$s' for %2$d steps with log %3$s..."
 					, inputFileName, finalstep, logFileName));
-			simulation.slowDown(0);
-			simulation.resume();
 
 			final class AutoStopTickListener implements TickEventListener {
 				private long stopTick;
@@ -268,15 +268,26 @@ public class CobwebApplicationRunner {
 					if (currentTick > stopTick) {
 						simulation.pause();
 
-						simulation.killScheduler();
-						System.out.println("Done!");
-						System.exit(0);
+						synchronized(runCompletedMonitor) {
+							runCompletedMonitor.notify();
+						}
 					}
 				}
 			}
 
 			simulation.AddTickEventListener(new AutoStopTickListener(finalstep));
+			simulation.slowDown(0);
+			simulation.resume();
 
+			if (!visible) {
+				synchronized(runCompletedMonitor){
+					try {
+						runCompletedMonitor.wait();
+					} catch (InterruptedException ex) {
+						throw new RuntimeException(ex);
+					}
+				}
+			}
 		}
 	}
 
