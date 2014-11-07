@@ -847,7 +847,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * @see cobweb.Environment#load(Scheduler, SimulationConfig)
 	 */
 	@Override
-	public void load(Scheduler s, SimulationConfig p) throws IllegalArgumentException {
+	public synchronized void load(Scheduler s, SimulationConfig p) throws IllegalArgumentException {
 		super.load(s, p);
 		// sFlag stores whether or not we are using a new scheduler
 		boolean sFlag = (s != theScheduler);
