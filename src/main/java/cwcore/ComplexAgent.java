@@ -360,9 +360,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		return birthTick;
 	}
 
-	void broadcastCheating(cobweb.Environment.Location loc) { // []SK
-		// String message = "Cheater encountered (" + loc.v[0] + " , " + loc.v[1] + ")";
-		String message = Long.toString(((ComplexAgent) loc.getAgent()).id);
+	void broadcastCheating(int cheaterID) { // []SK
+		String message = Long.toString(cheaterID);
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, id, message, energy
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
 		environment.commManager.addPacketToList(msg);
@@ -691,7 +690,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			}
 		}
 
-		broadcastCheating(getPosition());
+		broadcastCheating(othersID);
 	}
 
 	public long look() {
