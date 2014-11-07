@@ -53,6 +53,11 @@ public class CobwebApplicationRunner {
 		public void setSimulation(UIInterface simulation) {
 			return;
 		}
+
+		@Override
+		public UIInterface getUIPipe() {
+			return null;
+		}
 	}
 
 	static UIInterface simulation;

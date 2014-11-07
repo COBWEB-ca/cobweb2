@@ -35,6 +35,7 @@ import java.util.Collection;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
+import cobweb.Environment.EnvironmentStats;
 import cobweb.LocalUIInterface.TickEventListener;
 import driver.SimulationConfig;
 
@@ -69,6 +70,8 @@ public interface UIInterface {
 		public void fileOpened(SimulationConfig conf);
 
 		public void setSimulation(UIInterface simulation);
+
+		public UIInterface getUIPipe();
 	}
 
 	/**
@@ -260,6 +263,8 @@ public interface UIInterface {
 	public void writeLogEntry();
 
 	public void writeOutput(String s);
+
+	public EnvironmentStats getStatistics();
 
 	public long getTime();
 

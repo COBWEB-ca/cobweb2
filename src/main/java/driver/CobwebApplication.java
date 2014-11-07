@@ -1231,6 +1231,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 		uiPipe = simulation;
 	}
 
+	@Override
+	public UIInterface getUIPipe() {
+		return uiPipe;
+	}
+
 	/**
 	 * @see CobwebApplication#openFileDialog()
 	 */

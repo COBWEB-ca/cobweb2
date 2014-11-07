@@ -11,7 +11,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import cobweb.Environment.EnvironmentStats;
 import cobweb.LocalUIInterface;
 import cobweb.LocalUIInterface.TickEventListener;
 import cobweb.UIInterface;
@@ -46,14 +45,13 @@ public class SimulatorUI extends JPanel implements UIClient {
 		setupUI();
 	}
 
+	public UIInterface getUIPipe() {
+		return uiPipe;
+	}
+
 	public void AddTickEventListener(TickEventListener listener) {
 		uiPipe.AddTickEventListener(listener);
 		uiPipe.setRunnable(true);
-	}
-
-
-	public EnvironmentStats getStatistics() {
-		return uiPipe.getStatistics();
 	}
 
 	public boolean isReadyToRefresh() {
