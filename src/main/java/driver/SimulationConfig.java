@@ -281,6 +281,8 @@ public class SimulationConfig {
 
 		tempParams = new TemperatureParams(envParams);
 
+		learningParams = new LearningParams(envParams);
+
 		geneticParams = new GeneticParams(envParams);
 
 		NodeList nodes = root.getChildNodes();
