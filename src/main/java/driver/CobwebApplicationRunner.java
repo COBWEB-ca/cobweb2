@@ -57,8 +57,6 @@ public class CobwebApplicationRunner {
 
 	static UIInterface simulation;
 
-	static boolean visible = true;
-
 
 	/**
 	 * The main function is found here for the application version of cobweb.  
@@ -103,6 +101,7 @@ public class CobwebApplicationRunner {
 		String logFileName = "";
 		boolean autostart = false;
 		int finalstep = 0;
+		boolean visible = true;
 
 		if (args.length > 0) {
 			for (int arg_pos = 0; arg_pos < args.length; ++arg_pos){
@@ -149,6 +148,11 @@ public class CobwebApplicationRunner {
 			System.out.println("Invalid settings file value: '" + inputFileName + "' does not exist" );
 			System.exit(1);
 		}
+
+		main(inputFileName, logFileName, autostart, finalstep, visible);
+	}
+
+	public static void main(String inputFileName, String logFileName, boolean autostart, int finalstep, boolean visible) {
 		if (!logFileName.equals("") && new File(logFileName).exists()){
 			System.out.println("WARNING: log '" + logFileName + "' already exists, overwriting it!" );
 		}
@@ -209,7 +213,12 @@ public class CobwebApplicationRunner {
 				throw new RuntimeException("Could not write default configuration file");
 			}
 		} catch (Exception e) {
-			error("Cannot load " + inputFileName + "");
+			String message = "Cannot load " + inputFileName + "";
+			if (visible) {
+				throw new CobwebUserException(message);
+			} else {
+				System.err.println(message);
+			};
 		}
 
 		simulation.load(defaultconf);
@@ -267,14 +276,7 @@ public class CobwebApplicationRunner {
 			}
 
 			simulation.AddTickEventListener(new AutoStopTickListener(finalstep));
-		}
-	}
 
-	private static void error(String string) {
-		if (visible) {
-			throw new CobwebUserException(string);
-		} else {
-			System.err.println(string);
 		}
 	}
 
