@@ -387,7 +387,7 @@ public class GUI extends JFrame {
 
 		removeOldPage(tempPage);
 		tempPage = new TemperatureConfigPage(p.getTempParams());
-		tabbedPane.addTab("Temperature", tempPage.getPanel());
+		tabbedPane.addTab("Abiotic Factor", tempPage.getPanel());
 
 
 		removeOldPage(learnPage);

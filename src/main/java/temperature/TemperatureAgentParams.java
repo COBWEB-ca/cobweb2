@@ -16,14 +16,14 @@ public class TemperatureAgentParams extends AbstractReflectionParams {
 	 * Preferred temperature of the agent type.
 	 */
 	@ConfXMLTag("PreferedTemp")
-	@ConfDisplayName("Preferred temperature")
+	@ConfDisplayName("Preferred value")
 	public float preferedTemp;
 
 	/**
 	 * Temperature range that can be tolerated from the preferred temperature.
 	 */
 	@ConfXMLTag("PreferedTempRange")
-	@ConfDisplayName("Preferred temperature range")
+	@ConfDisplayName("Preferred value range")
 	public float preferedTempRange;
 
 	/**
