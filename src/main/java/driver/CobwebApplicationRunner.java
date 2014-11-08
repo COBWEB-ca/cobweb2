@@ -208,6 +208,9 @@ public class CobwebApplicationRunner {
 		try {
 			defaultconf = new SimulationConfig(inputFileName);
 		} catch (FileNotFoundException ex) {
+			if (!visible) {
+				System.err.println("Input file does not exist, creating it with default settings.");
+			}
 			defaultconf = new SimulationConfig();
 			try {
 				defaultconf.write(new FileOutputStream(inputFileName));
