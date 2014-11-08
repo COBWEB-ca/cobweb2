@@ -13,6 +13,6 @@ public class SimulationTest extends TestCase {
 	 * Runs everything.xml
 	 */
 	public void testExperimentEverythingXml() {
-		CobwebApplicationRunner.main("experiments/everything.xml", "", true, 1000, false);
+		CobwebApplicationRunner.main("src/main/resources/experiments/everything.xml", "", true, 1000, false);
 	}
 }
