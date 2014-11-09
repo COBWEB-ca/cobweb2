@@ -89,7 +89,7 @@ public class GeneticParams extends AbstractReflectionParams {
 
 		/**
 		 * 
-		 * @param f
+		 * @param f field to modify
 		 */
 		public Phenotype(Field f) {
 			if (f != null &&

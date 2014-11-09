@@ -178,9 +178,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	protected long photo_memory[];
 	private int photo_num = 0;
 	protected boolean want2meet = false;
-	boolean cooperate;
 	private long birthTick = 0;
-	protected long age = 0;
 
 	/* Waste variables */
 	private int wasteCounterGain;
@@ -355,11 +353,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	@Override
-	public long birthday() {
-		return birthTick;
-	}
-
 	void broadcastCheating(int cheaterID) { // []SK
 		String message = Long.toString(cheaterID);
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, id, message, energy
@@ -457,7 +450,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	//	}
 
 	void communicate(ComplexAgent target) {
-		target.setCommInbox(commOutbox);
+		target.setCommInbox(getCommOutbox());
 	}
 
 	public void copyConstants(ComplexAgent p) {
@@ -554,8 +547,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public double energyPenalty() {
 		if (!params.agingMode)
 			return 0.0;
-		double tempAge = currTick - birthTick;
-		assert(tempAge == age);
+		double tempAge = getAge();
 		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
 				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
 
@@ -571,7 +563,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	public long getAge() {
-		return age;
+		return currTick - birthTick;
 	}
 
 	@Override
@@ -691,28 +683,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 
 		broadcastCheating(othersID);
-	}
-
-	public long look() {
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
-		// If the position is invalid, then we're looking at a stone...
-		if (destPos == null)
-			return ComplexEnvironment.FLAG_STONE;
-		// Check for stone...
-		if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
-			return ComplexEnvironment.FLAG_STONE;
-		// If there's another agent there, then return that it's a stone...
-		if (destPos.getAgent() != null)
-			return ComplexEnvironment.FLAG_STONE;
-		// If there's food there, return the food...
-		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
-			return ComplexEnvironment.FLAG_FOOD;
-		// waste check
-		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
-			return ComplexEnvironment.FLAG_DROP;
-
-		// Return an empty tile
-		return 0;
 	}
 
 	public Node makeNode(Document doc) {
@@ -975,24 +945,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		this.memoryBuffer = memoryBuffer;
 	}
 
-	/*
-	 * return the measure of similarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
-	 */
-	@Override
-	public double similarity(cobweb.Agent other) {
-		if (!(other instanceof ComplexAgent))
-			return 0.0;
-		return // ((GeneticController) controller)
-		// .similarity((GeneticController) ((ComplexAgent) other)
-		// .getController());
-		((LinearWeightsController) controller).similarity((LinearWeightsController) other.getController());
-	}
-
-	@Override
-	public double similarity(int other) {
-		return 0.5; // ((GeneticController) controller).similarity(other);
-	}
-
 	/**
 	 * During a step, the agent can encounter four different circumstances: 
 	 * 1. Nothing is in its way.  
@@ -1172,7 +1124,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			double sim = 0.0;
 			boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-			&& cobweb.globals.random.nextFloat() < params.sexualBreedChance;
+					&& cobweb.globals.random.nextFloat() < params.sexualBreedChance;
 
 			// Generate genetic similarity number
 			sim = simCalc.similarity(this, adjacentAgent);
@@ -1220,12 +1172,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//update current tick
 		currTick = tick;
 
-		//age the agent
-		age++;
 
 		/* Time to die, Agent (mister) Bond */
 		if (params.agingMode) {
-			if ((currTick - birthTick) >= params.agingLimit) {
+			if ((getAge()) >= params.agingLimit) {
 				die();
 				return;
 			}
@@ -1295,7 +1245,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * produce a child agent after the agent's asexPregnancyPeriod is up.
 	 */
 	void tryAsexBreed() {
-		if (asexFlag && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
+		if (isAsexFlag() && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
 				&& cobweb.globals.random.nextFloat() < params.asexualBreedChance) {
 			pregPeriod = params.asexPregnancyPeriod;
 			pregnant = true;

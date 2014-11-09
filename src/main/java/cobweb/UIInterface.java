@@ -152,9 +152,9 @@ public interface UIInterface {
 	/**
 	 * This is currently being overwritten by the LocalUIInterface.
 	 * 
-	 * @see LocalUIInterface#insertPopulation(String, String)
+	 * @see LocalUIInterface#insertPopulation(String, boolean)
 	 */
-	public boolean insertPopulation(String popName, String option);
+	public void insertPopulation(String popName, boolean replace);
 
 	public boolean isRunnable();
 

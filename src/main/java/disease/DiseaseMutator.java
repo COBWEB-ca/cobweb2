@@ -53,7 +53,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, cobweb.Tick
 	}
 
 	/**
-	 * DiseaseMutator is an instance of Contanct and Spawn Mutators
+	 * DiseaseMutator is an instance of Contact and Spawn Mutators
 	 */
 	public DiseaseMutator() {
 		sickCount = new int[0];

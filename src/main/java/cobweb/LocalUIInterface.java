@@ -552,12 +552,11 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * @see Environment#insertPopulation(String, String)
+	 * @see Environment#insertPopulation(String, boolean)
 	 */
 	@Override
-	public boolean insertPopulation(String fileName, String option) {
-
-		return theEnvironment.insertPopulation(fileName, option);
+	public void insertPopulation(String fileName, boolean replace) {
+		theEnvironment.insertPopulation(fileName, replace);
 	}
 
 	public boolean isRunnable() {

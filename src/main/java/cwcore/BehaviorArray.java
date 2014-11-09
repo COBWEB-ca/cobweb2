@@ -35,49 +35,6 @@ import cobweb.RandomNoGenerator;
 
 public class BehaviorArray {
 
-	/**
-	 * The following is obsolete code included here because they use techniques that might* be preferable to the current
-	 * ones in use.
-	 *
-	 * The old version of copy mutated the output bit group as a whole and did not do it on the basis of the functional
-	 * bit sub-groups.
-	 *
-	 * Like copy, similarity examined the whole output bit group for equality instead of the sub-groups.
-	 *
-	 * Below that is the old coloring algorithm might be interesting to look at. It is a fairly simple algorithm, made
-	 * complex only because of the care it takes in dealing with floating-point precision limitations.
-	 */
-
-	/*
-	 * public BehaviorArray copy(float mutationRate) { BehaviorArray newArray = new BehaviorArray( inputSize, outputSize
-	 * ); for( int i = 0; i < size; ++i ) { if( cobweb.globals.random.nextFloat() <= mutationRate ) { newArray.set(i,
-	 * cobweb.globals.random.nextBits(outputBits)); } else newArray.set(i, get(i) ); } return newArray; }
-	 */
-	/*
-	 * public double similarity( BehaviorArray other ) { double total = 0; for( int i = 0; i < size; ++i ) { if( get(i)
-	 * == other.get(i) ) total += 1.0; } return total/(double)size; }
-	 */
-	/*
-	 * private static cobweb.ColorLookup colorMap = new cobweb.RbgInterpol(); private static final int addLim = 16;
-	 * private float[] generateColor( int numComponents, int start, int end ) { int amount = end-start; float addArray[]
-	 * = new float[numComponents]; if( amount <= addLim ) { float compArray[] = new float[numComponents]; for( int i =
-	 * start; i < end; ++i ) { if( getBit(i) ) { colorMap.getColor(i,totalBits+1).getColorComponents( compArray ); for(
-	 * int j = 0; j < numComponents; ++j ) { addArray[j] += compArray[j]; } } } for( int i = 0; i < numComponents; ++i )
-	 * { addArray[i] /= amount; } } else { int numjump = (amount+addLim-1)/addLim; int jumpsize = amount/numjump; for(
-	 * int i = start; i < end; i+=jumpsize ) { float getArray[] = generateColor( numComponents, i, i+jumpsize ); for(
-	 * int j = 0; j < numComponents; ++j ) { addArray[j] += getArray[j]; } } if( amount%numjump != 0 ) { float
-	 * getArray[] = generateColor( numComponents, end-jumpsize,end ); for( int j = 0; j < numComponents; ++j ) {
-	 * addArray[j] += getArray[j]; } } for( int i = 0; i < numComponents; ++i ) { addArray[i] /= numjump; } } return
-	 * addArray; } public java.awt.Color getColor() { //System.out.println(colorMap.getSpace().getNumComponents());
-	 * float A[] = generateColor( colorMap.getSpace().getNumComponents(), 0, totalBits ); return new java.awt.Color(
-	 * colorMap.getSpace(), A, 1.0f ).brighter().brighter(); }
-	 */
-
-	/*
-	 * public java.awt.Color getColor() { float A[] = generateColor( 3, 0, totalBits ); return new java.awt.Color(
-	 * A[0]2.0f, A[1]2.0f, A[2]2.0f ); //return new java.awt.Color( A[0], A[1], A[2]).brighter().brighter(); }
-	 */
-
 	private final int[] outputSize;
 
 	private final int inputSize;
@@ -179,14 +136,7 @@ public class BehaviorArray {
 			BitField outputCode = new BitField();
 
 			for (int j = outputSize.length - 1; j >= 0; --j) {
-				/***************************************************************
-				 * *****This used to make the mutation based on behaviour array if( cobweb.globals.random.nextFloat() <=
-				 * mutationRate ) { outputCode.add( cobweb.globals.random.nextBits( outputSize[j] ), outputSize[j] ); }
-				 * else { outputCode.add( get[j], outputSize[j] ); }
-				 */
 
-
-				/* Replaces the above commented-out codes from above */
 				outputCode.add(get[j], outputSize[j]);
 
 			}

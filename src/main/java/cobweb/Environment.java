@@ -238,14 +238,6 @@ public abstract class Environment {
 			return Environment.this;
 		}
 
-		/**
-		 * Get the value of the field associated with the constant field in this
-		 * location. The valid values for field are implementation defined.
-		 */
-		public int getField(int field) {
-			return Environment.this.getField(this, field);
-		}
-
 		// Support for containers...
 		@Override
 		public int hashCode() {
@@ -304,14 +296,6 @@ public abstract class Environment {
 		 */
 		public void setAgent(Agent a) {
 			Environment.this.setAgent(this, a);
-		}
-
-		/**
-		 * Set the value of the field associated with the constant field in this
-		 * location. The valid values for field are implementation defined.
-		 */
-		public void setField(int field, int value) {
-			Environment.this.setField(this, field, value);
 		}
 
 		/**
@@ -377,7 +361,6 @@ public abstract class Environment {
 	 * are many more locations than agents.
 	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
-	protected java.util.Hashtable<Location, Agent> samplePop = new Hashtable<Location, Agent>();
 
 	private static DrawingHandler myUI;
 
@@ -487,11 +470,6 @@ public abstract class Environment {
 
 	}
 
-	/**
-	 * Core implementation of getField; this is what could be accelerated in C++
-	 */
-	protected abstract int getField(Location l, int field);
-
 	// Syntactic sugar for common cases
 	public Location getLocation(int x, int y) {
 
@@ -542,9 +520,9 @@ public abstract class Environment {
 	/**
 	 * This is currently being overwritten by the ComplexEnvironment class.
 	 * 
-	 * @see cwcore.ComplexEnvironment#insertPopulation(String, String)
+	 * @see cwcore.ComplexEnvironment#insertPopulation(String, boolean)
 	 */
-	public abstract boolean insertPopulation(String fileName, String option);
+	public abstract void insertPopulation(String fileName, boolean replace);
 
 	/**
 	 * Load environment from parameters
@@ -681,11 +659,6 @@ public abstract class Environment {
 		else
 			agentTable.remove(l);
 	}
-
-	/**
-	 * Core implementation of setField; this is what could be accelerated in C++
-	 */
-	protected abstract void setField(Location l, int field, int value);
 
 	/** Core implementation of setFlag; this is what could be accelerated in C++ */
 	protected abstract void setFlag(Location l, int flag, boolean state);

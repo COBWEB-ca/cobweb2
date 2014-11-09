@@ -10,8 +10,6 @@ import cwcore.complexParams.ComplexFoodParams;
 
 public class ResourceConfigPage implements ConfigPage {
 
-	private static final long serialVersionUID = 1391255332697010706L;
-
 	private MixedValueJTable resourceParamTable;
 
 	JPanel myPanel = new JPanel();

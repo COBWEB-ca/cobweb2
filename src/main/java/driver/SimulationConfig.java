@@ -143,7 +143,6 @@ public class SimulationConfig {
 	 * Constructor that allows input from a file to configure the simulation parameters.
 	 * 
 	 * @param fileName Name of the file used for simulation configuration.
-	 * @throws FileNotFoundException
 	 * @see SimulationConfig#loadFile(InputStream)
 	 */
 	public SimulationConfig(String fileName) throws FileNotFoundException {
@@ -159,9 +158,6 @@ public class SimulationConfig {
 		return agentParams;
 	}
 
-	/*xxxpublic LearningAgentParams[] getLearningAgentParams() {
-		return learningAgentParams;
-	}*/
 	public ProductionParams[] getProdParams() {
 		return prodParams;
 	}

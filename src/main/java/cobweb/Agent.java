@@ -14,6 +14,12 @@ public abstract class Agent {
 
 	private boolean alive = true;
 
+	protected Agent() {
+		id = makeID();
+	}
+
+	protected long id;
+
 	private static long nextID = 1;
 
 	private static long makeID() {
@@ -27,19 +33,13 @@ public abstract class Agent {
 		nextID = 1;
 	}
 
-	protected Environment.Location position;
-
-	protected Controller controller;
-
-	protected long id;
-
 	public long getID() {
 		return id;
 	}
 
-	protected Agent() {
-		id = makeID();
-	}
+	protected Environment.Location position;
+
+	protected Controller controller;
 
 	protected void init(Controller ai) {
 		controller = ai;
@@ -47,12 +47,7 @@ public abstract class Agent {
 		// nothing for both simple and
 		// complex implementations of
 		// controller
-	}	
-
-	public long birthday() {
-		return 0L;
 	}
-
 
 	@Override
 	public Object clone() {
@@ -117,15 +112,7 @@ public abstract class Agent {
 	}
 
 
-
-
 	public abstract void setColor(java.awt.Color c);
-
-	public abstract double similarity(Agent other);
-
-
-	public abstract double similarity(int other);
-
 
 	public int type() {
 		return -1;

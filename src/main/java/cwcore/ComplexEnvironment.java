@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -329,11 +330,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	/*
-	 * Remove components from the environment mode 0 : remove all the components
-	 * mode -1: remove stones mode -2: remove food mode -3: remove agents mode
-	 * -4: remove waste
-	 */
 	@Override
 	public synchronized void clearFood() {
 		super.clearFood();
@@ -558,12 +554,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	// Ignored; this model has no fields
-	@Override
-	protected int getField(cobweb.Environment.Location l, int field) {
-		return 0;
-	}
-
 	public int getInfoNum() {
 		return agentInfoVector.size();
 	}
@@ -709,15 +699,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	/**
 	 * TODO: Check if this works, possibly rewrite
-	 * @param fileName 
-	 * @param option
-	 * @return 
+	 * @param fileName path to population file
+	 * @param replace delete current population before inserting
 	 */
 	@Override
-	public boolean insertPopulation(String fileName, String option) {
+	public void insertPopulation(String fileName, boolean replace) {
 
 
-		if (option.equals("replace")) {
+		if (replace) {
 			clearAgents();
 		}
 
@@ -807,9 +796,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			cAgent.pdCheater = pdCheater;
 			agentTable.put(loc, cAgent);
 		}
-
-
-		return true;
 	}
 
 	/**
@@ -1243,37 +1229,14 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		agentInfoVector = new Vector<ComplexAgentInfo>();
 	}
 
-	/*
-	 * save copies all current parsable parameters, and their values, to the
-	 * specified writer
-	 */
 	@Override
-	public void save(java.io.Writer w) {
-		/*
-		 * java.io.PrintWriter pw = new java.io.PrintWriter(w);
-		 * pw.println(this.getClass().getName() + " " + data.agentTypeCount);
-		 * pw.println(""); int[] indices = new int[512]; int length =
-		 * parseData.size(); String[] names = new String[length]; Object[]
-		 * saveArray = new Object[length]; java.util.Enumeration<String>
-		 * nameList = parseData.keys(); java.util.Enumeration<Object> saveList =
-		 * parseData.elements(); for (int i = 0; saveList.hasMoreElements() &&
-		 * nameList.hasMoreElements(); ++i) { names[i] = nameList.nextElement();
-		 * saveArray[i] = java.lang.reflect.Array.get(saveList.nextElement(),
-		 * 0); } try { cobweb.parseClass.parseSave(pw, saveArray, names,
-		 * indices, 0); } catch (java.io.IOException e) { // throw new
-		 * java.io.IOException(); } pw.println(this.getClass().getName() +
-		 * ".End"); pw.println(""); pw.flush();
-		 */
+	public void save(Writer w) {
+		throw new UnsupportedOperationException();
 	}
 
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
 		ComplexAgent.setDefaultMutableParams(agentData, prodData);
-	}
-
-	@Override
-	protected void setField(cobweb.Environment.Location l, int field, int value) {
-		// Nothing
 	}
 
 	/**
@@ -1326,11 +1289,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		array.setLocationBits(l, bits);
 	}
 
-	/* $$$$$$ Set the current tick number, tickCount (long). Apr 19 */
-	public void setTickCount(long tick) {
-		tickCount = tick;
-	}
-
 	@Override
 	protected boolean testFlag(cobweb.Environment.Location l, int flag) {
 		switch (flag) {
@@ -1353,7 +1311,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * depletion, food growth, and random food-"dropping".
 	 */
 	public void tickNotification(long tick) {
-		++tickCount;
+		tickCount = tick;
 
 		commManager.decrementPersistence();
 		commManager.unblockBroadcast();
@@ -1439,7 +1397,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
 
-		setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick.
 		// Apr 19
 		// For this tick: print FoodCount, AgentCount, Average Agent Energy
 		// and Agent Energy for EACH AGENT TYPE

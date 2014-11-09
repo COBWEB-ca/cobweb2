@@ -38,8 +38,6 @@ public class GeneticController implements cobweb.Controller, Serializable{
 
 	private GeneticControllerParams params;
 
-	private int type;
-
 	public GeneticController() {
 		// Nothing
 	}

@@ -31,13 +31,6 @@ import driver.SpringUtilities;
  */
 public class EnvironmentConfigPage implements ConfigPage {
 
-
-
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 7042537975378723377L;
-
 	public BoundJFormattedTextField Width;
 	public BoundJFormattedTextField Height;
 	public BoundCheckBox wrap;
