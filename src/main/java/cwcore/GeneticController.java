@@ -203,8 +203,4 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		return ga.similarity(other);
 	}
 
-	public GeneticController splice(GeneticController other) {
-		return new GeneticController(ga.splice(other.ga), memorySize);
-	}
-
 }
