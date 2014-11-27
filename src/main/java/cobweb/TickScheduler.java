@@ -86,7 +86,7 @@ public class TickScheduler implements Scheduler {
 	 * instead reflection should be used inside the implementation of
 	 * UIInterface; look at the LocalUIInterface for an implementation example.
 	 */
-	public TickScheduler(UIInterface ui, SimulationConfig p) {
+	public TickScheduler(UIInterface ui, SimulationConfig p) { // NO_UCD. Created with reflection
 		myThread = new Thread(new SchedulerRunnable());
 		myThread.setName("cobweb.TickScheduler");
 		loadScheduler(ui, p);

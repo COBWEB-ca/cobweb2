@@ -68,8 +68,6 @@ public interface Scheduler {
 	/** Resume the simulation from a paused state. */
 	void resumeScheduler();
 
-	void saveScheduler(java.io.Writer w);
-
 	/**
 	 * Set the frame skip setting on the simulation.
 	 * 

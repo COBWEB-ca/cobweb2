@@ -22,11 +22,11 @@ public abstract class SettingsPanel extends JPanel  {
 		super(isDoubleBuffered);
 	}
 
-	public SettingsPanel(LayoutManager layout, boolean isDoubleBuffered) {
+	public SettingsPanel(LayoutManager layout, boolean isDoubleBuffered) { // NO_UCD - may be used in the future
 		super(layout, isDoubleBuffered);
 	}
 
-	public SettingsPanel(LayoutManager layout) {
+	public SettingsPanel(LayoutManager layout) { // NO_UCD - may be used in the future
 		super(layout);
 	}
 

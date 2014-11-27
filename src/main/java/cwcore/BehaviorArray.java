@@ -167,10 +167,6 @@ public class BehaviorArray {
 		return (int) ((buff >>> basemod) & totalOutMask);
 	}
 
-	public boolean getBit(int number) {
-		return (array[number >> 5] & (1 << (number & 31))) != 0;
-	}
-
 	/**
 	 * @return an array filled with the different outputs associated with the element number given as a parameter
 	 */
@@ -271,13 +267,6 @@ public class BehaviorArray {
 			}
 		}
 		return total / (size * outputBits);
-	}
-
-	/**
-	 * @return the size of the behavior array in elements (should always be 1<<inputbits)
-	 */
-	public int size() {
-		return size;
 	}
 
 	/**

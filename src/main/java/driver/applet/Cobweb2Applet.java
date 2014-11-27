@@ -24,7 +24,7 @@ import driver.SimulatorUI;
 /**
  * Applet version of COBWEB2
  */
-public class Cobweb2Applet extends JApplet {
+public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from labeling as unused class
 
 	private class ExpSelectorListener implements ActionListener {
 

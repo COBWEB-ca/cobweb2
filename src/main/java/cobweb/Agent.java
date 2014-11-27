@@ -29,10 +29,6 @@ public abstract class Agent {
 		return nextID++;
 	}
 
-	public static void resetIDSequence() {
-		nextID = 1;
-	}
-
 	public long getID() {
 		return id;
 	}

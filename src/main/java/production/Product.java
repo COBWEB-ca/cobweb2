@@ -31,11 +31,6 @@ public class Product implements Drop {
 		return true;
 	}
 
-	@Override
-	public void reset(long time, int weight, float rate) {
-
-	}
-
 	public void setValue(float value) {
 		this.value = value;
 	}

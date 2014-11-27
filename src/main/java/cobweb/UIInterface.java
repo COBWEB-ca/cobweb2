@@ -213,14 +213,6 @@ public interface UIInterface {
 	 */
 	public void resume();
 
-	/**
-	 * Request that the state of the simulation be saved. Dumps the state of the
-	 * simulation into the file specified. The timing of this is a little
-	 * tricky; the call blocks until such time as the simulation can safely be
-	 * saved.
-	 */
-	public void save(String filePath) throws IOException;
-
 	public boolean saveCurrentPopulation(String popName, String option, int amount);
 
 	/**
@@ -261,8 +253,6 @@ public interface UIInterface {
 	 * Called by the Scheduler when it is appropriate to update the log
 	 */
 	public void writeLogEntry();
-
-	public void writeOutput(String s);
 
 	public EnvironmentStats getStatistics();
 

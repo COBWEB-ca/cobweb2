@@ -45,12 +45,6 @@ public class EnvironmentConfigPage implements ConfigPage {
 	public JCheckBox LearningAgents;
 	public BoundJFormattedTextField randomSeed;
 	public BoundJFormattedTextField initialStones;
-	public BoundJFormattedTextField memory_size;
-	public BoundCheckBox flexibility;
-	public BoundJFormattedTextField numColor;
-	public BoundJFormattedTextField colorSelectSize;
-	public BoundJFormattedTextField reColorTimeStep;
-	public BoundJFormattedTextField colorizerMode;
 	public BoundJFormattedTextField maxFoodChance;
 
 	JPanel thePanel;

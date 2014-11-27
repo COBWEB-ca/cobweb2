@@ -15,10 +15,6 @@ public abstract class SmartAction implements Queueable {
 		this(agent, "default");
 	}
 
-	public SmartAction(ComplexAgentLearning agent, Object obj) {
-		this(agent, obj.getClass().getName());
-	}
-
 	/**
 	 * Create a new action with no information other than a description
 	 * 

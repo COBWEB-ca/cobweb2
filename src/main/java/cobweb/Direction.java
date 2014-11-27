@@ -36,20 +36,6 @@ public class Direction {
 		return builder.toString();
 	}
 
-	/**
-	 * Return a random cardinal direction.
-	 * @return A random cardinal direction.
-	 */
-	public static Direction getRandom() {
-		//we get 0, 1/2, 1, 1.5
-		double random = Math.floor(Math.random() * 4) / 2;
-
-		int x = (int) Math.cos(Math.PI * random);
-		int y = (int) Math.sin(Math.PI * random);
-
-		return new Direction(x, y);
-	}
-
 	public Direction(Direction dir) {
 		v = dir.v.clone();
 	}
@@ -73,32 +59,6 @@ public class Direction {
 	 */
 	public final double angle() {
 		return Math.atan2(v[1], v[0]);
-	}
-
-	/**
-	 * Returns this direction, rotated 90 degrees to the left.
-	 * @return The direction if the current direction was rotated to the left.
-	 */
-	public Direction rotateLeft() {
-		double newAngle = this.angle() + (Math.PI  / 2);
-
-		double x = Math.round(Math.cos(newAngle));
-		double y = Math.round(Math.sin(newAngle));
-
-		return new Direction((int) x, (int) y);
-	}
-
-	/**
-	 * Returns this direction, rotated 90 degrees to the right.
-	 * @return The direction if the current direction was rotated to the right.
-	 */
-	public Direction rotateRight() {
-		double newAngle = this.angle() - (Math.PI / 2);
-
-		double x = Math.round(Math.cos(newAngle));
-		double y = Math.round(Math.sin(newAngle));
-
-		return new Direction((int) x, (int) y);
 	}
 
 	/**

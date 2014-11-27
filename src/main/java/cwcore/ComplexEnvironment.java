@@ -1,7 +1,5 @@
 package cwcore;
 
-import ga.GATracker;
-
 import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -59,8 +57,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public static interface Drop {
 		public abstract boolean isActive(long val);
 
-		public abstract void reset(long time, int weight, float rate);
-
 		public Color getColor();
 
 		public boolean canStep();
@@ -116,17 +112,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 
 		@Override
-		public void reset(long newBirthTick, int weight, float newRate) {
-			initialWeight = weight;
-			this.birthTick = newBirthTick;
-			this.rate = newRate;
-			// to avoid recalculating every tick
-			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
-			// skinawy
-			valid = true;
-		}
-
-		@Override
 		public Color getColor() {
 			return wasteColor;
 		}
@@ -156,9 +141,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public static final int FLAG_AGENT = 3;
 
 	public static final int FLAG_DROP = 4;
-
-	public static final int INIT_LAST_MOVE = 0; // Initial last move set to
-	// cooperate
 
 	public int PD_PAYOFF_REWARD;
 
@@ -203,8 +185,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public int getFoodType(cobweb.Environment.Location l) {
 		return foodarray[l.v[0]][l.v[1]];
 	}
-
-	GATracker gaTracker;
 
 	private java.io.PrintWriter logStream;
 
@@ -1012,7 +992,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	private void loadNewWaste() {
 		dropArray = new Drop[data.width][data.height];
-		prodMapper = new ProductionMapper(data.width * data.height, this);
+		prodMapper = new ProductionMapper(this);
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				getLocation(x, y).setFlag(FLAG_DROP, false);
@@ -1227,11 +1207,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	public void resetAgentInfo() {
 		agentInfoVector = new Vector<ComplexAgentInfo>();
-	}
-
-	@Override
-	public void save(Writer w) {
-		throw new UnsupportedOperationException();
 	}
 
 	/** Sets the default mutable variables of each agent type. */

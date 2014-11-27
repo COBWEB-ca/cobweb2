@@ -214,18 +214,6 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Similar to the other getAdjacent call, but this is a single-axis
-		 * version
-		 */
-		public Location getAdjacent(int axis, int delta) {
-			if (v.length <= axis)
-				return null;
-			int[] deltaV = new int[v.length];
-			deltaV[axis] = delta;
-			return getAdjacent(new Direction(deltaV));
-		}
-
-		/**
 		 * Get the agent at this location. A location may only contain a single
 		 * agent.
 		 */
@@ -335,8 +323,6 @@ public abstract class Environment {
 
 	public static final int AXIS_Y = 1;
 
-	public static final int AXIS_Z = 2;
-
 	// Some predefined directions for 2D
 	public static final Direction DIRECTION_NORTH = new Direction(new int[] { 0, -1 });
 
@@ -361,16 +347,6 @@ public abstract class Environment {
 	 * are many more locations than agents.
 	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
-
-	private static DrawingHandler myUI;
-
-	public static DrawingHandler getUIPipe() {
-		return myUI;
-	}
-
-	public static void setUIPipe(DrawingHandler ui) {
-		myUI = ui;
-	}
 
 	private Color[] tileColors;
 
@@ -404,11 +380,6 @@ public abstract class Environment {
 	 */
 	public void addStone(int x, int y) {
 		// Nothing
-	}
-
-	/** Returns an Enumeration of Agents */
-	public java.util.Enumeration<Agent> agents() {
-		return agentTable.elements();
 	}
 
 	public void clearAgents() {
@@ -575,9 +546,6 @@ public abstract class Environment {
 
 	/** Report to a stream */
 	public abstract void report(java.io.Writer w);
-
-	/** Save to a stream */
-	public abstract void save(java.io.Writer w);
 
 	/** Save a sample population as an XML file */
 	public boolean savePopulation(String popName, String option, int amount) {

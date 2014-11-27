@@ -69,8 +69,6 @@ class MixedValueJTable extends JTable {
 
 	private static final long serialVersionUID = -9106510371599896107L;
 
-	CobwebSelectionEditor myEditor = new CobwebSelectionEditor(new JComboBox());
-
 	public MixedValueJTable() {
 		super();
 		this.getTableHeader().setReorderingAllowed(false);

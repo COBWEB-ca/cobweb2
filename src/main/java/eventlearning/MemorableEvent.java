@@ -7,10 +7,6 @@ public class MemorableEvent implements Describeable {
 	private final float magnitude;
 	String desc;
 
-	public MemorableEvent(long time, float magnitude) {
-		this(time, magnitude, null);
-	}
-
 	public MemorableEvent(long time, float magnitude, String desc) {
 		if (desc == null) {
 			desc = getClass().getName();
