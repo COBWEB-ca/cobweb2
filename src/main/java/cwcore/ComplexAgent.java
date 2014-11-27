@@ -14,7 +14,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import production.Product;
 import cobweb.ColorLookup;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
@@ -1400,8 +1399,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	private void tryProduction() {
 		if (shouldProduce()) {
+			// TODO: find a more clean way to create and assign product
 			// Healthy agents produce high-value products, and vice-versa
-			Product p = environment.prodMapper.createProduct((float) energy / (float) params.initEnergy, this);
+			environment.prodMapper.createProduct((float) energy / (float) params.initEnergy, this);
 
 			if (position.testFlag(ComplexEnvironment.FLAG_FOOD)) {
 				position.setFlag(ComplexEnvironment.FLAG_FOOD, false);

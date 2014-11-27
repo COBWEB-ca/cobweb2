@@ -65,31 +65,6 @@ public class ComplexAgentInfo {
 		eatenAgentsofType = new int[agentTypes];
 	}
 
-	/* emulating C's printf() fcn */
-	private static String paddMe(int i, int pad) {
-		String tmp = i + "";
-		return paddMe(tmp, pad);
-	}
-
-	private static String paddMe(long i, int pad) {
-		String tmp = i + "";
-		return paddMe(tmp, pad);
-	}
-
-	private static String paddMe(String s, int pad) {
-		return paddMe(s, pad, ' ');
-	}
-
-	/* Allows custom padding. */
-	private static String paddMe(String s, int pad, char cpad) {
-		String ret = "";
-		for (; pad >= s.length(); pad--) {
-			ret += cpad;
-		}
-		ret += s;
-		return ret;
-	}
-
 	public static void resetGroupData() {
 		for (int i = 0; i < typesCount; i++) {
 			energies[i] = 0;

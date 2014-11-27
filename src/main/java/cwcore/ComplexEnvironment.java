@@ -1372,9 +1372,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
 
-		// Apr 19
-		// For this tick: print FoodCount, AgentCount, Average Agent Energy
-		// and Agent Energy for EACH AGENT TYPE
 		for (int i = 0; i < data.getAgentTypes(); i++) {
 
 			long agentCount = countAgents(i);
@@ -1396,7 +1393,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			if (agentCount != 0)
 				logStream.print(z.format(((float) agentEnergy) / agentCount));
 			else
-				logStream.print("00.000");
+				logStream.print("0.000");
 			logStream.print('\t');
 			logStream.print(agentEnergy);
 			logStream.print('\t');

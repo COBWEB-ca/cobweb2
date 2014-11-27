@@ -1,6 +1,7 @@
 package cwcore.broadcast;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import cobweb.Environment.Location;
@@ -29,34 +30,13 @@ public class PacketConduit {
 	// with every time step, the persistence of the packets should be
 	// decremented
 	public void decrementPersistence() {
-		int pValue;
-		for (int i = 0; i < currentPackets.size(); i++) {
-			pValue = --currentPackets.get(i).persistence;
-			if (pValue <= 0)
-				removePacketfromList(currentPackets.get(i));
+		Iterator<BroadcastPacket> i = currentPackets.iterator();
+		while (i.hasNext()) {
+			BroadcastPacket packet = i.next();
+			int persistence = packet.persistence--;
+			if (persistence <= 0)
+				i.remove();
 		}
-	}
-
-	/**
-	 * returns the packet with the specified ID
-	 * 
-	 * @return CommPacket
-	 */
-	public BroadcastPacket getPacket(int packetId) {
-		int i = 0;
-		while (packetId != (currentPackets.get(i)).packetId & i < currentPackets.size()) {
-			i++;
-		}
-		return currentPackets.get(i);
-	}
-
-	/**
-	 * removes packets from the list of packets
-	 * 
-	 * @param packet packet to remove
-	 */
-	public void removePacketfromList(BroadcastPacket packet /* int packetId */) {
-		currentPackets.remove(/* getPacket(packetId) */packet);
 	}
 
 	public void unblockBroadcast() {

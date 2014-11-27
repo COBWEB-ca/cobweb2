@@ -168,19 +168,6 @@ public class TickScheduler implements Scheduler {
 		notifyAll();
 	}
 
-	// Saving. // $$$$$ Used to be invoked from this chain: the now silenced
-	// method CobwebApplication.saveFile =>
-	// LocalUIInterface.save
-	public synchronized void saveScheduler(java.io.Writer w) {
-		java.io.PrintWriter pw = new java.io.PrintWriter(w);
-		pw.println(this.getClass().getName());
-
-		pw.println("TickCount " + tickCount);
-
-		pw.println(this.getClass().getName() + ".End");
-		pw.flush();
-	}
-
 	public void setSchedulerFrameSkip(long fs) {
 		frameSkip = fs;
 	}
