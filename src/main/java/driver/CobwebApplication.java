@@ -752,6 +752,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	public void openFileDialog() {
 		FileDialog theDialog = new FileDialog(GUI.frame, // $$$$$$ modified from "this". Feb 29
 				"Open a State File", FileDialog.LOAD);
+		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
 		String directory = theDialog.getDirectory();
 		String file = theDialog.getFile();
@@ -942,6 +943,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	public void saveFileDialog() {
 		FileDialog theDialog = new FileDialog(GUI.frame, // $$$$$$ modified from "this". Feb 29
 				"Choose a file to save state to", FileDialog.SAVE);
+		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
 		// String savingFileName = "";
 		if (theDialog.getFile() != null) {
@@ -1002,6 +1004,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if ((df.exists() == false) || (df.canWrite() == true)) {
 			FileDialog setDialog = new FileDialog(GUI.frame, // $$$$$$ modified from "this". Feb 29
 					"Set Default Data", FileDialog.LOAD);
+			setDialog.setFile("*.xml");
 			setDialog.setVisible(true);
 
 			// $$$$$$ The following codes modified on Feb 22
@@ -1312,6 +1315,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				//Select the XML file
 				FileDialog theDialog = new FileDialog(GUI.frame, 
 						"Choose a file to load", FileDialog.LOAD);
+				theDialog.setFile("*.xml");
 				theDialog.setVisible(true);
 				if (theDialog.getFile() != null) {
 					//Load the XML file
@@ -1528,6 +1532,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 					// Open file dialog box
 					FileDialog theDialog = new FileDialog(GUI.frame, 
 							"Choose a file to save state to", FileDialog.SAVE);
+					theDialog.setFile("*.xml");
 					theDialog.setVisible(true);
 					if (theDialog.getFile() != null) {
 

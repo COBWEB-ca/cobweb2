@@ -278,6 +278,7 @@ public class GUI extends JFrame {
 	// $$$$$$ This openFileDialog method is invoked by pressing the "Save" button
 	public void openFileDialog() {
 		FileDialog theDialog = new FileDialog(frame, "Choose a file to save state to", java.awt.FileDialog.SAVE);
+		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
 			// $$$$$$ Check if the saving filename is one of the names reserved by CobwebApplication. Feb 8
