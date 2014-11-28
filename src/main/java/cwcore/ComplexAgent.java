@@ -805,6 +805,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @see ComplexAgent#playPD()
 	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
 	 */
+	@SuppressWarnings("javadoc")
 	public void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
 		if (!environment.isPDenabled())
 			return;
@@ -812,45 +813,38 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		playPD();
 		adjacentAgent.playPD();
 
-		lastPDcheated = adjacentAgent.pdCheater; // Adjacent Agent's action is assigned to the last move memory of the
-		// agent
-		adjacentAgent.lastPDcheated = pdCheater; // Agent's action is assigned to the last move memory of the adjacent
-		// agent
+		// Save result for future strategy (tit-for-tat, learning, etc.)
+		lastPDcheated = adjacentAgent.pdCheater;
+		adjacentAgent.lastPDcheated = pdCheater;
 
 		/*
 		 * TODO LOW: The ability for the PD game to contend for the Get the food tiles immediately around each agents
 		 */
 
-		/* 0 = cooperate. 1 = defect */
-
-		final boolean PD_COOPERATE = false;
-		final boolean PD_DEFECT = true;
-
-		if (pdCheater == PD_COOPERATE && adjacentAgent.pdCheater == PD_COOPERATE) {
-			/* REWARD */
+		if (!pdCheater && !adjacentAgent.pdCheater) {
+			/* Both cooperate */
 			energy += environment.PD_PAYOFF_REWARD;
 			adjacentAgent.energy += environment.PD_PAYOFF_REWARD;
 
-		} else if (pdCheater == PD_COOPERATE && adjacentAgent.pdCheater == PD_DEFECT) {
-			/* SUCKER */
+		} else if (!pdCheater && adjacentAgent.pdCheater) {
+			/* Only other agent cheats */
 			energy += environment.PD_PAYOFF_SUCKER;
 			adjacentAgent.energy += environment.PD_PAYOFF_TEMPTATION;
 
-			iveBeenCheated(othersID);
-
-		} else if (pdCheater == PD_DEFECT && adjacentAgent.pdCheater == PD_COOPERATE) {
-			/* TEMPTATION */
+		} else if (pdCheater && !adjacentAgent.pdCheater) {
+			/* Only this agent cheats */
 			energy += environment.PD_PAYOFF_TEMPTATION;
 			adjacentAgent.energy += environment.PD_PAYOFF_SUCKER;
 
-		} else if (pdCheater == PD_DEFECT && adjacentAgent.pdCheater == PD_DEFECT) {
-			/* PUNISHMENT */
+		} else if (pdCheater && adjacentAgent.pdCheater) {
+			/* Both cheat */
 			energy += environment.PD_PAYOFF_PUNISHMENT;
-			adjacentAgent.energy += environment.PD_PAYOFF_PUNISHMENT; // $$$$$$
+			adjacentAgent.energy += environment.PD_PAYOFF_PUNISHMENT;
 
-			iveBeenCheated(othersID);
 		}
 
+		if (adjacentAgent.pdCheater)
+			iveBeenCheated(othersID);
 	}
 
 	void receiveBroadcast() {

@@ -2,9 +2,6 @@ package cwcore;
 
 import java.awt.Color;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Writer;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,13 +12,11 @@ import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import production.ProductionMapper;
 import cobweb.Agent;
@@ -684,97 +679,82 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	@Override
 	public void insertPopulation(String fileName, boolean replace) {
-
-
 		if (replace) {
 			clearAgents();
 		}
 
-		//Load XML file
-		FileInputStream file;
 		try {
-			file = new FileInputStream(fileName);
-		} catch (FileNotFoundException ex) {
-			throw new RuntimeException(ex);
-		}
+			FileInputStream file = new FileInputStream(fileName);
 
-		// DOM initialization
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setIgnoringElementContentWhitespace(true);
-		factory.setIgnoringComments(true);
-		// factory.setValidating(true);
+			// DOM initialization
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setIgnoringElementContentWhitespace(true);
+			factory.setIgnoringComments(true);
+			// factory.setValidating(true);
 
-		Document document;
-		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			document = builder.parse(file);
-		} catch (SAXException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (ParserConfigurationException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (IOException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		}
+			Document document = builder.parse(file);
+
+			NodeList agents = document.getElementsByTagName("Agent");
+
+			for (int i = 0 ; i < agents.getLength(); i++){
+				ComplexAgentParams params = new ComplexAgentParams(data);
+				ProductionParams prodParams = new ProductionParams();
+
+				Node agent = agents.item(i);
+				Element element = (Element) agent;
+
+				NodeList paramsElement = element.getElementsByTagName("params");
+				Element paramNode = (Element) paramsElement.item(0);
 
 
-		NodeList agents = document.getElementsByTagName("Agent");
+				//NodeList prodParamsElement = element.getElementsByTagName("prodParams");
+				//Element prodParamNode = (Element) prodParamsElement.item(0);
+
+				NodeList agentTypeElement = element.getElementsByTagName("agentType");
+				NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
+
+				NodeList directionElement = element.getElementsByTagName("direction");
+				Element direction = (Element) directionElement.item(0);
+				NodeList coordinates = direction.getElementsByTagName("coordinate");
+
+				NodeList locationElement = element.getElementsByTagName("location");
+				Element location = (Element) locationElement.item(0);
+				NodeList axisPos = location.getElementsByTagName("axisPos");
+
+				// location
+				int [] axis = new int [axisPos.getLength()];
+				for (int j = 0 ; j < axisPos.getLength(); j++) {
+					axis[j] = Integer.parseInt(axisPos.item(j).getChildNodes().item(0).getNodeValue());
+				}
+
+				Location loc = getLocation(axis[0], axis[1]);
+
+				// direction
+				int [] coords = new int [coordinates.getLength()];
+				for (int j = 0 ; j < coordinates.getLength(); j++) {
+					coords[j] = Integer.parseInt(coordinates.item(j).getChildNodes().item(0).getNodeValue());
+				}
+				Direction facing = new Direction(coords);
+
+				// parameters
+				params.loadConfig(paramNode);
+				//prodParams.loadConfig(prodParamNode);
+
+				// agentType
+				int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());
+
+				// doCheat
+				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
 
 
-		for (int i = 0 ; i < agents.getLength(); i++){
-			ComplexAgentParams params = new ComplexAgentParams(data);
-			ProductionParams prodParams = new ProductionParams();
-
-			Node agent = agents.item(i);
-			Element element = (Element) agent;
-
-			NodeList paramsElement = element.getElementsByTagName("params");
-			Element paramNode = (Element) paramsElement.item(0);			
-
-
-			//NodeList prodParamsElement = element.getElementsByTagName("prodParams");
-			//Element prodParamNode = (Element) prodParamsElement.item(0);
-
-			NodeList agentTypeElement = element.getElementsByTagName("agentType");
-			NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
-
-			NodeList directionElement = element.getElementsByTagName("direction");
-			Element direction = (Element) directionElement.item(0);
-			NodeList coordinates = direction.getElementsByTagName("coordinate");
-
-			NodeList locationElement = element.getElementsByTagName("location");
-			Element location = (Element) locationElement.item(0);
-			NodeList axisPos = location.getElementsByTagName("axisPos");
-
-			// location
-			int [] axis = new int [axisPos.getLength()];
-			for (int j = 0 ; j < axisPos.getLength(); j++) {
-				axis[j] = Integer.parseInt(axisPos.item(j).getChildNodes().item(0).getNodeValue());
+				ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
+				cAgent.init(agentType, params, prodParams, facing, loc);
+				cAgent.pdCheater = pdCheater;
+				agentTable.put(loc, cAgent);
 			}
-
-			Location loc = getLocation(axis[0], axis[1]);
-
-			// direction
-			int [] coords = new int [coordinates.getLength()];
-			for (int j = 0 ; j < coordinates.getLength(); j++) {
-				coords[j] = Integer.parseInt(coordinates.item(j).getChildNodes().item(0).getNodeValue());
-			}
-			Direction facing = new Direction(coords);
-
-			// parameters
-			params.loadConfig(paramNode);
-			//prodParams.loadConfig(prodParamNode);
-
-			// agentType
-			int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());
-
-			// doCheat
-			boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
-
-
-			ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
-			cAgent.init(agentType, params, prodParams, facing, loc);
-			cAgent.pdCheater = pdCheater;
-			agentTable.put(loc, cAgent);
+		} catch (Exception ex) {
+			throw new RuntimeException("Can't open config file", ex);
 		}
 	}
 

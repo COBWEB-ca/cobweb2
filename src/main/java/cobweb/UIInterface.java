@@ -213,7 +213,7 @@ public interface UIInterface {
 	 */
 	public void resume();
 
-	public boolean saveCurrentPopulation(String popName, String option, int amount);
+	public void saveCurrentPopulation(String popName, String option, int amount);
 
 	/**
 	 * Set the number of frames between frame update notifications. The frame

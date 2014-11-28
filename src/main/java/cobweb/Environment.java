@@ -1,7 +1,6 @@
 package cobweb;
 
 import java.awt.Color;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.Serializable;
 import java.util.Hashtable;
@@ -13,8 +12,6 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -548,7 +545,7 @@ public abstract class Environment {
 	public abstract void report(java.io.Writer w);
 
 	/** Save a sample population as an XML file */
-	public boolean savePopulation(String popName, String option, int amount) {
+	public void savePopulation(String popName, String option, int amount) {
 
 		int totalPop;
 
@@ -591,34 +588,22 @@ public abstract class Environment {
 		}
 
 		d.appendChild(root);
-		FileOutputStream stream = null;
-		try {
-			stream = new FileOutputStream(popName);
-		} catch (FileNotFoundException ex) {
-			throw new RuntimeException("Couldn't open output file", ex);
-		}
 
 		Source s = new DOMSource(d);
 
-		Transformer t;
-		TransformerFactory tf = TransformerFactory.newInstance();
 		try {
-			t = tf.newTransformer();
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer t = tf.newTransformer();
+			t.setOutputProperty(OutputKeys.INDENT, "yes");
+			t.setParameter(OutputKeys.STANDALONE, "yes");
+			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
-		} catch (TransformerConfigurationException ex) {
-			throw new RuntimeException(ex);
-		}
-		t.setOutputProperty(OutputKeys.INDENT, "yes");
-		t.setParameter(OutputKeys.STANDALONE, "yes");
-		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-		Result r = new StreamResult(stream);
-		try {
+			FileOutputStream stream = new FileOutputStream(popName);
+			Result r = new StreamResult(stream);
 			t.transform(s, r);
-		} catch (TransformerException ex) {
-			throw new RuntimeException(ex);
+		} catch (Exception ex) {
+			throw new RuntimeException("Couldn't save population", ex);
 		}
-		return true;
 	}
 
 	private final void setAgent(Location l, Agent a) {

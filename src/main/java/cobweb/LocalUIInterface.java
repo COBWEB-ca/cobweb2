@@ -785,10 +785,10 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	/**
 	 * Saves the current list of agents in the environment
 	 */
-	public boolean saveCurrentPopulation(String popName, String option, int amount) {
+	public void saveCurrentPopulation(String popName, String option, int amount) {
 
 		// save the list of agents
-		return theEnvironment.savePopulation(popName, option, amount);
+		theEnvironment.savePopulation(popName, option, amount);
 	}
 
 	/**
