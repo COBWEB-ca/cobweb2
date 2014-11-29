@@ -14,7 +14,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import production.Product;
 import cobweb.ColorLookup;
 import cobweb.Direction;
 import cobweb.DrawingHandler;
@@ -178,9 +177,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	protected long photo_memory[];
 	private int photo_num = 0;
 	protected boolean want2meet = false;
-	boolean cooperate;
 	private long birthTick = 0;
-	protected long age = 0;
 
 	/* Waste variables */
 	private int wasteCounterGain;
@@ -355,11 +352,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 	}
 
-	@Override
-	public long birthday() {
-		return birthTick;
-	}
-
 	void broadcastCheating(int cheaterID) { // []SK
 		String message = Long.toString(cheaterID);
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, id, message, energy
@@ -457,7 +449,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	//	}
 
 	void communicate(ComplexAgent target) {
-		target.setCommInbox(commOutbox);
+		target.setCommInbox(getCommOutbox());
 	}
 
 	public void copyConstants(ComplexAgent p) {
@@ -554,8 +546,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	public double energyPenalty() {
 		if (!params.agingMode)
 			return 0.0;
-		double tempAge = currTick - birthTick;
-		assert(tempAge == age);
+		double tempAge = getAge();
 		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
 				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
 
@@ -571,7 +562,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	}
 
 	public long getAge() {
-		return age;
+		return currTick - birthTick;
 	}
 
 	@Override
@@ -691,28 +682,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		}
 
 		broadcastCheating(othersID);
-	}
-
-	public long look() {
-		cobweb.Environment.Location destPos = getPosition().getAdjacent(facing);
-		// If the position is invalid, then we're looking at a stone...
-		if (destPos == null)
-			return ComplexEnvironment.FLAG_STONE;
-		// Check for stone...
-		if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
-			return ComplexEnvironment.FLAG_STONE;
-		// If there's another agent there, then return that it's a stone...
-		if (destPos.getAgent() != null)
-			return ComplexEnvironment.FLAG_STONE;
-		// If there's food there, return the food...
-		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
-			return ComplexEnvironment.FLAG_FOOD;
-		// waste check
-		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
-			return ComplexEnvironment.FLAG_DROP;
-
-		// Return an empty tile
-		return 0;
 	}
 
 	public Node makeNode(Document doc) {
@@ -836,6 +805,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @see ComplexAgent#playPD()
 	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
 	 */
+	@SuppressWarnings("javadoc")
 	public void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
 		if (!environment.isPDenabled())
 			return;
@@ -843,45 +813,38 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		playPD();
 		adjacentAgent.playPD();
 
-		lastPDcheated = adjacentAgent.pdCheater; // Adjacent Agent's action is assigned to the last move memory of the
-		// agent
-		adjacentAgent.lastPDcheated = pdCheater; // Agent's action is assigned to the last move memory of the adjacent
-		// agent
+		// Save result for future strategy (tit-for-tat, learning, etc.)
+		lastPDcheated = adjacentAgent.pdCheater;
+		adjacentAgent.lastPDcheated = pdCheater;
 
 		/*
 		 * TODO LOW: The ability for the PD game to contend for the Get the food tiles immediately around each agents
 		 */
 
-		/* 0 = cooperate. 1 = defect */
-
-		final boolean PD_COOPERATE = false;
-		final boolean PD_DEFECT = true;
-
-		if (pdCheater == PD_COOPERATE && adjacentAgent.pdCheater == PD_COOPERATE) {
-			/* REWARD */
+		if (!pdCheater && !adjacentAgent.pdCheater) {
+			/* Both cooperate */
 			energy += environment.PD_PAYOFF_REWARD;
 			adjacentAgent.energy += environment.PD_PAYOFF_REWARD;
 
-		} else if (pdCheater == PD_COOPERATE && adjacentAgent.pdCheater == PD_DEFECT) {
-			/* SUCKER */
+		} else if (!pdCheater && adjacentAgent.pdCheater) {
+			/* Only other agent cheats */
 			energy += environment.PD_PAYOFF_SUCKER;
 			adjacentAgent.energy += environment.PD_PAYOFF_TEMPTATION;
 
-			iveBeenCheated(othersID);
-
-		} else if (pdCheater == PD_DEFECT && adjacentAgent.pdCheater == PD_COOPERATE) {
-			/* TEMPTATION */
+		} else if (pdCheater && !adjacentAgent.pdCheater) {
+			/* Only this agent cheats */
 			energy += environment.PD_PAYOFF_TEMPTATION;
 			adjacentAgent.energy += environment.PD_PAYOFF_SUCKER;
 
-		} else if (pdCheater == PD_DEFECT && adjacentAgent.pdCheater == PD_DEFECT) {
-			/* PUNISHMENT */
+		} else if (pdCheater && adjacentAgent.pdCheater) {
+			/* Both cheat */
 			energy += environment.PD_PAYOFF_PUNISHMENT;
-			adjacentAgent.energy += environment.PD_PAYOFF_PUNISHMENT; // $$$$$$
+			adjacentAgent.energy += environment.PD_PAYOFF_PUNISHMENT;
 
-			iveBeenCheated(othersID);
 		}
 
+		if (adjacentAgent.pdCheater)
+			iveBeenCheated(othersID);
 	}
 
 	void receiveBroadcast() {
@@ -973,24 +936,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	public void setMemoryBuffer(int memoryBuffer) {
 		this.memoryBuffer = memoryBuffer;
-	}
-
-	/*
-	 * return the measure of similarity between this agent and the 'other' ranging from 0.0 to 1.0 (identical)
-	 */
-	@Override
-	public double similarity(cobweb.Agent other) {
-		if (!(other instanceof ComplexAgent))
-			return 0.0;
-		return // ((GeneticController) controller)
-		// .similarity((GeneticController) ((ComplexAgent) other)
-		// .getController());
-		((LinearWeightsController) controller).similarity((LinearWeightsController) other.getController());
-	}
-
-	@Override
-	public double similarity(int other) {
-		return 0.5; // ((GeneticController) controller).similarity(other);
 	}
 
 	/**
@@ -1172,7 +1117,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 			double sim = 0.0;
 			boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-			&& cobweb.globals.random.nextFloat() < params.sexualBreedChance;
+					&& cobweb.globals.random.nextFloat() < params.sexualBreedChance;
 
 			// Generate genetic similarity number
 			sim = simCalc.similarity(this, adjacentAgent);
@@ -1220,12 +1165,10 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		//update current tick
 		currTick = tick;
 
-		//age the agent
-		age++;
 
 		/* Time to die, Agent (mister) Bond */
 		if (params.agingMode) {
-			if ((currTick - birthTick) >= params.agingLimit) {
+			if ((getAge()) >= params.agingLimit) {
 				die();
 				return;
 			}
@@ -1295,7 +1238,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * produce a child agent after the agent's asexPregnancyPeriod is up.
 	 */
 	void tryAsexBreed() {
-		if (asexFlag && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
+		if (isAsexFlag() && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
 				&& cobweb.globals.random.nextFloat() < params.asexualBreedChance) {
 			pregPeriod = params.asexPregnancyPeriod;
 			pregnant = true;
@@ -1450,8 +1393,9 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 	private void tryProduction() {
 		if (shouldProduce()) {
+			// TODO: find a more clean way to create and assign product
 			// Healthy agents produce high-value products, and vice-versa
-			Product p = environment.prodMapper.createProduct((float) energy / (float) params.initEnergy, this);
+			environment.prodMapper.createProduct((float) energy / (float) params.initEnergy, this);
 
 			if (position.testFlag(ComplexEnvironment.FLAG_FOOD)) {
 				position.setFlag(ComplexEnvironment.FLAG_FOOD, false);

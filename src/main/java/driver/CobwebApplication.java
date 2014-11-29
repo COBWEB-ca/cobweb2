@@ -69,14 +69,13 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private static final long serialVersionUID = 2112476687880153089L;
 
-	// $$$$$$ A file copy method. Feb 11
 	/**
 	 * Copies the contents from the source file to the destination file.  If 
 	 * the destination file does not exist, it will be created.
 	 * 
 	 * @param src The file name of the source file to be copied from
 	 * @param dest The file name of the destination file to be copied to 
-	 * @throws IOException 
+	 * @throws IOException On failure
 	 */
 	public static void copyFile(String src, String dest) throws IOException {
 		File sourceFile = new File(src);
@@ -753,6 +752,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	public void openFileDialog() {
 		FileDialog theDialog = new FileDialog(GUI.frame, // $$$$$$ modified from "this". Feb 29
 				"Open a State File", FileDialog.LOAD);
+		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
 		String directory = theDialog.getDirectory();
 		String file = theDialog.getFile();
@@ -943,6 +943,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	public void saveFileDialog() {
 		FileDialog theDialog = new FileDialog(GUI.frame, // $$$$$$ modified from "this". Feb 29
 				"Choose a file to save state to", FileDialog.SAVE);
+		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
 		// String savingFileName = "";
 		if (theDialog.getFile() != null) {
@@ -1003,6 +1004,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if ((df.exists() == false) || (df.canWrite() == true)) {
 			FileDialog setDialog = new FileDialog(GUI.frame, // $$$$$$ modified from "this". Feb 29
 					"Set Default Data", FileDialog.LOAD);
+			setDialog.setFile("*.xml");
 			setDialog.setVisible(true);
 
 			// $$$$$$ The following codes modified on Feb 22
@@ -1301,22 +1303,23 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	/**
-	 * @see UIInterface#insertPopulation(String, String)
+	 * @see UIInterface#insertPopulation(String, boolean)
 	 */
 	private void onMenuInsertSample() {
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		if (uiPipe != null) {
 
-			String option = openInsertSamplePopOptionsDialog();
+			ReplaceMergeCancel option = openInsertSamplePopReplaceDialog();
 
-			if (option != null){
+			if (option != ReplaceMergeCancel.CANCEL){
 				//Select the XML file
 				FileDialog theDialog = new FileDialog(GUI.frame, 
 						"Choose a file to load", FileDialog.LOAD);
+				theDialog.setFile("*.xml");
 				theDialog.setVisible(true);
 				if (theDialog.getFile() != null) {
 					//Load the XML file
-					uiPipe.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option);
+					uiPipe.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
 				}
 			}
 
@@ -1529,6 +1532,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 					// Open file dialog box
 					FileDialog theDialog = new FileDialog(GUI.frame, 
 							"Choose a file to save state to", FileDialog.SAVE);
+					theDialog.setFile("*.xml");
 					theDialog.setVisible(true);
 					if (theDialog.getFile() != null) {
 
@@ -1552,6 +1556,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 		displayPanel.setMouseMode(MouseMode.AddStone);
 	}
 
+	private enum ReplaceMergeCancel {
+		CANCEL,
+		REPLACE,
+		MERGE
+	}
+
 	/**
 	 * Opens a dialog box to allow the user to select the option of replacing the 
 	 * current population, or merge with the the current population.
@@ -1561,10 +1571,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 	 * @return The option selected by the user.
 	 * @see CobwebApplication#onMenuInsertSample()
 	 */
-	private String openInsertSamplePopOptionsDialog() {
-		JRadioButton b1 = new JRadioButton("Replace current population");
+	private ReplaceMergeCancel openInsertSamplePopReplaceDialog() {
+		JRadioButton b1 = new JRadioButton("Replace current population", true);
 		JRadioButton b2 = new JRadioButton("Merge with current population");
-		b1.setSelected(true);
 
 		ButtonGroup group = new ButtonGroup();
 		group.add(b1);
@@ -1579,21 +1588,15 @@ public class CobwebApplication extends JFrame implements UIClient {
 		int res = JOptionPane.showConfirmDialog(null, array, "Select", 
 				JOptionPane.OK_CANCEL_OPTION);
 
-
-		if (res == -1 || res == 2)			
-			return null;
-
-
-		String result = null;
+		if (res == JOptionPane.CANCEL_OPTION || res == JOptionPane.CLOSED_OPTION)			
+			return ReplaceMergeCancel.CANCEL;
 
 		if (b1.isSelected()) { 
-			result = "replace"; 
+			return ReplaceMergeCancel.REPLACE;
 		}
-		else if ( b2.isSelected()) {
-			result = "merge";
+		else {
+			return ReplaceMergeCancel.MERGE;
 		}
-
-		return result;
 	}
 
 	/**

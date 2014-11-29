@@ -148,7 +148,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	@Override
 	protected void iveBeenCheated(int othersID) {
 		super.iveBeenCheated(othersID);
-		remember(new MemorableEvent(this.age, -1, "agent-" + othersID));
+		remember(new MemorableEvent(currTick, -1, "agent-" + othersID));
 	}
 
 	@Override

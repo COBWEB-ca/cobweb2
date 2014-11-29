@@ -20,10 +20,6 @@ public class ProductionMapper implements StatePlugin {
 	private float maxValue;
 
 	public ProductionMapper(Environment e) {
-		this(500, e);
-	}
-
-	public ProductionMapper(int numProducts, Environment e) {
 		this.e = (ComplexEnvironment) e;
 		vals = new float[this.e.getWidth()][this.e.getHeight()];
 		params = new LinkedList<StateParameter>();

@@ -6,7 +6,6 @@ package ga;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -89,7 +88,7 @@ public class GeneticParams extends AbstractReflectionParams {
 
 		/**
 		 * 
-		 * @param f
+		 * @param f field to modify
 		 */
 		public Phenotype(Field f) {
 			if (f != null &&
@@ -159,13 +158,15 @@ public class GeneticParams extends AbstractReflectionParams {
 			ColourAveraging("Colour Averaging"),
 			RandomRecombination("Random Recombination"),
 			GeneSwapping("Gene Swapping");
-			private String value;
+
+			private final String value;
+
 			private MeiosisMode(String s) {
 				value = s;
 			}
 
 			public static MeiosisMode fromString(String s) {
-				for (MeiosisMode m : EnumSet.allOf(MeiosisMode.class)) {
+				for (MeiosisMode m : MeiosisMode.values()) {
 					if (m.value.equals(s))
 						return m;
 				}

@@ -12,11 +12,6 @@ import cwcore.state.StateParameter;
 
 public class LinearWeightsController implements cobweb.Controller {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -4755777042224299222L;
-
 	public static final int ENERGY_THRESHOLD = 160;
 
 	public static final int INPUT_COUNT = 10;

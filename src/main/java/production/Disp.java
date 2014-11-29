@@ -45,6 +45,8 @@ public class Disp extends JFrame implements Client {
 	}
 
 	class ProductionPanel extends WaitableJComponent {
+		private static final long serialVersionUID = -9218406889029231853L;
+
 		@Override
 		protected void paintComponent(Graphics g) {
 			super.paintComponents(g);

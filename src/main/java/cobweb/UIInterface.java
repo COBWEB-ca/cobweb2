@@ -152,9 +152,9 @@ public interface UIInterface {
 	/**
 	 * This is currently being overwritten by the LocalUIInterface.
 	 * 
-	 * @see LocalUIInterface#insertPopulation(String, String)
+	 * @see LocalUIInterface#insertPopulation(String, boolean)
 	 */
-	public boolean insertPopulation(String popName, String option);
+	public void insertPopulation(String popName, boolean replace);
 
 	public boolean isRunnable();
 
@@ -213,15 +213,7 @@ public interface UIInterface {
 	 */
 	public void resume();
 
-	/**
-	 * Request that the state of the simulation be saved. Dumps the state of the
-	 * simulation into the file specified. The timing of this is a little
-	 * tricky; the call blocks until such time as the simulation can safely be
-	 * saved.
-	 */
-	public void save(String filePath) throws IOException;
-
-	public boolean saveCurrentPopulation(String popName, String option, int amount);
+	public void saveCurrentPopulation(String popName, String option, int amount);
 
 	/**
 	 * Set the number of frames between frame update notifications. The frame
@@ -261,8 +253,6 @@ public interface UIInterface {
 	 * Called by the Scheduler when it is appropriate to update the log
 	 */
 	public void writeLogEntry();
-
-	public void writeOutput(String s);
 
 	public EnvironmentStats getStatistics();
 

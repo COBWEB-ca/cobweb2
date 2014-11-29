@@ -51,9 +51,6 @@ public class GAChartOutput implements ActionListener {
 	/** Current component on display. */
 	private JPanel current_display;
 
-	/** Update frequency of chart (time step per update) */
-	public int update_frequency = 1;
-
 	private ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -189,10 +186,6 @@ public class GAChartOutput implements ActionListener {
 			gene_value_distribution_range[i] = i;
 
 		}
-	}
-
-	public void InitData() {
-		// Nothing
 	}
 
 	JComponentWaiter refreshWaiter;

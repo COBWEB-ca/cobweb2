@@ -16,7 +16,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JTextField;
@@ -301,8 +300,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		public void TickPerformed(long currentTick);
 	}
 
-	final String POP_NAME = "Sample";
-
 	long myClock = -1;
 
 	long delay = 1;
@@ -332,8 +329,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 
 	private JTextField stopTickField;
 
-	public int count = 0;
-
 	private JButton pauseButton;
 
 	private boolean runnable = false;
@@ -345,8 +340,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	private DiseaseMutator diseaseMutator;
 
 	private Writer logWriter;
-
-	Logger myLogger = Logger.getLogger("COBWEB2");
 
 	private SimulationConfig simulationConfig;
 
@@ -519,7 +512,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 		} catch (Exception ex) {
 			throw new RuntimeException("Can't InitEnvironment", ex);
 		}
-		Environment.setUIPipe(this);
 		updateEnvironmentDrawInfo();
 	}
 
@@ -552,12 +544,11 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * @see Environment#insertPopulation(String, String)
+	 * @see Environment#insertPopulation(String, boolean)
 	 */
 	@Override
-	public boolean insertPopulation(String fileName, String option) {
-
-		return theEnvironment.insertPopulation(fileName, option);
+	public void insertPopulation(String fileName, boolean replace) {
+		theEnvironment.insertPopulation(fileName, replace);
 	}
 
 	public boolean isRunnable() {
@@ -792,45 +783,12 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	}
 
 	/**
-	 * Save the state of the simulation.
-	 * 
-	 * @see cobweb.UIInterface#save
-	 */
-	// $$$$$ Method save used to be invoked by the now silenced method
-	// CobwebApplication.saveFile
-	public void save(String filePath) throws java.io.IOException {
-		// Open the Writer...
-		java.io.FileWriter outStream = new java.io.FileWriter(filePath);
-
-		boolean running = isRunning();
-
-		// Pause, if needed
-		if (running) {
-			pause();
-		}
-
-		// Save the scheduler: blocks for appropriate timing
-		theScheduler.saveScheduler(outStream);
-
-		// Save the environment
-		theEnvironment.save(outStream);
-
-		// Close the stream
-		outStream.close();
-
-		// Resume, if needed
-		if (running) {
-			resume();
-		}
-	}
-
-	/**
 	 * Saves the current list of agents in the environment
 	 */
-	public boolean saveCurrentPopulation(String popName, String option, int amount) {
+	public void saveCurrentPopulation(String popName, String option, int amount) {
 
 		// save the list of agents
-		return theEnvironment.savePopulation(popName, option, amount);
+		theEnvironment.savePopulation(popName, option, amount);
 	}
 
 	/**
@@ -896,10 +854,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, cobweb.Tic
 	 */
 	public void writeLogEntry() {
 		theEnvironment.writeLogEntry();
-	}
-
-	public void writeOutput(String s) {
-		myLogger.info(s);
 	}
 
 	@Override

@@ -18,39 +18,6 @@ public class ComplexAgentInfo {
 
 	/** The gene status of the agent. Default is 1. */
 
-	/* Formatting variables. The WIDTH of certain columns */
-	final static int W_TICK = 6;
-
-	final static int W_ENERGY = 8;
-
-	final static int W_MOVE = 6;
-
-	final static int W_AGENT = 6;
-
-	final static int W_ROCK = 6;
-
-	final static int W_OTHER_GAIN = 6;
-
-	final static int W_OTHER_LOSS = 6;
-
-	final static int W_CANN = 6;
-
-	final static int W_TURNING = 6;
-
-	final static int W_SPACE = 2;
-
-	final static int W_POP = 6;
-
-	final static int W_FEED = 6;
-
-	final static int W_AGE = 6;
-
-	private static boolean headerPrinted = false;
-
-	private static PrintWriter group_out;
-
-	private static boolean groupDataStreamInit = false;
-
 	static int agentTypes = 0; // total agent types
 
 	static int[] deadAgentsofType; // numbers of agents dead of type i.
@@ -71,79 +38,6 @@ public class ComplexAgentInfo {
 	static int[] stepslivedAgentsofType;
 
 	static int[] eatenAgentsofType;
-
-	/* Dumps the group data */
-	public static void dumpGroupData(long tick, java.io.Writer www) {
-		if (!groupDataStreamInit) {
-			try {
-				group_out = new java.io.PrintWriter(www, false);
-				groupDataStreamInit = true;
-			} catch (Exception ex) {
-				Logger.getLogger("COBWEB2").log(Level.WARNING, "exception", ex);
-			}
-		} else {
-			try {
-				if (!headerPrinted) {
-					group_out.print(paddMe("", W_TICK));
-					// TITLE LINE 1
-					for (int i = 0; i < agentTypes; i++) {
-						group_out.print("||");
-						group_out.print(paddMe("Type " + (i + 1), W_POP));
-						group_out.print(paddMe("gained", W_FEED));
-						group_out.print(paddMe("gained", W_CANN));
-						group_out.print(paddMe("gained", W_OTHER_GAIN));
-						group_out.print(paddMe("energy", W_ENERGY));
-						group_out.print(paddMe("usage", W_MOVE));
-						group_out.print(paddMe("usage", W_AGENT));
-						group_out.print(paddMe("usage", W_ROCK));
-						group_out.print(paddMe("usage", W_TURNING));
-						group_out.print(paddMe("usage", W_OTHER_LOSS));
-						group_out.print(paddMe("usage", W_AGE));
-					}
-					group_out.println();
-					// TITLE LINE 2
-					group_out.print(paddMe("TICK", W_TICK));
-					for (int i = 0; i < agentTypes; i++) {
-						group_out.print("||");
-						group_out.print(paddMe("pop.", W_POP));
-						group_out.print(paddMe("food", W_FEED));
-						group_out.print(paddMe("cann", W_CANN));
-						group_out.print(paddMe("others", W_OTHER_GAIN));
-						group_out.print(paddMe("total", W_ENERGY));
-						group_out.print(paddMe("moving", W_MOVE));
-						group_out.print(paddMe("agents", W_AGENT));
-						group_out.print(paddMe("rocks", W_ROCK));
-						group_out.print(paddMe("turn", W_TURNING));
-						group_out.print(paddMe("others", W_OTHER_LOSS));
-						group_out.print(paddMe("age", W_AGE));
-					}
-					group_out.println();
-					headerPrinted = true;
-				} // !headerPrinted
-				group_out.print(paddMe(tick, W_TICK));
-
-				// DATA
-				for (int i = 0; i < agentTypes; i++) {
-					group_out.print("||");
-					group_out.print(paddMe(liveCount[i], W_POP));
-					group_out.print(paddMe(foodEnergies[i], W_FEED));
-					group_out.print(paddMe(cannibalEnergies[i], W_CANN));
-					group_out.print(paddMe(otherEnergySources[i], W_OTHER_GAIN));
-					group_out.print(paddMe(energies[i], W_ENERGY));
-					group_out.print(paddMe(stepEnergies[i], W_MOVE));
-					group_out.print(paddMe(agentBumpEnergies[i], W_AGENT));
-					group_out.print(paddMe(rockBumpEnergies[i], W_ROCK));
-					group_out.print(paddMe(turningEnergies[i], W_TURNING));
-					group_out.print(paddMe(otherEnergySinks[i], W_OTHER_LOSS));
-					group_out.print(paddMe(agentAgingEnergies[i], W_AGE));
-				}
-				group_out.println();
-				group_out.flush();
-			} catch (Exception ex) {
-				Logger.getLogger("COBWEB2").log(Level.WARNING, "exception", ex);
-			}
-		}
-	}
 
 	/**
 	 * This method should be called prior to calling the printInfo method. This method will initializes the static
@@ -169,44 +63,6 @@ public class ComplexAgentInfo {
 		totalsAgentsofType = new int[agentTypes];
 		stepslivedAgentsofType = new int[agentTypes];
 		eatenAgentsofType = new int[agentTypes];
-	}
-
-	/* emulating C's printf() fcn */
-	private static String paddMe(int i, int pad) {
-		String tmp = i + "";
-		return paddMe(tmp, pad);
-	}
-
-	private static String paddMe(long i, int pad) {
-		String tmp = i + "";
-		return paddMe(tmp, pad);
-	}
-
-	private static String paddMe(String s, int pad) {
-		return paddMe(s, pad, ' ');
-	}
-
-	/* Allows custom padding. */
-	private static String paddMe(String s, int pad, char cpad) {
-		String ret = "";
-		for (; pad >= s.length(); pad--) {
-			ret += cpad;
-		}
-		ret += s;
-		return ret;
-	}
-
-	/******* Defunct */
-	public static void printAgentsCount(java.io.PrintWriter pw) {
-		for (int i = 0; i < agentTypes; i++) {
-			pw.print((i + 1)); // $$$$$$ change from "i" to "(i + 1)". Apr 3
-			pw.print("\t" + deadAgentsofType[i]);
-			pw.print("\t" + aliveAgentsofType[i]);
-			pw.print("\t" + offspringsAgentsofType[i]);
-			pw.print("\t" + sexAgentsofType[i]);
-			pw.print("\t" + asexAgentsofType[i]);
-			pw.println("\t" + stepsAgentsofType[i]);
-		}
 	}
 
 	public static void resetGroupData() {
@@ -342,11 +198,6 @@ public class ComplexAgentInfo {
 
 	public void addDirectChild() {
 		++directChildren;
-	}
-
-	/* Total energy per agent type */
-	public void addEnergy(int val) {
-		energies[type] += val;
 	}
 
 	public void addFoodEnergy(int val) {

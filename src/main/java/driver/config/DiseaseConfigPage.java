@@ -16,9 +16,7 @@ import disease.DiseaseParams;
  */
 public class DiseaseConfigPage implements ConfigPage {
 
-	JPanel myPanel;
-
-	DiseaseParams[] params;
+	private JPanel myPanel;
 
 	private JTable confTable;
 
@@ -28,8 +26,6 @@ public class DiseaseConfigPage implements ConfigPage {
 	 * @param params the agent specific disease parameters
 	 */
 	public DiseaseConfigPage(DiseaseParams[] params) {
-		this.params = params;
-
 		ConfigTableModel ctm = new ConfigTableModel(params, "Agent");
 		confTable = new MixedValueJTable();
 		confTable.setRowHeight(20);

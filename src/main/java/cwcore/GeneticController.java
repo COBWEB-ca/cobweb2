@@ -3,8 +3,7 @@
  */
 package cwcore;
 
-import java.io.Serializable;
-
+import cobweb.Agent;
 import cobweb.Controller;
 import cobweb.params.CobwebParam;
 import cwcore.ComplexAgent.SeeInfo;
@@ -17,8 +16,7 @@ import cwcore.state.StateParameter;
  * @author ???
  *
  */
-public class GeneticController implements cobweb.Controller, Serializable{
-	private static final long serialVersionUID = 8777222590971142868L;
+public class GeneticController implements cobweb.Controller {
 
 	//true, false, file not found
 	protected final static int TURN_LEFT = 0;
@@ -38,18 +36,17 @@ public class GeneticController implements cobweb.Controller, Serializable{
 
 	private GeneticControllerParams params;
 
-	private int type;
-
 	public GeneticController() {
 		// Nothing
 	}
 
+	@SuppressWarnings("unused") // Created through reflection
 	private GeneticController(BehaviorArray g, int memory) {
 		memorySize = memory;
 		ga = g;
 	}
 
-	public void addClientAgent(cobweb.Agent a) {
+	public void addClientAgent(Agent a) {
 		// Nothing
 	}
 
@@ -72,12 +69,12 @@ public class GeneticController implements cobweb.Controller, Serializable{
 	 * Converts the parameters of the agent into a behavior (turn left or right, 
 	 * step).
 	 * 
-	 *@see cwcore.BehaviorArray
-	 *@see ComplexAgent#turnLeft()
-	 *@see ComplexAgent#turnRight()
-	 *@see ComplexAgent#step()
+	 * @see cwcore.BehaviorArray
+	 * @see ComplexAgent#turnLeft()
+	 * @see ComplexAgent#turnRight()
+	 * @see ComplexAgent#step()
 	 */
-	public void controlAgent(cobweb.Agent baseAgent) {
+	public void controlAgent(Agent baseAgent) {
 		ComplexAgent theAgent = (ComplexAgent) baseAgent;
 
 		BitField inputCode = getInputArray(theAgent);
@@ -145,7 +142,7 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		return params;
 	}
 
-	public void removeClientAgent(cobweb.Agent a) {
+	public void removeClientAgent(Agent a) {
 		// Nothing
 	}
 
@@ -163,6 +160,7 @@ public class GeneticController implements cobweb.Controller, Serializable{
 		ga = new BehaviorArray(inputSize, outputArray);
 		ga.randomInit(this.params.randomSeed);
 	}
+
 	public void setupFromParent(Controller parent, float mutationRate) {
 		if (!(parent instanceof GeneticController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");
@@ -203,10 +201,6 @@ public class GeneticController implements cobweb.Controller, Serializable{
 
 	public double similarity(int other) {
 		return ga.similarity(other);
-	}
-
-	public GeneticController splice(GeneticController other) {
-		return new GeneticController(ga.splice(other.ga), memorySize);
 	}
 
 }

@@ -1,7 +1,6 @@
 package cobweb;
 
 import java.awt.Color;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.Serializable;
 import java.util.Hashtable;
@@ -13,8 +12,6 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -214,18 +211,6 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Similar to the other getAdjacent call, but this is a single-axis
-		 * version
-		 */
-		public Location getAdjacent(int axis, int delta) {
-			if (v.length <= axis)
-				return null;
-			int[] deltaV = new int[v.length];
-			deltaV[axis] = delta;
-			return getAdjacent(new Direction(deltaV));
-		}
-
-		/**
 		 * Get the agent at this location. A location may only contain a single
 		 * agent.
 		 */
@@ -236,14 +221,6 @@ public abstract class Environment {
 		/** @return the environment which contains this location */
 		public Environment getEnvironment() {
 			return Environment.this;
-		}
-
-		/**
-		 * Get the value of the field associated with the constant field in this
-		 * location. The valid values for field are implementation defined.
-		 */
-		public int getField(int field) {
-			return Environment.this.getField(this, field);
 		}
 
 		// Support for containers...
@@ -307,14 +284,6 @@ public abstract class Environment {
 		}
 
 		/**
-		 * Set the value of the field associated with the constant field in this
-		 * location. The valid values for field are implementation defined.
-		 */
-		public void setField(int field, int value) {
-			Environment.this.setField(this, field, value);
-		}
-
-		/**
 		 * Set the flag associated with the constant flag in this location. The
 		 * valid values for flag are implementation defined.
 		 */
@@ -351,8 +320,6 @@ public abstract class Environment {
 
 	public static final int AXIS_Y = 1;
 
-	public static final int AXIS_Z = 2;
-
 	// Some predefined directions for 2D
 	public static final Direction DIRECTION_NORTH = new Direction(new int[] { 0, -1 });
 
@@ -377,17 +344,6 @@ public abstract class Environment {
 	 * are many more locations than agents.
 	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
-	protected java.util.Hashtable<Location, Agent> samplePop = new Hashtable<Location, Agent>();
-
-	private static DrawingHandler myUI;
-
-	public static DrawingHandler getUIPipe() {
-		return myUI;
-	}
-
-	public static void setUIPipe(DrawingHandler ui) {
-		myUI = ui;
-	}
 
 	private Color[] tileColors;
 
@@ -421,11 +377,6 @@ public abstract class Environment {
 	 */
 	public void addStone(int x, int y) {
 		// Nothing
-	}
-
-	/** Returns an Enumeration of Agents */
-	public java.util.Enumeration<Agent> agents() {
-		return agentTable.elements();
 	}
 
 	public void clearAgents() {
@@ -487,11 +438,6 @@ public abstract class Environment {
 
 	}
 
-	/**
-	 * Core implementation of getField; this is what could be accelerated in C++
-	 */
-	protected abstract int getField(Location l, int field);
-
 	// Syntactic sugar for common cases
 	public Location getLocation(int x, int y) {
 
@@ -542,9 +488,9 @@ public abstract class Environment {
 	/**
 	 * This is currently being overwritten by the ComplexEnvironment class.
 	 * 
-	 * @see cwcore.ComplexEnvironment#insertPopulation(String, String)
+	 * @see cwcore.ComplexEnvironment#insertPopulation(String, boolean)
 	 */
-	public abstract boolean insertPopulation(String fileName, String option);
+	public abstract void insertPopulation(String fileName, boolean replace);
 
 	/**
 	 * Load environment from parameters
@@ -598,11 +544,8 @@ public abstract class Environment {
 	/** Report to a stream */
 	public abstract void report(java.io.Writer w);
 
-	/** Save to a stream */
-	public abstract void save(java.io.Writer w);
-
 	/** Save a sample population as an XML file */
-	public boolean savePopulation(String popName, String option, int amount) {
+	public void savePopulation(String popName, String option, int amount) {
 
 		int totalPop;
 
@@ -645,34 +588,22 @@ public abstract class Environment {
 		}
 
 		d.appendChild(root);
-		FileOutputStream stream = null;
-		try {
-			stream = new FileOutputStream(popName);
-		} catch (FileNotFoundException ex) {
-			throw new RuntimeException("Couldn't open output file", ex);
-		}
 
 		Source s = new DOMSource(d);
 
-		Transformer t;
-		TransformerFactory tf = TransformerFactory.newInstance();
 		try {
-			t = tf.newTransformer();
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer t = tf.newTransformer();
+			t.setOutputProperty(OutputKeys.INDENT, "yes");
+			t.setParameter(OutputKeys.STANDALONE, "yes");
+			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
-		} catch (TransformerConfigurationException ex) {
-			throw new RuntimeException(ex);
-		}
-		t.setOutputProperty(OutputKeys.INDENT, "yes");
-		t.setParameter(OutputKeys.STANDALONE, "yes");
-		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-		Result r = new StreamResult(stream);
-		try {
+			FileOutputStream stream = new FileOutputStream(popName);
+			Result r = new StreamResult(stream);
 			t.transform(s, r);
-		} catch (TransformerException ex) {
-			throw new RuntimeException(ex);
+		} catch (Exception ex) {
+			throw new RuntimeException("Couldn't save population", ex);
 		}
-		return true;
 	}
 
 	private final void setAgent(Location l, Agent a) {
@@ -681,11 +612,6 @@ public abstract class Environment {
 		else
 			agentTable.remove(l);
 	}
-
-	/**
-	 * Core implementation of setField; this is what could be accelerated in C++
-	 */
-	protected abstract void setField(Location l, int field, int value);
 
 	/** Core implementation of setFlag; this is what could be accelerated in C++ */
 	protected abstract void setFlag(Location l, int flag, boolean state);

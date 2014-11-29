@@ -31,13 +31,6 @@ import driver.SpringUtilities;
  */
 public class EnvironmentConfigPage implements ConfigPage {
 
-
-
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 7042537975378723377L;
-
 	public BoundJFormattedTextField Width;
 	public BoundJFormattedTextField Height;
 	public BoundCheckBox wrap;
@@ -52,12 +45,6 @@ public class EnvironmentConfigPage implements ConfigPage {
 	public JCheckBox LearningAgents;
 	public BoundJFormattedTextField randomSeed;
 	public BoundJFormattedTextField initialStones;
-	public BoundJFormattedTextField memory_size;
-	public BoundCheckBox flexibility;
-	public BoundJFormattedTextField numColor;
-	public BoundJFormattedTextField colorSelectSize;
-	public BoundJFormattedTextField reColorTimeStep;
-	public BoundJFormattedTextField colorizerMode;
 	public BoundJFormattedTextField maxFoodChance;
 
 	JPanel thePanel;

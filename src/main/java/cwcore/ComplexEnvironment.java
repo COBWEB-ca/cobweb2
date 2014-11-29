@@ -1,11 +1,7 @@
 package cwcore;
 
-import ga.GATracker;
-
 import java.awt.Color;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,13 +12,11 @@ import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import production.ProductionMapper;
 import cobweb.Agent;
@@ -57,8 +51,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	public static interface Drop {
 		public abstract boolean isActive(long val);
-
-		public abstract void reset(long time, int weight, float rate);
 
 		public Color getColor();
 
@@ -115,17 +107,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 
 		@Override
-		public void reset(long newBirthTick, int weight, float newRate) {
-			initialWeight = weight;
-			this.birthTick = newBirthTick;
-			this.rate = newRate;
-			// to avoid recalculating every tick
-			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
-			// skinawy
-			valid = true;
-		}
-
-		@Override
 		public Color getColor() {
 			return wasteColor;
 		}
@@ -155,9 +136,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public static final int FLAG_AGENT = 3;
 
 	public static final int FLAG_DROP = 4;
-
-	public static final int INIT_LAST_MOVE = 0; // Initial last move set to
-	// cooperate
 
 	public int PD_PAYOFF_REWARD;
 
@@ -202,8 +180,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	public int getFoodType(cobweb.Environment.Location l) {
 		return foodarray[l.v[0]][l.v[1]];
 	}
-
-	GATracker gaTracker;
 
 	private java.io.PrintWriter logStream;
 
@@ -329,11 +305,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	/*
-	 * Remove components from the environment mode 0 : remove all the components
-	 * mode -1: remove stones mode -2: remove food mode -3: remove agents mode
-	 * -4: remove waste
-	 */
 	@Override
 	public synchronized void clearFood() {
 		super.clearFood();
@@ -558,12 +529,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		}
 	}
 
-	// Ignored; this model has no fields
-	@Override
-	protected int getField(cobweb.Environment.Location l, int field) {
-		return 0;
-	}
-
 	public int getInfoNum() {
 		return agentInfoVector.size();
 	}
@@ -709,107 +674,88 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 	/**
 	 * TODO: Check if this works, possibly rewrite
-	 * @param fileName 
-	 * @param option
-	 * @return 
+	 * @param fileName path to population file
+	 * @param replace delete current population before inserting
 	 */
 	@Override
-	public boolean insertPopulation(String fileName, String option) {
-
-
-		if (option.equals("replace")) {
+	public void insertPopulation(String fileName, boolean replace) {
+		if (replace) {
 			clearAgents();
 		}
 
-		//Load XML file
-		FileInputStream file;
 		try {
-			file = new FileInputStream(fileName);
-		} catch (FileNotFoundException ex) {
-			throw new RuntimeException(ex);
-		}
+			FileInputStream file = new FileInputStream(fileName);
 
-		// DOM initialization
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setIgnoringElementContentWhitespace(true);
-		factory.setIgnoringComments(true);
-		// factory.setValidating(true);
+			// DOM initialization
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setIgnoringElementContentWhitespace(true);
+			factory.setIgnoringComments(true);
+			// factory.setValidating(true);
 
-		Document document;
-		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			document = builder.parse(file);
-		} catch (SAXException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (ParserConfigurationException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (IOException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		}
+			Document document = builder.parse(file);
+
+			NodeList agents = document.getElementsByTagName("Agent");
+
+			for (int i = 0 ; i < agents.getLength(); i++){
+				ComplexAgentParams params = new ComplexAgentParams(data);
+				ProductionParams prodParams = new ProductionParams();
+
+				Node agent = agents.item(i);
+				Element element = (Element) agent;
+
+				NodeList paramsElement = element.getElementsByTagName("params");
+				Element paramNode = (Element) paramsElement.item(0);
 
 
-		NodeList agents = document.getElementsByTagName("Agent");
+				//NodeList prodParamsElement = element.getElementsByTagName("prodParams");
+				//Element prodParamNode = (Element) prodParamsElement.item(0);
+
+				NodeList agentTypeElement = element.getElementsByTagName("agentType");
+				NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
+
+				NodeList directionElement = element.getElementsByTagName("direction");
+				Element direction = (Element) directionElement.item(0);
+				NodeList coordinates = direction.getElementsByTagName("coordinate");
+
+				NodeList locationElement = element.getElementsByTagName("location");
+				Element location = (Element) locationElement.item(0);
+				NodeList axisPos = location.getElementsByTagName("axisPos");
+
+				// location
+				int [] axis = new int [axisPos.getLength()];
+				for (int j = 0 ; j < axisPos.getLength(); j++) {
+					axis[j] = Integer.parseInt(axisPos.item(j).getChildNodes().item(0).getNodeValue());
+				}
+
+				Location loc = getLocation(axis[0], axis[1]);
+
+				// direction
+				int [] coords = new int [coordinates.getLength()];
+				for (int j = 0 ; j < coordinates.getLength(); j++) {
+					coords[j] = Integer.parseInt(coordinates.item(j).getChildNodes().item(0).getNodeValue());
+				}
+				Direction facing = new Direction(coords);
+
+				// parameters
+				params.loadConfig(paramNode);
+				//prodParams.loadConfig(prodParamNode);
+
+				// agentType
+				int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());
+
+				// doCheat
+				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
 
 
-		for (int i = 0 ; i < agents.getLength(); i++){
-			ComplexAgentParams params = new ComplexAgentParams(data);
-			ProductionParams prodParams = new ProductionParams();
-
-			Node agent = agents.item(i);
-			Element element = (Element) agent;
-
-			NodeList paramsElement = element.getElementsByTagName("params");
-			Element paramNode = (Element) paramsElement.item(0);			
-
-
-			//NodeList prodParamsElement = element.getElementsByTagName("prodParams");
-			//Element prodParamNode = (Element) prodParamsElement.item(0);
-
-			NodeList agentTypeElement = element.getElementsByTagName("agentType");
-			NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
-
-			NodeList directionElement = element.getElementsByTagName("direction");
-			Element direction = (Element) directionElement.item(0);
-			NodeList coordinates = direction.getElementsByTagName("coordinate");
-
-			NodeList locationElement = element.getElementsByTagName("location");
-			Element location = (Element) locationElement.item(0);
-			NodeList axisPos = location.getElementsByTagName("axisPos");
-
-			// location
-			int [] axis = new int [axisPos.getLength()];
-			for (int j = 0 ; j < axisPos.getLength(); j++) {
-				axis[j] = Integer.parseInt(axisPos.item(j).getChildNodes().item(0).getNodeValue());
+				ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
+				cAgent.init(agentType, params, prodParams, facing, loc);
+				cAgent.pdCheater = pdCheater;
+				agentTable.put(loc, cAgent);
 			}
-
-			Location loc = getLocation(axis[0], axis[1]);
-
-			// direction
-			int [] coords = new int [coordinates.getLength()];
-			for (int j = 0 ; j < coordinates.getLength(); j++) {
-				coords[j] = Integer.parseInt(coordinates.item(j).getChildNodes().item(0).getNodeValue());
-			}
-			Direction facing = new Direction(coords);
-
-			// parameters
-			params.loadConfig(paramNode);
-			//prodParams.loadConfig(prodParamNode);
-
-			// agentType
-			int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());
-
-			// doCheat
-			boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
-
-
-			ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
-			cAgent.init(agentType, params, prodParams, facing, loc);
-			cAgent.pdCheater = pdCheater;
-			agentTable.put(loc, cAgent);
+		} catch (Exception ex) {
+			throw new RuntimeException("Can't open config file", ex);
 		}
-
-
-		return true;
 	}
 
 	/**
@@ -1026,7 +972,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	private void loadNewWaste() {
 		dropArray = new Drop[data.width][data.height];
-		prodMapper = new ProductionMapper(data.width * data.height, this);
+		prodMapper = new ProductionMapper(this);
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				getLocation(x, y).setFlag(FLAG_DROP, false);
@@ -1243,37 +1189,9 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		agentInfoVector = new Vector<ComplexAgentInfo>();
 	}
 
-	/*
-	 * save copies all current parsable parameters, and their values, to the
-	 * specified writer
-	 */
-	@Override
-	public void save(java.io.Writer w) {
-		/*
-		 * java.io.PrintWriter pw = new java.io.PrintWriter(w);
-		 * pw.println(this.getClass().getName() + " " + data.agentTypeCount);
-		 * pw.println(""); int[] indices = new int[512]; int length =
-		 * parseData.size(); String[] names = new String[length]; Object[]
-		 * saveArray = new Object[length]; java.util.Enumeration<String>
-		 * nameList = parseData.keys(); java.util.Enumeration<Object> saveList =
-		 * parseData.elements(); for (int i = 0; saveList.hasMoreElements() &&
-		 * nameList.hasMoreElements(); ++i) { names[i] = nameList.nextElement();
-		 * saveArray[i] = java.lang.reflect.Array.get(saveList.nextElement(),
-		 * 0); } try { cobweb.parseClass.parseSave(pw, saveArray, names,
-		 * indices, 0); } catch (java.io.IOException e) { // throw new
-		 * java.io.IOException(); } pw.println(this.getClass().getName() +
-		 * ".End"); pw.println(""); pw.flush();
-		 */
-	}
-
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
 		ComplexAgent.setDefaultMutableParams(agentData, prodData);
-	}
-
-	@Override
-	protected void setField(cobweb.Environment.Location l, int field, int value) {
-		// Nothing
 	}
 
 	/**
@@ -1326,11 +1244,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		array.setLocationBits(l, bits);
 	}
 
-	/* $$$$$$ Set the current tick number, tickCount (long). Apr 19 */
-	public void setTickCount(long tick) {
-		tickCount = tick;
-	}
-
 	@Override
 	protected boolean testFlag(cobweb.Environment.Location l, int flag) {
 		switch (flag) {
@@ -1353,7 +1266,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * depletion, food growth, and random food-"dropping".
 	 */
 	public void tickNotification(long tick) {
-		++tickCount;
+		tickCount = tick;
 
 		commManager.decrementPersistence();
 		commManager.unblockBroadcast();
@@ -1439,10 +1352,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 
 		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
 
-		setTickCount(theScheduler.getTime()); // $$$$$$ get the current tick.
-		// Apr 19
-		// For this tick: print FoodCount, AgentCount, Average Agent Energy
-		// and Agent Energy for EACH AGENT TYPE
 		for (int i = 0; i < data.getAgentTypes(); i++) {
 
 			long agentCount = countAgents(i);
@@ -1464,7 +1373,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 			if (agentCount != 0)
 				logStream.print(z.format(((float) agentEnergy) / agentCount));
 			else
-				logStream.print("00.000");
+				logStream.print("0.000");
 			logStream.print('\t');
 			logStream.print(agentEnergy);
 			logStream.print('\t');
