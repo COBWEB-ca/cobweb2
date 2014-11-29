@@ -747,9 +747,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * the agent will choose to defect next round.
 	 * 
 	 */
-	public void playPD() {
+	public void playPD(ComplexAgent other) {
 
 		double coopProb = params.pdCoopProb / 100.0d; // static value for now
+
+		float similarity = simCalc.similarity(this, other);
+
+		coopProb += (similarity - params.pdSimilarityNeutral) * params.pdSimilaritySlope;
 
 		if (params.pdTitForTat) { // if true then agent is playing TitForTat
 			pdCheater = lastPDcheated;
@@ -810,8 +814,8 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		if (!environment.isPDenabled())
 			return;
 
-		playPD();
-		adjacentAgent.playPD();
+		playPD(adjacentAgent);
+		adjacentAgent.playPD(this);
 
 		// Save result for future strategy (tit-for-tat, learning, etc.)
 		lastPDcheated = adjacentAgent.pdCheater;

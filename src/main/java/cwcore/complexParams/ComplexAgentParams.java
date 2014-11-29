@@ -256,6 +256,14 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 	@ConfXMLTag("pdCoopProb")
 	public int pdCoopProb = 50;
 
+	@ConfDisplayName("PD similarity preference")
+	@ConfXMLTag("pdSimilaritySlope")
+	public float pdSimilaritySlope = 0.0f;
+
+	@ConfDisplayName("PD neutral similarity")
+	@ConfXMLTag("pdSimilarityNeutral")
+	public float pdSimilarityNeutral = 0.9f;
+
 	/**
 	 * How many PD cheaters an agent will remember.
 	 */
