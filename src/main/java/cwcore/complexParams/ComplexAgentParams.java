@@ -258,10 +258,12 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 
 	@ConfDisplayName("PD similarity preference")
 	@ConfXMLTag("pdSimilaritySlope")
+	@GeneMutatable
 	public float pdSimilaritySlope = 0.0f;
 
 	@ConfDisplayName("PD neutral similarity")
 	@ConfXMLTag("pdSimilarityNeutral")
+	@GeneMutatable
 	public float pdSimilarityNeutral = 0.9f;
 
 	/**
