@@ -242,16 +242,16 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		return info;
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2, boolean action) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, p2, action));
+	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2) {
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, p2));
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, boolean action) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, action));
+	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1) {
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1));
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT, boolean action) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, action));
+	ComplexAgentInfo addAgentInfo(int agentT) {
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount));
 	}
 
 	@Override

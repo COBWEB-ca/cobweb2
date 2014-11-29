@@ -249,18 +249,26 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 * @param pos spawn position
 	 * @param parent1 first parent
 	 * @param parent2 second parent
-	 * @param strat PD strategy
 	 */
-	public void init(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2, boolean strat) {
+	public void init(cobweb.Environment.Location pos, ComplexAgent parent1, ComplexAgent parent2) {
 		init(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
 				parent1.params.mutationRate));
 		InitFacing();
 
 		copyConstants(parent1);
 
+		// child's strategy is determined by its parents, it has a
+		// 50% chance to get either parent's strategy
+		if (cobweb.globals.random.nextBoolean()) {
+			params.pdCoopProb = parent2.params.pdCoopProb;
+			params.pdTitForTat = parent2.params.pdTitForTat;
+			params.pdSimilarityNeutral = parent2.params.pdSimilarityNeutral;
+			params.pdSimilaritySlope = parent2.params.pdSimilaritySlope;
+		} // else keep parent 1's PD config
+
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		birthTick = environment.getTickCount();
-		info = environment.addAgentInfo(agentType, parent1.info, parent2.info, strat);
+		info = environment.addAgentInfo(agentType, parent1.info, parent2.info);
 
 		move(pos);
 
@@ -277,16 +285,15 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 	 *
 	 * @param pos spawn position
 	 * @param parent parent
-	 * @param cheat PD strategy
 	 */
-	protected void init(cobweb.Environment.Location pos, ComplexAgent parent, boolean cheat) {
+	protected void init(cobweb.Environment.Location pos, ComplexAgent parent) {
 		init(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 		InitFacing();
 
 		copyConstants(parent);
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		birthTick = environment.getTickCount();
-		info = environment.addAgentInfo(agentType, parent.info, cheat);
+		info = environment.addAgentInfo(agentType, parent.info);
 
 		move(pos);
 
@@ -304,7 +311,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		birthTick = environment.getTickCount();
-		info = environment.addAgentInfo(agentT, pdCheater);
+		info = environment.addAgentInfo(agentT);
 
 		move(pos);
 
@@ -330,7 +337,7 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 		params = agentData;
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		birthTick = environment.getTickCount();
-		info = environment.addAgentInfo(agentType, pdCheater);
+		info = environment.addAgentInfo(agentType);
 		this.agentType = agentType;
 
 		move(pos);
@@ -765,8 +772,6 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			// probability
 		}
 
-		info.setStrategy(pdCheater);
-
 		return;
 	}
 
@@ -829,21 +834,25 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			/* Both cooperate */
 			energy += environment.PD_PAYOFF_REWARD;
 			adjacentAgent.energy += environment.PD_PAYOFF_REWARD;
+			info.addPDReward();
 
 		} else if (!pdCheater && adjacentAgent.pdCheater) {
 			/* Only other agent cheats */
 			energy += environment.PD_PAYOFF_SUCKER;
 			adjacentAgent.energy += environment.PD_PAYOFF_TEMPTATION;
+			info.addPDTemptation();
 
 		} else if (pdCheater && !adjacentAgent.pdCheater) {
 			/* Only this agent cheats */
 			energy += environment.PD_PAYOFF_TEMPTATION;
 			adjacentAgent.energy += environment.PD_PAYOFF_SUCKER;
+			info.addPDSucker();
 
 		} else if (pdCheater && adjacentAgent.pdCheater) {
 			/* Both cheat */
 			energy += environment.PD_PAYOFF_PUNISHMENT;
 			adjacentAgent.energy += environment.PD_PAYOFF_PUNISHMENT;
+			info.addPDPunishment();
 
 		}
 
@@ -1067,24 +1076,13 @@ public class ComplexAgent extends cobweb.Agent implements cobweb.TickScheduler.C
 			if (breedPartner == null) {
 				info.addDirectChild();
 				ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
-				child.init(breedPos, this, this.pdCheater);
+				child.init(breedPos, this);
 			} else {
-				// child's strategy is determined by its parents, it has a
-				// 50% chance to get either parent's strategy
-				boolean childStrategy = false;
-				{
-					boolean choose = cobweb.globals.random.nextBoolean();
-					if (choose) {
-						childStrategy = this.pdCheater;
-					} else {
-						childStrategy = breedPartner.pdCheater;
-					}
-				}
 
 				info.addDirectChild();
 				breedPartner.info.addDirectChild();
 				ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
-				child.init(breedPos, this, breedPartner, childStrategy);
+				child.init(breedPos, this, breedPartner);
 				info.addSexPreg();
 			}
 			breedPartner = null;

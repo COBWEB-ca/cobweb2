@@ -81,7 +81,10 @@ public class ComplexAgentInfo {
 		}
 	}
 
-	private boolean cheater = false;
+	private int pdReward = 0;
+	private int pdTemptation = 0;
+	private int pdSucker = 0;
+	private int pdPunishment = 0;
 
 	private long parent1 = -1;
 
@@ -163,28 +166,25 @@ public class ComplexAgentInfo {
 		agentAgingEnergies = new int[typesCount];
 	}
 
-	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, ComplexAgentInfo p2, boolean cheat) {
+	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, ComplexAgentInfo p2) {
 		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
 		parent1 = p1 != null ? p1.agentNumber : -1;
 		parent2 = p2 != null ? p2.agentNumber : -1;
-		cheater = cheat;
 	}
 
-	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1, boolean cheat) {
+	public ComplexAgentInfo(int num, int type, long birth, ComplexAgentInfo p1) {
 		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
 		parent1 = p1 != null ? p1.agentNumber : -1;
-		cheater = cheat;
 	}
 
-	public ComplexAgentInfo(int num, int type, long birth, boolean cheat) {
+	public ComplexAgentInfo(int num, int type, long birth) {
 		this.type = type;
 		agentNumber = num;
 		birthTick = birth;
-		cheater = cheat;
 	}
 
 	public void addAgentBump() {
@@ -298,7 +298,11 @@ public class ComplexAgentInfo {
 		pw.print("\tTurns");
 		pw.print("\tAgent Bumps");
 		pw.print("\tRock Bumps");
-		pw.print("\tStrategy");
+
+		pw.print("\tPD Reward");
+		pw.print("\tPD Temptation");
+		pw.print("\tPD Sucker");
+		pw.print("\tPD Punishment");
 
 		pw.print("\tboundNorth");
 		pw.print("\tboundEast");
@@ -337,11 +341,10 @@ public class ComplexAgentInfo {
 		pw.print("\t" + countAgentBumps);
 		pw.print("\t" + countRockBumps);
 
-		if (cheater) {
-			pw.print("\tcheat");
-		} else {
-			pw.print("\tcooperate");
-		}
+		pw.print("\t" + pdReward);
+		pw.print("\t" + pdTemptation);
+		pw.print("\t" + pdSucker);
+		pw.print("\t" + pdPunishment);
 
 		pw.print("\t" + boundNorth);
 		pw.print("\t" + boundEast);
@@ -356,8 +359,20 @@ public class ComplexAgentInfo {
 		path = null;
 	}
 
-	public void setStrategy(boolean cheat) {
-		cheater = cheat;
+	public void addPDReward() {
+		pdReward++;
+	}
+
+	public void addPDTemptation() {
+		pdTemptation++;
+	}
+
+	public void addPDSucker() {
+		pdSucker++;
+	}
+
+	public void addPDPunishment() {
+		pdPunishment++;
 	}
 
 	public void useAgentBumpEnergy(int val) {
