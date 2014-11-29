@@ -49,7 +49,7 @@ public class GeneticCode {
 		if (maxLen == 0)
 			return 1;
 
-		return similarity_number / maxLen;
+		return (float) similarity_number / maxLen;
 	}
 
 	/**
