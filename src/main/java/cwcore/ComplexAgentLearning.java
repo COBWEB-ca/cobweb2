@@ -245,8 +245,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 						if (concernedAgent.breedPartner == null) {
 							concernedAgent.getInfo().addDirectChild();
 							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn(); 
-							child.init(concernedAgent.getBreedPos(), concernedAgent,
-									concernedAgent.pdCheater);
+							child.init(concernedAgent.getBreedPos(), concernedAgent);
 
 							// Retain emotions for our child!
 							concernedAgent.remember(new MemorableEvent(currTick, lParams.emotionForChildren, "agent-" + child.id));
@@ -260,21 +259,11 @@ public class ComplexAgentLearning extends ComplexAgent {
 							// this agent is favourable
 							concernedAgent.remember(new MemorableEvent(currTick, lParams.loveForPartner, "agent-" + breedPartner.getID()));
 
-							boolean childStrategy = false;
-							{
-								boolean choose = cobweb.globals.random.nextBoolean();
-								if (choose) {
-									childStrategy = concernedAgent.pdCheater;
-								} else {
-									childStrategy = concernedAgent.breedPartner.pdCheater;
-								}
-							}
-
 							concernedAgent.getInfo().addDirectChild();
 							concernedAgent.breedPartner.getInfo().addDirectChild();
 							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn(); 
 							child.init(concernedAgent.getBreedPos(), concernedAgent,
-									(ComplexAgentLearning)concernedAgent.breedPartner, childStrategy);
+									(ComplexAgentLearning)concernedAgent.breedPartner);
 
 							// Retain an undying feeling of love for our
 							// child
@@ -502,8 +491,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 		lParams = lAgentData;
 	}
 
-	private void init(Location pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2, boolean strat) {
-		super.init(pos, parent1, parent2, strat);
+	private void init(Location pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2) {
+		super.init(pos, parent1, parent2);
 
 		if (globals.random.nextBoolean()) {
 			lParams = parent1.lParams;
@@ -514,8 +503,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	}
 
-	private void init(Location pos, ComplexAgentLearning parent, boolean cheat) {
-		super.init(pos, parent, cheat);
+	private void init(Location pos, ComplexAgentLearning parent) {
+		super.init(pos, parent);
 
 		lParams = parent.lParams;
 	}
