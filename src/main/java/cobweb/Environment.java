@@ -412,12 +412,8 @@ public abstract class Environment {
 		return agentTable.get(l);
 	}
 
-	public java.util.Collection<Agent> getAgentCollection() {
+	public Iterable<Agent> getAgents() {
 		return agentTable.values();
-	}
-
-	public java.util.Enumeration<Agent> getAgents() {
-		return agentTable.elements();
 	}
 
 	/** @return the dimensionality of this Environment. */

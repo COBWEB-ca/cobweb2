@@ -40,12 +40,6 @@ public class GeneticController implements cobweb.Controller {
 		// Nothing
 	}
 
-	@SuppressWarnings("unused") // Created through reflection
-	private GeneticController(BehaviorArray g, int memory) {
-		memorySize = memory;
-		ga = g;
-	}
-
 	public void addClientAgent(Agent a) {
 		// Nothing
 	}

@@ -351,9 +351,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	/* Return totalEnergy of all agents */
 	private long countAgentEnergy() {
 		long totalEnergy = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
+		for(Agent a : getAgents()){
+			ComplexAgent agent = (ComplexAgent) a;
 			totalEnergy += agent.getEnergy();
 		}
 		return totalEnergy;
@@ -362,9 +361,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	/* Return totalEnergy (long) for a certain agentType (int) */
 	private long countAgentEnergy(int agentType) {
 		long totalEnergy = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
+		for(Agent a : getAgents()) {
+			ComplexAgent agent = (ComplexAgent) a;
 			if (agent.getAgentType() == agentType)
 				totalEnergy += agent.getEnergy();
 		}
@@ -374,9 +372,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	/* Return the number of agents (int) for a certain agentType (int) */
 	private int countAgents(int agentType) {
 		int agentCount = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
+		for(Agent a : getAgents()) {
+			ComplexAgent agent = (ComplexAgent) a;
 			if (agent.getAgentType() == agentType)
 				agentCount++;
 		}
@@ -763,7 +760,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 */
 	private void killOldAgents() {
 		// if keepOldAgents is false then we want to kill all of the agents
-		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
+		for (Agent a : getAgents()) {
 			if (a.isAlive()) {
 				a.die();
 			}
@@ -1021,7 +1018,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * @param oldW Old environment width
 	 */
 	private void removeOffgridAgents(int oldH, int oldW) {
-		for (Agent a : new LinkedList<Agent>(getAgentCollection())) {
+		for (Agent a : getAgents()) {
 			Location l = a.getPosition();
 			if (l.v[0] >= data.width || l.v[1] >= data.height) {
 				a.die();
@@ -1068,9 +1065,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		int stratArray[] = new int[2];
 		int cheaters = 0;
 		int coops = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
+		for(Agent a : getAgents()) {
+			ComplexAgent agent = (ComplexAgent) a;
 			if (!agent.getAgentPDActionCheat()) {
 				coops++;
 				stratArray[0] = coops;
@@ -1087,9 +1083,8 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		int stratArray[] = new int[2];
 		int cheaters = 0;
 		int coops = 0;
-		java.util.Enumeration<cobweb.Agent> e = getAgents();
-		while (e.hasMoreElements()) {
-			ComplexAgent agent = (ComplexAgent) e.nextElement();
+		for(Agent a : getAgents()) {
+			ComplexAgent agent = (ComplexAgent) a;
 			if (agent.getAgentType() == agentType && !agent.getAgentPDActionCheat()) {
 				coops++;
 				stratArray[0] = coops;
