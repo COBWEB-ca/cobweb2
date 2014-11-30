@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.core;
 import java.awt.Color;
 import java.io.FileInputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -490,7 +491,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	@Override
 	protected synchronized void getDrawInfo(DrawingHandler theUI) {
 		super.getDrawInfo(theUI);
-		for (Agent a : agentTable.values()) {
+		for (Agent a : getAgents()) {
 			a.getDrawInfo(theUI);
 		}
 
@@ -748,26 +749,6 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	/**
-	 * Removes all old agents.
-	 */
-	private void killOldAgents() {
-		// if keepOldAgents is false then we want to kill all of the agents
-		for (Agent a : getAgents()) {
-			if (a.isAlive()) {
-				a.die();
-			}
-		}
-		// This second line may seem redundant, but it fact its not.
-		// By reseting the hashtable, we remove a bit of non-determinance
-		// due to the way
-		// hashtable is implemented. If you remove this line, the coloring
-		// will not be entirely consistant
-		// between simulation runs based on the same seed and parameters (a
-		// bad thing)
-		clearAgents();
-	}
-
-	/**
 	 * Loads a new complex environment using the data held within the simulation 
 	 * configuration object, p.  The following actions are performed during a load:
 	 * 
@@ -844,7 +825,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		if (data.keepOldAgents) {
 			loadOldAgents(sFlag, oldH, oldW);
 		} else {
-			killOldAgents();
+			clearAgents();
 		}
 
 		if (!data.keepOldPackets) {
@@ -1010,7 +991,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	 * @param oldW Old environment width
 	 */
 	private void removeOffgridAgents(int oldH, int oldW) {
-		for (Agent a : getAgents()) {
+		for (Agent a : new ArrayList<Agent>(getAgents())) {
 			Location l = a.getPosition();
 			if (l.v[0] >= data.width || l.v[1] >= data.height) {
 				a.die();
@@ -1380,7 +1361,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 		 * System.out
 		 * .println("************* Before Agent Count Call *************");
 		 */
-		long agentCountAll = countAgents();
+		long agentCountAll = getCurrentPopulation();
 		/*
 		 * System.out
 		 * .println("************* After Agent Count Call *************");

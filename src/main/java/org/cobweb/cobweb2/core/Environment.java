@@ -2,8 +2,10 @@ package org.cobweb.cobweb2.core;
 
 import java.awt.Color;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Hashtable;
-import java.util.LinkedList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -115,7 +117,7 @@ public abstract class Environment {
 	}
 
 	public void clearAgents() {
-		for (Agent a : new LinkedList<Agent>(agentTable.values())) {
+		for (Agent a : new ArrayList<Agent>(getAgents())) {
 			a.die();
 		}
 		agentTable.clear();
@@ -133,10 +135,6 @@ public abstract class Environment {
 		// Nothing
 	}
 
-	public int countAgents() {
-		return agentTable.size();
-	}
-
 	/**
 	 * Called from getDrawInfo to allow implementations to fill the array of
 	 * tile colors.
@@ -147,8 +145,8 @@ public abstract class Environment {
 		return agentTable.get(l);
 	}
 
-	public Iterable<Agent> getAgents() {
-		return agentTable.values();
+	public Collection<Agent> getAgents() {
+		return Collections.unmodifiableCollection(agentTable.values());
 	}
 
 	/** @return the dimensionality of this Environment. */
