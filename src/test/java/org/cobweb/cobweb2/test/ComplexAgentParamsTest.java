@@ -1,0 +1,16 @@
+package org.cobweb.cobweb2.test;
+
+import org.cobweb.cobweb2.core.params.ComplexAgentParams;
+import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
+
+import junit.framework.TestCase;
+
+public class ComplexAgentParamsTest extends TestCase {
+
+	public void testComplexAgentParams() {
+		ComplexEnvironmentParams env = new ComplexEnvironmentParams();
+		ComplexAgentParams p = new ComplexAgentParams(env);
+		assertEquals(100, p.foodEnergy);
+	}
+
+}

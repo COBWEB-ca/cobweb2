@@ -64,7 +64,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>driver.CobwebApplicationRunner</mainClass>
+							<mainClass>org.cobweb.cobweb2.ui.swing.CobwebApplicationRunner</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
