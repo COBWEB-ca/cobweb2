@@ -66,8 +66,8 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 		variables[1] = ((double) agent.getEnergy() / (ENERGY_THRESHOLD));
 		variables[2] = type == ComplexEnvironment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
 		variables[3] = type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
-		variables[4] = type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_DROP ? (ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0;
-		variables[5] = agent.getIntFacing() / 2;
+		variables[4] = type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_DROP ? ((double) ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0;
+		variables[5] = (double) agent.getIntFacing() / 2;
 		variables[6] = memSize == 0 ? 0 : (double) agent.getMemoryBuffer() / ((1 << memSize) - 1);
 		variables[7] = commSize == 0 ? 0 : (double) agent.getCommInbox() / ((1 << commSize) - 1);
 		variables[8] = Math.max(agent.getAge() / 100.0, 2);
