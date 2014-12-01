@@ -72,6 +72,6 @@ public class ProductionViewer implements ViewerPlugin {
 
 	@Override
 	public void dispose() {
-		// nothing
+		off();
 	}
 }

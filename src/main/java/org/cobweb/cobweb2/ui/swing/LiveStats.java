@@ -68,8 +68,10 @@ public class LiveStats implements TickEventListener, ViewerPlugin {
 
 	@Override
 	public void dispose() {
+		off();
 		ui.RemoveTickEventListener(this);
 		graph.dispose();
+		graph = null;
 	}
 
 	public void TickPerformed(long currentTick) {

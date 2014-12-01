@@ -277,7 +277,9 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, Scheduler.Cl
 
 	@Override
 	public void dispose() {
-
+		off();
+		chart_display_frame.dispose();
+		chart_display_frame = null;
 	}
 
 	@Override

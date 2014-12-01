@@ -46,6 +46,6 @@ public class LinearAIViewer implements ViewerPlugin {
 
 	@Override
 	public void dispose() {
-		// nothing
+		off();
 	}
 }
