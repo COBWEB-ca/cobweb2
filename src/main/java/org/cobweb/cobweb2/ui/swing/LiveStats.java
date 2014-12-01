@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 
 import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.UIInterface;
-import org.cobweb.cobweb2.core.LocalUIInterface.TickEventListener;
+import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.jfree.chart.ChartFactory;

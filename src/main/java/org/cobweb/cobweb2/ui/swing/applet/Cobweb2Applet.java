@@ -16,8 +16,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ui.swing.LiveStats;
-import org.cobweb.cobweb2.ui.swing.SimulationConfig;
 import org.cobweb.cobweb2.ui.swing.SimulatorUI;
 
 

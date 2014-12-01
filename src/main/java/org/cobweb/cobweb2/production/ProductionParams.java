@@ -1,8 +1,8 @@
-package org.cobweb.cobweb2.core.params;
+package org.cobweb.cobweb2.production;
 
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
-import org.cobweb.cobweb2.io.ConfDisplayName;
-import org.cobweb.cobweb2.io.ConfXMLTag;
+import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ConfXMLTag;
 
 
 public class ProductionParams extends AbstractReflectionParams {

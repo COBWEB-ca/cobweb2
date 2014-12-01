@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2.core;
 
+
 /**
  * The Scheduler interface is the UIInterface's concept of what a scheduler is.
  * In a nutshell, the Scheduler is the conductor of the simulation; the
@@ -25,11 +26,24 @@ package org.cobweb.cobweb2.core;
 public interface Scheduler {
 
 	/**
+	 * The TickScheduler client interface is quite trivial; tickNotification is
+	 * called on each client each tick.  A client is any object that needs to be 
+	 * modified during a tick (examples are agents, and environments).
+	 */
+	public static interface Client {
+
+		/** Notification of a tick. */
+		public void tickNotification(long time);
+
+		public void tickZero();
+	}
+
+	/**
 	 * Add a client to receive time notification. Note that no policy is put on
 	 * the clients, it is up to implementations of Scheduler to check that
 	 * objects added as clients are truly valid clients.
 	 */
-	void addSchedulerClient(Object theClient);
+	void addSchedulerClient(Client theClient);
 
 	/**
 	 * Get the current time as a long.
@@ -55,7 +69,7 @@ public interface Scheduler {
 	/**
 	 * Save the scheduler to the specified stream.
 	 */
-	void loadScheduler(UIInterface ui, org.cobweb.cobweb2.ui.swing.SimulationConfig p);
+	void loadScheduler(UIInterface ui, org.cobweb.cobweb2.SimulationConfig p);
 
 	/** Pause the simulation. */
 	void pauseScheduler();

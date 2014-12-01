@@ -1,7 +1,6 @@
 package org.cobweb.cobweb2.eventlearning;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexAgentLearning;
 
 public class BreedInitiationOccurrence extends Occurrence {
 

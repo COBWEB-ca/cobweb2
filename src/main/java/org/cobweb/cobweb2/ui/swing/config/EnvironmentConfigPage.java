@@ -20,10 +20,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexAgentLearning;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.ComplexEnvironmentLearning;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
+import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
+import org.cobweb.cobweb2.eventlearning.ComplexEnvironmentLearning;
 import org.cobweb.swingutil.SpringUtilities;
 import org.cobweb.swingutil.binding.BoundCheckBox;
 import org.cobweb.swingutil.binding.BoundJFormattedTextField;

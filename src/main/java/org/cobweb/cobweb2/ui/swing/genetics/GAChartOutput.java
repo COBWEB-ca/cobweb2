@@ -1,15 +1,23 @@
-package org.cobweb.cobweb2.genetics;
+package org.cobweb.cobweb2.ui.swing.genetics;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.cobweb.cobweb2.ui.swing.ColorLookup;
+import org.cobweb.cobweb2.core.Scheduler;
+import org.cobweb.cobweb2.genetics.GATracker;
+import org.cobweb.cobweb2.genetics.GeneticParams;
+import org.cobweb.cobweb2.ui.ViewerClosedCallback;
+import org.cobweb.cobweb2.ui.ViewerPlugin;
+import org.cobweb.io.ConfDisplayName;
+import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.JComponentWaiter;
 import org.cobweb.swingutil.TypeColorEnumeration;
 import org.jfree.chart.ChartFactory;
@@ -20,7 +28,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 // TODO: turn into ViewerPlugin
-public class GAChartOutput implements ActionListener {
+public class GAChartOutput implements ViewerPlugin, ActionListener, Scheduler.Client {
 
 	/** Charts that represent GA outputs */
 	private JFreeChart[] gene_status_distribution_chart;
@@ -43,9 +51,9 @@ public class GAChartOutput implements ActionListener {
 
 	/** Buttons that display GA outputs on the chart frame. */
 	private JButton gene_status_distribution_button =
-		new JButton("Genotype-Phenotype Correlation Value");
+			new JButton("Genotype-Phenotype Correlation Value");
 	private JButton gene_value_distribution_button =
-		new JButton("Genotype Value");
+			new JButton("Genotype Value");
 
 	/** Current component on display. */
 	private JPanel current_display;
@@ -90,7 +98,7 @@ public class GAChartOutput implements ActionListener {
 					true,    // legend?
 					true,    // tooltips?
 					false    // URLs?
-			);
+					);
 
 			XYItemRenderer renderer = gene_status_distribution_chart[i].getXYPlot().getRenderer();
 
@@ -110,11 +118,19 @@ public class GAChartOutput implements ActionListener {
 	private int numAgentTypes;
 
 	private int geneCount;
+	private Scheduler scheduler;
+	private GATracker gaTracker;
 
 
-	public GAChartOutput(int agents, int genes, String[] names) {
-		numAgentTypes = agents;
-		geneCount = genes;
+	public GAChartOutput(GATracker tracker, GeneticParams params, Scheduler scheduler) {
+		gaTracker = tracker;
+		numAgentTypes = gaTracker.getAgentTypeCount();
+		geneCount = gaTracker.getGeneCount();
+
+		String[] names = new String[geneCount];
+		for(int i = 0; i < geneCount; i++) {
+			names[i] = params.phenotype[i].field.getAnnotation(ConfDisplayName.class).value();
+		}
 
 		gene_value_distribution_chart = new JFreeChart[geneCount];
 		gene_status_distribution_chart = new JFreeChart[geneCount];
@@ -132,7 +148,7 @@ public class GAChartOutput implements ActionListener {
 					true,    // legend?
 					true,    // tooltips?
 					false    // URLs?
-			);
+					);
 
 			XYItemRenderer renderer = gene_value_distribution_chart[i].getXYPlot().getRenderer();
 			for (int agent = 0; agent < numAgentTypes; agent++) {
@@ -151,7 +167,7 @@ public class GAChartOutput implements ActionListener {
 			chart_display_frame.dispose();
 			chart_display_frame = null;
 		}
-		chart_display_frame = new JFrame("Gene Statistics");
+		chart_display_frame = new JFrame(getName());
 		refreshWaiter = new JComponentWaiter(chart_display_frame);
 		JPanel button_panel = new JPanel();
 
@@ -166,9 +182,24 @@ public class GAChartOutput implements ActionListener {
 
 		chart_display_frame.getContentPane().add(button_panel, BorderLayout.SOUTH);
 		chart_display_frame.setSize(new Dimension(900, 460));
-		chart_display_frame.setVisible(true);
+
+		chart_display_frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				onClosed.viewerClosed();
+			}
+		});
+
+		this.scheduler = scheduler;
 	}
 
+
+	private void setSchedulerSubscribed(boolean subscribe) {
+		if (subscribe)
+			scheduler.addSchedulerClient(this);
+		else
+			scheduler.removeSchedulerClient(this);
+	}
 
 	/** Initialize the gene_status_distribution_range x-vector. */
 	public void initGeneStatusDistributionRangeVector() {
@@ -188,9 +219,13 @@ public class GAChartOutput implements ActionListener {
 	}
 
 	JComponentWaiter refreshWaiter;
+	private ViewerClosedCallback onClosed;
 
 	/** Update the gene_status_distribution data */
-	public void updateGeneStatusDistributionData(double[][][] value, double[][][] status) {
+	public void updateGeneStatusDistributionData() {
+		double[][][] value = gaTracker.getGeneValueDistribution();
+		double[][][] status = gaTracker.getGeneStatusDistribution();
+
 		/* 
 		 * Collecting all data into one array, then replacing everything at once
 		 * to hopefully fix race condition in JFreeChart
@@ -221,5 +256,42 @@ public class GAChartOutput implements ActionListener {
 			refreshWaiter.refresh(false);
 		}
 
+	}
+
+	@Override
+	public String getName() {
+		return "Gene Statistics";
+	}
+
+	@Override
+	public void on() {
+		chart_display_frame.setVisible(true);
+		setSchedulerSubscribed(true);
+	}
+
+	@Override
+	public void off() {
+		chart_display_frame.setVisible(false);
+		setSchedulerSubscribed(false);
+	}
+
+	@Override
+	public void dispose() {
+
+	}
+
+	@Override
+	public void setClosedCallback(ViewerClosedCallback onClosed) {
+		this.onClosed = onClosed;
+	}
+
+	@Override
+	public void tickNotification(long time) {
+		updateGeneStatusDistributionData();
+	}
+
+	@Override
+	public void tickZero() {
+		// nothing
 	}
 }

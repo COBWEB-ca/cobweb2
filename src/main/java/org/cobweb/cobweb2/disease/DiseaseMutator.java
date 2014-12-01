@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.Scheduler;
 import org.cobweb.cobweb2.core.globals;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
@@ -22,7 +23,7 @@ import org.cobweb.util.ReflectionUtil;
 /**
  * Simulates various diseases that can affect agents.
  */
-public class DiseaseMutator implements ContactMutator, SpawnMutator, org.cobweb.cobweb2.core.TickScheduler.Client {
+public class DiseaseMutator implements ContactMutator, SpawnMutator, Scheduler.Client {
 
 	private DiseaseParams[] params;
 

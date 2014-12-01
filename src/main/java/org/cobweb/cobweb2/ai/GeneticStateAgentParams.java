@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.io.CobwebParam;
-import org.cobweb.cobweb2.io.ConfDisplayName;
+import org.cobweb.io.ConfDisplayName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;

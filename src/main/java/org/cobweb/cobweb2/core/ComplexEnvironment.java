@@ -14,17 +14,17 @@ import java.util.Vector;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.ai.ControllerFactory;
 import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
-import org.cobweb.cobweb2.core.params.ProductionParams;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;
 import org.cobweb.cobweb2.production.ProductionMapper;
-import org.cobweb.cobweb2.ui.swing.ColorLookup;
-import org.cobweb.cobweb2.ui.swing.ControllerFactory;
-import org.cobweb.cobweb2.ui.swing.SimulationConfig;
+import org.cobweb.cobweb2.production.ProductionParams;
+import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.TypeColorEnumeration;
 import org.cobweb.util.Point2D;
 import org.cobweb.util.RandomNoGenerator;
@@ -34,9 +34,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class contains an implementation of the TickScheduler.Client class.
+ * 2D grid where agents and food live
  */
-public class ComplexEnvironment extends Environment implements TickScheduler.Client {
+public class ComplexEnvironment extends Environment implements Scheduler.Client {
 
 	/**
 	 * Contains methods
@@ -489,7 +489,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 	}
 
 	@Override
-	protected synchronized void getDrawInfo(DrawingHandler theUI) {
+	public synchronized void getDrawInfo(DrawingHandler theUI) {
 		super.getDrawInfo(theUI);
 		for (Agent a : getAgents()) {
 			a.getDrawInfo(theUI);
@@ -970,7 +970,7 @@ public class ComplexEnvironment extends Environment implements TickScheduler.Cli
 					// new, otherwise we assume it already belongs to the
 					// scheduler
 					if (sFlag) {
-						getScheduler().addSchedulerClient(currentPos.getAgent());
+						getScheduler().addSchedulerClient((ComplexAgent) currentPos.getAgent());
 					}
 					int theType = ((ComplexAgent) currentPos.getAgent()).getAgentType();
 					((ComplexAgent) currentPos.getAgent()).setConstants(agentData[theType], prodData[theType]); // Default

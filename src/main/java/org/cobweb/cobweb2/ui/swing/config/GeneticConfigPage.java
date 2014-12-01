@@ -24,7 +24,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.genetics.GeneticParams;
-import org.cobweb.cobweb2.genetics.GeneticParams.Phenotype;
+import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.ui.swing.CobwebUserException;
 import org.cobweb.swingutil.binding.BoundCheckBox;
 import org.cobweb.swingutil.binding.BoundJFormattedTextField;

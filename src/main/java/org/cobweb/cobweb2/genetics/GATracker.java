@@ -1,12 +1,9 @@
 package org.cobweb.cobweb2.genetics;
 
-import java.awt.GraphicsEnvironment;
-
-import org.cobweb.cobweb2.core.TickScheduler.Client;
 import org.cobweb.util.ArrayUtilities;
 
 
-public class GATracker implements Client {
+public class GATracker {
 
 
 
@@ -22,32 +19,34 @@ public class GATracker implements Client {
 	/** The sum of specific gene status numbers over particular agent types. */
 	public double[][] total_gene_status;
 
-	/** The distribution of the status of a specific gene over particular agent types. */
+	/** 
+	 * The distribution of the status of a specific gene over particular agent types. 
+	 * array indices are: [agent_type][gene_index][gene_status], 
+	 * value is the number of agents with given specific status
+	 * */
 	private double[][][] gene_status_distribution;
 
-	/** The distribution of the value of a specific gene over particular agent types. */
+	/** 
+	 * The distribution of the value of a specific gene over particular agent types. 
+	 * array indices are: [agent_type][gene_index][gene_value],
+	 * value is the number of agents with given specific value
+	 * */
 	private double[][][] gene_value_distribution;
 
 	/** Which GA-info type to track/print. */
 	private boolean track_gene_value_distribution;
 
-	private GAChartOutput charOutput;
-
 	private int typeCount;
 
 	private int geneCount;
-
-	private int update_frequency;
 
 	public GATracker() {
 		// Nothing
 	}
 
-	public void setParams(int agentTypes, int geneNo, boolean track, int update_frequency, String[] names) {
+	public void setParams(int agentTypes, int geneNo) {
 		typeCount = agentTypes;
 		geneCount = geneNo;
-		this.update_frequency = update_frequency;
-		frameskip = 0;
 
 		if (total_agents == null) {
 			total_agents = new int[typeCount];
@@ -72,14 +71,14 @@ public class GATracker implements Client {
 		} else if (gene_value_distribution.length != typeCount || gene_value_distribution[0].length != geneCount) {
 			gene_value_distribution = ArrayUtilities.resizeArray(gene_value_distribution, typeCount, geneCount, GENE_VALUE_DISTRIBUTION_SIZE);
 		}
-		track_gene_value_distribution = track;
+	}
 
-		if (GraphicsEnvironment.isHeadless())
-			track_gene_value_distribution = false;
-		if (track_gene_value_distribution) {
-			charOutput = new GAChartOutput(typeCount, geneCount, names);
-		}
-		frameskip = 0;
+	public int getAgentTypeCount() {
+		return typeCount;
+	}
+
+	public int getGeneCount() {
+		return geneCount;
 	}
 
 	/** Adds an agent. */
@@ -102,19 +101,12 @@ public class GATracker implements Client {
 		total_agents[type]--;
 	}
 
-	/** Calculates GA info and prints them if appropriate. */
-	public void printGAInfo() {
-		plotGeneValueDistribution();
+	public double[][][] getGeneStatusDistribution() {
+		return gene_status_distribution;
 	}
-	private int frameskip;
 
-	/** Plot the gene value distribution of all agent types for a certain time step. */
-	private void plotGeneValueDistribution() {
-		if (frameskip-- <= 0) {
-
-			charOutput.updateGeneStatusDistributionData(gene_value_distribution, gene_status_distribution);
-			frameskip = update_frequency;
-		}
+	public double[][][] getGeneValueDistribution() {
+		return gene_value_distribution;
 	}
 
 	/** Gets the appropriate index of a gene of a specific value in a gene status distribution hash table (or array). */
@@ -136,17 +128,6 @@ public class GATracker implements Client {
 	/** Sets the state of 'track_gene_value_distribution'. */
 	public void setTrackGeneValueDistribution(boolean state) {
 		track_gene_value_distribution = state;
-	}
-
-	public void tickNotification(long time) {
-		/* If program is set to track GA info, then print them. */
-		if (track_gene_value_distribution) {
-			printGAInfo();
-		}
-	}
-
-	public void tickZero() {
-		tickNotification(0);
 	}
 
 	public double getAvgStatus(int agentType, int geneType) {

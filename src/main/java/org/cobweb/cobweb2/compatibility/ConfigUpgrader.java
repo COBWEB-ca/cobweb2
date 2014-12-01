@@ -1,12 +1,12 @@
-package org.cobweb.cobweb2.io;
+package org.cobweb.cobweb2.compatibility;
 
 import org.cobweb.cobweb2.ai.GeneticController;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexAgentLearning;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.ComplexEnvironmentLearning;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
+import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
+import org.cobweb.cobweb2.eventlearning.ComplexEnvironmentLearning;
 
 
 public class ConfigUpgrader {

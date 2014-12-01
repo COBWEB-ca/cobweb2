@@ -11,10 +11,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
+import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.GeneticController;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
 import org.cobweb.cobweb2.ui.swing.SettingsPanel;
-import org.cobweb.cobweb2.ui.swing.SimulationConfig;
 
 class AIPanel extends SettingsPanel {
 

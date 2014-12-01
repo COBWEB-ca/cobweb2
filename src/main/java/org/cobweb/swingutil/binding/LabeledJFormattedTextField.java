@@ -5,7 +5,7 @@ import java.text.Format;
 
 import javax.swing.JFormattedTextField;
 
-import org.cobweb.cobweb2.io.ConfDisplayName;
+import org.cobweb.io.ConfDisplayName;
 
 
 public class LabeledJFormattedTextField extends JFormattedTextField {

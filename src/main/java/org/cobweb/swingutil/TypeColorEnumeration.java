@@ -3,8 +3,6 @@ package org.cobweb.swingutil;
 import java.awt.Color;
 import java.awt.color.ColorSpace;
 
-import org.cobweb.cobweb2.ui.swing.ColorLookup;
-
 public class TypeColorEnumeration implements ColorLookup {
 
 	private static ColorSpace space = ColorSpace.getInstance(ColorSpace.CS_sRGB);

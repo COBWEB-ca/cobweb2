@@ -7,9 +7,9 @@ import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
-import org.cobweb.cobweb2.core.LocalUIInterface;
+import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.UIInterface;
-import org.cobweb.cobweb2.core.LocalUIInterface.TickEventListener;
+import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
 import org.cobweb.cobweb2.core.UIInterface.UIClient;
 import org.cobweb.cobweb2.ui.swing.config.GUI;
 

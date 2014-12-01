@@ -29,11 +29,11 @@ import javax.swing.JTable;
 import javax.swing.LookAndFeel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.cobweb.cobweb2.core.ComplexAgentLearning;
+import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.ui.swing.CobwebApplication;
 import org.cobweb.cobweb2.ui.swing.CobwebUserException;
 import org.cobweb.cobweb2.ui.swing.SettingsPanel;
-import org.cobweb.cobweb2.ui.swing.SimulationConfig;
 import org.cobweb.swingutil.TypeColorEnumeration;
 
 /**

@@ -90,7 +90,7 @@ public class ProductionMapper implements StatePlugin {
 		return getValueAtLocation(loc);
 	}
 
-	Color[][] getTileColors(int x, int y) {
+	public Color[][] getTileColors(int x, int y) {
 		Color[][] ret = new Color[x][y];
 		float lockedMax = maxValue;
 
@@ -107,13 +107,6 @@ public class ProductionMapper implements StatePlugin {
 			}
 		}
 		return ret;
-	}
-
-	Disp display = null;
-
-	public Disp createDialog() {
-		display = new Disp(this, this.e.getWidth(), this.e.getHeight());
-		return display;
 	}
 
 	public class ProductHunt implements StateParameter {

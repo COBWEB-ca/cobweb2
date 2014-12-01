@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.core;
+package org.cobweb.cobweb2.ui.swing;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -18,17 +18,27 @@ import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
+import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.abiotic.TemperatureMutator;
 import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
+import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.core.AgentSpawner;
+import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.DrawingHandler;
+import org.cobweb.cobweb2.core.Environment;
+import org.cobweb.cobweb2.core.EnvironmentStats;
+import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.Scheduler;
+import org.cobweb.cobweb2.core.TickScheduler;
+import org.cobweb.cobweb2.core.UIInterface;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
-import org.cobweb.cobweb2.production.ProductionViewer;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
-import org.cobweb.cobweb2.ui.swing.ColorLookup;
-import org.cobweb.cobweb2.ui.swing.LinearAIViewer;
-import org.cobweb.cobweb2.ui.swing.LiveStats;
-import org.cobweb.cobweb2.ui.swing.SimulationConfig;
+import org.cobweb.cobweb2.ui.swing.genetics.GAChartOutput;
+import org.cobweb.cobweb2.ui.swing.production.ProductionViewer;
+import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.TypeColorEnumeration;
 import org.cobweb.util.Point2D;
 
@@ -39,7 +49,7 @@ import org.cobweb.util.Point2D;
  * @author ???
  *
  */
-public class LocalUIInterface implements UIInterface, DrawingHandler, org.cobweb.cobweb2.core.TickScheduler.Client {
+public class LocalUIInterface implements UIInterface, DrawingHandler, Scheduler.Client {
 
 	/**
 	 * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo
@@ -291,11 +301,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, org.cobweb
 			}
 			g.setColor(o);
 		}
-	}
-
-	public static interface TickEventListener {
-
-		public void TickPerformed(long currentTick);
 	}
 
 	long myClock = -1;
@@ -611,7 +616,6 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, org.cobweb
 		InitEnvironment(p.getEnvParams().environmentName, p);
 
 		theScheduler.addSchedulerClient(this);
-		theScheduler.addSchedulerClient(geneticMutator.getTracker());
 		theScheduler.addSchedulerClient(diseaseMutator);
 
 		theScheduler.setSleep(delay);
@@ -636,6 +640,11 @@ public class LocalUIInterface implements UIInterface, DrawingHandler, org.cobweb
 		viewers.add(new ProductionViewer(theEnvironment, theScheduler));
 
 		viewers.add(new LiveStats(this));
+
+		if (simulationConfig.getGeneticParams().geneCount != 0) {
+			GAChartOutput gaViewer = new GAChartOutput(geneticMutator.getTracker(), simulationConfig.getGeneticParams(), theScheduler);
+			viewers.add(gaViewer);
+		}
 	}
 
 	/**

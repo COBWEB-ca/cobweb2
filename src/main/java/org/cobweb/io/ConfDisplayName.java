@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.io;
+package org.cobweb.io;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

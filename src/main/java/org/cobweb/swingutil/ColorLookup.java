@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.ui.swing;
+package org.cobweb.swingutil;
 
 import java.awt.Color;
 import java.awt.color.ColorSpace;

@@ -35,9 +35,8 @@ import java.util.Collection;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
-import org.cobweb.cobweb2.core.LocalUIInterface.TickEventListener;
+import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
-import org.cobweb.cobweb2.ui.swing.SimulationConfig;
 
 public interface UIInterface {
 
@@ -68,6 +67,11 @@ public interface UIInterface {
 		public void setSimulation(UIInterface simulation);
 
 		public UIInterface getUIPipe();
+	}
+
+	public static interface TickEventListener {
+
+		public void TickPerformed(long currentTick);
 	}
 
 	/**
@@ -146,9 +150,7 @@ public interface UIInterface {
 	public int getWidth();
 
 	/**
-	 * This is currently being overwritten by the LocalUIInterface.
-	 * 
-	 * @see LocalUIInterface#insertPopulation(String, boolean)
+	 * Inserts agent population from filename given by popName
 	 */
 	public void insertPopulation(String popName, boolean replace);
 

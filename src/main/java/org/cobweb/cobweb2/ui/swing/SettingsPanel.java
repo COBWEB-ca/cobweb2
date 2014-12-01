@@ -4,6 +4,8 @@ import java.awt.LayoutManager;
 
 import javax.swing.JPanel;
 
+import org.cobweb.cobweb2.SimulationConfig;
+
 public abstract class SettingsPanel extends JPanel  {
 
 

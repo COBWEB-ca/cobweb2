@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.production;
+package org.cobweb.cobweb2.ui.swing.production;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -6,10 +6,11 @@ import java.awt.Graphics;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-import org.cobweb.cobweb2.core.TickScheduler.Client;
+import org.cobweb.cobweb2.core.Scheduler;
+import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.swingutil.WaitableJComponent;
 
-public class Disp extends JFrame implements Client {
+public class Disp extends JFrame implements Scheduler.Client {
 	/**
 	 * 
 	 */

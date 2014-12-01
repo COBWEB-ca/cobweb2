@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.ui.swing;
+package org.cobweb.cobweb2;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,16 +23,16 @@ import javax.xml.transform.stream.StreamResult;
 import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.ai.ControllerParams;
 import org.cobweb.cobweb2.ai.GeneticControllerParams;
-import org.cobweb.cobweb2.core.ComplexAgentLearning;
+import org.cobweb.cobweb2.compatibility.ConfigUpgrader;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
-import org.cobweb.cobweb2.core.params.ProductionParams;
 import org.cobweb.cobweb2.disease.DiseaseParams;
+import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.eventlearning.LearningParams;
 import org.cobweb.cobweb2.genetics.GeneticParams;
 import org.cobweb.cobweb2.io.CobwebParam;
-import org.cobweb.cobweb2.io.ConfigUpgrader;
+import org.cobweb.cobweb2.production.ProductionParams;
 import org.cobweb.util.Versionator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

@@ -1,6 +1,5 @@
-package org.cobweb.cobweb2.ui.swing;
+package org.cobweb.cobweb2.ai;
 
-import org.cobweb.cobweb2.ai.Controller;
 import org.cobweb.cobweb2.io.CobwebParam;
 
 public class ControllerFactory {

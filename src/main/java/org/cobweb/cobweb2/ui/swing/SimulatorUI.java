@@ -11,9 +11,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.cobweb.cobweb2.core.LocalUIInterface;
+import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.UIInterface;
-import org.cobweb.cobweb2.core.LocalUIInterface.TickEventListener;
+import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
 import org.cobweb.cobweb2.core.UIInterface.UIClient;
 
 /**
@@ -25,7 +25,7 @@ import org.cobweb.cobweb2.core.UIInterface.UIClient;
 public class SimulatorUI extends JPanel implements UIClient {
 	private static final long serialVersionUID = 2671092780367865697L;
 
-	private final LocalUIInterface uiPipe;
+	private final UIInterface uiPipe;
 
 	private DisplayPanel displayPanel;
 

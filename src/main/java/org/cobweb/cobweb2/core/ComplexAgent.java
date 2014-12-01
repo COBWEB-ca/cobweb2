@@ -10,18 +10,18 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.cobweb.cobweb2.ai.ControllerFactory;
 import org.cobweb.cobweb2.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.core.ComplexEnvironment.Drop;
 import org.cobweb.cobweb2.core.ComplexEnvironment.Waste;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
-import org.cobweb.cobweb2.core.params.ProductionParams;
 import org.cobweb.cobweb2.interconnect.AgentMutator;
 import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
-import org.cobweb.cobweb2.ui.swing.ColorLookup;
-import org.cobweb.cobweb2.ui.swing.ControllerFactory;
+import org.cobweb.cobweb2.production.ProductionParams;
+import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.TypeColorEnumeration;
 import org.cobweb.util.Point2D;
 import org.w3c.dom.Document;
@@ -42,7 +42,7 @@ import org.w3c.dom.Node;
  * @see java.io.Serializable
  *
  */
-public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.cobweb.cobweb2.core.TickScheduler.Client, Serializable{
+public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Scheduler.Client, Serializable{
 
 	/**
 	 * This class provides the information of what an agent sees.
@@ -200,9 +200,9 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.c
 
 	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
-	static Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
+	protected static Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
 
-	static Set<StepMutator> stepMutators = new LinkedHashSet<StepMutator>();
+	protected static Set<StepMutator> stepMutators = new LinkedHashSet<StepMutator>();
 
 	private static final org.cobweb.cobweb2.core.Direction[] dirList = { org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH,
 		org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH, org.cobweb.cobweb2.core.Environment.DIRECTION_WEST, org.cobweb.cobweb2.core.Environment.DIRECTION_EAST,
@@ -230,9 +230,9 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.c
 
 	private static Set<SpawnMutator> spawnMutators = new LinkedHashSet<SpawnMutator>();
 
-	boolean mustFlip = false;
+	protected boolean mustFlip = false;
 
-	public ComplexEnvironment environment;
+	public transient ComplexEnvironment environment;
 
 	public ComplexAgent() {
 
@@ -369,7 +369,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.c
 	 * 
 	 * @param loc The location of food.
 	 */
-	void broadcastFood(org.cobweb.cobweb2.core.Location loc) { // []SK
+	protected void broadcastFood(org.cobweb.cobweb2.core.Location loc) { // []SK
 		String message = loc.toString();
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, id, message, energy
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
@@ -410,7 +410,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.c
 	 * @param destPos The location of the agents next position.
 	 * @return True if location exists and is not occupied by anything
 	 */
-	boolean canStep(Location destPos) {
+	protected boolean canStep(Location destPos) {
 		// The position must be valid...
 		if (destPos == null)
 			return false;
@@ -450,7 +450,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.c
 	//		return cp;
 	//	}
 
-	void communicate(ComplexAgent target) {
+	protected void communicate(ComplexAgent target) {
 		target.setCommInbox(getCommOutbox());
 	}
 
@@ -555,7 +555,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.c
 		return penaltyValue;
 	}
 
-	org.cobweb.cobweb2.core.Agent getAdjacentAgent() {
+	protected Agent getAdjacentAgent() {
 		org.cobweb.cobweb2.core.Location destPos = getPosition().getAdjacent(facing);
 		if (destPos == null) {
 			return null;
@@ -855,7 +855,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.c
 			iveBeenCheated(othersID);
 	}
 
-	void receiveBroadcast() {
+	protected void receiveBroadcast() {
 		BroadcastPacket commPacket = null;
 
 		commPacket = checkforBroadcasts();
@@ -1234,7 +1234,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements org.c
 	 * and its asexFlag is true, then the agent will be pregnant and set to 
 	 * produce a child agent after the agent's asexPregnancyPeriod is up.
 	 */
-	void tryAsexBreed() {
+	protected void tryAsexBreed() {
 		if (isAsexFlag() && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
 				&& org.cobweb.cobweb2.core.globals.random.nextFloat() < params.asexualBreedChance) {
 			pregPeriod = params.asexPregnancyPeriod;

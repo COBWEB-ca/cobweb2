@@ -17,7 +17,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.cobweb.cobweb2.ui.swing.SimulationConfig;
+import org.cobweb.cobweb2.SimulationConfig;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -161,7 +161,7 @@ public abstract class Environment {
 	}
 
 	/** Called by the UIInterface to get the frame data for the Environment. */
-	protected void getDrawInfo(DrawingHandler theUI) {
+	public void getDrawInfo(DrawingHandler theUI) {
 		fillTileColors(tileColors);
 		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
 
@@ -357,7 +357,7 @@ public abstract class Environment {
 	public abstract void unObserve();
 
 	/** Update the log; called from the UIInterface */
-	protected abstract void writeLogEntry();
+	public abstract void writeLogEntry();
 
 	public abstract boolean hasAgent(int x, int y);
 

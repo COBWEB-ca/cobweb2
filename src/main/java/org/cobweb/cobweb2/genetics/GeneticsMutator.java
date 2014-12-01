@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.genetics.GeneticParams.Phenotype;
 import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
+import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
-import org.cobweb.cobweb2.io.ConfDisplayName;
+import org.cobweb.io.ConfDisplayName;
 import org.cobweb.util.ReflectionUtil;
 
 /**
@@ -189,11 +189,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		if (tracker == null)
 			this.tracker = new GATracker();
 
-		String[] names = new String[params.geneCount];
-		for (int i = 0; i < params.geneCount; i++) {
-			names[i] = params.phenotype[i].field.getAnnotation(ConfDisplayName.class).value();
-		}
-		tracker.setParams(agentCount, params.geneCount, params.trackValues, params.updateFrequency, names);
+		tracker.setParams(agentCount, params.geneCount);
 	}
 
 	public float similarity(ComplexAgent a1, ComplexAgent a2) {

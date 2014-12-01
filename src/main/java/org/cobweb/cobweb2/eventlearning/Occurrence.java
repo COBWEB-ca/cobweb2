@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.eventlearning;
 
-import org.cobweb.cobweb2.core.ComplexAgentLearning;
 
 public abstract class Occurrence implements Queueable {
 

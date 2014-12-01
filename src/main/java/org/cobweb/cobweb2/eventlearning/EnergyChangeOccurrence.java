@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.eventlearning;
 
-import org.cobweb.cobweb2.core.ComplexAgentLearning;
 
 public class EnergyChangeOccurrence extends Occurrence {
 

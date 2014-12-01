@@ -1,9 +1,9 @@
 package org.cobweb.cobweb2.abiotic;
 
-import org.cobweb.cobweb2.genetics.GeneticParams.Phenotype;
+import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
-import org.cobweb.cobweb2.io.ConfDisplayName;
-import org.cobweb.cobweb2.io.ConfXMLTag;
+import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ConfXMLTag;
 
 /**
  * Contains temperature parameters that are agent type specific.

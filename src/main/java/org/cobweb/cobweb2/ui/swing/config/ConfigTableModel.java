@@ -11,8 +11,8 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.cobweb.cobweb2.io.CobwebParam;
-import org.cobweb.cobweb2.io.ConfDisplayName;
 import org.cobweb.cobweb2.io.NamedParam;
+import org.cobweb.io.ConfDisplayName;
 import org.cobweb.util.ReflectionUtil;
 
 /**

@@ -2,8 +2,6 @@ package org.cobweb.cobweb2.eventlearning;
 
 import java.util.ArrayList;
 
-import org.cobweb.cobweb2.core.ComplexAgentLearning;
-
 
 public abstract class SmartAction implements Queueable {
 

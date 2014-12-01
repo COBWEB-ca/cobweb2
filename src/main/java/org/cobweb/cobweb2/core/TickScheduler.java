@@ -6,26 +6,13 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.cobweb.cobweb2.ui.swing.SimulationConfig;
+import org.cobweb.cobweb2.SimulationConfig;
 
 /**
  * TickScheduler is an implementation of Scheduler that sends uniform ticks to
  * clients.
  */
 public class TickScheduler implements Scheduler {
-
-	/**
-	 * The TickScheduler client interface is quite trivial; tickNotification is
-	 * called on each client each tick.  A client is any object that needs to be 
-	 * modified during a tick (examples are agents, and environments).
-	 */
-	public static interface Client {
-
-		/** Notification of a tick. */
-		public void tickNotification(long time);
-
-		public void tickZero();
-	}
 
 	/**
 	 * Contains the run method used for the simulation thread.
@@ -92,15 +79,15 @@ public class TickScheduler implements Scheduler {
 		loadScheduler(ui, p);
 	}
 
-	public synchronized void addSchedulerClient(Object theClient) {
-		clientV.add((Client) theClient);
+	public synchronized void addSchedulerClient(Client theClient) {
+		clientV.add(theClient);
 	}
 
 	/**
 	 * Calls tick notifications for each client (agents, 
 	 * environment, etc.) within the simulation.
 	 * 
-	 * @see Client#tickNotification(long)
+	 * @see Scheduler.Client#tickNotification(long)
 	 */
 	private synchronized void doTick() {
 		++tickCount;
@@ -185,4 +172,5 @@ public class TickScheduler implements Scheduler {
 		}
 		notifyAll();
 	}
+
 }

@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
-import org.cobweb.cobweb2.core.params.ProductionParams;
+import org.cobweb.cobweb2.production.ProductionParams;
 
 
 public class ProductionConfigPage implements ConfigPage {

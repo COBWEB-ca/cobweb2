@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import javax.swing.JCheckBox;
 
-import org.cobweb.cobweb2.io.ConfDisplayName;
+import org.cobweb.io.ConfDisplayName;
 
 public class BoundCheckBox extends JCheckBox implements FieldBoundComponent {
 

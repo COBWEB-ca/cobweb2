@@ -1,20 +1,18 @@
-package org.cobweb.cobweb2.core;
+package org.cobweb.cobweb2.eventlearning;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cobweb.cobweb2.core.AgentSpawner;
+import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.Direction;
+import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.globals;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
-import org.cobweb.cobweb2.core.params.ProductionParams;
-import org.cobweb.cobweb2.eventlearning.BreedInitiationOccurrence;
-import org.cobweb.cobweb2.eventlearning.EnergyChangeOccurrence;
-import org.cobweb.cobweb2.eventlearning.LearningAgentParams;
-import org.cobweb.cobweb2.eventlearning.MemorableEvent;
-import org.cobweb.cobweb2.eventlearning.Occurrence;
-import org.cobweb.cobweb2.eventlearning.Queueable;
-import org.cobweb.cobweb2.eventlearning.SmartAction;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
+import org.cobweb.cobweb2.production.ProductionParams;
 
 //Food storage
 //Vaccination/avoid infected agents
@@ -36,10 +34,10 @@ public class ComplexAgentLearning extends ComplexAgent {
 	/**
 	 * A collection of events in memory.
 	 */
-	public Collection<MemorableEvent> memEvents;
+	public List<MemorableEvent> memEvents;
 
 
-	private Collection<Queueable> queueables;
+	private List<Queueable> queueables;
 
 	/**
 	 * MemorableEvents are placed in the agent's memory with this method. Earliest memories will
@@ -106,7 +104,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	void broadcastFood(org.cobweb.cobweb2.core.Location loc) { // []SK
+	protected void broadcastFood(org.cobweb.cobweb2.core.Location loc) { // []SK
 		super.broadcastFood(loc);
 
 		// Deduct broadcasting cost from energy
@@ -128,7 +126,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			// Eating other food has a ratio of goodness compared to eating
 			// normal food.
 			float howHappyThisMakesMe = (float) params.otherFoodEnergy / (float) params.foodEnergy
-			* lParams.foodPleasure;
+					* lParams.foodPleasure;
 			remember(new MemorableEvent(currTick, howHappyThisMakesMe, "food"));
 		}
 
@@ -149,7 +147,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	void receiveBroadcast() {
+	protected void receiveBroadcast() {
 		super.receiveBroadcast();
 		// TODO: Add a MemorableEvent to show a degree of friendliness towards
 		// the broadcaster
@@ -355,7 +353,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				double sim = 0.0;
 				boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-				&& org.cobweb.cobweb2.core.globals.random.nextFloat() < params.sexualBreedChance;
+						&& org.cobweb.cobweb2.core.globals.random.nextFloat() < params.sexualBreedChance;
 
 				// Generate genetic similarity number
 				sim = simCalc.similarity(this, adjacentAgent);

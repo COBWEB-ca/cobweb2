@@ -3,8 +3,8 @@ package org.cobweb.cobweb2.ai;
 import java.lang.reflect.Field;
 
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
-import org.cobweb.cobweb2.io.ConfXMLTag;
 import org.cobweb.cobweb2.io.NamedParam;
+import org.cobweb.io.ConfXMLTag;
 
 /**
  * Number of bits assigned to the given parameter within GeneticController

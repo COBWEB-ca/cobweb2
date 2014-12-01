@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.cobweb.io.ConfDynamicInstance;
+import org.cobweb.io.ConfXMLTag;
 import org.cobweb.util.ReflectionUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

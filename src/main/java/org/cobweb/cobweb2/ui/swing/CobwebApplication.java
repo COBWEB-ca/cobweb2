@@ -43,8 +43,9 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
+import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.UIInterface;
-import org.cobweb.cobweb2.core.LocalUIInterface.TickEventListener;
+import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
 import org.cobweb.cobweb2.core.UIInterface.UIClient;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
@@ -711,11 +712,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 				Object[] options = { "Yes, please", "No, thanks" };
 				int n = JOptionPane.showOptionDialog(GUI.frame,
 						"Default data would not be affected by \"Modify This File\" menu.\n"
-						+ "\nTo set up new default data, please use \"Set Default Data\" menu instead.\n"
-						+ "\n\nWould you like to be reminded next time?", "Modifying Default Data Reminder",
-						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, // do not use a custom Icon
-						options, // the titles of buttons
-						options[0]); // default button titl
+								+ "\nTo set up new default data, please use \"Set Default Data\" menu instead.\n"
+								+ "\n\nWould you like to be reminded next time?", "Modifying Default Data Reminder",
+								JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, // do not use a custom Icon
+								options, // the titles of buttons
+								options[0]); // default button titl
 
 				modifyingDefaultDataReminder = n;
 			}
@@ -1335,7 +1336,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 		if (uiPipe == null) {
 			JOptionPane.showMessageDialog(GUI.frame, 
-			"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
+					"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
 		} else {
 			CobwebApplication.this.logFileDialog();
 		}
@@ -1474,7 +1475,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if (uiPipe == null) {
 			JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
 					// specifically for MS Windows. Feb 22
-			"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
+					"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
 		} else {
 			CobwebApplication.this.reportDialog();
 		}
