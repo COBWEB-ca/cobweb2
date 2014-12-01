@@ -274,9 +274,8 @@ public class CobwebApplicationRunner {
 
 					}
 					if (currentTick > stopTick) {
-						simulation.pause();
-
 						synchronized(runCompletedMonitor) {
+							simulation.pause();
 							runCompletedMonitor.notify();
 						}
 					}
@@ -288,11 +287,17 @@ public class CobwebApplicationRunner {
 			simulation.resume();
 
 			if (!visible) {
+				// Wait for simulation to reach stopTick
 				synchronized(runCompletedMonitor){
-					try {
-						runCompletedMonitor.wait();
-					} catch (InterruptedException ex) {
-						throw new RuntimeException(ex);
+					// Simulation could have finished running before .wait() is called,
+					// there would be no notification in that case.
+					while (simulation.isRunning()) {
+						try {
+							runCompletedMonitor.wait();
+							// AutoStopTickListener paused the simulation and .isRunning() is now false
+						} catch (InterruptedException ex) {
+							throw new RuntimeException(ex);
+						}
 					}
 				}
 			}
