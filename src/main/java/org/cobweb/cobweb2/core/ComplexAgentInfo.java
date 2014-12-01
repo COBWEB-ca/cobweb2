@@ -5,12 +5,13 @@
 package org.cobweb.cobweb2.core;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ComplexAgentInfo {
+public class ComplexAgentInfo implements Serializable {
 
 	public static final int MAX_PATH_HISTORY = 32;
 
@@ -398,4 +399,5 @@ public class ComplexAgentInfo {
 		turningEnergies[type] += val;
 	}
 
+	private static final long serialVersionUID = 1L;
 }

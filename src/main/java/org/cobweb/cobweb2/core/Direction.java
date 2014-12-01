@@ -1,5 +1,7 @@
 package org.cobweb.cobweb2.core;
 
+import java.io.Serializable;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -10,7 +12,7 @@ import org.w3c.dom.Node;
  * v is a vector representation of the direction, defined by the
  * environment. 
  */
-public class Direction {
+public class Direction implements Serializable {
 
 	public int[] v;
 
@@ -120,4 +122,6 @@ public class Direction {
 		}
 
 	}
+
+	private static final long serialVersionUID = 1L;
 }
