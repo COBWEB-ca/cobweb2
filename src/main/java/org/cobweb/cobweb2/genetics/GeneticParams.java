@@ -80,15 +80,7 @@ public class GeneticParams extends AbstractReflectionParams {
 
 	@ConfDisplayName("Meiosis Mode")
 	@ConfXMLTag("meiosismode")
-	public MeiosisModeParam meiosisMode ;
-
-	@ConfDisplayName("Watch gene values")
-	@ConfXMLTag("trackgenevaluedistribution")
-	public boolean trackValues;
-
-	@ConfDisplayName("Chart update frequency")
-	@ConfXMLTag("chartupdatefrequency")
-	public int updateFrequency;
+	public MeiosisModeParam meiosisMode;
 
 	private AgentFoodCountable env;
 
@@ -183,13 +175,11 @@ public class GeneticParams extends AbstractReflectionParams {
 		for (int i = 0; i < geneCount; i++)
 			phenotype[i] = new Phenotype();
 		meiosisMode = new MeiosisModeParam();
-		trackValues = false;
 
 		geneValues = new String[env.getAgentTypes()][geneCount];
 		for (int i = 0; i < env.getAgentTypes(); i++)
 			for (int j = 0; j < geneCount; j++)
 				geneValues[i][j] = "00011110";
-		updateFrequency = 10;
 	}
 
 	public void resize(AgentFoodCountable envParams) {
