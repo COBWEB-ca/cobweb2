@@ -107,24 +107,6 @@ public class BehaviorArray {
 
 	}
 
-	public long compareTo(Object other) {
-
-		int[] otherArray = ((BehaviorArray) other).array;
-
-		/*
-		 * compare each int element is much faster than comparing each output element due to the overhead involved with
-		 * the 'get' and 'set' methods
-		 */
-		for (int i = 0; i < totalInts; ++i) {
-			if (array[i] < otherArray[i]) {
-				return -1;
-			}else if (array[i] > otherArray[i]) {
-				return 1;
-			}
-		}
-		return 0;
-	}
-
 	/* This method has been modified. It is now unaffected by mutationRate */
 	public BehaviorArray copy(float mutationRate) {
 		// TODO: should it mutate?

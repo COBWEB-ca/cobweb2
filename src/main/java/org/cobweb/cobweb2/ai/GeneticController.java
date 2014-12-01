@@ -194,8 +194,4 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 		return ga.similarity(other.ga);
 	}
 
-	public double similarity(int other) {
-		return ga.similarity(other);
-	}
-
 }

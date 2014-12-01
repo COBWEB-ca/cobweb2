@@ -1081,33 +1081,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		observedAgent = l.getAgent();
 	}
 
-	/**
-	 * Dump header for report file to path
-	 * 
-	 * @param pw writer to print into
-	 */
-	public void printAgentHeader(java.io.PrintWriter pw) {
-		StringBuffer buffer = new StringBuffer();
-
-		String agentInfoHeader = "Agent Number";
-		agentInfoHeader += "\tAgent Type";
-		agentInfoHeader += "\tBirth Tick";
-		agentInfoHeader += "\tBirth Type";
-		agentInfoHeader += "\tDeath Tick";
-		agentInfoHeader += "\tGenetic Code";
-		agentInfoHeader += "\tDirect Descendants";
-		agentInfoHeader += "\tTotal Descendants";
-		agentInfoHeader += "\tSexual Pregnancies";
-		agentInfoHeader += "\tSteps";
-		agentInfoHeader += "\tTurns";
-		agentInfoHeader += "\tAgent Bumps";
-		agentInfoHeader += "\tRock Bumps";
-		agentInfoHeader += "\tStrategy";
-		buffer.append(agentInfoHeader);
-		buffer.append("\n");
-		pw.write(buffer.toString());
-	}
-
 	public void printAgentInfo(java.io.PrintWriter pw) {
 
 		ComplexAgentInfo.initStaticAgentInfo(this.getAgentTypes());
