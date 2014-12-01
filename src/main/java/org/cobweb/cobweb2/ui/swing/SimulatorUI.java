@@ -15,6 +15,9 @@ import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.UIInterface;
 import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
 import org.cobweb.cobweb2.core.UIInterface.UIClient;
+import org.cobweb.cobweb2.ui.swing.components.PauseButton;
+import org.cobweb.cobweb2.ui.swing.components.SpeedBar;
+import org.cobweb.cobweb2.ui.swing.components.StepButton;
 
 /**
  *

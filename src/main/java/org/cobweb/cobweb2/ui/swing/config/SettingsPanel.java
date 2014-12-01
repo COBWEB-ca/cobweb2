@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.ui.swing;
+package org.cobweb.cobweb2.ui.swing.config;
 
 import java.awt.LayoutManager;
 

@@ -14,7 +14,6 @@ import javax.swing.JPanel;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.GeneticController;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
-import org.cobweb.cobweb2.ui.swing.SettingsPanel;
 
 class AIPanel extends SettingsPanel {
 

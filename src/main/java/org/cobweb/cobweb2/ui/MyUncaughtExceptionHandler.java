@@ -1,7 +1,7 @@
 /**
  *
  */
-package org.cobweb.cobweb2.ui.swing;
+package org.cobweb.cobweb2.ui;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,6 +13,8 @@ import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
 
 import javax.swing.JOptionPane;
+
+import org.cobweb.cobweb2.ui.swing.CobwebUserException;
 
 /**
  * @author Igor

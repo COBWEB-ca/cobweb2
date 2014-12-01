@@ -33,7 +33,6 @@ import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.ui.swing.CobwebApplication;
 import org.cobweb.cobweb2.ui.swing.CobwebUserException;
-import org.cobweb.cobweb2.ui.swing.SettingsPanel;
 import org.cobweb.swingutil.TypeColorEnumeration;
 
 /**

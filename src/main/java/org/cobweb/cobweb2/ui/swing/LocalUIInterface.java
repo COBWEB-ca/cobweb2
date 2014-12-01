@@ -36,6 +36,7 @@ import org.cobweb.cobweb2.core.UIInterface;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
+import org.cobweb.cobweb2.ui.swing.ai.LinearAIViewer;
 import org.cobweb.cobweb2.ui.swing.genetics.GAChartOutput;
 import org.cobweb.cobweb2.ui.swing.production.ProductionViewer;
 import org.cobweb.swingutil.ColorLookup;

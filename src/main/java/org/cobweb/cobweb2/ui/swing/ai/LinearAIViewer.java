@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.ui.swing;
+package org.cobweb.cobweb2.ui.swing.ai;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;

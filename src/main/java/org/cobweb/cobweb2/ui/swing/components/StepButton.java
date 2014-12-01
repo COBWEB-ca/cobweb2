@@ -1,5 +1,5 @@
 //[]SK new class
-package org.cobweb.cobweb2.ui.swing;
+package org.cobweb.cobweb2.ui.swing.components;
 
 import javax.swing.JButton;
 import javax.swing.JTextField;

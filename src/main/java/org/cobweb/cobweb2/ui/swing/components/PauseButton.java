@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.ui.swing;
+package org.cobweb.cobweb2.ui.swing.components;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

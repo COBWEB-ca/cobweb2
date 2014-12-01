@@ -24,7 +24,6 @@ import javax.swing.table.DefaultTableModel;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
 import org.cobweb.cobweb2.ai.LinearWeightsControllerParams;
-import org.cobweb.cobweb2.ui.swing.SettingsPanel;
 
 /**
  * @author Igor
