@@ -158,7 +158,7 @@ public class CobwebApplicationRunner {
 	}
 
 	public static void main(String inputFileName, String logFileName, boolean autostart, int finalstep, boolean visible) {
-		if (!logFileName.equals("") && new File(logFileName).exists()){
+		if (!logFileName.isEmpty() && new File(logFileName).exists()){
 			System.out.println("WARNING: log '" + logFileName + "' already exists, overwriting it!" );
 		}
 
@@ -225,7 +225,8 @@ public class CobwebApplicationRunner {
 				throw new CobwebUserException(message);
 			} else {
 				System.err.println(message);
-			};
+				throw new RuntimeException(e);
+			}
 		}
 
 		simulation.load(defaultconf);
@@ -239,7 +240,7 @@ public class CobwebApplicationRunner {
 					+ "\n                  Any modification of this data file will be neither implemented nor saved.");
 		}
 
-		if (logFileName != ""){
+		if (!logFileName.isEmpty()){
 			try {
 				simulation.log(logFileName);
 			} catch (IOException ex) {

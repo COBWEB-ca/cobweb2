@@ -47,16 +47,6 @@ public abstract class Agent {
 		// controller
 	}
 
-	@Override
-	public Object clone() {
-		try {
-			return super.clone(); }
-		catch (Exception ex) {
-			return null;
-		}
-		//	return new Object();
-	}
-
 	/**
 	 * Removes this Agent from the Environment.
 	 */

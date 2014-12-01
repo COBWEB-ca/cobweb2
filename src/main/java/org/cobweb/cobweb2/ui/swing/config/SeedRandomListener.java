@@ -11,10 +11,12 @@ import javax.swing.JFormattedTextField;
 
 public class SeedRandomListener implements ActionListener {
 	private final JFormattedTextField box;
+	private Random random = new Random();
+
 	public SeedRandomListener(JFormattedTextField box) {
 		this.box = box;
 	}
 	public void actionPerformed(ActionEvent e) {
-		box.setValue(new Long(Math.abs(new Random().nextLong() % 100000l)));
+		box.setValue(new Long(Math.abs(random.nextLong() % 100000l)));
 	}
 }

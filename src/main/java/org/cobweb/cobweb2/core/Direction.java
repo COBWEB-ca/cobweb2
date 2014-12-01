@@ -80,6 +80,16 @@ public class Direction {
 		return true;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Direction) {
+			return equals((Direction) obj);
+		}
+		else {
+			return false;
+		}
+	}
+
 	/**
 	 * Flip the direction 180 degrees and return the new direction.
 	 * @return This direction, flipped 180 degrees.

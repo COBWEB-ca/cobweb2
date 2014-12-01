@@ -1041,7 +1041,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 		// Check for food...
 		org.cobweb.cobweb2.core.Location breedPos = null;
 		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-			if (params.broadcastMode & canBroadcast()) {
+			if (params.broadcastMode && canBroadcast()) {
 				broadcastFood(destPos);
 			}
 			if (canEat(destPos)) {
