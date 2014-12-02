@@ -7,17 +7,19 @@ import java.awt.event.AdjustmentEvent;
 
 import javax.swing.JScrollBar;
 
+import org.cobweb.cobweb2.ui.Scheduler;
+
 public class SpeedBar extends JScrollBar implements
-		java.awt.event.AdjustmentListener {
-	private final org.cobweb.cobweb2.core.UIInterface uiPipe;
+java.awt.event.AdjustmentListener {
+	private final Scheduler scheduler;
 	private final Dimension d = new Dimension(70, 18); // $$$$$ you can generate any size you want.  Apr 3
 
 	private final Color original;
 
 	private static final int SCROLLBAR_TICKS = 11;
 
-	public SpeedBar(org.cobweb.cobweb2.core.UIInterface theUI) {
-		uiPipe = theUI;
+	public SpeedBar(Scheduler scheduler) {
+		this.scheduler = scheduler;
 		setOrientation(Scrollbar.HORIZONTAL);
 		addAdjustmentListener(this);
 		this.setValues(SCROLLBAR_TICKS - 1, 0, 0, SCROLLBAR_TICKS);
@@ -36,7 +38,7 @@ public class SpeedBar extends JScrollBar implements
 		} else {
 			this.setBackground(original);
 		}
-		uiPipe.slowDown(delay);
+		scheduler.setDelay(delay);
 	}
 
 	public static final long serialVersionUID = 0xD5E78F1D65B18165L;

@@ -11,10 +11,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.core.UIInterface;
-import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
-import org.cobweb.cobweb2.core.UIInterface.UIClient;
+import org.cobweb.cobweb2.Simulation;
+import org.cobweb.cobweb2.ui.Scheduler;
+import org.cobweb.cobweb2.ui.TickScheduler;
+import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.swing.components.PauseButton;
 import org.cobweb.cobweb2.ui.swing.components.SpeedBar;
 import org.cobweb.cobweb2.ui.swing.components.StepButton;
@@ -25,10 +25,10 @@ import org.cobweb.cobweb2.ui.swing.components.StepButton;
  * @author igor
  *
  */
-public class SimulatorUI extends JPanel implements UIClient {
+public class SimulatorUI extends JPanel implements UpdatableUI {
 	private static final long serialVersionUID = 2671092780367865697L;
 
-	private final UIInterface uiPipe;
+	private final Simulation simulation;
 
 	private DisplayPanel displayPanel;
 
@@ -40,36 +40,28 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 	public JLabel tickDisplay;
 
-	public SimulatorUI(SimulationConfig p) {
-		uiPipe = new LocalUIInterface(this);
-		uiPipe.load(p);
+	private TickScheduler scheduler;
+
+	public SimulatorUI(Simulation sim) {
+		simulation = sim;
+		scheduler = new TickScheduler(simulation);
+
 		setLayout(new BorderLayout());
-
 		setupUI();
+
+		scheduler.startIdle();
 	}
 
-	public UIInterface getUIPipe() {
-		return uiPipe;
-	}
-
-	public void AddTickEventListener(TickEventListener listener) {
-		uiPipe.AddTickEventListener(listener);
-		uiPipe.setRunnable(true);
-	}
-
+	@Override
 	public boolean isReadyToRefresh() {
 		return displayPanel != null && displayPanel.isReadyToRefresh();
 	}
 
-	public void refresh(boolean wait) {
+	@Override
+	public void update(boolean sync) {
 		if (displayPanel != null) {
-			displayPanel.refresh(wait);
+			displayPanel.refresh(sync);
 		}
-	}
-
-	public void RemoveTickEventListener(TickEventListener listener) {
-		uiPipe.setRunnable(false);
-		uiPipe.RemoveTickEventListener(listener);
 	}
 
 	public void setupUI() {
@@ -78,11 +70,11 @@ public class SimulatorUI extends JPanel implements UIClient {
 
 		JPanel controls = new JPanel();
 
-		uiPipe.setFrameSkip(0);
+		scheduler.setFrameSkip(0);
 		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(uiPipe);
+			displayPanel = new DisplayPanel(simulation);
 		} else {
-			displayPanel.setUI(uiPipe);
+			displayPanel.setSimulation(simulation);
 		}
 
 		add(controls, BorderLayout.NORTH);
@@ -105,35 +97,40 @@ public class SimulatorUI extends JPanel implements UIClient {
 		}
 
 		if (pauseButton == null) {
-			pauseButton = new PauseButton(uiPipe);
+			pauseButton = new PauseButton(scheduler);
 			controls.add(pauseButton);
-			stepButton = new StepButton(uiPipe);
+			stepButton = new StepButton(scheduler);
 			controls.add(stepButton);
 			controls.add(new JLabel(" Speed:"));
-			SpeedBar sb = new SpeedBar(uiPipe);
+			SpeedBar sb = new SpeedBar(scheduler);
 			controls.add(sb);
 		} else {
-			pauseButton.setUI(uiPipe);
+			pauseButton.setScheduler(scheduler);
 		}
 
 		if (stepButton == null) {
-			pauseButton = new PauseButton(uiPipe);
+			pauseButton = new PauseButton(scheduler);
 			controls.add(pauseButton);
-			stepButton = new StepButton(uiPipe);
+			stepButton = new StepButton(scheduler);
 			controls.add(stepButton);
 			controls.add(new JLabel("   Adjust Speed:"));
-			SpeedBar sb = new SpeedBar(uiPipe);
+			SpeedBar sb = new SpeedBar(scheduler);
 			controls.add(sb);
 		} else {
-			stepButton.setUI(uiPipe);
+			stepButton.setScheduler(scheduler);
 		}
 
-		uiPipe.setTimeStopField(tickField);
+		// TODO simulation.setTimeStopField(tickField);
 
-		AddTickEventListener(new TickEventListener() {
+		scheduler.addUIComponent(new UpdatableUI() {
+			@Override
+			public void update(boolean synchronous) {
+				tickDisplay.setText("Tick: " + Long.toString(simulation.getTime()) + "  ");
+			}
 
-			public void TickPerformed(long currentTick) {
-				tickDisplay.setText("Tick: " + Long.toString(currentTick) + "  ");
+			@Override
+			public boolean isReadyToRefresh() {
+				return true;
 			}
 		});
 
@@ -148,28 +145,16 @@ public class SimulatorUI extends JPanel implements UIClient {
 			}
 		});
 
-		uiPipe.setPauseButton(pauseButton);
+		// TODO simulation.setPauseButton(pauseButton);
 
 		validate();
-		uiPipe.start();
+	}
+
+	public Scheduler getScheduler() {
+		return scheduler;
 	}
 
 	public void killSimulation() {
-		this.uiPipe.killScheduler();
-	}
-
-	@Override
-	public void setCurrentFile(String input) {
-		return;
-	}
-
-	@Override
-	public void fileOpened(SimulationConfig conf) {
-		return;
-	}
-
-	@Override
-	public void setSimulation(UIInterface simulation) {
-		return;
+		scheduler.dispose();
 	}
 }

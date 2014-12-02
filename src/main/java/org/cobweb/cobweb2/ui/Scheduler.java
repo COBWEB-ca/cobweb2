@@ -1,4 +1,6 @@
-package org.cobweb.cobweb2.core;
+package org.cobweb.cobweb2.ui;
+
+import org.cobweb.cobweb2.core.SimulationInterface;
 
 
 /**
@@ -26,26 +28,6 @@ package org.cobweb.cobweb2.core;
 public interface Scheduler {
 
 	/**
-	 * The TickScheduler client interface is quite trivial; tickNotification is
-	 * called on each client each tick.  A client is any object that needs to be 
-	 * modified during a tick (examples are agents, and environments).
-	 */
-	public static interface Client {
-
-		/** Notification of a tick. */
-		public void tickNotification(long time);
-
-		public void tickZero();
-	}
-
-	/**
-	 * Add a client to receive time notification. Note that no policy is put on
-	 * the clients, it is up to implementations of Scheduler to check that
-	 * objects added as clients are truly valid clients.
-	 */
-	void addSchedulerClient(Client theClient);
-
-	/**
 	 * Get the current time as a long.
 	 */
 	long getTime();
@@ -64,33 +46,16 @@ public interface Scheduler {
 	 * Kill the scheduler. This method should immediately and irrevocably halt
 	 * the simulation.
 	 */
-	void killScheduler();
-
-	/**
-	 * Save the scheduler to the specified stream.
-	 */
-	void loadScheduler(UIInterface ui, org.cobweb.cobweb2.SimulationConfig p);
+	void dispose();
 
 	/** Pause the simulation. */
-	void pauseScheduler();
-
-	/** Remove a client. */
-	void removeSchedulerClient(Object theClient);
-
-	void resetTime();
+	void pause();
 
 	/** Resume the simulation from a paused state. */
-	void resumeScheduler();
-
-	/**
-	 * Set the frame skip setting on the simulation.
-	 * 
-	 * @see org.cobweb.cobweb2.core.UIInterface#setFrameSkip
-	 */
-	void setSchedulerFrameSkip(long frameSkip);
+	void resume();
 
 	/* slow down scheduler */
-	void setSleep(long time);
+	void setDelay(long time);
 
 	/**
 	 * Start the scheduler. The scheduler is initially in a paused state, but
@@ -102,5 +67,11 @@ public interface Scheduler {
 	 * start may not correspond to Thread.start. Other method names in this
 	 * class follow the strange example of startScheduler, for consistency.
 	 */
-	void startScheduler();
+	void startIdle();
+
+	public abstract SimulationInterface getSimulation();
+
+	public abstract void removeUIComponent(UpdatableUI ui);
+
+	public abstract void addUIComponent(UpdatableUI ui);
 }

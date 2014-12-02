@@ -5,8 +5,8 @@ import java.awt.event.WindowEvent;
 
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Environment;
-import org.cobweb.cobweb2.core.Scheduler;
 import org.cobweb.cobweb2.production.ProductionMapper;
+import org.cobweb.cobweb2.ui.Scheduler;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 
@@ -29,7 +29,7 @@ public class ProductionViewer implements ViewerPlugin {
 	public void on() {
 
 		if (productionDisplay != null) {
-			theScheduler.removeSchedulerClient(productionDisplay);
+			theScheduler.removeUIComponent(productionDisplay);
 			productionDisplay.setVisible(false);
 			productionDisplay.setEnabled(false);
 			productionDisplay.dispose();
@@ -45,13 +45,13 @@ public class ProductionViewer implements ViewerPlugin {
 			}
 		});
 
-		theScheduler.addSchedulerClient(productionDisplay);
+		theScheduler.addUIComponent(productionDisplay);
 	}
 
 	@Override
 	public void off() {
 		if (productionDisplay != null) {
-			theScheduler.removeSchedulerClient(productionDisplay);
+			theScheduler.removeUIComponent(productionDisplay);
 			productionDisplay.setVisible(false);
 			productionDisplay.setEnabled(false);
 			productionDisplay.dispose();

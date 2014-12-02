@@ -7,8 +7,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.UIInterface;
 import org.cobweb.swingutil.WaitableJComponent;
 
 /**
@@ -119,7 +119,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		boolean canSetOn(int x, int y) {
-			return theUI.getAgent(x, y) != null;
+			return simulation.theEnvironment.getAgent(x, y) != null;
 		}
 
 		@Override
@@ -129,12 +129,12 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		void setOn(int x, int y) {
-			theUI.observe(x, y);
+			// FIXME simulation.theEnvironment.observe(x, y);
 		}
 
 		@Override
 		void setOff(int x, int y) {
-			theUI.unObserve();
+			// FIXME simulation.theEnvironment.unObserve();
 		}
 
 	}
@@ -143,7 +143,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		public boolean canClick(int x, int y) {
-			return !theUI.hasAgent(x, y);
+			return !simulation.theEnvironment.hasAgent(x, y);
 		}
 
 		@Override
@@ -153,17 +153,17 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		boolean canSetOff(int x, int y) {
-			return theUI.hasStone(x, y);
+			return simulation.theEnvironment.hasStone(x, y);
 		}
 
 		@Override
 		void setOn(int x, int y) {
-			theUI.addStone(x, y);
+			simulation.theEnvironment.addStone(x, y);
 		}
 
 		@Override
 		void setOff(int x, int y) {
-			theUI.removeStone(x, y);
+			simulation.theEnvironment.removeStone(x, y);
 		}
 
 	}
@@ -177,31 +177,31 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		public boolean canClick(int x, int y) {
-			Agent a = theUI.getAgent(x, y);
-			return (a == null && !theUI.hasStone(x, y)) || 
-			(a != null && a.type() == mytype);
+			Agent a = simulation.theEnvironment.getAgent(x, y);
+			return (a == null && !simulation.theEnvironment.hasStone(x, y)) || 
+					(a != null && a.type() == mytype);
 		}
 
 		@Override
 		boolean canSetOn(int x, int y) {
-			Agent a = theUI.getAgent(x, y);
-			return (a == null && !theUI.hasStone(x, y));
+			Agent a = simulation.theEnvironment.getAgent(x, y);
+			return (a == null && !simulation.theEnvironment.hasStone(x, y));
 		}
 
 		@Override
 		boolean canSetOff(int x, int y) {
-			Agent a = theUI.getAgent(x, y);
+			Agent a = simulation.theEnvironment.getAgent(x, y);
 			return (a != null && a.type() == mytype);
 		}
 
 		@Override
 		void setOn(int x, int y) {
-			theUI.addAgent(x, y, mytype);
+			simulation.theEnvironment.addAgent(x, y, mytype);
 		}
 
 		@Override
 		void setOff(int x, int y) {
-			theUI.removeAgent(x, y);
+			simulation.theEnvironment.removeAgent(x, y);
 		}
 
 	}
@@ -216,27 +216,27 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		public boolean canClick(int x, int y) {
-			return !theUI.hasStone(x, y);
+			return !simulation.theEnvironment.hasStone(x, y);
 		}
 
 		@Override
 		boolean canSetOn(int x, int y) {
-			return !theUI.hasFood(x, y) || theUI.hasStone(x, y);
+			return !simulation.theEnvironment.hasFood(x, y) || simulation.theEnvironment.hasStone(x, y);
 		}
 
 		@Override
 		boolean canSetOff(int x, int y) {
-			return theUI.hasFood(x, y) && theUI.getFood(x, y) == mytype;
+			return simulation.theEnvironment.hasFood(x, y) && simulation.theEnvironment.getFood(x, y) == mytype;
 		}
 
 		@Override
 		void setOn(int x, int y) {
-			theUI.addFood(x, y, mytype);
+			simulation.theEnvironment.addFood(x, y, mytype);
 		}
 
 		@Override
 		void setOff(int x, int y) {
-			theUI.removeFood(x, y);
+			simulation.theEnvironment.removeFood(x, y);
 		}
 
 	}
@@ -259,12 +259,12 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private int mapHeight = 0;
 
-	org.cobweb.cobweb2.core.UIInterface theUI;
+	Simulation simulation;
 
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 
-	public DisplayPanel(UIInterface ui) {
-		theUI = ui;
+	public DisplayPanel(Simulation simulation) {
+		this.simulation = simulation;
 		addComponentListener(this);
 
 		setMouse(new ObserveMouseListener());
@@ -313,7 +313,10 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		//		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		g.translate(borderLeft, borderHeight);
-		theUI.draw(g, tileWidth, tileHeight);
+
+		DrawInfo drawInfo = new DrawInfo(simulation.theEnvironment);
+		drawInfo.draw(g, tileWidth, tileHeight);
+
 		g.translate(-borderLeft, -borderHeight);
 	}
 
@@ -343,8 +346,8 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		}
 	}
 
-	public void setUI(UIInterface ui) {
-		theUI = ui;
+	public void setSimulation(Simulation simulation) {
+		this.simulation = simulation;
 		updateScale();
 	}
 
@@ -358,8 +361,8 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		size.width -= ins.left + ins.right + PADDING + THERMAL_MARKER_WIDTH;
 		size.height -= ins.top + ins.bottom + PADDING;
 
-		mapWidth = theUI.getWidth();
-		mapHeight = theUI.getHeight();
+		mapWidth = simulation.theEnvironment.getWidth();
+		mapHeight = simulation.theEnvironment.getHeight();
 		if (mapWidth != 0) {
 			tileWidth = size.width / mapWidth;
 		}
@@ -368,9 +371,9 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		}
 		tileWidth = Math.min(tileWidth, tileHeight);
 		tileHeight = tileWidth;
-		int borderWidth = (size.width - tileWidth * theUI.getWidth() + PADDING) / 2;
+		int borderWidth = (size.width - tileWidth * simulation.theEnvironment.getWidth() + PADDING) / 2;
 		borderLeft = borderWidth + THERMAL_MARKER_WIDTH;
-		borderHeight = (size.height - tileHeight * theUI.getHeight() + PADDING) / 2;
+		borderHeight = (size.height - tileHeight * simulation.theEnvironment.getHeight() + PADDING) / 2;
 
 		this.refresh(false);
 	}

@@ -6,8 +6,9 @@ import java.awt.event.ComponentEvent;
 import javax.swing.JFrame;
 
 import org.cobweb.cobweb2.core.EnvironmentStats;
-import org.cobweb.cobweb2.core.UIInterface;
-import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
+import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.ui.Scheduler;
+import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.jfree.chart.ChartFactory;
@@ -18,7 +19,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 
-public class LiveStats implements TickEventListener, ViewerPlugin {
+public class LiveStats implements UpdatableUI, ViewerPlugin {
 
 	JFrame graph = new JFrame("Population");
 
@@ -42,10 +43,10 @@ public class LiveStats implements TickEventListener, ViewerPlugin {
 			, false
 			, false);
 
-	UIInterface ui;
+	Scheduler scheduler;
 
-	public LiveStats(UIInterface ui) {
-		this.ui = ui;
+	public LiveStats(Scheduler scheduler) {
+		this.scheduler = scheduler;
 		graph.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentHidden(ComponentEvent e) {
@@ -63,21 +64,22 @@ public class LiveStats implements TickEventListener, ViewerPlugin {
 		data.addSeries(agentData);
 		data.addSeries(foodData);
 
-		ui.AddTickEventListener(this);
+		scheduler.addUIComponent(this);
 	}
 
 	@Override
 	public void dispose() {
 		off();
-		ui.RemoveTickEventListener(this);
+		scheduler.removeUIComponent(this);
 		graph.dispose();
 		graph = null;
 	}
 
-	public void TickPerformed(long currentTick) {
+	@Override
+	public void update(boolean sync) {
+		SimulationInterface simulation = scheduler.getSimulation();
 
-
-		EnvironmentStats stats = ui.getStatistics();
+		EnvironmentStats stats = simulation.getStatistics();
 		long agentCount = 0;
 		for (long count : stats.agentCounts) {
 			agentCount += count;
@@ -87,14 +89,19 @@ public class LiveStats implements TickEventListener, ViewerPlugin {
 			foodCount += count;
 		}
 
-		agentData.add(currentTick, agentCount);
-		foodData.add(currentTick, foodCount);
+		agentData.add(stats.timestep, agentCount);
+		foodData.add(stats.timestep, foodCount);
 
 		if (frame++ == frameskip) {
 			frame = 0;
 			plot.setNotify(true);
 			plot.setNotify(false);
 		}
+	}
+
+	@Override
+	public boolean isReadyToRefresh() {
+		return true;
 	}
 
 	public void toggleGraphVisible() {

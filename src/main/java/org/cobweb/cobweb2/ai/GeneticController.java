@@ -41,10 +41,6 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 		// Nothing
 	}
 
-	public void addClientAgent(Agent a) {
-		// Nothing
-	}
-
 	/**
 	 * Given the agent's energy, get the amount of energy to add to the array.
 	 * @param energy The agent's energy.
@@ -135,10 +131,6 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 
 	public CobwebParam getParams() {
 		return params;
-	}
-
-	public void removeClientAgent(Agent a) {
-		// Nothing
 	}
 
 	public void setupFromEnvironment(int memory, int comm, CobwebParam params, int type) {

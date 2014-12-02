@@ -3,7 +3,6 @@
  */
 package org.cobweb.cobweb2.disease;
 
-import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.Scheduler;
+import org.cobweb.cobweb2.core.Updatable;
 import org.cobweb.cobweb2.core.globals;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
@@ -23,7 +22,7 @@ import org.cobweb.util.ReflectionUtil;
 /**
  * Simulates various diseases that can affect agents.
  */
-public class DiseaseMutator implements ContactMutator, SpawnMutator, Scheduler.Client {
+public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private DiseaseParams[] params;
 
@@ -41,7 +40,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Scheduler.C
 
 		public State(boolean sick, boolean vaccinated, long sickStart) {
 			this.sick = sick;
-			this.vaccinated = true;
+			this.vaccinated = vaccinated;
 			this.sickStart = sickStart;
 		}
 
@@ -99,10 +98,6 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Scheduler.C
 			if (f != null)
 				ReflectionUtil.multiplyField(agent.params, f, effect.factor);
 
-			Color org = agent.getColor();
-			Color n = new Color(org.getRed(), org.getGreen(), 255);
-			agent.setColor(n);
-
 			sickCount[agent.type()]++;
 
 			sick.put(agent, new State(true, false, time));
@@ -154,7 +149,6 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Scheduler.C
 
 		if (params[tr].healer && isSick(bumpee)) {
 			if (globals.random.nextFloat() < params[tr].healerEffectiveness) {
-				sick.remove(bumpee);
 				unSick(bumpee);
 			}
 		}
@@ -175,13 +169,13 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Scheduler.C
 	}
 
 	private void unSick(ComplexAgent agent) {
-		// remove is done separately because it may require an iterator like in tickNotification
+		sick.remove(agent);
 		sickCount[agent.type()]--;
+	}
 
-		// unblue agent
-		Color org = agent.getColor();
-		Color n = new Color(org.getRed(), org.getGreen(), 0);
-		agent.setColor(n);
+	private void unSickIterating(ComplexAgent agent, Iterator<ComplexAgent> agents) {
+		agents.remove();
+		sickCount[agent.type()]--;
 	}
 
 	private boolean isSick(ComplexAgent agent) {
@@ -197,7 +191,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Scheduler.C
 	}
 
 	@Override
-	public void tickNotification(long time) {
+	public void update(long time) {
 		this.time = time;
 
 		for (Iterator<ComplexAgent> agents = sick.keySet().iterator(); agents.hasNext();) {
@@ -211,14 +205,9 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Scheduler.C
 
 			if (s.sick && time - s.sickStart > randomRecovery) {
 				agents.remove();
-				unSick(a);
+				unSickIterating(a, agents);
 			}
 		}
-	}
-
-	@Override
-	public void tickZero() {
-		// Nothing
 	}
 
 }

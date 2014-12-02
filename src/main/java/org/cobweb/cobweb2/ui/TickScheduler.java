@@ -1,18 +1,19 @@
-package org.cobweb.cobweb2.core;
+package org.cobweb.cobweb2.ui;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.core.SimulationInterface;
 
 /**
  * TickScheduler is an implementation of Scheduler that sends uniform ticks to
  * clients.
  */
 public class TickScheduler implements Scheduler {
+
+	private List<UpdatableUI> uiComponents = new ArrayList<UpdatableUI>();
 
 	/**
 	 * Contains the run method used for the simulation thread.
@@ -24,22 +25,22 @@ public class TickScheduler implements Scheduler {
 		 * Contains the main loop to control the simulation.
 		 */
 		public void run() {
-			doZeroTick();
 			long frameCount = 0;
 
 			// Main loop
 			while (!done) {
 				if (!done && !running) {
 					myWait(100);
-					theUI.refresh(false);
+					updateUI(false);
 				} else {
-					doTick();
+					// Core of the simulation
+					stepSimulation();
 
-					if (theUI.getStopTime() != 0 && getTime() == theUI.getStopTime()) {
-						pauseScheduler();
+					if (tickAutoStop != 0 && getTime() == tickAutoStop) {
+						pause();
 					}
 					if (frameCount >= frameSkip) {
-						theUI.refresh(slowdown > 0);
+						updateUI(slowdown > 0);
 						frameCount = 0;
 					}
 				}
@@ -50,6 +51,23 @@ public class TickScheduler implements Scheduler {
 				}
 			}
 		}
+
+	}
+
+	private void updateUI(boolean synchronous) {
+		for (UpdatableUI client : uiComponents) {
+			client.update(synchronous);
+		}
+	}
+
+	@Override
+	public void addUIComponent(UpdatableUI ui) {
+		uiComponents.add(ui);
+	}
+
+	@Override
+	public void removeUIComponent(UpdatableUI ui) {
+		uiComponents.remove(ui);
 	}
 
 	private volatile boolean running = false;
@@ -60,11 +78,11 @@ public class TickScheduler implements Scheduler {
 
 	private long tickCount = 0;
 
+	private long tickAutoStop = 0;
+
 	private long slowdown = 1;
 
-	private UIInterface theUI;
-
-	private final Set<Client> clientV = new LinkedHashSet<Client>();
+	private SimulationInterface simulation;
 
 	private Thread myThread;
 
@@ -73,53 +91,36 @@ public class TickScheduler implements Scheduler {
 	 * instead reflection should be used inside the implementation of
 	 * UIInterface; look at the LocalUIInterface for an implementation example.
 	 */
-	public TickScheduler(UIInterface ui, SimulationConfig p) { // NO_UCD. Created with reflection
+	public TickScheduler(SimulationInterface simulation) { // NO_UCD. Created with reflection
 		myThread = new Thread(new SchedulerRunnable());
 		myThread.setName("cobweb.TickScheduler");
-		loadScheduler(ui, p);
+		this.simulation = simulation;
 	}
 
-	public synchronized void addSchedulerClient(Client theClient) {
-		clientV.add(theClient);
-	}
-
-	/**
-	 * Calls tick notifications for each client (agents, 
-	 * environment, etc.) within the simulation.
-	 * 
-	 * @see Scheduler.Client#tickNotification(long)
-	 */
-	private synchronized void doTick() {
-		++tickCount;
-
-		for (Client client : new Vector<Client>(clientV)) {
-			client.tickNotification(tickCount);
-		}
-
-		theUI.writeLogEntry();
-	}
-
-	private void doZeroTick() {
-		for (Client client : new Vector<Client>(clientV)) {
-			client.tickZero();
-		}
+	@Override
+	public SimulationInterface getSimulation() {
+		return simulation;
 	}
 
 	public long getTime() {
 		return tickCount;
 	}
 
+	public void setAutoStopTime(long t) {
+		tickAutoStop = t;
+	}
+
+	public long getAutoStopTime() {
+		return tickAutoStop;
+	}
+
 	public boolean isRunning() {
 		return running;
 	}
 
-	public synchronized void killScheduler() {
+	public synchronized void dispose() {
 		done = true;
 		notifyAll();
-	}
-
-	public synchronized void loadScheduler(UIInterface ui, SimulationConfig p) {
-		theUI = ui;
 	}
 
 	private synchronized void myWait(long time) {
@@ -131,17 +132,14 @@ public class TickScheduler implements Scheduler {
 		}
 	}
 
-	public synchronized void pauseScheduler() {
+
+	private synchronized void stepSimulation() {
+		simulation.step();
+	}
+
+	public synchronized void pause() {
 		running = false;
-		theUI.refresh(true);
-	}
-
-	public synchronized void removeSchedulerClient(Object theClient) {
-		clientV.remove(theClient);
-	}
-
-	public void resetTime() {
-		tickCount = 0;
+		updateUI(true);
 	}
 
 	/**
@@ -150,27 +148,35 @@ public class TickScheduler implements Scheduler {
 	 * 
 	 * @see java.lang.Object#notifyAll()
 	 */
-	public synchronized void resumeScheduler() {
+	public synchronized void resume() {
 		running = true;
 		notifyAll();
 	}
 
-	public void setSchedulerFrameSkip(long fs) {
+	public void setFrameSkip(long fs) {
 		frameSkip = fs;
 	}
 
-	public void setSleep(long time) {
+	public void setDelay(long time) {
 		slowdown = time;
 	}
 
 	/**
 	 * Causes the simulation thread to begin execution.
 	 */
-	public synchronized void startScheduler() {
+	public synchronized void startIdle() {
 		if (!myThread.isAlive()) {
 			myThread.start();
 		}
 		notifyAll();
+	}
+
+	public void step() {
+		if (isRunning()) {
+			pause();
+		}
+		stepSimulation();
+		updateUI(true);
 	}
 
 }

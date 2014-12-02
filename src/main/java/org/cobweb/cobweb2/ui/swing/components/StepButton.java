@@ -1,8 +1,11 @@
 //[]SK new class
 package org.cobweb.cobweb2.ui.swing.components;
 
+import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
-import javax.swing.JTextField;
+
+import org.cobweb.cobweb2.ui.TickScheduler;
 
 /**
  *This class represents the button responsible for advancing 
@@ -10,34 +13,22 @@ import javax.swing.JTextField;
  *
  * @author skinawy
  */
-public class StepButton extends JButton implements
-		java.awt.event.ActionListener {
-	private org.cobweb.cobweb2.core.UIInterface uiPipe;
+public class StepButton extends JButton implements ActionListener {
+	private TickScheduler  scheduler;
 
-	public StepButton(org.cobweb.cobweb2.core.UIInterface theUI) {
+	public StepButton(TickScheduler scheduler) {
 		super("Step");
-		uiPipe = theUI;
+		setScheduler(scheduler);
 		addActionListener(this);
 	}
 
-	public void setUI(org.cobweb.cobweb2.core.UIInterface theUI) {
-		uiPipe = theUI;
+	public void setScheduler(TickScheduler scheduler) {
+		this.scheduler = scheduler;
 	}
 
 	// $$$$$$ Modified on Mar 14
 	public void actionPerformed(java.awt.event.ActionEvent e) {
-		if  (uiPipe.isRunnable()) {
-			long stepTime = uiPipe.getCurrentTime();
-			stepTime++;
-			JTextField textStepTime = uiPipe.getTimeStopField();
-			textStepTime.setText(Long.toString(stepTime));
-
-			if (uiPipe.isRunning()) {
-				uiPipe.pause();
-			} else {
-				uiPipe.resume();
-			}
-		}
+		scheduler.step();
 	}
 
 	public static final long serialVersionUID = 0xD4B844C0AA5E3991L;

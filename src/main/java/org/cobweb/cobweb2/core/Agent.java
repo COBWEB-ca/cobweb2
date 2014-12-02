@@ -41,7 +41,6 @@ public abstract class Agent {
 
 	protected void init(Controller ai) {
 		controller = ai;
-		controller.addClientAgent(this); // this currently does absolutely
 		// nothing for both simple and
 		// complex implementations of
 		// controller
@@ -57,22 +56,11 @@ public abstract class Agent {
 
 		position.setAgent(null);
 		alive = false;
-		controller.removeClientAgent(this);
-		position.getEnvironment().getScheduler().removeSchedulerClient(this);
 	}
-
-	/**
-	 * @return int AgentPDAction
-	 */
-	public abstract boolean getAgentPDActionCheat();
-
-	public abstract java.awt.Color getColor();
 
 	public Controller getController() {
 		return controller;
 	}
-
-	public abstract void getDrawInfo(DrawingHandler theUI);
 
 	public int getEnergy() {
 		return -1;
@@ -98,9 +86,6 @@ public abstract class Agent {
 			position.setAgent(null);
 		position = newPos;
 	}
-
-
-	public abstract void setColor(java.awt.Color c);
 
 	public int type() {
 		return -1;

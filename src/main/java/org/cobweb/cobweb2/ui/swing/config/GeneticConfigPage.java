@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -26,8 +25,6 @@ import javax.swing.table.TableColumnModel;
 import org.cobweb.cobweb2.genetics.GeneticParams;
 import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.ui.swing.CobwebUserException;
-import org.cobweb.swingutil.binding.BoundCheckBox;
-import org.cobweb.swingutil.binding.BoundJFormattedTextField;
 import org.cobweb.swingutil.binding.EnumComboBoxModel;
 
 public class GeneticConfigPage implements ConfigPage {
@@ -253,20 +250,7 @@ public class GeneticConfigPage implements ConfigPage {
 	}
 
 	private JPanel makeUpdateConfig() {
-		BoundCheckBox track_gene_value_distribution = new BoundCheckBox(this.params, "trackValues");
-		track_gene_value_distribution.setText(track_gene_value_distribution.getLabelText());
-
-		BoundJFormattedTextField chart_update_frequency = new BoundJFormattedTextField(this.params, "updateFrequency",
-				NumberFormat.getIntegerInstance());
-		chart_update_frequency.setColumns(4);
-
-		JPanel chart_update_frequency_panel = new JPanel();
-		chart_update_frequency_panel.add(new JLabel(chart_update_frequency.getLabelText()));
-		chart_update_frequency_panel.add(chart_update_frequency);
-
 		JPanel gene_check_boxes = new JPanel(new BorderLayout());
-		gene_check_boxes.add(track_gene_value_distribution, BorderLayout.CENTER);
-		gene_check_boxes.add(chart_update_frequency_panel, BorderLayout.SOUTH);
 		return gene_check_boxes;
 	}
 

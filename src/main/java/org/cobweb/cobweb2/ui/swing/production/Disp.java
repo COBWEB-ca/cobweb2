@@ -6,11 +6,11 @@ import java.awt.Graphics;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
-import org.cobweb.cobweb2.core.Scheduler;
 import org.cobweb.cobweb2.production.ProductionMapper;
+import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.swingutil.WaitableJComponent;
 
-public class Disp extends JFrame implements Scheduler.Client {
+public class Disp extends JFrame implements UpdatableUI {
 	/**
 	 * 
 	 */
@@ -74,12 +74,12 @@ public class Disp extends JFrame implements Scheduler.Client {
 	}
 
 	@Override
-	public void tickNotification(long time) {
+	public void update(boolean synchronous) {
 		refresh();
 	}
 
 	@Override
-	public void tickZero() {
-		// do nothing
+	public boolean isReadyToRefresh() {
+		return true;
 	}
 }

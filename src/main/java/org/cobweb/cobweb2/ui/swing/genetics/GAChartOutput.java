@@ -11,9 +11,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.cobweb.cobweb2.core.Scheduler;
 import org.cobweb.cobweb2.genetics.GATracker;
 import org.cobweb.cobweb2.genetics.GeneticParams;
+import org.cobweb.cobweb2.ui.Scheduler;
+import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.cobweb.io.ConfDisplayName;
@@ -28,7 +29,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 // TODO: turn into ViewerPlugin
-public class GAChartOutput implements ViewerPlugin, ActionListener, Scheduler.Client {
+public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI {
 
 	/** Charts that represent GA outputs */
 	private JFreeChart[] gene_status_distribution_chart;
@@ -196,9 +197,9 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, Scheduler.Cl
 
 	private void setSchedulerSubscribed(boolean subscribe) {
 		if (subscribe)
-			scheduler.addSchedulerClient(this);
+			scheduler.addUIComponent(this);
 		else
-			scheduler.removeSchedulerClient(this);
+			scheduler.removeUIComponent(this);
 	}
 
 	/** Initialize the gene_status_distribution_range x-vector. */
@@ -288,12 +289,12 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, Scheduler.Cl
 	}
 
 	@Override
-	public void tickNotification(long time) {
+	public void update(boolean synchronous) {
 		updateGeneStatusDistributionData();
 	}
 
 	@Override
-	public void tickZero() {
-		// nothing
+	public boolean isReadyToRefresh() {
+		return true;
 	}
 }

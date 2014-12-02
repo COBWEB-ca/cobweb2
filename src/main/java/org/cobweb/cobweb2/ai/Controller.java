@@ -11,14 +11,6 @@ import org.cobweb.cobweb2.io.CobwebParam;
 public interface Controller {
 
 	/**
-	 * Notification that a new agent is using this controller. It is conceivable
-	 * that multiple agents may use a single controller.
-	 * 
-	 * @param theAgent agent to add
-	 */
-	public void addClientAgent(Agent theAgent);
-
-	/**
 	 * Cause the specified agent to act.
 	 * 
 	 * @param theAgent agent to control
@@ -31,13 +23,6 @@ public interface Controller {
 	 * @return configuration
 	 */
 	public CobwebParam getParams();
-
-	/**
-	 * Remove an agent from the control of this Controller.
-	 * 
-	 * @param theAgent agent being removed
-	 */
-	public void removeClientAgent(Agent theAgent);
 
 	/**
 	 * Sets controller up based on environment parameters

@@ -3,15 +3,13 @@ package org.cobweb.cobweb2.ui.swing;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.core.UIInterface;
-import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
-import org.cobweb.cobweb2.core.UIInterface.UIClient;
 import org.cobweb.cobweb2.ui.MyUncaughtExceptionHandler;
+import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.swing.config.GUI;
 
 /**
@@ -22,46 +20,7 @@ import org.cobweb.cobweb2.ui.swing.config.GUI;
  */
 public class CobwebApplicationRunner {
 
-	/**
-	 * The NullDisplayApplication class is used when the user uses the -hide flag.  
-	 * Otherwise, the CobwebApplication class will be used.
-	 * 
-	 * @see CobwebApplication
-	 */
-	private static final class NullDisplayApplication implements UIClient {
-
-		@Override
-		public void refresh(boolean wait) {
-			return;
-		}
-
-		@Override
-		public boolean isReadyToRefresh() {
-			return true;
-		}
-
-		@Override
-		public void setCurrentFile(String input) {
-			return;
-		}
-
-		@Override
-		public void fileOpened(SimulationConfig conf) {
-			return;
-		}
-
-		@Override
-		public void setSimulation(UIInterface simulation) {
-			return;
-		}
-
-		@Override
-		public UIInterface getUIPipe() {
-			return null;
-		}
-	}
-
-	static UIInterface simulation;
+	static Simulation simulation;
 
 
 	/**
@@ -173,16 +132,7 @@ public class CobwebApplicationRunner {
 			Thread.setDefaultUncaughtExceptionHandler(handler);
 		}
 
-		UIClient CA = null;
-
-		if (visible) {
-			CA = new CobwebApplication();
-		} else {
-			CA = new NullDisplayApplication();
-		}
-
-		simulation = new LocalUIInterface(CA);
-		CA.setSimulation(simulation);
+		simulation = new Simulation();
 
 		//Set up inputFile
 
@@ -203,7 +153,6 @@ public class CobwebApplicationRunner {
 				inputFileName = tempdir + CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION;
 
 		}
-		CA.setCurrentFile(inputFileName); // $$$$$$ added on Mar 14
 
 		SimulationConfig defaultconf = null;
 		try {
@@ -241,12 +190,18 @@ public class CobwebApplicationRunner {
 					+ "\n                  Any modification of this data file will be neither implemented nor saved.");
 		}
 
+		final SimulationRunner simRunner;
+		if (visible) {
+			CobwebApplication CA = new CobwebApplication();
+			simRunner = CA.simRunner;
+		} else {
+			simRunner = new SimulationRunner();
+		}
+
+		simRunner.setSimulation(simulation);
+
 		if (!logFileName.isEmpty()){
-			try {
-				simulation.log(logFileName);
-			} catch (IOException ex) {
-				System.err.println("couldn't open log file!");
-			}
+			simRunner.logFile(logFileName);
 		}
 
 		final Object runCompletedMonitor = new Object();
@@ -255,12 +210,12 @@ public class CobwebApplicationRunner {
 			System.out.println(String.format("Running '%1$s' for %2$d steps with log %3$s..."
 					, inputFileName, finalstep, logFileName));
 
-			final class AutoStopTickListener implements TickEventListener {
+			final class AutoStopUpdater implements UpdatableUI {
 				private long stopTick;
 
 				private long increment;
 
-				public AutoStopTickListener(long stopTick) {
+				public AutoStopUpdater(long stopTick) {
 					this.stopTick = stopTick;
 
 					increment = stopTick / 10;
@@ -269,33 +224,39 @@ public class CobwebApplicationRunner {
 				}
 
 				@Override
-				public void TickPerformed(long currentTick) {
-					if (currentTick % increment == 0) {
-						System.out.print(100 * currentTick / stopTick + "% ");
+				public void update(boolean synchronous) {
+					long time = simRunner.simulation.getTime();
+					if (time % increment == 0) {
+						System.out.print(100 * time / stopTick + "% ");
 
 					}
-					if (currentTick > stopTick) {
+					if (time > stopTick) {
 						synchronized(runCompletedMonitor) {
-							simulation.pause();
+							simRunner.scheduler.pause();
 							runCompletedMonitor.notify();
 						}
 					}
 				}
+
+				@Override
+				public boolean isReadyToRefresh() {
+					return true;
+				}
 			}
 
-			simulation.AddTickEventListener(new AutoStopTickListener(finalstep));
-			simulation.slowDown(0);
-			simulation.resume();
+			simRunner.scheduler.addUIComponent(new AutoStopUpdater(finalstep));
+			simRunner.scheduler.setDelay(0);
+			simRunner.scheduler.resume();
 
 			if (!visible) {
 				// Wait for simulation to reach stopTick
 				synchronized(runCompletedMonitor){
 					// Simulation could have finished running before .wait() is called,
 					// there would be no notification in that case.
-					while (simulation.isRunning()) {
+					while (simRunner.scheduler.isRunning()) {
 						try {
 							runCompletedMonitor.wait();
-							// AutoStopTickListener paused the simulation and .isRunning() is now false
+							// AutoStopUpdater paused the simulation and .isRunning() is now false
 						} catch (InterruptedException ex) {
 							throw new RuntimeException(ex);
 						}

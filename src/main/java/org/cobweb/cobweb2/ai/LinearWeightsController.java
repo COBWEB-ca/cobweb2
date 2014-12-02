@@ -43,10 +43,6 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 		// nothing
 	}
 
-	public void addClientAgent(Agent theAgent) {
-		// Nothing
-	}
-
 	public void controlAgent(Agent theAgent) {
 		ComplexAgent agent;
 		if (theAgent instanceof ComplexAgent) {
@@ -136,14 +132,6 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 			params.data[i][j] += globals.random.nextGaussian() * 0.5;
 			mutationCounter -= 1;
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see cobweb.Agent.Controller#removeClientAgent(cobweb.Agent)
-	 */
-	public void removeClientAgent(Agent theAgent) {
-		// Nothing
 	}
 
 	public void setParams(CobwebParam params) {

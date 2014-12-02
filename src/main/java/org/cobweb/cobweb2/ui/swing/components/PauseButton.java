@@ -5,38 +5,38 @@ import java.awt.Graphics;
 
 import javax.swing.JButton;
 
+import org.cobweb.cobweb2.ui.Scheduler;
+
 public class PauseButton extends JButton implements java.awt.event.ActionListener {
-	private org.cobweb.cobweb2.core.UIInterface uiPipe;
+	private Scheduler scheduler;
 
 	public static final long serialVersionUID = 0xE55CC6E3B8B5824DL;
 
-	public PauseButton(org.cobweb.cobweb2.core.UIInterface theUI) {
+	public PauseButton(Scheduler scheduler) {
 		super("Start");
-		uiPipe = theUI;
+		this.scheduler = scheduler;
 		addActionListener(this);
 
 		setPreferredSize(new Dimension(63, 26));
 	}
 
 	public void actionPerformed(java.awt.event.ActionEvent e) {
-		if (uiPipe.isRunnable()) {
-			if (uiPipe.isRunning()) {
-				uiPipe.pause();
-			} else {
-				uiPipe.resume();
-			}
-			repaint();
+		if (scheduler.isRunning()) {
+			scheduler.pause();
+		} else {
+			scheduler.resume();
 		}
+		repaint();
 	}
 
-	public void setUI(org.cobweb.cobweb2.core.UIInterface theUI) {
-		uiPipe = theUI;
+	public void setScheduler(Scheduler scheduler) {
+		this.scheduler = scheduler;
 		repaint();
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
-		boolean running = uiPipe.isRunning();
+		boolean running = scheduler.isRunning();
 		if (running != myRunning) {
 			myRunning = running;
 			if (myRunning) {

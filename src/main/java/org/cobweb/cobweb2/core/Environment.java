@@ -1,26 +1,11 @@
 package org.cobweb.cobweb2.core;
 
-import java.awt.Color;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
 import org.cobweb.cobweb2.SimulationConfig;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * The Environment class represents the simulation world; a collection of
@@ -50,7 +35,11 @@ import org.w3c.dom.Node;
  */
 public abstract class Environment {
 
-	private Location[][] locationCache;
+	protected SimulationInterface simulation;
+
+	public Environment(SimulationInterface simulation) {
+		this.simulation = simulation;
+	}
 
 	/** Axis constants, to make dimensionality make sense */
 	public static final int AXIS_X = 0;
@@ -74,15 +63,11 @@ public abstract class Environment {
 
 	public static final Direction DIRECTION_SOUTHWEST = new Direction(new int[] { -1, +1 });
 
-	protected Scheduler theScheduler;
-
 	/**
 	 * The implementation uses a hash table to store agents, as we assume there
 	 * are many more locations than agents.
 	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
-
-	private Color[] tileColors;
 
 	/**
 	 * Adds agent at given position
@@ -135,12 +120,6 @@ public abstract class Environment {
 		// Nothing
 	}
 
-	/**
-	 * Called from getDrawInfo to allow implementations to fill the array of
-	 * tile colors.
-	 */
-	protected abstract void fillTileColors(java.awt.Color[] tiles);
-
 	Agent getAgent(Location l) {
 		return agentTable.get(l);
 	}
@@ -155,30 +134,14 @@ public abstract class Environment {
 	/** @return true if the axis specified wraps. */
 	public abstract boolean getAxisWrap(int axis);
 
-	public int getCurrentPopulation() {
+	public int getAgentCount() {
 		return agentTable.keySet().size();
-
-	}
-
-	/** Called by the UIInterface to get the frame data for the Environment. */
-	public void getDrawInfo(DrawingHandler theUI) {
-		fillTileColors(tileColors);
-		theUI.newTileColors(getSize(AXIS_X), getSize(AXIS_Y), tileColors);
 
 	}
 
 	// Syntactic sugar for common cases
 	public Location getLocation(int x, int y) {
-
-		if (locationCache[x][y] == null)
-			locationCache[x][y] = new Location(this, new int[] { x, y });
-		return locationCache[x][y];
-	}
-
-	public int getPopByPercentage(double amount) {
-
-		return (int) (getCurrentPopulation() * (amount / 100));
-
+		return new Location(this,  new int[] { x, y} );
 	}
 
 	/**
@@ -193,17 +156,10 @@ public abstract class Environment {
 		return l;
 	}
 
-	/** @return the Scheduler responsible for this Environment. */
-	public Scheduler getScheduler() {
-		return theScheduler;
-	}
-
 	/** @return the number of unique locations along a specific axis. */
 	public abstract int getSize(int axis);
 
 	public abstract EnvironmentStats getStatistics();
-
-	public abstract int getTypeCount();
 
 	public Location getUserDefinedLocation(int x, int y) {
 		Location l;
@@ -214,31 +170,9 @@ public abstract class Environment {
 		return l;
 	}
 
-	/**
-	 * This is currently being overwritten by the ComplexEnvironment class.
-	 * 
-	 * @see org.cobweb.cobweb2.core.ComplexEnvironment#insertPopulation(String, boolean)
-	 */
-	public abstract void insertPopulation(String fileName, boolean replace);
-
-	/**
-	 * Load environment from parameters
-	 * 
-	 * <p>
-	 * This is currently being overwritten by the ComplexEnvironment class.
-	 * 
-	 * @param scheduler the Scheduler to use
-	 * @param parameters the parameters
-	 * @see org.cobweb.cobweb2.core.ComplexEnvironment#load(Scheduler, SimulationConfig)
-	 **/
-	public void load(Scheduler scheduler, SimulationConfig parameters) throws IllegalArgumentException {
-		tileColors = new Color[parameters.getEnvParams().getWidth() * parameters.getEnvParams().getHeight()];
+	public void load(SimulationConfig config) {
+		// nothing
 	}
-
-	/** Log to a stream */
-	public abstract void log(java.io.Writer w);
-
-	public abstract void observe(int x, int y);
 
 	/**
 	 * Removes agent at given position
@@ -270,71 +204,6 @@ public abstract class Environment {
 		// Nothing
 	}
 
-	/** Report to a stream */
-	public abstract void report(java.io.Writer w);
-
-	/** Save a sample population as an XML file */
-	public void savePopulation(String popName, String option, int amount) {
-
-		int totalPop;
-
-		if (option.equals("percentage")) {
-			totalPop = getPopByPercentage(amount);
-		} else {
-			int currPop = getCurrentPopulation();
-			if (amount > currPop) {
-
-				totalPop = currPop;
-			} else {
-
-				totalPop = amount;
-			}
-		}
-
-		Document d;
-		try {
-			d = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		} catch (ParserConfigurationException ex) {
-			throw new RuntimeException(ex);
-		}
-		Node root = d.createElement("Agents");
-
-		int currentPopCount = 1;
-
-		for (Location l : agentTable.keySet()) {
-			if (currentPopCount > totalPop)
-				break;
-			Node node = ((ComplexAgent) agentTable.get(l)).makeNode(d);
-
-			Element locationElement = d.createElement("location");
-
-			l.saveAsANode(locationElement, d);
-			node.appendChild(locationElement);
-
-			root.appendChild(node);
-			currentPopCount++;
-
-		}
-
-		d.appendChild(root);
-
-		Source s = new DOMSource(d);
-
-		try {
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer t = tf.newTransformer();
-			t.setOutputProperty(OutputKeys.INDENT, "yes");
-			t.setParameter(OutputKeys.STANDALONE, "yes");
-			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-			FileOutputStream stream = new FileOutputStream(popName);
-			Result r = new StreamResult(stream);
-			t.transform(s, r);
-		} catch (Exception ex) {
-			throw new RuntimeException("Couldn't save population", ex);
-		}
-	}
-
 	final void setAgent(Location l, Agent a) {
 		if (a != null)
 			agentTable.put(l, a);
@@ -345,19 +214,10 @@ public abstract class Environment {
 	/** Core implementation of setFlag; this is what could be accelerated in C++ */
 	protected abstract void setFlag(Location l, int flag, boolean state);
 
-	protected void setupLocationCache() {
-		locationCache = new Location[getSize(AXIS_X)][getSize(AXIS_Y)];
-	}
-
 	/**
 	 * Core implementation of testFlag; this is what could be accelerated in C++
 	 */
 	protected abstract boolean testFlag(Location l, int flag);
-
-	public abstract void unObserve();
-
-	/** Update the log; called from the UIInterface */
-	public abstract void writeLogEntry();
 
 	public abstract boolean hasAgent(int x, int y);
 

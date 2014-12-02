@@ -1,7 +1,5 @@
 package org.cobweb.cobweb2.genetics;
 
-import java.awt.Color;
-import java.awt.color.ColorSpace;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -84,13 +82,8 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	}
 
 	public void mutateAgentAttributes(ComplexAgent agent) {
-		float[] colValues = new float[3];
 		for (int i = 0; i < params.phenotype.length; i++) {
 			GeneticCode gc = getGene(agent);
-			int gene_value = gc.getValue(i);
-			if (i < 3) {
-				colValues[i] = gene_value / 255f;
-			}
 
 			Phenotype pheno = params.phenotype[i];
 			if (pheno.field == null)
@@ -102,12 +95,9 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 			float coefficient = gc.getStatus(i);
 
 			// Get instance variable linked to attribute in agent
+			// TODO LOW different formulas for different types of fields?
 			ReflectionUtil.multiplyField(agent.params, pheno.field, coefficient);
-
-
 		}
-		Color col = new Color(ColorSpace.getInstance(ColorSpace.CS_sRGB), colValues, 1);
-		agent.setColor(col);
 		tracker.addAgent(agent.type(), getGene(agent));
 	}
 

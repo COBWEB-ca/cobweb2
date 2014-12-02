@@ -73,11 +73,10 @@ public class GUI extends JFrame {
 			frame.setVisible(false);
 			frame.dispose();
 
-			if (CA.getUI() != null) {
+			if (CA.getSimulation() != null) {
 				if (CA.isInvokedByModify() == false) {
-					CA.getUI().reset();
+					// FIXME tick counter saving after modify
 				}
-				CA.getUI().setRunnable(true);
 			}
 		}
 
@@ -166,13 +165,9 @@ public class GUI extends JFrame {
 	 * Create the GUI and show it. For thread safety, this method should be invoked from the event-dispatching thread.
 	 */
 	public static void createAndShowGUI(CobwebApplication ca, String filename, boolean allowModify) {
-		if (ca.getUI() != null) {
-			ca.getUI().setRunnable(false);
-		}
-
 		// Create and set up the content pane.
 
-		frame = new GUI(ca, filename, allowModify && (ca.getUI() != null));
+		frame = new GUI(ca, filename, allowModify && (ca.getSimulation() != null));
 		frame.setVisible(true);
 
 	}
@@ -316,15 +311,10 @@ public class GUI extends JFrame {
 					frame.setVisible(false);
 					frame.dispose(); // $$$$$$ Feb 28
 					// $$$$$$ Added on Mar 14
-					if (CA.getUI() != null) {
+					if (CA.getSimulation() != null) {
 						if (CA.isInvokedByModify() == false) {
-							CA.getUI().reset(); // reset tick
-							// CA.refresh(CA.getUI());
-							// if (CA.tickField != null && !CA.tickField.getText().equals(""))
-							// {CA.tickField.setText("");} // $$$$$$ Mar 17
+							// FIXME tick counter saving after modify
 						}
-						CA.getUI().setRunnable(true);
-						CA.getUI().refresh(true);
 					}
 				}
 			} catch (IOException ex) {

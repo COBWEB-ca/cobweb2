@@ -2,7 +2,7 @@ package org.cobweb.cobweb2.core;
 
 import java.awt.Color;
 import java.io.FileInputStream;
-import java.text.DecimalFormat;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,6 +13,14 @@ import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.ControllerFactory;
@@ -24,9 +32,6 @@ import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;
 import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.cobweb2.production.ProductionParams;
-import org.cobweb.swingutil.ColorLookup;
-import org.cobweb.swingutil.TypeColorEnumeration;
-import org.cobweb.util.Point2D;
 import org.cobweb.util.RandomNoGenerator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -36,7 +41,7 @@ import org.w3c.dom.NodeList;
 /**
  * 2D grid where agents and food live
  */
-public class ComplexEnvironment extends Environment implements Scheduler.Client {
+public class ComplexEnvironment extends Environment implements Updatable {
 
 	/**
 	 * Contains methods
@@ -138,14 +143,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 
 	public int PD_PAYOFF_PUNISHMENT;
 
-	/*
-	 * All variables that will by referenced by the parser must be declared as
-	 * 1-sized arrays as all of the following are.
-	 */
-
-	// Info for logfile
-	private long tickCount = 0;
-
 	private static RandomNoGenerator environmentRandom;
 
 	private ComplexFoodParams foodData[];
@@ -153,8 +150,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	protected ComplexAgentParams agentData[];
 
 	protected ProductionParams prodData[];
-
-	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
@@ -174,9 +169,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		return foodarray[l.v[0]][l.v[1]];
 	}
 
-	private java.io.PrintWriter logStream;
-
-	private Vector<ComplexAgentInfo> agentInfoVector = new Vector<ComplexAgentInfo>();
+	public Vector<ComplexAgentInfo> agentInfoVector = new Vector<ComplexAgentInfo>();
 
 	private org.cobweb.cobweb2.core.ArrayEnvironment array;
 
@@ -191,7 +184,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	 */
 	public Drop[][] dropArray;	
 
-	private Agent observedAgent = null;
+	public Agent observedAgent = null;
 
 	private int draughtdays[];
 
@@ -203,8 +196,8 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 
 	public PacketConduit commManager;
 
-	public ComplexEnvironment() {
-		super();
+	public ComplexEnvironment(SimulationInterface simulation) {
+		super(simulation);
 		commManager = new PacketConduit();
 	}
 
@@ -236,15 +229,15 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	}
 
 	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1, p2));
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, simulation.getTime(), p1, p2));
 	}
 
 	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount, p1));
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, simulation.getTime(), p1));
 	}
 
 	ComplexAgentInfo addAgentInfo(int agentT) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, tickCount));
+		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, simulation.getTime()));
 	}
 
 	@Override
@@ -257,9 +250,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		}
 		l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
 		setFoodType(l, type);
-
-		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
-		fillTileColors(tileColors);
 	}
 
 	@Override
@@ -276,9 +266,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 			l.setFlag(FLAG_DROP, false);
 
 		l.setFlag(ComplexEnvironment.FLAG_STONE, true);
-
-		java.awt.Color[] tileColors = new java.awt.Color[getSize(AXIS_X) * getSize(AXIS_Y)];
-		fillTileColors(tileColors);
 	}
 
 	@Override
@@ -342,7 +329,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	}
 
 	/* Return totalEnergy of all agents */
-	private long countAgentEnergy() {
+	public long countAgentEnergy() {
 		long totalEnergy = 0;
 		for(Agent a : getAgents()){
 			ComplexAgent agent = (ComplexAgent) a;
@@ -352,7 +339,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	}
 
 	/* Return totalEnergy (long) for a certain agentType (int) */
-	private long countAgentEnergy(int agentType) {
+	public long countAgentEnergy(int agentType) {
 		long totalEnergy = 0;
 		for(Agent a : getAgents()) {
 			ComplexAgent agent = (ComplexAgent) a;
@@ -363,7 +350,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	}
 
 	/* Return the number of agents (int) for a certain agentType (int) */
-	private int countAgents(int agentType) {
+	public int countAgents(int agentType) {
 		int agentCount = 0;
 		for(Agent a : getAgents()) {
 			ComplexAgent agent = (ComplexAgent) a;
@@ -374,7 +361,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	}
 
 	/* Return foodCount (long) of all types of food */
-	private long countFoodTiles() {
+	public long countFoodTiles() {
 		long foodCount = 0;
 
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
@@ -388,7 +375,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	}
 
 	/* Return foodCount (long) for a specific foodType (int) */
-	private int countFoodTiles(int foodType) {
+	public int countFoodTiles(int foodType) {
 		int foodCount = 0;
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
@@ -450,35 +437,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	}
 
 	@Override
-	public void fillTileColors(java.awt.Color[] tileColors) {
-		int tileIndex = 0;
-		for (int y = 0; y < getSize(AXIS_Y); ++y) {
-			for (int x = 0; x < getSize(AXIS_X); ++x) {
-				Location currentPos = getLocation(x, y);
-
-				if (currentPos.testFlag(FLAG_STONE))
-					tileColors[tileIndex++] = java.awt.Color.darkGray;
-
-				else if (currentPos.testFlag(FLAG_FOOD))
-					tileColors[tileIndex++] = colorMap.getColor(getFoodType(currentPos), 0 /* agentTypeCount */);
-
-				else
-					tileColors[tileIndex++] = java.awt.Color.white;
-			}
-		}
-	}
-
-	@Override
-	protected void finalize() {
-		if (logStream != null)
-			logStream.close();
-	}
-
-	public int getAgentTypes() {
-		return data.getAgentTypes();
-	}
-
-	@Override
 	public int getAxisCount() {
 		return 2;
 	}
@@ -486,37 +444,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	@Override
 	public boolean getAxisWrap(int axis) {
 		return data.wrapMap;
-	}
-
-	@Override
-	public synchronized void getDrawInfo(DrawingHandler theUI) {
-		super.getDrawInfo(theUI);
-		for (Agent a : getAgents()) {
-			a.getDrawInfo(theUI);
-		}
-
-		if (observedAgent != null) {
-			List<Location> path = ((ComplexAgent) observedAgent).getInfo().getPathHistory();
-			if (path != null)
-				theUI.newPath(path);
-		}
-
-		getDropInfo(theUI);
-
-	}
-
-	// Hidden implementation stuff...
-
-	private void getDropInfo(DrawingHandler theUI) {
-		for (int y = 0; y < getSize(AXIS_Y); ++y) {
-			for (int x = 0; x < getSize(AXIS_X); ++x) {
-				Location currentPos = getLocation(x, y);
-				if (currentPos.testFlag(FLAG_DROP)){
-					Color c = dropArray[x][y].getColor();
-					theUI.newDrop(new Point2D(x, y), c);
-				}
-			}
-		}
 	}
 
 	public int getInfoNum() {
@@ -535,19 +462,14 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	@Override
 	public EnvironmentStats getStatistics() {
 		EnvironmentStats stats = new EnvironmentStats();
-		stats.agentCounts = new long[getAgentTypes()];
-		stats.foodCounts = new long[getAgentTypes()];
-		for (int i = 0; i < getAgentTypes(); i++) {
+		stats.agentCounts = new long[data.agentTypeCount];
+		stats.foodCounts = new long[data.agentTypeCount];
+		for (int i = 0; i < data.agentTypeCount; i++) {
 			stats.agentCounts[i] = countAgents(i);
 			stats.foodCounts[i] = countFoodTiles(i);
 		}
-		stats.timestep = this.getTickCount();
+		stats.timestep = simulation.getTime();
 		return stats;
-	}
-
-	/* Return the current tick number, tickCount (long) */
-	public long getTickCount() {
-		return tickCount;
 	}
 
 	public int getWidth() {
@@ -556,12 +478,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 
 	public int getHeight() {
 		return data.height;
-	}
-
-	@Override
-	public int getTypeCount() {
-
-		return data.getAgentTypes();
 	}
 
 	private void growFood() {
@@ -667,7 +583,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	 * @param fileName path to population file
 	 * @param replace delete current population before inserting
 	 */
-	@Override
 	public void insertPopulation(String fileName, boolean replace) {
 		if (replace) {
 			clearAgents();
@@ -758,22 +673,11 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	 * <br>4. Keeps or removes old agents.
 	 * <br>5. Adds new stones, food, and agents.
 	 * 
-	 * @param s The simulation scheduler used to control the time.
-	 * @param p The simulation configuration settings
-	 * @see org.cobweb.cobweb2.core.Environment#load(Scheduler, SimulationConfig)
+	 * @param config The simulation  settings
 	 */
 	@Override
-	public synchronized void load(Scheduler s, SimulationConfig p) throws IllegalArgumentException {
-		super.load(s, p);
-		// sFlag stores whether or not we are using a new scheduler
-		boolean sFlag = (s != theScheduler);
-
-		if (sFlag) {
-			theScheduler = s;
-			s.addSchedulerClient(this);
-		}
-
-		tickCount = theScheduler.getTime();
+	public synchronized void load(SimulationConfig config) throws IllegalArgumentException {
+		super.load(config);
 
 		int oldH = data.height;
 		int oldW = data.width;
@@ -783,7 +687,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		 * allocate space to store the parameter for each type
 		 */
 
-		copyParamsFromParser(p);
+		copyParamsFromParser(config);
 
 		setDefaultMutableAgentParam();
 
@@ -811,7 +715,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		backFoodArray = new int[data.width][data.height];
 		mostFood = new int[data.getFoodTypes()];
 
-		setupLocationCache();
 		org.cobweb.cobweb2.core.ComplexAgentInfo.initialize(data.getAgentTypes());
 
 		if (dropArray == null || !data.keepOldWaste) {
@@ -823,7 +726,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		loadFoodMode();
 
 		if (data.keepOldAgents) {
-			loadOldAgents(sFlag, oldH, oldW);
+			loadOldAgents(oldH, oldW);
 		} else {
 			clearAgents();
 		}
@@ -851,7 +754,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		}
 
 		try {
-			ControllerFactory.Init(data.controllerName, p.getControllerParams());
+			ControllerFactory.Init(data.controllerName, config.getControllerParams());
 		} catch (ClassNotFoundException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -955,23 +858,16 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	 * is added to the scheduler if the scheduler is new.  Agents that are off the new 
 	 * environment are removed from the environment.
 	 * 
-	 * @param sFlag True if using a new scheduler
 	 * @param oldH Height of old environment
 	 * @param oldW Width of old environment
 	 */
-	private void loadOldAgents(boolean sFlag, int oldH, int oldW) {
+	private void loadOldAgents(int oldH, int oldW) {
 		// Add in-bounds old agents to the new scheduler and update new
 		// constants
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
 				if (currentPos.getAgent() != null) {
-					// we only need to add the agent if the scheduler is
-					// new, otherwise we assume it already belongs to the
-					// scheduler
-					if (sFlag) {
-						getScheduler().addSchedulerClient((ComplexAgent) currentPos.getAgent());
-					}
 					int theType = ((ComplexAgent) currentPos.getAgent()).getAgentType();
 					((ComplexAgent) currentPos.getAgent()).setConstants(agentData[theType], prodData[theType]); // Default
 					// genetic
@@ -1028,13 +924,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		}
 	}
 
-	@Override
-	public void log(java.io.Writer w) {
-		logStream = new java.io.PrintWriter(w, false);
-		writeLogTitles();
-	}
-
-	private int[] numAgentsStrat() {
+	public int[] numAgentsStrat() {
 		int stratArray[] = new int[2];
 		int cheaters = 0;
 		int coops = 0;
@@ -1052,7 +942,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		return stratArray;
 	}
 
-	private int[] numAgentsStrat(int agentType) {
+	public int[] numAgentsStrat(int agentType) {
 		int stratArray[] = new int[2];
 		int cheaters = 0;
 		int coops = 0;
@@ -1070,30 +960,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		return stratArray;
 	}
 
-	/*
-	 * This gets called when the user clicks on a tile without selecting outside
-	 * of edit mode
-	 */
-	@Override
-	public void observe(int x, int y) {
-		org.cobweb.cobweb2.core.Location l = getUserDefinedLocation(x, y);
-		/* A tile can only consist of: STONE or WASTE or (FOOD|AGENT) */
-		observedAgent = l.getAgent();
-	}
-
-	public void printAgentInfo(java.io.PrintWriter pw) {
-
-		ComplexAgentInfo.initStaticAgentInfo(this.getAgentTypes());
-
-		ComplexAgentInfo.printAgentHeaders(pw);
-
-
-		for (ComplexAgentInfo info : agentInfoVector) {
-			info.printInfo(pw);
-		}
-
-
-	}
 
 	@Override
 	public synchronized void removeAgent(int x, int y) {
@@ -1117,13 +983,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		super.removeStone(x, y);
 		Location l = getLocation(x, y);
 		l.setFlag(FLAG_STONE, false);
-	}
-
-	@Override
-	public void report(java.io.Writer w) {
-		java.io.PrintWriter pw = new java.io.PrintWriter(w, false);
-
-		printAgentInfo(pw);
 	}
 
 	public void resetAgentInfo() {
@@ -1206,8 +1065,8 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 	 * environment to function properly. These tasks include managing food
 	 * depletion, food growth, and random food-"dropping".
 	 */
-	public void tickNotification(long tick) {
-		tickCount = tick;
+	@Override
+	public void update(long tick) {
 
 		commManager.decrementPersistence();
 		commManager.unblockBroadcast();
@@ -1220,7 +1079,7 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 
 		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			if (foodData[i].depleteRate != 0.0f && foodData[i].growRate > 0
-					&& (tickCount % foodData[i].depleteTime) == 0) {
+					&& (simulation.getTime() % foodData[i].depleteTime) == 0) {
 				depleteFood(i);
 			}
 		}
@@ -1252,15 +1111,6 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		}
 	}
 
-	public void tickZero() {
-		// Nothing
-	}
-
-	@Override
-	public void unObserve() {
-		// Nothing
-	}
-
 	/**
 	 * 
 	 */
@@ -1271,132 +1121,13 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 				if (l.testFlag(ComplexEnvironment.FLAG_DROP) == false)
 					continue;
 				Drop d = dropArray[i][j];
-				if (!d.isActive(getTickCount())) {
+				if (!d.isActive(simulation.getTime())) {
 					l.setFlag(ComplexEnvironment.FLAG_DROP, false);
 					d.expire();
 					dropArray[i][j] = null; // consider deactivating
 					// and not deleting
 				}
 			}
-		}
-	}
-
-	/**
-	 * Write to Log file: FoodCount, AgentCount, Average Agent Energy and Agent
-	 * Energy at the most recent ticks ( by tick and by Agent/Food preference)
-	 */
-	@Override
-	public void writeLogEntry() {
-		if (logStream == null) {
-			return;
-		}
-
-		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
-
-		for (int i = 0; i < data.getAgentTypes(); i++) {
-
-			long agentCount = countAgents(i);
-			long agentEnergy = countAgentEnergy(i);
-			/*
-			 * System.out
-			 * .println("************* Near Agent Count *************");
-			 */
-
-			int cheaters = (numAgentsStrat(i))[1];
-			int coops = (numAgentsStrat(i))[0];
-			logStream.print(tickCount);
-			logStream.print('\t');
-			logStream.print(countFoodTiles(i));
-			logStream.print('\t');
-			logStream.print(agentCount);
-			logStream.print('\t');
-			// Format Average agentEnergy to 3 decimal places
-			if (agentCount != 0)
-				logStream.print(z.format(((float) agentEnergy) / agentCount));
-			else
-				logStream.print("0.000");
-			logStream.print('\t');
-			logStream.print(agentEnergy);
-			logStream.print('\t');
-			logStream.print(cheaters);
-			logStream.print('\t');
-			logStream.print(coops);
-			logStream.print('\t');
-
-			for (String s : ComplexAgent.logDataAgent(i)) {
-				logStream.print(s);
-				logStream.print('\t');
-			}
-		}
-		// print the TOTAL of FoodCount, AgentCount, Average Agent Energy
-		// and Agent Energy at a certain tick
-		/*
-		 * System.out
-		 * .println("************* Before Agent Count Call *************");
-		 */
-		long agentCountAll = getCurrentPopulation();
-		/*
-		 * System.out
-		 * .println("************* After Agent Count Call *************");
-		 */
-		long agentEnergyAll = countAgentEnergy();
-		int total_cheaters = (numAgentsStrat())[1];
-		int total_coops = (numAgentsStrat())[0];
-		logStream.print(tickCount);
-		logStream.print('\t');
-		logStream.print(countFoodTiles());
-		logStream.print('\t');
-		logStream.print(agentCountAll);
-		logStream.print('\t');
-		logStream.print(z.format(((float) agentEnergyAll) / agentCountAll));
-		logStream.print('\t');
-		logStream.print(agentEnergyAll);
-		logStream.print('\t');
-		logStream.print(total_cheaters);
-		logStream.print('\t');
-		logStream.print(total_coops);
-		logStream.print('\t');
-
-		for (String s : ComplexAgent.logDataTotal()) {
-			logStream.print(s);
-			logStream.print('\t');
-		}
-		logStream.println();
-		// logStream.flush();
-	}
-
-	/* Write the Log titles to the file,(called by log (java.io.Writer w)) */
-	public void writeLogTitles() {
-		if (logStream != null) {
-			for (int i = 1; i <= data.getAgentTypes(); i++) {
-
-				logStream.print("Tick\t");
-				logStream.print("FoodCount " + i + "\t");
-				logStream.print("AgentCount " + i + "\t");
-				logStream.print("AveAgentEnergy " + i + "\t");
-				logStream.print("AgentEnergy " + i + "\t");
-				logStream.print("Cheat " + i + "\t");
-				logStream.print("Coop " + i + "\t");
-				for (String s : ComplexAgent.logHederAgent()) {
-					logStream.print(s);
-					logStream.print(" " + i);
-					logStream.print('\t');
-				}
-			}
-			// One final round of output for total
-			logStream.print("Tick\t");
-			logStream.print("FoodCount T\t");
-			logStream.print("AgentCount T\t");
-			logStream.print("AveAgentEnergy T\t");
-			logStream.print("AgentEnergy T\t");
-			logStream.print("Num. Cheat T\t");
-			logStream.print("Num. Coop T\t");
-			for (String s : ComplexAgent.logHederTotal()) {
-				logStream.print(s);
-				logStream.print(" T");
-				logStream.print('\t');
-			}
-			logStream.println();
 		}
 	}
 
@@ -1437,5 +1168,67 @@ public class ComplexEnvironment extends Environment implements Scheduler.Client 
 		return data.prisDilemma;
 	}
 
+
+	/** Save a sample population as an XML file */
+	public void savePopulation(String popName, String option, int amount) {
+
+		int totalPop;
+
+		if (option.equals("percentage")) {
+			totalPop = getAgentCount() * amount / 100;
+		} else {
+			int currPop = getAgentCount();
+			if (amount > currPop) {
+
+				totalPop = currPop;
+			} else {
+
+				totalPop = amount;
+			}
+		}
+
+		Document d;
+		try {
+			d = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+		} catch (ParserConfigurationException ex) {
+			throw new RuntimeException(ex);
+		}
+		Node root = d.createElement("Agents");
+
+		int currentPopCount = 1;
+
+		for (Location l : agentTable.keySet()) {
+			if (currentPopCount > totalPop)
+				break;
+			Node node = ((ComplexAgent) agentTable.get(l)).makeNode(d);
+
+			Element locationElement = d.createElement("location");
+
+			l.saveAsANode(locationElement, d);
+			node.appendChild(locationElement);
+
+			root.appendChild(node);
+			currentPopCount++;
+
+		}
+
+		d.appendChild(root);
+
+		Source s = new DOMSource(d);
+
+		try {
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer t = tf.newTransformer();
+			t.setOutputProperty(OutputKeys.INDENT, "yes");
+			t.setParameter(OutputKeys.STANDALONE, "yes");
+			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
+
+			FileOutputStream stream = new FileOutputStream(popName);
+			Result r = new StreamResult(stream);
+			t.transform(s, r);
+		} catch (Exception ex) {
+			throw new RuntimeException("Couldn't save population", ex);
+		}
+	}
 
 }

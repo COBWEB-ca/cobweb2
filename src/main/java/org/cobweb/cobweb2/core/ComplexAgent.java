@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.core;
 
-import java.awt.Color;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -21,28 +20,22 @@ import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
 import org.cobweb.cobweb2.production.ProductionParams;
-import org.cobweb.swingutil.ColorLookup;
-import org.cobweb.swingutil.TypeColorEnumeration;
-import org.cobweb.util.Point2D;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * Consists of implementations of the TickScheduler.Client and the 
- * Serializable classes, and is an extension of the cobweb.Agent class. 
+ * TODO better comments 
  * 
  * <p>During each tick of a simulation, each ComplexAgent instance will 
  * be used to call the tickNotification method.  This is done in the 
  * TickScheduler.doTick private method. 
  * 
- * @author ???
  * @see org.cobweb.cobweb2.core.Agent
- * @see ComplexAgent#tickNotification(long)
  * @see java.io.Serializable
  *
  */
-public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Scheduler.Client, Serializable{
+public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updatable, Serializable {
 
 	/**
 	 * This class provides the information of what an agent sees.
@@ -182,7 +175,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 
 
 	protected ComplexAgent breedPartner;
-	private Color color = Color.lightGray;
 
 	private boolean asexFlag;
 
@@ -197,8 +189,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 
 	/** The current tick we are in (or the last tick this agent was notified */
 	protected long currTick = 0;
-
-	private static ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	protected static Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
 
@@ -262,12 +252,12 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 		} // else keep parent 1's PD config
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		birthTick = environment.getTickCount();
+		birthTick = environment.simulation.getTime();
 		info = environment.addAgentInfo(agentType, parent1.info, parent2.info);
 
 		move(pos);
 
-		pos.getEnvironment().getScheduler().addSchedulerClient(this);
+		environment.simulation.addAgent(this);
 
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this, parent1, parent2);
@@ -287,12 +277,12 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 
 		copyConstants(parent);
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		birthTick = environment.getTickCount();
+		birthTick = environment.simulation.getTime();
 		info = environment.addAgentInfo(agentType, parent.info);
 
 		move(pos);
 
-		pos.getEnvironment().getScheduler().addSchedulerClient(this);
+		environment.simulation.addAgent(this);
 
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this, parent);
@@ -305,12 +295,12 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 		this.facing = facingDirection;
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		birthTick = environment.getTickCount();
+		birthTick = environment.simulation.getTime();
 		info = environment.addAgentInfo(agentT);
 
 		move(pos);
 
-		pos.getEnvironment().getScheduler().addSchedulerClient(this);
+		environment.simulation.addAgent(this);
 
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this);
@@ -331,13 +321,13 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 
 		params = agentData;
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		birthTick = environment.getTickCount();
+		birthTick = environment.simulation.getTime();
 		info = environment.addAgentInfo(agentType);
 		this.agentType = agentType;
 
 		move(pos);
 
-		pos.getEnvironment().getScheduler().addSchedulerClient(this);
+		environment.simulation.addAgent(this);
 
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this);
@@ -468,7 +458,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 			mutator.onDeath(this);
 		}
 
-		info.setDeath(((ComplexEnvironment) position.getEnvironment()).getTickCount());
+		info.setDeath(environment.simulation.getTime());
 	}
 
 	/**
@@ -567,7 +557,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 		return currTick - birthTick;
 	}
 
-	@Override
 	public boolean getAgentPDActionCheat() {
 		return pdCheater;
 	}
@@ -576,10 +565,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 		return params.type;
 	}
 
-	@Override
-	public Color getColor() {
-		return color;
-	}
 
 	public int getCommInbox() {
 		return commInbox;
@@ -587,24 +572,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 
 	public int getCommOutbox() {
 		return commOutbox;
-	}
-
-	// get agent's drawing information given the UI
-	@Override
-	public void getDrawInfo(DrawingHandler theUI) {
-		Color stratColor;
-
-		// is agents action is 1, it's a cheater therefore it's
-		// graphical representation will a have red boundary
-		if (pdCheater) {
-			stratColor = Color.red;
-		} else {
-			// cooperator, black boundary
-			stratColor = Color.black;
-		}
-		// based on agent type
-		theUI.newAgent(getColor(), colorMap.getColor(agentType, 1), stratColor, new Point2D(getPosition().v[0],
-				getPosition().v[1]), new Point2D(facing.v[0], facing.v[1]));
 	}
 
 	/**
@@ -900,12 +867,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 		this.asexFlag = asexFlag;
 	}
 
-
-	@Override
-	public void setColor(Color c) {
-		color = c;
-	}
-
 	public void setCommInbox(int commInbox) {
 		this.commInbox = commInbox;
 	}
@@ -1155,10 +1116,17 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 	}
 
 	/**
-	 * Auto-update turn-related parameters. Kill the agent if necessary.
+	 * Controls what happens to the agent on this tick.  If the 
+	 * agent is still alive, what happens to the agent is determined 
+	 * by the controller.
+	 * 
 	 * @param tick The time in the simulation
 	 */
-	private final void updateAgent(long tick) {
+	@Override
+	public void update(long tick) {
+		if (!isAlive())
+			return;
+
 		//update current tick
 		currTick = tick;
 
@@ -1174,13 +1142,13 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 		/* Check if broadcasting is enabled */
 		if (params.broadcastMode)
 			receiveBroadcast();
-	}
 
-	/**
-	 * Perform this method after control method.
-	 * Make the agent produce waste and send all queued broadcast messages.
-	 */
-	private final void endUpdateAgent() {
+		// If updateAgent called die();
+		if (!isAlive())
+			return;
+
+		controller.controlAgent(this);
+
 		/* Produce waste if able */
 		if (params.wasteMode && shouldPoop())
 			tryPoop();
@@ -1188,45 +1156,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Sched
 		if (prodParams.productionMode) {
 			tryProduction();
 		}
-	}
-
-	/**
-	 * Move, eat, reproduce, etc.
-	 * This method is meant to control the agent.
-	 * Override this method in subclasses.
-	 */
-	protected void control() {
-		controller.controlAgent(this);
-	}
-
-	/**
-	 * Controls what happens to the agent on this tick.  If the 
-	 * agent is still alive, what happens to the agent is determined 
-	 * by the controller.
-	 * 
-	 * @param tick The time in the simulation
-	 * @see org.cobweb.cobweb2.ai.Controller#controlAgent(org.cobweb.cobweb2.core.Agent)
-	 */
-	public void tickNotification(long tick) {
-		if (!isAlive())
-			return;
-
-		//all actions to be taken before controller
-		this.updateAgent(tick);
-
-		// If updateAgent called die();
-		if (!isAlive())
-			return;
-
-		this.control();
-
-		//all actions to be taken after controller
-		this.endUpdateAgent();
-	}
-
-
-	public void tickZero() {
-		// nothing
 	}
 
 	/**

@@ -4,14 +4,15 @@ import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.production.ProductionParams;
 
 
 public class ComplexEnvironmentLearning extends ComplexEnvironment {
 
-	public ComplexEnvironmentLearning() {
-		super();
+	public ComplexEnvironmentLearning(SimulationInterface simulation) {
+		super(simulation);
 	}
 
 	private LearningAgentParams learningData[];

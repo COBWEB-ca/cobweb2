@@ -18,12 +18,10 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,15 +42,19 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.core.UIInterface;
-import org.cobweb.cobweb2.core.UIInterface.TickEventListener;
-import org.cobweb.cobweb2.core.UIInterface.UIClient;
+import org.cobweb.cobweb2.ai.LinearWeightsController;
+import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
+import org.cobweb.cobweb2.ui.swing.ai.LinearAIViewer;
 import org.cobweb.cobweb2.ui.swing.components.PauseButton;
 import org.cobweb.cobweb2.ui.swing.components.SpeedBar;
 import org.cobweb.cobweb2.ui.swing.components.StepButton;
 import org.cobweb.cobweb2.ui.swing.config.GUI;
+import org.cobweb.cobweb2.ui.swing.genetics.GAChartOutput;
+import org.cobweb.cobweb2.ui.swing.production.ProductionViewer;
+import org.cobweb.util.FileUtils;
 import org.cobweb.util.Versionator;
 
 /**
@@ -63,7 +65,7 @@ import org.cobweb.util.Versionator;
  * @author Liang
  *
  */
-public class CobwebApplication extends JFrame implements UIClient {
+public class CobwebApplication extends JFrame {
 
 	private static final String WINDOW_TITLE = "COBWEB 2";
 
@@ -73,42 +75,13 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private static final long serialVersionUID = 2112476687880153089L;
 
-	/**
-	 * Copies the contents from the source file to the destination file.  If 
-	 * the destination file does not exist, it will be created.
-	 * 
-	 * @param src The file name of the source file to be copied from
-	 * @param dest The file name of the destination file to be copied to 
-	 * @throws IOException On failure
-	 */
-	public static void copyFile(String src, String dest) throws IOException {
-		File sourceFile = new File(src);
-		File destFile = new File(dest);
-
-		if (!destFile.exists())
-			destFile.createNewFile();
-
-		FileChannel source = null;
-		FileChannel destination = null;
-		try {
-			source = new FileInputStream(sourceFile).getChannel();
-			destination = new FileOutputStream(destFile).getChannel();
-			destination.transferFrom(source, 0, source.size());
-		} finally {
-			if (source != null)
-				source.close();
-			if (destination != null)
-				destination.close();
-		}
-	}
-
 	// $$$$$$ Add a greeting string for the textWindow. Mar 25
 	public static final String GREETINGS = "Welcome to COBWEB 2";
 
 	private String midFile; // $$$$$$ added for supporting "Modify Current Data", to temporary save the name when adding
 	// a file. Feb 14
 
-	private String currentFile; // $$$$$$ added for saving current used file name. Mar 14
+	String currentFile; // $$$$$$ added for saving current used file name. Mar 14
 
 	private DisplayPanel displayPanel; // $$$$$$ added to avoid duplicately information lines shown in textWindow. Apr
 	// 1
@@ -142,13 +115,14 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	private int modifyingDefaultDataReminder = 0; // $$$$$$ added for openCurrentFile() method. Mar 25
 
-	private Logger myLogger = Logger.getLogger("COBWEB2");
-
 	private JPanel mainPanel;
 	private JLabel tickDisplay;
 
 	private JPanel controls;
 
+	public SimulationRunner simRunner = new SimulationRunner();
+
+	protected Logger myLogger = Logger.getLogger("COBWEB2");
 
 	// constructor
 	public CobwebApplication() {
@@ -229,7 +203,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME + CONFIG_FILE_EXTENSION; // $$$$$$ added for implementing
 		// "Modify Current Data". Feb 12
 		GUI.createAndShowGUI(this, newInput, false); // $$$$$$ change the name from original "input.xml". Jan 31
-		if (uiPipe == null) {
+		if (simRunner.simulation == null) {
 			setCurrentFile(newInput);
 		} // $$$$$$ added on Mar 14
 		// $$$$$$ Added to check if the new data file is hidden. Feb 22
@@ -368,23 +342,13 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	/**
-	 * Returns the name of the file being used by the current simulation.
-	 * 
-	 * @return The name of the current file being used for the current simulation.
-	 */
-	// $$$$$$ Implemented on Mar 14
-	public String getCurrentFile() {
-		return currentFile;
-	}
-
-	/**
 	 * Returns the user interface pipe being used.
 	 * 
 	 * @return User Interface Pipe
 	 */
 	// $$$$$$ get UI. Mar 14
-	public UIInterface getUI() {
-		return uiPipe;
+	public SimulationInterface getSimulation() {
+		return simRunner.simulation;
 	}
 
 	// $$$$$$ Implemented on Mar 14
@@ -397,22 +361,6 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	/**
-	 * Provides the user interface pipe with the location of the log file to 
-	 * write to.
-	 * 
-	 * @param filePath The file path and file name.
-	 */
-	public void logFile(String filePath) {
-		if (uiPipe != null) {
-			try {
-				uiPipe.log(filePath);
-			} catch (Exception ex) {
-				throw new CobwebUserException("Cannot save log file!", ex);
-			}
-		}
-	}
-
-	/**
 	 * Allows the user to select the log file to write to.
 	 */
 	public void logFileDialog() {
@@ -420,7 +368,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				"Choose a file to save log to", FileDialog.SAVE);
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
-			logFile(theDialog.getDirectory() + theDialog.getFile());
+			simRunner.logFile(theDialog.getDirectory() + theDialog.getFile());
 		}
 	}
 
@@ -669,10 +617,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 		File cf = new File(currentData);
 		cf.deleteOnExit();
 		// $$$$$$ Implement a medium file for modification. Feb 12
-		midFile = getCurrentFile(); // $$$$$$ added on Mar 14
+		midFile = currentFile; // $$$$$$ added on Mar 14
 		if (midFile.equals(currentData) == false) { // $$$$$ if not accessed by choosing "Modify Current Data" menu
 			try {
-				copyFile(midFile, currentData);
+				FileUtils.copyFile(midFile, currentData);
 			} catch (Exception ex) {
 				throw new CobwebUserException("Cannot open config file", ex);
 			}
@@ -694,9 +642,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$ a file named as the below name will be automatically created or modified when everytime running the
 		// following code. Please refer to GUI.GUI.close.addActionListener, "/* write UI info to xml file */". Jan 24
 		// $$$$$$ modify a file previously accessed by "Modify Current Data". Mar 18
-		if (getCurrentFile().equals(CURRENT_DATA_FILE_NAME + TEMPORARY_FILE_EXTENSION)) {
+		if (currentFile.equals(CURRENT_DATA_FILE_NAME + TEMPORARY_FILE_EXTENSION)) {
 			try {
-				copyFile(getCurrentFile(), midFile);
+				FileUtils.copyFile(currentFile, midFile);
 			} catch (Exception ex) {
 				// $$$$$$ added on Feb 21
 				Logger.getLogger("COBWEB2").log(Level.WARNING, "Modify file failed", ex);
@@ -706,10 +654,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 			setCurrentFile(midFile);
 		}
 
-		GUI.createAndShowGUI(this, getCurrentFile(), true); // $$$$$$ modified on Mar 14
+		GUI.createAndShowGUI(this, currentFile, true); // $$$$$$ modified on Mar 14
 
 		// $$$$$$ Added on Mar 25
-		if (getCurrentFile().equals(DEFAULT_DATA_FILE_NAME + TEMPORARY_FILE_EXTENSION)) {
+		if (currentFile.equals(DEFAULT_DATA_FILE_NAME + TEMPORARY_FILE_EXTENSION)) {
 			if (modifyingDefaultDataReminder == 0) {
 				// $$$$$ Ask if need to remind again. Mar 25
 				Object[] options = { "Yes, please", "No, thanks" };
@@ -727,23 +675,19 @@ public class CobwebApplication extends JFrame implements UIClient {
 	}
 
 	public void openFile(SimulationConfig p) {
-		if (uiPipe.isRunning())
-			uiPipe.pause();
-		uiPipe.load(p);
-	}
-
-	@Override
-	public void fileOpened(SimulationConfig conf) {
+		if (simRunner.scheduler.isRunning())
+			simRunner.scheduler.pause();
+		simRunner.simulation.load(p);
 
 		UIsettings();
 
-		displayPanel.setUI(uiPipe);
+		displayPanel.setSimulation(simRunner.simulation);
 
-		File f = new File(conf.getFilename());
+		File f = new File(p.getFilename());
 		setTitle(WINDOW_TITLE + "  - " + f.getName());
-
-		uiPipe.setRunnable(true);	
+		refresh(true);
 	}
+
 
 	/**
 	 *Opens an existing xml file, selected by the user through a dialog box, 
@@ -780,7 +724,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				if (GUI.frame != null && GUI.frame.isVisible() == true) {
 					GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up. Feb 28
 				}
-				GUI.createAndShowGUI(this, getCurrentFile(), true);
+				GUI.createAndShowGUI(this, currentFile, true);
 				// CobwebApplication.this.setEnabled(false); // $$$$$$ to make sure the "Cobweb Application" frame
 				// disables when ever the "Test Data" window showing
 				// $$$$$$ Modified on Feb 28
@@ -796,7 +740,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 						this, // $$$$$ change from "GUI.frame". Mar 17
 						"File \" " + directory + file + "\" could not be found!", "Warning",
 						JOptionPane.WARNING_MESSAGE);
-				if (uiPipe == null) {
+				if (simRunner.simulation == null) {
 					GUI.frame.toFront(); // $$$$$$ Mar 17
 				}
 			}
@@ -811,8 +755,8 @@ public class CobwebApplication extends JFrame implements UIClient {
 	 * @see CobwebApplication#onMenuQuit()
 	 */
 	public void quitApplication() {
-		if (uiPipe != null) {
-			uiPipe.killScheduler();
+		if (simRunner.scheduler != null) {
+			simRunner.scheduler.dispose();
 		}
 		System.exit(0);
 	}
@@ -839,21 +783,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				"Choose a file to save report to", FileDialog.SAVE);
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
-			reportFile(theDialog.getDirectory() + theDialog.getFile());
-		}
-	}
-
-	/**
-	 * @param filePath file path and file name
-	 * @see UIInterface#report(String)
-	 */
-	public void reportFile(String filePath) {
-		if (uiPipe != null) {
-			try {
-				uiPipe.report(filePath);
-			} catch (Exception ex) {
-				throw new CobwebUserException("Cannot save report file", ex);
-			}
+			simRunner.reportFile(theDialog.getDirectory() + theDialog.getFile());
 		}
 	}
 
@@ -887,7 +817,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		if (isTheFirstFashion != false) { // $$$$$$ Use the first fashion. Feb 11
 			// $$$$$$ Copy default_data_(reserved).xml to the temporary file. Feb 11
 			try {
-				copyFile(defaultData, tempDefaultData);
+				FileUtils.copyFile(defaultData, tempDefaultData);
 			} catch (Exception ex) {
 				isTheFirstFashion = false;
 			}
@@ -902,7 +832,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 		// $$$$$$ Modified on Mar 14
 		GUI.createAndShowGUI(this, tempDefaultData, false);
-		if (uiPipe == null) {
+		if (simRunner.simulation == null) {
 			setCurrentFile(tempDefaultData);
 		} // $$$$$$ added on Mar 14
 		// $$$$$$ Modified on Feb 28
@@ -933,7 +863,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 						JOptionPane.WARNING_MESSAGE);
 			} else {
 				// $$$$$ The following line used to be the original code. Feb 22
-				copyFile(getCurrentFile(), savingFile); // $$$$$$ modified on Mar 14
+				FileUtils.copyFile(currentFile, savingFile); // $$$$$$ modified on Mar 14
 			}
 		} catch (Exception ex) {
 			Logger.getLogger("COBWEB2").log(Level.WARNING, "Save failed", ex);
@@ -979,6 +909,10 @@ public class CobwebApplication extends JFrame implements UIClient {
 		currentFile = input;
 	}
 
+	public String getCurrentFile() {
+		return currentFile;
+	}
+
 	/**
 	 * Allows the user to select a new file to use as the default data file.  
 	 * The selected file is copied into the default data file if the default 
@@ -999,7 +933,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 					// on Mar 17
 					"Cannot set default data:  file \"" + defaultData + "\" is hidden.", "Warning",
 					JOptionPane.WARNING_MESSAGE);
-			if (uiPipe == null) {
+			if (simRunner.simulation == null) {
 				GUI.frame.toFront(); // $$$$$$ Mar 17
 			}
 			return;
@@ -1020,7 +954,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				File f = new File(chosenFile);
 				if (f.exists() != false) {
 					try {
-						copyFile(chosenFile, defaultData);
+						FileUtils.copyFile(chosenFile, defaultData);
 						// df.setReadOnly(); // $$$$$$ disallow write again
 					} catch (Exception ex) {
 						Logger.getLogger("COBWEB2").log(Level.WARNING, "Unable to set default data", ex);
@@ -1029,12 +963,12 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 					}
 				} else {
-					if (uiPipe != null && GUI.frame != null && GUI.frame.isVisible() == true) {
+					if (simRunner.simulation != null && GUI.frame != null && GUI.frame.isVisible() == true) {
 						GUI.frame.dispose(); // $$$$$ for allowing only one "Test Data" window to show up. Feb 28
 					}
 					JOptionPane.showMessageDialog(this, "File \" " + chosenFile + "\" could not be found!", "Warning",
 							JOptionPane.WARNING_MESSAGE);
-					if (uiPipe == null) {
+					if (simRunner.simulation == null) {
 						GUI.frame.toFront(); // $$$$$$ Mar 17
 					}
 				}
@@ -1050,7 +984,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 			/*** $$$$$$ Cancel textWindow Apr 22 */
 			Logger.getLogger("COBWEB2").log(Level.WARNING, "Unable to set default data");
 
-			if (uiPipe == null) {
+			if (simRunner.simulation == null) {
 				GUI.frame.toFront(); // $$$$$$ Mar 17
 				// df.delete();// $$$$$ do not need to keep the file default_data_(reserved).xml any more
 			}
@@ -1085,24 +1019,60 @@ public class CobwebApplication extends JFrame implements UIClient {
 			}
 		});
 
-		uiPipe.setTimeStopField(tickField);
+		// FIXME simulation.setTimeStopField(tickField);
 
-		uiPipe.AddTickEventListener(new TickEventListener() {
-			public void TickPerformed(long currentTick) {
+		simRunner.scheduler.addUIComponent(new UpdatableUI() {
 
-				tickDisplay.setText("Tick: " + NumberFormat.getIntegerInstance().format(currentTick));
+			@Override
+			public void update(boolean synchronous) {
+				tickDisplay.setText("Tick: " + NumberFormat.getIntegerInstance().format(
+						simRunner.simulation.getTime()));
+				refresh(synchronous);
+			}
+
+			@Override
+			public boolean isReadyToRefresh() {
+				return true;
 			}
 		});
 
-		uiPipe.setPauseButton(pauseButton); // $$$$$$ Mar 20
+		// FIXME simulation.setPauseButton(pauseButton);
 
 		validate();
-		uiPipe.start();
+		simRunner.scheduler.startIdle();
 	} // end of UISettings
+
+	private List<ViewerPlugin> viewers = new LinkedList<ViewerPlugin>();
+
+	private void setupViewers() {
+		for (ViewerPlugin viewer : viewers) {
+			viewer.dispose();
+		}
+		viewers.clear();
+		if (simRunner.simulation.simulationConfig.getEnvParams().controllerName.equals(LinearWeightsController.class.getName())) {
+			viewers.add(new LinearAIViewer());
+		}
+
+		viewers.add(new ProductionViewer(simRunner.simulation.theEnvironment, simRunner.scheduler));
+
+		viewers.add(new LiveStats(simRunner.scheduler));
+
+		if (simRunner.simulation.simulationConfig.getGeneticParams().geneCount != 0) {
+			GAChartOutput gaViewer = new GAChartOutput(
+					simRunner.simulation.geneticMutator.getTracker(), 	
+					simRunner.simulation.simulationConfig.getGeneticParams(),
+					simRunner.scheduler);
+			viewers.add(gaViewer);
+		}
+	}
+
 
 	private void makeViewMenu() {
 		viewMenu.removeAll();
-		for (final ViewerPlugin viewer : uiPipe.getViewers()) {
+
+		setupViewers();
+
+		for (final ViewerPlugin viewer : viewers) {
 			final JCheckBoxMenuItem box = new JCheckBoxMenuItem(viewer.getName(), false);
 
 			box.addItemListener(new ItemListener() {
@@ -1133,11 +1103,11 @@ public class CobwebApplication extends JFrame implements UIClient {
 			add(mainPanel);
 		}
 
-		uiPipe.setFrameSkip(0);
+		simRunner.scheduler.setFrameSkip(0);
 		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(uiPipe);
+			displayPanel = new DisplayPanel(simRunner.simulation);
 		} else {
-			displayPanel.setUI(uiPipe);
+			displayPanel.setSimulation(simRunner.simulation);
 		}
 
 		mainPanel.add(displayPanel, BorderLayout.CENTER);
@@ -1159,25 +1129,25 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 
 		if (pauseButton == null) {
-			pauseButton = new PauseButton(uiPipe);
+			pauseButton = new PauseButton(simRunner.scheduler);
 			controls.add(pauseButton);
-			stepButton = new StepButton(uiPipe);
+			stepButton = new StepButton(simRunner.scheduler);
 			controls.add(stepButton);
 			controls.add(new JLabel("   Adjust Speed:"));
-			SpeedBar sb = new SpeedBar(uiPipe);
+			SpeedBar sb = new SpeedBar(simRunner.scheduler);
 			controls.add(sb);
 		} else {
-			pauseButton.setUI(uiPipe);
+			pauseButton.setScheduler(simRunner.scheduler);
 		}
 	}
 
 
 	private void makeAgentFoodSelectMenu() {
-		JMenuItem foodtype[] = new JMenuItem[uiPipe.countAgentTypes()];
-		JMenuItem agentype[] = new JMenuItem[uiPipe.countAgentTypes()];
+		JMenuItem foodtype[] = new JMenuItem[simRunner.simulation.getAgentTypeCount()];
+		JMenuItem agentype[] = new JMenuItem[simRunner.simulation.getAgentTypeCount()];
 		foodMenu.removeAll();
 		agentMenu.removeAll();
-		for (int i = 0; i < uiPipe.countAgentTypes(); i++) {
+		for (int i = 0; i < simRunner.simulation.getAgentTypeCount(); i++) {
 			foodtype[i] = new JMenuItem("Food Type " + (i + 1));
 			foodtype[i].setActionCommand("Food Type " + (i + 1));
 			foodtype[i].addActionListener(new FoodMouseActionListener(i));
@@ -1222,25 +1192,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	}
 
-	private UIInterface uiPipe;
-
 	private JMenu viewMenu;
-
-	/**
-	 * Connects a user interface (simulation) to the graphical interface of the 
-	 * Cobweb application (uiPipe).
-	 * 
-	 * @param simulation The user interface used for the simulation.
-	 */
-	@Override
-	public void setSimulation(UIInterface simulation) {
-		uiPipe = simulation;
-	}
-
-	@Override
-	public UIInterface getUIPipe() {
-		return uiPipe;
-	}
 
 	/**
 	 * @see CobwebApplication#openFileDialog()
@@ -1269,7 +1221,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 	 * menu). Feb 29
 	 */
 	private void disposeGUIframe() {
-		if (uiPipe != null && GUI.frame != null && GUI.frame.isVisible()) {
+		if (simRunner.simulation != null && GUI.frame != null && GUI.frame.isVisible()) {
 			GUI.frame.dispose();
 		}
 	}
@@ -1306,12 +1258,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 		CobwebApplication.this.creditsDialog();
 	}
 
-	/**
-	 * @see UIInterface#insertPopulation(String, boolean)
-	 */
 	private void onMenuInsertSample() {
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-		if (uiPipe != null) {
+		if (simRunner.simulation != null) {
 
 			ReplaceMergeCancel option = openInsertSamplePopReplaceDialog();
 
@@ -1323,7 +1272,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 				theDialog.setVisible(true);
 				if (theDialog.getFile() != null) {
 					//Load the XML file
-					uiPipe.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
+					simRunner.simulation.theEnvironment.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
 				}
 			}
 
@@ -1337,7 +1286,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 
-		if (uiPipe == null) {
+		if (simRunner.simulation == null) {
 			JOptionPane.showMessageDialog(GUI.frame, 
 					"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
 		} else {
@@ -1389,16 +1338,13 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ Implement "Show/Hide Info" menu. Mar 14
 	}
 
-	/**
-	 * @see UIInterface#clearAgents()
-	 */
 	private void onMenuRemoveAgents() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		/* remove all agents */
 		// $$$$$$ modified on Feb 29
-		if (uiPipe != null) {
-			uiPipe.clearAgents();
+		if (simRunner.simulation != null) {
+			simRunner.simulation.theEnvironment.clearAgents();
 		}
 		// mode = -3;
 		// uiPipe.removeComponents(mode);
@@ -1406,63 +1352,49 @@ public class CobwebApplication extends JFrame implements UIClient {
 		// $$$$$$ Added on Feb 29
 	}
 
-	/**
-	 * @see UIInterface#clearAgents()
-	 * @see UIInterface#clearFood()
-	 * @see UIInterface#clearStones()
-	 */
 	private void onMenuRemoveAll() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		/* remove all */
 		// $$$$$$ modified on Feb 29
-		if (uiPipe != null) {
-			uiPipe.clearAgents();
-			uiPipe.clearFood();
-			uiPipe.clearStones();
+		if (simRunner.simulation != null) {
+			simRunner.simulation.theEnvironment.clearAgents();
+			simRunner.simulation.theEnvironment.clearFood();
+			simRunner.simulation.theEnvironment.clearStones();
 		}
 	}
 
-	/**
-	 * @see UIInterface#clearFood()
-	 */
 	private void onMenuRemoveFood() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		/* remove all food */
 		// $$$$$$ modified on Feb 29
-		if (uiPipe != null) {
-			uiPipe.clearFood();
+		if (simRunner.simulation != null) {
+			simRunner.simulation.theEnvironment.clearFood();
 		}
 		// mode = -2;
 		// uiPipe.removeComponents(mode);
 	}
 
-	/**
-	 * @see UIInterface#clearStones()
-	 */
 	private void onMenuRemoveStones() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		/* remove all stones */
 		// $$$$$$ modified on Feb 29
-		if (uiPipe != null) {
-			uiPipe.clearStones();
+		if (simRunner.simulation != null) {
+			simRunner.simulation.theEnvironment.clearStones();
 		}
 		// mode = -1;
 		// uiPipe.removeComponents(mode);
 	}
 
-	/**
-	 * @see UIInterface#clearWaste()
-	 */
 	private void onMenuRemoveWaste() {
 		// pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		/* remove all agents */
 		// $$$$$$ modified on Feb 29
-		if (uiPipe != null) {
-			uiPipe.clearWaste();
+		if (simRunner.simulation != null) {
+			simRunner.simulation.theEnvironment.clearWaste();
 		}
 		// mode = -4;
 		// uiPipe.removeComponents(mode);
@@ -1475,7 +1407,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		pauseUI(); // $$$$$$ Feb 12
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
 		// $$$$$$ Modified on Feb 29
-		if (uiPipe == null) {
+		if (simRunner.simulation == null) {
 			JOptionPane.showMessageDialog(GUI.frame, // $$$$$$ change from "displayPanel" to "GUI.frame"
 					// specifically for MS Windows. Feb 22
 					"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
@@ -1512,18 +1444,15 @@ public class CobwebApplication extends JFrame implements UIClient {
 		}
 		CobwebApplication.this.saveFileDialog();
 		// $$$$$$ Modified for very first time running. Feb 28
-		if (GUI.frame != null && uiPipe != null) {
+		if (GUI.frame != null && simRunner.simulation != null) {
 			GUI.frame.dispose(); // $$$$$$ Feb 8 $$$$$$ change from "setVisible(false)". Mar 17
 			// CobwebApplication.this.toFront(); // $$$$$$ added on Feb 22
 		}
 	}
 
-	/**
-	 * @see UIInterface#saveCurrentPopulation(String, String, int)
-	 */
 	private void onMenuSaveSample() {
 		disposeGUIframe(); // added to ensure no popup GUI frame when hitting a menu. Feb 29
-		if (uiPipe != null) {
+		if (simRunner.simulation != null) {
 
 
 			// open dialog to choose population size to be saved
@@ -1541,7 +1470,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 					if (theDialog.getFile() != null) {
 
 						//Save population in the specified file. 
-						uiPipe.saveCurrentPopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
+						simRunner.simulation.theEnvironment.savePopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
 					}
 				}
 			}
@@ -1616,7 +1545,7 @@ public class CobwebApplication extends JFrame implements UIClient {
 		JRadioButton b1 = new JRadioButton("Save a percentage (%) between 1-100");
 
 
-		int popNum = uiPipe.getCurrentPopulationNum();
+		int popNum = simRunner.simulation.theEnvironment.getAgentCount();
 
 		JRadioButton b2 = new JRadioButton("Save an amount (between 1-"+ popNum + ")");
 		b1.setSelected(true);
@@ -1669,15 +1598,9 @@ public class CobwebApplication extends JFrame implements UIClient {
 
 	}
 
-	/**
-	 * @see UIInterface#pause()
-	 */
-	// $$$$$$ A facilitating method to ensure the UI to pause. Feb 12
 	private void pauseUI() {
-		if (uiPipe != null && uiPipe.isRunning()) { // $$$$$$ changed from
-			// "if (uiPipe.isPaused() == false) {", for the very
-			// first run. Feb 28
-			uiPipe.pause();
+		if (simRunner.scheduler != null && simRunner.scheduler.isRunning()) {
+			simRunner.scheduler.pause();
 			pauseButton.repaint();
 		}
 	}

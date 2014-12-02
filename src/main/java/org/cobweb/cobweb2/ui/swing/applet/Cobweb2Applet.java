@@ -16,6 +16,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ui.swing.LiveStats;
 import org.cobweb.cobweb2.ui.swing.SimulatorUI;
@@ -45,6 +46,8 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 	private static final long serialVersionUID = 3127350835002502812L;
 	Map<String, String> experements = new LinkedHashMap<String, String>();
 	SimulatorUI ui;
+	Simulation simulation;
+
 	JPanel controls;
 	SimulationConfig parser;
 
@@ -122,9 +125,8 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 
 
 		if (ui != null) {
-
 			ui.killSimulation();
-			ui.RemoveTickEventListener(statsUpdater);
+			statsUpdater.dispose();
 			remove(ui);
 		}
 
@@ -132,14 +134,17 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 		InputStream datafile = getClass().getResourceAsStream("/experiments/" + experements.get(expname));
 
 		parser = new SimulationConfig(datafile);
-		ui = new SimulatorUI(parser);
+		simulation = new Simulation();
+		simulation.load(parser);
+
+		ui = new SimulatorUI(simulation);
 
 		//FIX: DisplayPanel is buggy, so we have to hide and show it for it to redraw
 		ui.setVisible(false);
 		add(ui, BorderLayout.CENTER);
 
 		ui.setVisible(true);
-		statsUpdater = new LiveStats(ui.getUIPipe());
+		statsUpdater = new LiveStats(ui.getScheduler());
 	}
 
 
