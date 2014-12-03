@@ -1032,7 +1032,7 @@ public class CobwebApplication extends JFrame {
 
 			@Override
 			public boolean isReadyToRefresh() {
-				return true;
+				return CobwebApplication.this.isReadyToRefresh();
 			}
 		});
 

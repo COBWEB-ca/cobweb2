@@ -11,6 +11,7 @@ import org.cobweb.cobweb2.ui.Scheduler;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
+import org.cobweb.swingutil.JComponentWaiter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -22,6 +23,8 @@ import org.jfree.data.xy.XYSeriesCollection;
 public class LiveStats implements UpdatableUI, ViewerPlugin {
 
 	JFrame graph = new JFrame("Population");
+
+	JComponentWaiter graphSynchronizer = new JComponentWaiter(graph);
 
 	int frame = 0;
 
@@ -97,11 +100,13 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 			plot.setNotify(true);
 			plot.setNotify(false);
 		}
+
+		graphSynchronizer.refresh(sync);
 	}
 
 	@Override
 	public boolean isReadyToRefresh() {
-		return true;
+		return graphSynchronizer.isReadyToRefresh();
 	}
 
 	public void toggleGraphVisible() {

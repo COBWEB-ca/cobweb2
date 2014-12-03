@@ -1,7 +1,6 @@
 package org.cobweb.cobweb2;
 
 import java.lang.reflect.Constructor;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -126,14 +125,11 @@ public class Simulation implements SimulationInterface {
 		theEnvironment.update(time);
 
 
-		// FIXME agent list modified when new agent spawns
-		for (Iterator<ComplexAgent> ai = agents.iterator(); ai.hasNext();) {
-			ComplexAgent agent = ai.next();
-
+		for (ComplexAgent agent : new LinkedList<ComplexAgent>(agents)) {
 			agent.update(time);
 
 			if (!agent.isAlive())
-				ai.remove();
+				agents.remove(agent);
 		}
 
 		diseaseMutator.update(time);

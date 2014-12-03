@@ -55,19 +55,27 @@ public class TickScheduler implements Scheduler {
 	}
 
 	private void updateUI(boolean synchronous) {
-		for (UpdatableUI client : uiComponents) {
-			client.update(synchronous);
+		synchronized(uiComponents) {
+			for (UpdatableUI client : uiComponents) {
+				if (synchronous || client.isReadyToRefresh()) {
+					client.update(synchronous);
+				}
+			}
 		}
 	}
 
 	@Override
 	public void addUIComponent(UpdatableUI ui) {
-		uiComponents.add(ui);
+		synchronized(uiComponents) {
+			uiComponents.add(ui);
+		}
 	}
 
 	@Override
 	public void removeUIComponent(UpdatableUI ui) {
-		uiComponents.remove(ui);
+		synchronized(uiComponents) {
+			uiComponents.remove(ui);
+		}
 	}
 
 	private volatile boolean running = false;

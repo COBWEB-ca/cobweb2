@@ -460,7 +460,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	@Override
-	public EnvironmentStats getStatistics() {
+	public synchronized EnvironmentStats getStatistics() {
 		EnvironmentStats stats = new EnvironmentStats();
 		stats.agentCounts = new long[data.agentTypeCount];
 		stats.foodCounts = new long[data.agentTypeCount];

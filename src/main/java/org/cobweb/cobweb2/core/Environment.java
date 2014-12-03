@@ -124,7 +124,7 @@ public abstract class Environment {
 		return agentTable.get(l);
 	}
 
-	public Collection<Agent> getAgents() {
+	public synchronized Collection<Agent> getAgents() {
 		return Collections.unmodifiableCollection(agentTable.values());
 	}
 

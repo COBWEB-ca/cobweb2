@@ -289,6 +289,8 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private DragMode dragMode = DragMode.Click;
 
+	private DrawInfo drawInfo;
+
 	public void componentHidden(ComponentEvent e) {
 		// nothing
 	}
@@ -306,6 +308,12 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 	}
 
 	@Override
+	public void refresh(boolean wait) {
+		drawInfo = new DrawInfo(simulation.theEnvironment);
+		super.refresh(wait);
+	}
+
+	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		//TODO LOW : antialias?
@@ -314,7 +322,6 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		g.translate(borderLeft, borderHeight);
 
-		DrawInfo drawInfo = new DrawInfo(simulation.theEnvironment);
 		drawInfo.draw(g, tileWidth, tileHeight);
 
 		g.translate(-borderLeft, -borderHeight);
