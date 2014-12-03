@@ -977,12 +977,19 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		energy -= energyPenalty();
 
 		if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
-			// Bumps into waste
+			// Bumps into drop
 			int x = destPos.v[0];
 			int y = destPos.v[1];
 			Drop d = environment.dropArray[x][y];
-			d.onStep(this);
 
+			if (d.canStep()) {
+				d.onStep(this);
+			}
+			else {
+				// can't step, treat as obstacle
+				info.useRockBumpEnergy(params.stepRockEnergy);
+				info.addRockBump();
+			}
 		}
 
 		if (energy <= 0)
