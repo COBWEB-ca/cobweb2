@@ -972,7 +972,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			energy -= params.stepRockEnergy;
 			wasteCounterLoss -= params.stepRockEnergy;
 			info.useRockBumpEnergy(params.stepRockEnergy);
-			info.addRockBump();
 		}
 		energy -= energyPenalty();
 
@@ -988,7 +987,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			else {
 				// can't step, treat as obstacle
 				info.useRockBumpEnergy(params.stepRockEnergy);
-				info.addRockBump();
 			}
 		}
 
@@ -1054,7 +1052,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		energy -= params.stepEnergy;
 		wasteCounterLoss -= params.stepEnergy;
 		info.useStepEnergy(params.stepEnergy);
-		info.addStep();
 	}
 
 	protected void onstepAgentBump(ComplexAgent adjacentAgent) {
@@ -1106,7 +1103,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		energy -= params.stepAgentEnergy;
 		setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
 		info.useAgentBumpEnergy(params.stepAgentEnergy);
-		info.addAgentBump();
 	}
 
 	private void thinkAboutFoodLocation(int x, int y) {

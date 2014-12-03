@@ -234,19 +234,8 @@ public class ComplexAgentInfo implements Serializable {
 		}
 	}
 
-	public void addRockBump() {
-		++countRockBumps;
-	}
-
 	public void addSexPreg() {
 		++sexualPregs;
-	}
-
-	/**
-	 * Increments the number of steps the agent has taken.
-	 */
-	public void addStep() {
-		++countSteps;
 	}
 
 	public void addTurn() {
@@ -376,6 +365,7 @@ public class ComplexAgentInfo implements Serializable {
 
 	public void useAgentBumpEnergy(int val) {
 		agentBumpEnergies[type] += val;
+		++countAgentBumps;
 	}
 
 	public void useExtraEnergy(int val) {
@@ -389,10 +379,12 @@ public class ComplexAgentInfo implements Serializable {
 
 	public void useRockBumpEnergy(int val) {
 		rockBumpEnergies[type] += val;
+		++countRockBumps;
 	}
 
 	public void useStepEnergy(int val) {
 		stepEnergies[type] += val;
+		++countSteps;
 	}
 
 	public void useTurning(int val) {

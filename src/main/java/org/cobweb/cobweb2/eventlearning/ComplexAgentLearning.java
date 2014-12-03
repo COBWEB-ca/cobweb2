@@ -286,7 +286,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 					concernedAgent.setWasteCounterLoss(getWasteCounterLoss() - concernedAgent.params.stepEnergy);
 					concernedAgent.getInfo().useStepEnergy(params.stepEnergy);
-					concernedAgent.getInfo().addStep();
 					concernedAgent.getInfo().addPathStep(concernedAgent.getPosition());
 
 					return ret;
@@ -400,7 +399,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 			energy -= params.stepAgentEnergy;
 			setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
 			info.useAgentBumpEnergy(params.stepAgentEnergy);
-			info.addAgentBump();
 
 		} // end of two agents meet
 		else if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
@@ -414,7 +412,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 					concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, -params.wastePen, "bumpWaste"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.wastePen);
 					info.useRockBumpEnergy(params.wastePen);
-					info.addRockBump();
 					return null;
 				}
 			});
@@ -429,7 +426,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 					.queue(new EnergyChangeOccurrence(concernedAgent, -params.stepRockEnergy, "bumpRock"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.stepRockEnergy);
 					info.useRockBumpEnergy(params.stepRockEnergy);
-					info.addRockBump();
 					return null;
 				}
 			});
