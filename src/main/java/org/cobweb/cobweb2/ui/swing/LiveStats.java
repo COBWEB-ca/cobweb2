@@ -106,7 +106,7 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 
 	@Override
 	public boolean isReadyToUpdate() {
-		return graphSynchronizer.isReadyToRefresh();
+		return true;
 	}
 
 	public void toggleGraphVisible() {
