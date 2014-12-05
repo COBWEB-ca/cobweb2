@@ -2,7 +2,6 @@ package org.cobweb.cobweb2.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Hashtable;
 
 import org.cobweb.cobweb2.SimulationConfig;
@@ -10,21 +9,21 @@ import org.cobweb.cobweb2.SimulationConfig;
 /**
  * The Environment class represents the simulation world; a collection of
  * locations with state, each of which may contain an agent.
- * 
+ *
  * The Environment class is designed to handle an arbitrary number of
  * dimensions, although the UIInterface is somewhat tied to two dimensions for
  * display purposes.
- * 
+ *
  * All access to the internal data of the Environment is done through an
  * accessor class, Environment.Location. The practical upshot of this is that
  * the Environment internals may be implemented in C or C++ using JNI, while the
  * Java code still has a nice java flavoured interface to the data.
- * 
+ *
  * Another advantage of the accessor model is that the internal data need not be
  * in a format that is reasonable for external access. An array of longs where
  * bitfields represent the location states makes sense in this context, because
  * the accessors allow friendly access to this state information.
- * 
+ *
  * Furthermore, the accessor is designed to be quite general; there should be no
  * need to subclass Environment.Location for a specific Environment
  * implementation. A number of constants should be defined in an Environment
@@ -71,7 +70,7 @@ public abstract class Environment {
 
 	/**
 	 * Adds agent at given position
-	 * 
+	 *
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 * @param type agent type
@@ -82,7 +81,7 @@ public abstract class Environment {
 
 	/**
 	 * Adds food at given position
-	 * 
+	 *
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 * @param type agent type
@@ -93,7 +92,7 @@ public abstract class Environment {
 
 	/**
 	 * Adds stone at given position
-	 * 
+	 *
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 */
@@ -125,7 +124,7 @@ public abstract class Environment {
 	}
 
 	public synchronized Collection<Agent> getAgents() {
-		return Collections.unmodifiableCollection(agentTable.values());
+		return agentTable.values();
 	}
 
 	/** @return the dimensionality of this Environment. */
@@ -176,7 +175,7 @@ public abstract class Environment {
 
 	/**
 	 * Removes agent at given position
-	 * 
+	 *
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 */
@@ -186,7 +185,7 @@ public abstract class Environment {
 
 	/**
 	 * Removes food at given position
-	 * 
+	 *
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 */
@@ -196,7 +195,7 @@ public abstract class Environment {
 
 	/**
 	 * Removes stone at given position
-	 * 
+	 *
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 */

@@ -35,10 +35,12 @@ public class Simulation implements SimulationInterface {
 	public SimulationConfig simulationConfig;
 
 	/* return number of TYPES of agents in the environment */
+	@Override
 	public int getAgentTypeCount() {
 		return simulationConfig.getEnvParams().agentTypeCount;
 	}
 
+	@Override
 	public EnvironmentStats getStatistics() {
 		return theEnvironment.getStatistics();
 	}
@@ -48,10 +50,14 @@ public class Simulation implements SimulationInterface {
 		return time;
 	}
 
+	public void resetTime() {
+		time = 0;
+	}
+
 	/**
-	 * Initialize the specified Environment class.  The environment is created using the 
+	 * Initialize the specified Environment class.  The environment is created using the
 	 * environmentName.load method.
-	 * 
+	 *
 	 * @param environmentName Class name of the environment used in this simulation.
 	 * @param p Simulation parameters that can be defined by the simulation data file (xml file).
 	 */
@@ -73,15 +79,16 @@ public class Simulation implements SimulationInterface {
 	}
 
 	/**
-	 * Initialize the specified environment class with state data read from the 
-	 * reader. It first adds the various mutators used to modify actions in the 
-	 * event that the agent spawns, steps, or contacts another agent.  It then 
-	 * uses the simulation parameters to modify the properties of the mutators.  
-	 * It then initializes the simulation environment (InitEnvironment) using 
-	 * the simulation configuration object.  Finally, it will start the scheduler, 
-	 * which will start the simulation.  This is a private helper to the 
+	 * Initialize the specified environment class with state data read from the
+	 * reader. It first adds the various mutators used to modify actions in the
+	 * event that the agent spawns, steps, or contacts another agent.  It then
+	 * uses the simulation parameters to modify the properties of the mutators.
+	 * It then initializes the simulation environment (InitEnvironment) using
+	 * the simulation configuration object.  Finally, it will start the scheduler,
+	 * which will start the simulation.  This is a private helper to the
 	 * LocalUIInterface constructor.
 	 */
+	@Override
 	public void load(SimulationConfig p) {
 		this.simulationConfig = p;
 		AgentSpawner.SetType(p.getEnvParams().agentName);
@@ -124,16 +131,17 @@ public class Simulation implements SimulationInterface {
 
 		theEnvironment.update(time);
 
+		// TODO synchronize on something other than environment?
+		synchronized(theEnvironment) {
+			for (ComplexAgent agent : new LinkedList<ComplexAgent>(agents)) {
+				agent.update(time);
 
-		for (ComplexAgent agent : new LinkedList<ComplexAgent>(agents)) {
-			agent.update(time);
-
-			if (!agent.isAlive())
-				agents.remove(agent);
+				if (!agent.isAlive())
+					agents.remove(agent);
+			}
+			diseaseMutator.update(time);
+			// TODO update other modules here
 		}
-
-		diseaseMutator.update(time);
-		// TODO update other modules here
 
 		time++;
 	}
@@ -144,4 +152,5 @@ public class Simulation implements SimulationInterface {
 	public void addAgent(ComplexAgent agent) {
 		agents.add(agent);
 	}
+
 }

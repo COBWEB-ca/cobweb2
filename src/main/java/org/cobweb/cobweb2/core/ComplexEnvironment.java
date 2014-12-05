@@ -45,7 +45,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	/**
 	 * Contains methods
-	 *  
+	 *
 	 */
 	public static interface Drop {
 		public abstract boolean isActive(long val);
@@ -182,9 +182,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * Waste tile array to store the data per waste tile. Needed to allow
 	 * depletion of waste
 	 */
-	public Drop[][] dropArray;	
-
-	public Agent observedAgent = null;
+	public Drop[][] dropArray;
 
 	private int draughtdays[];
 
@@ -304,13 +302,13 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	/**
-	 * Stores the following types of parameters into ComplexEnvironment 
+	 * Stores the following types of parameters into ComplexEnvironment
 	 * member variables as well as Prisoner's Dilemma payoffs:
-	 * 
+	 *
 	 * <p>ComplexEnvironmentParams
 	 * <br>ComplexFoodParams
 	 * <br>ComplexAgentParams
-	 *  
+	 *
 	 * @param p The current simulation configuration file.
 	 */
 	protected void copyParamsFromParser(SimulationConfig p) {
@@ -664,15 +662,15 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	/**
-	 * Loads a new complex environment using the data held within the simulation 
+	 * Loads a new complex environment using the data held within the simulation
 	 * configuration object, p.  The following actions are performed during a load:
-	 * 
+	 *
 	 * <p>1. Attaches the scheduler, s, to the environment.
 	 * <br>2. Stores parameters from the file or stream in to ComplexEnvironment.
 	 * <br>3. Sets up location cache, and environment food and waste arrays.
 	 * <br>4. Keeps or removes old agents.
 	 * <br>5. Adds new stones, food, and agents.
-	 * 
+	 *
 	 * @param config The simulation  settings
 	 */
 	@Override
@@ -779,9 +777,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	/**
-	 * Initializes drought days for each food type to zero.  Also checks to see if 
-	 * food deplete rates and times are valid for each food type.  Valid random food 
-	 * deplete rates and times will be generated using the environments random number 
+	 * Initializes drought days for each food type to zero.  Also checks to see if
+	 * food deplete rates and times are valid for each food type.  Valid random food
+	 * deplete rates and times will be generated using the environments random number
 	 * generator for each invalid entry.
 	 */
 	private void loadFoodMode() {
@@ -796,7 +794,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	/**
-	 * Places agents in random locations.  If prisoner's dilemma is being used, 
+	 * Places agents in random locations.  If prisoner's dilemma is being used,
 	 * a number of cheaters that is dependent on the probability of being a cheater
 	 * are randomly assigned to agents.
 	 */
@@ -840,7 +838,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	/**
-	 * Creates a new waste array and initializes each location as having 
+	 * Creates a new waste array and initializes each location as having
 	 * no waste.
 	 */
 	private void loadNewWaste() {
@@ -854,10 +852,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	/**
-	 * Searches through each location to find every old agent.  Each agent that is found 
-	 * is added to the scheduler if the scheduler is new.  Agents that are off the new 
+	 * Searches through each location to find every old agent.  Each agent that is found
+	 * is added to the scheduler if the scheduler is new.  Agents that are off the new
 	 * environment are removed from the environment.
-	 * 
+	 *
 	 * @param oldH Height of old environment
 	 * @param oldW Width of old environment
 	 */
@@ -882,7 +880,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	/**
 	 * Removes old agents that are off the new environment.
-	 * 
+	 *
 	 * @param oldH Old environment height
 	 * @param oldW Old environment width
 	 */
@@ -897,7 +895,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	/**
-	 * Resizes old waste array to create a new waste array while keeping waste data 
+	 * Resizes old waste array to create a new waste array while keeping waste data
 	 * that was stored in old waste array.
 	 */
 	private void loadOldWaste() {
@@ -1066,7 +1064,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * depletion, food growth, and random food-"dropping".
 	 */
 	@Override
-	public void update(long tick) {
+	public synchronized void update(long tick) {
 
 		commManager.decrementPersistence();
 		commManager.unblockBroadcast();
@@ -1105,14 +1103,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				draughtdays[i]--;
 			}
 		}
-
-		if (observedAgent != null && !observedAgent.isAlive()) {
-			observedAgent = null;
-		}
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void updateWaste() {
 		for (int i = 0; i < dropArray.length; i++) {

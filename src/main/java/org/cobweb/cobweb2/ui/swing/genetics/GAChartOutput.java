@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 
 import org.cobweb.cobweb2.genetics.GATracker;
 import org.cobweb.cobweb2.genetics.GeneticParams;
-import org.cobweb.cobweb2.ui.Scheduler;
+import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
@@ -28,7 +28,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
-// TODO: turn into ViewerPlugin
 public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI {
 
 	/** Charts that represent GA outputs */
@@ -61,6 +60,7 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 
 	private ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
+	@Override
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 
 		/* Give focus to the gene_status_distribution plot and remove
@@ -119,11 +119,11 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 	private int numAgentTypes;
 
 	private int geneCount;
-	private Scheduler scheduler;
+	private SimulationRunner scheduler;
 	private GATracker gaTracker;
 
 
-	public GAChartOutput(GATracker tracker, GeneticParams params, Scheduler scheduler) {
+	public GAChartOutput(GATracker tracker, GeneticParams params, SimulationRunner scheduler) {
 		gaTracker = tracker;
 		numAgentTypes = gaTracker.getAgentTypeCount();
 		geneCount = gaTracker.getGeneCount();
@@ -227,7 +227,7 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 		double[][][] value = gaTracker.getGeneValueDistribution();
 		double[][][] status = gaTracker.getGeneStatusDistribution();
 
-		/* 
+		/*
 		 * Collecting all data into one array, then replacing everything at once
 		 * to hopefully fix race condition in JFreeChart
 		 */
@@ -294,7 +294,17 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 	}
 
 	@Override
-	public boolean isReadyToRefresh() {
+	public boolean isReadyToUpdate() {
 		return true;
+	}
+
+	@Override
+	public void onStopped() {
+		update(true);
+	}
+
+	@Override
+	public void onStarted() {
+		// Nothing
 	}
 }

@@ -59,12 +59,14 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 		sickCount = new int[0];
 	}
 
+	@Override
 	public Collection<String> logDataAgent(int agentType) {
 		List<String> l = new LinkedList<String>();
 		l.add(Integer.toString(sickCount[agentType]));
 		return l;
 	}
 
+	@Override
 	public Collection<String> logDataTotal() {
 		List<String> l = new LinkedList<String>();
 		int sum = 0;
@@ -75,12 +77,14 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 		return l;
 	}
 
+	@Override
 	public Collection<String> logHeadersAgent() {
 		List<String> header = new LinkedList<String>();
 		header.add("Diseased");
 		return header;
 	}
 
+	@Override
 	public Collection<String> logHeaderTotal() {
 		List<String> header = new LinkedList<String>();
 		header.add("Diseased");
@@ -105,21 +109,25 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	}
 
+	@Override
 	public void onContact(ComplexAgent bumper, ComplexAgent bumpee) {
 		transmitBumpOneWay(bumper, bumpee);
 		transmitBumpOneWay(bumpee, bumper);
 	}
 
+	@Override
 	public void onDeath(ComplexAgent agent) {
 		State state = sick.remove(agent);
 		if (state != null && state.sick)
 			sickCount[agent.type()]--;
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent) {
 		makeRandomSick(agent, params[agent.type()].initialInfection);
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
 		if (parent.isAlive() && isSick(parent))
 			makeRandomSick(agent, params[agent.type()].childTransmitRate);
@@ -127,6 +135,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			makeRandomSick(agent, 0);
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
 		if ((parent1.isAlive() && isSick(parent1)) || (parent2.isAlive() && isSick(parent2)))
 			makeRandomSick(agent, params[agent.type()].childTransmitRate);
@@ -201,10 +210,9 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			if (params[a.type()].recoveryTime == 0)
 				continue;
 
-			long randomRecovery = (long) (params[a.type()].recoveryTime * (globals.random.nextDouble() * 0.2 + 1.0)); 
+			long randomRecovery = (long) (params[a.type()].recoveryTime * (globals.random.nextDouble() * 0.2 + 1.0));
 
 			if (s.sick && time - s.sickStart > randomRecovery) {
-				agents.remove();
 				unSickIterating(a, agents);
 			}
 		}

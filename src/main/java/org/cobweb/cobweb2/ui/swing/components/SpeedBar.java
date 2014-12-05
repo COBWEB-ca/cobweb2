@@ -7,18 +7,18 @@ import java.awt.event.AdjustmentEvent;
 
 import javax.swing.JScrollBar;
 
-import org.cobweb.cobweb2.ui.Scheduler;
+import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 
 public class SpeedBar extends JScrollBar implements
 java.awt.event.AdjustmentListener {
-	private final Scheduler scheduler;
+	private final ThreadSimulationRunner scheduler;
 	private final Dimension d = new Dimension(70, 18); // $$$$$ you can generate any size you want.  Apr 3
 
 	private final Color original;
 
 	private static final int SCROLLBAR_TICKS = 11;
 
-	public SpeedBar(Scheduler scheduler) {
+	public SpeedBar(ThreadSimulationRunner scheduler) {
 		this.scheduler = scheduler;
 		setOrientation(Scrollbar.HORIZONTAL);
 		addAdjustmentListener(this);
@@ -27,6 +27,7 @@ java.awt.event.AdjustmentListener {
 		original = this.getBackground();
 	}
 
+	@Override
 	public void adjustmentValueChanged(AdjustmentEvent e) {
 		int delay = 0;
 		int d1 = SCROLLBAR_TICKS - getValue();

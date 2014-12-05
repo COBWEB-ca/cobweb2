@@ -1,8 +1,8 @@
 package org.cobweb.cobweb2.test;
 
-import org.cobweb.cobweb2.ui.swing.CobwebApplicationRunner;
-
 import junit.framework.TestCase;
+
+import org.cobweb.cobweb2.ui.swing.CobwebApplicationRunner;
 
 /**
  * Run common simulations to make sure they do not crash.
@@ -14,6 +14,6 @@ public class SimulationTest extends TestCase {
 	 * Runs everything.xml
 	 */
 	public void testExperimentEverythingXml() {
-		CobwebApplicationRunner.main("src/main/resources/experiments/everything.xml", "", true, 1000, false);
+		CobwebApplicationRunner.main("src/main/resources/experiments/everything.xml", "testlog.tsv", true, 2000, false);
 	}
 }

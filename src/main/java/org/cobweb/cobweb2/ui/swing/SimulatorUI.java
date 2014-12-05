@@ -10,10 +10,12 @@ import java.awt.event.FocusEvent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.ui.Scheduler;
-import org.cobweb.cobweb2.ui.TickScheduler;
+import org.cobweb.cobweb2.ui.SimulationRunner;
+import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.swing.components.PauseButton;
 import org.cobweb.cobweb2.ui.swing.components.SpeedBar;
@@ -22,10 +24,10 @@ import org.cobweb.cobweb2.ui.swing.components.StepButton;
 /**
  *
  * JPanel of the main display area of CobwebApplication, contains grid and the pause/stop/stop at controls
- * @author igor
  *
  */
 public class SimulatorUI extends JPanel implements UpdatableUI {
+	// TODO make use of SimulatorUI in CobwebApplication
 	private static final long serialVersionUID = 2671092780367865697L;
 
 	private final Simulation simulation;
@@ -40,37 +42,34 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 
 	public JLabel tickDisplay;
 
-	private TickScheduler scheduler;
+	private ThreadSimulationRunner simRunner;
 
 	public SimulatorUI(Simulation sim) {
 		simulation = sim;
-		scheduler = new TickScheduler(simulation);
+		simRunner = new ThreadSimulationRunner(simulation);
 
-		setLayout(new BorderLayout());
 		setupUI();
-
-		scheduler.startIdle();
 	}
 
 	@Override
-	public boolean isReadyToRefresh() {
+	public boolean isReadyToUpdate() {
 		return displayPanel != null && displayPanel.isReadyToRefresh();
 	}
 
 	@Override
 	public void update(boolean sync) {
+		tickDisplay.setText("Tick: " + Long.toString(simulation.getTime()) + "  ");
 		if (displayPanel != null) {
 			displayPanel.refresh(sync);
 		}
 	}
 
 	public void setupUI() {
-
 		setLayout(new BorderLayout());
 
 		JPanel controls = new JPanel();
 
-		scheduler.setFrameSkip(0);
+		simRunner.setFrameSkip(0);
 		if (displayPanel == null) {
 			displayPanel = new DisplayPanel(simulation);
 		} else {
@@ -94,45 +93,60 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 
 			tickField.setMinimumSize(new Dimension(20, 20));
 			tickField.setPreferredSize(new Dimension(20, 20));
+
+			tickField.getDocument().addDocumentListener(new DocumentListener() {
+
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					update();
+				}
+
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					update();
+				}
+
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+					update();
+				}
+
+				private void update() {
+					try {
+						int time = Integer.parseInt(tickField.getText());
+						simRunner.setAutoStopTime(time);
+					} catch(NumberFormatException ex) {
+						// Nothing
+					}
+				}
+			});
 		}
 
 		if (pauseButton == null) {
-			pauseButton = new PauseButton(scheduler);
+			pauseButton = new PauseButton(simRunner);
 			controls.add(pauseButton);
-			stepButton = new StepButton(scheduler);
+			stepButton = new StepButton(simRunner);
 			controls.add(stepButton);
 			controls.add(new JLabel(" Speed:"));
-			SpeedBar sb = new SpeedBar(scheduler);
+			SpeedBar sb = new SpeedBar(simRunner);
 			controls.add(sb);
 		} else {
-			pauseButton.setScheduler(scheduler);
+			pauseButton.setScheduler(simRunner);
 		}
 
 		if (stepButton == null) {
-			pauseButton = new PauseButton(scheduler);
+			pauseButton = new PauseButton(simRunner);
 			controls.add(pauseButton);
-			stepButton = new StepButton(scheduler);
+			stepButton = new StepButton(simRunner);
 			controls.add(stepButton);
 			controls.add(new JLabel("   Adjust Speed:"));
-			SpeedBar sb = new SpeedBar(scheduler);
+			SpeedBar sb = new SpeedBar(simRunner);
 			controls.add(sb);
 		} else {
-			stepButton.setScheduler(scheduler);
+			stepButton.setScheduler(simRunner);
 		}
 
-		// TODO simulation.setTimeStopField(tickField);
-
-		scheduler.addUIComponent(new UpdatableUI() {
-			@Override
-			public void update(boolean synchronous) {
-				tickDisplay.setText("Tick: " + Long.toString(simulation.getTime()) + "  ");
-			}
-
-			@Override
-			public boolean isReadyToRefresh() {
-				return true;
-			}
-		});
+		simRunner.addUIComponent(this);
 
 		tickField.addFocusListener(new java.awt.event.FocusAdapter(){
 			@Override
@@ -145,16 +159,26 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 			}
 		});
 
-		// TODO simulation.setPauseButton(pauseButton);
-
+		update(true);
 		validate();
 	}
 
-	public Scheduler getScheduler() {
-		return scheduler;
+	public SimulationRunner getScheduler() {
+		return simRunner;
 	}
 
 	public void killSimulation() {
-		scheduler.dispose();
+		simRunner.stop();
+	}
+
+	@Override
+	public void onStopped() {
+		pauseButton.repaint();
+		update(true);
+	}
+
+	@Override
+	public void onStarted() {
+		pauseButton.repaint();
 	}
 }

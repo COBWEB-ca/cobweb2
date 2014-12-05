@@ -51,7 +51,7 @@ class DrawInfo {
 	 * The tiles array is not copied; the caller is assumed to "give" the
 	 * array to the drawing info, and not keep any local references around.
 	 */
-	DrawInfo(ComplexEnvironment env) {
+	DrawInfo(ComplexEnvironment env, List<ComplexAgent> observedAgents) {
 		width = env.getWidth();
 		height = env.getHeight();
 		tileColors = new Color[width * height];
@@ -77,8 +77,8 @@ class DrawInfo {
 			agents.add(new AgentDrawInfo((ComplexAgent) a, colorMap));
 		}
 
-		if (env.observedAgent != null) {
-			List<Location> path = ((ComplexAgent) env.observedAgent).getInfo().getPathHistory();
+		for (ComplexAgent observedAgent: observedAgents) {
+			List<Location> path = observedAgent.getInfo().getPathHistory();
 			if (path != null)
 				paths.add(new PathDrawInfo(path));
 		}
@@ -107,7 +107,7 @@ class DrawInfo {
 			}
 		}
 
-		int half =(int)( tileWidth / 2.0f + 0.5f); 
+		int half =(int)( tileWidth / 2.0f + 0.5f);
 
 		for (DropDrawInfo drop : drops) {
 			int x = drop.pos.x;

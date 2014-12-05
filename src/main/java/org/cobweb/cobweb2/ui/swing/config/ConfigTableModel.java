@@ -151,7 +151,7 @@ public class ConfigTableModel extends AbstractTableModel {
 				throw new IllegalArgumentException("Tagged field is not public: " + field.getName(), ex);
 			} catch (IllegalArgumentException ex) {
 				return;
-				//throw new CobwebUserException("Invalid Value");
+				//throw new UserInputException("Invalid Value");
 			}
 
 		}
@@ -186,7 +186,7 @@ public class ConfigTableModel extends AbstractTableModel {
 				throw new IllegalArgumentException("Tagged field is not public: " + f.getName(), ex);
 			} catch (IllegalArgumentException ex) {
 				return;
-				//throw new CobwebUserException("Invalid Value");
+				//throw new UserInputException("Invalid Value");
 			}
 		}
 	}
@@ -203,10 +203,12 @@ public class ConfigTableModel extends AbstractTableModel {
 
 	private int columns;
 
+	@Override
 	public int getColumnCount() {
 		return columns + 1;
 	}
 
+	@Override
 	public int getRowCount() {
 		return fields.size();
 	}
@@ -216,6 +218,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		return columnIndex > 0;
 	}
 
+	@Override
 	public Object getValueAt(int row, int col) {
 		if (col == 0)
 			return rowNames.get(row);

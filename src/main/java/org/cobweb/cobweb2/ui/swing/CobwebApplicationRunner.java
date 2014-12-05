@@ -3,56 +3,56 @@ package org.cobweb.cobweb2.ui.swing;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.ui.MyUncaughtExceptionHandler;
-import org.cobweb.cobweb2.ui.UpdatableUI;
+import org.cobweb.cobweb2.ui.LoggingExceptionHandler;
+import org.cobweb.cobweb2.ui.SimulationRunnerBase;
+import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.GUI;
 
 /**
- * This class contains the main method to drive the application.  
- * 
+ * This class contains the main method to drive the application.
+ *
  * @author Cobweb Team (Might want to specify)
  *
  */
 public class CobwebApplicationRunner {
 
-	static Simulation simulation;
-
-
 	/**
-	 * The main function is found here for the application version of cobweb.  
-	 * It initializes the simulation and settings using a settings file optionally 
+	 * The main function is found here for the application version of cobweb.
+	 * It initializes the simulation and settings using a settings file optionally
 	 * defined by the user.
-	 * 
-	 * <p>Switches: 
-	 * 
-	 * <p><p> --help 
+	 *
+	 * <p>Switches:
+	 *
+	 * <p><p> --help
 	 * <br>Prints the various flags that can be used to run the program:
-	 * Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] 
+	 * Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv]
 	 * [[-open] SettingsFile.xml]"
-	 * 
-	 * <p> -hide 
-	 * <br>When the hide flag is used, the user interface does not initialize 
-	 * (visible is set to false).  If visible is set to false, the User Interface 
-	 * Client will be set to a NullDisplayApplication rather than a 
+	 *
+	 * <p> -hide
+	 * <br>When the hide flag is used, the user interface does not initialize
+	 * (visible is set to false).  If visible is set to false, the User Interface
+	 * Client will be set to a NullDisplayApplication rather than a
 	 * CobwebApplication.  Need to specify an input file to use this switch.
-	 * 
-	 * <p> -open [must specify] 
-	 * <br>If not used, the default is 
-	 * CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME  + 
-	 * CobwebApplication.CONFIG_FILE_EXTENSION otherwise will be set to 
-	 * whatever the user specifies.  The input file contains the initial conditions 
+	 *
+	 * <p> -open [must specify]
+	 * <br>If not used, the default is
+	 * CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME  +
+	 * CobwebApplication.CONFIG_FILE_EXTENSION otherwise will be set to
+	 * whatever the user specifies.  The input file contains the initial conditions
 	 * of the simulation (AgentTypeCount, FoodTypeCount, etc.)
-	 * 
-	 * <p> -log [must specify] 
+	 *
+	 * <p> -log [must specify]
 	 * <br>Specify the name of the log file.
-	 * 
+	 *
 	 * <p> -autorun [specify integer >= -1]
-	 * 
+	 *
 	 * @param args command line arguments
 	 * @see CobwebApplication#INITIAL_OR_NEW_INPUT_FILE_NAME
 	 * @see CobwebApplication#CONFIG_FILE_EXTENSION
@@ -81,7 +81,7 @@ public class CobwebApplicationRunner {
 						System.out.println("-autorun argument must be integer");
 						System.exit(1);
 					}
-					if (finalstep < -1) { 
+					if (finalstep < -1) {
 						System.out.println("-autorun argument must >= -1");
 						System.exit(1);
 					}
@@ -122,17 +122,15 @@ public class CobwebApplicationRunner {
 			System.out.println("WARNING: log '" + logFileName + "' already exists, overwriting it!" );
 		}
 
-		//Create CobwebApplication and threads; this is not done earlier so 
+		//Create CobwebApplication and threads; this is not done earlier so
 		// that argument errors will result in quick exits.
 
 		boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
 
 		if (!isDebug) {
-			MyUncaughtExceptionHandler handler = new MyUncaughtExceptionHandler();
+			LoggingExceptionHandler handler = visible ? new SwingExceptionHandler() : new LoggingExceptionHandler();
 			Thread.setDefaultUncaughtExceptionHandler(handler);
 		}
-
-		simulation = new Simulation();
 
 		//Set up inputFile
 
@@ -147,10 +145,10 @@ public class CobwebApplicationRunner {
 			if (!tempdir.endsWith(sep))
 				tempdir = tempdir + sep;
 
-			inputFileName = CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION;
+			inputFileName = CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME;
 			File testFile = new File(inputFileName);
 			if (! (testFile.exists() && testFile.canWrite()))
-				inputFileName = tempdir + CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION;
+				inputFileName = tempdir + CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME;
 
 		}
 
@@ -172,15 +170,12 @@ public class CobwebApplicationRunner {
 		} catch (Exception e) {
 			String message = "Cannot load " + inputFileName + "";
 			if (visible) {
-				throw new CobwebUserException(message);
+				throw new UserInputException(message);
 			} else {
 				System.err.println(message);
 				throw new RuntimeException(e);
 			}
 		}
-
-		simulation.load(defaultconf);
-
 
 		// $$$$$$ Added to check if the new data file is hidden. Feb 22
 		File inf = new File(inputFileName);
@@ -190,79 +185,29 @@ public class CobwebApplicationRunner {
 					+ "\n                  Any modification of this data file will be neither implemented nor saved.");
 		}
 
-		final SimulationRunner simRunner;
+		final SimulationRunnerBase simRunner;
 		if (visible) {
 			CobwebApplication CA = new CobwebApplication();
+			CA.openFile(defaultconf);
 			simRunner = CA.simRunner;
 		} else {
-			simRunner = new SimulationRunner();
+			Simulation simulation;
+			simulation = new Simulation();
+			simulation.load(defaultconf);
+			simRunner = new SimulationRunnerBase(simulation);
 		}
-
-		simRunner.setSimulation(simulation);
+		simRunner.setAutoStopTime(finalstep);
 
 		if (!logFileName.isEmpty()){
-			simRunner.logFile(logFileName);
+			try {
+				simRunner.setLog(new FileWriter(logFileName, false));
+			} catch (IOException ex) {
+				throw new UserInputException("Can't create log file!", ex);
+			}
 		}
 
-		final Object runCompletedMonitor = new Object();
-
 		if (autostart) {
-			System.out.println(String.format("Running '%1$s' for %2$d steps with log %3$s..."
-					, inputFileName, finalstep, logFileName));
-
-			final class AutoStopUpdater implements UpdatableUI {
-				private long stopTick;
-
-				private long increment;
-
-				public AutoStopUpdater(long stopTick) {
-					this.stopTick = stopTick;
-
-					increment = stopTick / 10;
-					if (increment > 2000)
-						increment = 2000;
-				}
-
-				@Override
-				public void update(boolean synchronous) {
-					long time = simRunner.simulation.getTime();
-					if (time % increment == 0) {
-						System.out.print(100 * time / stopTick + "% ");
-
-					}
-					if (time > stopTick) {
-						synchronized(runCompletedMonitor) {
-							simRunner.scheduler.pause();
-							runCompletedMonitor.notify();
-						}
-					}
-				}
-
-				@Override
-				public boolean isReadyToRefresh() {
-					return true;
-				}
-			}
-
-			simRunner.scheduler.addUIComponent(new AutoStopUpdater(finalstep));
-			simRunner.scheduler.setDelay(0);
-			simRunner.scheduler.resume();
-
-			if (!visible) {
-				// Wait for simulation to reach stopTick
-				synchronized(runCompletedMonitor){
-					// Simulation could have finished running before .wait() is called,
-					// there would be no notification in that case.
-					while (simRunner.scheduler.isRunning()) {
-						try {
-							runCompletedMonitor.wait();
-							// AutoStopUpdater paused the simulation and .isRunning() is now false
-						} catch (InterruptedException ex) {
-							throw new RuntimeException(ex);
-						}
-					}
-				}
-			}
+			simRunner.run();
 		}
 	}
 

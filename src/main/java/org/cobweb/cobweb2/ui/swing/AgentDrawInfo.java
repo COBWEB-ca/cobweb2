@@ -37,7 +37,7 @@ class AgentDrawInfo {
 	private int[] yPts = new int[3];
 
 	AgentDrawInfo(ComplexAgent agent, ColorLookup colorMap) {
-		agentColor = Color.BLACK; // TODO colorizer based on gene/disease/etc
+		agentColor = Color.BLACK; // FIXME colorizer based on gene/disease/etc
 
 		type =  colorMap.getColor(agent.params.type, 0);
 

@@ -12,11 +12,11 @@ import org.cobweb.swingutil.WaitableJComponent;
 
 public class Disp extends JFrame implements UpdatableUI {
 	/**
-	 * 
+	 *
 	 */
 	private final ProductionMapper productionMapper;
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 8153897860751883610L;
 	int x;
@@ -79,7 +79,17 @@ public class Disp extends JFrame implements UpdatableUI {
 	}
 
 	@Override
-	public boolean isReadyToRefresh() {
+	public boolean isReadyToUpdate() {
 		return true;
+	}
+
+	@Override
+	public void onStopped() {
+		update(true);
+	}
+
+	@Override
+	public void onStarted() {
+		// Nothing
 	}
 }

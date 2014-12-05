@@ -151,7 +151,19 @@ public class StatsLogger implements UpdatableUI {
 
 
 	@Override
-	public boolean isReadyToRefresh() {
+	public boolean isReadyToUpdate() {
 		return true;
+	}
+
+
+	@Override
+	public void onStopped() {
+		logStream.flush();
+	}
+
+
+	@Override
+	public void onStarted() {
+		// Nothing
 	}
 }

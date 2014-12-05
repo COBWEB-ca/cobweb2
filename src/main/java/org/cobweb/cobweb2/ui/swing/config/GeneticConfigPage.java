@@ -24,7 +24,7 @@ import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.genetics.GeneticParams;
 import org.cobweb.cobweb2.interconnect.Phenotype;
-import org.cobweb.cobweb2.ui.swing.CobwebUserException;
+import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.swingutil.binding.EnumComboBoxModel;
 
 public class GeneticConfigPage implements ConfigPage {
@@ -43,10 +43,12 @@ public class GeneticConfigPage implements ConfigPage {
 			fireIntervalAdded(this, items.size() - 1, items.size() - 1);
 		}
 
+		@Override
 		public Object getElementAt(int index) {
 			return items.get(index);
 		}
 
+		@Override
 		public int getSize() {
 			return items.size();
 		}
@@ -68,14 +70,17 @@ public class GeneticConfigPage implements ConfigPage {
 
 		private static final long serialVersionUID = 8849213073862759751L;
 
+		@Override
 		public int getColumnCount() {
 			return 1 + agentTypes;
 		}
 
+		@Override
 		public int getRowCount() {
 			return phenosUsed.size();
 		}
 
+		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
 			if ( columnIndex == 0)
 				return phenosUsed.get(rowIndex).toString();
@@ -91,7 +96,7 @@ public class GeneticConfigPage implements ConfigPage {
 			if (value instanceof String) {
 				String s = (String) value;
 				if (!geneticStringPatern.matcher(s).matches()) {
-					throw new CobwebUserException("Please enter a binary string!");
+					throw new UserInputException("Please enter a binary string!");
 				}
 				int v = Integer.parseInt(s, 2);
 				defaults.get(rowIndex)[columnIndex - 1] = v;
@@ -124,6 +129,7 @@ public class GeneticConfigPage implements ConfigPage {
 	private int agentTypes;
 
 	private class AddListener implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			for (Object o : listAvailable.getSelectedValues()) {
 				Phenotype p = (Phenotype) o;
@@ -134,6 +140,7 @@ public class GeneticConfigPage implements ConfigPage {
 	}
 
 	private class RemoveListener implements ActionListener {
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			int[] z = listSelected.getSelectedRows();
 			for (int i = z.length - 1; i >= 0; i--) {
@@ -237,6 +244,7 @@ public class GeneticConfigPage implements ConfigPage {
 		return phenotypeScroller;
 	}
 
+	@Override
 	public JPanel getPanel() {
 		return myPanel;
 	}
@@ -278,6 +286,7 @@ public class GeneticConfigPage implements ConfigPage {
 		return phenotypeScroller;
 	}
 
+	@Override
 	public void validateUI() throws IllegalArgumentException {
 		params.geneCount = phenosUsed.size();
 		params.phenotype = phenosUsed.toArray(new Phenotype[0]);

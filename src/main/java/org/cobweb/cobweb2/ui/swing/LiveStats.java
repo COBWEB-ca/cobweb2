@@ -7,7 +7,7 @@ import javax.swing.JFrame;
 
 import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.SimulationInterface;
-import org.cobweb.cobweb2.ui.Scheduler;
+import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
@@ -46,9 +46,9 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 			, false
 			, false);
 
-	Scheduler scheduler;
+	SimulationRunner scheduler;
 
-	public LiveStats(Scheduler scheduler) {
+	public LiveStats(SimulationRunner scheduler) {
 		this.scheduler = scheduler;
 		graph.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -95,7 +95,7 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 		agentData.add(stats.timestep, agentCount);
 		foodData.add(stats.timestep, foodCount);
 
-		if (frame++ == frameskip) {
+		if (frame++ >= frameskip) {
 			frame = 0;
 			plot.setNotify(true);
 			plot.setNotify(false);
@@ -105,7 +105,7 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 	}
 
 	@Override
-	public boolean isReadyToRefresh() {
+	public boolean isReadyToUpdate() {
 		return graphSynchronizer.isReadyToRefresh();
 	}
 
@@ -121,7 +121,6 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 	@Override
 	public void on() {
 		graph.setVisible(true);
-
 	}
 
 	@Override
@@ -133,6 +132,17 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 	@Override
 	public void setClosedCallback(ViewerClosedCallback onClosed) {
 		this.onClosed = onClosed;
+	}
+
+	@Override
+	public void onStopped() {
+		plot.setNotify(true);
+		plot.setNotify(false);
+	}
+
+	@Override
+	public void onStarted() {
+		// Nothing
 	}
 
 }

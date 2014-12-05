@@ -6,7 +6,7 @@ import java.awt.event.WindowEvent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.production.ProductionMapper;
-import org.cobweb.cobweb2.ui.Scheduler;
+import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 
@@ -16,10 +16,10 @@ public class ProductionViewer implements ViewerPlugin {
 	private ViewerClosedCallback onClosed;
 
 	private ComplexEnvironment theEnvironment;
-	private Scheduler theScheduler;
+	private SimulationRunner theScheduler;
 
 
-	public ProductionViewer(Environment theEnvironment, Scheduler theScheduler) {
+	public ProductionViewer(Environment theEnvironment, SimulationRunner theScheduler) {
 		super();
 		this.theEnvironment = (ComplexEnvironment) theEnvironment;
 		this.theScheduler = theScheduler;

@@ -31,8 +31,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
+import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.CobwebApplication;
-import org.cobweb.cobweb2.ui.swing.CobwebUserException;
 import org.cobweb.swingutil.TypeColorEnumeration;
 
 /**
@@ -44,26 +44,27 @@ import org.cobweb.swingutil.TypeColorEnumeration;
 public class GUI extends JFrame {
 
 	private final class OkButtonListener implements ActionListener {
+		@Override
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 
 			try {
 				validateSettings();
 			} catch (IllegalArgumentException ex) {
-				throw new CobwebUserException("Parameter error: " + ex.getMessage(), ex);
+				throw new UserInputException("Parameter error: " + ex.getMessage(), ex);
 			}
 
 			/* write UI info to xml file */
 			try {
 				p.write(new FileOutputStream(datafile));
 			} catch (java.io.IOException ex) {
-				throw new CobwebUserException("Cannot write file! Make sure your file is not read-only.", ex);
+				throw new UserInputException("Cannot write file! Make sure your file is not read-only.", ex);
 			}
 
 			/* create a new parser for the xml file */
 			try {
 				p = new SimulationConfig(datafile);
 			} catch (FileNotFoundException ex) {
-				throw new CobwebUserException("Cannot open file!", ex);
+				throw new UserInputException("Cannot open file!", ex);
 			}
 
 			CA.openFile(p);
@@ -72,12 +73,6 @@ public class GUI extends JFrame {
 			}
 			frame.setVisible(false);
 			frame.dispose();
-
-			if (CA.getSimulation() != null) {
-				if (CA.isInvokedByModify() == false) {
-					// FIXME tick counter saving after modify
-				}
-			}
 		}
 
 
@@ -101,11 +96,12 @@ public class GUI extends JFrame {
 	}
 
 	private final class SaveAsButtonListener implements java.awt.event.ActionListener {
+		@Override
 		public void actionPerformed(java.awt.event.ActionEvent e) {
 			try {
 				validateSettings();
 			} catch (IllegalArgumentException ex) {
-				throw new CobwebUserException("Parameter error: " + ex.getMessage(), ex);
+				throw new UserInputException("Parameter error: " + ex.getMessage(), ex);
 			}
 
 			openFileDialog();
@@ -309,13 +305,7 @@ public class GUI extends JFrame {
 						CA.setCurrentFile(datafile);
 					} // $$$$$$ added on Mar 14
 					frame.setVisible(false);
-					frame.dispose(); // $$$$$$ Feb 28
-					// $$$$$$ Added on Mar 14
-					if (CA.getSimulation() != null) {
-						if (CA.isInvokedByModify() == false) {
-							// FIXME tick counter saving after modify
-						}
-					}
+					frame.dispose();
 				}
 			} catch (IOException ex) {
 				myLogger.log(Level.WARNING, "Cannot save config", ex);

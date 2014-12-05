@@ -16,6 +16,9 @@ public interface UpdatableUI {
 	 * Checks if the UI is free to update right now.
 	 * @return true when ready
 	 */
-	public boolean isReadyToRefresh();
+	public boolean isReadyToUpdate();
 
+	public void onStopped();
+
+	public void onStarted();
 }

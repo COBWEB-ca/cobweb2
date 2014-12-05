@@ -6,9 +6,13 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.swingutil.WaitableJComponent;
 
 /**
@@ -29,7 +33,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		private boolean convertCoords(int x, int y, int[] out) {
 			x -= borderLeft;
 			y -= borderHeight;
-			if (!(     x >= 0 && x < tileWidth  * mapWidth 
+			if (!(     x >= 0 && x < tileWidth  * mapWidth
 					&& y >= 0 && y < tileHeight * mapHeight)) {
 				return false;
 			}
@@ -81,6 +85,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 			} else if (canSetOff(x, y)) {
 				setOff(x, y);
 			}
+			refresh(false);
 		}
 
 		private DragMode drag(int x, int y, DragMode dragmode) {
@@ -92,13 +97,14 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 				} else if (canSetOff(x, y)) {
 					dragmode = DragMode.DragOff;
 				}
-			} 
+			}
 
 			if (dragmode == DragMode.DragOn && canSetOn(x, y)) {
 				setOn(x, y);
 			} else if (dragmode == DragMode.DragOff && canSetOff(x, y)) {
 				setOff(x, y);
 			}
+			refresh(false);
 			return dragmode;
 		}
 		abstract boolean canClick(int x, int y);
@@ -119,22 +125,26 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		boolean canSetOn(int x, int y) {
-			return simulation.theEnvironment.getAgent(x, y) != null;
+			return simulation.theEnvironment.getAgent(x, y) != null && !canSetOff(x, y);
 		}
 
 		@Override
 		boolean canSetOff(int x, int y) {
-			return !canSetOn(x, y);
+			return observedAgents.contains(simulation.theEnvironment.getAgent(x, y));
 		}
 
 		@Override
 		void setOn(int x, int y) {
-			// FIXME simulation.theEnvironment.observe(x, y);
+			ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(x, y);
+			if (agent != null)
+				observedAgents.add(agent);
 		}
 
 		@Override
 		void setOff(int x, int y) {
-			// FIXME simulation.theEnvironment.unObserve();
+			ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(x, y);
+			if (agent != null)
+				observedAgents.remove(agent);
 		}
 
 	}
@@ -178,7 +188,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		@Override
 		public boolean canClick(int x, int y) {
 			Agent a = simulation.theEnvironment.getAgent(x, y);
-			return (a == null && !simulation.theEnvironment.hasStone(x, y)) || 
+			return (a == null && !simulation.theEnvironment.hasStone(x, y)) ||
 					(a != null && a.type() == mytype);
 		}
 
@@ -291,25 +301,39 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private DrawInfo drawInfo;
 
+	private List<ComplexAgent> observedAgents = new ArrayList<ComplexAgent>();
+
+	@Override
 	public void componentHidden(ComponentEvent e) {
 		// nothing
 	}
 
+	@Override
 	public void componentMoved(ComponentEvent e) {
 		// nothing
 	}
 
+	@Override
 	public void componentResized(ComponentEvent e) {
 		updateScale();
 	}
 
+	@Override
 	public void componentShown(ComponentEvent e) {
 		// nothing
 	}
 
 	@Override
 	public void refresh(boolean wait) {
-		drawInfo = new DrawInfo(simulation.theEnvironment);
+		synchronized(simulation.theEnvironment) {
+			Iterator<ComplexAgent> ai = observedAgents.iterator();
+			while (ai.hasNext()) {
+				ComplexAgent a = ai.next();
+				if (!a.isAlive())
+					ai.remove();
+			}
+			drawInfo = new DrawInfo(simulation.theEnvironment, observedAgents);
+		}
 		super.refresh(wait);
 	}
 
@@ -382,6 +406,6 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		borderLeft = borderWidth + THERMAL_MARKER_WIDTH;
 		borderHeight = (size.height - tileHeight * simulation.theEnvironment.getHeight() + PADDING) / 2;
 
-		this.refresh(false);
+		repaint();
 	}
 }

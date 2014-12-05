@@ -32,6 +32,7 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 		/* (non-Javadoc)
 		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			JComboBox cb = (JComboBox)e.getSource();
 			String expname = (String)cb.getSelectedItem();
@@ -86,6 +87,7 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 		JButton resetbutton = new JButton("Reset");
 		controls.add(resetbutton);
 		resetbutton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				loadSimulation(currentexp);
 			}
@@ -96,6 +98,7 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 
 		JButton statsButton = new JButton("Graph");
 		statsButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				statsUpdater.toggleGraphVisible();
 			}
@@ -139,12 +142,11 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 
 		ui = new SimulatorUI(simulation);
 
-		//FIX: DisplayPanel is buggy, so we have to hide and show it for it to redraw
-		ui.setVisible(false);
 		add(ui, BorderLayout.CENTER);
 
-		ui.setVisible(true);
 		statsUpdater = new LiveStats(ui.getScheduler());
+		validate();
+		ui.update(true);
 	}
 
 
