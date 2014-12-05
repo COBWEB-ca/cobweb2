@@ -177,7 +177,6 @@ public class CobwebApplicationRunner {
 			}
 		}
 
-		// $$$$$$ Added to check if the new data file is hidden. Feb 22
 		File inf = new File(inputFileName);
 		if (inf.isHidden() || (inf.exists() && !inf.canWrite())) {
 			JOptionPane.showMessageDialog(GUI.frame, "Caution:  The initial data file \"" + inputFileName

@@ -12,7 +12,7 @@ import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 public class SpeedBar extends JScrollBar implements
 java.awt.event.AdjustmentListener {
 	private final ThreadSimulationRunner scheduler;
-	private final Dimension d = new Dimension(70, 18); // $$$$$ you can generate any size you want.  Apr 3
+	private final Dimension d = new Dimension(70, 18);
 
 	private final Color original;
 
@@ -23,7 +23,7 @@ java.awt.event.AdjustmentListener {
 		setOrientation(Scrollbar.HORIZONTAL);
 		addAdjustmentListener(this);
 		this.setValues(SCROLLBAR_TICKS - 1, 0, 0, SCROLLBAR_TICKS);
-		this.setPreferredSize(d); // // $$$$$$ some computers may not show the scroll bar properly without this line.  Apr 3
+		this.setPreferredSize(d);
 		original = this.getBackground();
 	}
 

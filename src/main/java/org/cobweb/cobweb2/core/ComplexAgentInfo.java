@@ -1,7 +1,3 @@
-/*
- * $$$$$: Comments by Liang $$$$$$: Codes modified and/or added by Liang
- */
-
 package org.cobweb.cobweb2.core;
 
 import java.io.PrintWriter;
@@ -215,7 +211,7 @@ public class ComplexAgentInfo implements Serializable {
 
 	/**
 	 * Adds the path information of the agent.
-	 * 
+	 *
 	 * @param loc Location the agent moved to
 	 */
 	public void addPathStep(Location loc) {

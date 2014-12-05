@@ -693,8 +693,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		 * If the random seed is set to 0 in the data file, it means we use the
 		 * system time instead
 		 */
-		// $$$$$ This means setting Random Seed to zero would get non-repeatable
-		// results. Apr 19
 		if (data.randomSeed == 0)
 			data.randomSeed = System.currentTimeMillis();
 

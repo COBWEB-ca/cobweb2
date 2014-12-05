@@ -1,4 +1,3 @@
-//[]SK new class
 package org.cobweb.cobweb2.ui.swing.components;
 
 import java.awt.event.ActionListener;
@@ -26,7 +25,6 @@ public class StepButton extends JButton implements ActionListener {
 		this.scheduler = scheduler;
 	}
 
-	// $$$$$$ Modified on Mar 14
 	@Override
 	public void actionPerformed(java.awt.event.ActionEvent e) {
 		scheduler.step();

@@ -1,7 +1,3 @@
-/*
- * $$$$$: Comments by Liang $$$$$$: Codes modified and/or added by Liang
- */
-
 package org.cobweb.cobweb2.ui.swing.config;
 
 import java.awt.BorderLayout;
@@ -265,51 +261,37 @@ public class GUI extends JFrame {
 	}
 
 
-	// $$$$$$ This openFileDialog method is invoked by pressing the "Save" button
+	/**
+	 * This openFileDialog method is invoked by pressing the "Save" button
+	 */
 	public void openFileDialog() {
 		FileDialog theDialog = new FileDialog(frame, "Choose a file to save state to", java.awt.FileDialog.SAVE);
 		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
-			// $$$$$$ Check if the saving filename is one of the names reserved by CobwebApplication. Feb 8
-			// $$$$$$$$$$$$$$$$$$$$$$$$$$ Block silenced by Andy due to the annoyingness of this feature. May 7, 2008
-			// String savingFileName;
-			// savingFileName = theDialog.getFile();
-
-			// Block silenced, see above.
-
-			/*
-			 * if ( (savingFileName.contains(CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME) != false) ||
-			 * (savingFileName.contains(CobwebApplication.CURRENT_DATA_FILE_NAME) != false) //$$$$$ added for
-			 * "Modify Current Data" || (savingFileName.contains(CobwebApplication.DEFAULT_DATA_FILE_NAME) != false)) {
-			 * JOptionPane.showMessageDialog(GUI.this, "Save State: The filename\"" + savingFileName +
-			 * "\" is reserved by Cobweb Application.\n" + "                       Please choose another file to save.",
-			 * "Warning", JOptionPane.WARNING_MESSAGE); // $$$$$$ modified on Feb 22 openFileDialog(); } else {
-			 */// $$$$$ If filename not reserved. Feb 8
 			try {
-				// $$$$$$ The following block added to handle a readonly file. Feb 22
+				// Handle a readonly file
 				String savingFile = theDialog.getDirectory() + theDialog.getFile();
 				File sf = new File(savingFile);
 				if ((sf.isHidden() != false) || ((sf.exists() != false) && (sf.canWrite() == false))) {
 					JOptionPane.showMessageDialog(
-							GUI.frame, // $$$$$$ change from "this" to "GUI.frame". Feb 22
+							GUI.frame,
 							"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.", "Warning",
 							JOptionPane.WARNING_MESSAGE);
 				} else {
-					// $$$$$ The following block used to be the original code. Feb 22
 					p.write(new FileOutputStream(theDialog.getDirectory() + theDialog.getFile()));
 
 					p = new SimulationConfig(theDialog.getDirectory() + theDialog.getFile());
 					CA.openFile(p);
 					if (!datafile.equals(CA.getCurrentFile())) {
 						CA.setCurrentFile(datafile);
-					} // $$$$$$ added on Mar 14
+					}
 					frame.setVisible(false);
 					frame.dispose();
 				}
 			} catch (IOException ex) {
 				myLogger.log(Level.WARNING, "Cannot save config", ex);
-				JOptionPane.showMessageDialog(CA, // $$$$$$ added on Apr 22
+				JOptionPane.showMessageDialog(CA,
 						"Save failed: " + ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 			}
 			// }

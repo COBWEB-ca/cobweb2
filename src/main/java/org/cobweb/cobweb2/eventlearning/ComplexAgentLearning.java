@@ -75,14 +75,13 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 
-	// $$$$$$ Changed March 21st, breedPos used to be local to the step() method
 	private org.cobweb.cobweb2.core.Location breedPos = null;
 
 
 	public LearningAgentParams lParams;
 
 	public static void setDefaultMutableParams(ComplexAgentParams[] params, LearningAgentParams[] lParams, ProductionParams[] pParams) {
-		ComplexAgent.setDefaultMutableParams(params, pParams);	
+		ComplexAgent.setDefaultMutableParams(params, pParams);
 
 		learningParams = lParams.clone();
 		for (int i = 0; i < params.length; i++) {
@@ -239,7 +238,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 						if (concernedAgent.breedPartner == null) {
 							concernedAgent.getInfo().addDirectChild();
-							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn(); 
+							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn();
 							child.init(concernedAgent.getBreedPos(), concernedAgent);
 
 							// Retain emotions for our child!
@@ -256,7 +255,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 							concernedAgent.getInfo().addDirectChild();
 							concernedAgent.breedPartner.getInfo().addDirectChild();
-							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn(); 
+							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn();
 							child.init(concernedAgent.getBreedPos(), concernedAgent,
 									(ComplexAgentLearning)concernedAgent.breedPartner);
 
@@ -502,11 +501,11 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 
 	/**
-	 * A call to this method will cause an agent to scan the area around it for occurences that have 
-	 * happened to other agents. This is heavily influenced by the agent's learning parameters. The 
+	 * A call to this method will cause an agent to scan the area around it for occurences that have
+	 * happened to other agents. This is heavily influenced by the agent's learning parameters. The
 	 * method will immediatly return if the agent is not set to learn from other agents. An agent will
-	 * disregard occurrences that have happened to agents of a different type if it is not set to 
-	 * learn from dissimilar agents. The agent must be within an Occurrences's observeableDistance in 
+	 * disregard occurrences that have happened to agents of a different type if it is not set to
+	 * learn from dissimilar agents. The agent must be within an Occurrences's observeableDistance in
 	 * order to process it.
 	 */
 	private void observeOccurrences() {
@@ -568,7 +567,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			}
 		}
 
-		allOccurrences = newOccList;		
+		allOccurrences = newOccList;
 	}
 
 	private void purgeMemory() {
@@ -616,7 +615,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					return event.getMagnitude() * -0.5f;
 				}
 				return super.getMagnitudeFromEvent(event);
-			}					
+			}
 
 		});
 
@@ -651,7 +650,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			@Override
 			public float getMagnitudeFromEvent(MemorableEvent event) {
 				//If memory has to do with turning left, the opposite sign of the magnitude of that
-				//event applies (if it is good to turn RIGHT, it is bad to turn LEFT.)						
+				//event applies (if it is good to turn RIGHT, it is bad to turn LEFT.)
 				if (event.getDescription().equals("turnLeft")) {
 					return event.getMagnitude() * -0.5f;
 				}
