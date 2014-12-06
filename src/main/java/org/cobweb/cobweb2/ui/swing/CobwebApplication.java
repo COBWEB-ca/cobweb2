@@ -26,9 +26,7 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -47,7 +45,6 @@ import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
 import org.cobweb.cobweb2.core.SimulationInterface;
-import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.UserInputException;
@@ -61,7 +58,6 @@ import org.cobweb.cobweb2.ui.swing.config.GUI;
 import org.cobweb.cobweb2.ui.swing.genetics.GAChartOutput;
 import org.cobweb.cobweb2.ui.swing.production.ProductionViewer;
 import org.cobweb.util.FileUtils;
-import org.cobweb.util.Versionator;
 
 /**
  * This class consists of methods to allow the user to use the Cobweb simulation
@@ -71,7 +67,7 @@ import org.cobweb.util.Versionator;
  * @author Liang
  *
  */
-public class CobwebApplication extends JFrame implements UpdatableUI, SimulationRunner {
+public class CobwebApplication extends JFrame implements UpdatableUI {
 
 	private static final String WINDOW_TITLE = "COBWEB 2";
 
@@ -117,37 +113,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 
 	public ThreadSimulationRunner simRunner = new ThreadSimulationRunner(new Simulation());
 
-	@Override
-	public void step() {
-		simRunner.step();
-	}
-
-	@Override
-	public void stop() {
-		simRunner.stop();
-	}
-
-	@Override
-	public boolean isRunning() {
-		return simRunner.isRunning();
-	}
-
-	@Override
-	public void run() {
-		simRunner.run();
-	}
-
-	@Override
-	public void addUIComponent(UpdatableUI ui) {
-		simRunner.addUIComponent(ui);
-	}
-
-	@Override
-	public void removeUIComponent(UpdatableUI ui) {
-		simRunner.removeUIComponent(ui);
-	}
-
-	protected Logger myLogger = Logger.getLogger("COBWEB2");
+	protected final Logger myLogger = Logger.getLogger("COBWEB2");
 
 	// constructor
 	public CobwebApplication() {
@@ -179,40 +145,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	}
 
 	/**
-	 * Creates the about dialog box, which contains information pertaining
-	 * to the Cobweb version being used, and the date it was last modified.
-	 */
-	public void aboutDialog() {
-		final javax.swing.JDialog whatDialog = new javax.swing.JDialog(GUI.frame,
-				"About Cobweb", true);
-		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-		JPanel info = new JPanel();
-		info.setAlignmentX(CENTER_ALIGNMENT);
-		info.add(new JLabel("<html><center>COBWEB2 2003/2011<br/>version: <br/>"
-				+  Versionator.getVersion().replace(" ", "<br/>")
-				+ "</center></html>"));
-
-		JPanel term = new JPanel();
-		JButton close = new JButton("Close");
-		term.add(close);
-
-		close.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				whatDialog.setVisible(false);
-			}
-		});
-
-		whatDialog.setLayout(new BorderLayout());
-		whatDialog.add(info, BorderLayout.CENTER);
-		whatDialog.add(term, BorderLayout.SOUTH);
-		whatDialog.setSize(300, 150);
-		//whatDialog.pack();
-		whatDialog.setVisible(true);
-	}
-
-	/**
 	 * Opens an initial simulation settings file using the simulation settings
 	 * window.  The user can modify the simulation settings and save the
 	 * settings to a new file.  The method is invoked when the user selects
@@ -236,120 +168,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 		}
 	}
 
-	/**
-	 * Creates a dialog box with contact information about a specified person
-	 * in the credits menu.
-	 *
-	 * @param parentDialog The credits dialog box that invoked the creation of this dialog box
-	 * @param S The contact information that will be shown in the dialog box.
-	 * @param length The length of the dialog box in pixels
-	 * @param width The width of the dialog box in pixels
-	 * @see CobwebApplication#creditsDialog()
-	 */
-	private void creditDialog(JDialog parentDialog, String[] S, int length, int width) {
-
-		final javax.swing.JDialog creditDialog = new javax.swing.JDialog(parentDialog,
-				"Click on Close to continue", true);
-
-		JPanel credit = new JPanel();
-		for (int i = 0; i < S.length; ++i) {
-			credit.add(new JLabel(S[i]), "Center");
-		}
-
-		JPanel term = new JPanel();
-		JButton close = new JButton("Close");
-		term.add(close);
-		close.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				creditDialog.setVisible(false);
-			}
-		});
-
-		creditDialog.add(credit, "Center");
-		creditDialog.add(term, "South");
-
-		creditDialog.setSize(length, width);
-		creditDialog.setVisible(true);
-
-	}
-
-	/**
-	 * The credits dialog box that is created when the user selects "Credits"
-	 * located under "Help" in the main tool bar.  It contains a list of
-	 * buttons for important people that can be contacted for more information
-	 * about Cobweb.  The information can be accessed by clicking on the buttons.
-	 */
-	public void creditsDialog() {
-		final javax.swing.JDialog theDialog = new javax.swing.JDialog(GUI.frame, "Credits", true);
-		theDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-		JPanel credit = new JPanel();
-		JButton brad = new JButton("Brad Bass, PhD");
-		JButton jeff = new JButton("Jeff Hill");
-		JButton jin = new JButton("Jin Soo Kang");
-		credit.add(new JLabel("Coordinator"));
-		credit.add(brad);
-		credit.add(new JLabel("_______________"));
-		credit.add(new JLabel("Programmers"));
-		credit.add(jeff);
-		credit.add(jin);
-
-		JPanel term = new JPanel();
-		JButton close = new JButton("Close");
-		term.add(close);
-
-		brad.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				String[] S = { "Brad Bass, PhD", "Adaptations and Impacts Research Group",
-						"Environment Canada at Univ of Toronto", "Inst. for Environmental Studies",
-						"33 Willcocks Street", "Toronto, Ont M5S 3E8 CANADA",
-						"TEL: (416) 978-6285  FAX: (416) 978-3884", "brad.bass@ec.gc.ca" };
-				creditDialog(theDialog, S, 300, 300);
-			}
-		});
-
-		jeff.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				String[] S = { "Main Structural Programming By", "", "Jeff Hill", "oni1@home.com" };
-
-				creditDialog(theDialog, S, 250, 150);
-			}
-		});
-
-		jin.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				String[] S = { "Update & Additional Programming By", "", "Jin Soo Kang",
-						"Undergraduate, Computer Science", "University of Toronto", "jin.kang@utoronto.ca",
-				"[2000 - 2001]" };
-
-				creditDialog(theDialog, S, 300, 250);
-			}
-		});
-
-		close.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				theDialog.setVisible(false);
-			}
-		});
-
-		theDialog.add(credit, "Center");
-		theDialog.add(term, "South");
-		theDialog.setSize(150, 265);
-		theDialog.setVisible(true);
-
-	}
-
-	/**
-	 * Returns the user interface pipe being used.
-	 *
-	 * @return User Interface Pipe
-	 */
-	@Override
 	public SimulationInterface getSimulation() {
 		return simRunner.getSimulation();
 	}
@@ -973,7 +791,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			disposeGUIframe();
-			aboutDialog();
+			AboutDialog.show();
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -995,7 +813,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			disposeGUIframe();
-			creditsDialog();
+			CreditsDialog.show();
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -1042,9 +860,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 		private static final long serialVersionUID = 1L;
 	};
 
-	/**
-	 * @see CobwebApplication#openCurrentData()
-	 */
 	private Action modifySimulation = new AbstractAction("Modify Simulation") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -1058,10 +873,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 		private static final long serialVersionUID = 1L;
 	};
 
-	/**
-	 * @see CobwebApplication#openCurrentFile()
-	 */
-
 	private Action modifySimulationFile = new AbstractAction("Modify Simulation File") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -1074,7 +885,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 		}
 		private static final long serialVersionUID = 1L;
 	};
-
 
 	private Action setObservationMode = new AbstractAction("Observation Mode") {
 		@Override
