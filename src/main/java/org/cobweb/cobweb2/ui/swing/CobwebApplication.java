@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -73,10 +75,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 
 	private static final String WINDOW_TITLE = "COBWEB 2";
 
-	private static final String MODIFY_THIS_FILE = "Modify Simulation File";
-
-	private static final String MODIFY_CURRENT_DATA = "Modify Simulation";
-
 	private static final long serialVersionUID = 2112476687880153089L;
 
 	public static final String GREETINGS = "Welcome to COBWEB 2";
@@ -91,10 +89,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	private StepButton stepButton;
 
 	public JTextField tickField;
-
-	private JMenuItem stoneMenu;
-
-	private JMenuItem observeMenu;
 
 	private JMenu foodMenu;
 
@@ -162,22 +156,21 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 		myLogger.info(GREETINGS);
 		myLogger.info("JVM Memory: " + Runtime.getRuntime().maxMemory() / 1024 + "KB");
 
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				CobwebApplication.this.quitApplication();
+				quitApplication();
 			}
 		});
 
 		setLayout(new BorderLayout());
 		setSize(580, 650);
 
-		// Create the various widgits to make the application go.
-
 		JMenuBar myMenuBar = makeMenuBar();
-
 		setJMenuBar(myMenuBar);
 
+		// Center window on screen
 		setLocationRelativeTo(null);
 
 		openFile(new SimulationConfig());
@@ -224,8 +217,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	 * window.  The user can modify the simulation settings and save the
 	 * settings to a new file.  The method is invoked when the user selects
 	 * "Create New Data" located under "File" in the main tool bar.
-	 *
-	 * @see CobwebApplication#onMenuCreateNew()
 	 */
 	public void createNewData() {
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME;
@@ -324,7 +315,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 			public void actionPerformed(ActionEvent evt) {
 				String[] S = { "Main Structural Programming By", "", "Jeff Hill", "oni1@home.com" };
 
-				CobwebApplication.this.creditDialog(theDialog, S, 250, 150);
+				creditDialog(theDialog, S, 250, 150);
 			}
 		});
 
@@ -335,7 +326,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 						"Undergraduate, Computer Science", "University of Toronto", "jin.kang@utoronto.ca",
 				"[2000 - 2001]" };
 
-				CobwebApplication.this.creditDialog(theDialog, S, 300, 250);
+				creditDialog(theDialog, S, 300, 250);
 			}
 		});
 
@@ -393,239 +384,56 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	 * to modify the simulation, save the simulation, etc.
 	 *
 	 * @return The menu bar object.
+	 * @see #makeAgentFoodSelectMenu()
+	 * @see #makeViewMenu()
 	 */
 	private JMenuBar makeMenuBar() {
-		// Build the menu items
-		JMenuItem openMenu = new JMenuItem("Open");
-		openMenu.setActionCommand("Open");
-		openMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuOpen();
-			}
-		});
-
-		JMenuItem setMenu = new JMenuItem("Set Default Data");
-		setMenu.setActionCommand("Set Default Data");
-		setMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuSetDefault();
-			}
-		});
-
-
-		JMenuItem saveSamplePopMenu = new JMenuItem("Save Sample Population");
-		saveSamplePopMenu.setActionCommand("Save Sample Population");
-		saveSamplePopMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuSaveSample();
-			}
-		});
-
-		JMenuItem insertSamplePopMenu = new JMenuItem("Insert Sample Population");
-		insertSamplePopMenu.setActionCommand("Insert Sample Population");
-		insertSamplePopMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuInsertSample();
-			}
-		});
-
-		JMenuItem defaultMenu = new JMenuItem("Retrieve Default Data");
-		defaultMenu.setActionCommand("Retrieve Default Data");
-		defaultMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuRetrieveDefault();
-			}
-		});
-		JMenuItem currentDataMenu = new JMenuItem(MODIFY_CURRENT_DATA);
-		currentDataMenu.setActionCommand(MODIFY_CURRENT_DATA);
-		currentDataMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuModifyCurrent();
-			}
-		});
-
-		JMenuItem NewDataFileMenu = new JMenuItem("Create New Data");
-		NewDataFileMenu.setActionCommand("Create New Data");
-		NewDataFileMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuCreateNew();
-			}
-		});
-		JMenuItem modifyMenu = new JMenuItem(MODIFY_THIS_FILE);
-		modifyMenu.setActionCommand(MODIFY_THIS_FILE);
-		modifyMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuModifyThis();
-			}
-		});
-		JMenuItem saveMenu = new JMenuItem("Save");
-		saveMenu.setActionCommand("Save");
-		saveMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuSave();
-			}
-		});
-		JMenuItem logMenu = new JMenuItem("Log");
-		logMenu.setActionCommand("Log");
-		logMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuLog();
-			}
-		});
-		JMenuItem quitMenu = new JMenuItem("Quit");
-		quitMenu.setActionCommand("Quit");
-		quitMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuQuit();
-			}
-		});
-		JMenuItem reportMenu = new JMenuItem("Report");
-		reportMenu.setActionCommand("Report");
-		reportMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuReport();
-			}
-		});
-
-		JMenuItem aboutMenu = new JMenuItem("About");
-		aboutMenu.setActionCommand("About");
-		aboutMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuAbout();
-			}
-		});
-		JMenuItem creditsMenu = new JMenuItem("Credits");
-		creditsMenu.setActionCommand("Credits");
-		creditsMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuCredits();
-			}
-		});
-
-		observeMenu = new JMenuItem("Observation Mode");
-		observeMenu.setActionCommand("Observation Mode");
-		observeMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuObserve();
-			}
-		});
-
-		stoneMenu = new JMenuItem("Select Stones");
-		stoneMenu.setActionCommand("Select Stones");
-		stoneMenu.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuStones();
-			}
-		});
-
-		foodMenu = new JMenu("Select Food");
-		agentMenu = new JMenu("Select Agents");
-
-		JMenuItem removeStones = new JMenuItem("Remove All Stones");
-		removeStones.setActionCommand("Remove All Stones");
-		removeStones.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuRemoveStones();
-			}
-		});
-
-		JMenuItem removeFood = new JMenuItem("Remove All Food");
-		removeFood.setActionCommand("Remove All Food");
-		removeFood.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuRemoveFood();
-			}
-		});
-
-		JMenuItem removeAgents = new JMenuItem("Remove All Agents");
-		removeAgents.setActionCommand("Remove All Agents");
-		removeAgents.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuRemoveAgents();
-			}
-		});
-		JMenuItem removeWaste = new JMenuItem("Remove All Waste");
-		removeWaste.setActionCommand("Remove All Waste");
-		removeWaste.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuRemoveWaste();
-			}
-		});
-
-		JMenuItem removeAll = new JMenuItem("Remove All");
-		removeAll.setActionCommand("Remove All");
-		removeAll.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				onMenuRemoveAll();
-			}
-		});
-
-		// Assemble the items into menus
-		JMenu EditMenu = new JMenu("Edit");
-		EditMenu.add(observeMenu);
-		EditMenu.add(stoneMenu);
-		EditMenu.add(agentMenu);
-		EditMenu.add(foodMenu);
-		EditMenu.add(new JSeparator());
-		EditMenu.add(removeStones);
-		EditMenu.add(removeFood);
-		EditMenu.add(removeAgents);
-		EditMenu.add(removeWaste);
-		EditMenu.add(removeAll);
 
 		JMenu fileMenu = new JMenu("File");
-		fileMenu.add(openMenu);
-		fileMenu.add(NewDataFileMenu);
-		fileMenu.add(modifyMenu);
-
-		fileMenu.add(defaultMenu);
-		fileMenu.add(currentDataMenu);
+		fileMenu.add(new JMenuItem(openSimulation));
+		fileMenu.add(new JMenuItem(createNewData));
+		fileMenu.add(new JMenuItem(modifySimulationFile));
+		fileMenu.add(new JMenuItem(retrieveDefaultData));
+		fileMenu.add(new JMenuItem(modifySimulation));
 		fileMenu.add(new JSeparator());
-		fileMenu.add(setMenu);
-
-		fileMenu.add(new JSeparator());
-		fileMenu.add(saveSamplePopMenu);
-		fileMenu.add(insertSamplePopMenu);
+		fileMenu.add(new JMenuItem(setDefaultData));
 
 		fileMenu.add(new JSeparator());
-		fileMenu.add(saveMenu);
-		fileMenu.add(reportMenu);
-		fileMenu.add(logMenu);
+		fileMenu.add(new JMenuItem(savePopulation));
+		fileMenu.add(new JMenuItem(loadPopulation));
+
 		fileMenu.add(new JSeparator());
-		fileMenu.add(quitMenu);
+		fileMenu.add(new JMenuItem(saveConfig));
+		fileMenu.add(new JMenuItem(report));
+		fileMenu.add(new JMenuItem(setLog));
+		fileMenu.add(new JSeparator());
+		fileMenu.add(new JMenuItem(quit));
 
-		JMenu helpMenu = new JMenu("Help");
+		JMenu editMenu = new JMenu("Edit");
+		// Sub-menus created dynamically in #makeAgentFoodSelectMenu()
+		agentMenu = new JMenu("Select Agents");
+		foodMenu = new JMenu("Select Food");
+		editMenu.add(new JMenuItem(setObservationMode));
+		editMenu.add(new JMenuItem(setModeStones));
+		editMenu.add(agentMenu);
+		editMenu.add(foodMenu);
+		editMenu.add(new JSeparator());
+		editMenu.add(new JMenuItem(removeAllStones));
+		editMenu.add(new JMenuItem(removeAllFood));
+		editMenu.add(new JMenuItem(removeAllAgents));
+		editMenu.add(new JMenuItem(removeAllWaste));
+		editMenu.add(new JMenuItem(removeAll));
 
-		helpMenu.add(aboutMenu);
-		helpMenu.add(creditsMenu);
-
+		// Sub-menus created dynamically in #makeViewMenu()
 		viewMenu = new JMenu("View");
 
-		// Assemble the menus into a menu bar
+		JMenu helpMenu = new JMenu("Help");
+		helpMenu.add(new JMenuItem(openAbout));
+		helpMenu.add(new JMenuItem(openCredits));
+
 		JMenuBar myMenuBar = new JMenuBar();
 		myMenuBar.add(fileMenu);
-		myMenuBar.add(EditMenu);
+		myMenuBar.add(editMenu);
 		myMenuBar.add(viewMenu);
 		myMenuBar.add(helpMenu);
 		return myMenuBar;
@@ -634,10 +442,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	/**
 	 * Copies the current simulation data being used to a temporary file, which
 	 * can be modified and saved by the user.
-	 *
-	 * <p>Used when the user selects "File" -> "Modify Simulation"
-	 *
-	 * @see CobwebApplication#onMenuModifyCurrent()
 	 */
 	private void openCurrentData() {
 		String currentData = CURRENT_DATA_FILE_NAME;
@@ -658,10 +462,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	 * data.  The user can modify and save the file here.  If the user tries
 	 * to overwrite data found in the default data file, a dialog box will be
 	 * created to tell the user the proper way to create new default data.
-	 *
-	 * <p>Used when the user selects "File" -> "Modify Simulation File"
-	 *
-	 * @see CobwebApplication#onMenuModifyThis()
 	 */
 	public void openCurrentFile() {
 		if (CURRENT_DATA_FILE_NAME.equals(currentFile)) {
@@ -699,10 +499,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	/**
 	 *Opens an existing xml file, selected by the user through a dialog box,
 	 *which contains all the information for a simulation environment.
-	 *
-	 *<p> Used when the user selects "File" -> "Open"
-	 *
-	 *@see CobwebApplication#onMenuOpen()
 	 */
 	public void openFileDialog() {
 		FileDialog theDialog = new FileDialog(GUI.frame,
@@ -736,10 +532,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 
 	/**
 	 * Exits the CobwebApplication.
-	 *
-	 * <p> Used when the user selects "File" -> "Quit"
-	 *
-	 * @see CobwebApplication#onMenuQuit()
 	 */
 	public void quitApplication() {
 		simRunner.stop();
@@ -758,10 +550,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	/**
 	 * Opens a dialog box for the user to select the file he/she would like
 	 * to report to.
-	 *
-	 * <p> Used when the user selects "File" -> "Report"
-	 *
-	 * @see CobwebApplication#onMenuReport()
 	 */
 	public void reportDialog() {
 		FileDialog theDialog = new FileDialog(this,
@@ -876,10 +664,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	 * Allows the user to select a new file to use as the default data file.
 	 * The selected file is copied into the default data file if the default
 	 * data file is writable or doesn�t exist.
-	 *
-	 * Used when the user selects "File" -> "Set Default Data"
-	 *
-	 * @see CobwebApplication#onMenuSetDefault()
 	 */
 	private void setDefaultData() {
 		String defaultData = DEFAULT_DATA_FILE_NAME + CONFIG_FILE_EXTENSION;
@@ -1155,28 +939,29 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 
 	private JMenu viewMenu;
 
-	/**
-	 * @see CobwebApplication#openFileDialog()
-	 */
-	private void onMenuOpen() {
-		pauseUI();
-		disposeGUIframe();
-		setInvokedByModify(false);
-		CobwebApplication.this.openFileDialog();
-	}
+	private Action openSimulation = new AbstractAction("Open") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pauseUI();
+			disposeGUIframe();
+			setInvokedByModify(false);
+			openFileDialog();
+		}
+		private static final long serialVersionUID = 1L;
+	};
 
-	/**
-	 * @see CobwebApplication#setDefaultData()
-	 */
-	private void onMenuSetDefault() {
-		pauseUI();
-		disposeGUIframe();
-		CobwebApplication.this.setDefaultData();
-	}
+	private Action setDefaultData = new AbstractAction("Set Default Data") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			setDefaultData();
+		}
+		private static final long serialVersionUID = 1L;
+	};
 
 	/**
 	 * If a "Test Data" window is open (visible), dispose it (when hitting a
-	 * menu). Feb 29
+	 * menu).
 	 */
 	private void disposeGUIframe() {
 		if (simRunner.getSimulation() != null && GUI.frame != null && GUI.frame.isVisible()) {
@@ -1184,220 +969,276 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 		}
 	}
 
-	/**
-	 * @see CobwebApplication#aboutDialog()
-	 */
-	private void onMenuAbout() {
-		disposeGUIframe();
-		CobwebApplication.this.aboutDialog();
-	}
-
-	/**
-	 * @see CobwebApplication#createNewData()
-	 */
-	private void onMenuCreateNew() {
-		pauseUI();
-		if (GUI.frame != null && GUI.frame.isVisible()) {
-			GUI.frame.dispose();
+	private Action openAbout = new AbstractAction("About") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			aboutDialog();
 		}
-		setInvokedByModify(false);
-		CobwebApplication.this.createNewData();
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	/**
-	 * @see CobwebApplication#creditsDialog()
-	 */
-	private void onMenuCredits() {
-		disposeGUIframe();
-		CobwebApplication.this.creditsDialog();
-	}
+	private Action createNewData = new AbstractAction("Create New Data") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pauseUI();
+			if (GUI.frame != null && GUI.frame.isVisible()) {
+				GUI.frame.dispose();
+			}
+			setInvokedByModify(false);
+			createNewData();
+		}
+		private static final long serialVersionUID = 1L;
+	};
 
-	private void onMenuInsertSample() {
-		disposeGUIframe();
-		if (simRunner.getSimulation() != null) {
+	private Action openCredits = new AbstractAction("Credits") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			creditsDialog();
+		}
+		private static final long serialVersionUID = 1L;
+	};
 
-			ReplaceMergeCancel option = openInsertSamplePopReplaceDialog();
+	private Action loadPopulation = new AbstractAction("Insert Sample Population") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			if (simRunner.getSimulation() != null) {
 
-			if (option != ReplaceMergeCancel.CANCEL){
-				//Select the XML file
-				FileDialog theDialog = new FileDialog(GUI.frame,
-						"Choose a file to load", FileDialog.LOAD);
-				theDialog.setFile("*.xml");
-				theDialog.setVisible(true);
-				if (theDialog.getFile() != null) {
-					//Load the XML file
-					simRunner.getSimulation().theEnvironment.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
+				ReplaceMergeCancel option = openInsertSamplePopReplaceDialog();
+
+				if (option != ReplaceMergeCancel.CANCEL){
+					//Select the XML file
+					FileDialog theDialog = new FileDialog(GUI.frame,
+							"Choose a file to load", FileDialog.LOAD);
+					theDialog.setFile("*.xml");
+					theDialog.setVisible(true);
+					if (theDialog.getFile() != null) {
+						//Load the XML file
+						simRunner.getSimulation().theEnvironment.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
+					}
 				}
+
+			}
+		}
+		private static final long serialVersionUID = 1L;
+	};
+
+	private Action setLog = new AbstractAction("Log") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pauseUI();
+			disposeGUIframe();
+
+			if (simRunner.getSimulation() == null) {
+				JOptionPane.showMessageDialog(GUI.frame,
+						"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
+			} else {
+				logFileDialog();
 			}
 
 		}
-	}
-
-	/**
-	 * @see CobwebApplication#logFileDialog()
-	 */
-	private void onMenuLog() {
-		pauseUI();
-		disposeGUIframe();
-
-		if (simRunner.getSimulation() == null) {
-			JOptionPane.showMessageDialog(GUI.frame,
-					"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
-		} else {
-			CobwebApplication.this.logFileDialog();
-		}
-
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
 	/**
 	 * @see CobwebApplication#openCurrentData()
 	 */
-	private void onMenuModifyCurrent() {
-		pauseUI();
-		if (GUI.frame != null && GUI.frame.isVisible()) {
-			GUI.frame.dispose();
+	private Action modifySimulation = new AbstractAction("Modify Simulation") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pauseUI();
+			if (GUI.frame != null && GUI.frame.isVisible()) {
+				GUI.frame.dispose();
+			}
+			setInvokedByModify(true);
+			openCurrentData();
 		}
-		setInvokedByModify(true);
-		CobwebApplication.this.openCurrentData();
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
 	/**
 	 * @see CobwebApplication#openCurrentFile()
 	 */
-	private void onMenuModifyThis() {
-		pauseUI();
-		if (GUI.frame != null && GUI.frame.isVisible()) {
-			GUI.frame.dispose();
+
+	private Action modifySimulationFile = new AbstractAction("Modify Simulation File") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pauseUI();
+			if (GUI.frame != null && GUI.frame.isVisible()) {
+				GUI.frame.dispose();
+			}
+			setInvokedByModify(true);
+			openCurrentFile();
 		}
-		setInvokedByModify(true);
-		CobwebApplication.this.openCurrentFile();
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	private void onMenuObserve() {
-		disposeGUIframe();
-		displayPanel.setMouseMode(MouseMode.Observe);
-	}
 
-	/**
-	 * @see CobwebApplication#quitApplication()
-	 */
-	private void onMenuQuit() {
-		CobwebApplication.this.quitApplication();
-	}
-
-	private void onMenuRemoveAgents() {
-		disposeGUIframe();
-		if (simRunner.getSimulation() != null) {
-			simRunner.getSimulation().theEnvironment.clearAgents();
+	private Action setObservationMode = new AbstractAction("Observation Mode") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			displayPanel.setMouseMode(MouseMode.Observe);
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	private void onMenuRemoveAll() {
-		disposeGUIframe();
-		if (simRunner.getSimulation() != null) {
-			simRunner.getSimulation().theEnvironment.clearAgents();
-			simRunner.getSimulation().theEnvironment.clearFood();
-			simRunner.getSimulation().theEnvironment.clearStones();
+	private Action quit = new AbstractAction("Quit") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			quitApplication();
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	private void onMenuRemoveFood() {
-		disposeGUIframe();
-		if (simRunner.getSimulation() != null) {
-			simRunner.getSimulation().theEnvironment.clearFood();
+	private Action removeAll = new AbstractAction("Remove All") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			if (simRunner.getSimulation() != null) {
+				simRunner.getSimulation().theEnvironment.clearStones();
+				simRunner.getSimulation().theEnvironment.clearFood();
+				simRunner.getSimulation().theEnvironment.clearAgents();
+				simRunner.getSimulation().theEnvironment.clearWaste();
+				update(true);
+			}
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	private void onMenuRemoveStones() {
-		disposeGUIframe();
-		if (simRunner.getSimulation() != null) {
-			simRunner.getSimulation().theEnvironment.clearStones();
+	private Action removeAllStones = new AbstractAction("Remove All Stones") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			if (simRunner.getSimulation() != null) {
+				simRunner.getSimulation().theEnvironment.clearStones();
+				update(true);
+			}
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	private void onMenuRemoveWaste() {
-		disposeGUIframe();
-		if (simRunner.getSimulation() != null) {
-			simRunner.getSimulation().theEnvironment.clearWaste();
+	private Action removeAllFood = new AbstractAction("Remove All Food") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			if (simRunner.getSimulation() != null) {
+				simRunner.getSimulation().theEnvironment.clearFood();
+				update(true);
+			}
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	/**
-	 * @see CobwebApplication#reportDialog()
-	 */
-	private void onMenuReport() {
-		pauseUI();
-		disposeGUIframe();
-		if (simRunner.getSimulation() == null) {
-			JOptionPane.showMessageDialog(GUI.frame,
-					"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
-		} else {
-			CobwebApplication.this.reportDialog();
+	private Action removeAllAgents = new AbstractAction("Remove All Agents") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			if (simRunner.getSimulation() != null) {
+				simRunner.getSimulation().theEnvironment.clearAgents();
+				update(true);
+			}
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	/**
-	 * @see CobwebApplication#retrieveDefaultData()
-	 */
-	private void onMenuRetrieveDefault() {
-		pauseUI();
-		if (GUI.frame != null && GUI.frame.isVisible()) {
-			GUI.frame.dispose();
+	private Action removeAllWaste = new AbstractAction("Remove All Waste") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			if (simRunner.getSimulation() != null) {
+				simRunner.getSimulation().theEnvironment.clearWaste();
+				update(true);
+			}
 		}
-		setInvokedByModify(false);
-		CobwebApplication.this.retrieveDefaultData();
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	/**
-	 * @see CobwebApplication#saveFileDialog()
-	 */
-	private void onMenuSave() {
-		pauseUI();
-		disposeGUIframe();
-		if (GUI.frame == null || !GUI.frame.isVisible()) {
-			GUI.createAndShowGUI(CobwebApplication.this, CobwebApplication.this.getCurrentFile(), true);
+	private Action report = new AbstractAction("Report") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pauseUI();
+			disposeGUIframe();
+			if (simRunner.getSimulation() == null) {
+				JOptionPane.showMessageDialog(GUI.frame,
+						"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
+			} else {
+				reportDialog();
+			}
 		}
-		CobwebApplication.this.saveFileDialog();
-		if (GUI.frame != null && simRunner.getSimulation() != null) {
-			GUI.frame.dispose();
+		private static final long serialVersionUID = 1L;
+	};
+
+	private Action retrieveDefaultData = new AbstractAction("Retrieve Default Data") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pauseUI();
+			if (GUI.frame != null && GUI.frame.isVisible()) {
+				GUI.frame.dispose();
+			}
+			setInvokedByModify(false);
+			retrieveDefaultData();
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	private void onMenuSaveSample() {
-		disposeGUIframe();
-		if (simRunner.getSimulation() != null) {
+	private Action saveConfig = new AbstractAction("Save") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			pauseUI();
+			disposeGUIframe();
+			if (GUI.frame == null || !GUI.frame.isVisible()) {
+				GUI.createAndShowGUI(CobwebApplication.this, getCurrentFile(), true);
+			}
+			saveFileDialog();
+			if (GUI.frame != null && simRunner.getSimulation() != null) {
+				GUI.frame.dispose();
+			}
+		}
+		private static final long serialVersionUID = 1L;
+	};
 
-			// open dialog to choose population size to be saved
-			HashMap<String, Object> result = openSaveSamplePopOptionsDialog();
-			if (result != null){
-				String option = (String)result.get("option");
-				int amount = (Integer)result.get("amount");
+	private Action savePopulation = new AbstractAction("Save Sample Population") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
 
-				if (option != null && amount != -1) {
-					// Open file dialog box
-					FileDialog theDialog = new FileDialog(GUI.frame,
-							"Choose a file to save state to", FileDialog.SAVE);
-					theDialog.setFile("*.xml");
-					theDialog.setVisible(true);
-					if (theDialog.getFile() != null) {
+			disposeGUIframe();
+			if (simRunner.getSimulation() != null) {
 
-						//Save population in the specified file.
-						simRunner.getSimulation().theEnvironment.savePopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
+				// open dialog to choose population size to be saved
+				HashMap<String, Object> result = openSaveSamplePopOptionsDialog();
+				if (result != null){
+					String option = (String)result.get("option");
+					int amount = (Integer)result.get("amount");
+
+					if (option != null && amount != -1) {
+						// Open file dialog box
+						FileDialog theDialog = new FileDialog(GUI.frame,
+								"Choose a file to save state to", FileDialog.SAVE);
+						theDialog.setFile("*.xml");
+						theDialog.setVisible(true);
+						if (theDialog.getFile() != null) {
+
+							//Save population in the specified file.
+							simRunner.getSimulation().theEnvironment.savePopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
+						}
 					}
 				}
 			}
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	/**
-	 * Sets the mouse mode to allow adding stones to grid.
-	 *
-	 * @see DisplayPanel#setMouseMode(MouseMode)
-	 */
-	private void onMenuStones() {
-		disposeGUIframe();
-		displayPanel.setMouseMode(MouseMode.AddStone);
-	}
+	private Action setModeStones = new AbstractAction("Select Stones") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			disposeGUIframe();
+			displayPanel.setMouseMode(MouseMode.AddStone);
+		}
+		private static final long serialVersionUID = 1L;
+	};
 
 	private enum ReplaceMergeCancel {
 		CANCEL,
@@ -1412,7 +1253,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI, Simulation
 	 * <p> Used when the user selects "File" -> "Insert Sample Population"
 	 *
 	 * @return The option selected by the user.
-	 * @see CobwebApplication#onMenuInsertSample()
+	 * @see #loadPopulation
 	 */
 	private ReplaceMergeCancel openInsertSamplePopReplaceDialog() {
 		JRadioButton b1 = new JRadioButton("Replace current population", true);
