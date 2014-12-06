@@ -5,19 +5,22 @@ package org.cobweb.cobweb2.ui.swing.applet;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JApplet;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 import org.cobweb.cobweb2.ui.swing.LiveStats;
 import org.cobweb.cobweb2.ui.swing.SimulatorUI;
 
@@ -27,129 +30,106 @@ import org.cobweb.cobweb2.ui.swing.SimulatorUI;
  */
 public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from labeling as unused class
 
-	private class ExpSelectorListener implements ActionListener {
+	private final Map<String, String> experiments = new LinkedHashMap<String, String>();
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			JComboBox cb = (JComboBox)e.getSource();
-			String expname = (String)cb.getSelectedItem();
-			loadSimulation(expname);
-		}
+	private String currentExp = "Baseline 2009";
 
-	}
+	private ThreadSimulationRunner simRunner;
+	private SimulatorUI ui;
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 3127350835002502812L;
-	Map<String, String> experements = new LinkedHashMap<String, String>();
-	SimulatorUI ui;
-	Simulation simulation;
-
-	JPanel controls;
-	SimulationConfig parser;
-
-	String currentexp;
-
-	ExperementSelector expselector;
-
-	JLabel statsLabel;
-
-	LiveStats statsUpdater;
+	private LiveStats liveStats;
 
 	@Override
 	public void init() {
 		super.init();
-
 		setSize(580,660);
 
 		setLayout(new BorderLayout());
 
-		experements.put("Baseline 2009", "baseline 2009.xml");
-		experements.put("Boom and Bust", "boom and bust 2 applet.xml");
-		experements.put("Exponential Growth", "Exponential Growth Experiment.xml");
-		experements.put("Central Place", "central place applet.xml");
-		experements.put("Cheaters vs Cooperators", "cheaters vs cooperators.xml");
+		experiments.put("Baseline 2009", "baseline 2009.xml");
+		experiments.put("Boom and Bust", "boom and bust 2 applet.xml");
+		experiments.put("Exponential Growth", "Exponential Growth Experiment.xml");
+		experiments.put("Central Place", "central place applet.xml");
+		experiments.put("Cheaters vs Cooperators", "cheaters vs cooperators.xml");
+		currentExp = "Baseline 2009";
 
-		currentexp = "Baseline 2009";
-
-		controls = new JPanel();
+		JPanel controls = new JPanel();
 
 		JLabel selectorlabel = new JLabel("Experiment:");
 		controls.add(selectorlabel);
 
-		expselector = new ExperementSelector(experements);
+		ExperementSelector expselector = new ExperementSelector(experiments);
 		controls.add(expselector);
+		expselector.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				String expname = (String) e.getItem();
+				loadSimulation(expname);
+			}
+		});
 
-		JButton resetbutton = new JButton("Reset");
+		JButton resetbutton = new JButton(resetExperiment);
 		controls.add(resetbutton);
-		resetbutton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadSimulation(currentexp);
-			}
-		});
 
-		statsLabel = new JLabel("Statistics:");
-		controls.add(statsLabel);
-
-		JButton statsButton = new JButton("Graph");
-		statsButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				statsUpdater.toggleGraphVisible();
-			}
-
-		});
-
+		JButton statsButton = new JButton(togglePopulationGraph);
 		controls.add(statsButton);
 
-
-
-
 		add(controls, BorderLayout.NORTH);
-		expselector.setVisible(true);
 
-		expselector.addActionListener(new ExpSelectorListener());
-
-		loadSimulation(currentexp);
-
+		loadSimulation(currentExp);
 	}
 
 	/**
-	 * Sets up known simulation by name
-	 * @param expname Experiment name
+	 * Load simulation XML resource by name in {@link Cobweb2Applet#experiments}
+	 * @param expName Experiment name
 	 */
-	private void loadSimulation(String expname) {
-		this.currentexp = expname;
-
+	private void loadSimulation(String expName) {
+		this.currentExp = expName;
 
 		if (ui != null) {
-			ui.killSimulation();
-			statsUpdater.dispose();
+			simRunner.stop();
+			liveStats.dispose();
 			remove(ui);
 		}
 
+		InputStream datafile = getClass().getResourceAsStream("/experiments/" + experiments.get(expName));
 
-		InputStream datafile = getClass().getResourceAsStream("/experiments/" + experements.get(expname));
-
-		parser = new SimulationConfig(datafile);
-		simulation = new Simulation();
+		SimulationConfig parser = new SimulationConfig(datafile);
+		Simulation simulation = new Simulation();
 		simulation.load(parser);
+		simRunner = new ThreadSimulationRunner(simulation);
 
-		ui = new SimulatorUI(simulation);
+		ui = new SimulatorUI(simRunner);
 
 		add(ui, BorderLayout.CENTER);
 
-		statsUpdater = new LiveStats(ui.getScheduler());
+		liveStats = new LiveStats(simRunner);
 		validate();
 		ui.update(true);
 	}
 
+	/**
+	 * Resets current experiment
+	 */
+	private Action resetExperiment = new AbstractAction("Reset") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			loadSimulation(currentExp);
+		}
+		private static final long serialVersionUID = 1L;
+	};
+
+	/**
+	 * Toggles display of live population and food graph
+	 */
+	private Action togglePopulationGraph = new AbstractAction("Population Graph") {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			liveStats.toggleGraphVisible();
+		}
+		private static final long serialVersionUID = 1L;
+	};
 
 
-
+	private static final long serialVersionUID = 3127350835002502812L;
 }

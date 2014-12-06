@@ -13,8 +13,6 @@ import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.swing.components.PauseButton;
@@ -27,11 +25,6 @@ import org.cobweb.cobweb2.ui.swing.components.StepButton;
  *
  */
 public class SimulatorUI extends JPanel implements UpdatableUI {
-	// TODO make use of SimulatorUI in CobwebApplication
-	private static final long serialVersionUID = 2671092780367865697L;
-
-	private final Simulation simulation;
-
 	private DisplayPanel displayPanel;
 
 	private PauseButton pauseButton;
@@ -44,37 +37,14 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 
 	private ThreadSimulationRunner simRunner;
 
-	public SimulatorUI(Simulation sim) {
-		simulation = sim;
-		simRunner = new ThreadSimulationRunner(simulation);
+	public SimulatorUI(ThreadSimulationRunner runner) {
+		simRunner = runner;
 
-		setupUI();
-	}
-
-	@Override
-	public boolean isReadyToUpdate() {
-		return displayPanel != null && displayPanel.isReadyToRefresh();
-	}
-
-	@Override
-	public void update(boolean sync) {
-		tickDisplay.setText("Tick: " + Long.toString(simulation.getTime()) + "  ");
-		if (displayPanel != null) {
-			displayPanel.refresh(sync);
-		}
-	}
-
-	public void setupUI() {
 		setLayout(new BorderLayout());
 
 		JPanel controls = new JPanel();
 
-		simRunner.setFrameSkip(0);
-		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(simulation);
-		} else {
-			displayPanel.setSimulation(simulation);
-		}
+		displayPanel = new DisplayPanel(simRunner.getSimulation());
 
 		add(controls, BorderLayout.NORTH);
 		add(displayPanel, BorderLayout.CENTER);
@@ -163,12 +133,17 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 		validate();
 	}
 
-	public SimulationRunner getScheduler() {
-		return simRunner;
+	@Override
+	public boolean isReadyToUpdate() {
+		return displayPanel != null && displayPanel.isReadyToRefresh();
 	}
 
-	public void killSimulation() {
-		simRunner.stop();
+	@Override
+	public void update(boolean sync) {
+		tickDisplay.setText("Tick: " + Long.toString(simRunner.getSimulation().getTime()) + "  ");
+		if (displayPanel != null) {
+			displayPanel.refresh(sync);
+		}
 	}
 
 	@Override
@@ -181,4 +156,6 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 	public void onStarted() {
 		pauseButton.repaint();
 	}
+
+	private static final long serialVersionUID = 1L;
 }
