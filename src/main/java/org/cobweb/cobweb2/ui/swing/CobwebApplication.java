@@ -2,12 +2,9 @@ package org.cobweb.cobweb2.ui.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
@@ -16,7 +13,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,27 +29,20 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
 import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
-import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.cobweb.cobweb2.ui.swing.ai.LinearAIViewer;
-import org.cobweb.cobweb2.ui.swing.components.PauseButton;
-import org.cobweb.cobweb2.ui.swing.components.SpeedBar;
-import org.cobweb.cobweb2.ui.swing.components.StepButton;
 import org.cobweb.cobweb2.ui.swing.config.GUI;
 import org.cobweb.cobweb2.ui.swing.genetics.GAChartOutput;
 import org.cobweb.cobweb2.ui.swing.production.ProductionViewer;
@@ -67,24 +56,14 @@ import org.cobweb.util.FileUtils;
  * @author Liang
  *
  */
-public class CobwebApplication extends JFrame implements UpdatableUI {
+public class CobwebApplication extends JFrame {
 
 	private static final String WINDOW_TITLE = "COBWEB 2";
-
-	private static final long serialVersionUID = 2112476687880153089L;
-
-	public static final String GREETINGS = "Welcome to COBWEB 2";
 
 	/** Filename of current simulation config */
 	String currentFile;
 
-	private DisplayPanel displayPanel;
-
-	private PauseButton pauseButton;
-
-	private StepButton stepButton;
-
-	public JTextField tickField;
+	private SimulatorUI simulatorUI;
 
 	private JMenu foodMenu;
 
@@ -106,11 +85,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 
 	public static final String CURRENT_DATA_FILE_NAME = "current_data_(reserved)" + TEMPORARY_FILE_EXTENSION;
 
-	private JPanel mainPanel;
-	private JLabel tickDisplay;
-
-	private JPanel controls;
-
 	public ThreadSimulationRunner simRunner = new ThreadSimulationRunner(new Simulation());
 
 	protected final Logger myLogger = Logger.getLogger("COBWEB2");
@@ -118,8 +92,9 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 	// constructor
 	public CobwebApplication() {
 		super(WINDOW_TITLE);
+		setLayout(new BorderLayout());
 
-		myLogger.info(GREETINGS);
+		myLogger.info("Welcome to COBWEB 2");
 		myLogger.info("JVM Memory: " + Runtime.getRuntime().maxMemory() / 1024 + "KB");
 
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -140,6 +115,9 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 		setLocationRelativeTo(null);
 
 		openFile(new SimulationConfig());
+
+		simulatorUI = new SimulatorUI(simRunner);
+		add(simulatorUI, BorderLayout.CENTER);
 
 		setVisible(true);
 	}
@@ -174,11 +152,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 
 	public boolean isInvokedByModify() {
 		return invokedByModify;
-	}
-
-	@Override
-	public boolean isReadyToUpdate() {
-		return displayPanel != null && displayPanel.isReadyToRefresh();
 	}
 
 	/**
@@ -297,7 +270,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 		File file = new File(p.getFilename());
 
 		if (file.exists()) {
-			currentFile = p.getFilename();
+			currentFile = file.getName();
 		}
 
 		if (!isInvokedByModify()) {
@@ -305,13 +278,9 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 			simRunner.setLog(null);
 		}
 
-		UIsettings();
+		updateDynamicUI();
 
-		displayPanel.setSimulation(simRunner.getSimulation());
-
-		File f = new File(p.getFilename());
-		setTitle(WINDOW_TITLE + "  - " + f.getName());
-		update(true);
+		setTitle(WINDOW_TITLE + "  - " + file.getName());
 	}
 
 	/**
@@ -354,15 +323,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 	public void quitApplication() {
 		simRunner.stop();
 		System.exit(0);
-	}
-
-	@Override
-	public void update(boolean wait) {
-		tickDisplay.setText("Tick: " + NumberFormat.getIntegerInstance().format(
-				simRunner.getSimulation().getTime()));
-		if (displayPanel != null) {
-			displayPanel.refresh(wait);
-		}
 	}
 
 	/**
@@ -553,18 +513,15 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 		invokedByModify = b;
 	}
 
-	public void UIsettings() {
-
-		createDefaultUI();
+	public void updateDynamicUI() {
+		setupViewers();
 
 		makeAgentFoodSelectMenu();
 
 		makeViewMenu();
 
-		simRunner.addUIComponent(this);
-
 		validate();
-	} // end of UISettings
+	}
 
 	private List<ViewerPlugin> viewers = new LinkedList<ViewerPlugin>();
 
@@ -573,6 +530,8 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 			viewer.dispose();
 		}
 		viewers.clear();
+
+		// TODO: ViewerPlugin.isCompatible(simulationConfig)
 		if (simRunner.getSimulation().simulationConfig.getEnvParams().controllerName.equals(LinearWeightsController.class.getName())) {
 			viewers.add(new LinearAIViewer());
 		}
@@ -593,9 +552,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 
 	private void makeViewMenu() {
 		viewMenu.removeAll();
-
-		setupViewers();
-
 		for (final ViewerPlugin viewer : viewers) {
 			final JCheckBoxMenuItem box = new JCheckBoxMenuItem(viewer.getName(), false);
 
@@ -620,90 +576,6 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 			viewMenu.add(box);
 		}
 	}
-
-	protected void createDefaultUI() {
-		if (mainPanel == null) {
-			mainPanel = new JPanel();
-			mainPanel.setLayout(new BorderLayout());
-			add(mainPanel);
-		}
-
-		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(simRunner.getSimulation());
-		} else {
-			displayPanel.setSimulation(simRunner.getSimulation());
-		}
-
-		mainPanel.add(displayPanel, BorderLayout.CENTER);
-		if (controls == null) {
-			controls = new JPanel();
-			// controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
-			mainPanel.add(controls, BorderLayout.NORTH);
-		}
-		if (tickDisplay == null) {
-			tickDisplay = new JLabel();
-			tickDisplay.setPreferredSize(new Dimension(90, 20));
-			controls.add(tickDisplay);
-		}
-		if (tickField == null) {
-			controls.add(new JLabel("Stop at"));
-			tickField = new JTextField(8);
-			tickField.setPreferredSize(new Dimension(40, 20));
-
-			tickField.addFocusListener(new FocusAdapter() {
-				@Override
-				public void focusGained(FocusEvent e) {
-					tickField.repaint();
-				}
-
-				@Override
-				public void focusLost(FocusEvent e) {
-					tickField.repaint();
-				}
-			});
-
-			tickField.getDocument().addDocumentListener(new DocumentListener() {
-
-				@Override
-				public void removeUpdate(DocumentEvent e) {
-					update();
-				}
-
-				@Override
-				public void insertUpdate(DocumentEvent e) {
-					update();
-				}
-
-				@Override
-				public void changedUpdate(DocumentEvent e) {
-					update();
-				}
-
-				private void update() {
-					try {
-						int time = Integer.parseInt(tickField.getText());
-						simRunner.setAutoStopTime(time);
-					} catch(NumberFormatException ex) {
-						// Nothing
-					}
-				}
-			});
-			controls.add(tickField);
-		}
-
-		if (pauseButton == null) {
-			pauseButton = new PauseButton(simRunner);
-			controls.add(pauseButton);
-			stepButton = new StepButton(simRunner);
-			controls.add(stepButton);
-			controls.add(new JLabel("   Adjust Speed:"));
-			SpeedBar sb = new SpeedBar(simRunner);
-			controls.add(sb);
-		} else {
-			pauseButton.setScheduler(simRunner);
-		}
-	}
-
 
 	private void makeAgentFoodSelectMenu() {
 		JMenuItem foodtype[] = new JMenuItem[simRunner.getSimulation().getAgentTypeCount()];
@@ -735,7 +607,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			displayPanel.setMouseMode(MouseMode.AddFood, type);
+			simulatorUI.displayPanel.setMouseMode(MouseMode.AddFood, type);
 		}
 	}
 
@@ -750,7 +622,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			displayPanel.setMouseMode(MouseMode.AddAgent, type);
+			simulatorUI.displayPanel.setMouseMode(MouseMode.AddAgent, type);
 		}
 
 	}
@@ -890,7 +762,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			disposeGUIframe();
-			displayPanel.setMouseMode(MouseMode.Observe);
+			simulatorUI.displayPanel.setMouseMode(MouseMode.Observe);
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -912,7 +784,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 				simRunner.getSimulation().theEnvironment.clearFood();
 				simRunner.getSimulation().theEnvironment.clearAgents();
 				simRunner.getSimulation().theEnvironment.clearWaste();
-				update(true);
+				simulatorUI.update(true);
 			}
 		}
 		private static final long serialVersionUID = 1L;
@@ -924,7 +796,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 			disposeGUIframe();
 			if (simRunner.getSimulation() != null) {
 				simRunner.getSimulation().theEnvironment.clearStones();
-				update(true);
+				simulatorUI.update(true);
 			}
 		}
 		private static final long serialVersionUID = 1L;
@@ -936,7 +808,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 			disposeGUIframe();
 			if (simRunner.getSimulation() != null) {
 				simRunner.getSimulation().theEnvironment.clearFood();
-				update(true);
+				simulatorUI.update(true);
 			}
 		}
 		private static final long serialVersionUID = 1L;
@@ -948,7 +820,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 			disposeGUIframe();
 			if (simRunner.getSimulation() != null) {
 				simRunner.getSimulation().theEnvironment.clearAgents();
-				update(true);
+				simulatorUI.update(true);
 			}
 		}
 		private static final long serialVersionUID = 1L;
@@ -960,7 +832,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 			disposeGUIframe();
 			if (simRunner.getSimulation() != null) {
 				simRunner.getSimulation().theEnvironment.clearWaste();
-				update(true);
+				simulatorUI.update(true);
 			}
 		}
 		private static final long serialVersionUID = 1L;
@@ -1045,7 +917,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			disposeGUIframe();
-			displayPanel.setMouseMode(MouseMode.AddStone);
+			simulatorUI.displayPanel.setMouseMode(MouseMode.AddStone);
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -1161,18 +1033,7 @@ public class CobwebApplication extends JFrame implements UpdatableUI {
 
 	private void pauseUI() {
 		simRunner.stop();
-		pauseButton.repaint();
 	}
 
-	@Override
-	public void onStopped() {
-		pauseButton.repaint();
-		update(true);
-	}
-
-	@Override
-	public void onStarted() {
-		pauseButton.repaint();
-	}
-
-} // CobwebApplication
+	private static final long serialVersionUID = 2112476687880153089L;
+}

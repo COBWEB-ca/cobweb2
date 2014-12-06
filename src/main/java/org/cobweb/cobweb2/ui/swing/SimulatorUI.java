@@ -25,7 +25,7 @@ import org.cobweb.cobweb2.ui.swing.components.StepButton;
  *
  */
 public class SimulatorUI extends JPanel implements UpdatableUI {
-	private DisplayPanel displayPanel;
+	public DisplayPanel displayPanel;
 
 	private PauseButton pauseButton;
 
