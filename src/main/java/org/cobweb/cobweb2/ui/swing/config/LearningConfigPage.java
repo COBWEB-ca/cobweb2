@@ -19,19 +19,21 @@ public class LearningConfigPage implements ConfigPage {
 		learnTable.setModel(ctm);
 		JScrollPane sp = new JScrollPane(learnTable);
 
-		GUI.makeGroupPanel(sp, "Agent Learning Parameters");
-		GUI.colorHeaders(learnTable, true);
+		Util.makeGroupPanel(sp, "Agent Learning Parameters");
+		Util.colorHeaders(learnTable, true);
 		learnTable.getColumnModel().getColumn(0).setPreferredWidth(150);
 
 		learningPanel = new JPanel(new BorderLayout());
 		learningPanel.add(sp, BorderLayout.NORTH);
 	}
 
+	@Override
 	public JPanel getPanel() {
 		return learningPanel;
 	}
 
+	@Override
 	public void validateUI() throws IllegalArgumentException {
-		GUI.updateTable(learnTable);
+		Util.updateTable(learnTable);
 	}
 }

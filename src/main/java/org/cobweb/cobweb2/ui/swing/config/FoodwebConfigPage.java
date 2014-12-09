@@ -25,22 +25,24 @@ public class FoodwebConfigPage implements ConfigPage {
 		}
 		foodTable.setModel(new ConfigTableModel(foodweb, "Agent "));
 
-		GUI.colorHeaders(foodTable, true);
+		Util.colorHeaders(foodTable, true);
 
 		// Create the scroll pane and add the table to it.
 		JScrollPane foodScroll = new JScrollPane(foodTable);
 
 		foodPanel.setLayout(new BoxLayout(foodPanel, BoxLayout.X_AXIS));
-		GUI.makeGroupPanel(foodPanel, "Food Parameters");
+		Util.makeGroupPanel(foodPanel, "Food Parameters");
 		foodPanel.add(foodScroll);
 	}
 
+	@Override
 	public JPanel getPanel() {
 		return foodPanel;
 	}
 
+	@Override
 	public void validateUI() throws IllegalArgumentException {
-		GUI.updateTable(foodTable);
+		Util.updateTable(foodTable);
 	}
 
 }

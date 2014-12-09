@@ -75,7 +75,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 		/* Environment Settings */
 		JPanel panel11 = new JPanel();
-		GUI.makeGroupPanel(panel11, "Environment Settings");
+		Util.makeGroupPanel(panel11, "Environment Settings");
 		JPanel fieldPane = new JPanel();
 
 		Width = new BoundJFormattedTextField(params, "width", NumberFormat.getIntegerInstance());
@@ -164,7 +164,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 		/* Colour Settings */
 		JPanel panel12 = new JPanel();
-		GUI.makeGroupPanel(panel12, "Environment Transition Settings");
+		Util.makeGroupPanel(panel12, "Environment Transition Settings");
 
 		fieldPane = new JPanel();
 
@@ -196,7 +196,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 		/* Random variables */
 		JPanel panel14 = new JPanel();
-		GUI.makeGroupPanel(panel14, "Random Variables");
+		Util.makeGroupPanel(panel14, "Random Variables");
 		fieldPane = new JPanel(new GridLayout(3, 1));
 
 		initialStones = new BoundJFormattedTextField(params, "initialStones", NumberFormat.getIntegerInstance());
@@ -218,7 +218,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		thePanel.add(panel14);
 
 		JPanel panel16 = new JPanel();
-		GUI.makeGroupPanel(panel16, "General Food Variables");
+		Util.makeGroupPanel(panel16, "General Food Variables");
 
 		fieldPane = new JPanel(new GridLayout(2, 1));
 
@@ -252,6 +252,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 	/* (non-Javadoc)
 	 * @see driver.config.ConfigPage#getPanel()
 	 */
+	@Override
 	public JPanel getPanel() {
 		return thePanel;
 	}
@@ -261,6 +262,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		SpringUtilities.makeCompactGrid(fieldPane, items, 2, 0, 0, 16, 0, 50, 0);
 	}
 
+	@Override
 	public void validateUI() throws IllegalArgumentException {
 		// Nothing
 	}

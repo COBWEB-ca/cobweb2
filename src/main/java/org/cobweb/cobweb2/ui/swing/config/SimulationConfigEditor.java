@@ -1,7 +1,6 @@
 package org.cobweb.cobweb2.ui.swing.config;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.FlowLayout;
@@ -13,23 +12,18 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.LookAndFeel;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.CobwebApplication;
-import org.cobweb.swingutil.TypeColorEnumeration;
 
 /**
  * Simulation configuration dialog
@@ -37,7 +31,7 @@ import org.cobweb.swingutil.TypeColorEnumeration;
  * @author time itself
  *
  */
-public class GUI extends JFrame {
+public class SimulationConfigEditor {
 
 	private final class OkButtonListener implements ActionListener {
 		@Override
@@ -67,8 +61,8 @@ public class GUI extends JFrame {
 			if (!datafile.equals(CA.getCurrentFile())) {
 				CA.setCurrentFile(datafile);
 			}
-			frame.setVisible(false);
-			frame.dispose();
+			dialog.setVisible(false);
+			dialog.dispose();
 		}
 
 
@@ -106,31 +100,10 @@ public class GUI extends JFrame {
 
 	private static final String WINDOW_TITLE = "Simulation Settings";
 
-	static void colorHeaders(JTable ft, boolean skipFirst) {
-		TypeColorEnumeration tc = TypeColorEnumeration.getInstance();
-
-		int firstCol = skipFirst ? 1 : 0;
-
-		for (int col = firstCol; col < ft.getColumnCount(); col++) {
-			DefaultTableCellRenderer r = new DefaultTableCellRenderer();
-			r.setBackground(tc.getColor(col - firstCol, 0));
-			ft.getColumnModel().getColumn(col).setHeaderRenderer(r);
-			LookAndFeel.installBorder(ft.getTableHeader(), "TableHeader.cellBorder");
-		}
-	}
-	static void makeGroupPanel(JComponent target, String title) {
-		target.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.blue), title));
-	}
+	
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////
 
-	static void updateTable(JTable table) {
-		int row = table.getEditingRow();
-		int col = table.getEditingColumn();
-		if (table.isEditing()) {
-			table.getCellEditor(row, col).stopCellEditing();
-		}
-	}
 	private EnvironmentConfigPage environmentPage;
 
 	private ResourceConfigPage resourcePage;
@@ -143,7 +116,7 @@ public class GUI extends JFrame {
 
 	private JButton save;
 
-	public static JFrame frame;
+	private JDialog dialog;
 
 	private SimulationConfig p;
 
@@ -154,14 +127,16 @@ public class GUI extends JFrame {
 	SettingsPanel controllerPanel;
 	public static final long serialVersionUID = 0xB9967684A8375BC0L;
 	/**
-	 * Create the GUI and show it. For thread safety, this method should be invoked from the event-dispatching thread.
+	 * Create the SimulationConfigEditor and show it. For thread safety, this method should be invoked from the event-dispatching thread.
 	 */
 	public static void createAndShowGUI(CobwebApplication ca, String filename, boolean allowModify) {
 		// Create and set up the content pane.
+		SimulationConfigEditor configEditor = new SimulationConfigEditor(ca, filename, allowModify && (ca.getSimulation() != null));
+		configEditor.show();
+	}
 
-		frame = new GUI(ca, filename, allowModify && (ca.getSimulation() != null));
-		frame.setVisible(true);
-
+	public void show() {
+		dialog.setVisible(true);
 	}
 
 	private Logger myLogger = Logger.getLogger("COBWEB2");
@@ -180,15 +155,14 @@ public class GUI extends JFrame {
 
 	private LearningConfigPage learnPage;
 
-	public GUI() {
+	public SimulationConfigEditor() {
 		super();
 		CA = null;
 	}
 
-	// GUI Special Constructor
-	public GUI(CobwebApplication ca, String filename, boolean allowKeep) {
-		super(WINDOW_TITLE);
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	// SimulationConfigEditor Special Constructor
+	public SimulationConfigEditor(CobwebApplication ca, String filename, boolean allowKeep) {
+		dialog = new JDialog(ca, WINDOW_TITLE, true);
 
 		JPanel j = new JPanel();
 		j.setLayout(new BoxLayout(j, BoxLayout.Y_AXIS));
@@ -247,14 +221,14 @@ public class GUI extends JFrame {
 		j.add(buttons, BorderLayout.SOUTH);
 		j.setPreferredSize(new Dimension(750, 513));
 
-		getRootPane().setDefaultButton(ok);
-		add(j);
-		pack();
+		dialog.getRootPane().setDefaultButton(ok);
+		dialog.add(j);
+		dialog.pack();
 		File filePath;
 		if (p.getFilename() == null ||
 				(filePath = new File(p.getFilename())).getName() == null)
 			filePath = new File(CobwebApplication.DEFAULT_DATA_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION);
-		setTitle(WINDOW_TITLE + " - " + filePath.getName());
+		dialog.setTitle(WINDOW_TITLE + " - " + filePath.getName());
 	}
 	public SimulationConfig getParser() {
 		return p;
@@ -265,7 +239,7 @@ public class GUI extends JFrame {
 	 * This openFileDialog method is invoked by pressing the "Save" button
 	 */
 	public void openFileDialog() {
-		FileDialog theDialog = new FileDialog(frame, "Choose a file to save state to", java.awt.FileDialog.SAVE);
+		FileDialog theDialog = new FileDialog(dialog, "Choose a file to save state to", java.awt.FileDialog.SAVE);
 		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
@@ -275,7 +249,7 @@ public class GUI extends JFrame {
 				File sf = new File(savingFile);
 				if (sf.isHidden() || (sf.exists() && !sf.canWrite())) {
 					JOptionPane.showMessageDialog(
-							GUI.frame,
+							dialog,
 							"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.", "Warning",
 							JOptionPane.WARNING_MESSAGE);
 				} else {
@@ -286,8 +260,8 @@ public class GUI extends JFrame {
 					if (!datafile.equals(CA.getCurrentFile())) {
 						CA.setCurrentFile(datafile);
 					}
-					frame.setVisible(false);
-					frame.dispose();
+					dialog.setVisible(false);
+					dialog.dispose();
 				}
 			} catch (IOException ex) {
 				myLogger.log(Level.WARNING, "Cannot save config", ex);

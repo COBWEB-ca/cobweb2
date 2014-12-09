@@ -6,14 +6,11 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.swing.JOptionPane;
-
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ui.LoggingExceptionHandler;
 import org.cobweb.cobweb2.ui.SimulationRunnerBase;
 import org.cobweb.cobweb2.ui.UserInputException;
-import org.cobweb.cobweb2.ui.swing.config.GUI;
 
 /**
  * This class contains the main method to drive the application.
@@ -175,13 +172,6 @@ public class CobwebApplicationRunner {
 				System.err.println(message);
 				throw new RuntimeException(e);
 			}
-		}
-
-		File inf = new File(inputFileName);
-		if (inf.isHidden() || (inf.exists() && !inf.canWrite())) {
-			JOptionPane.showMessageDialog(GUI.frame, "Caution:  The initial data file \"" + inputFileName
-					+ "\" is NOT allowed to be modified.\n"
-					+ "\n                  Any modification of this data file will be neither implemented nor saved.");
 		}
 
 		final SimulationRunnerBase simRunner;

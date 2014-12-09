@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.cobweb.cobweb2.ui.swing.config;
 
@@ -55,7 +55,7 @@ final class GeneticAIPanel extends SettingsPanel {
 
 		JPanel agentPanel = new JPanel();
 		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
-		GUI.makeGroupPanel(agentPanel, "Agent Parameters");
+		Util.makeGroupPanel(agentPanel, "Agent Parameters");
 
 		MixedValueJTable agentParamTable = new MixedValueJTable();
 		agentParamTable.setModel(new ConfigTableModel(params.agentParams.agentParams, "Agent "));
@@ -64,7 +64,7 @@ final class GeneticAIPanel extends SettingsPanel {
 		// Get the column at index pColumn, and set its preferred width.
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 
-		GUI.colorHeaders(agentParamTable, true);
+		Util.colorHeaders(agentParamTable, true);
 		JScrollPane agentScroll = new JScrollPane(agentParamTable);
 		// Add the scroll pane to this panel.
 		agentPanel.add(agentScroll);

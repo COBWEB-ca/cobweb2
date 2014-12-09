@@ -21,20 +21,22 @@ public class ResourceConfigPage implements ConfigPage {
 		TableColumnModel colModel = resourceParamTable.getColumnModel();
 		colModel.getColumn(0).setPreferredWidth(120);
 
-		GUI.colorHeaders(resourceParamTable, true);
+		Util.colorHeaders(resourceParamTable, true);
 
 		JScrollPane resourceScroll = new JScrollPane(resourceParamTable);
 		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.X_AXIS));
-		GUI.makeGroupPanel(myPanel, "Resource Parameters");
+		Util.makeGroupPanel(myPanel, "Resource Parameters");
 		myPanel.add(resourceScroll);
 	}
 
+	@Override
 	public JPanel getPanel() {
 		return myPanel;
 	}
 
+	@Override
 	public void validateUI() throws IllegalArgumentException {
-		GUI.updateTable(resourceParamTable);
+		Util.updateTable(resourceParamTable);
 	}
 
 }

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.cobweb.cobweb2.ui.swing.config;
 
@@ -22,7 +22,7 @@ public class DiseaseConfigPage implements ConfigPage {
 
 	/**
 	 * Sets up the disease configuration page from the simulation parameters
-	 * 
+	 *
 	 * @param params the agent specific disease parameters
 	 */
 	public DiseaseConfigPage(DiseaseParams[] params) {
@@ -32,8 +32,8 @@ public class DiseaseConfigPage implements ConfigPage {
 		confTable.setModel(ctm);
 		JScrollPane sp = new JScrollPane(confTable);
 
-		GUI.makeGroupPanel(sp, "Disease Parameters");
-		GUI.colorHeaders(confTable, true);
+		Util.makeGroupPanel(sp, "Disease Parameters");
+		Util.colorHeaders(confTable, true);
 		confTable.getColumnModel().getColumn(0).setPreferredWidth(150);
 
 		myPanel = new JPanel(new BorderLayout());
@@ -41,12 +41,14 @@ public class DiseaseConfigPage implements ConfigPage {
 
 	}
 
+	@Override
 	public JPanel getPanel() {
 		return myPanel;
 	}
 
+	@Override
 	public void validateUI() throws IllegalArgumentException {
-		GUI.updateTable(confTable);
+		Util.updateTable(confTable);
 	}
 
 }

@@ -43,7 +43,7 @@ import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.cobweb.cobweb2.ui.swing.ai.LinearAIViewer;
-import org.cobweb.cobweb2.ui.swing.config.GUI;
+import org.cobweb.cobweb2.ui.swing.config.SimulationConfigEditor;
 import org.cobweb.cobweb2.ui.swing.genetics.GAChartOutput;
 import org.cobweb.cobweb2.ui.swing.production.ProductionViewer;
 import org.cobweb.util.FileUtils;
@@ -127,15 +127,12 @@ public class CobwebApplication extends JFrame {
 	 */
 	public void createNewData() {
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME;
-		GUI.createAndShowGUI(this, newInput, false);
-		if (simRunner.getSimulation() == null) {
-			setCurrentFile(newInput);
-		}
+		SimulationConfigEditor.createAndShowGUI(this, newInput, false);
 		File inf = new File(newInput);
 		if (inf.isHidden() || (inf.exists() && !inf.canWrite())) {
 			JOptionPane
 			.showMessageDialog(
-					GUI.frame,
+					this,
 					"Caution:  The new data file \""
 							+ newInput
 							+ "\" is NOT allowed to be modified.\n"
@@ -242,7 +239,7 @@ public class CobwebApplication extends JFrame {
 		} catch (Exception ex) {
 			throw new UserInputException("Cannot open config file", ex);
 		}
-		GUI.createAndShowGUI(this, currentData, true);
+		SimulationConfigEditor.createAndShowGUI(this, currentData, true);
 	}
 
 	/**
@@ -255,7 +252,7 @@ public class CobwebApplication extends JFrame {
 		if (CURRENT_DATA_FILE_NAME.equals(currentFile)) {
 			throw new UserInputException("File not currently saved, use \"Modify Current Data\" instead");
 		}
-		GUI.createAndShowGUI(this, currentFile, true);
+		SimulationConfigEditor.createAndShowGUI(this, currentFile, true);
 	}
 
 	// TODO more organized way to deal with loading simulation configurations
@@ -268,6 +265,13 @@ public class CobwebApplication extends JFrame {
 
 		if (file.exists()) {
 			currentFile = file.getName();
+
+			if (file.isHidden() || !file.canWrite()) {
+				JOptionPane.showMessageDialog(this,
+						"Caution:  The initial data file \"" + currentFile
+						+ "\" is NOT allowed to be modified.\n"
+						+ "\n                  Any modification of this data file will be neither implemented nor saved.");
+			}
 		}
 
 		if (!isInvokedByModify()) {
@@ -278,6 +282,12 @@ public class CobwebApplication extends JFrame {
 		updateDynamicUI();
 
 		setTitle(WINDOW_TITLE + "  - " + file.getName());
+
+		// simulatorUI null only when called from constructor.
+		// TODO: create UI in such a way as to avoid this check
+		if (simulatorUI != null) {
+			simulatorUI.update(true);
+		}
 	}
 
 	/**
@@ -285,7 +295,7 @@ public class CobwebApplication extends JFrame {
 	 *which contains all the information for a simulation environment.
 	 */
 	public void openFileDialog() {
-		FileDialog theDialog = new FileDialog(GUI.frame,
+		FileDialog theDialog = new FileDialog(CobwebApplication.this,
 				"Open a State File", FileDialog.LOAD);
 		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
@@ -296,20 +306,13 @@ public class CobwebApplication extends JFrame {
 			File of = new File(directory + file);
 			if (of.exists()) {
 				setCurrentFile(directory + file);
-
-				if (GUI.frame != null && GUI.frame.isVisible()) {
-					GUI.frame.dispose();
-				}
-				GUI.createAndShowGUI(this, currentFile, true);
+				SimulationConfigEditor.createAndShowGUI(this, currentFile, true);
 
 			} else {
 				JOptionPane.showMessageDialog(
 						this,
 						"File \" " + directory + file + "\" could not be found!", "Warning",
 						JOptionPane.WARNING_MESSAGE);
-				if (simRunner.getSimulation() == null) {
-					GUI.frame.toFront();
-				}
 			}
 		}
 	}
@@ -380,10 +383,7 @@ public class CobwebApplication extends JFrame {
 			}
 		}
 
-		GUI.createAndShowGUI(this, tempDefaultData, false);
-		if (simRunner.getSimulation() == null) {
-			setCurrentFile(tempDefaultData);
-		}
+		SimulationConfigEditor.createAndShowGUI(this, tempDefaultData, false);
 	}
 
 	/**
@@ -397,7 +397,7 @@ public class CobwebApplication extends JFrame {
 			File sf = new File(savingFile);
 			if (sf.isHidden() || (sf.exists() && !sf.canWrite())) {
 				JOptionPane.showMessageDialog(
-						GUI.frame,
+						this,
 						"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.", "Warning",
 						JOptionPane.WARNING_MESSAGE);
 			} else {
@@ -413,7 +413,7 @@ public class CobwebApplication extends JFrame {
 	 * the current data to.
 	 */
 	public void saveFileDialog() {
-		FileDialog theDialog = new FileDialog(GUI.frame,
+		FileDialog theDialog = new FileDialog(this,
 				"Choose a file to save state to", FileDialog.SAVE);
 		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
@@ -449,14 +449,11 @@ public class CobwebApplication extends JFrame {
 					this,
 					"Cannot set default data:  file \"" + defaultData + "\" is hidden.", "Warning",
 					JOptionPane.WARNING_MESSAGE);
-			if (simRunner.getSimulation() == null) {
-				GUI.frame.toFront();
-			}
 			return;
 		}
 
 		if (!df.exists() || df.canWrite()) {
-			FileDialog setDialog = new FileDialog(GUI.frame,
+			FileDialog setDialog = new FileDialog(this,
 					"Set Default Data", FileDialog.LOAD);
 			setDialog.setFile("*.xml");
 			setDialog.setVisible(true);
@@ -476,14 +473,8 @@ public class CobwebApplication extends JFrame {
 
 					}
 				} else {
-					if (simRunner.getSimulation() != null && GUI.frame != null && GUI.frame.isVisible()) {
-						GUI.frame.dispose();
-					}
 					JOptionPane.showMessageDialog(this, "File \" " + chosenFile + "\" could not be found!", "Warning",
 							JOptionPane.WARNING_MESSAGE);
-					if (simRunner.getSimulation() == null) {
-						GUI.frame.toFront();
-					}
 				}
 			}
 
@@ -496,9 +487,6 @@ public class CobwebApplication extends JFrame {
 
 			Logger.getLogger("COBWEB2").log(Level.WARNING, "Unable to set default data");
 
-			if (simRunner.getSimulation() == null) {
-				GUI.frame.toFront();
-			}
 		}
 		// Disallow write again to make sure the default data file would not be modified by outer calling.
 		if (df.canWrite()) {
@@ -630,7 +618,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			disposeGUIframe();
 			setInvokedByModify(false);
 			openFileDialog();
 		}
@@ -640,26 +627,14 @@ public class CobwebApplication extends JFrame {
 	private Action setDefaultData = new AbstractAction("Set Default Data") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
 			setDefaultData();
 		}
 		private static final long serialVersionUID = 1L;
 	};
 
-	/**
-	 * If a "Test Data" window is open (visible), dispose it (when hitting a
-	 * menu).
-	 */
-	private void disposeGUIframe() {
-		if (simRunner.getSimulation() != null && GUI.frame != null && GUI.frame.isVisible()) {
-			GUI.frame.dispose();
-		}
-	}
-
 	private Action openAbout = new AbstractAction("About") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
 			AboutDialog.show();
 		}
 		private static final long serialVersionUID = 1L;
@@ -669,9 +644,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			if (GUI.frame != null && GUI.frame.isVisible()) {
-				GUI.frame.dispose();
-			}
 			setInvokedByModify(false);
 			createNewData();
 		}
@@ -681,7 +653,6 @@ public class CobwebApplication extends JFrame {
 	private Action openCredits = new AbstractAction("Credits") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
 			CreditsDialog.show();
 		}
 		private static final long serialVersionUID = 1L;
@@ -690,23 +661,19 @@ public class CobwebApplication extends JFrame {
 	private Action loadPopulation = new AbstractAction("Insert Sample Population") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
-			if (simRunner.getSimulation() != null) {
 
-				ReplaceMergeCancel option = openInsertSamplePopReplaceDialog();
+			ReplaceMergeCancel option = openInsertSamplePopReplaceDialog();
 
-				if (option != ReplaceMergeCancel.CANCEL){
-					//Select the XML file
-					FileDialog theDialog = new FileDialog(GUI.frame,
-							"Choose a file to load", FileDialog.LOAD);
-					theDialog.setFile("*.xml");
-					theDialog.setVisible(true);
-					if (theDialog.getFile() != null) {
-						//Load the XML file
-						simRunner.getSimulation().theEnvironment.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
-					}
+			if (option != ReplaceMergeCancel.CANCEL){
+				//Select the XML file
+				FileDialog theDialog = new FileDialog(CobwebApplication.this,
+						"Choose a file to load", FileDialog.LOAD);
+				theDialog.setFile("*.xml");
+				theDialog.setVisible(true);
+				if (theDialog.getFile() != null) {
+					//Load the XML file
+					simRunner.getSimulation().theEnvironment.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
 				}
-
 			}
 		}
 		private static final long serialVersionUID = 1L;
@@ -716,15 +683,7 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			disposeGUIframe();
-
-			if (simRunner.getSimulation() == null) {
-				JOptionPane.showMessageDialog(GUI.frame,
-						"To create a log file, please press \"OK\" to launch the Cobweb Application first.");
-			} else {
-				logFileDialog();
-			}
-
+			logFileDialog();
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -733,9 +692,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			if (GUI.frame != null && GUI.frame.isVisible()) {
-				GUI.frame.dispose();
-			}
 			setInvokedByModify(true);
 			openCurrentData();
 		}
@@ -746,9 +702,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			if (GUI.frame != null && GUI.frame.isVisible()) {
-				GUI.frame.dispose();
-			}
 			setInvokedByModify(true);
 			openCurrentFile();
 		}
@@ -758,7 +711,6 @@ public class CobwebApplication extends JFrame {
 	private Action setObservationMode = new AbstractAction("Observation Mode") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
 			simulatorUI.displayPanel.setMouseMode(MouseMode.Observe);
 		}
 		private static final long serialVersionUID = 1L;
@@ -775,14 +727,11 @@ public class CobwebApplication extends JFrame {
 	private Action removeAll = new AbstractAction("Remove All") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
-			if (simRunner.getSimulation() != null) {
-				simRunner.getSimulation().theEnvironment.clearStones();
-				simRunner.getSimulation().theEnvironment.clearFood();
-				simRunner.getSimulation().theEnvironment.clearAgents();
-				simRunner.getSimulation().theEnvironment.clearWaste();
-				simulatorUI.update(true);
-			}
+			simRunner.getSimulation().theEnvironment.clearStones();
+			simRunner.getSimulation().theEnvironment.clearFood();
+			simRunner.getSimulation().theEnvironment.clearAgents();
+			simRunner.getSimulation().theEnvironment.clearWaste();
+			simulatorUI.update(true);
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -790,11 +739,8 @@ public class CobwebApplication extends JFrame {
 	private Action removeAllStones = new AbstractAction("Remove All Stones") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
-			if (simRunner.getSimulation() != null) {
-				simRunner.getSimulation().theEnvironment.clearStones();
-				simulatorUI.update(true);
-			}
+			simRunner.getSimulation().theEnvironment.clearStones();
+			simulatorUI.update(true);
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -802,11 +748,8 @@ public class CobwebApplication extends JFrame {
 	private Action removeAllFood = new AbstractAction("Remove All Food") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
-			if (simRunner.getSimulation() != null) {
-				simRunner.getSimulation().theEnvironment.clearFood();
-				simulatorUI.update(true);
-			}
+			simRunner.getSimulation().theEnvironment.clearFood();
+			simulatorUI.update(true);
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -814,11 +757,8 @@ public class CobwebApplication extends JFrame {
 	private Action removeAllAgents = new AbstractAction("Remove All Agents") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
-			if (simRunner.getSimulation() != null) {
-				simRunner.getSimulation().theEnvironment.clearAgents();
-				simulatorUI.update(true);
-			}
+			simRunner.getSimulation().theEnvironment.clearAgents();
+			simulatorUI.update(true);
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -826,11 +766,8 @@ public class CobwebApplication extends JFrame {
 	private Action removeAllWaste = new AbstractAction("Remove All Waste") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
-			if (simRunner.getSimulation() != null) {
-				simRunner.getSimulation().theEnvironment.clearWaste();
-				simulatorUI.update(true);
-			}
+			simRunner.getSimulation().theEnvironment.clearWaste();
+			simulatorUI.update(true);
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -839,13 +776,7 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			disposeGUIframe();
-			if (simRunner.getSimulation() == null) {
-				JOptionPane.showMessageDialog(GUI.frame,
-						"To create a report file, please press \"OK\" to launch the Cobweb Application first.");
-			} else {
-				reportDialog();
-			}
+			reportDialog();
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -854,9 +785,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			if (GUI.frame != null && GUI.frame.isVisible()) {
-				GUI.frame.dispose();
-			}
 			setInvokedByModify(false);
 			retrieveDefaultData();
 		}
@@ -867,14 +795,7 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			disposeGUIframe();
-			if (GUI.frame == null || !GUI.frame.isVisible()) {
-				GUI.createAndShowGUI(CobwebApplication.this, getCurrentFile(), true);
-			}
 			saveFileDialog();
-			if (GUI.frame != null && simRunner.getSimulation() != null) {
-				GUI.frame.dispose();
-			}
 		}
 		private static final long serialVersionUID = 1L;
 	};
@@ -883,26 +804,22 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
-			disposeGUIframe();
-			if (simRunner.getSimulation() != null) {
+			// open dialog to choose population size to be saved
+			HashMap<String, Object> result = openSaveSamplePopOptionsDialog();
+			if (result != null){
+				String option = (String)result.get("option");
+				int amount = (Integer)result.get("amount");
 
-				// open dialog to choose population size to be saved
-				HashMap<String, Object> result = openSaveSamplePopOptionsDialog();
-				if (result != null){
-					String option = (String)result.get("option");
-					int amount = (Integer)result.get("amount");
+				if (option != null && amount != -1) {
+					// Open file dialog box
+					FileDialog theDialog = new FileDialog(CobwebApplication.this,
+							"Choose a file to save state to", FileDialog.SAVE);
+					theDialog.setFile("*.xml");
+					theDialog.setVisible(true);
+					if (theDialog.getFile() != null) {
 
-					if (option != null && amount != -1) {
-						// Open file dialog box
-						FileDialog theDialog = new FileDialog(GUI.frame,
-								"Choose a file to save state to", FileDialog.SAVE);
-						theDialog.setFile("*.xml");
-						theDialog.setVisible(true);
-						if (theDialog.getFile() != null) {
-
-							//Save population in the specified file.
-							simRunner.getSimulation().theEnvironment.savePopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
-						}
+						//Save population in the specified file.
+						simRunner.getSimulation().theEnvironment.savePopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
 					}
 				}
 			}
@@ -913,7 +830,6 @@ public class CobwebApplication extends JFrame {
 	private Action setModeStones = new AbstractAction("Select Stones") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			disposeGUIframe();
 			simulatorUI.displayPanel.setMouseMode(MouseMode.AddStone);
 		}
 		private static final long serialVersionUID = 1L;
@@ -934,7 +850,7 @@ public class CobwebApplication extends JFrame {
 	 * @return The option selected by the user.
 	 * @see #loadPopulation
 	 */
-	private ReplaceMergeCancel openInsertSamplePopReplaceDialog() {
+	private static ReplaceMergeCancel openInsertSamplePopReplaceDialog() {
 		JRadioButton b1 = new JRadioButton("Replace current population", true);
 		JRadioButton b2 = new JRadioButton("Merge with current population");
 

@@ -15,7 +15,7 @@ public class AgentConfigPage implements ConfigPage {
 	public AgentConfigPage(ComplexAgentParams[] params) {
 		agentPanel = new JPanel();
 		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
-		GUI.makeGroupPanel(agentPanel, "Agent Parameters");
+		Util.makeGroupPanel(agentPanel, "Agent Parameters");
 
 		agentParamTable = new MixedValueJTable();
 		agentParamTable.setModel(new ConfigTableModel(params, "Agent "));
@@ -25,18 +25,20 @@ public class AgentConfigPage implements ConfigPage {
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 
 
-		GUI.colorHeaders(agentParamTable, true);
+		Util.colorHeaders(agentParamTable, true);
 		JScrollPane agentScroll = new JScrollPane(agentParamTable);
 		// Add the scroll pane to this panel.
 		agentPanel.add(agentScroll);
 	}
 
+	@Override
 	public JPanel getPanel() {
 		return agentPanel;
 	}
 
+	@Override
 	public void validateUI() throws IllegalArgumentException {
-		GUI.updateTable(agentParamTable);
+		Util.updateTable(agentParamTable);
 	}
 
 }

@@ -180,7 +180,7 @@ public class GeneticConfigPage implements ConfigPage {
 
 		ga_combined_panel.add(meiosis_mode_panel, BorderLayout.NORTH);
 		ga_combined_panel.add(updateConfig, BorderLayout.SOUTH);
-		GUI.makeGroupPanel(ga_combined_panel, "Tracking");
+		Util.makeGroupPanel(ga_combined_panel, "Tracking");
 
 		JPanel gene_info_display = new JPanel();
 		gene_info_display.setLayout(new BoxLayout(gene_info_display, BoxLayout.Y_AXIS));
@@ -191,7 +191,7 @@ public class GeneticConfigPage implements ConfigPage {
 
 		myPanel.add(gene_info_display);
 
-		GUI.makeGroupPanel(myPanel, "Genetic Algorithm Parameters");
+		Util.makeGroupPanel(myPanel, "Genetic Algorithm Parameters");
 	}
 
 	public void removeGene(Phenotype phenotype) {
@@ -238,9 +238,9 @@ public class GeneticConfigPage implements ConfigPage {
 		// Get the column at index pColumn, and set its preferred width.
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 
-		GUI.colorHeaders(listSelected, true);
+		Util.colorHeaders(listSelected, true);
 
-		GUI.makeGroupPanel(phenotypeScroller, "Selected Phenotypes");
+		Util.makeGroupPanel(phenotypeScroller, "Selected Phenotypes");
 		return phenotypeScroller;
 	}
 
@@ -282,7 +282,7 @@ public class GeneticConfigPage implements ConfigPage {
 		JScrollPane phenotypeScroller = new JScrollPane(listAvailable);
 		phenotypeScroller.setPreferredSize(new Dimension(220, 500));
 
-		GUI.makeGroupPanel(phenotypeScroller, "Agent Parameter Selection");
+		Util.makeGroupPanel(phenotypeScroller, "Agent Parameter Selection");
 		return phenotypeScroller;
 	}
 

@@ -21,9 +21,9 @@ public class ProductionConfigPage implements ConfigPage {
 		TableColumnModel agParamColModel = prodParamTable.getColumnModel();
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 		JScrollPane sp = new JScrollPane(prodParamTable);
-		GUI.makeGroupPanel(sp, "Resource Production");
+		Util.makeGroupPanel(sp, "Resource Production");
 
-		GUI.colorHeaders(prodParamTable, true);
+		Util.colorHeaders(prodParamTable, true);
 
 		prodPanel.add(sp);
 	}
@@ -35,6 +35,6 @@ public class ProductionConfigPage implements ConfigPage {
 
 	@Override
 	public void validateUI() throws IllegalArgumentException {
-		GUI.updateTable(prodParamTable);
+		Util.updateTable(prodParamTable);
 	}
 }
