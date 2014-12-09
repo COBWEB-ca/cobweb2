@@ -15,5 +15,4 @@
 <intAttribute key="org.eclipse.jdt.launching.APPLET_WIDTH" value="580"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.cobweb.cobweb2.ui.swing.applet.Cobweb2Applet"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cobweb2"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx64m"/>
 </launchConfiguration>
