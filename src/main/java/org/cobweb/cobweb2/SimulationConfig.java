@@ -522,4 +522,12 @@ public class SimulationConfig {
 		controllerParams = params;
 	}
 
+	public boolean isContinuation() {
+		return
+				envParams.keepOldAgents ||
+				envParams.keepOldArray ||
+				envParams.keepOldPackets ||
+				envParams.keepOldWaste;
+	}
+
 } // Parser

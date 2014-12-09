@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.FlowLayout;
+import java.awt.Window;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,11 +38,7 @@ public class SimulationConfigEditor {
 		@Override
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
 
-			try {
-				validateSettings();
-			} catch (IllegalArgumentException ex) {
-				throw new UserInputException("Parameter error: " + ex.getMessage(), ex);
-			}
+			validateSettings();
 
 			/* write UI info to xml file */
 			try {
@@ -57,50 +54,44 @@ public class SimulationConfigEditor {
 				throw new UserInputException("Cannot open file!", ex);
 			}
 
-			CA.openFile(p);
-			if (!datafile.equals(CA.getCurrentFile())) {
-				CA.setCurrentFile(datafile);
-			}
-			dialog.setVisible(false);
-			dialog.dispose();
+			closeEditor();
 		}
 
 
 	}
 
 	protected void validateSettings() {
-		/*
-		 * this fragment of code is necessary to update the last cell of the table before saving it
-		 */
-		environmentPage.validateUI();
-		resourcePage.validateUI();
-		agentPage.validateUI();
-		foodwebPage.validateUI();
-		if (pdPage != null)
-			pdPage.validateUI();
-		geneticPage.validateUI();
-		diseaseConfigPage.validateUI();
-		tempPage.validateUI();
-		if (learnPage != null)
-			learnPage.validateUI();
+		try {
+			environmentPage.validateUI();
+			resourcePage.validateUI();
+			agentPage.validateUI();
+			foodwebPage.validateUI();
+			if (pdPage != null)
+				pdPage.validateUI();
+			geneticPage.validateUI();
+			diseaseConfigPage.validateUI();
+			tempPage.validateUI();
+			if (learnPage != null)
+				learnPage.validateUI();
+		} catch (IllegalArgumentException ex) {
+			throw new UserInputException("Parameter error: " + ex.getMessage(), ex);
+		}
 	}
 
 	private final class SaveAsButtonListener implements java.awt.event.ActionListener {
 		@Override
 		public void actionPerformed(java.awt.event.ActionEvent e) {
-			try {
-				validateSettings();
-			} catch (IllegalArgumentException ex) {
-				throw new UserInputException("Parameter error: " + ex.getMessage(), ex);
-			}
+			validateSettings();
 
-			openFileDialog();
+			if (saveAsDialog()) {
+				closeEditor();
+			}
 		}
 	}
 
 	private static final String WINDOW_TITLE = "Simulation Settings";
 
-	
+
 
 	// //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -110,17 +101,13 @@ public class SimulationConfigEditor {
 
 	private GeneticConfigPage geneticPage;
 
-	private JTabbedPane tabbedPane;
+	private final JTabbedPane tabbedPane;
 
-	private JButton ok;
-
-	private JButton save;
-
-	private JDialog dialog;
+	private final JDialog dialog;
 
 	private SimulationConfig p;
 
-	private final CobwebApplication CA;
+	private boolean modifyExisting;
 
 	private String datafile;
 
@@ -129,10 +116,11 @@ public class SimulationConfigEditor {
 	/**
 	 * Create the SimulationConfigEditor and show it. For thread safety, this method should be invoked from the event-dispatching thread.
 	 */
-	public static void createAndShowGUI(CobwebApplication ca, String filename, boolean allowModify) {
+	public static SimulationConfigEditor show(Window parent, String filename, boolean allowModify) {
 		// Create and set up the content pane.
-		SimulationConfigEditor configEditor = new SimulationConfigEditor(ca, filename, allowModify && (ca.getSimulation() != null));
+		SimulationConfigEditor configEditor = new SimulationConfigEditor(parent, filename, allowModify);
 		configEditor.show();
+		return configEditor;
 	}
 
 	public void show() {
@@ -155,21 +143,16 @@ public class SimulationConfigEditor {
 
 	private LearningConfigPage learnPage;
 
-	public SimulationConfigEditor() {
-		super();
-		CA = null;
-	}
-
 	// SimulationConfigEditor Special Constructor
-	public SimulationConfigEditor(CobwebApplication ca, String filename, boolean allowKeep) {
-		dialog = new JDialog(ca, WINDOW_TITLE, true);
+	public SimulationConfigEditor(Window parent, String filename, boolean allowModify) {
+		dialog = new JDialog(parent, WINDOW_TITLE, JDialog.DEFAULT_MODALITY_TYPE);
 
 		JPanel j = new JPanel();
 		j.setLayout(new BoxLayout(j, BoxLayout.Y_AXIS));
 
-		CA = ca;
 		datafile = filename;
 		tabbedPane = new JTabbedPane();
+		modifyExisting = allowModify;
 
 		/* Environment panel - composed of 4 panels */
 
@@ -186,9 +169,7 @@ public class SimulationConfigEditor {
 			setDefault();
 		}
 
-		tabbedPane = new JTabbedPane();
-
-		environmentPage = new EnvironmentConfigPage(p.getEnvParams(), allowKeep);
+		environmentPage = new EnvironmentConfigPage(p.getEnvParams(), allowModify);
 
 		tabbedPane.addTab("Environment", environmentPage.getPanel());
 
@@ -203,11 +184,11 @@ public class SimulationConfigEditor {
 			}
 		});
 
-		ok = new JButton("OK");
+		JButton ok = new JButton("OK");
 		ok.setMaximumSize(new Dimension(80, 20));
 		ok.addActionListener(new OkButtonListener());
 
-		save = new JButton("Save As...");
+		JButton save = new JButton("Save As...");
 		save.setMaximumSize(new Dimension(80, 20));
 		save.addActionListener(new SaveAsButtonListener());
 
@@ -230,15 +211,19 @@ public class SimulationConfigEditor {
 			filePath = new File(CobwebApplication.DEFAULT_DATA_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION);
 		dialog.setTitle(WINDOW_TITLE + " - " + filePath.getName());
 	}
-	public SimulationConfig getParser() {
+
+	public SimulationConfig getConfig() {
 		return p;
 	}
 
+	public boolean isContinuation() {
+		return modifyExisting && p.isContinuation();
+	}
 
 	/**
 	 * This openFileDialog method is invoked by pressing the "Save" button
 	 */
-	public void openFileDialog() {
+	public boolean saveAsDialog() {
 		FileDialog theDialog = new FileDialog(dialog, "Choose a file to save state to", java.awt.FileDialog.SAVE);
 		theDialog.setFile("*.xml");
 		theDialog.setVisible(true);
@@ -256,20 +241,15 @@ public class SimulationConfigEditor {
 					p.write(new FileOutputStream(theDialog.getDirectory() + theDialog.getFile()));
 
 					p = new SimulationConfig(theDialog.getDirectory() + theDialog.getFile());
-					CA.openFile(p);
-					if (!datafile.equals(CA.getCurrentFile())) {
-						CA.setCurrentFile(datafile);
-					}
-					dialog.setVisible(false);
-					dialog.dispose();
+					return true;
 				}
 			} catch (IOException ex) {
 				myLogger.log(Level.WARNING, "Cannot save config", ex);
-				JOptionPane.showMessageDialog(CA,
+				JOptionPane.showMessageDialog(dialog,
 						"Save failed: " + ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 			}
-			// }
 		}
+		return false;
 	}
 
 	private void setDefault() {
@@ -277,8 +257,6 @@ public class SimulationConfigEditor {
 	}
 
 	private void setupConfigPages() {
-
-
 
 		/* Resources panel */
 		removeOldPage(resourcePage);
@@ -337,6 +315,11 @@ public class SimulationConfigEditor {
 		if (r != null) {
 			tabbedPane.remove(r.getPanel());
 		}
+	}
+
+	private void closeEditor() {
+		dialog.setVisible(false);
+		dialog.dispose();
 	}
 
 }

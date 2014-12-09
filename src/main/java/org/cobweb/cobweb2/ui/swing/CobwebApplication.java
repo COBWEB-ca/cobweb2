@@ -66,12 +66,6 @@ public class CobwebApplication extends JFrame {
 
 	private JMenu agentMenu;
 
-	/**
-	 * The value is determined by whether a "Test Data" window is invoked by one of "Modify This File"
-	 * and "Modify Current Data" or by one of "Open", "Create New Data" and "Retrieve Default Data". Mar 14
-	 */
-	private boolean invokedByModify;
-
 	public static final String CONFIG_FILE_EXTENSION = ".xml";
 
 	public static final String TEMPORARY_FILE_EXTENSION = ".cwtemp";
@@ -127,25 +121,12 @@ public class CobwebApplication extends JFrame {
 	 */
 	public void createNewData() {
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME;
-		SimulationConfigEditor.createAndShowGUI(this, newInput, false);
-		File inf = new File(newInput);
-		if (inf.isHidden() || (inf.exists() && !inf.canWrite())) {
-			JOptionPane
-			.showMessageDialog(
-					this,
-					"Caution:  The new data file \""
-							+ newInput
-							+ "\" is NOT allowed to be modified.\n"
-							+ "\n                  Any modification of this data file will be neither implemented nor saved.");
-		}
+		SimulationConfigEditor editor = SimulationConfigEditor.show(this, newInput, false);
+		openFile(editor.getConfig(), editor.isContinuation());
 	}
 
 	public SimulationInterface getSimulation() {
 		return simRunner.getSimulation();
-	}
-
-	public boolean isInvokedByModify() {
-		return invokedByModify;
 	}
 
 	/**
@@ -239,7 +220,9 @@ public class CobwebApplication extends JFrame {
 		} catch (Exception ex) {
 			throw new UserInputException("Cannot open config file", ex);
 		}
-		SimulationConfigEditor.createAndShowGUI(this, currentData, true);
+
+		SimulationConfigEditor editor = SimulationConfigEditor.show(this, currentData, true);
+		openFile(editor.getConfig(), editor.isContinuation());
 	}
 
 	/**
@@ -252,16 +235,26 @@ public class CobwebApplication extends JFrame {
 		if (CURRENT_DATA_FILE_NAME.equals(currentFile)) {
 			throw new UserInputException("File not currently saved, use \"Modify Current Data\" instead");
 		}
-		SimulationConfigEditor.createAndShowGUI(this, currentFile, true);
+		SimulationConfigEditor editor = SimulationConfigEditor.show(this, currentFile, true);
+		openFile(editor.getConfig(), editor.isContinuation());
 	}
 
-	// TODO more organized way to deal with loading simulation configurations
-	// TODO create new simRunner when starting new simulation, reuse when modifying
-	public void openFile(SimulationConfig p) {
+	public void openFile(SimulationConfig config) {
+		openFile(config, false);
+	}
+
+	/**
+	 * Load simulation config.
+	 * @param config simulation configuration
+	 * @param continuation load this as a continuation of the current simulation?
+	 */
+	private void openFile(SimulationConfig config, boolean continuation) {
+		// TODO more organized way to deal with loading simulation configurations
+		// TODO create new simRunner when starting new simulation, reuse when modifying
 		if (simRunner.isRunning())
 			simRunner.stop();
-		simRunner.getSimulation().load(p);
-		File file = new File(p.getFilename());
+		simRunner.getSimulation().load(config);
+		File file = new File(config.getFilename());
 
 		if (file.exists()) {
 			currentFile = file.getName();
@@ -274,7 +267,7 @@ public class CobwebApplication extends JFrame {
 			}
 		}
 
-		if (!isInvokedByModify()) {
+		if (!continuation) {
 			simRunner.getSimulation().resetTime();
 			simRunner.setLog(null);
 		}
@@ -305,9 +298,8 @@ public class CobwebApplication extends JFrame {
 		if (file != null && directory != null) {
 			File of = new File(directory + file);
 			if (of.exists()) {
-				setCurrentFile(directory + file);
-				SimulationConfigEditor.createAndShowGUI(this, currentFile, true);
-
+				SimulationConfigEditor editor = SimulationConfigEditor.show(this, directory + file, true);
+				openFile(editor.getConfig(), editor.isContinuation());
 			} else {
 				JOptionPane.showMessageDialog(
 						this,
@@ -383,7 +375,8 @@ public class CobwebApplication extends JFrame {
 			}
 		}
 
-		SimulationConfigEditor.createAndShowGUI(this, tempDefaultData, false);
+		SimulationConfigEditor editor = SimulationConfigEditor.show(this, tempDefaultData, false);
+		openFile(editor.getConfig(), editor.isContinuation());
 	}
 
 	/**
@@ -420,15 +413,6 @@ public class CobwebApplication extends JFrame {
 		if (theDialog.getFile() != null) {
 			saveFile(theDialog.getDirectory() + theDialog.getFile());
 		}
-	}
-
-	/**
-	 * Sets the current file as input.
-	 *
-	 * @param input Name of the new current file.
-	 */
-	public void setCurrentFile(String input) {
-		currentFile = input;
 	}
 
 	public String getCurrentFile() {
@@ -494,10 +478,6 @@ public class CobwebApplication extends JFrame {
 		}
 	}
 
-	public void setInvokedByModify(boolean b) {
-		invokedByModify = b;
-	}
-
 	public void updateDynamicUI() {
 		setupViewers();
 
@@ -511,6 +491,7 @@ public class CobwebApplication extends JFrame {
 	private List<ViewerPlugin> viewers = new LinkedList<ViewerPlugin>();
 
 	private void setupViewers() {
+		// TODO: don't kill viewers when modifying simulation
 		for (ViewerPlugin viewer : viewers) {
 			viewer.dispose();
 		}
@@ -618,7 +599,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			setInvokedByModify(false);
 			openFileDialog();
 		}
 		private static final long serialVersionUID = 1L;
@@ -644,7 +624,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			setInvokedByModify(false);
 			createNewData();
 		}
 		private static final long serialVersionUID = 1L;
@@ -692,7 +671,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			setInvokedByModify(true);
 			openCurrentData();
 		}
 		private static final long serialVersionUID = 1L;
@@ -702,7 +680,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			setInvokedByModify(true);
 			openCurrentFile();
 		}
 		private static final long serialVersionUID = 1L;
@@ -785,7 +762,6 @@ public class CobwebApplication extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			pauseUI();
-			setInvokedByModify(false);
 			retrieveDefaultData();
 		}
 		private static final long serialVersionUID = 1L;
