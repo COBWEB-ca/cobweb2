@@ -62,10 +62,6 @@ public class SimulationConfig {
 
 	private String fileName = null;
 
-	/**
-	 * The genetic sequence. Initialize them to a certain sequence for the four agents.
-	 */
-
 	private ComplexEnvironmentParams envParams;
 
 	private GeneticParams geneticParams;
@@ -73,8 +69,6 @@ public class SimulationConfig {
 	private ComplexAgentParams[] agentParams;
 
 	private ProductionParams[] prodParams;
-
-	//xxxprivate LearningAgentParams[] learningAgentParams;
 
 	private LearningParams learningParams;
 
@@ -129,7 +123,7 @@ public class SimulationConfig {
 
 	/**
 	 * Constructor that allows input from a file stream to configure simulation parameters.
-	 * 
+	 *
 	 * @param file Input file stream.
 	 */
 	public SimulationConfig(InputStream file) {
@@ -140,7 +134,7 @@ public class SimulationConfig {
 
 	/**
 	 * Constructor that allows input from a file to configure the simulation parameters.
-	 * 
+	 *
 	 * @param fileName Name of the file used for simulation configuration.
 	 * @see SimulationConfig#loadFile(InputStream)
 	 */
@@ -210,18 +204,18 @@ public class SimulationConfig {
 
 
 	/**
-	 * This method extracts data from the simulation configuration file and 
-	 * loads the data into the simulation parameters.  It does this by first 
-	 * creating a tree that holds all data from file using the DocumentBuilder 
-	 * class.  Next, the root node of the tree is passed to the 
-	 * AbstractReflectionParams.loadConfig(Node) method for processing.  This 
-	 * processing allows the ConfXMLTags to overwrite the default parameters 
+	 * This method extracts data from the simulation configuration file and
+	 * loads the data into the simulation parameters.  It does this by first
+	 * creating a tree that holds all data from file using the DocumentBuilder
+	 * class.  Next, the root node of the tree is passed to the
+	 * AbstractReflectionParams.loadConfig(Node) method for processing.  This
+	 * processing allows the ConfXMLTags to overwrite the default parameters
 	 * used when constructing Cobweb environment parameters.
-	 * 
-	 * <p>Once the environment parameters have been extracted successfully, 
-	 * the rest of the Cobweb parameters can be set (temperature, genetics, 
+	 *
+	 * <p>Once the environment parameters have been extracted successfully,
+	 * the rest of the Cobweb parameters can be set (temperature, genetics,
 	 * agents, etc.) using the environment parameters.
-	 * 
+	 *
 	 * @param file The current simulation configuration file.
 	 * @see org.cobweb.cobweb2.io.AbstractReflectionParams#loadConfig(Node)
 	 * @see javax.xml.parsers.DocumentBuilder
@@ -455,7 +449,7 @@ public class SimulationConfig {
 		this.envParams.agentTypeCount = count;
 		this.envParams.foodTypeCount = count;
 
-		{ 
+		{
 			ComplexAgentParams[] n = Arrays.copyOf(this.agentParams, count);
 			for (int i = 0; i < this.agentParams.length && i < count; i++) {
 				n[i].resizeFoodweb(envParams);

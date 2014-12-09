@@ -273,7 +273,7 @@ public class GUI extends JFrame {
 				// Handle a readonly file
 				String savingFile = theDialog.getDirectory() + theDialog.getFile();
 				File sf = new File(savingFile);
-				if ((sf.isHidden() != false) || ((sf.exists() != false) && (sf.canWrite() == false))) {
+				if (sf.isHidden() || (sf.exists() && !sf.canWrite())) {
 					JOptionPane.showMessageDialog(
 							GUI.frame,
 							"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.", "Warning",

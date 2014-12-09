@@ -52,9 +52,6 @@ import org.cobweb.util.FileUtils;
  * This class consists of methods to allow the user to use the Cobweb simulation
  * tool.  It implements all necessary methods defined by the UIClient class, and
  * makes use of the JFrame class.
- *
- * @author Liang
- *
  */
 public class CobwebApplication extends JFrame {
 
@@ -135,7 +132,7 @@ public class CobwebApplication extends JFrame {
 			setCurrentFile(newInput);
 		}
 		File inf = new File(newInput);
-		if (inf.isHidden() != false || ((inf.exists() != false) && (inf.canWrite() == false))) {
+		if (inf.isHidden() || (inf.exists() && !inf.canWrite())) {
 			JOptionPane
 			.showMessageDialog(
 					GUI.frame,
@@ -297,10 +294,10 @@ public class CobwebApplication extends JFrame {
 
 		if (file != null && directory != null) {
 			File of = new File(directory + file);
-			if (of.exists() != false) {
+			if (of.exists()) {
 				setCurrentFile(directory + file);
 
-				if (GUI.frame != null && GUI.frame.isVisible() == true) {
+				if (GUI.frame != null && GUI.frame.isVisible()) {
 					GUI.frame.dispose();
 				}
 				GUI.createAndShowGUI(this, currentFile, true);
@@ -357,8 +354,8 @@ public class CobwebApplication extends JFrame {
 
 		File df = new File(defaultData);
 		boolean isTheFirstFashion = false;
-		if (df.exists() != false) {
-			if (df.canWrite() != false) {
+		if (df.exists()) {
+			if (df.canWrite()) {
 				df.setReadOnly();
 			}
 			isTheFirstFashion = true;
@@ -368,7 +365,7 @@ public class CobwebApplication extends JFrame {
 		File tdf = new File(tempDefaultData);
 		tdf.deleteOnExit();
 
-		if (isTheFirstFashion != false) {
+		if (isTheFirstFashion) {
 			try {
 				FileUtils.copyFile(defaultData, tempDefaultData);
 			} catch (Exception ex) {
@@ -376,8 +373,8 @@ public class CobwebApplication extends JFrame {
 			}
 		}
 
-		if (isTheFirstFashion == false) {
-			if (tdf.exists() != false) {
+		if (!isTheFirstFashion) {
+			if (tdf.exists()) {
 				tdf.delete(); // delete the potential default_data file created by last time pressing
 				// "Retrieve Default Data" menu.
 			}
@@ -398,7 +395,7 @@ public class CobwebApplication extends JFrame {
 	public void saveFile(String savingFile) {
 		try {
 			File sf = new File(savingFile);
-			if ((sf.isHidden() != false) || ((sf.exists() != false) && (sf.canWrite() == false))) {
+			if (sf.isHidden() || (sf.exists() && !sf.canWrite())) {
 				JOptionPane.showMessageDialog(
 						GUI.frame,
 						"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.", "Warning",
@@ -447,7 +444,7 @@ public class CobwebApplication extends JFrame {
 		String defaultData = DEFAULT_DATA_FILE_NAME + CONFIG_FILE_EXTENSION;
 		// prepare the file default_data_(reserved).xml to be writable
 		File df = new File(defaultData);
-		if (df.isHidden() != false) {
+		if (df.isHidden()) {
 			JOptionPane.showMessageDialog(
 					this,
 					"Cannot set default data:  file \"" + defaultData + "\" is hidden.", "Warning",
@@ -458,7 +455,7 @@ public class CobwebApplication extends JFrame {
 			return;
 		}
 
-		if ((df.exists() == false) || (df.canWrite() == true)) {
+		if (!df.exists() || df.canWrite()) {
 			FileDialog setDialog = new FileDialog(GUI.frame,
 					"Set Default Data", FileDialog.LOAD);
 			setDialog.setFile("*.xml");
@@ -469,7 +466,7 @@ public class CobwebApplication extends JFrame {
 				String file = setDialog.getFile();
 				String chosenFile = directory + file;
 				File f = new File(chosenFile);
-				if (f.exists() != false) {
+				if (f.exists()) {
 					try {
 						FileUtils.copyFile(chosenFile, defaultData);
 					} catch (Exception ex) {
@@ -479,7 +476,7 @@ public class CobwebApplication extends JFrame {
 
 					}
 				} else {
-					if (simRunner.getSimulation() != null && GUI.frame != null && GUI.frame.isVisible() == true) {
+					if (simRunner.getSimulation() != null && GUI.frame != null && GUI.frame.isVisible()) {
 						GUI.frame.dispose();
 					}
 					JOptionPane.showMessageDialog(this, "File \" " + chosenFile + "\" could not be found!", "Warning",
@@ -504,7 +501,7 @@ public class CobwebApplication extends JFrame {
 			}
 		}
 		// Disallow write again to make sure the default data file would not be modified by outer calling.
-		if (df.canWrite() != false) {
+		if (df.canWrite()) {
 			df.setReadOnly();
 		}
 	}
