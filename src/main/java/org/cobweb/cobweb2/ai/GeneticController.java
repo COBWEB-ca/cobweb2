@@ -11,7 +11,7 @@ import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.util.BitField;
 
 /**
- * This class contains methods that set up the parameters for agents 
+ * This class contains methods that set up the parameters for agents
  * that are used to influence the actions of the agents.
  * 
  * @author ???
@@ -57,7 +57,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 
 
 	/**
-	 * Converts the parameters of the agent into a behavior (turn left or right, 
+	 * Converts the parameters of the agent into a behavior (turn left or right,
 	 * step).
 	 * 
 	 * @see org.cobweb.cobweb2.ai.BehaviorArray
@@ -65,6 +65,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 	 * @see ComplexAgent#turnRight()
 	 * @see ComplexAgent#step()
 	 */
+	@Override
 	public void controlAgent(Agent baseAgent) {
 		ComplexAgent theAgent = (ComplexAgent) baseAgent;
 
@@ -75,7 +76,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 		int actionCode = outputArray[0];
 		theAgent.setMemoryBuffer(outputArray[1]);
 		theAgent.setCommOutbox(outputArray[2]);
-		//whether to breed 
+		//whether to breed
 		theAgent.setAsexFlag(outputArray[3] != 0);
 
 		theAgent.setCommInbox(0);
@@ -129,10 +130,12 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 		return inputCode;
 	}
 
+	@Override
 	public CobwebParam getParams() {
 		return params;
 	}
 
+	@Override
 	public void setupFromEnvironment(int memory, int comm, CobwebParam params, int type) {
 		memorySize = memory;
 		commSize = comm;
@@ -148,6 +151,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 		ga.randomInit(this.params.randomSeed);
 	}
 
+	@Override
 	public void setupFromParent(Controller parent, float mutationRate) {
 		if (!(parent instanceof GeneticController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");
@@ -159,13 +163,14 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 		this.params = p.params;
 	}
 
-	/** 
+	/**
 	 * sexual reproduction
 	 * 
 	 * @param parent1 first parent
 	 * @param parent2 second parent
 	 * @param mutationRate mutation rate
 	 */
+	@Override
 	public void setupFromParents(Controller parent1, Controller parent2, float mutationRate) {
 		if (!(parent1 instanceof GeneticController) || !(parent2 instanceof GeneticController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");

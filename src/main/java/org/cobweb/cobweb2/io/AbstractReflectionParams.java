@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * This class contains the methods necessary to extract data from the 
+ * This class contains the methods necessary to extract data from the
  * fields in the simulation configuration files.
  * 
  * @author ???
@@ -22,11 +22,11 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 	private static final long serialVersionUID = -710912579485485125L;
 
 	/**
-	 * Allows the extraction of data from a configuration 
-	 * file for any Cobweb parameters.  The data is passed in as the 
+	 * Allows the extraction of data from a configuration
+	 * file for any Cobweb parameters.  The data is passed in as the
 	 * root node of a tree containing the data.
 	 * 
-	 * @param obj The type of object parameters. 
+	 * @param obj The type of object parameters.
 	 * @param config The root node of the tree.
 	 */
 	private static void loadTaggedFields(CobwebParam obj, Node config) {
@@ -75,7 +75,7 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 	}
 
 	/**
-	 * Saves data fields from any object implementing the CobwebParam interface to a 
+	 * Saves data fields from any object implementing the CobwebParam interface to a
 	 * data file, doc.
 	 * 
 	 * @param obj Cobweb parameter object.
@@ -122,6 +122,7 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 	 * @param root The root node of the data tree.
 	 * @see AbstractReflectionParams#loadTaggedFields(CobwebParam, Node)
 	 */
+	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		loadTaggedFields(this, root);
 	}
@@ -133,6 +134,7 @@ public abstract class AbstractReflectionParams implements CobwebParam {
 	 * @param document The document that the data will be saved to.
 	 * @see AbstractReflectionParams#saveTaggedFields(CobwebParam, Node, Document)
 	 */
+	@Override
 	public void saveConfig(Node root, Document document) {
 		saveTaggedFields(this, root, document);
 	}

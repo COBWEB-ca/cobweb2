@@ -31,6 +31,7 @@ public class BoundJFormattedTextField extends LabeledJFormattedTextField impleme
 		this.addPropertyChangeListener("value", this);
 	}
 
+	@Override
 	@SuppressWarnings("boxing")
 	public void propertyChange(PropertyChangeEvent evt) {
 		try {

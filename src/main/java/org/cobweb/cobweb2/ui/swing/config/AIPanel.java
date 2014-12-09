@@ -53,6 +53,7 @@ class AIPanel extends SettingsPanel {
 		aiSwitch = new JComboBox(AI_LIST);
 		aiSwitch.setEditable(false);
 		aiSwitch.addItemListener(new ItemListener() {
+			@Override
 			public void itemStateChanged(ItemEvent e) {
 				cardSwitch.show(inner, (String) e.getItem());
 				tabs[aiSwitch.getSelectedIndex()].bindToParser(parser);

@@ -8,7 +8,7 @@ import org.cobweb.util.RandomNoGenerator;
  * return a set of corresponding output bits. A set of output bits are stored for each permutation and thus the size of
  * this array grow exponentially with the number of input bits.
  *
- * Input: A collection of 6 bit groups combined into a single number: 
+ * Input: A collection of 6 bit groups combined into a single number:
  * <ol>
  * <li> 2 bits for first "seen" object (nothing, agent, food, barrier) </li>
  * <li> 2 bits for distance of "seen" object </li>

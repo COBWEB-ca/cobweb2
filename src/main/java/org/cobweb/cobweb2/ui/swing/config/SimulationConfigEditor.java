@@ -1,6 +1,7 @@
 package org.cobweb.cobweb2.ui.swing.config;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.FlowLayout;
@@ -145,7 +146,7 @@ public class SimulationConfigEditor {
 
 	// SimulationConfigEditor Special Constructor
 	public SimulationConfigEditor(Window parent, String filename, boolean allowModify) {
-		dialog = new JDialog(parent, WINDOW_TITLE, JDialog.DEFAULT_MODALITY_TYPE);
+		dialog = new JDialog(parent, WINDOW_TITLE, Dialog.DEFAULT_MODALITY_TYPE);
 
 		JPanel j = new JPanel();
 		j.setLayout(new BoxLayout(j, BoxLayout.Y_AXIS));

@@ -57,6 +57,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		return tracker;
 	}
 
+	@Override
 	public Collection<String> logDataAgent(int agentType) {
 		List<String> s = new LinkedList<String>();
 		for (int i = 0; i < params.geneCount; i++) {
@@ -65,10 +66,12 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		return s;
 	}
 
+	@Override
 	public Collection<String> logDataTotal() {
 		return blank;
 	}
 
+	@Override
 	public Collection<String> logHeadersAgent() {
 		List<String> s = new LinkedList<String>();
 		for (int i = 0; i < params.geneCount; i++) {
@@ -77,6 +80,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		return s;
 	}
 
+	@Override
 	public Collection<String> logHeaderTotal() {
 		return blank;
 	}
@@ -101,6 +105,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		tracker.addAgent(agent.type(), getGene(agent));
 	}
 
+	@Override
 	public void onDeath(ComplexAgent agent) {
 		if (genes.containsKey(agent)) {
 			tracker.removeAgent(agent.type(), genes.get(agent));
@@ -108,6 +113,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		}
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent) {
 		GeneticCode genetic_code = new GeneticCode(params.geneCount);
 		for (int i = 0; i < params.geneCount; i++) {
@@ -117,6 +123,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		mutateAgentAttributes(agent);
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
 		GeneticCode genetic_code = new GeneticCode(getGene(parent));
 
@@ -130,6 +137,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		mutateAgentAttributes(agent);
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
 		GeneticCode genetic_code = null;
 		GeneticCode gc1 = getGene(parent1);
@@ -182,6 +190,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		tracker.setParams(agentCount, params.geneCount);
 	}
 
+	@Override
 	public float similarity(ComplexAgent a1, ComplexAgent a2) {
 		return GeneticCode.compareGeneticSimilarity(getGene(a1), getGene(a2));
 	}

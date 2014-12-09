@@ -10,20 +10,20 @@ import java.nio.channels.FileChannel;
 public class FileUtils {
 
 	/**
-	 * Copies the contents from the source file to the destination file.  If 
+	 * Copies the contents from the source file to the destination file.  If
 	 * the destination file does not exist, it will be created.
 	 * 
 	 * @param src The file name of the source file to be copied from
-	 * @param dest The file name of the destination file to be copied to 
+	 * @param dest The file name of the destination file to be copied to
 	 * @throws IOException On failure
 	 */
 	public static void copyFile(String src, String dest) throws IOException {
 		File sourceFile = new File(src);
 		File destFile = new File(dest);
-	
+
 		if (!destFile.exists())
 			destFile.createNewFile();
-	
+
 		FileChannel source = null;
 		FileChannel destination = null;
 		try {

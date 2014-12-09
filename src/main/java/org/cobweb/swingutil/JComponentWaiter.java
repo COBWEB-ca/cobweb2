@@ -14,6 +14,7 @@ public class JComponentWaiter implements SynchronousDisplay {
 	 * Runnable used to mark the control as refreshed
 	 */
 	private Runnable donePaintMarker = new Runnable() {
+		@Override
 		public void run() {
 			donePaint = true;
 		}
@@ -26,6 +27,7 @@ public class JComponentWaiter implements SynchronousDisplay {
 
 	}
 
+	@Override
 	public void refresh(boolean wait) {
 		if (wait) {
 			donePaint = false;
@@ -52,6 +54,7 @@ public class JComponentWaiter implements SynchronousDisplay {
 		}
 	}
 
+	@Override
 	public boolean isReadyToRefresh() {
 		return donePaint;
 	}

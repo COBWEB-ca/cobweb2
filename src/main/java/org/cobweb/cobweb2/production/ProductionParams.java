@@ -19,17 +19,17 @@ public class ProductionParams extends AbstractReflectionParams {
 	 */
 	@ConfXMLTag("Index")
 	public int type = -1;
-	
-	/** 
+
+	/**
 	 * Enable production
 	 */
 	@ConfDisplayName("Production")
 	@ConfXMLTag("productionMode")
 	public boolean productionMode;
-	
+
 
 	@ConfXMLTag("InitProdChance")
-	@ConfDisplayName("Initial production percentage roll")	
+	@ConfDisplayName("Initial production percentage roll")
 	public float initProdChance = 0.8f;
 
 	@ConfXMLTag("LowDemThresh")
@@ -63,5 +63,5 @@ public class ProductionParams extends AbstractReflectionParams {
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}
-	}	
+	}
 }

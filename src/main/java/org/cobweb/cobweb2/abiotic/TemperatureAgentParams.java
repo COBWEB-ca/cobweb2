@@ -27,7 +27,7 @@ public class TemperatureAgentParams extends AbstractReflectionParams {
 	public float preferedTempRange;
 
 	/**
-	 * How much of an effect deviation from the preferred temperature range will have. 
+	 * How much of an effect deviation from the preferred temperature range will have.
 	 */
 	@ConfXMLTag("DifferenceFactor")
 	@ConfDisplayName("Difference factor")

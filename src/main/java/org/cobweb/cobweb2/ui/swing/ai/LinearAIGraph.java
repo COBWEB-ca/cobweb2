@@ -45,30 +45,37 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 		this.pack();
 	}
 
+	@Override
 	public void windowActivated(WindowEvent e) {
 		// Nothing
 	}
 
+	@Override
 	public void windowClosed(WindowEvent e) {
 		// Nothing
 	}
 
+	@Override
 	public void windowClosing(WindowEvent e) {
 		refreshTimer.stop();
 	}
 
+	@Override
 	public void windowDeactivated(WindowEvent e) {
 		// Nothing
 	}
 
+	@Override
 	public void windowDeiconified(WindowEvent e) {
 		// Nothing
 	}
 
+	@Override
 	public void windowIconified(WindowEvent e) {
 		// Nothing
 	}
 
+	@Override
 	public void windowOpened(WindowEvent e) {
 		refreshTimer.start();
 	}
@@ -76,6 +83,7 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 	/**
 	 * Refresh timer function
 	 */
+	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		double data[] = LinearWeightsController.getRunningOutputMean();
 		for (int i = 0; i < LinearWeightsController.OUTPUT_COUNT; i++) {

@@ -166,6 +166,7 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	/**
 	 * @return Number of agent types.
 	 */
+	@Override
 	public int getAgentTypes() {
 		return agentTypeCount;
 	}
@@ -173,6 +174,7 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	/**
 	 * @return Number of food types.
 	 */
+	@Override
 	public int getFoodTypes() {
 		return foodTypeCount;
 	}
@@ -180,6 +182,7 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	/**
 	 * @return Height of the grid.
 	 */
+	@Override
 	public int getHeight() {
 		return height;
 	}
@@ -187,9 +190,9 @@ public class ComplexEnvironmentParams extends AbstractReflectionParams implement
 	/**
 	 * @return Width of the grid.
 	 */
+	@Override
 	public int getWidth() {
 		return width;
 	}
-
 
 }

@@ -7,9 +7,9 @@ import org.cobweb.cobweb2.ai.Controller;
 
 
 /**
- * The Agent class represents the physical notion of an Agent in a simulation 
- * (living or not, location, colour).  Instances of the Agent class are not 
- * responsible for implementing the intelligence of the Agent, this is deferred 
+ * The Agent class represents the physical notion of an Agent in a simulation
+ * (living or not, location, colour).  Instances of the Agent class are not
+ * responsible for implementing the intelligence of the Agent, this is deferred
  * to the Agent.Controller class.
  */
 public abstract class Agent {

@@ -14,19 +14,19 @@ public class ConfigUpgrader {
 	public static void upgrade(ComplexEnvironmentParams envParams) {
 		envParams.controllerName = updateClassName(
 				envParams.controllerName,
-				GeneticController.class, 
+				GeneticController.class,
 				LinearWeightsController.class
 				);
 
 		envParams.agentName = updateClassName(
 				envParams.agentName,
-				ComplexAgent.class, 
+				ComplexAgent.class,
 				ComplexAgentLearning.class
 				);
 
 		envParams.environmentName = updateClassName(
 				envParams.environmentName,
-				ComplexEnvironment.class, 
+				ComplexEnvironment.class,
 				ComplexEnvironmentLearning.class
 				);
 	}

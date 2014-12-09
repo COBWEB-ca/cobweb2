@@ -26,7 +26,7 @@ public class TemperatureParams implements CobwebParam {
 	private final AgentFoodCountable env;
 
 	/**
-	 * Constructor sets the environment parameters, and temperature agent type 
+	 * Constructor sets the environment parameters, and temperature agent type
 	 * parameters.
 	 * 
 	 * @param env Environment parameters.
@@ -41,6 +41,7 @@ public class TemperatureParams implements CobwebParam {
 		}
 	}
 
+	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
 
 		agentParams = new TemperatureAgentParams[env.getAgentTypes()];
@@ -71,6 +72,7 @@ public class TemperatureParams implements CobwebParam {
 		}
 	}
 
+	@Override
 	public void saveConfig(Node root, Document document) {
 		Node bands = document.createElement("TempBands");
 		for (int i = 0; i < tempBands.length; i++) {

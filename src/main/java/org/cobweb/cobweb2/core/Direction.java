@@ -7,10 +7,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 
-/** 
- * Dimensionality independent notion of a direction.  The integer 
+/**
+ * Dimensionality independent notion of a direction.  The integer
  * v is a vector representation of the direction, defined by the
- * environment. 
+ * environment.
  */
 public class Direction implements Serializable {
 
@@ -116,7 +116,7 @@ public class Direction implements Serializable {
 	public void saveAsANode(Node node, Document doc){
 
 		for (int i : v) {
-			Element directionElement = doc.createElement("coordinate"); 
+			Element directionElement = doc.createElement("coordinate");
 			directionElement.appendChild(doc.createTextNode(i +""));
 			node.appendChild(directionElement);
 		}

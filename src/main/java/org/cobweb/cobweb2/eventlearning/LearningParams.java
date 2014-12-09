@@ -29,7 +29,7 @@ public class LearningParams implements CobwebParam {
 			learningParams[i] = new LearningAgentParams();
 			learningParams[i].type = i;
 		}
-	}	
+	}
 
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
@@ -49,7 +49,7 @@ public class LearningParams implements CobwebParam {
 					learningParams[j] = new LearningAgentParams();
 					learningParams[j].loadConfig(paramNode);
 				}
-			}	
+			}
 		}
 
 		for (int i = 0; i < learningParams.length; i++) {
@@ -77,5 +77,5 @@ public class LearningParams implements CobwebParam {
 			n[i] = new LearningAgentParams();
 		}
 		learningParams = n;
-	}	
+	}
 }

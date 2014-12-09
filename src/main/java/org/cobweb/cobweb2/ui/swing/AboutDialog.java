@@ -1,11 +1,11 @@
 package org.cobweb.cobweb2.ui.swing;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
@@ -25,7 +25,7 @@ public class AboutDialog {
 		whatDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 		JPanel info = new JPanel();
-		info.setAlignmentX(JDialog.CENTER_ALIGNMENT);
+		info.setAlignmentX(Component.CENTER_ALIGNMENT);
 		info.add(new JLabel("<html><center>COBWEB2 2003/2011<br/>version: <br/>"
 				+  Versionator.getVersion().replace(" ", "<br/>")
 				+ "</center></html>"));

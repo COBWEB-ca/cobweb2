@@ -25,6 +25,7 @@ public abstract class Occurrence implements Queueable {
 	// Causes the effect to occur, initializes the event, places the memory
 	// in the agent's memory,
 	// returns the event
+	@Override
 	public final void happen() {
 		event = effect(target);
 		target.remember(event);
@@ -42,10 +43,12 @@ public abstract class Occurrence implements Queueable {
 		return hasOccurred;
 	}
 
+	@Override
 	public boolean isComplete() {
 		return true;
 	}
 
+	@Override
 	public final String getDescription() {
 		return desc;
 	}

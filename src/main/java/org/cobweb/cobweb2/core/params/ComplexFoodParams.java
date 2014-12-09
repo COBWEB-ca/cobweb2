@@ -36,8 +36,8 @@ public class ComplexFoodParams extends AbstractReflectionParams {
 
 	/**
 	 * Rate at which food grows around existing food.
-	 * The chance food will grow at a specific cell, given there are N cells 
-	 * with food touching this cell from top/bottom/left/right is: 
+	 * The chance food will grow at a specific cell, given there are N cells
+	 * with food touching this cell from top/bottom/left/right is:
 	 * N * growRate / 100
 	 */
 	@ConfDisplayName("Growth rate")

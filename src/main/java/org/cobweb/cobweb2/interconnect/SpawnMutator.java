@@ -20,7 +20,7 @@ public interface SpawnMutator extends AgentMutator {
 	public void onSpawn(ComplexAgent agent);
 
 	/**
-	 * Agent produced asexually 
+	 * Agent produced asexually
 	 * @param agent Agent produced.
 	 * @param parent Asexual parent.
 	 */

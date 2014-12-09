@@ -24,6 +24,7 @@ public class MemorableEvent implements Describeable {
 		return magnitude;
 	}
 
+	@Override
 	public String getDescription() {
 		return desc;
 	}

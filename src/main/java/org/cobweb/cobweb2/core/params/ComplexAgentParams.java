@@ -162,7 +162,7 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 	public float asexualBreedChance = 0;
 
 	/**
-	 * Minimum agent similarity to be able to breed sexually. 
+	 * Minimum agent similarity to be able to breed sexually.
 	 */
 	@ConfDisplayName("Breeding minimum similarity")
 	@ConfXMLTag("breedSimMin")
@@ -193,7 +193,7 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 	public int agingLimit = 300;
 
 	/**
-	 * Age-based energy penalty factor. 
+	 * Age-based energy penalty factor.
 	 * agePenalty = agingRate * tan(age / agingLimit * 89.99)
 	 */
 	@ConfDisplayName("Aging rate")
@@ -209,7 +209,7 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 	public boolean wasteMode = false;
 
 	/**
-	 * Energy lost when stepping into waste. 
+	 * Energy lost when stepping into waste.
 	 */
 	@ConfDisplayName("Step waste energy loss")
 	@ConfXMLTag("wastePen")

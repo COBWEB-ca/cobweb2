@@ -6,8 +6,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 /**
- * This class contains the methods necessary to alter data from 
- * the simulation configuration files. 
+ * This class contains the methods necessary to alter data from
+ * the simulation configuration files.
  * 
  * @author ???
  */

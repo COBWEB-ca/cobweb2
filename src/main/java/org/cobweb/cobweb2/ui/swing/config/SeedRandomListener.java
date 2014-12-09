@@ -16,6 +16,7 @@ public class SeedRandomListener implements ActionListener {
 	public SeedRandomListener(JFormattedTextField box) {
 		this.box = box;
 	}
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		box.setValue(new Long(Math.abs(random.nextLong() % 100000l)));
 	}

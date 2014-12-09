@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 public class ReflectionUtil {
 
 	/**
-	 * Adds <code>factor</code> to the value of <code>field</code> contained 
+	 * Adds <code>factor</code> to the value of <code>field</code> contained
 	 * within the parameters, <code>object</code>.
 	 * 
 	 * @param object Parameters.
@@ -33,7 +33,7 @@ public class ReflectionUtil {
 	}
 
 	/**
-	 * Multiplies <code>factor</code> to the value of <code>field</code> contained 
+	 * Multiplies <code>factor</code> to the value of <code>field</code> contained
 	 * within the parameters, <code>object</code>.
 	 * 
 	 * @param object Parameters.

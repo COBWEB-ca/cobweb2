@@ -43,6 +43,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 		// nothing
 	}
 
+	@Override
 	public void controlAgent(Agent theAgent) {
 		ComplexAgent agent;
 		if (theAgent instanceof ComplexAgent) {
@@ -120,6 +121,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 			agent.step();
 	}
 
+	@Override
 	public CobwebParam getParams() {
 		return params;
 	}
@@ -138,12 +140,14 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 		this.params = (LinearWeightsControllerParams) params;
 	}
 
+	@Override
 	public void setupFromEnvironment(int memSize, int commSize, CobwebParam params, int type) {
 		this.params = (LinearWeightsControllerParams) params;
 		this.memSize = memSize;
 		this.commSize = commSize;
 	}
 
+	@Override
 	public void setupFromParent(Controller p, float mutation) {
 		if (!(p instanceof LinearWeightsController))
 			throw new RuntimeException("Parent's controller type must match the child's");
@@ -154,6 +158,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 		mutate(mutation);
 	}
 
+	@Override
 	public void setupFromParents(Controller p1, Controller p2, float mutation) {
 		if (!(p1 instanceof LinearWeightsController) || !(p2 instanceof LinearWeightsController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");

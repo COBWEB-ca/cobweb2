@@ -57,7 +57,7 @@ public class LearningAgentParams extends AbstractReflectionParams {
 
 	@ConfXMLTag("NumMemories")
 	@ConfDisplayName("Memories to remember")
-	public int numMemories = 4;		
+	public int numMemories = 4;
 
 	@ConfXMLTag("PartnerLove")
 	@ConfDisplayName("Affection for partner")
@@ -70,5 +70,5 @@ public class LearningAgentParams extends AbstractReflectionParams {
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}
-	}		
+	}
 }

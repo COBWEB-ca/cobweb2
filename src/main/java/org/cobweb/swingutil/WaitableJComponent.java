@@ -9,10 +9,12 @@ public class WaitableJComponent extends JComponent implements SynchronousDisplay
 
 	JComponentWaiter waiter = new JComponentWaiter(this);
 
+	@Override
 	public void refresh(boolean wait) {
 		waiter.refresh(wait);
 	}
 
+	@Override
 	public boolean isReadyToRefresh() {
 		return waiter.isReadyToRefresh();
 	}

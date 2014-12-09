@@ -37,6 +37,7 @@ public class LinearWeightsControllerParams implements CobwebParam, ControllerPar
 		return p;
 	}
 
+	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		try {
 			NodeList inps = root.getChildNodes();
@@ -69,6 +70,7 @@ public class LinearWeightsControllerParams implements CobwebParam, ControllerPar
 		}
 	}
 
+	@Override
 	public void saveConfig(Node root, Document document) {
 		for (int o = 0; o < data.length; o++) {
 			Element inp = document.createElement("inp");

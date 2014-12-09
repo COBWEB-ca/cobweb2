@@ -25,11 +25,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
- * TODO better comments 
+ * TODO better comments
  * 
- * <p>During each tick of a simulation, each ComplexAgent instance will 
- * be used to call the tickNotification method.  This is done in the 
- * TickScheduler.doTick private method. 
+ * <p>During each tick of a simulation, each ComplexAgent instance will
+ * be used to call the tickNotification method.  This is done in the
+ * TickScheduler.doTick private method.
  * 
  * @see org.cobweb.cobweb2.core.Agent
  * @see java.io.Serializable
@@ -150,7 +150,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	public ComplexAgentParams params;
 
 	/**
-	 * Energy gauge 
+	 * Energy gauge
 	 */
 	protected int energy;
 	/** Prisoner's Dilemma */
@@ -354,7 +354,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * Creates a new communication packet.  The energy to broadcast is 
+	 * Creates a new communication packet.  The energy to broadcast is
 	 * deducted here.
 	 * 
 	 * @param loc The location of food.
@@ -469,7 +469,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	public SeeInfo distanceLook() {
 		Direction d = facing;
 		org.cobweb.cobweb2.core.Location destPos = getPosition().getAdjacent(d);
-		if (getPosition().checkFlip(d)) 
+		if (getPosition().checkFlip(d))
 			d = d.flip();
 		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
 
@@ -493,14 +493,14 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_DROP);
 
 			destPos = destPos.getAdjacent(d);
-			if (getPosition().checkFlip(d)) 
+			if (getPosition().checkFlip(d))
 				d = d.flip();
 		}
 		return new SeeInfo(LOOK_DISTANCE, 0);
 	}
 
 	/**
-	 * The agent eats the food (food flag is set to false), and 
+	 * The agent eats the food (food flag is set to false), and
 	 * gains energy and waste according to the food type.
 	 * 
 	 * @param destPos Location of food.
@@ -522,7 +522,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * The agent eats the adjacent agent by killing it and gaining 
+	 * The agent eats the adjacent agent by killing it and gaining
 	 * energy from it.
 	 * 
 	 * @param adjacentAgent The agent being eaten.
@@ -634,8 +634,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * The agent will remember the last variable number of agents that 
-	 * cheated it.  How many cheaters it remembers is determined by its 
+	 * The agent will remember the last variable number of agents that
+	 * cheated it.  How many cheaters it remembers is determined by its
 	 * PD memory size.
 	 * 
 	 * @param othersID In a game of PD, the opposing agents ID
@@ -657,16 +657,16 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		Node agent = doc.createElement("Agent");
 
-		Element agentTypeElement = doc.createElement("agentType"); 
-		agentTypeElement.appendChild(doc.createTextNode(agentType +"")); 
-		agent.appendChild(agentTypeElement); 
+		Element agentTypeElement = doc.createElement("agentType");
+		agentTypeElement.appendChild(doc.createTextNode(agentType +""));
+		agent.appendChild(agentTypeElement);
 
 
-		Element doCheatElement = doc.createElement("doCheat"); 
-		doCheatElement.appendChild(doc.createTextNode(pdCheater +"")); 
-		agent.appendChild(doCheatElement); 
+		Element doCheatElement = doc.createElement("doCheat");
+		doCheatElement.appendChild(doc.createTextNode(pdCheater +""));
+		agent.appendChild(doCheatElement);
 
-		Element paramsElement = doc.createElement("params"); 
+		Element paramsElement = doc.createElement("params");
 
 		params.saveConfig(paramsElement, doc);
 
@@ -698,21 +698,21 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * This method initializes the agents actions in an iterated prisoner's 
-	 * dilemma game.  The agent can use the following strategies described 
+	 * This method initializes the agents actions in an iterated prisoner's
+	 * dilemma game.  The agent can use the following strategies described
 	 * by the agentPDStrategy integer:
 	 * 
 	 * <p>0. Default
 	 * 
-	 * <p>The agents decision to defect or cooperate is chosen randomly.  
-	 * The probability of choosing either is determined by the agents 
+	 * <p>The agents decision to defect or cooperate is chosen randomly.
+	 * The probability of choosing either is determined by the agents
 	 * pdCoopProb parameter.
 	 * 
 	 * <p>1. Tit for Tat
 	 * 
-	 * <p>The agent will initially begin with a cooperate, but will then choose 
-	 * whatever the opposing agent chose last.  For example, the agent begins 
-	 * with a cooperate, but if the opposing agent has chosen to defect, then 
+	 * <p>The agent will initially begin with a cooperate, but will then choose
+	 * whatever the opposing agent chose last.  For example, the agent begins
+	 * with a cooperate, but if the opposing agent has chosen to defect, then
 	 * the agent will choose to defect next round.
 	 * 
 	 */
@@ -738,18 +738,18 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 *Prisoner's dilemma is played between the two agents using the strategies 
-	 *assigned in playPD().  The agent will use its PD memory to remember agents 
+	 *Prisoner's dilemma is played between the two agents using the strategies
+	 *assigned in playPD().  The agent will use its PD memory to remember agents
 	 *that cheat it, which will affect whether an agent will want to meet another,
 	 *and its credibility.
 	 *
 	 *<p>How Prisoner's Dilemma is played:
 	 *
-	 *<p>Prisoner's dilemma is a game between two agents when they come in to 
-	 *contact with each other.  The game determines how much energy each agent 
+	 *<p>Prisoner's dilemma is a game between two agents when they come in to
+	 *contact with each other.  The game determines how much energy each agent
 	 *receives after contact.  Each agent has two options: cooperate or defect.
-	 *The agents choice to cooperate or defect is determined by the strategy the 
-	 *agent is using (see playPD() method).  The agents choices can lead to 
+	 *The agents choice to cooperate or defect is determined by the strategy the
+	 *agent is using (see playPD() method).  The agents choices can lead to
 	 *one of four outcomes:
 	 *
 	 *<p> 1. REWARD for mutual cooperation (Both agents cooperate)
@@ -760,9 +760,9 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 *
 	 *<p> 4. PUNISHMENT for mutual defection (Both agents defect)
 	 *
-	 *<p>The best strategy for both agents is to cooperate.  However, if an agent 
-	 *chooses to defect when the other cooperates, the defecting agent will have 
-	 *a greater advantage.  For a true game of PD, the energy scores for each 
+	 *<p>The best strategy for both agents is to cooperate.  However, if an agent
+	 *chooses to defect when the other cooperates, the defecting agent will have
+	 *a greater advantage.  For a true game of PD, the energy scores for each
 	 *outcome should follow this rule: TEMPTATION > REWARD > PUNISHMENT > SUCKER
 	 *
 	 *<p>Here is an example of how much energy an agent could receive:
@@ -908,36 +908,36 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * During a step, the agent can encounter four different circumstances: 
-	 * 1. Nothing is in its way.  
-	 * 2. Contact with another agent.  
+	 * During a step, the agent can encounter four different circumstances:
+	 * 1. Nothing is in its way.
+	 * 2. Contact with another agent.
 	 * 3. Run into waste.
 	 * 4. Run into a rock.
 	 * 
-	 * <p> 1. Nothing in its way: 
+	 * <p> 1. Nothing in its way:
 	 * 
-	 * <p>If the agent can move into the next position, the first thing it will do 
-	 * is check for food.  If it finds food, then the agent may 
-	 * broadcast a message containing the location of the food.  The agent may 
-	 * then eat the food.  If after eating the food the agent was pregnant, a check 
-	 * will be made to see if the child can be produced now.  If the agent was not 
+	 * <p>If the agent can move into the next position, the first thing it will do
+	 * is check for food.  If it finds food, then the agent may
+	 * broadcast a message containing the location of the food.  The agent may
+	 * then eat the food.  If after eating the food the agent was pregnant, a check
+	 * will be made to see if the child can be produced now.  If the agent was not
 	 * pregnant, then a-sexual breeding will be attempted.
 	 * 
-	 * <p>This method will then iterate through all  mutators used in the simulation 
-	 * and call onStep for each step mutator.  The agent will then move.  If it 
-	 * was found that the agent was ready to produce a child, then a new agent 
+	 * <p>This method will then iterate through all  mutators used in the simulation
+	 * and call onStep for each step mutator.  The agent will then move.  If it
+	 * was found that the agent was ready to produce a child, then a new agent
 	 * is created.
 	 * 
 	 * <p> 2. Contact with another agent:
 	 * 
-	 * <p> Contact mutators are iterated through and the onContact method is called 
-	 * for each used within the simulation.  The agent will eat the agent if it can.  
+	 * <p> Contact mutators are iterated through and the onContact method is called
+	 * for each used within the simulation.  The agent will eat the agent if it can.
 	 * 
-	 * <p> If prisoner's dilemma is being used for this simulation, then a check is 
-	 * made to see if both agents want to meet each other (True if no bad memories of 
-	 * adjacent agent).  If the adjacent agent was not eaten and both agents want to 
-	 * meet each other, then the possibility of breeding will be looked in to.  If 
-	 * breeding is not possible, then prisoner's dilemma will be played.  If prisoner's 
+	 * <p> If prisoner's dilemma is being used for this simulation, then a check is
+	 * made to see if both agents want to meet each other (True if no bad memories of
+	 * adjacent agent).  If the adjacent agent was not eaten and both agents want to
+	 * meet each other, then the possibility of breeding will be looked in to.  If
+	 * breeding is not possible, then prisoner's dilemma will be played.  If prisoner's
 	 * dilemma is not used, then only breeding is checked for.
 	 * 
 	 * <p> An energy penalty is deducted for bumping into another agent.
@@ -1119,8 +1119,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * Controls what happens to the agent on this tick.  If the 
-	 * agent is still alive, what happens to the agent is determined 
+	 * Controls what happens to the agent on this tick.  If the
+	 * agent is still alive, what happens to the agent is determined
 	 * by the controller.
 	 * 
 	 * @param tick The time in the simulation
@@ -1162,8 +1162,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * If the agent has enough energy to breed, is randomly chosen to breed, 
-	 * and its asexFlag is true, then the agent will be pregnant and set to 
+	 * If the agent has enough energy to breed, is randomly chosen to breed,
+	 * and its asexFlag is true, then the agent will be pregnant and set to
 	 * produce a child agent after the agent's asexPregnancyPeriod is up.
 	 */
 	protected void tryAsexBreed() {
@@ -1191,7 +1191,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 */
 	private void tryPoop() {
 		forceDrop(new Waste(currTick, params.wasteInit, params.wasteDecay));
-	}	
+	}
 
 	private void forceDrop(Drop d) {
 		boolean added = false;
@@ -1254,7 +1254,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			return roll(prodParams.lowDemandProdChance);
 		} else if (locationValue <= prodParams.sweetDemandThreshold) {
 			/*
-			 * The sweet spot is an inverted parabola, the vertex is 100% probability in the middle of the sweet spot 
+			 * The sweet spot is an inverted parabola, the vertex is 100% probability in the middle of the sweet spot
 			 * (between lowDemandThreshold and sweetDemandThreshold)
 			 * the tips are sweetDemandStartChance probability at the thresholds.
 			 * 
@@ -1336,8 +1336,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * This method makes the agent turn left.  It does this by updating 
-	 * the direction of the agent and subtracts the amount of 
+	 * This method makes the agent turn left.  It does this by updating
+	 * the direction of the agent and subtracts the amount of
 	 * energy it took to turn.
 	 */
 	public void turnLeft() {
@@ -1353,8 +1353,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/**
-	 * This method makes the agent turn right.  It does this by updating 
-	 * the direction of the agent subtracts the amount of energy it took 
+	 * This method makes the agent turn right.  It does this by updating
+	 * the direction of the agent subtracts the amount of energy it took
 	 * to turn.
 	 */
 	public void turnRight() {

@@ -69,10 +69,12 @@ public class GeneticParams extends AbstractReflectionParams {
 
 		public MeiosisMode mode = MeiosisMode.ColourAveraging;
 
+		@Override
 		public void loadConfig(Node root) throws IllegalArgumentException {
 			mode = MeiosisMode.fromString(root.getTextContent());
 		}
 
+		@Override
 		public void saveConfig(Node root, Document document) {
 			root.setTextContent(mode.toString());
 		}

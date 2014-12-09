@@ -16,7 +16,7 @@ public class GeneticControllerParams extends AbstractReflectionParams implements
 	private static final long serialVersionUID = -1252142643022378114L;
 
 	/**
-	 * Random seed used to initialize the behaviour array. 
+	 * Random seed used to initialize the behaviour array.
 	 */
 	@ConfDisplayName("Array initialization random seed")
 	@ConfXMLTag("RandomSeed")

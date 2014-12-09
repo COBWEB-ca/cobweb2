@@ -4,9 +4,9 @@ import java.awt.Color;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.ComplexEnvironment.Drop;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.globals;
-import org.cobweb.cobweb2.core.ComplexEnvironment.Drop;
 
 public class Product implements Drop {
 	private final ProductionMapper productionMapper;

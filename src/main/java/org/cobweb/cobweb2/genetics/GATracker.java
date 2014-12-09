@@ -19,15 +19,15 @@ public class GATracker {
 	/** The sum of specific gene status numbers over particular agent types. */
 	public double[][] total_gene_status;
 
-	/** 
-	 * The distribution of the status of a specific gene over particular agent types. 
-	 * array indices are: [agent_type][gene_index][gene_status], 
+	/**
+	 * The distribution of the status of a specific gene over particular agent types.
+	 * array indices are: [agent_type][gene_index][gene_status],
 	 * value is the number of agents with given specific status
 	 * */
 	private double[][][] gene_status_distribution;
 
-	/** 
-	 * The distribution of the value of a specific gene over particular agent types. 
+	/**
+	 * The distribution of the value of a specific gene over particular agent types.
 	 * array indices are: [agent_type][gene_index][gene_value],
 	 * value is the number of agents with given specific value
 	 * */

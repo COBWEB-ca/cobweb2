@@ -27,14 +27,14 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	 * Height of the simulation grid.
 	 */
 	private int height = -9000;
-	
+
 	/**
 	 * TemperatureMutator is an instance of Step and Spawn Mutator.
 	 */
 	public TemperatureMutator() {
 		// Nothing
 	}
-	
+
 	/**
 	 * @param loc Scrutinized location.
 	 * @return The temperature of the location within the temperature band.
@@ -59,26 +59,32 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 		return f;
 	}
 
+	@Override
 	public Collection<String> logDataAgent(int agentType) {
 		return blank;
 	}
 
+	@Override
 	public Collection<String> logDataTotal() {
 		return blank;
 	}
 
+	@Override
 	public Collection<String> logHeadersAgent() {
 		return blank;
 	}
 
+	@Override
 	public Collection<String> logHeaderTotal() {
 		return blank;
 	}
 
+	@Override
 	public void onDeath(ComplexAgent agent) {
 		// Nothing
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent) {
 		TemperatureAgentParams aPar = params.agentParams[agent.type()];
 
@@ -87,21 +93,24 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 			ReflectionUtil.addField(agent.params, aPar.parameter.field, f);
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
 		onSpawn(agent);
 	}
 
+	@Override
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
 		onSpawn(agent);
 	}
 
 	/**
-	 * During a step 
+	 * During a step
 	 * 
 	 * @param agent The agent doing the step
 	 * @param to Location the agent is moving to.
 	 * @param from Location the agent is moving from.
 	 */
+	@Override
 	public void onStep(ComplexAgent agent, Location to, Location from) {
 		TemperatureAgentParams aPar = params.agentParams[agent.type()];
 

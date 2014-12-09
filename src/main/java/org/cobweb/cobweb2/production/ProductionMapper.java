@@ -52,7 +52,7 @@ public class ProductionMapper implements StatePlugin {
 				vals[x][y] -= value;
 				if (vals[x][y] > newMax) {
 					newMax = vals[x][y];
-				}				
+				}
 			}
 		}
 		maxValue = newMax;

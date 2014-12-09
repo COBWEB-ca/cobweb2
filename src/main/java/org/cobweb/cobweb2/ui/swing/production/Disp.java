@@ -3,8 +3,8 @@ package org.cobweb.cobweb2.ui.swing.production;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.cobweb2.ui.UpdatableUI;
@@ -32,7 +32,7 @@ public class Disp extends JFrame implements UpdatableUI {
 		this.y = y;
 
 
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		display = new ProductionPanel();
 		this.setSize(400, 400);
 		this.add(display);

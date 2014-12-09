@@ -47,6 +47,7 @@ public class BoundCheckBox extends JCheckBox implements FieldBoundComponent {
 		this.label = field.getAnnotation(ConfDisplayName.class).value();
 	}
 
+	@Override
 	public String getLabelText() {
 		return label;
 	}

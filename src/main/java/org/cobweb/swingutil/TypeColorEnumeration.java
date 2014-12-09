@@ -16,6 +16,7 @@ public class TypeColorEnumeration implements ColorLookup {
 		return instance;
 	}
 
+	@Override
 	public java.awt.Color getColor(int index, int num) {
 
 		Color c = table[index % table.length];
@@ -27,6 +28,7 @@ public class TypeColorEnumeration implements ColorLookup {
 
 	}
 
+	@Override
 	public ColorSpace getSpace() {
 		return space;
 	}

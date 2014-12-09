@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Defines @ConfXMLTag, which returns the value of a 
- * specified data field. 
+ * Defines @ConfXMLTag, which returns the value of a
+ * specified data field.
  * 
  * @author ???
  */

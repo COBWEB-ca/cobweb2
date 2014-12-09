@@ -24,6 +24,7 @@ public abstract class SmartAction implements Queueable {
 		this.agent = agent;
 	}
 
+	@Override
 	public String getDescription() {
 		return desc;
 	}
@@ -111,6 +112,7 @@ public abstract class SmartAction implements Queueable {
 	 * 
 	 * desiredAction() will always be called if ignoreLearning = true.
 	 */
+	@Override
 	public final void happen() {
 
 		if (!agent.lParams.shouldLearn || actionIsDesireable()) {
@@ -126,6 +128,7 @@ public abstract class SmartAction implements Queueable {
 		}
 	}
 
+	@Override
 	public boolean isComplete() {
 		return isIrrelevant;
 	}

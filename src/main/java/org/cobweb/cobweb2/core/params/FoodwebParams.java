@@ -48,6 +48,7 @@ public class FoodwebParams implements CobwebParam {
 		}
 	}
 
+	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		canEatFood = new boolean[env.getFoodTypes()];
 		canEatAgent = new boolean[env.getAgentTypes()];
@@ -72,6 +73,7 @@ public class FoodwebParams implements CobwebParam {
 		}
 	}
 
+	@Override
 	public void saveConfig(Node root, Document document) {
 		for (int agent = 0; agent < env.getAgentTypes(); agent++) {
 			Node n = document.createElement("agent" + (agent + 1));
