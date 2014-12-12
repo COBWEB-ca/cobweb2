@@ -332,7 +332,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 				if (!a.isAlive())
 					ai.remove();
 			}
-			drawInfo = new DrawInfo(simulation.theEnvironment, observedAgents);
+			drawInfo = new DrawInfo(simulation, observedAgents);
 		}
 		super.refresh(wait);
 	}

@@ -187,7 +187,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 		sickCount[agent.type()]--;
 	}
 
-	private boolean isSick(ComplexAgent agent) {
+	public boolean isSick(ComplexAgent agent) {
 		return sick.containsKey(agent) && sick.get(agent).sick;
 	}
 

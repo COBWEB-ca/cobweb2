@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
@@ -51,21 +52,21 @@ class DrawInfo {
 	 * The tiles array is not copied; the caller is assumed to "give" the
 	 * array to the drawing info, and not keep any local references around.
 	 */
-	DrawInfo(ComplexEnvironment env, List<ComplexAgent> observedAgents) {
-		width = env.getWidth();
-		height = env.getHeight();
+	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents) {
+		width = sim.theEnvironment.getWidth();
+		height = sim.theEnvironment.getHeight();
 		tileColors = new Color[width * height];
 
 		int tileIndex = 0;
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				Location currentPos = env.getLocation(x, y);
+				Location currentPos = sim.theEnvironment.getLocation(x, y);
 
 				if (currentPos.testFlag(ComplexEnvironment.FLAG_STONE))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
 
 				else if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
-					tileColors[tileIndex++] = colorMap.getColor(env.getFoodType(currentPos), 0 /* agentTypeCount */);
+					tileColors[tileIndex++] = colorMap.getColor(sim.theEnvironment.getFoodType(currentPos), 0 /* agentTypeCount */);
 
 				else
 					tileColors[tileIndex++] = java.awt.Color.white;
@@ -73,8 +74,8 @@ class DrawInfo {
 		}
 
 
-		for (Agent a : env.getAgents()) {
-			agents.add(new AgentDrawInfo((ComplexAgent) a, colorMap));
+		for (Agent a : sim.theEnvironment.getAgents()) {
+			agents.add(new AgentDrawInfo((ComplexAgent) a, colorMap, sim));
 		}
 
 		for (ComplexAgent observedAgent: observedAgents) {
@@ -85,9 +86,9 @@ class DrawInfo {
 
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				Location currentPos = env.getLocation(x, y);
+				Location currentPos = sim.theEnvironment.getLocation(x, y);
 				if (currentPos.testFlag(ComplexEnvironment.FLAG_DROP)){
-					drops.add(new DropDrawInfo(new Point2D(x, y), env.dropArray[x][y]));
+					drops.add(new DropDrawInfo(new Point2D(x, y), sim.theEnvironment.dropArray[x][y]));
 				}
 			}
 		}

@@ -140,7 +140,7 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 
 	@Override
 	public void update(boolean sync) {
-		tickDisplay.setText("Tick: " + Long.toString(simRunner.getSimulation().getTime()) + "  ");
+		tickDisplay.setText("Tick: " + simRunner.getSimulation().getTime() + "  ");
 		if (displayPanel != null) {
 			displayPanel.refresh(sync);
 		}

@@ -29,7 +29,7 @@ public class Simulation implements SimulationInterface {
 
 	public GeneticsMutator geneticMutator;
 
-	private DiseaseMutator diseaseMutator;
+	public DiseaseMutator diseaseMutator;
 
 	// TODO access level?
 	public SimulationConfig simulationConfig;

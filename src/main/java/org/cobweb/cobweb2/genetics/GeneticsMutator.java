@@ -15,7 +15,7 @@ import org.cobweb.util.ReflectionUtil;
 
 /**
  * GeneticsMutator is an instance of SpawnMutator.
- * 
+ *
  * @see SpawnMutator
  */
 public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator {
@@ -38,11 +38,11 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 
 	/**
 	 * Returns the genes of agent.  If the agent does not currently have genes, they will be created.
-	 * 
+	 *
 	 * @param agent The complex agent that the genes will come from.
 	 * @return The genetic code of agent
 	 */
-	private GeneticCode getGene(ComplexAgent agent) {
+	public GeneticCode getGene(ComplexAgent agent) {
 		if (!agent.isAlive())
 			return null;
 
@@ -177,8 +177,8 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @param params The parameters used in the simulation data file (xml file).
 	 * @param agentCount The number of agent types.
 	 */

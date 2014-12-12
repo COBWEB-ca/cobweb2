@@ -3,7 +3,9 @@ package org.cobweb.cobweb2.ui.swing;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.genetics.GeneticCode;
 import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.util.Point2D;
 
@@ -36,8 +38,21 @@ class AgentDrawInfo {
 
 	private int[] yPts = new int[3];
 
-	AgentDrawInfo(ComplexAgent agent, ColorLookup colorMap) {
-		agentColor = Color.BLACK; // FIXME colorizer based on gene/disease/etc
+	AgentDrawInfo(ComplexAgent agent, ColorLookup colorMap, Simulation sim) {
+		int[] rgb = new int[3];
+		if (sim.geneticMutator != null) {
+			GeneticCode genes = sim.geneticMutator.getGene(agent);
+			for (int i = 0; i < Math.min(3, genes.getNumGenes()); i++) {
+				rgb[i] = genes.getValue(i);
+			}
+		}
+
+		if (sim.diseaseMutator != null) {
+			if (sim.diseaseMutator.isSick(agent))
+				rgb[2] = 255;
+		}
+
+		agentColor = new Color(rgb[0], rgb[1], rgb[2]);
 
 		type =  colorMap.getColor(agent.params.type, 0);
 
