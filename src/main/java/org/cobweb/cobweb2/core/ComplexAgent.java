@@ -165,7 +165,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	protected long photo_memory[];
 	private int photo_num = 0;
 	protected boolean want2meet = false;
-	private long birthTick = 0;
 
 	/* Waste variables */
 	private int wasteCounterGain;
@@ -178,7 +177,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	private boolean asexFlag;
 
-	protected ComplexAgentInfo info;
+	protected ComplexAgentStatistics stats;
 
 	// pregnancyPeriod is set value while pregPeriod constantly changes
 	protected int pregPeriod;
@@ -252,8 +251,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		} // else keep parent 1's PD config
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		birthTick = environment.simulation.getTime();
-		info = environment.addAgentInfo(agentType, parent1.info, parent2.info);
+		stats = environment.addAgentInfo(agentType, parent1.stats, parent2.stats);
 
 		move(pos);
 
@@ -277,8 +275,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		copyConstants(parent);
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		birthTick = environment.simulation.getTime();
-		info = environment.addAgentInfo(agentType, parent.info);
+		stats = environment.addAgentInfo(agentType, parent.stats);
 
 		move(pos);
 
@@ -295,8 +292,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		this.facing = facingDirection;
 
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		birthTick = environment.simulation.getTime();
-		info = environment.addAgentInfo(agentT);
+		stats = environment.addAgentInfo(agentT);
 
 		move(pos);
 
@@ -321,8 +317,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		params = agentData;
 		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		birthTick = environment.simulation.getTime();
-		info = environment.addAgentInfo(agentType);
+		stats = environment.addAgentInfo(agentType);
 		this.agentType = agentType;
 
 		move(pos);
@@ -458,7 +453,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			mutator.onDeath(this);
 		}
 
-		info.setDeath(environment.simulation.getTime());
+		stats.setDeath(environment.simulation.getTime());
 	}
 
 	/**
@@ -513,25 +508,25 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		if (environment.getFoodType(destPos) == agentType) {
 			energy += params.foodEnergy;
 			wasteCounterGain -= params.foodEnergy;
-			info.addFoodEnergy(params.foodEnergy);
+			stats.addFoodEnergy(params.foodEnergy);
 		} else {
 			energy += params.otherFoodEnergy;
 			wasteCounterGain -= params.otherFoodEnergy;
-			info.addOthers(params.otherFoodEnergy);
+			stats.addOthers(params.otherFoodEnergy);
 		}
 	}
 
 	/**
 	 * The agent eats the adjacent agent by killing it and gaining
 	 * energy from it.
-	 * 
+	 *
 	 * @param adjacentAgent The agent being eaten.
 	 */
 	protected void eat(ComplexAgent adjacentAgent) {
 		int gain = (int) (adjacentAgent.energy * params.agentFoodEnergy);
 		energy += gain;
 		wasteCounterGain -= gain;
-		info.addCannibalism(gain);
+		stats.addCannibalism(gain);
 		adjacentAgent.die();
 	}
 
@@ -554,7 +549,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	public long getAge() {
-		return currTick - birthTick;
+		return currTick - stats.birthTick;
 	}
 
 	public boolean getAgentPDActionCheat() {
@@ -582,8 +577,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		return energy;
 	}
 
-	public ComplexAgentInfo getInfo() {
-		return info;
+	public ComplexAgentStatistics getInfo() {
+		return stats;
 	}
 
 	/**
@@ -684,7 +679,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	@Override
 	public void move(Location newPos) {
 		super.move(newPos);
-		info.addPathStep(newPos);
+		stats.addPathStep(newPos);
 		if (mustFlip) {
 			if (facing.equals(Environment.DIRECTION_NORTH))
 				facing = Environment.DIRECTION_SOUTH;
@@ -796,25 +791,25 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			/* Both cooperate */
 			energy += environment.PD_PAYOFF_REWARD;
 			adjacentAgent.energy += environment.PD_PAYOFF_REWARD;
-			info.addPDReward();
+			stats.addPDReward();
 
 		} else if (!pdCheater && adjacentAgent.pdCheater) {
 			/* Only other agent cheats */
 			energy += environment.PD_PAYOFF_SUCKER;
 			adjacentAgent.energy += environment.PD_PAYOFF_TEMPTATION;
-			info.addPDTemptation();
+			stats.addPDTemptation();
 
 		} else if (pdCheater && !adjacentAgent.pdCheater) {
 			/* Only this agent cheats */
 			energy += environment.PD_PAYOFF_TEMPTATION;
 			adjacentAgent.energy += environment.PD_PAYOFF_SUCKER;
-			info.addPDSucker();
+			stats.addPDSucker();
 
 		} else if (pdCheater && adjacentAgent.pdCheater) {
 			/* Both cheat */
 			energy += environment.PD_PAYOFF_PUNISHMENT;
 			adjacentAgent.energy += environment.PD_PAYOFF_PUNISHMENT;
-			info.addPDPunishment();
+			stats.addPDPunishment();
 
 		}
 
@@ -958,7 +953,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			onstepFreeTile(destPos);
 
 		} else if ((adjAgent = getAdjacentAgent()) != null && adjAgent instanceof ComplexAgent
-				&& ((ComplexAgent) adjAgent).info != null) {
+				&& ((ComplexAgent) adjAgent).stats != null) {
 			// two agents meet
 
 			ComplexAgent adjacentAgent = (ComplexAgent) adjAgent;
@@ -971,7 +966,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			// Non-free tile (rock/waste/etc) bump
 			energy -= params.stepRockEnergy;
 			wasteCounterLoss -= params.stepRockEnergy;
-			info.useRockBumpEnergy(params.stepRockEnergy);
+			stats.useRockBumpEnergy(params.stepRockEnergy);
 		}
 		energy -= energyPenalty();
 
@@ -986,7 +981,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			}
 			else {
 				// can't step, treat as obstacle
-				info.useRockBumpEnergy(params.stepRockEnergy);
+				stats.useRockBumpEnergy(params.stepRockEnergy);
 			}
 		}
 
@@ -1013,18 +1008,13 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			if (canEat(destPos)) {
 				eat(destPos);
 			}
-			if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
+		}
 
-				breedPos = getPosition();
-				energy -= params.initEnergy;
-				energy -= energyPenalty();
-				wasteCounterLoss -= params.initEnergy;
-				info.useOthers(params.initEnergy);
-
-			} else {
-				if (!pregnant)
-					tryAsexBreed();
-			}
+		if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
+			breedPos = getPosition();
+		} else if (!pregnant) {
+			// TODO: make AI control this choice?
+			tryAsexBreed();
 		}
 
 		for (StepMutator m : stepMutators)
@@ -1033,25 +1023,27 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		move(destPos);
 
 		if (breedPos != null) {
+			energy -= params.initEnergy;
+			energy -= energyPenalty();
+			wasteCounterLoss -= params.initEnergy;
+			stats.useReproductionEnergy(params.initEnergy);
+			stats.addDirectChild();
+
+			ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
 
 			if (breedPartner == null) {
-				info.addDirectChild();
-				ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
 				child.init(breedPos, this);
 			} else {
-
-				info.addDirectChild();
-				breedPartner.info.addDirectChild();
-				ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
+				breedPartner.stats.addDirectChild();
 				child.init(breedPos, this, breedPartner);
-				info.addSexPreg();
+				stats.addSexPreg();
 			}
 			breedPartner = null;
 			pregnant = false;
 		}
 		energy -= params.stepEnergy;
 		wasteCounterLoss -= params.stepEnergy;
-		info.useStepEnergy(params.stepEnergy);
+		stats.useStepEnergy(params.stepEnergy);
 	}
 
 	protected void onstepAgentBump(ComplexAgent adjacentAgent) {
@@ -1065,7 +1057,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		want2meet = true;
 
-		int othersID = adjacentAgent.info.getAgentNumber();
+		int othersID = adjacentAgent.stats.getAgentNumber();
 		// scan the memory array, is the 'other' agents ID is found in the array,
 		// then choose not to have a transaction with him.
 		for (int i = 0; i < params.pdMemory; i++) {
@@ -1102,7 +1094,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 		energy -= params.stepAgentEnergy;
 		setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
-		info.useAgentBumpEnergy(params.stepAgentEnergy);
+		stats.useAgentBumpEnergy(params.stepAgentEnergy);
 	}
 
 	private void thinkAboutFoodLocation(int x, int y) {
@@ -1347,8 +1339,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		facing = newFacing;
 		energy -= params.turnLeftEnergy;
 		setWasteCounterLoss(getWasteCounterLoss() - params.turnLeftEnergy);
-		info.useTurning(params.turnLeftEnergy);
-		info.addTurn();
+		stats.addTurn(params.turnLeftEnergy);
 		afterTurnAction();
 	}
 
@@ -1364,8 +1355,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		facing = newFacing;
 		energy -= params.turnRightEnergy;
 		setWasteCounterLoss(getWasteCounterLoss() - params.turnRightEnergy);
-		info.useTurning(params.turnRightEnergy);
-		info.addTurn();
+		stats.addTurn(params.turnRightEnergy);
 		afterTurnAction();
 	}
 

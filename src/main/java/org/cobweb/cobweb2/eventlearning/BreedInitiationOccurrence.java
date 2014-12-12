@@ -30,7 +30,7 @@ public class BreedInitiationOccurrence extends Occurrence {
 
 		concernedAgent.setWasteCounterLoss(concernedAgent.getWasteCounterLoss() - concernedAgent.params.initEnergy);
 
-		concernedAgent.getInfo().useOthers(concernedAgent.params.initEnergy);
+		concernedAgent.getInfo().useReproductionEnergy(concernedAgent.params.initEnergy);
 
 		return new MemorableEvent(time, +0.5f, "breedInit");
 	}

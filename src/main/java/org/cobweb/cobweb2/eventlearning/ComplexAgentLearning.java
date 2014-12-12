@@ -292,7 +292,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			});
 
 		} else if ((adjAgent = getAdjacentAgent()) != null && adjAgent instanceof ComplexAgentLearning
-				&& ((ComplexAgentLearning) adjAgent).info != null) {
+				&& ((ComplexAgentLearning) adjAgent).stats != null) {
 			// two agents meet
 
 			final ComplexAgentLearning adjacentAgent = (ComplexAgentLearning) adjAgent;
@@ -336,7 +336,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 			want2meet = true;
 
-			final int othersID = adjacentAgent.info.getAgentNumber();
+			final int othersID = adjacentAgent.stats.getAgentNumber();
 			// scan the memory array, is the 'other' agents ID is found in the
 			// array,
 			// then choose not to have a transaction with him.
@@ -397,7 +397,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			}
 			energy -= params.stepAgentEnergy;
 			setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
-			info.useAgentBumpEnergy(params.stepAgentEnergy);
+			stats.useAgentBumpEnergy(params.stepAgentEnergy);
 
 		} // end of two agents meet
 		else if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
@@ -410,7 +410,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 					concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, -params.wastePen, "bumpWaste"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.wastePen);
-					info.useRockBumpEnergy(params.wastePen);
+					stats.useRockBumpEnergy(params.wastePen);
 					return null;
 				}
 			});
@@ -424,7 +424,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					concernedAgent
 					.queue(new EnergyChangeOccurrence(concernedAgent, -params.stepRockEnergy, "bumpRock"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.stepRockEnergy);
-					info.useRockBumpEnergy(params.stepRockEnergy);
+					stats.useRockBumpEnergy(params.stepRockEnergy);
 					return null;
 				}
 			});

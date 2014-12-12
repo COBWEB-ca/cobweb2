@@ -168,7 +168,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return foodarray[l.v[0]][l.v[1]];
 	}
 
-	public final List<ComplexAgentInfo> agentInfoVector = new ArrayList<ComplexAgentInfo>();
+	public final List<ComplexAgentStatistics> agentInfoVector = new ArrayList<ComplexAgentStatistics>();
 
 	private org.cobweb.cobweb2.core.ArrayEnvironment array;
 
@@ -220,21 +220,21 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				(ProductionParams) prodData[agentType].clone()); // Default
 	}
 
-	ComplexAgentInfo addAgentInfo(ComplexAgentInfo info) {
+	ComplexAgentStatistics addAgentInfo(ComplexAgentStatistics info) {
 		agentInfoVector.add(info);
 		return info;
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1, ComplexAgentInfo p2) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, simulation.getTime(), p1, p2));
+	ComplexAgentStatistics addAgentInfo(int agentT, ComplexAgentStatistics p1, ComplexAgentStatistics p2) {
+		return addAgentInfo(new ComplexAgentStatistics(getInfoNum(), agentT, simulation.getTime(), p1, p2));
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT, ComplexAgentInfo p1) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, simulation.getTime(), p1));
+	ComplexAgentStatistics addAgentInfo(int agentT, ComplexAgentStatistics p1) {
+		return addAgentInfo(new ComplexAgentStatistics(getInfoNum(), agentT, simulation.getTime(), p1));
 	}
 
-	ComplexAgentInfo addAgentInfo(int agentT) {
-		return addAgentInfo(new ComplexAgentInfo(getInfoNum(), agentT, simulation.getTime()));
+	ComplexAgentStatistics addAgentInfo(int agentT) {
+		return addAgentInfo(new ComplexAgentStatistics(getInfoNum(), agentT, simulation.getTime()));
 	}
 
 	@Override
@@ -711,8 +711,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		backFoodArray = new int[data.width][data.height];
 		mostFood = new int[data.getFoodTypes()];
 
-		org.cobweb.cobweb2.core.ComplexAgentInfo.initialize(data.getAgentTypes());
-
 		if (dropArray == null || !data.keepOldWaste) {
 			loadNewWaste();
 		} else {
@@ -983,7 +981,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	public void resetAgentInfo() {
 		agentInfoVector.clear();
-		ComplexAgentInfo.resetGroupData();
 	}
 
 	/** Sets the default mutable variables of each agent type. */
