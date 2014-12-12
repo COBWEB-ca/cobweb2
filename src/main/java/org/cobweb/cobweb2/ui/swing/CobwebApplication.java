@@ -122,7 +122,9 @@ public class CobwebApplication extends JFrame {
 	public void createNewData() {
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME;
 		SimulationConfigEditor editor = SimulationConfigEditor.show(this, newInput, false);
-		openFile(editor.getConfig(), editor.isContinuation());
+		if (editor.isOK()) {
+			openFile(editor.getConfig(), editor.isContinuation());
+		}
 	}
 
 	public SimulationInterface getSimulation() {
@@ -222,7 +224,9 @@ public class CobwebApplication extends JFrame {
 		}
 
 		SimulationConfigEditor editor = SimulationConfigEditor.show(this, currentData, true);
-		openFile(editor.getConfig(), editor.isContinuation());
+		if (editor.isOK()) {
+			openFile(editor.getConfig(), editor.isContinuation());
+		}
 	}
 
 	/**
@@ -236,7 +240,9 @@ public class CobwebApplication extends JFrame {
 			throw new UserInputException("File not currently saved, use \"Modify Current Data\" instead");
 		}
 		SimulationConfigEditor editor = SimulationConfigEditor.show(this, currentFile, true);
-		openFile(editor.getConfig(), editor.isContinuation());
+		if (editor.isOK()) {
+			openFile(editor.getConfig(), editor.isContinuation());
+		}
 	}
 
 	public void openFile(SimulationConfig config) {
@@ -300,7 +306,9 @@ public class CobwebApplication extends JFrame {
 			File of = new File(directory + file);
 			if (of.exists()) {
 				SimulationConfigEditor editor = SimulationConfigEditor.show(this, directory + file, true);
-				openFile(editor.getConfig(), editor.isContinuation());
+				if (editor.isOK()) {
+					openFile(editor.getConfig(), editor.isContinuation());
+				}
 			} else {
 				JOptionPane.showMessageDialog(
 						this,
@@ -377,7 +385,9 @@ public class CobwebApplication extends JFrame {
 		}
 
 		SimulationConfigEditor editor = SimulationConfigEditor.show(this, tempDefaultData, false);
-		openFile(editor.getConfig(), editor.isContinuation());
+		if (editor.isOK()) {
+			openFile(editor.getConfig(), editor.isContinuation());
+		}
 	}
 
 	/**

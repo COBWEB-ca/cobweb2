@@ -110,6 +110,8 @@ public class SimulationConfigEditor {
 
 	private boolean modifyExisting;
 
+	private boolean ok;
+
 	private String datafile;
 
 	SettingsPanel controllerPanel;
@@ -221,6 +223,10 @@ public class SimulationConfigEditor {
 		return modifyExisting && p.isContinuation();
 	}
 
+	public boolean isOK() {
+		return ok;
+	}
+
 	/**
 	 * This openFileDialog method is invoked by pressing the "Save" button
 	 */
@@ -319,6 +325,7 @@ public class SimulationConfigEditor {
 	}
 
 	private void closeEditor() {
+		ok = true;
 		dialog.setVisible(false);
 		dialog.dispose();
 	}
