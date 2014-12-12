@@ -98,6 +98,7 @@ public class Simulation implements SimulationInterface {
 		// have a way to track which mutators have been bound
 		if (!p.getEnvParams().keepOldAgents) {
 			ComplexAgent.clearMutators();
+			agents.clear();
 			geneticMutator = null;
 			diseaseMutator = null;
 			tempMutator = null;
