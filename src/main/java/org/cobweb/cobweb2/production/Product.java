@@ -1,10 +1,8 @@
 package org.cobweb.cobweb2.production;
 
-import java.awt.Color;
-
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexEnvironment.Drop;
+import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.globals;
 
@@ -37,13 +35,6 @@ public class Product implements Drop {
 
 	public float getValue() {
 		return value;
-	}
-
-	private static final Color MY_COLOR = new Color(128, 0, 255);
-
-	@Override
-	public Color getColor() {
-		return MY_COLOR;
 	}
 
 	@Override

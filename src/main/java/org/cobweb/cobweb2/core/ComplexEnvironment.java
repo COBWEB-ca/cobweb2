@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.core;
 
-import java.awt.Color;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -41,88 +40,6 @@ import org.w3c.dom.NodeList;
  * 2D grid where agents and food live
  */
 public class ComplexEnvironment extends Environment implements Updatable {
-
-	/**
-	 * Contains methods
-	 *
-	 */
-	public static interface Drop {
-		public abstract boolean isActive(long val);
-
-		public Color getColor();
-
-		public boolean canStep();
-
-		public void expire();
-
-		public void onStep(ComplexAgent agent);
-	}
-
-	public static class Waste implements Drop {
-
-		private static final java.awt.Color wasteColor = new java.awt.Color(204, 102, 0);
-
-		private int initialWeight;
-
-		private long birthTick;
-
-		private float rate;
-
-		private double threshold;
-
-		private boolean valid;
-
-		public Waste() {
-			this(0, 0, 0);
-		}
-
-		public Waste(long birthTick, int weight, float rate) {
-			super();
-			initialWeight = weight;
-			this.birthTick = birthTick;
-			this.rate = rate;
-			// to avoid recalculating every tick
-			threshold = 0.001 * initialWeight; // changed from 0.5 to 0.001 by
-			// skinawy
-			this.valid = true;
-		}
-
-		/* Call me sparsely, especially when the age is really old */
-		public double getAmount(long tick) {
-			return initialWeight * Math.pow(Math.E, -rate * (tick - birthTick));
-		}
-
-		@Override
-		public boolean isActive(long tick) {
-			if (!valid)
-				return false;
-			if (getAmount(tick) < threshold) {
-				valid = false;
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public Color getColor() {
-			return wasteColor;
-		}
-
-		@Override
-		public boolean canStep() {
-			return false;
-		}
-
-		@Override
-		public void expire() {
-			// nothing so far
-		}
-
-		@Override
-		public void onStep(ComplexAgent agent) {
-			throw new IllegalStateException("Agents can't step on waste");
-		}
-	}
 
 	private static final int DROP_ATTEMPTS_MAX = 5;
 

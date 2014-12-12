@@ -11,8 +11,6 @@ import java.util.logging.Logger;
 
 import org.cobweb.cobweb2.ai.ControllerFactory;
 import org.cobweb.cobweb2.broadcast.BroadcastPacket;
-import org.cobweb.cobweb2.core.ComplexEnvironment.Drop;
-import org.cobweb.cobweb2.core.ComplexEnvironment.Waste;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.interconnect.AgentMutator;
 import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
@@ -20,6 +18,7 @@ import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
 import org.cobweb.cobweb2.production.ProductionParams;
+import org.cobweb.cobweb2.waste.Waste;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

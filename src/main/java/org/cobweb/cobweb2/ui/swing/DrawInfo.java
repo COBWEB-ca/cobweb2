@@ -87,8 +87,7 @@ class DrawInfo {
 			for (int x = 0; x < width; ++x) {
 				Location currentPos = env.getLocation(x, y);
 				if (currentPos.testFlag(ComplexEnvironment.FLAG_DROP)){
-					Color c = env.dropArray[x][y].getColor();
-					drops.add(new DropDrawInfo(new Point2D(x, y), c));
+					drops.add(new DropDrawInfo(new Point2D(x, y), env.dropArray[x][y]));
 				}
 			}
 		}
