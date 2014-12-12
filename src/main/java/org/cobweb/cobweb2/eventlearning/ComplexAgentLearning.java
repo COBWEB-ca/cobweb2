@@ -621,16 +621,15 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	}
 
-	// FIXME learning agents
-	//	@Override
-	//	protected void control() {
-	//		observeOccurrences();
-	//
-	//		/* Queue all actions */
-	//		controller.controlAgent(this);
-	//
-	//		performQueuedActions();
-	//	}
+	@Override
+	public void update(long tick) {
+		if (!isAlive()) {
+			return;
+		}
+		observeOccurrences();
+		super.update(tick);
+		performQueuedActions();
+	}
 
 	@Override
 	public void turnRight() {
