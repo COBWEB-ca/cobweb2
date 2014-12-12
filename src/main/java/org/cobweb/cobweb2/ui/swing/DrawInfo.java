@@ -88,7 +88,7 @@ class DrawInfo {
 			for (int x = 0; x < width; ++x) {
 				Location currentPos = sim.theEnvironment.getLocation(x, y);
 				if (currentPos.testFlag(ComplexEnvironment.FLAG_DROP)){
-					drops.add(new DropDrawInfo(new Point2D(x, y), sim.theEnvironment.dropArray[x][y]));
+					drops.add(new DropDrawInfo(new Point2D(x, y), sim.theEnvironment.getDrop(currentPos)));
 				}
 			}
 		}

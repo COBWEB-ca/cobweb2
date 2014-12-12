@@ -42,7 +42,7 @@ public class ProductionMapper implements StatePlugin {
 
 	void remProduct(Product p) {
 		Location loc = p.loc;
-		e.dropArray[loc.v[0]][loc.v[1]] = null;
+		e.setDrop(loc, null);
 		loc.setFlag(ComplexEnvironment.FLAG_DROP, false);
 
 		float newMax = 0;
@@ -67,19 +67,19 @@ public class ProductionMapper implements StatePlugin {
 	/**
 	 * @param loc - the location whose "Productivity value" we are querying
 	 * @return the total "Productivity value" of the parameter Location.
-	 * 
+	 *
 	 *         It is most efficient to place products on tiles that have prod.
 	 *         vals. that indicate that a sufficient number of products are
 	 *         nearby in order to attract agent's business, but not enough are
 	 *         around so that there is too much competition. Therefore:
-	 * 
+	 *
 	 *         -An agent's probability of dropping a product on a tile with low
 	 *         (~0) prod. val. should be low. (but not non-existant because then
 	 *         initially agents would never drop products) -An agent's
 	 *         probability of dropping a product on a tile with a very high
 	 *         prod. val. should be infinitesimal. -An agent should have a high
 	 *         chance of dropping a product on a tile with a moderate prob. val.
-	 * 
+	 *
 	 */
 	public float getValueAtLocation(Location loc) {
 		return vals[loc.v[0]][loc.v[1]];

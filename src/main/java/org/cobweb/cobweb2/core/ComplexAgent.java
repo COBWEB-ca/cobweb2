@@ -25,11 +25,11 @@ import org.w3c.dom.Node;
 
 /**
  * TODO better comments
- * 
+ *
  * <p>During each tick of a simulation, each ComplexAgent instance will
  * be used to call the tickNotification method.  This is done in the
  * TickScheduler.doTick private method.
- * 
+ *
  * @see org.cobweb.cobweb2.core.Agent
  * @see java.io.Serializable
  *
@@ -47,7 +47,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		/**
 		 * Contains the information of what the agent sees.
-		 * 
+		 *
 		 * @param d Distance to t.
 		 * @param t Type of object seen.
 		 */
@@ -74,7 +74,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	private ProductionParams prodParams;
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5310096345506441368L;
 
@@ -350,7 +350,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	/**
 	 * Creates a new communication packet.  The energy to broadcast is
 	 * deducted here.
-	 * 
+	 *
 	 * @param loc The location of food.
 	 */
 	protected void broadcastFood(org.cobweb.cobweb2.core.Location loc) { // []SK
@@ -403,7 +403,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			return false;
 		// and clear of wastes
 		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
-			return environment.dropArray[destPos.v[0]][destPos.v[1]].canStep();
+			return environment.getDrop(destPos).canStep();
 		// as well as other agents...
 		if (destPos.getAgent() != null)
 			return false;
@@ -457,7 +457,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	/**
 	 * This method allows the agent to see what is in front of it.
-	 * 
+	 *
 	 * @return What the agent sees and at what distance.
 	 */
 	public SeeInfo distanceLook() {
@@ -496,7 +496,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	/**
 	 * The agent eats the food (food flag is set to false), and
 	 * gains energy and waste according to the food type.
-	 * 
+	 *
 	 * @param destPos Location of food.
 	 */
 	public void eat(org.cobweb.cobweb2.core.Location destPos) {
@@ -585,7 +585,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * <br>East = 1
 	 * <br>South = 2
 	 * <br>West = 3
-	 * 
+	 *
 	 * @return A number representation of the direction the agent is facing.
 	 */
 	public int getIntFacing() {
@@ -631,7 +631,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * The agent will remember the last variable number of agents that
 	 * cheated it.  How many cheaters it remembers is determined by its
 	 * PD memory size.
-	 * 
+	 *
 	 * @param othersID In a game of PD, the opposing agents ID
 	 */
 	protected void iveBeenCheated(int othersID) {
@@ -695,20 +695,20 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * This method initializes the agents actions in an iterated prisoner's
 	 * dilemma game.  The agent can use the following strategies described
 	 * by the agentPDStrategy integer:
-	 * 
+	 *
 	 * <p>0. Default
-	 * 
+	 *
 	 * <p>The agents decision to defect or cooperate is chosen randomly.
 	 * The probability of choosing either is determined by the agents
 	 * pdCoopProb parameter.
-	 * 
+	 *
 	 * <p>1. Tit for Tat
-	 * 
+	 *
 	 * <p>The agent will initially begin with a cooperate, but will then choose
 	 * whatever the opposing agent chose last.  For example, the agent begins
 	 * with a cooperate, but if the opposing agent has chosen to defect, then
 	 * the agent will choose to defect next round.
-	 * 
+	 *
 	 */
 	public void playPD(ComplexAgent other) {
 
@@ -871,7 +871,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	/**
 	 * Sets the complex agents parameters.
-	 * 
+	 *
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
 	public void setConstants(ComplexAgentParams agentData, ProductionParams prodData) {
@@ -907,39 +907,39 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * 2. Contact with another agent.
 	 * 3. Run into waste.
 	 * 4. Run into a rock.
-	 * 
+	 *
 	 * <p> 1. Nothing in its way:
-	 * 
+	 *
 	 * <p>If the agent can move into the next position, the first thing it will do
 	 * is check for food.  If it finds food, then the agent may
 	 * broadcast a message containing the location of the food.  The agent may
 	 * then eat the food.  If after eating the food the agent was pregnant, a check
 	 * will be made to see if the child can be produced now.  If the agent was not
 	 * pregnant, then a-sexual breeding will be attempted.
-	 * 
+	 *
 	 * <p>This method will then iterate through all  mutators used in the simulation
 	 * and call onStep for each step mutator.  The agent will then move.  If it
 	 * was found that the agent was ready to produce a child, then a new agent
 	 * is created.
-	 * 
+	 *
 	 * <p> 2. Contact with another agent:
-	 * 
+	 *
 	 * <p> Contact mutators are iterated through and the onContact method is called
 	 * for each used within the simulation.  The agent will eat the agent if it can.
-	 * 
+	 *
 	 * <p> If prisoner's dilemma is being used for this simulation, then a check is
 	 * made to see if both agents want to meet each other (True if no bad memories of
 	 * adjacent agent).  If the adjacent agent was not eaten and both agents want to
 	 * meet each other, then the possibility of breeding will be looked in to.  If
 	 * breeding is not possible, then prisoner's dilemma will be played.  If prisoner's
 	 * dilemma is not used, then only breeding is checked for.
-	 * 
+	 *
 	 * <p> An energy penalty is deducted for bumping into another agent.
-	 * 
+	 *
 	 * <p> 3 and 4. Run into waste/rock:
-	 * 
+	 *
 	 * <p> Energy penalties are deducted from the agent.
-	 * 
+	 *
 	 * @see ComplexAgent#playPDonStep(ComplexAgent, int)
 	 */
 	public void step() {
@@ -971,9 +971,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
 			// Bumps into drop
-			int x = destPos.v[0];
-			int y = destPos.v[1];
-			Drop d = environment.dropArray[x][y];
+			Drop d = environment.getDrop(destPos);
 
 			if (d.canStep()) {
 				d.onStep(this);
@@ -1113,7 +1111,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * Controls what happens to the agent on this tick.  If the
 	 * agent is still alive, what happens to the agent is determined
 	 * by the controller.
-	 * 
+	 *
 	 * @param tick The time in the simulation
 	 */
 	@Override
@@ -1248,7 +1246,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			 * The sweet spot is an inverted parabola, the vertex is 100% probability in the middle of the sweet spot
 			 * (between lowDemandThreshold and sweetDemandThreshold)
 			 * the tips are sweetDemandStartChance probability at the thresholds.
-			 * 
+			 *
 			 */
 
 			// parabola shape

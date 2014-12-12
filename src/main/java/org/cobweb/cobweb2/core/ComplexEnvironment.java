@@ -80,6 +80,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		dropArray[loc.v[0]][loc.v[1]] = d;
 	}
 
+	public Drop getDrop(Location loc) {
+		return dropArray[loc.v[0]][loc.v[1]];
+	}
+
 	// Returns current location's food type
 	public int getFoodType(org.cobweb.cobweb2.core.Location l) {
 		return foodarray[l.v[0]][l.v[1]];
@@ -775,15 +779,14 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	private void loadOldAgents(int oldH, int oldW) {
 		// Add in-bounds old agents to the new scheduler and update new
 		// constants
+		// TODO: a way to keep old parameters for old agents?
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (currentPos.getAgent() != null) {
-					int theType = ((ComplexAgent) currentPos.getAgent()).getAgentType();
-					((ComplexAgent) currentPos.getAgent()).setConstants(agentData[theType], prodData[theType]); // Default
-					// genetic
-					// sequence of
-					// agent type
+				ComplexAgent agent = (ComplexAgent) currentPos.getAgent();
+				if (agent != null) {
+					int theType = agent.getAgentType();
+					agent.setConstants(agentData[theType], prodData[theType]);
 				}
 			}
 		}
@@ -826,7 +829,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < getSize(AXIS_X); ++x) {
 			for (int y = 0; y < getSize(AXIS_Y); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (dropArray[currentPos.v[0]][currentPos.v[1]] != null) {
+				if (getDrop(currentPos) != null) {
 					currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
 					currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
 					currentPos.setFlag(ComplexEnvironment.FLAG_DROP, true);
@@ -1022,16 +1025,16 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 *
 	 */
 	private void updateWaste() {
-		for (int i = 0; i < dropArray.length; i++) {
-			for (int j = 0; j < dropArray[i].length; j++) {
-				Location l = getLocation(i, j);
+		for (int x = 0; x < getWidth(); x++) {
+			for (int y = 0; y < getHeight(); y++) {
+				Location l = getLocation(x, y);
 				if (l.testFlag(ComplexEnvironment.FLAG_DROP) == false)
 					continue;
-				Drop d = dropArray[i][j];
+				Drop d = getDrop(l);
 				if (!d.isActive(simulation.getTime())) {
 					l.setFlag(ComplexEnvironment.FLAG_DROP, false);
 					d.expire();
-					dropArray[i][j] = null; // consider deactivating
+					setDrop(l, null); // consider deactivating
 					// and not deleting
 				}
 			}
