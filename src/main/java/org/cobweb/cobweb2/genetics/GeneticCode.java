@@ -2,6 +2,8 @@ package org.cobweb.cobweb2.genetics;
 
 import java.util.BitSet;
 
+import org.cobweb.util.RandomNoGenerator;
+
 /** The class that handles the core functionality of the
  * genetic algorithm. Aside from storing the actual
  * genetic sequence, it harbours a variety of operations
@@ -80,11 +82,11 @@ public class GeneticCode {
 	 * @param genes2 Genes of parent 2
 	 * @return The new bit string.
 	 */
-	public static GeneticCode createGeneticCodeMeiosisGeneSwap(GeneticCode genes1, GeneticCode genes2) {
+	public static GeneticCode createGeneticCodeMeiosisGeneSwap(GeneticCode genes1, GeneticCode genes2, RandomNoGenerator random) {
 		GeneticCode result = new GeneticCode(genes1.bytes);
 		for (int i = 0; i < result.bytes; i++) {
 			byte s;
-			if (org.cobweb.cobweb2.core.globals.random.nextBoolean())
+			if (random.nextBoolean())
 				s = genes1.getByte(i * 8);
 			else
 				s = genes2.getByte(i * 8);
@@ -103,10 +105,10 @@ public class GeneticCode {
 	 * @param genes2 Genes of parent 2
 	 * @return The new bit string.
 	 */
-	public static GeneticCode createGeneticCodeMeiosisRecomb(GeneticCode genes1, GeneticCode genes2) {
+	public static GeneticCode createGeneticCodeMeiosisRecomb(GeneticCode genes1, GeneticCode genes2, RandomNoGenerator random) {
 		assert(genes1.bytes == genes2.bytes);
 		GeneticCode result = new GeneticCode(genes1.bytes);
-		int split = org.cobweb.cobweb2.core.globals.random.nextInt(result.bytes * 8);
+		int split = random.nextInt(result.bytes * 8);
 
 		for (int i = 0; i < split; i++)
 			result.genes.set(i, genes1.genes.get(i));

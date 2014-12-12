@@ -38,6 +38,7 @@ import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
 import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.savepop.PopulationSampler;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
@@ -662,7 +663,7 @@ public class CobwebApplication extends JFrame {
 				theDialog.setVisible(true);
 				if (theDialog.getFile() != null) {
 					//Load the XML file
-					simRunner.getSimulation().theEnvironment.insertPopulation(theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
+					PopulationSampler.insertPopulation(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
 				}
 			}
 		}
@@ -806,7 +807,7 @@ public class CobwebApplication extends JFrame {
 					if (theDialog.getFile() != null) {
 
 						//Save population in the specified file.
-						simRunner.getSimulation().theEnvironment.savePopulation(theDialog.getDirectory() + theDialog.getFile(), option, amount);
+						PopulationSampler.savePopulation(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile(), option, amount);
 					}
 				}
 			}

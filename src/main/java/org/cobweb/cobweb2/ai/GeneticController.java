@@ -6,6 +6,7 @@ package org.cobweb.cobweb2.ai;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexAgent.SeeInfo;
+import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.util.BitField;
@@ -13,7 +14,7 @@ import org.cobweb.util.BitField;
 /**
  * This class contains methods that set up the parameters for agents
  * that are used to influence the actions of the agents.
- * 
+ *
  * @author ???
  *
  */
@@ -37,8 +38,10 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 
 	private GeneticControllerParams params;
 
-	public GeneticController() {
-		// Nothing
+	private SimulationInterface simulation;
+
+	public GeneticController(SimulationInterface sim) {
+		simulation = sim;
 	}
 
 	/**
@@ -59,7 +62,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 	/**
 	 * Converts the parameters of the agent into a behavior (turn left or right,
 	 * step).
-	 * 
+	 *
 	 * @see org.cobweb.cobweb2.ai.BehaviorArray
 	 * @see ComplexAgent#turnLeft()
 	 * @see ComplexAgent#turnRight()
@@ -165,7 +168,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 
 	/**
 	 * sexual reproduction
-	 * 
+	 *
 	 * @param parent1 first parent
 	 * @param parent2 second parent
 	 * @param mutationRate mutation rate
@@ -178,7 +181,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 
 		GeneticController p = (GeneticController) parent1;
 		GeneticController p2 = (GeneticController) parent2;
-		ga = p.ga.splice(p2.ga).copy(mutationRate);
+		ga = BehaviorArray.splice(p.ga, p2.ga, simulation.getRandom()).copy(mutationRate);
 		memorySize = p.memorySize;
 		this.params = p.params;
 	}

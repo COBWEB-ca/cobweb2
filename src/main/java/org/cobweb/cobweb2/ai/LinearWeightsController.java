@@ -7,7 +7,7 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexAgent.SeeInfo;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.globals;
+import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.io.CobwebParam;
 
@@ -39,8 +39,10 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 
 	private LinearWeightsControllerParams params;
 
-	public LinearWeightsController() {
-		// nothing
+	private SimulationInterface simulator;
+
+	public LinearWeightsController(SimulationInterface sim) {
+		simulator = sim;
 	}
 
 	@Override
@@ -68,7 +70,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 		variables[6] = memSize == 0 ? 0 : (double) agent.getMemoryBuffer() / ((1 << memSize) - 1);
 		variables[7] = commSize == 0 ? 0 : (double) agent.getCommInbox() / ((1 << commSize) - 1);
 		variables[8] = Math.max(agent.getAge() / 100.0, 2);
-		variables[9] = globals.random.nextGaussian();
+		variables[9] = simulator.getRandom().nextGaussian();
 		{
 			int i = 10;
 			for (String plugin : LinearWeightsControllerParams.pluginNames) {
@@ -87,7 +89,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 		double asexflag = 0.0;
 		for (int eq = 0; eq < OUTPUT_COUNT; eq++) {
 			double res = 0.0;
-			variables[9] = globals.random.nextGaussian();
+			variables[9] = simulator.getRandom().nextGaussian();
 			for (int v = 0; v < variables.length; v++) {
 				res += params.data[v][eq] * variables[v];
 			}
@@ -129,9 +131,9 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 	private void mutate(float mutation) {
 		mutationCounter += params.data.length * params.data[0].length * mutation;
 		while (mutationCounter > 1) {
-			int i = globals.random.nextInt(params.data.length);
-			int j = globals.random.nextInt(params.data[i].length);
-			params.data[i][j] += globals.random.nextGaussian() * 0.5;
+			int i = simulator.getRandom().nextInt(params.data.length);
+			int j = simulator.getRandom().nextInt(params.data[i].length);
+			params.data[i][j] += simulator.getRandom().nextGaussian() * 0.5;
 			mutationCounter -= 1;
 		}
 	}
@@ -170,7 +172,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 
 		for (int i = 0; i < params.data.length; i++) {
 			for (int j = 0; j < params.data[i].length; j++) {
-				if (globals.random.nextBoolean()) {
+				if (simulator.getRandom().nextBoolean()) {
 					params.data[i][j] = pa2.params.data[i][j];
 				}
 			}

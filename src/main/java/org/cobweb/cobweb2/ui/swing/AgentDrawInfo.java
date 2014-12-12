@@ -5,9 +5,10 @@ import java.awt.Graphics;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.Direction;
+import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.genetics.GeneticCode;
 import org.cobweb.swingutil.ColorLookup;
-import org.cobweb.util.Point2D;
 
 /**
  * AgentDrawInfo stores the drawable state of a single agent. AgentDrawInfo
@@ -26,13 +27,13 @@ class AgentDrawInfo {
 	java.awt.Color action;
 
 	/** Position in tile coordinates */
-	Point2D position;
+	Location position;
 
 	/**
 	 * Facing vector; not normalised, but only the sign of each component is
 	 * considered.
 	 */
-	Point2D facing;
+	Direction facing;
 
 	private int[] xPts = new int[3];
 
@@ -56,11 +57,9 @@ class AgentDrawInfo {
 
 		type =  colorMap.getColor(agent.params.type, 0);
 
-		int[] p = agent.getPosition().v;
-		position = new Point2D(p[0],p[1]);
+		position = agent.getPosition();
 
-		int[]d = agent.getFacing().v;
-		facing = new Point2D(d[0], d[1]);
+		facing = agent.getFacing();
 
 		action = agent.getAgentPDActionCheat() ? Color.RED : Color.BLACK;
 	}

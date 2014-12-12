@@ -8,10 +8,12 @@ import org.cobweb.cobweb2.abiotic.TemperatureMutator;
 import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
+import org.cobweb.util.RandomNoGenerator;
 
 /**
  * This class provides the definitions for a user interface that is running
@@ -33,6 +35,8 @@ public class Simulation implements SimulationInterface {
 
 	// TODO access level?
 	public SimulationConfig simulationConfig;
+
+	private RandomNoGenerator random;
 
 	/* return number of TYPES of agents in the environment */
 	@Override
@@ -105,12 +109,12 @@ public class Simulation implements SimulationInterface {
 		}
 
 		if (geneticMutator == null) {
-			geneticMutator = new GeneticsMutator();
+			geneticMutator = new GeneticsMutator(this);
 			ComplexAgent.addMutator(geneticMutator);
 			ComplexAgent.setSimularityCalc(geneticMutator);
 		}
 		if (diseaseMutator == null) {
-			diseaseMutator = new DiseaseMutator();
+			diseaseMutator = new DiseaseMutator(this);
 			ComplexAgent.addMutator(diseaseMutator);
 		}
 		if (tempMutator == null) {
@@ -123,6 +127,8 @@ public class Simulation implements SimulationInterface {
 		diseaseMutator.setParams(p.getDiseaseParams(), p.getEnvParams().getAgentTypes());
 
 		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
+
+		random = new RandomNoGenerator(p.getEnvParams().randomSeed);
 
 		InitEnvironment(p.getEnvParams().environmentName, p);
 	}
@@ -152,6 +158,16 @@ public class Simulation implements SimulationInterface {
 	@Override
 	public void addAgent(ComplexAgent agent) {
 		agents.add(agent);
+	}
+
+	@Override
+	public RandomNoGenerator getRandom() {
+		return random;
+	}
+
+	@Override
+	public Environment getEnvironment() {
+		return theEnvironment;
 	}
 
 }

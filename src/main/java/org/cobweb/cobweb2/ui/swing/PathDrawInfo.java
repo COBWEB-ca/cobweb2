@@ -33,10 +33,10 @@ class PathDrawInfo {
 			g.setColor(new Color(0, 0, 255, alpha));
 			p1 = p2;
 			p2 = itr.next();
-			int x = Math.min(p1.v[0], p2.v[0]);
-			int y = Math.min(p1.v[1], p2.v[1]);
-			int w = Math.abs(p1.v[0] - p2.v[0]);
-			int h = Math.abs(p1.v[1] - p2.v[1]);
+			int x = Math.min(p1.x, p2.x);
+			int y = Math.min(p1.y, p2.y);
+			int w = Math.abs(p1.x - p2.x);
+			int h = Math.abs(p1.y - p2.y);
 
 			if (w > 1 || h > 1) {
 				continue;
@@ -50,15 +50,15 @@ class PathDrawInfo {
 			w = w * tileWidth + stripwidth;
 			h = h * tileHeight + stripheight;
 
-			if (p1.v[0] - p2.v[0] > 0) {
+			if (p1.x - p2.x > 0) {
 				w -= stripwidth;
 				x += stripwidth;
-			} else if (p1.v[0] - p2.v[0] < 0) {
+			} else if (p1.x - p2.x < 0) {
 				w -= stripwidth;
-			} else if (p1.v[1] - p2.v[1] > 0) {
+			} else if (p1.y - p2.y > 0) {
 				h -= stripheight;
 				y += stripheight;
-			} else if (p1.v[1] - p2.v[1] < 0) {
+			} else if (p1.y - p2.y < 0) {
 				h -= stripheight;
 			}
 

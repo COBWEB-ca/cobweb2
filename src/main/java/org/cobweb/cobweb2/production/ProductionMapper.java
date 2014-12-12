@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;
 
@@ -18,9 +18,11 @@ public class ProductionMapper implements StatePlugin {
 	private ComplexEnvironment e;
 	private float[][] vals;
 	private float maxValue;
+	SimulationInterface simulation;
 
-	public ProductionMapper(Environment e) {
-		this.e = (ComplexEnvironment) e;
+	public ProductionMapper(SimulationInterface sim) {
+		this.e = (ComplexEnvironment) sim.getEnvironment();
+		simulation = sim;
 		vals = new float[this.e.getWidth()][this.e.getHeight()];
 		params = new LinkedList<StateParameter>();
 		params.add(new ProductHunt());
@@ -43,7 +45,7 @@ public class ProductionMapper implements StatePlugin {
 	void remProduct(Product p) {
 		Location loc = p.loc;
 		e.setDrop(loc, null);
-		loc.setFlag(ComplexEnvironment.FLAG_DROP, false);
+		e.setFlag(loc, ComplexEnvironment.FLAG_DROP, false);
 
 		float newMax = 0;
 		for (int x = 0; x < vals.length; x++) {
@@ -60,7 +62,7 @@ public class ProductionMapper implements StatePlugin {
 
 	private float getDifAtLoc(Product source, Location loc, Location loc2) {
 		float val = source.getValue();
-		val /= Math.max(1, loc.distanceSquare(loc2));
+		val /= Math.max(1, loc.distanceSquared(loc2));
 		return val;
 	}
 
@@ -82,7 +84,7 @@ public class ProductionMapper implements StatePlugin {
 	 *
 	 */
 	public float getValueAtLocation(Location loc) {
-		return vals[loc.v[0]][loc.v[1]];
+		return vals[loc.x][loc.y];
 	}
 
 	public float getValueAtLocation(int x, int y) {
@@ -119,8 +121,8 @@ public class ProductionMapper implements StatePlugin {
 		@Override
 		public double getValue(ComplexAgent agent) {
 			Location here = agent.getPosition();
-			Location ahead = here.getAdjacent(agent.getFacing());
-			if (ahead == null || !ahead.isValid()) {
+			Location ahead = e.getAdjacent(here, agent.getFacing());
+			if (ahead == null || !e.isValidLocation(ahead)) {
 				return 0;
 			}
 

@@ -14,8 +14,6 @@ class DropDrawInfo {
 	public DropDrawInfo(Point2D pos, Drop drop) {
 		this.pos = pos;
 
-		Color c = Color.PINK;
-
 		if (drop instanceof Waste) {
 			col = new Color(204, 102, 0);
 		} else if (drop instanceof Product) {

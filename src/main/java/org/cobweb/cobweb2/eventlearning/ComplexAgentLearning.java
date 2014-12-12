@@ -6,9 +6,8 @@ import java.util.List;
 import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.core.globals;
+import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
@@ -75,7 +74,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 
-	private org.cobweb.cobweb2.core.Location breedPos = null;
+	private LocationDirection breedPos = null;
 
 
 	public LearningAgentParams lParams;
@@ -156,13 +155,12 @@ public class ComplexAgentLearning extends ComplexAgent {
 	@Override
 	public void step() {
 		org.cobweb.cobweb2.core.Agent adjAgent;
-		mustFlip = getPosition().checkFlip(facing);
-		final org.cobweb.cobweb2.core.Location destPos = getPosition().getAdjacent(facing);
+		final LocationDirection destPos = environment.getAdjacent(getPosition());
 
 		if (canStep(destPos)) {
 
 			// Check for food...
-			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+			if (environment.testFlag(destPos, ComplexEnvironment.FLAG_FOOD)) {
 
 				// Queues the agent to broadcast about the food
 				queue(new SmartAction(this, "broadcast") {
@@ -239,7 +237,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 						if (concernedAgent.breedPartner == null) {
 							concernedAgent.getInfo().addDirectChild();
 							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn();
-							child.init(concernedAgent.getBreedPos(), concernedAgent);
+							child.init(environment, concernedAgent.getBreedPos(), concernedAgent);
 
 							// Retain emotions for our child!
 							concernedAgent.remember(new MemorableEvent(currTick, lParams.emotionForChildren, "agent-" + child.id));
@@ -256,7 +254,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 							concernedAgent.getInfo().addDirectChild();
 							concernedAgent.breedPartner.getInfo().addDirectChild();
 							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn();
-							child.init(concernedAgent.getBreedPos(), concernedAgent,
+							child.init(environment, concernedAgent.getBreedPos(), concernedAgent,
 									(ComplexAgentLearning)concernedAgent.breedPartner);
 
 							// Retain an undying feeling of love for our
@@ -351,7 +349,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				double sim = 0.0;
 				boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-						&& org.cobweb.cobweb2.core.globals.random.nextFloat() < params.sexualBreedChance;
+						&& environment.getRandom().nextFloat() < params.sexualBreedChance;
 
 				// Generate genetic similarity number
 				sim = simCalc.similarity(this, adjacentAgent);
@@ -400,7 +398,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			stats.useAgentBumpEnergy(params.stepAgentEnergy);
 
 		} // end of two agents meet
-		else if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
+		else if (destPos != null && environment.testFlag(destPos, ComplexEnvironment.FLAG_DROP)) {
 
 			// Allow agents up to a distance of 5 to see this agent hit the
 			// waste
@@ -466,25 +464,17 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 	}
 
-
-	@Override
-	public void init(int agentT, ComplexAgentParams agentData, ProductionParams prodData, Direction facingDirection,
-			Location pos) {
-		super.init(agentT, agentData, prodData, facingDirection, pos);
-		throw new IllegalArgumentException("Cannot initialize ComplexAgentLearning without LearningAgentParams");
-	}
-
-	public void init(int agentType, Location pos, ComplexAgentParams agentData, ProductionParams prodData,
+	public void init(ComplexEnvironment env, int agentType, LocationDirection pos, ComplexAgentParams agentData, ProductionParams prodData,
 			LearningAgentParams lAgentData) {
-		super.init(agentType, pos, agentData, prodData);
+		super.init(env, agentType, pos, agentData, prodData);
 
 		lParams = lAgentData;
 	}
 
-	private void init(Location pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2) {
-		super.init(pos, parent1, parent2);
+	private void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2) {
+		super.init(env, pos, parent1, parent2);
 
-		if (globals.random.nextBoolean()) {
+		if (env.getRandom().nextBoolean()) {
 			lParams = parent1.lParams;
 		} else {
 			lParams = parent2.lParams;
@@ -493,8 +483,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	}
 
-	private void init(Location pos, ComplexAgentLearning parent) {
-		super.init(pos, parent);
+	private void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentLearning parent) {
+		super.init(env, pos, parent);
 
 		lParams = parent.lParams;
 	}
@@ -525,28 +515,28 @@ public class ComplexAgentLearning extends ComplexAgent {
 						&& (lParams.learnFromDifferentOthers || occTarget.type() == type())) {
 					String desc = null;
 
-					if (facing.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_EAST)) {
-						if (loc2.v[1] > loc.v[1]) {
+					if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_EAST)) {
+						if (loc2.y > loc.y) {
 							desc = "turnRight";
-						} else if (loc2.v[1] != loc.v[1]) {
+						} else if (loc2.y != loc.y) {
 							desc = "turnLeft";
 						}
-					} else if (facing.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_WEST)) {
-						if (loc2.v[1] > loc.v[1]) {
+					} else if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_WEST)) {
+						if (loc2.y > loc.y) {
 							desc = "turnLeft";
-						} else if (loc2.v[1] != loc.v[1]) {
+						} else if (loc2.y != loc.y) {
 							desc = "turnRight";
 						}
-					} else if (facing.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH)) {
-						if (loc2.v[0] > loc.v[0]) {
+					} else if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH)) {
+						if (loc2.x > loc.x) {
 							desc = "turnRight";
-						} else if (loc2.v[0] != loc.v[0]) {
+						} else if (loc2.x != loc.x) {
 							desc = "turnLeft";
 						}
-					} else if (facing.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH)) {
-						if (loc2.v[0] > loc.v[0]) {
+					} else if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH)) {
+						if (loc2.x > loc.x) {
 							desc = "turnLeft";
-						} else if (loc2.v[0] != loc.v[0]) {
+						} else if (loc2.x != loc.x) {
 							desc = "turnRight";
 						}
 					}
@@ -583,12 +573,12 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 
-	public void setBreedPos(org.cobweb.cobweb2.core.Location breedPos) {
+	public void setBreedPos(LocationDirection breedPos) {
 		this.breedPos = breedPos;
 	}
 
 
-	public org.cobweb.cobweb2.core.Location getBreedPos() {
+	public LocationDirection getBreedPos() {
 		return breedPos;
 	}
 

@@ -36,31 +36,30 @@ public abstract class Environment {
 
 	protected SimulationInterface simulation;
 
+	protected int width, height;
+
 	public Environment(SimulationInterface simulation) {
 		this.simulation = simulation;
 	}
 
-	/** Axis constants, to make dimensionality make sense */
-	public static final int AXIS_X = 0;
-
-	public static final int AXIS_Y = 1;
-
 	// Some predefined directions for 2D
-	public static final Direction DIRECTION_NORTH = new Direction(new int[] { 0, -1 });
+	public static final Direction DIRECTION_NORTH = new Direction(0, -1);
 
-	public static final Direction DIRECTION_SOUTH = new Direction(new int[] { 0, +1 });
+	public static final Direction DIRECTION_SOUTH = new Direction(0, +1);
 
-	public static final Direction DIRECTION_WEST = new Direction(new int[] { -1, 0 });
+	public static final Direction DIRECTION_WEST =  new Direction(-1, 0);
 
-	public static final Direction DIRECTION_EAST = new Direction(new int[] { +1, 0 });
+	public static final Direction DIRECTION_EAST =  new Direction(+1, 0);
 
-	public static final Direction DIRECTION_NORTHEAST = new Direction(new int[] { +1, -1 });
+	public static final Direction DIRECTION_NORTHEAST = new Direction(+1, -1);
 
-	public static final Direction DIRECTION_SOUTHEAST = new Direction(new int[] { +1, +1 });
+	public static final Direction DIRECTION_SOUTHEAST = new Direction(+1, +1);
 
-	public static final Direction DIRECTION_NORTHWEST = new Direction(new int[] { -1, -1 });
+	public static final Direction DIRECTION_NORTHWEST = new Direction(-1, -1);
 
-	public static final Direction DIRECTION_SOUTHWEST = new Direction(new int[] { -1, +1 });
+	public static final Direction DIRECTION_SOUTHWEST = new Direction(-1, +1);
+
+	public static final Direction DIRECTION_NONE = new Direction(0, 0);
 
 	/**
 	 * The implementation uses a hash table to store agents, as we assume there
@@ -140,7 +139,12 @@ public abstract class Environment {
 
 	// Syntactic sugar for common cases
 	public Location getLocation(int x, int y) {
-		return new Location(this,  new int[] { x, y} );
+		return new Location(x, y);
+	}
+
+	public boolean isValidLocation(Location l) {
+		return l.x >= 0 && l.x < getWidth()
+				&& l.y >= 0 && l.y < getHeight();
 	}
 
 	/**
@@ -149,21 +153,27 @@ public abstract class Environment {
 	public Location getRandomLocation() {
 		Location l;
 		do {
-			l = getLocation(org.cobweb.cobweb2.core.globals.random.nextInt(getSize(AXIS_X)),
-					org.cobweb.cobweb2.core.globals.random.nextInt(getSize(AXIS_Y)));
-		} while (!l.isValid());
+			l = getLocation(
+					simulation.getRandom().nextInt(getWidth()),
+					simulation.getRandom().nextInt(getHeight()));
+		} while (!isValidLocation(l));
 		return l;
 	}
 
-	/** @return the number of unique locations along a specific axis. */
-	public abstract int getSize(int axis);
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
 
 	public abstract EnvironmentStats getStatistics();
 
 	public Location getUserDefinedLocation(int x, int y) {
 		Location l;
 		l = getLocation(x, y);
-		if (!l.isValid())
+		if (!isValidLocation(l))
 			throw new IllegalArgumentException("Location not inside environment");
 
 		return l;
@@ -203,7 +213,7 @@ public abstract class Environment {
 		// Nothing
 	}
 
-	final void setAgent(Location l, Agent a) {
+	public final void setAgent(Location l, Agent a) {
 		if (a != null)
 			agentTable.put(l, a);
 		else

@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.core.Updatable;
-import org.cobweb.cobweb2.core.globals;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.util.ArrayUtilities;
@@ -31,6 +31,8 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	Map<ComplexAgent, State> sick = new HashMap<ComplexAgent, State>();
 
 	private long time;
+
+	private SimulationInterface simulation;
 
 	private class State {
 		public boolean sick = false;
@@ -55,8 +57,9 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	/**
 	 * DiseaseMutator is an instance of Contact and Spawn Mutators
 	 */
-	public DiseaseMutator() {
+	public DiseaseMutator(SimulationInterface sim) {
 		sickCount = new int[0];
+		simulation = sim;
 	}
 
 	@Override
@@ -93,7 +96,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private void makeRandomSick(ComplexAgent agent, float rate) {
 		boolean isSick = false;
-		if (globals.random.nextFloat() < rate)
+		if (simulation.getRandom().nextFloat() < rate)
 			isSick = true;
 
 		if (isSick) {
@@ -157,7 +160,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 		}
 
 		if (params[tr].healer && isSick(bumpee)) {
-			if (globals.random.nextFloat() < params[tr].healerEffectiveness) {
+			if (simulation.getRandom().nextFloat() < params[tr].healerEffectiveness) {
 				unSick(bumpee);
 			}
 		}
@@ -166,7 +169,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			return;
 
 		if (isVaccinated(bumpee)
-				&& globals.random.nextFloat() < sick.get(bumpee).vaccineEffectiveness)
+				&& simulation.getRandom().nextFloat() < sick.get(bumpee).vaccineEffectiveness)
 			return;
 
 		if (isSick(bumpee))
@@ -210,7 +213,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			if (params[a.type()].recoveryTime == 0)
 				continue;
 
-			long randomRecovery = (long) (params[a.type()].recoveryTime * (globals.random.nextDouble() * 0.2 + 1.0));
+			long randomRecovery = (long) (params[a.type()].recoveryTime * (simulation.getRandom().nextDouble() * 0.2 + 1.0));
 
 			if (s.sick && time - s.sickStart > randomRecovery) {
 				unSickIterating(a, agents);

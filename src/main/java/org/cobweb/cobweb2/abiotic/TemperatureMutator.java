@@ -12,7 +12,7 @@ import org.cobweb.util.ReflectionUtil;
 
 /**
  * TemperatureMutator is an instance of Step and Spawn Mutator
- * 
+ *
  * @author ???
  */
 public class TemperatureMutator implements StepMutator, SpawnMutator {
@@ -40,7 +40,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	 * @return The temperature of the location within the temperature band.
 	 */
 	private float getTemp(Location loc) {
-		int lat = loc.v[1] * bandNumber / height;
+		int lat = loc.y * bandNumber / height;
 		assert (lat < params.tempBands.length);
 		return params.tempBands[lat];
 	}
@@ -105,7 +105,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	/**
 	 * During a step
-	 * 
+	 *
 	 * @param agent The agent doing the step
 	 * @param to Location the agent is moving to.
 	 * @param from Location the agent is moving from.
@@ -124,7 +124,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	/**
 	 * Sets the temperature parameters according to the simulation configuration.
-	 * 
+	 *
 	 * @param params Temperature parameters from the simulation configuration.
 	 * @param env Environment parameters from the simulation configuration.
 	 */

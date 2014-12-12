@@ -98,14 +98,14 @@ public class ComplexAgentStatistics implements Serializable {
 	 * @param loc Location the agent moved to
 	 */
 	public void addPathStep(Location loc) {
-		if (loc.v[0] < boundWest)
-			boundWest = loc.v[0];
-		if (loc.v[0] > boundEast)
-			boundEast = loc.v[0];
-		if (loc.v[1] > boundSouth)
-			boundSouth = loc.v[1];
-		if (loc.v[1] < boundNorth)
-			boundNorth = loc.v[1];
+		if (loc.x < boundWest)
+			boundWest = loc.x;
+		if (loc.x > boundEast)
+			boundEast = loc.x;
+		if (loc.y > boundSouth)
+			boundSouth = loc.y;
+		if (loc.y < boundNorth)
+			boundNorth = loc.y;
 
 		path.add(loc);
 		if (path.size() > MAX_PATH_HISTORY) {

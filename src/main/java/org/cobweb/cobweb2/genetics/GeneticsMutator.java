@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
@@ -26,13 +27,15 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 
 	private Map<ComplexAgent, GeneticCode> genes = new HashMap<ComplexAgent, GeneticCode>();
 
+	private SimulationInterface simulation;
+
 	private static final Collection<String> blank = new LinkedList<String>();
 
 	/**
 	 * GeneticsMutator is an instance of SpawnMutator.
 	 */
-	public GeneticsMutator() {
-		// Nothing
+	public GeneticsMutator(SimulationInterface sim) {
+		simulation = sim;
 	}
 
 
@@ -128,8 +131,8 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		GeneticCode genetic_code = new GeneticCode(getGene(parent));
 
 		if (params.geneCount > 0) {
-			if (org.cobweb.cobweb2.core.globals.random.nextFloat() <= parent.params.mutationRate) {
-				genetic_code.mutate(org.cobweb.cobweb2.core.globals.random.nextInt(params.geneCount * params.geneLength));
+			if (simulation.getRandom().nextFloat() <= parent.params.mutationRate) {
+				genetic_code.mutate(simulation.getRandom().nextInt(params.geneCount * params.geneLength));
 			}
 		}
 
@@ -142,7 +145,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		GeneticCode genetic_code = null;
 		GeneticCode gc1 = getGene(parent1);
 		GeneticCode gc2 = getGene(parent2);
-		//TODO deal with nulls
+		//TODO deal with nulls. already done?
 
 		if (gc1 == null && gc2 == null) {
 			gc1 = new GeneticCode(params.geneCount);
@@ -158,17 +161,17 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 				genetic_code = GeneticCode.createGeneticCodeMeiosisAverage(gc1, gc2);
 				break;
 			case GeneSwapping:
-				genetic_code = GeneticCode.createGeneticCodeMeiosisGeneSwap(gc1, gc2);
+				genetic_code = GeneticCode.createGeneticCodeMeiosisGeneSwap(gc1, gc2, simulation.getRandom());
 				break;
 			case RandomRecombination:
 			default:
-				genetic_code = GeneticCode.createGeneticCodeMeiosisRecomb(gc1, gc2);
+				genetic_code = GeneticCode.createGeneticCodeMeiosisRecomb(gc1, gc2, simulation.getRandom());
 				break;
 		}
 
 		if (genetic_code.getNumGenes() > 0) {
-			if (org.cobweb.cobweb2.core.globals.random.nextFloat() < parent1.params.mutationRate) {
-				genetic_code.mutate(org.cobweb.cobweb2.core.globals.random.nextInt(params.geneCount * params.geneLength));
+			if (simulation.getRandom().nextFloat() < parent1.params.mutationRate) {
+				genetic_code.mutate(simulation.getRandom().nextInt(params.geneCount * params.geneLength));
 			}
 		}
 

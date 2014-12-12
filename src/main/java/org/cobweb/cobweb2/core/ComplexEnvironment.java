@@ -1,24 +1,11 @@
 package org.cobweb.cobweb2.core;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.ControllerFactory;
@@ -31,10 +18,6 @@ import org.cobweb.cobweb2.interconnect.StatePlugin;
 import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.cobweb2.production.ProductionParams;
 import org.cobweb.util.RandomNoGenerator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * 2D grid where agents and food live
@@ -77,16 +60,16 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	private static final int WASTE_CODE = 4;
 
 	public void setDrop(Location loc, Drop d) {
-		dropArray[loc.v[0]][loc.v[1]] = d;
+		dropArray[loc.x][loc.y] = d;
 	}
 
 	public Drop getDrop(Location loc) {
-		return dropArray[loc.v[0]][loc.v[1]];
+		return dropArray[loc.x][loc.y];
 	}
 
 	// Returns current location's food type
 	public int getFoodType(org.cobweb.cobweb2.core.Location l) {
-		return foodarray[l.v[0]][l.v[1]];
+		return foodarray[l.x][l.y];
 	}
 
 	public final List<ComplexAgentStatistics> agentInfoVector = new ArrayList<ComplexAgentStatistics>();
@@ -121,23 +104,25 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	public ProductionMapper prodMapper;
 
+	public ControllerFactory controllerFactory;
+
 	@Override
 	public synchronized void addAgent(int x, int y, int type) {
 		super.addAgent(x, y, type);
 		org.cobweb.cobweb2.core.Location l;
 		l = getUserDefinedLocation(x, y);
-		if ((l.getAgent() == null) && !l.testFlag(ComplexEnvironment.FLAG_STONE)
-				&& !l.testFlag(ComplexEnvironment.FLAG_DROP)) {
+		if ((getAgent(l) == null) && !testFlag(l, ComplexEnvironment.FLAG_STONE)
+				&& !testFlag(l, ComplexEnvironment.FLAG_DROP)) {
 			int agentType = type;
 
-			spawnAgent(l, agentType);
+			spawnAgent(new LocationDirection(l, DIRECTION_NONE), agentType);
 
 		}
 	}
 
-	protected void spawnAgent(org.cobweb.cobweb2.core.Location location, int agentType) {
+	protected void spawnAgent(LocationDirection location, int agentType) {
 		ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
-		child.init(agentType, location, (ComplexAgentParams) agentData[agentType].clone(),
+		child.init(this, agentType, location, (ComplexAgentParams) agentData[agentType].clone(),
 				(ProductionParams) prodData[agentType].clone()); // Default
 	}
 
@@ -163,10 +148,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		org.cobweb.cobweb2.core.Location l;
 		l = getUserDefinedLocation(x, y);
-		if (l.testFlag(ComplexEnvironment.FLAG_STONE)) {
+		if (testFlag(l, ComplexEnvironment.FLAG_STONE)) {
 			throw new IllegalArgumentException("stone here already");
 		}
-		l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+		setFlag(l, ComplexEnvironment.FLAG_FOOD, true);
 		setFoodType(l, type);
 	}
 
@@ -174,16 +159,16 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	public synchronized void addStone(int x, int y) {
 		org.cobweb.cobweb2.core.Location l;
 		l = getUserDefinedLocation(x, y);
-		if (l.getAgent() != null) {
+		if (getAgent(l) != null) {
 			return;
 		}
 
-		if (l.testFlag(FLAG_FOOD))
-			l.setFlag(FLAG_FOOD, false);
-		if (l.testFlag(FLAG_DROP))
-			l.setFlag(FLAG_DROP, false);
+		if (testFlag(l, FLAG_FOOD))
+			setFlag(l, FLAG_FOOD, false);
+		if (testFlag(l, FLAG_DROP))
+			setFlag(l, FLAG_DROP, false);
 
-		l.setFlag(ComplexEnvironment.FLAG_STONE, true);
+		setFlag(l, ComplexEnvironment.FLAG_STONE, true);
 	}
 
 	@Override
@@ -193,12 +178,12 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	private void clearFlag(int flag) {
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+		for (int x = 0; x < getWidth(); ++x) {
+			for (int y = 0; y < getHeight(); ++y) {
 				Location currentPos = getLocation(x, y);
 
-				if (currentPos.testFlag(flag)) {
-					currentPos.setFlag(flag, false);
+				if (testFlag(currentPos, flag)) {
+					setFlag(currentPos, flag, false);
 				}
 			}
 		}
@@ -283,10 +268,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	public long countFoodTiles() {
 		long foodCount = 0;
 
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+		for (int x = 0; x < getWidth(); ++x) {
+			for (int y = 0; y < getHeight(); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD))
 					++foodCount;
 			}
 		}
@@ -296,10 +281,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	/* Return foodCount (long) for a specific foodType (int) */
 	public int countFoodTiles(int foodType) {
 		int foodCount = 0;
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+		for (int x = 0; x < getWidth(); ++x) {
+			for (int y = 0; y < getHeight(); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD))
 					if (getFoodType(currentPos) == foodType)
 						++foodCount;
 			}
@@ -317,10 +302,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		// and we destroy the food at the positions occupying the last N
 		// spots in our vector
 		LinkedList<Location> locations = new LinkedList<Location>();
-		for (int x = 0; x < getSize(AXIS_X); ++x)
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+		for (int x = 0; x < getWidth(); ++x)
+			for (int y = 0; y < getHeight(); ++y) {
 				Location currentPos = getLocation(x, y);
-				if (currentPos.testFlag(ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
+				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
 					locations.add(environmentRandom.nextInt(locations.size() + 1), currentPos);
 			}
 
@@ -329,7 +314,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int j = 0; j < foodToDeplete; ++j) {
 			Location loc = locations.removeLast();
 
-			loc.setFlag(FLAG_FOOD, false);
+			setFlag(loc, FLAG_FOOD, false);
 		}
 		draughtdays[type] = foodData[type].draughtPeriod;
 	}
@@ -345,11 +330,11 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				l = getRandomLocation();
 
 			} while (j < DROP_ATTEMPTS_MAX
-					&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_FOOD)
-							|| l.testFlag(ComplexEnvironment.FLAG_DROP) || l.getAgent() != null));
+					&& (testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_FOOD)
+							|| testFlag(l, ComplexEnvironment.FLAG_DROP) || getAgent(l) != null));
 
 			if (j < DROP_ATTEMPTS_MAX) {
-				l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+				setFlag(l, ComplexEnvironment.FLAG_FOOD, true);
 				setFoodType(l, type);
 			}
 		}
@@ -374,11 +359,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	@Override
-	public int getSize(int axis) {
-		return array.getSize(axis);
-	}
-
-	@Override
 	public synchronized EnvironmentStats getStatistics() {
 		EnvironmentStats stats = new EnvironmentStats();
 		stats.agentCounts = new long[data.agentTypeCount];
@@ -391,30 +371,32 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return stats;
 	}
 
+	@Override
 	public int getWidth() {
 		return data.width;
 	}
 
+	@Override
 	public int getHeight() {
 		return data.height;
 	}
 
 	private void growFood() {
 
-		for (int y = 0; y < getSize(AXIS_Y); ++y) {
-			for (int x = 0; x < getSize(AXIS_X); ++x) {
+		for (int y = 0; y < getHeight(); ++y) {
+			for (int x = 0; x < getWidth(); ++x) {
 				Location currentPos = getLocation(x, y);
 				// if there's a stone or already food, we simply copy the
 				// information from the old arrays to the new ones
 				backArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
-				backFoodArray[currentPos.v[0]][currentPos.v[1]] = foodarray[currentPos.v[0]][currentPos.v[1]];
+				backFoodArray[currentPos.x][currentPos.y] = foodarray[currentPos.x][currentPos.y];
 			}
 		}
 
 		// create a new ArrayEnvironment and a new food type array
 		// loop through all positions
-		for (int y = 0; y < getSize(AXIS_Y); ++y) {
-			for (int x = 0; x < getSize(AXIS_X); ++x) {
+		for (int y = 0; y < getHeight(); ++y) {
+			for (int x = 0; x < getWidth(); ++x) {
 				Location currentPos = getLocation(x, y);
 				// if there's a stone or already food, we simply copy the
 				// information from the old arrays to the new ones
@@ -427,23 +409,23 @@ public class ComplexEnvironment extends Environment implements Updatable {
 					double foodCount = 0;
 					Arrays.fill(mostFood, 0);
 
-					Location checkPos = currentPos.getAdjacent(DIRECTION_NORTH);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+					Location checkPos = getAdjacent(currentPos, DIRECTION_NORTH);
+					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
 						foodCount++;
 						mostFood[getFoodType(checkPos)]++;
 					}
-					checkPos = currentPos.getAdjacent(DIRECTION_SOUTH);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+					checkPos = getAdjacent(currentPos, DIRECTION_SOUTH);
+					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
 						foodCount++;
 						mostFood[getFoodType(checkPos)]++;
 					}
-					checkPos = currentPos.getAdjacent(DIRECTION_EAST);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+					checkPos = getAdjacent(currentPos, DIRECTION_EAST);
+					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
 						foodCount++;
 						mostFood[getFoodType(checkPos)]++;
 					}
-					checkPos = currentPos.getAdjacent(DIRECTION_WEST);
-					if (checkPos != null && checkPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+					checkPos = getAdjacent(currentPos, DIRECTION_WEST);
+					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
 						foodCount++;
 						mostFood[getFoodType(checkPos)]++;
 					}
@@ -462,7 +444,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 						// give the max food an extra chance to be chosen
 
-						if (data.likeFoodProb >= org.cobweb.cobweb2.core.globals.random.nextFloat()) {
+						if (data.likeFoodProb >= simulation.getRandom().nextFloat()) {
 							growingType = max;
 						} else {
 							growingType = environmentRandom.nextInt(data.getFoodTypes());
@@ -473,14 +455,14 @@ public class ComplexEnvironment extends Environment implements Updatable {
 						if (foodCount * foodData[growingType].growRate > 100 * environmentRandom.nextFloat()) {
 							backArray.setLocationBits(currentPos, FOOD_CODE);
 							// setFoodType (currentPos, growMe);
-							backFoodArray[currentPos.v[0]][currentPos.v[1]] = growingType;
+							backFoodArray[currentPos.x][currentPos.y] = growingType;
 						} else {
 							backArray.setLocationBits(currentPos, 0);
-							backFoodArray[currentPos.v[0]][currentPos.v[1]] = -123154534;
+							backFoodArray[currentPos.x][currentPos.y] = -123154534;
 						}
 					} else {
 						backArray.setLocationBits(currentPos, 0);
-						backFoodArray[currentPos.v[0]][currentPos.v[1]] = -123154534;
+						backFoodArray[currentPos.x][currentPos.y] = -123154534;
 					}
 				}
 			}
@@ -495,91 +477,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		foodarray = backFoodArray;
 		backFoodArray = swapFoodArray;
 
-	}
-
-	/**
-	 * TODO: Check if this works, possibly rewrite
-	 * @param fileName path to population file
-	 * @param replace delete current population before inserting
-	 */
-	public void insertPopulation(String fileName, boolean replace) {
-		if (replace) {
-			clearAgents();
-		}
-
-		try {
-			FileInputStream file = new FileInputStream(fileName);
-
-			// DOM initialization
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setIgnoringElementContentWhitespace(true);
-			factory.setIgnoringComments(true);
-			// factory.setValidating(true);
-
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document document = builder.parse(file);
-
-			NodeList agents = document.getElementsByTagName("Agent");
-
-			for (int i = 0 ; i < agents.getLength(); i++){
-				ComplexAgentParams params = new ComplexAgentParams(data);
-				ProductionParams prodParams = new ProductionParams();
-
-				Node agent = agents.item(i);
-				Element element = (Element) agent;
-
-				NodeList paramsElement = element.getElementsByTagName("params");
-				Element paramNode = (Element) paramsElement.item(0);
-
-
-				//NodeList prodParamsElement = element.getElementsByTagName("prodParams");
-				//Element prodParamNode = (Element) prodParamsElement.item(0);
-
-				NodeList agentTypeElement = element.getElementsByTagName("agentType");
-				NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
-
-				NodeList directionElement = element.getElementsByTagName("direction");
-				Element direction = (Element) directionElement.item(0);
-				NodeList coordinates = direction.getElementsByTagName("coordinate");
-
-				NodeList locationElement = element.getElementsByTagName("location");
-				Element location = (Element) locationElement.item(0);
-				NodeList axisPos = location.getElementsByTagName("axisPos");
-
-				// location
-				int [] axis = new int [axisPos.getLength()];
-				for (int j = 0 ; j < axisPos.getLength(); j++) {
-					axis[j] = Integer.parseInt(axisPos.item(j).getChildNodes().item(0).getNodeValue());
-				}
-
-				Location loc = getLocation(axis[0], axis[1]);
-
-				// direction
-				int [] coords = new int [coordinates.getLength()];
-				for (int j = 0 ; j < coordinates.getLength(); j++) {
-					coords[j] = Integer.parseInt(coordinates.item(j).getChildNodes().item(0).getNodeValue());
-				}
-				Direction facing = new Direction(coords);
-
-				// parameters
-				params.loadConfig(paramNode);
-				//prodParams.loadConfig(prodParamNode);
-
-				// agentType
-				int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());
-
-				// doCheat
-				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
-
-
-				ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
-				cAgent.init(agentType, params, prodParams, facing, loc);
-				cAgent.pdCheater = pdCheater;
-				agentTable.put(loc, cAgent);
-			}
-		} catch (Exception ex) {
-			throw new RuntimeException("Can't open config file", ex);
-		}
 	}
 
 	/**
@@ -617,8 +514,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		if (data.randomSeed == 0)
 			data.randomSeed = System.currentTimeMillis();
 
-		org.cobweb.cobweb2.core.globals.random = new RandomNoGenerator(data.randomSeed);
-		environmentRandom = org.cobweb.cobweb2.core.globals.random;
+		environmentRandom = simulation.getRandom();
 
 		if (data.keepOldArray) {
 			int[] boardIndices = { data.width, data.height };
@@ -657,10 +553,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			do {
 				l = getRandomLocation();
 			} while ((tries++ < 100)
-					&& ((l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_DROP)) && l
-							.getAgent() == null));
+					&& ((testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_DROP))
+							&& getAgent(l) == null));
 			if (tries < 100)
-				l.setFlag(ComplexEnvironment.FLAG_STONE, true);
+				setFlag(l, ComplexEnvironment.FLAG_STONE, true);
 		}
 
 		// add food to random locations
@@ -669,7 +565,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		}
 
 		try {
-			ControllerFactory.Init(data.controllerName, config.getControllerParams());
+			controllerFactory = new ControllerFactory(data.controllerName, config.getControllerParams(), simulation);
 		} catch (ClassNotFoundException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -724,12 +620,12 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				int tries = 0;
 				do {
 					location = getRandomLocation();
-				} while ((tries++ < 100) && ((location.getAgent() != null) // don't spawn on top of agents
-						|| location.testFlag(ComplexEnvironment.FLAG_STONE) // nor on stone tiles
-						|| location.testFlag(ComplexEnvironment.FLAG_DROP))); // nor on waste tiles
+				} while ((tries++ < 100) && ((getAgent(location) != null) // don't spawn on top of agents
+						|| testFlag(location, ComplexEnvironment.FLAG_STONE) // nor on stone tiles
+						|| testFlag(location, ComplexEnvironment.FLAG_DROP))); // nor on waste tiles
 				if (tries < 100) {
 					int agentType = i;
-					spawnAgent(location, agentType);
+					spawnAgent(new LocationDirection(location, DIRECTION_NONE), agentType);
 				}
 			}
 		}
@@ -746,9 +642,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				do {
 					l = getRandomLocation();
 				} while ((tries++ < 100)
-						&& (l.testFlag(ComplexEnvironment.FLAG_STONE) || l.testFlag(ComplexEnvironment.FLAG_DROP)));
+						&& (testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_DROP)));
 				if (tries < 100)
-					l.setFlag(ComplexEnvironment.FLAG_FOOD, true);
+					setFlag(l, ComplexEnvironment.FLAG_FOOD, true);
 				setFoodType(l, i);
 			}
 		}
@@ -760,10 +656,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 */
 	private void loadNewWaste() {
 		dropArray = new Drop[data.width][data.height];
-		prodMapper = new ProductionMapper(this);
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
-				getLocation(x, y).setFlag(FLAG_DROP, false);
+		prodMapper = new ProductionMapper(simulation);
+		for (int x = 0; x < getWidth(); ++x) {
+			for (int y = 0; y < getHeight(); ++y) {
+				setFlag(getLocation(x, y), FLAG_DROP, false);
 			}
 		}
 	}
@@ -780,10 +676,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		// Add in-bounds old agents to the new scheduler and update new
 		// constants
 		// TODO: a way to keep old parameters for old agents?
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+		for (int x = 0; x < getWidth(); ++x) {
+			for (int y = 0; y < getHeight(); ++y) {
 				Location currentPos = getLocation(x, y);
-				ComplexAgent agent = (ComplexAgent) currentPos.getAgent();
+				ComplexAgent agent = (ComplexAgent) getAgent(currentPos);
 				if (agent != null) {
 					int theType = agent.getAgentType();
 					agent.setConstants(agentData[theType], prodData[theType]);
@@ -803,7 +699,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	private void removeOffgridAgents(int oldH, int oldW) {
 		for (Agent a : new ArrayList<Agent>(getAgents())) {
 			Location l = a.getPosition();
-			if (l.v[0] >= data.width || l.v[1] >= data.height) {
+			if (l.x >= data.width || l.y >= data.height) {
 				a.die();
 			}
 		}
@@ -826,13 +722,13 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		// Add in-bounds old waste to the new scheduler and update new
 		// constants
-		for (int x = 0; x < getSize(AXIS_X); ++x) {
-			for (int y = 0; y < getSize(AXIS_Y); ++y) {
+		for (int x = 0; x < getHeight(); ++x) {
+			for (int y = 0; y < getWidth(); ++y) {
 				Location currentPos = getLocation(x, y);
 				if (getDrop(currentPos) != null) {
-					currentPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-					currentPos.setFlag(ComplexEnvironment.FLAG_STONE, false);
-					currentPos.setFlag(ComplexEnvironment.FLAG_DROP, true);
+					setFlag(currentPos, ComplexEnvironment.FLAG_FOOD, false);
+					setFlag(currentPos, ComplexEnvironment.FLAG_STONE, false);
+					setFlag(currentPos, ComplexEnvironment.FLAG_DROP, true);
 				}
 			}
 		}
@@ -880,7 +776,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		super.removeAgent(x, y);
 
 		Location l = getLocation(x, y);
-		Agent a = l.getAgent();
+		Agent a = getAgent(l);
 		if (a != null)
 			a.die();
 	}
@@ -889,14 +785,14 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	public synchronized void removeFood(int x, int y) {
 		super.removeFood(x, y);
 		Location l = getLocation(x, y);
-		l.setFlag(FLAG_FOOD, false);
+		setFlag(l, FLAG_FOOD, false);
 	}
 
 	@Override
 	public synchronized void removeStone(int x, int y) {
 		super.removeStone(x, y);
 		Location l = getLocation(x, y);
-		l.setFlag(FLAG_STONE, false);
+		setFlag(l, FLAG_STONE, false);
 	}
 
 	public void resetAgentInfo() {
@@ -914,7 +810,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * does nothing when (0,0) is a stone
 	 */
 	@Override
-	protected void setFlag(org.cobweb.cobweb2.core.Location l, int flag, boolean state) {
+	public void setFlag(org.cobweb.cobweb2.core.Location l, int flag, boolean state) {
 		switch (flag) {
 			case FLAG_STONE:
 				// Sanity check
@@ -951,7 +847,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	// Sets Food Type in foodarray [];
 	public void setFoodType(org.cobweb.cobweb2.core.Location l, int i) {
-		foodarray[l.v[0]][l.v[1]] = i;
+		foodarray[l.x][l.y] = i;
 	}
 
 	protected void setLocationBits(org.cobweb.cobweb2.core.Location l, int bits) {
@@ -959,7 +855,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	@Override
-	protected boolean testFlag(org.cobweb.cobweb2.core.Location l, int flag) {
+	public boolean testFlag(org.cobweb.cobweb2.core.Location l, int flag) {
 		switch (flag) {
 			case FLAG_STONE:
 				return ((getLocationBits(l) & MASK_TYPE) == STONE_CODE);
@@ -1028,11 +924,11 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < getWidth(); x++) {
 			for (int y = 0; y < getHeight(); y++) {
 				Location l = getLocation(x, y);
-				if (l.testFlag(ComplexEnvironment.FLAG_DROP) == false)
+				if (testFlag(l, ComplexEnvironment.FLAG_DROP) == false)
 					continue;
 				Drop d = getDrop(l);
 				if (!d.isActive(simulation.getTime())) {
-					l.setFlag(ComplexEnvironment.FLAG_DROP, false);
+					setFlag(l, ComplexEnvironment.FLAG_DROP, false);
 					d.expire();
 					setDrop(l, null); // consider deactivating
 					// and not deleting
@@ -1043,12 +939,12 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	@Override
 	public boolean hasAgent(int x, int y) {
-		return getUserDefinedLocation(x, y).getAgent() != null;
+		return getAgent(getUserDefinedLocation(x, y)) != null;
 	}
 
 	@Override
 	public Agent getAgent(int x, int y) {
-		return getUserDefinedLocation(x, y).getAgent();
+		return getAgent(getUserDefinedLocation(x, y));
 	}
 
 	@Override
@@ -1078,67 +974,47 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return data.prisDilemma;
 	}
 
+	public LocationDirection getAdjacent(LocationDirection location) {
+		Direction direction = location.direction;
+		int x = location.x + direction.x;
+		int y = location.y + direction.y;
 
-	/** Save a sample population as an XML file */
-	public void savePopulation(String popName, String option, int amount) {
-
-		int totalPop;
-
-		if (option.equals("percentage")) {
-			totalPop = getAgentCount() * amount / 100;
-		} else {
-			int currPop = getAgentCount();
-			if (amount > currPop) {
-
-				totalPop = currPop;
-			} else {
-
-				totalPop = amount;
+		if (data.wrapMap) {
+			x = (x + getWidth()) % getWidth();
+			boolean flip = false;
+			if (y < 0) {
+				y = -y - 1;
+				flip = true;
+			} else if (y >= getHeight()) {
+				y = getHeight() * 2 - y - 1;
+				flip = true;
 			}
+			if (flip) {
+				x = (x + getWidth() / 2) % getWidth();
+				direction = new Direction(-direction.x, -direction.y);
+			}
+		} else {
+			if ( x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
+				return null;
 		}
+		return new LocationDirection(new Location(x, y), direction);
+	}
 
-		Document d;
-		try {
-			d = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		} catch (ParserConfigurationException ex) {
-			throw new RuntimeException(ex);
-		}
-		Node root = d.createElement("Agents");
+	public Location getAdjacent(Location location, Direction direction) {
+		return getAdjacent(new LocationDirection(location, direction));
+	}
 
-		int currentPopCount = 1;
+	public LocationDirection getTurnRightPosition(LocationDirection location) {
+		return new LocationDirection(location, new Direction(-location.direction.y, location.direction.x));
+	}
 
-		for (Location l : agentTable.keySet()) {
-			if (currentPopCount > totalPop)
-				break;
-			Node node = ((ComplexAgent) agentTable.get(l)).makeNode(d);
+	public LocationDirection getTurnLeftPosition(LocationDirection location) {
+		return new LocationDirection(location, new Direction(location.direction.y, -location.direction.x));
+	}
 
-			Element locationElement = d.createElement("location");
-
-			l.saveAsANode(locationElement, d);
-			node.appendChild(locationElement);
-
-			root.appendChild(node);
-			currentPopCount++;
-
-		}
-
-		d.appendChild(root);
-
-		Source s = new DOMSource(d);
-
-		try {
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer t = tf.newTransformer();
-			t.setOutputProperty(OutputKeys.INDENT, "yes");
-			t.setParameter(OutputKeys.STANDALONE, "yes");
-			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-			FileOutputStream stream = new FileOutputStream(popName);
-			Result r = new StreamResult(stream);
-			t.transform(s, r);
-		} catch (Exception ex) {
-			throw new RuntimeException("Couldn't save population", ex);
-		}
+	public RandomNoGenerator getRandom() {
+		// FIXME: call simulation.getRandom directly instead of this wrapper;
+		return simulation.getRandom();
 	}
 
 }

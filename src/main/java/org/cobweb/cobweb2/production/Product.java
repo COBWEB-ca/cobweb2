@@ -4,7 +4,6 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.core.globals;
 
 public class Product implements Drop {
 	private final ProductionMapper productionMapper;
@@ -53,7 +52,7 @@ public class Product implements Drop {
 
 	@Override
 	public void onStep(ComplexAgent agent) {
-		if (owner != agent && globals.random.nextFloat() <= 0.3f) {
+		if (owner != agent && productionMapper.simulation.getRandom().nextFloat() <= 0.3f) {
 			productionMapper.remProduct(this);
 			// TODO: Reward p.owner for selling his product!
 			// Reward this agent for buying a product! (and punish it

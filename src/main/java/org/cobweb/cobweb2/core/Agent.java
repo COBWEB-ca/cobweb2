@@ -35,7 +35,7 @@ public abstract class Agent {
 		return id;
 	}
 
-	protected Location position;
+	protected LocationDirection position;
 
 	protected Controller controller;
 
@@ -54,7 +54,6 @@ public abstract class Agent {
 		if (!isAlive())
 			return;
 
-		position.setAgent(null);
 		alive = false;
 	}
 
@@ -69,7 +68,7 @@ public abstract class Agent {
 	/**
 	 * @return the location this Agent occupies.
 	 */
-	public Location getPosition() {
+	public LocationDirection getPosition() {
 		return position;
 	}
 
@@ -77,15 +76,6 @@ public abstract class Agent {
 		return alive;
 	}
 
-	/**
-	 * Sets the position of the Agent.
-	 */
-	public void move(Location newPos) {
-		newPos.setAgent(this);
-		if (position != null)
-			position.setAgent(null);
-		position = newPos;
-	}
 
 	public int type() {
 		return -1;

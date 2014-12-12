@@ -17,7 +17,7 @@ import org.cobweb.util.RandomNoGenerator;
  * <li> 2 bits for orientation (N(00),S(01),E(10),W(11)) </li>
  * <li> 2 bits for agent's current energy level == floor(E/40) and no more than 3 </li>
  * </ol>
- * 
+ *
  * Output: A collection of 4 outputs:
  * <ol>
  * <li> 2 bits for physical action (0-left, 1-right, 2-stop, 3-step) </li>
@@ -262,22 +262,22 @@ public class BehaviorArray {
 	 * @return a new behavior that is a splice of this one and the parameter
 	 */
 
-	public BehaviorArray splice(BehaviorArray BOther) {
+	public static BehaviorArray splice(BehaviorArray first, BehaviorArray BOther, RandomNoGenerator random) {
 
-		boolean[] boolArray = new boolean[size]; // initialized to false by
+		boolean[] boolArray = new boolean[first.size]; // initialized to false by
 		// java
 
-		BehaviorArray newBArray = new BehaviorArray(inputSize, outputSize);
+		BehaviorArray newBArray = new BehaviorArray(first.inputSize, first.outputSize);
 
 		/*
 		 * Fills boolArray up in a manner such that a random half of the elements are 'true'
 		 */
 		for (int i = 0;;) {
 
-			int r = org.cobweb.cobweb2.core.globals.random.nextInt(size);
+			int r = random.nextInt(first.size);
 			if (boolArray[r] == false) {
 				boolArray[r] = true;
-				if (++i == size >> 1) {
+				if (++i == first.size >> 1) {
 					break;
 				}
 			}
@@ -286,12 +286,12 @@ public class BehaviorArray {
 		 * Set the values of our new array according the values in boolArray. An element is from 'this' array if the
 		 * corresponding element in boolArray is false and from the 'other' array (supplied as an arguement) if its true
 		 */
-		for (int i = 0; i < size; ++i) {
+		for (int i = 0; i < first.size; ++i) {
 
 			if (boolArray[i]) {
 				newBArray.set(i, BOther.get(i));
 			} else {
-				newBArray.set(i, get(i));
+				newBArray.set(i, first.get(i));
 			}
 		}
 

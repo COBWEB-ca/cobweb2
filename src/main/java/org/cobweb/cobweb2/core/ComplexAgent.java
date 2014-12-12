@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.cobweb.cobweb2.ai.ControllerFactory;
 import org.cobweb.cobweb2.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.interconnect.AgentMutator;
@@ -19,9 +18,6 @@ import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
 import org.cobweb.cobweb2.production.ProductionParams;
 import org.cobweb.cobweb2.waste.Waste;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * TODO better comments
@@ -153,7 +149,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 */
 	protected int energy;
 	/** Prisoner's Dilemma */
-	boolean pdCheater; // The agent's action; 1 == cheater, else cooperator
+	public boolean pdCheater; // The agent's action; 1 == cheater, else cooperator
 	private boolean lastPDcheated; // Remember the opponent's move in the last game
 
 	private int commInbox;
@@ -214,11 +210,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		stepMutators.clear();
 	}
 
-	protected org.cobweb.cobweb2.core.Direction facing = org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH;
-
 	private static Set<SpawnMutator> spawnMutators = new LinkedHashSet<SpawnMutator>();
-
-	protected boolean mustFlip = false;
 
 	public transient ComplexEnvironment environment;
 
@@ -233,26 +225,26 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * @param parent1 first parent
 	 * @param parent2 second parent
 	 */
-	public void init(org.cobweb.cobweb2.core.Location pos, ComplexAgent parent1, ComplexAgent parent2) {
-		init(ControllerFactory.createFromParents(parent1.getController(), parent2.getController(),
+	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent1, ComplexAgent parent2) {
+		environment = env;
+		init(env.controllerFactory.createFromParents(parent1.getController(), parent2.getController(),
 				parent1.params.mutationRate));
-		InitFacing();
 
 		copyConstants(parent1);
 
 		// child's strategy is determined by its parents, it has a
 		// 50% chance to get either parent's strategy
-		if (org.cobweb.cobweb2.core.globals.random.nextBoolean()) {
+		if (env.getRandom().nextBoolean()) {
 			params.pdCoopProb = parent2.params.pdCoopProb;
 			params.pdTitForTat = parent2.params.pdTitForTat;
 			params.pdSimilarityNeutral = parent2.params.pdSimilarityNeutral;
 			params.pdSimilaritySlope = parent2.params.pdSimilaritySlope;
 		} // else keep parent 1's PD config
 
-		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		stats = environment.addAgentInfo(agentType, parent1.stats, parent2.stats);
 
 		move(pos);
+		InitFacing();
 
 		environment.simulation.addAgent(this);
 
@@ -268,37 +260,20 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * @param pos spawn position
 	 * @param parent parent
 	 */
-	protected void init(org.cobweb.cobweb2.core.Location pos, ComplexAgent parent) {
-		init(ControllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
-		InitFacing();
+	protected void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent) {
+		environment = (env);
+		init(env.controllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 
 		copyConstants(parent);
-		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		stats = environment.addAgentInfo(agentType, parent.stats);
 
 		move(pos);
+		InitFacing();
 
 		environment.simulation.addAgent(this);
 
 		for (SpawnMutator mutator : spawnMutators)
 			mutator.onSpawn(this, parent);
-	}
-
-	/**   */
-	public void init(int agentT, ComplexAgentParams agentData, ProductionParams prodData, Direction facingDirection, Location pos) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentT));
-		setConstants(agentData, prodData);
-		this.facing = facingDirection;
-
-		environment = ((ComplexEnvironment) (pos.getEnvironment()));
-		stats = environment.addAgentInfo(agentT);
-
-		move(pos);
-
-		environment.simulation.addAgent(this);
-
-		for (SpawnMutator mutator : spawnMutators)
-			mutator.onSpawn(this);
 	}
 
 	/**
@@ -308,18 +283,17 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * @param pos spawn position
 	 * @param agentData agent parameters
 	 */
-	public void init(int agentType, Location pos, ComplexAgentParams agentData, ProductionParams prodData) {
-		init(ControllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType));
+	public void init(ComplexEnvironment env, int agentType, LocationDirection pos, ComplexAgentParams agentData, ProductionParams prodData) {
+		environment = (env);
+		init(env.controllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType));
 		setConstants(agentData, prodData);
 
-		InitFacing();
-
 		params = agentData;
-		environment = ((ComplexEnvironment) (pos.getEnvironment()));
 		stats = environment.addAgentInfo(agentType);
 		this.agentType = agentType;
 
 		move(pos);
+		InitFacing();
 
 		environment.simulation.addAgent(this);
 
@@ -399,13 +373,13 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		if (destPos == null)
 			return false;
 		// and the destination must be clear of stones
-		if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
+		if (environment.testFlag(destPos, ComplexEnvironment.FLAG_STONE))
 			return false;
 		// and clear of wastes
-		if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
+		if (environment.testFlag(destPos, ComplexEnvironment.FLAG_DROP))
 			return environment.getDrop(destPos).canStep();
 		// as well as other agents...
-		if (destPos.getAgent() != null)
+		if (environment.getAgent(destPos) != null)
 			return false;
 		return true;
 	}
@@ -429,7 +403,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	//@Override
 	//	public Object clone() {
-	//		ComplexAgent cp = new ComplexAgent(getAgentType(), pdCheater, params, facing);
+	//		ComplexAgent cp = new ComplexAgent(getAgentType(), pdCheater, params, getPosition().direction);
 	//		//cp.hibernate();
 	//		return cp;
 	//	}
@@ -448,6 +422,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	public void die() {
 		super.die();
 
+		environment.setAgent(position, null);
+
 		for (SpawnMutator mutator : spawnMutators) {
 			mutator.onDeath(this);
 		}
@@ -461,10 +437,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * @return What the agent sees and at what distance.
 	 */
 	public SeeInfo distanceLook() {
-		Direction d = facing;
-		org.cobweb.cobweb2.core.Location destPos = getPosition().getAdjacent(d);
-		if (getPosition().checkFlip(d))
-			d = d.flip();
+		LocationDirection destPos = environment.getAdjacent(getPosition());
+
 		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
 
 			// We are looking at the wall
@@ -472,23 +446,21 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_STONE);
 
 			// Check for stone...
-			if (destPos.testFlag(ComplexEnvironment.FLAG_STONE))
+			if (environment.testFlag(destPos, ComplexEnvironment.FLAG_STONE))
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_STONE);
 
 			// If there's another agent there, then return that it's a stone...
-			if (destPos.getAgent() != null && destPos.getAgent() != this)
+			if (environment.getAgent(destPos) != null && environment.getAgent(destPos) != this)
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_AGENT);
 
 			// If there's food there, return the food...
-			if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD))
+			if (environment.testFlag(destPos, ComplexEnvironment.FLAG_FOOD))
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_FOOD);
 
-			if (destPos.testFlag(ComplexEnvironment.FLAG_DROP))
+			if (environment.testFlag(destPos, ComplexEnvironment.FLAG_DROP))
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_DROP);
 
-			destPos = destPos.getAdjacent(d);
-			if (getPosition().checkFlip(d))
-				d = d.flip();
+			destPos = environment.getAdjacent(destPos);
 		}
 		return new SeeInfo(LOOK_DISTANCE, 0);
 	}
@@ -502,7 +474,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	public void eat(org.cobweb.cobweb2.core.Location destPos) {
 		// TODO: CHECK if setting flag before determining type is ok
 		// Eat first before we can produce waste, of course.
-		destPos.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+		environment.setFlag(destPos, ComplexEnvironment.FLAG_FOOD, false);
 		// Gain Energy according to the food type.
 		if (environment.getFoodType(destPos) == agentType) {
 			energy += params.foodEnergy;
@@ -540,11 +512,11 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	protected Agent getAdjacentAgent() {
-		org.cobweb.cobweb2.core.Location destPos = getPosition().getAdjacent(facing);
+		org.cobweb.cobweb2.core.Location destPos = environment.getAdjacent(getPosition(), getPosition().direction);
 		if (destPos == null) {
 			return null;
 		}
-		return destPos.getAgent();
+		return environment.getAgent(destPos);
 	}
 
 	public long getAge() {
@@ -586,22 +558,22 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * <br>South = 2
 	 * <br>West = 3
 	 *
-	 * @return A number representation of the direction the agent is facing.
+	 * @return A number representation of the direction the agent is getPosition().direction.
 	 */
 	public int getIntFacing() {
-		if (facing.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH))
+		if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH))
 			return 0;
-		if (facing.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_EAST))
+		if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_EAST))
 			return 1;
-		if (facing.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH))
+		if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH))
 			return 2;
-		if (facing.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_WEST))
+		if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_WEST))
 			return 3;
 		return 0;
 	}
 
 	public Direction getFacing() {
-		return facing;
+		return getPosition().direction;
 	}
 
 	public int getMemoryBuffer() {
@@ -612,15 +584,15 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * Provide a random direction for the agent to face.
 	 */
 	private void InitFacing() {
-		double f = org.cobweb.cobweb2.core.globals.random.nextFloat();
-		if (f < 0.25)
-			facing = org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH;
-		else if (f < 0.5)
-			facing = org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH;
-		else if (f < 0.75)
-			facing = org.cobweb.cobweb2.core.Environment.DIRECTION_EAST;
+		int f = environment.getRandom().nextInt(4);
+		if (f == 0)
+			position = new LocationDirection(position, Environment.DIRECTION_NORTH);
+		else if (f == 1)
+			position = new LocationDirection(position, Environment.DIRECTION_SOUTH);
+		else if (f == 2)
+			position = new LocationDirection(position, Environment.DIRECTION_EAST);
 		else
-			facing = org.cobweb.cobweb2.core.Environment.DIRECTION_WEST;
+			position = new LocationDirection(position, Environment.DIRECTION_WEST);
 	}
 
 	public boolean isAsexFlag() {
@@ -647,48 +619,13 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		broadcastCheating(othersID);
 	}
 
-	public Node makeNode(Document doc) {
+	public void move(LocationDirection newPos) {
+		environment.setAgent(newPos, this);
+		if (position != null)
+			environment.setAgent(position, null);
+		position = newPos;
 
-		Node agent = doc.createElement("Agent");
-
-		Element agentTypeElement = doc.createElement("agentType");
-		agentTypeElement.appendChild(doc.createTextNode(agentType +""));
-		agent.appendChild(agentTypeElement);
-
-
-		Element doCheatElement = doc.createElement("doCheat");
-		doCheatElement.appendChild(doc.createTextNode(pdCheater +""));
-		agent.appendChild(doCheatElement);
-
-		Element paramsElement = doc.createElement("params");
-
-		params.saveConfig(paramsElement, doc);
-
-		agent.appendChild(paramsElement);
-
-		Element directionElement = doc.createElement("direction");
-
-		facing.saveAsANode(directionElement, doc);
-
-		agent.appendChild(directionElement);
-
-		return agent;
-	}
-
-	@Override
-	public void move(Location newPos) {
-		super.move(newPos);
 		stats.addPathStep(newPos);
-		if (mustFlip) {
-			if (facing.equals(Environment.DIRECTION_NORTH))
-				facing = Environment.DIRECTION_SOUTH;
-			else if (facing.equals(Environment.DIRECTION_SOUTH))
-				facing = Environment.DIRECTION_NORTH;
-			else if (facing.equals(Environment.DIRECTION_EAST))
-				facing = Environment.DIRECTION_WEST;
-			else if (facing.equals(Environment.DIRECTION_WEST))
-				facing = Environment.DIRECTION_EAST;
-		}
 	}
 
 	/**
@@ -722,7 +659,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			pdCheater = lastPDcheated;
 		} else {
 			pdCheater = false; // agent is assumed to cooperate
-			float rnd = org.cobweb.cobweb2.core.globals.random.nextFloat();
+			float rnd = environment.getRandom().nextFloat();
 			if (rnd > coopProb)
 				pdCheater = true; // agent defects depending on
 			// probability
@@ -944,8 +881,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 */
 	public void step() {
 		org.cobweb.cobweb2.core.Agent adjAgent;
-		mustFlip = getPosition().checkFlip(facing);
-		org.cobweb.cobweb2.core.Location destPos = getPosition().getAdjacent(facing);
+		LocationDirection destPos = environment.getAdjacent(getPosition());
 
 		if (canStep(destPos)) {
 
@@ -969,7 +905,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 		energy -= energyPenalty();
 
-		if (destPos != null && destPos.testFlag(ComplexEnvironment.FLAG_DROP)) {
+		if (destPos != null && environment.testFlag(destPos, ComplexEnvironment.FLAG_DROP)) {
 			// Bumps into drop
 			Drop d = environment.getDrop(destPos);
 
@@ -995,10 +931,10 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 	}
 
-	protected void onstepFreeTile(org.cobweb.cobweb2.core.Location destPos) {
+	protected void onstepFreeTile(LocationDirection destPos) {
 		// Check for food...
-		org.cobweb.cobweb2.core.Location breedPos = null;
-		if (destPos.testFlag(ComplexEnvironment.FLAG_FOOD)) {
+		LocationDirection breedPos = null;
+		if (environment.testFlag(destPos, ComplexEnvironment.FLAG_FOOD)) {
 			if (params.broadcastMode && canBroadcast()) {
 				broadcastFood(destPos);
 			}
@@ -1008,7 +944,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 
 		if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
-			breedPos = getPosition();
+			breedPos = new LocationDirection(getPosition(), Environment.DIRECTION_NONE);
 		} else if (!pregnant) {
 			// TODO: make AI control this choice?
 			tryAsexBreed();
@@ -1029,10 +965,10 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
 
 			if (breedPartner == null) {
-				child.init(breedPos, this);
+				child.init(environment, breedPos, this);
 			} else {
 				breedPartner.stats.addDirectChild();
-				child.init(breedPos, this, breedPartner);
+				child.init(environment, breedPos, this, breedPartner);
 				stats.addSexPreg();
 			}
 			breedPartner = null;
@@ -1068,7 +1004,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 			double sim = 0.0;
 			boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-					&& org.cobweb.cobweb2.core.globals.random.nextFloat() < params.sexualBreedChance;
+					&& environment.getRandom().nextFloat() < params.sexualBreedChance;
 
 			// Generate genetic similarity number
 			sim = simCalc.similarity(this, adjacentAgent);
@@ -1095,7 +1031,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	private void thinkAboutFoodLocation(int x, int y) {
-		Location target = this.getPosition().getEnvironment().getLocation(x, y);
+		Location target = environment.getLocation(x, y);
 
 		double closeness = 1;
 
@@ -1157,7 +1093,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 */
 	protected void tryAsexBreed() {
 		if (isAsexFlag() && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
-				&& org.cobweb.cobweb2.core.globals.random.nextFloat() < params.asexualBreedChance) {
+				&& environment.getRandom().nextFloat() < params.asexualBreedChance) {
 			pregPeriod = params.asexPregnancyPeriod;
 			pregnant = true;
 		}
@@ -1192,12 +1128,14 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		// Place the drop at an available location adjacent to the agent
 		for (int i = 0; i < dirList.length; i++) {
-			loc = getPosition().getAdjacent(dirList[i]);
-			if (loc != null && loc.getAgent() == null && !loc.testFlag(ComplexEnvironment.FLAG_STONE)
-					&& !loc.testFlag(ComplexEnvironment.FLAG_DROP) && !loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-				loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-				loc.setFlag(ComplexEnvironment.FLAG_STONE, false);
-				loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
+			loc = environment.getAdjacent(getPosition(), dirList[i]);
+			if (loc != null && environment.getAgent(loc) == null
+					&& !environment.testFlag(loc, ComplexEnvironment.FLAG_STONE)
+					&& !environment.testFlag(loc, ComplexEnvironment.FLAG_DROP)
+					&& !environment.testFlag(loc, ComplexEnvironment.FLAG_FOOD)) {
+				environment.setFlag(loc, ComplexEnvironment.FLAG_FOOD, false);
+				environment.setFlag(loc, ComplexEnvironment.FLAG_STONE, false);
+				environment.setFlag(loc, ComplexEnvironment.FLAG_DROP, true);
 				environment.setDrop(loc, d);
 				break;
 			}
@@ -1210,10 +1148,12 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		 */
 		if (!added) {
 			for (int i = 0; i < dirList.length; i++) {
-				loc = getPosition().getAdjacent(dirList[i]);
-				if (loc != null && loc.getAgent() == null && loc.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-					loc.setFlag(ComplexEnvironment.FLAG_FOOD, false);
-					loc.setFlag(ComplexEnvironment.FLAG_DROP, true);
+				loc = environment.getAdjacent(getPosition(), dirList[i]);
+				if (loc != null
+						&& environment.getAgent(loc) == null
+						&& environment.testFlag(loc, ComplexEnvironment.FLAG_FOOD)) {
+					environment.setFlag(loc, ComplexEnvironment.FLAG_FOOD, false);
+					environment.setFlag(loc, ComplexEnvironment.FLAG_DROP, true);
 					environment.setDrop(loc, d);
 					break;
 				}
@@ -1221,7 +1161,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 	}
 	private boolean roll(float chance) {
-		return chance > globals.random.nextFloat();
+		return chance > environment.getRandom().nextFloat();
 	}
 
 	boolean shouldProduce() {
@@ -1315,11 +1255,11 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			// Healthy agents produce high-value products, and vice-versa
 			environment.prodMapper.createProduct((float) energy / (float) params.initEnergy, this);
 
-			if (position.testFlag(ComplexEnvironment.FLAG_FOOD)) {
-				position.setFlag(ComplexEnvironment.FLAG_FOOD, false);
+			if (environment.testFlag(position, ComplexEnvironment.FLAG_FOOD)) {
+				environment.setFlag(position, ComplexEnvironment.FLAG_FOOD, false);
 			}
 
-			position.setFlag(ComplexEnvironment.FLAG_DROP, true);
+			environment.setFlag(position, ComplexEnvironment.FLAG_DROP, true);
 
 		}
 	}
@@ -1330,10 +1270,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * energy it took to turn.
 	 */
 	public void turnLeft() {
-		org.cobweb.cobweb2.core.Direction newFacing = new org.cobweb.cobweb2.core.Direction(2);
-		newFacing.v[0] = facing.v[1];
-		newFacing.v[1] = -facing.v[0];
-		facing = newFacing;
+		position = environment.getTurnLeftPosition(position);
 		energy -= params.turnLeftEnergy;
 		setWasteCounterLoss(getWasteCounterLoss() - params.turnLeftEnergy);
 		stats.addTurn(params.turnLeftEnergy);
@@ -1346,10 +1283,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * to turn.
 	 */
 	public void turnRight() {
-		org.cobweb.cobweb2.core.Direction newFacing = new org.cobweb.cobweb2.core.Direction(2);
-		newFacing.v[0] = -facing.v[1];
-		newFacing.v[1] = facing.v[0];
-		facing = newFacing;
+		position = environment.getTurnRightPosition(position);
 		energy -= params.turnRightEnergy;
 		setWasteCounterLoss(getWasteCounterLoss() - params.turnRightEnergy);
 		stats.addTurn(params.turnRightEnergy);
