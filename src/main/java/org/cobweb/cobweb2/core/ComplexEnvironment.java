@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -169,7 +168,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return foodarray[l.v[0]][l.v[1]];
 	}
 
-	public Vector<ComplexAgentInfo> agentInfoVector = new Vector<ComplexAgentInfo>();
+	public final List<ComplexAgentInfo> agentInfoVector = new ArrayList<ComplexAgentInfo>();
 
 	private org.cobweb.cobweb2.core.ArrayEnvironment array;
 
@@ -269,6 +268,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public synchronized void clearAgents() {
 		super.clearAgents();
+		resetAgentInfo();
 	}
 
 	private void clearFlag(int flag) {
@@ -982,7 +982,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	public void resetAgentInfo() {
-		agentInfoVector = new Vector<ComplexAgentInfo>();
+		agentInfoVector.clear();
+		ComplexAgentInfo.resetGroupData();
 	}
 
 	/** Sets the default mutable variables of each agent type. */

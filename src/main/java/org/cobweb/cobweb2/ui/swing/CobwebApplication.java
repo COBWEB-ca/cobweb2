@@ -253,6 +253,12 @@ public class CobwebApplication extends JFrame {
 		// TODO create new simRunner when starting new simulation, reuse when modifying
 		if (simRunner.isRunning())
 			simRunner.stop();
+
+		if (!continuation) {
+			simRunner.getSimulation().resetTime();
+			simRunner.setLog(null);
+		}
+
 		simRunner.getSimulation().load(config);
 		File file = new File(config.getFilename());
 
@@ -265,11 +271,6 @@ public class CobwebApplication extends JFrame {
 						+ "\" is NOT allowed to be modified.\n"
 						+ "\n                  Any modification of this data file will be neither implemented nor saved.");
 			}
-		}
-
-		if (!continuation) {
-			simRunner.getSimulation().resetTime();
-			simRunner.setLog(null);
 		}
 
 		updateDynamicUI();
