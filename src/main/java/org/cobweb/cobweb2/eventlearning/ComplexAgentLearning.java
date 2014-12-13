@@ -343,7 +343,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 						&& simulation.getRandom().nextFloat() < params.sexualBreedChance;
 
 				// Generate genetic similarity number
-				sim = simCalc.similarity(this, adjacentAgent);
+				sim = simulation.getSimilarityCalculator().similarity(this, adjacentAgent);
 
 				if (sim >= params.commSimMin) {
 					// Communicate with the smiliar agent

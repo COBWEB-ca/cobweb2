@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import org.cobweb.cobweb2.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.interconnect.AgentMutator;
-import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
@@ -72,9 +71,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	private static final long serialVersionUID = -5310096345506441368L;
 
 	@Deprecated //FIXME static!
-	protected static AgentSimilarityCalculator simCalc;
-
-	@Deprecated //FIXME static!
 	public static Collection<String> logDataAgent(int i) {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
@@ -112,11 +108,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 				blah.add(s);
 		}
 		return blah;
-	}
-
-	@Deprecated //FIXME static!
-	public static void setSimularityCalc(AgentSimilarityCalculator calc) {
-		simCalc = calc;
 	}
 
 	/**
@@ -648,7 +639,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		double coopProb = params.pdCoopProb / 100.0d;
 
-		float similarity = simCalc.similarity(this, other);
+		float similarity = simulation.getSimilarityCalculator().similarity(this, other);
 
 		coopProb += (similarity - params.pdSimilarityNeutral) * params.pdSimilaritySlope;
 
@@ -1003,7 +994,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 					&& simulation.getRandom().nextFloat() < params.sexualBreedChance;
 
 			// Generate genetic similarity number
-			sim = simCalc.similarity(this, adjacentAgent);
+			sim = simulation.getSimilarityCalculator().similarity(this, adjacentAgent);
 
 			if (sim >= params.commSimMin) {
 				communicate(adjacentAgent);

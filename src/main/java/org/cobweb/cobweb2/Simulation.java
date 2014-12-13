@@ -16,6 +16,7 @@ import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
+import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;
 import org.cobweb.cobweb2.production.ProductionMapper;
@@ -45,6 +46,8 @@ public class Simulation implements SimulationInternals {
 	private RandomNoGenerator random;
 
 	private AgentSpawner agentSpawner;
+
+	private GeneticsMutator similarityCalculator;
 
 	/* return number of TYPES of agents in the environment */
 	@Override
@@ -121,7 +124,7 @@ public class Simulation implements SimulationInternals {
 		if (geneticMutator == null) {
 			geneticMutator = new GeneticsMutator(this);
 			ComplexAgent.addMutator(geneticMutator);
-			ComplexAgent.setSimularityCalc(geneticMutator);
+			similarityCalculator = geneticMutator;
 		}
 		if (diseaseMutator == null) {
 			diseaseMutator = new DiseaseMutator(this);
@@ -223,5 +226,10 @@ public class Simulation implements SimulationInternals {
 	}
 
 	public ProductionMapper prodMapper;
+
+	@Override
+	public AgentSimilarityCalculator getSimilarityCalculator() {
+		return similarityCalculator;
+	}
 
 }
