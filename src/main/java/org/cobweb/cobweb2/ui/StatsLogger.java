@@ -5,7 +5,6 @@ import java.io.Writer;
 import java.text.DecimalFormat;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.core.ComplexAgent;
 
 
 public class StatsLogger implements UpdatableUI {
@@ -61,7 +60,7 @@ public class StatsLogger implements UpdatableUI {
 			logStream.print(coops);
 			logStream.print('\t');
 
-			for (String s : ComplexAgent.logDataAgent(i)) {
+			for (String s : simulation.mutatorListener.logDataAgent(i)) {
 				logStream.print(s);
 				logStream.print('\t');
 			}
@@ -95,7 +94,7 @@ public class StatsLogger implements UpdatableUI {
 		logStream.print(total_coops);
 		logStream.print('\t');
 
-		for (String s : ComplexAgent.logDataTotal()) {
+		for (String s : simulation.mutatorListener.logDataTotal()) {
 			logStream.print(s);
 			logStream.print('\t');
 		}
@@ -115,7 +114,7 @@ public class StatsLogger implements UpdatableUI {
 				logStream.print("AgentEnergy " + i + "\t");
 				logStream.print("Cheat " + i + "\t");
 				logStream.print("Coop " + i + "\t");
-				for (String s : ComplexAgent.logHederAgent()) {
+				for (String s : simulation.mutatorListener.logHederAgent()) {
 					logStream.print(s);
 					logStream.print(" " + i);
 					logStream.print('\t');
@@ -129,7 +128,7 @@ public class StatsLogger implements UpdatableUI {
 			logStream.print("AgentEnergy T\t");
 			logStream.print("Num. Cheat T\t");
 			logStream.print("Num. Coop T\t");
-			for (String s : ComplexAgent.logHederTotal()) {
+			for (String s : simulation.mutatorListener.logHederTotal()) {
 				logStream.print(s);
 				logStream.print(" T");
 				logStream.print('\t');

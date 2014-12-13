@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cobweb.cobweb2.abiotic.TemperatureMutator;
+import org.cobweb.cobweb2.core.AgentListener;
 import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
@@ -17,6 +18,7 @@ import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
+import org.cobweb.cobweb2.interconnect.MutatorListener;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;
 import org.cobweb.cobweb2.production.ProductionMapper;
@@ -112,7 +114,7 @@ public class Simulation implements SimulationInternals {
 		// the static information is not cleared, ComplexAgent should really
 		// have a way to track which mutators have been bound
 		if (!p.getEnvParams().keepOldAgents) {
-			ComplexAgent.clearMutators();
+			mutatorListener.clearMutators();
 			plugins.clear();
 			agents.clear();
 			geneticMutator = null;
@@ -123,21 +125,21 @@ public class Simulation implements SimulationInternals {
 
 		if (geneticMutator == null) {
 			geneticMutator = new GeneticsMutator(this);
-			ComplexAgent.addMutator(geneticMutator);
+			mutatorListener.addMutator(geneticMutator);
 			similarityCalculator = geneticMutator;
 		}
 		if (diseaseMutator == null) {
 			diseaseMutator = new DiseaseMutator(this);
-			ComplexAgent.addMutator(diseaseMutator);
+			mutatorListener.addMutator(diseaseMutator);
 		}
 		if (tempMutator == null) {
 			tempMutator = new TemperatureMutator();
-			ComplexAgent.addMutator(tempMutator);
+			mutatorListener.addMutator(tempMutator);
 		}
 		if (prodMapper == null) {
 			prodMapper = new ProductionMapper(simulationConfig.getProdParams());
 			plugins.add(prodMapper);
-			ComplexAgent.addMutator(prodMapper);
+			mutatorListener.addMutator(prodMapper);
 		}
 
 		geneticMutator.setParams(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
@@ -230,6 +232,13 @@ public class Simulation implements SimulationInternals {
 	@Override
 	public AgentSimilarityCalculator getSimilarityCalculator() {
 		return similarityCalculator;
+	}
+
+	public MutatorListener mutatorListener = new MutatorListener();
+
+	@Override
+	public AgentListener getAgentListener() {
+		return mutatorListener;
 	}
 
 }

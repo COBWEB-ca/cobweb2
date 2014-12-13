@@ -9,8 +9,6 @@ import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
-import org.cobweb.cobweb2.interconnect.ContactMutator;
-import org.cobweb.cobweb2.interconnect.StepMutator;
 
 //Food storage
 //Vaccination/avoid infected agents
@@ -203,8 +201,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			queue(new Occurrence(this, 0, "stepMutate") {
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-					for (StepMutator m : stepMutators)
-						m.onStep(ComplexAgentLearning.this, getPosition(), destPos);
+					simulation.getAgentListener().onStep(concernedAgent, getPosition(), destPos);
 					return null;
 				}
 			});
@@ -290,9 +287,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-					for (ContactMutator mut : contactMutators) {
-						mut.onContact(concernedAgent, adjacentAgent);
-					}
+					simulation.getAgentListener().onContact(concernedAgent, adjacentAgent);
 					return null;
 				}
 			});

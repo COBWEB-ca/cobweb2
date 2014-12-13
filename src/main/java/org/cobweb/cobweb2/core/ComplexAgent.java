@@ -1,20 +1,11 @@
 package org.cobweb.cobweb2.core;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.cobweb.cobweb2.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
-import org.cobweb.cobweb2.interconnect.AgentMutator;
-import org.cobweb.cobweb2.interconnect.ContactMutator;
-import org.cobweb.cobweb2.interconnect.SpawnMutator;
-import org.cobweb.cobweb2.interconnect.StepMutator;
 import org.cobweb.cobweb2.waste.Waste;
 
 /**
@@ -70,46 +61,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 */
 	private static final long serialVersionUID = -5310096345506441368L;
 
-	@Deprecated //FIXME static!
-	public static Collection<String> logDataAgent(int i) {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logDataAgent(i))
-				blah.add(s);
-		}
-		return blah;
-	}
-
-	@Deprecated //FIXME static!
-	public static Iterable<String> logDataTotal() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logDataTotal())
-				blah.add(s);
-		}
-		return blah;
-	}
-
-	@Deprecated //FIXME static!
-	public static Collection<String> logHederAgent() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logHeadersAgent())
-				blah.add(s);
-		}
-		return blah;
-	}
-
-	@Deprecated //FIXME static!
-	public static Iterable<String> logHederTotal() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logHeaderTotal())
-				blah.add(s);
-		}
-		return blah;
-	}
-
 	/**
 	 * The agent's type.
 	 */
@@ -157,49 +108,10 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	/** The current tick we are in (or the last tick this agent was notified */
 	protected long currTick = 0;
 
-	@Deprecated //FIXME static!
-	protected static Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
-
-	@Deprecated //FIXME static!
-	protected static Set<StepMutator> stepMutators = new LinkedHashSet<StepMutator>();
-
 	private static final org.cobweb.cobweb2.core.Direction[] dirList = { org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH,
 		org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH, org.cobweb.cobweb2.core.Environment.DIRECTION_WEST, org.cobweb.cobweb2.core.Environment.DIRECTION_EAST,
 		org.cobweb.cobweb2.core.Environment.DIRECTION_NORTHEAST, org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTHEAST,
 		org.cobweb.cobweb2.core.Environment.DIRECTION_NORTHWEST, org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTHWEST };
-
-	@Deprecated //FIXME static!
-	public static void addMutator(AgentMutator mutator) {
-		if (mutator instanceof SpawnMutator)
-			spawnMutators.add((SpawnMutator) mutator);
-
-		if (mutator instanceof ContactMutator)
-			contactMutators.add((ContactMutator) mutator);
-
-		if (mutator instanceof StepMutator)
-			stepMutators.add((StepMutator) mutator);
-	}
-
-
-	@Deprecated //FIXME static!
-	public static void removeMutator(AgentMutator mutator) {
-		if (mutator instanceof SpawnMutator)
-			spawnMutators.remove(mutator);
-		if (mutator instanceof ContactMutator)
-			contactMutators.remove(mutator);
-		if (mutator instanceof StepMutator)
-			stepMutators.remove(mutator);
-	}
-
-	@Deprecated //FIXME static!
-	public static void clearMutators() {
-		spawnMutators.clear();
-		contactMutators.clear();
-		stepMutators.clear();
-	}
-
-	@Deprecated //FIXME static!
-	private static Set<SpawnMutator> spawnMutators = new LinkedHashSet<SpawnMutator>();
 
 	public transient ComplexEnvironment environment;
 
@@ -237,8 +149,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		environment.simulation.addAgent(this);
 
-		for (SpawnMutator mutator : spawnMutators)
-			mutator.onSpawn(this, parent1, parent2);
+		simulation.getAgentListener().onSpawn(this, parent1, parent2);
 
 	}
 
@@ -261,8 +172,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		environment.simulation.addAgent(this);
 
-		for (SpawnMutator mutator : spawnMutators)
-			mutator.onSpawn(this, parent);
+		simulation.getAgentListener().onSpawn(this, parent);
 	}
 
 	/**
@@ -286,8 +196,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		environment.simulation.addAgent(this);
 
-		for (SpawnMutator mutator : spawnMutators)
-			mutator.onSpawn(this);
+		simulation.getAgentListener().onSpawn(this);
 	}
 
 	private void afterTurnAction() {
@@ -412,9 +321,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		environment.setAgent(position, null);
 
-		for (SpawnMutator mutator : spawnMutators) {
-			mutator.onDeath(this);
-		}
+		simulation.getAgentListener().onDeath(this);
 
 		stats.setDeath(environment.simulation.getTime());
 	}
@@ -937,8 +844,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			tryAsexBreed();
 		}
 
-		for (StepMutator m : stepMutators)
-			m.onStep(this, destPos, getPosition());
+		simulation.getAgentListener().onStep(this, getPosition(), destPos);
 
 		move(destPos);
 
@@ -967,9 +873,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	protected void onstepAgentBump(ComplexAgent adjacentAgent) {
-		for (ContactMutator mut : contactMutators) {
-			mut.onContact(this, adjacentAgent);
-		}
+		simulation.getAgentListener().onContact(this, adjacentAgent);
 
 		if (canEat(adjacentAgent)) {
 			eat(adjacentAgent);

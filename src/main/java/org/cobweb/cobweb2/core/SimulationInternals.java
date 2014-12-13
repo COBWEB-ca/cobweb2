@@ -23,4 +23,6 @@ public interface SimulationInternals extends SimulationInterface {
 	public Collection<String> getStatePlugins();
 
 	public AgentSimilarityCalculator getSimilarityCalculator();
+
+	public AgentListener getAgentListener();
 }

@@ -11,8 +11,8 @@ public interface StepMutator extends AgentMutator {
 	/**
 	 * Agent moved.
 	 * @param agent Agent in question.
-	 * @param to New location.
 	 * @param from Old Location.
+	 * @param to New location.
 	 */
-	public void onStep(ComplexAgent agent, Location to, Location from);
+	public void onStep(ComplexAgent agent, Location from, Location to);
 }
