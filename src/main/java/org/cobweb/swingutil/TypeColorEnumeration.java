@@ -10,8 +10,10 @@ public class TypeColorEnumeration implements ColorLookup {
 	private static Color[] table = { Color.yellow, Color.cyan, Color.green, Color.red, Color.orange, Color.blue,
 		Color.magenta, Color.pink };
 
+	@Deprecated //FIXME static!
 	private static TypeColorEnumeration instance = new TypeColorEnumeration();
 
+	@Deprecated //FIXME static!
 	public static TypeColorEnumeration getInstance() {
 		return instance;
 	}

@@ -17,6 +17,7 @@ public class LinearWeightsControllerParams implements CobwebParam, ControllerPar
 
 	public double[][] data;
 
+	@Deprecated //FIXME static!
 	public static List<String> pluginNames = new LinkedList<String>();
 
 	{

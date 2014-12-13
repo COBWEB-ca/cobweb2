@@ -18,6 +18,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 	public static final int INPUT_COUNT = 10;
 	public static final int OUTPUT_COUNT = 6;
 
+	@Deprecated //FIXME static!
 	private static double[] runningOutputMean = new double[OUTPUT_COUNT];
 
 	public static final String[] inputNames = { "Constant", "Energy", "Distance to agent", "Distance to food",
@@ -29,6 +30,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 
 	private static final double UPDATE_RATE = 0.001;
 
+	@Deprecated //FIXME static!
 	public static double[] getRunningOutputMean() {
 		return runningOutputMean;
 	}

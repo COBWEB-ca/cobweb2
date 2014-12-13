@@ -76,12 +76,16 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	/** Default mutable parameters of each agent type. */
 
+	@Deprecated //FIXME static!
 	private static ComplexAgentParams defaultParams[];
 
+	@Deprecated //FIXME static!
 	private static ProductionParams defaultProdParams[];
 
+	@Deprecated //FIXME static!
 	protected static AgentSimilarityCalculator simCalc;
 
+	@Deprecated //FIXME static!
 	public static Collection<String> logDataAgent(int i) {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
@@ -91,6 +95,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		return blah;
 	}
 
+	@Deprecated //FIXME static!
 	public static Iterable<String> logDataTotal() {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
@@ -100,6 +105,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		return blah;
 	}
 
+	@Deprecated //FIXME static!
 	public static Collection<String> logHederAgent() {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
@@ -109,6 +115,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		return blah;
 	}
 
+	@Deprecated //FIXME static!
 	public static Iterable<String> logHederTotal() {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
@@ -119,6 +126,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	/** Sets the default mutable parameters of each agent type. */
+	@Deprecated //FIXME static!
 	public static void setDefaultMutableParams(ComplexAgentParams[] params, ProductionParams[] pParams) {
 		defaultParams = params.clone();
 		for (int i = 0; i < params.length; i++) {
@@ -133,6 +141,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 	}
 
+	@Deprecated //FIXME static!
 	public static void setSimularityCalc(AgentSimilarityCalculator calc) {
 		simCalc = calc;
 	}
@@ -184,8 +193,10 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	/** The current tick we are in (or the last tick this agent was notified */
 	protected long currTick = 0;
 
+	@Deprecated //FIXME static!
 	protected static Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
 
+	@Deprecated //FIXME static!
 	protected static Set<StepMutator> stepMutators = new LinkedHashSet<StepMutator>();
 
 	private static final org.cobweb.cobweb2.core.Direction[] dirList = { org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH,
@@ -193,6 +204,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		org.cobweb.cobweb2.core.Environment.DIRECTION_NORTHEAST, org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTHEAST,
 		org.cobweb.cobweb2.core.Environment.DIRECTION_NORTHWEST, org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTHWEST };
 
+	@Deprecated //FIXME static!
 	public static void addMutator(AgentMutator mutator) {
 		if (mutator instanceof SpawnMutator)
 			spawnMutators.add((SpawnMutator) mutator);
@@ -204,12 +216,14 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			stepMutators.add((StepMutator) mutator);
 	}
 
+	@Deprecated //FIXME static!
 	public static void clearMutators() {
 		spawnMutators.clear();
 		contactMutators.clear();
 		stepMutators.clear();
 	}
 
+	@Deprecated //FIXME static!
 	private static Set<SpawnMutator> spawnMutators = new LinkedHashSet<SpawnMutator>();
 
 	public transient ComplexEnvironment environment;

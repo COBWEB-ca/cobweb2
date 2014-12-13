@@ -25,8 +25,10 @@ public abstract class Agent {
 
 	protected long id;
 
+	@Deprecated //FIXME static!
 	private static long nextID = 1;
 
+	@Deprecated //FIXME static!
 	private static long makeID() {
 		if ((nextID + 1) == Long.MAX_VALUE) {
 			nextID = Long.MIN_VALUE;

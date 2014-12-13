@@ -17,6 +17,7 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 
 	public Field field = null;
 
+	@Deprecated //FIXME static!
 	private static Collection<Field> bindableFields = new LinkedList<Field>() {
 		private static final long serialVersionUID = -6369342528741543712L;
 		{
@@ -28,6 +29,7 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 		}
 	};
 
+	@Deprecated //FIXME static!
 	private static Collection<Phenotype> bindables = new LinkedList<Phenotype>() {
 		private static final long serialVersionUID = -6369342528741543712L;
 		{
