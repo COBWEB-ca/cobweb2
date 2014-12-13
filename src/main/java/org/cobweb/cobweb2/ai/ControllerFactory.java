@@ -2,7 +2,7 @@ package org.cobweb.cobweb2.ai;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.io.CobwebParam;
 
 public class ControllerFactory {
@@ -11,10 +11,10 @@ public class ControllerFactory {
 
 	private CobwebParam params;
 
-	private SimulationInterface simulation;
+	private SimulationInternals simulation;
 
 
-	public ControllerFactory(String controllerName, CobwebParam cobwebParams, SimulationInterface simulation) throws ClassNotFoundException  {
+	public ControllerFactory(String controllerName, CobwebParam cobwebParams, SimulationInternals simulation) throws ClassNotFoundException  {
 		this.simulation = simulation;
 		@SuppressWarnings("unchecked")
 		Class<? extends Controller> c = (Class<? extends Controller>) Class.forName(controllerName);
@@ -30,7 +30,7 @@ public class ControllerFactory {
 
 	private Controller newInstance() {
 		try {
-			Controller c = controllerClass.getConstructor(SimulationInterface.class).newInstance(simulation);
+			Controller c = controllerClass.getConstructor(SimulationInternals.class).newInstance(simulation);
 			return c;
 		} catch (InstantiationException ex) {
 			throw new RuntimeException("Unable to instantiate controller", ex);

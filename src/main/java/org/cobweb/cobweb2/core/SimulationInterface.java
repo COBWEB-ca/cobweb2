@@ -29,8 +29,11 @@ package org.cobweb.cobweb2.core;
  */
 
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.util.RandomNoGenerator;
 
+/**
+ * Public methods for interacting with simulation.
+ * Used by UI, as well as simulation components.
+ */
 public interface SimulationInterface {
 
 	public Environment getEnvironment();
@@ -42,14 +45,7 @@ public interface SimulationInterface {
 
 	public long getTime();
 
-
 	public void load(SimulationConfig p);
 
 	public void step();
-
-	public void addAgent(ComplexAgent agent);
-
-	public RandomNoGenerator getRandom();
-
-	public ComplexAgent newAgent();
 }

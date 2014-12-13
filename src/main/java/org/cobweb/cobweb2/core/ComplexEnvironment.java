@@ -17,7 +17,6 @@ import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;
 import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.cobweb2.production.ProductionParams;
-import org.cobweb.util.RandomNoGenerator;
 
 /**
  * 2D grid where agents and food live
@@ -41,8 +40,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	public int PD_PAYOFF_TEMPTATION;
 
 	public int PD_PAYOFF_PUNISHMENT;
-
-	private static RandomNoGenerator environmentRandom;
 
 	private ComplexFoodParams foodData[];
 
@@ -78,8 +75,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	private ComplexEnvironmentParams data = new ComplexEnvironmentParams();
 
-	// Food array contains type and their locations
-	private static int[][] foodarray = new int[0][];
+	private int[][] foodarray = new int[0][];
 
 	/*
 	 * Waste tile array to store the data per waste tile. Needed to allow
@@ -97,7 +93,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	public PacketConduit commManager;
 
-	public ComplexEnvironment(SimulationInterface simulation) {
+	public ComplexEnvironment(SimulationInternals simulation) {
 		super(simulation);
 		commManager = new PacketConduit();
 	}
@@ -121,7 +117,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	protected void spawnAgent(LocationDirection location, int agentType) {
-		ComplexAgent child = (ComplexAgent)simulation.newAgent();
+		ComplexAgent child = simulation.newAgent();
 		child.init(this, agentType, location, (ComplexAgentParams) agentData[agentType].clone(),
 				(ProductionParams) prodData[agentType].clone()); // Default
 	}
@@ -306,7 +302,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			for (int y = 0; y < getHeight(); ++y) {
 				Location currentPos = getLocation(x, y);
 				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
-					locations.add(environmentRandom.nextInt(locations.size() + 1), currentPos);
+					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
 			}
 
 		int foodToDeplete = (int) (locations.size() * foodData[type].depleteRate);
@@ -321,7 +317,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	private void dropFood(int type) {
 		float foodDrop = foodData[type].dropRate;
-		while (environmentRandom.nextFloat() < foodDrop) {
+		while (simulation.getRandom().nextFloat() < foodDrop) {
 			--foodDrop;
 			org.cobweb.cobweb2.core.Location l;
 			int j = 0;
@@ -447,12 +443,12 @@ public class ComplexEnvironment extends Environment implements Updatable {
 						if (data.likeFoodProb >= simulation.getRandom().nextFloat()) {
 							growingType = max;
 						} else {
-							growingType = environmentRandom.nextInt(data.getFoodTypes());
+							growingType = simulation.getRandom().nextInt(data.getFoodTypes());
 						}
 
 						// finally, we grow food according to a certain
 						// amount of random chance
-						if (foodCount * foodData[growingType].growRate > 100 * environmentRandom.nextFloat()) {
+						if (foodCount * foodData[growingType].growRate > 100 * simulation.getRandom().nextFloat()) {
 							backArray.setLocationBits(currentPos, FOOD_CODE);
 							// setFoodType (currentPos, growMe);
 							backFoodArray[currentPos.x][currentPos.y] = growingType;
@@ -513,8 +509,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		 */
 		if (data.randomSeed == 0)
 			data.randomSeed = System.currentTimeMillis();
-
-		environmentRandom = simulation.getRandom();
 
 		if (data.keepOldArray) {
 			int[] boardIndices = { data.width, data.height };
@@ -600,9 +594,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			draughtdays[i] = 0;
 			if (foodData[i].depleteRate < 0.0f || foodData[i].depleteRate > 1.0f)
-				foodData[i].depleteRate = environmentRandom.nextFloat();
+				foodData[i].depleteRate = simulation.getRandom().nextFloat();
 			if (foodData[i].depleteTime <= 0)
-				foodData[i].depleteTime = environmentRandom.nextInt(100) + 1;
+				foodData[i].depleteTime = simulation.getRandom().nextInt(100) + 1;
 		}
 	}
 
@@ -1010,11 +1004,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	public LocationDirection getTurnLeftPosition(LocationDirection location) {
 		return new LocationDirection(location, new Direction(location.direction.y, -location.direction.x));
-	}
-
-	public RandomNoGenerator getRandom() {
-		// FIXME: call simulation.getRandom directly instead of this wrapper;
-		return simulation.getRandom();
 	}
 
 }

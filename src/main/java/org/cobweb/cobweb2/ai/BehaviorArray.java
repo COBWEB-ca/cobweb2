@@ -1,5 +1,7 @@
 package org.cobweb.cobweb2.ai;
 
+import java.util.Random;
+
 import org.cobweb.util.BitField;
 import org.cobweb.util.RandomNoGenerator;
 
@@ -262,7 +264,7 @@ public class BehaviorArray {
 	 * @return a new behavior that is a splice of this one and the parameter
 	 */
 
-	public static BehaviorArray splice(BehaviorArray first, BehaviorArray BOther, RandomNoGenerator random) {
+	public static BehaviorArray splice(BehaviorArray first, BehaviorArray BOther, Random random) {
 
 		boolean[] boolArray = new boolean[first.size]; // initialized to false by
 		// java

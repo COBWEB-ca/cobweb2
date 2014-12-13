@@ -6,9 +6,9 @@ import java.lang.reflect.InvocationTargetException;
 public class AgentSpawner {
 
 	private Class<?> spawnType;
-	private SimulationInterface simulation;
+	private SimulationInternals simulation;
 
-	public AgentSpawner(String classname, SimulationInterface sim) {
+	public AgentSpawner(String classname, SimulationInternals sim) {
 		simulation = sim;
 		try {
 			spawnType = Class.forName(classname);
@@ -19,7 +19,7 @@ public class AgentSpawner {
 
 	public ComplexAgent spawn() {
 		try {
-			return (ComplexAgent)spawnType.getConstructor(SimulationInterface.class).newInstance(simulation);
+			return (ComplexAgent)spawnType.getConstructor(SimulationInternals.class).newInstance(simulation);
 
 		} catch (IllegalArgumentException ex) {
 			throw new RuntimeException(ex);

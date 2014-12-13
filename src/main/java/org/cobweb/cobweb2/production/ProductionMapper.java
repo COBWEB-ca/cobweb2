@@ -9,7 +9,7 @@ import java.util.Set;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;
 
@@ -18,9 +18,9 @@ public class ProductionMapper implements StatePlugin {
 	private ComplexEnvironment e;
 	private float[][] vals;
 	private float maxValue;
-	SimulationInterface simulation;
+	SimulationInternals simulation;
 
-	public ProductionMapper(SimulationInterface sim) {
+	public ProductionMapper(SimulationInternals sim) {
 		this.e = (ComplexEnvironment) sim.getEnvironment();
 		simulation = sim;
 		vals = new float[this.e.getWidth()][this.e.getHeight()];

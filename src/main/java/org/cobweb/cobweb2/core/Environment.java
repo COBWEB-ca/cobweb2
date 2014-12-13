@@ -34,11 +34,11 @@ import org.cobweb.cobweb2.SimulationConfig;
  */
 public abstract class Environment {
 
-	protected SimulationInterface simulation;
+	protected SimulationInternals simulation;
 
 	protected int width, height;
 
-	public Environment(SimulationInterface simulation) {
+	public Environment(SimulationInternals simulation) {
 		this.simulation = simulation;
 	}
 

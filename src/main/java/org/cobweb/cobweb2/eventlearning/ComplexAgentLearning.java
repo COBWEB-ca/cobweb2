@@ -7,7 +7,7 @@ import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
-import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
@@ -23,7 +23,7 @@ import org.cobweb.cobweb2.production.ProductionParams;
 
 public class ComplexAgentLearning extends ComplexAgent {
 
-	public ComplexAgentLearning(SimulationInterface sim) {
+	public ComplexAgentLearning(SimulationInternals sim) {
 		super(sim);
 	}
 
@@ -353,7 +353,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				double sim = 0.0;
 				boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-						&& environment.getRandom().nextFloat() < params.sexualBreedChance;
+						&& simulation.getRandom().nextFloat() < params.sexualBreedChance;
 
 				// Generate genetic similarity number
 				sim = simCalc.similarity(this, adjacentAgent);
@@ -478,7 +478,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	private void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2) {
 		super.init(env, pos, parent1, parent2);
 
-		if (env.getRandom().nextBoolean()) {
+		if (simulation.getRandom().nextBoolean()) {
 			lParams = parent1.lParams;
 		} else {
 			lParams = parent2.lParams;

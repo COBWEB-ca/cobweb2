@@ -6,7 +6,7 @@ package org.cobweb.cobweb2.ai;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexAgent.SeeInfo;
-import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.util.BitField;
@@ -38,9 +38,9 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 
 	private GeneticControllerParams params;
 
-	private SimulationInterface simulation;
+	private SimulationInternals simulation;
 
-	public GeneticController(SimulationInterface sim) {
+	public GeneticController(SimulationInternals sim) {
 		simulation = sim;
 	}
 

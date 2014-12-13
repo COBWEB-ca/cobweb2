@@ -10,7 +10,7 @@ import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.EnvironmentStats;
-import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
 import org.cobweb.util.RandomNoGenerator;
@@ -20,7 +20,7 @@ import org.cobweb.util.RandomNoGenerator;
  * on a local machine.
  *
  */
-public class Simulation implements SimulationInterface {
+public class Simulation implements SimulationInternals {
 
 	// TODO access level?
 	public ComplexEnvironment theEnvironment;
@@ -72,7 +72,7 @@ public class Simulation implements SimulationInterface {
 			if (theEnvironment == null || !theEnvironment.getClass().equals(Class.forName(environmentName))) {
 				Class<?> environmentClass = Class.forName(environmentName);
 
-				Constructor<?> environmentCtor = environmentClass.getConstructor(SimulationInterface.class);
+				Constructor<?> environmentCtor = environmentClass.getConstructor(SimulationInternals.class);
 				if (environmentCtor == null)
 					throw new InstantiationError("No valid constructor found on environment class.");
 

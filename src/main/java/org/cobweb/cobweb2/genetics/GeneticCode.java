@@ -1,8 +1,7 @@
 package org.cobweb.cobweb2.genetics;
 
 import java.util.BitSet;
-
-import org.cobweb.util.RandomNoGenerator;
+import java.util.Random;
 
 /** The class that handles the core functionality of the
  * genetic algorithm. Aside from storing the actual
@@ -82,7 +81,7 @@ public class GeneticCode {
 	 * @param genes2 Genes of parent 2
 	 * @return The new bit string.
 	 */
-	public static GeneticCode createGeneticCodeMeiosisGeneSwap(GeneticCode genes1, GeneticCode genes2, RandomNoGenerator random) {
+	public static GeneticCode createGeneticCodeMeiosisGeneSwap(GeneticCode genes1, GeneticCode genes2, Random random) {
 		GeneticCode result = new GeneticCode(genes1.bytes);
 		for (int i = 0; i < result.bytes; i++) {
 			byte s;
@@ -105,7 +104,7 @@ public class GeneticCode {
 	 * @param genes2 Genes of parent 2
 	 * @return The new bit string.
 	 */
-	public static GeneticCode createGeneticCodeMeiosisRecomb(GeneticCode genes1, GeneticCode genes2, RandomNoGenerator random) {
+	public static GeneticCode createGeneticCodeMeiosisRecomb(GeneticCode genes1, GeneticCode genes2, Random random) {
 		assert(genes1.bytes == genes2.bytes);
 		GeneticCode result = new GeneticCode(genes1.bytes);
 		int split = random.nextInt(result.bytes * 8);

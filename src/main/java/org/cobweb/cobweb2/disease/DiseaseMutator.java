@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Updatable;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
@@ -32,7 +32,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private long time;
 
-	private SimulationInterface simulation;
+	private SimulationInternals simulation;
 
 	private class State {
 		public boolean sick = false;
@@ -57,7 +57,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	/**
 	 * DiseaseMutator is an instance of Contact and Spawn Mutators
 	 */
-	public DiseaseMutator(SimulationInterface sim) {
+	public DiseaseMutator(SimulationInternals sim) {
 		sickCount = new int[0];
 		simulation = sim;
 	}

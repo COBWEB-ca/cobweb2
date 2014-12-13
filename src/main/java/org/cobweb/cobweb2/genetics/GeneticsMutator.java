@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
@@ -27,14 +27,14 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 
 	private Map<ComplexAgent, GeneticCode> genes = new HashMap<ComplexAgent, GeneticCode>();
 
-	private SimulationInterface simulation;
+	private SimulationInternals simulation;
 
 	private static final Collection<String> blank = new LinkedList<String>();
 
 	/**
 	 * GeneticsMutator is an instance of SpawnMutator.
 	 */
-	public GeneticsMutator(SimulationInterface sim) {
+	public GeneticsMutator(SimulationInternals sim) {
 		simulation = sim;
 	}
 

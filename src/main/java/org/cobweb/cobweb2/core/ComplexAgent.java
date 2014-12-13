@@ -214,7 +214,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	public transient ComplexEnvironment environment;
 
-	public ComplexAgent(SimulationInterface sim) {
+	public ComplexAgent(SimulationInternals sim) {
 		super(sim);
 	}
 
@@ -234,7 +234,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		// child's strategy is determined by its parents, it has a
 		// 50% chance to get either parent's strategy
-		if (env.getRandom().nextBoolean()) {
+		if (simulation.getRandom().nextBoolean()) {
 			params.pdCoopProb = parent2.params.pdCoopProb;
 			params.pdTitForTat = parent2.params.pdTitForTat;
 			params.pdSimilarityNeutral = parent2.params.pdSimilarityNeutral;
@@ -584,7 +584,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * Provide a random direction for the agent to face.
 	 */
 	private void InitFacing() {
-		int f = environment.getRandom().nextInt(4);
+		int f = simulation.getRandom().nextInt(4);
 		if (f == 0)
 			position = new LocationDirection(position, Environment.DIRECTION_NORTH);
 		else if (f == 1)
@@ -659,7 +659,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			pdCheater = lastPDcheated;
 		} else {
 			pdCheater = false; // agent is assumed to cooperate
-			float rnd = environment.getRandom().nextFloat();
+			float rnd = simulation.getRandom().nextFloat();
 			if (rnd > coopProb)
 				pdCheater = true; // agent defects depending on
 			// probability
@@ -1004,7 +1004,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 			double sim = 0.0;
 			boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-					&& environment.getRandom().nextFloat() < params.sexualBreedChance;
+					&& simulation.getRandom().nextFloat() < params.sexualBreedChance;
 
 			// Generate genetic similarity number
 			sim = simCalc.similarity(this, adjacentAgent);
@@ -1093,7 +1093,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 */
 	protected void tryAsexBreed() {
 		if (isAsexFlag() && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
-				&& environment.getRandom().nextFloat() < params.asexualBreedChance) {
+				&& simulation.getRandom().nextFloat() < params.asexualBreedChance) {
 			pregPeriod = params.asexPregnancyPeriod;
 			pregnant = true;
 		}
@@ -1161,7 +1161,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 	}
 	private boolean roll(float chance) {
-		return chance > environment.getRandom().nextFloat();
+		return chance > simulation.getRandom().nextFloat();
 	}
 
 	boolean shouldProduce() {
