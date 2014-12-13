@@ -12,13 +12,12 @@ public class RandomNoGenerator extends Random {
 	public static final long serialVersionUID = 0x660028115BCBF9CEL;
 
 	public RandomNoGenerator() {
-		Random r = new Random();
-		seed = r.nextLong();
-		this.setSeed(seed);
+		super();
 	}
 
 	public RandomNoGenerator(long seed) {
 		super(seed);
+		this.seed = seed;
 	}
 
 	public long getSeed() {

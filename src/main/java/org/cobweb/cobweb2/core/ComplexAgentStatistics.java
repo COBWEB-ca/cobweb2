@@ -31,8 +31,6 @@ public class ComplexAgentStatistics implements Serializable {
 
 	public int countRockBumps;
 
-	// The static variables to keep track of the agents produced so far.
-
 	public int agentNumber;
 
 	public int type;

@@ -649,7 +649,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 */
 	public void playPD(ComplexAgent other) {
 
-		double coopProb = params.pdCoopProb / 100.0d; // static value for now
+		double coopProb = params.pdCoopProb / 100.0d;
 
 		float similarity = simCalc.similarity(this, other);
 

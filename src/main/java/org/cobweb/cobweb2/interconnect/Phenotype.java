@@ -59,7 +59,7 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param f field to modify
 	 */
 	public Phenotype(Field f) {

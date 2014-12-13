@@ -460,15 +460,6 @@ public class SimulationConfig {
 			this.agentParams = n;
 		}
 
-		/*xxx
-		{
-			LearningAgentParams[] n = Arrays.copyOf(this.learningAgentParams, count);
-			for (int i = 0; i < this.learningAgentParams.length && i < count; i++) {
-				n[i] = new LearningAgentParams();
-			}
-			this.learningAgentParams = n;
-		}*/
-
 		{
 			ComplexFoodParams[] n = Arrays.copyOf(this.foodParams, count);
 			for (int i = this.foodParams.length; i < count; i++) {
