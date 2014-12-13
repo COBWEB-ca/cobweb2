@@ -9,6 +9,7 @@ import javax.swing.WindowConstants;
 import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.swingutil.WaitableJComponent;
+import org.cobweb.util.ArrayUtilities;
 
 public class Disp extends JFrame implements UpdatableUI {
 	/**
@@ -19,18 +20,14 @@ public class Disp extends JFrame implements UpdatableUI {
 	 *
 	 */
 	private static final long serialVersionUID = 8153897860751883610L;
-	int x;
-	int y;
 
 	WaitableJComponent display;
+	private float[][] tiles;
+	private float max;
 
-	Disp(ProductionMapper productionMapper, int x, int y) {
-
+	Disp(ProductionMapper productionMapper) {
 		super("Production Map");
 		this.productionMapper = productionMapper;
-		this.x = x;
-		this.y = y;
-
 
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		display = new ProductionPanel();
@@ -40,32 +37,33 @@ public class Disp extends JFrame implements UpdatableUI {
 		setVisible(true);
 	}
 
-	public void refresh() {
-		if (display.isReadyToRefresh())
-			display.refresh(false);
-	}
-
 	class ProductionPanel extends WaitableJComponent {
 		private static final long serialVersionUID = -9218406889029231853L;
 
 		@Override
 		protected void paintComponent(Graphics g) {
 			super.paintComponents(g);
+			float[][] myTiles = tiles;
+			float myMax = max;
 
-			int w = getWidth();
-			int h = getHeight();
-			final int tw = w / x;
-			final int th = h / y;
+			int width = myTiles.length;
+			int height = myTiles[0].length;
 
-			int shiftX = (w - x * tw) / 2;
-			int shiftY = (h - y * th) / 2;
+			int screenW = getWidth();
+			int screenH = getHeight();
+			final int tw = screenW / width;
+			final int th = screenH / height;
+
+			int shiftX = (screenW - width * tw) / 2;
+			int shiftY = (screenH - height * th) / 2;
 
 			g.translate(shiftX, shiftY);
 
-			final Color[][] tiles = Disp.this.productionMapper.getTileColors(x, y);
-			for (int xc = 0; xc < x; xc++) {
-				for (int yc = 0; yc < y; yc++) {
-					g.setColor(tiles[xc][yc]);
+			for (int xc = 0; xc < width; xc++) {
+				for (int yc = 0; yc < height; yc++) {
+					int amount = 255 - (int) ((Math.min(myTiles[xc][yc], myMax) / myMax) * 255f);
+					Color c = new Color(amount / 2 + 127, amount, 255);
+					g.setColor(c);
 					g.fillRect(xc * tw, yc * th, tw, th);
 				}
 			}
@@ -75,7 +73,11 @@ public class Disp extends JFrame implements UpdatableUI {
 
 	@Override
 	public void update(boolean synchronous) {
-		refresh();
+		tiles = ArrayUtilities.clone(productionMapper.getValues());
+		max = productionMapper.getMax();
+
+		if (synchronous || display.isReadyToRefresh())
+			display.refresh(synchronous);
 	}
 
 	@Override

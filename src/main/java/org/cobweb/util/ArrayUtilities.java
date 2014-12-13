@@ -7,16 +7,13 @@ public class ArrayUtilities {
 	/**
 	 * Resizes a given array to the given dimensions. If a dimension is already
 	 * the right size, it is re-used, otherwise a new array is created
-	 * 
+	 *
 	 * @param original original array
 	 * @param newsize new dimensions of the array
 	 */
 	public static <T> T resizeArray(T original, int... newsize) {
-		// if (original == null) {
-		// return null;
-		// }
 		if (!original.getClass().isArray()) {
-			return original;
+			throw new IllegalArgumentException("Cannot resize anything except an array!");
 		}
 
 		int originalLen = Array.getLength(original);
@@ -43,6 +40,32 @@ public class ArrayUtilities {
 			}
 		}
 
+		return result;
+	}
+
+	/**
+	 * Clones multi-dimensional arrays, the inner-most elements are shallow copies!
+	 * @param original Array to clone
+	 * @return Clone of array
+	 */
+	public static <T> T clone(T original) {
+		if (!original.getClass().isArray()) {
+			throw new IllegalArgumentException("Cannot clone anything except an array!");
+		}
+
+		Class<?> innerType = original.getClass().getComponentType();
+
+		int length = Array.getLength(original);
+		@SuppressWarnings("unchecked")
+		T result = (T) Array.newInstance(innerType, length);
+		System.arraycopy(original, 0, result, 0, length);
+
+		if (innerType.isArray()) {
+			for (int i = 0; i < length; ++i) {
+				Object temp = clone(Array.get(result, i));
+				Array.set(result, i, temp);
+			}
+		}
 		return result;
 	}
 

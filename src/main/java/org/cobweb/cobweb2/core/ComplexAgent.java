@@ -16,7 +16,6 @@ import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
-import org.cobweb.cobweb2.production.ProductionParams;
 import org.cobweb.cobweb2.waste.Waste;
 
 /**
@@ -67,8 +66,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 	}
 
-	public ProductionParams prodParams;
-
 	/**
 	 *
 	 */
@@ -78,9 +75,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	@Deprecated //FIXME static!
 	private static ComplexAgentParams defaultParams[];
-
-	@Deprecated //FIXME static!
-	private static ProductionParams defaultProdParams[];
 
 	@Deprecated //FIXME static!
 	protected static AgentSimilarityCalculator simCalc;
@@ -127,17 +121,10 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	/** Sets the default mutable parameters of each agent type. */
 	@Deprecated //FIXME static!
-	public static void setDefaultMutableParams(ComplexAgentParams[] params, ProductionParams[] pParams) {
+	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
 		defaultParams = params.clone();
 		for (int i = 0; i < params.length; i++) {
 			defaultParams[i] = (ComplexAgentParams) params[i].clone();
-		}
-
-		if (pParams != null) {
-			defaultProdParams = pParams.clone();
-			for (int i = 0; i < pParams.length; i++) {
-				defaultProdParams[i] = (ProductionParams) pParams[i].clone();
-			}
 		}
 	}
 
@@ -214,6 +201,17 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 		if (mutator instanceof StepMutator)
 			stepMutators.add((StepMutator) mutator);
+	}
+
+
+	@Deprecated //FIXME static!
+	public static void removeMutator(AgentMutator mutator) {
+		if (mutator instanceof SpawnMutator)
+			spawnMutators.remove(mutator);
+		if (mutator instanceof ContactMutator)
+			contactMutators.remove(mutator);
+		if (mutator instanceof StepMutator)
+			stepMutators.remove(mutator);
 	}
 
 	@Deprecated //FIXME static!
@@ -297,10 +295,10 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * @param pos spawn position
 	 * @param agentData agent parameters
 	 */
-	public void init(ComplexEnvironment env, int agentType, LocationDirection pos, ComplexAgentParams agentData, ProductionParams prodData) {
+	public void init(ComplexEnvironment env, int agentType, LocationDirection pos, ComplexAgentParams agentData) {
 		environment = (env);
 		init(env.controllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType));
-		setConstants(agentData, prodData);
+		setConstants(agentData);
 
 		params = agentData;
 		stats = environment.addAgentInfo(agentType);
@@ -427,8 +425,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	public void copyConstants(ComplexAgent p) {
-		setConstants((ComplexAgentParams) defaultParams[p.getAgentType()].clone(),
-				(ProductionParams) defaultProdParams[p.getAgentType()].clone());
+		setConstants((ComplexAgentParams) defaultParams[p.getAgentType()].clone());
 		pdCheater = p.pdCheater;
 	}
 
@@ -825,10 +822,9 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 *
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
-	public void setConstants(ComplexAgentParams agentData, ProductionParams prodData) {
+	public void setConstants(ComplexAgentParams agentData) {
 
 		this.params = agentData;
-		this.prodParams = prodData;
 
 		this.agentType = agentData.type;
 
@@ -1211,5 +1207,4 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	public int getWasteCounterLoss() {
 		return wasteCounterLoss;
 	}
-
 }

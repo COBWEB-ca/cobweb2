@@ -1,7 +1,6 @@
 package org.cobweb.cobweb2.abiotic;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Location;
@@ -18,8 +17,6 @@ import org.cobweb.util.ReflectionUtil;
 public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	private TemperatureParams params;
-
-	private static final Collection<String> empty = Collections.emptyList();
 
 	private int bandNumber;
 
@@ -61,22 +58,22 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	@Override
 	public Collection<String> logDataAgent(int agentType) {
-		return empty;
+		return NO_DATA;
 	}
 
 	@Override
 	public Collection<String> logDataTotal() {
-		return empty;
+		return NO_DATA;
 	}
 
 	@Override
 	public Collection<String> logHeadersAgent() {
-		return empty;
+		return NO_DATA;
 	}
 
 	@Override
 	public Collection<String> logHeaderTotal() {
-		return empty;
+		return NO_DATA;
 	}
 
 	@Override

@@ -110,10 +110,12 @@ public class Simulation implements SimulationInternals {
 		// have a way to track which mutators have been bound
 		if (!p.getEnvParams().keepOldAgents) {
 			ComplexAgent.clearMutators();
+			plugins.clear();
 			agents.clear();
 			geneticMutator = null;
 			diseaseMutator = null;
 			tempMutator = null;
+			prodMapper = null;
 		}
 
 		if (geneticMutator == null) {
@@ -129,6 +131,11 @@ public class Simulation implements SimulationInternals {
 			tempMutator = new TemperatureMutator();
 			ComplexAgent.addMutator(tempMutator);
 		}
+		if (prodMapper == null) {
+			prodMapper = new ProductionMapper(simulationConfig.getProdParams());
+			plugins.add(prodMapper);
+			ComplexAgent.addMutator(prodMapper);
+		}
 
 		geneticMutator.setParams(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
 
@@ -141,16 +148,11 @@ public class Simulation implements SimulationInternals {
 
 		InitEnvironment(p.getEnvParams().environmentName, p);
 
-		if (prodMapper == null) {
-			prodMapper = new ProductionMapper(this);
-			plugins.add(prodMapper);
-		}
+		prodMapper.setParams(
+				this,
+				simulationConfig.getProdParams(),
+				p.getEnvParams().keepOldWaste);
 
-		if (!p.getEnvParams().keepOldWaste) {
-			plugins.remove(prodMapper);
-			prodMapper = new ProductionMapper(this);
-			plugins.add(prodMapper);
-		}
 		setupPlugins();
 	}
 

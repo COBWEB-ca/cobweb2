@@ -11,7 +11,6 @@ import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
-import org.cobweb.cobweb2.production.ProductionParams;
 
 /**
  * 2D grid where agents and food live
@@ -39,8 +38,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	private ComplexFoodParams foodData[];
 
 	protected ComplexAgentParams agentData[];
-
-	protected ProductionParams prodData[];
 
 	// Bitmasks for boolean states
 	private static final int MASK_TYPE = 15;
@@ -111,8 +108,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	protected void spawnAgent(LocationDirection location, int agentType) {
 		ComplexAgent child = simulation.newAgent();
-		child.init(this, agentType, location, (ComplexAgentParams) agentData[agentType].clone(),
-				(ProductionParams) prodData[agentType].clone()); // Default
+		child.init(this, agentType, location, (ComplexAgentParams) agentData[agentType].clone());
 	}
 
 	ComplexAgentStatistics addAgentInfo(ComplexAgentStatistics info) {
@@ -212,8 +208,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		foodData = p.getFoodParams();
 
 		agentData = p.getAgentParams();
-
-		prodData = p.getProdParams();
 
 		PD_PAYOFF_REWARD = data.pdParams.reward;
 		PD_PAYOFF_TEMPTATION = data.pdParams.temptation;
@@ -656,7 +650,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				ComplexAgent agent = (ComplexAgent) getAgent(currentPos);
 				if (agent != null) {
 					int theType = agent.getAgentType();
-					agent.setConstants(agentData[theType], prodData[theType]);
+					agent.setConstants(agentData[theType]);
 				}
 			}
 		}
@@ -775,7 +769,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	/** Sets the default mutable variables of each agent type. */
 	public void setDefaultMutableAgentParam() {
-		ComplexAgent.setDefaultMutableParams(agentData, prodData);
+		ComplexAgent.setDefaultMutableParams(agentData);
 	}
 
 	/**

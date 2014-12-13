@@ -11,7 +11,6 @@ import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
-import org.cobweb.cobweb2.production.ProductionParams;
 
 //Food storage
 //Vaccination/avoid infected agents
@@ -86,8 +85,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 	public LearningAgentParams lParams;
 
 	@Deprecated //FIXME static!
-	public static void setDefaultMutableParams(ComplexAgentParams[] params, LearningAgentParams[] lParams, ProductionParams[] pParams) {
-		ComplexAgent.setDefaultMutableParams(params, pParams);
+	public static void setDefaultMutableParams(ComplexAgentParams[] params, LearningAgentParams[] lParams) {
+		ComplexAgent.setDefaultMutableParams(params);
 
 		learningParams = lParams.clone();
 		for (int i = 0; i < params.length; i++) {
@@ -471,9 +470,9 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 	}
 
-	public void init(ComplexEnvironment env, int agentType, LocationDirection pos, ComplexAgentParams agentData, ProductionParams prodData,
+	public void init(ComplexEnvironment env, int agentType, LocationDirection pos, ComplexAgentParams agentData,
 			LearningAgentParams lAgentData) {
-		super.init(env, agentType, pos, agentData, prodData);
+		super.init(env, agentType, pos, agentData);
 
 		lParams = lAgentData;
 	}

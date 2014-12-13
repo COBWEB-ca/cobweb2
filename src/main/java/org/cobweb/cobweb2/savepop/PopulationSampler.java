@@ -21,7 +21,6 @@ import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
-import org.cobweb.cobweb2.production.ProductionParams;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -167,7 +166,6 @@ public class PopulationSampler {
 
 			for (int i = 0 ; i < agents.getLength(); i++){
 				ComplexAgentParams params = new ComplexAgentParams(sim.simulationConfig.getEnvParams());
-				ProductionParams prodParams = new ProductionParams();
 
 				Node agent = agents.item(i);
 				Element element = (Element) agent;
@@ -218,8 +216,8 @@ public class PopulationSampler {
 				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
 
 
-				ComplexAgent cAgent = (ComplexAgent)sim.newAgent();
-				cAgent.init(sim.theEnvironment, agentType, locDir, params, prodParams);
+				ComplexAgent cAgent = sim.newAgent();
+				cAgent.init(sim.theEnvironment, agentType, locDir, params);
 				cAgent.pdCheater = pdCheater;
 				sim.theEnvironment.setAgent(loc, cAgent);
 			}

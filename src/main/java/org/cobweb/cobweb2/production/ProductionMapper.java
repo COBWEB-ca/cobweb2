@@ -1,68 +1,71 @@
 package org.cobweb.cobweb2.production;
 
-import java.awt.Color;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;
+import org.cobweb.util.ArrayUtilities;
 
-public class ProductionMapper implements StatePlugin {
+public class ProductionMapper implements StatePlugin, SpawnMutator {
 
-	private ComplexEnvironment e;
+	private ComplexEnvironment environment;
 	private float[][] vals;
 	private float maxValue;
 	SimulationInternals simulation;
+	private ProductionParams[] initialParams;
 
-	public ProductionMapper(SimulationInternals sim) {
-		this.e = (ComplexEnvironment) sim.getEnvironment();
-		simulation = sim;
-		vals = new float[this.e.getWidth()][this.e.getHeight()];
+	public ProductionMapper(ProductionParams[] productionParams) {
+		initialParams = productionParams;
 		params = new LinkedList<StateParameter>();
 		params.add(new ProductHunt());
 	}
 
-	void addProduct(Product p, Location loc) {
-		float newMax = 0;
-		for (int x = 0; x < vals.length; x++) {
-			for (int y = 0; y < vals[x].length; y++) {
-				float value = getDifAtLoc(p, loc, e.getLocation(x, y));
-				vals[x][y] += value;
-				if (vals[x][y] > newMax) {
-					newMax = vals[x][y];
-				}
-			}
-		}
-		maxValue = newMax;
-	}
-
 	void remProduct(Product p) {
 		Location loc = p.loc;
-		e.setDrop(loc, null);
-		e.setFlag(loc, ComplexEnvironment.FLAG_DROP, false);
+		environment.setDrop(loc, null);
+		environment.setFlag(loc, ComplexEnvironment.FLAG_DROP, false);
 
+		updateValues(p, false);
+	}
+
+	private void updateValues(Product p, boolean addition) {
 		float newMax = 0;
 		for (int x = 0; x < vals.length; x++) {
 			for (int y = 0; y < vals[x].length; y++) {
-				float value = getDifAtLoc(p, p.getLocation(), e.getLocation(x, y));
-				vals[x][y] -= value;
+				float value = getDifAtLoc(p, environment.getLocation(x, y));
+				vals[x][y] += addition ? value : - value;
+
+				if (vals[x][y] < 0) {
+					vals[x][y] = 0;
+				}
 				if (vals[x][y] > newMax) {
 					newMax = vals[x][y];
 				}
 			}
 		}
+
+		// Accumulation errors could make this a very small number,
+		// and we only care about real values
+		if (newMax < 1)
+			newMax = 1;
+
 		maxValue = newMax;
 	}
 
-	private float getDifAtLoc(Product source, Location loc, Location loc2) {
+	private float getDifAtLoc(Product source, Location loc2) {
 		float val = source.getValue();
-		val /= Math.max(1, loc.distanceSquared(loc2));
+		val /= Math.max(1, source.getLocation().distanceSquared(loc2));
 		return val;
 	}
 
@@ -88,27 +91,16 @@ public class ProductionMapper implements StatePlugin {
 	}
 
 	public float getValueAtLocation(int x, int y) {
-		Location loc = e.getLocation(x, y);
+		Location loc = environment.getLocation(x, y);
 		return getValueAtLocation(loc);
 	}
 
-	public Color[][] getTileColors(int x, int y) {
-		Color[][] ret = new Color[x][y];
-		float lockedMax = maxValue;
+	public float[][] getValues() {
+		return vals;
+	}
 
-		for (int i = 0; i < x; i++) {
-			for (int j = 0; j < y; j++) {
-				float val = getValueAtLocation(i, j);
-				int amount = 255 - (int) ((Math.min(val, lockedMax) / lockedMax) * 255f);
-				// FIXME: threading bug when speed set to max simulation speed, amount ends up out of range
-				if (amount > 255) {
-					amount = 255;
-				}
-
-				ret[i][j] = new Color(amount / 2 + 127, amount, 255);
-			}
-		}
-		return ret;
+	public float getMax() {
+		return maxValue;
 	}
 
 	public class ProductHunt implements StateParameter {
@@ -121,8 +113,8 @@ public class ProductionMapper implements StatePlugin {
 		@Override
 		public double getValue(ComplexAgent agent) {
 			Location here = agent.getPosition();
-			Location ahead = e.getAdjacent(here, agent.getFacing());
-			if (ahead == null || !e.isValidLocation(ahead)) {
+			Location ahead = environment.getAdjacent(here, agent.getFacing());
+			if (ahead == null || !environment.isValidLocation(ahead)) {
 				return 0;
 			}
 
@@ -147,15 +139,20 @@ public class ProductionMapper implements StatePlugin {
 
 	Set<Product> products = new LinkedHashSet<Product>();
 
-	public Product createProduct(float value, ComplexAgent owner) {
+	public void addProduct(float value, ComplexAgent owner) {
 		Location loc = owner.getPosition();
 		Product prod = new Product(value, owner, loc, this);
-		addProduct(prod, loc);
 
-		e.setDrop(loc, prod);
+		updateValues(prod, true);
+
 		products.add(prod);
 
-		return prod;
+		if (environment.testFlag(owner.getPosition(), ComplexEnvironment.FLAG_FOOD)) {
+			environment.setFlag(owner.getPosition(), ComplexEnvironment.FLAG_FOOD, false);
+		}
+
+		environment.setFlag(owner.getPosition(), ComplexEnvironment.FLAG_DROP, true);
+		environment.setDrop(loc, prod);
 	}
 
 
@@ -163,24 +160,29 @@ public class ProductionMapper implements StatePlugin {
 		return chance > simulation.getRandom().nextFloat();
 	}
 
-	boolean shouldProduce(ComplexAgent agent) {
-		if (agent.prodParams == null || !roll(agent.prodParams.initProdChance)) {
+	private boolean shouldProduce(ComplexAgent agent) {
+		if (!agentData.containsKey(agent)) {
+			return false;
+		}
+
+		ProductionParams params = agentData.get(agent);
+		if (!params.productionMode || !roll(params.initProdChance)){
 			return false;
 		}
 
 		float locationValue = getValueAtLocation(agent.getPosition());
 
-		if (locationValue > agent.prodParams.highDemandCutoff) {
+		if (locationValue > params.highDemandCutoff) {
 			return false;
 		}
 
 		// ADDITIONS:
 		// Learning agents should adapt to products
 
-		if (locationValue <= agent.prodParams.lowDemandThreshold) {
+		if (locationValue <= params.lowDemandThreshold) {
 			// In an area of low demand
-			return roll(agent.prodParams.lowDemandProdChance);
-		} else if (locationValue <= agent.prodParams.sweetDemandThreshold) {
+			return roll(params.lowDemandProdChance);
+		} else if (locationValue <= params.sweetDemandThreshold) {
 			/*
 			 * The sweet spot is an inverted parabola, the vertex is 100% probability in the middle of the sweet spot
 			 * (between lowDemandThreshold and sweetDemandThreshold)
@@ -189,14 +191,14 @@ public class ProductionMapper implements StatePlugin {
 			 */
 
 			// parabola shape
-			float peak = (agent.prodParams.lowDemandThreshold + agent.prodParams.sweetDemandThreshold) * 0.5f;
-			float width = agent.prodParams.sweetDemandThreshold - agent.prodParams.lowDemandThreshold;
+			float peak = (params.lowDemandThreshold + params.sweetDemandThreshold) * 0.5f;
+			float width = params.sweetDemandThreshold - params.lowDemandThreshold;
 			// position along standard parabola
 			float x = (locationValue - peak) / (width / 2);
 			// parabola value
-			float y = x * x  * (1-agent.prodParams.sweetDemandStartChance);
+			float y = x * x  * (1-params.sweetDemandStartChance);
 
-			float chance = agent.prodParams.sweetDemandStartChance + (1 - y);
+			float chance = params.sweetDemandStartChance + (1 - y);
 
 			// Sweet spot; perfect balance of competition and attraction here;
 			// likelihood of producing products here
@@ -227,9 +229,9 @@ public class ProductionMapper implements StatePlugin {
 		//
 		// y = ((f - e) / d)x + e
 
-		float d = agent.prodParams.sweetDemandThreshold;
-		float e = agent.prodParams.highDemandCutoff;
-		float f = agent.prodParams.highDemandProdChance;
+		float d = params.sweetDemandThreshold;
+		float e = params.highDemandCutoff;
+		float f = params.highDemandProdChance;
 
 		float rise = f;
 		float run = d - e;
@@ -249,17 +251,74 @@ public class ProductionMapper implements StatePlugin {
 	}
 
 	public void tryProduction(ComplexAgent agent) {
-		if (agent.prodParams.productionMode && shouldProduce(agent)) {
+		if (shouldProduce(agent)) {
 			// TODO: find a more clean way to create and assign product
 			// Healthy agents produce high-value products, and vice-versa
-			createProduct(agent.getEnergy() / (float) agent.params.initEnergy, agent);
+			addProduct(agent.getEnergy() / (float) agent.params.initEnergy, agent);
+		}
+	}
 
-			if (e.testFlag(agent.getPosition(), ComplexEnvironment.FLAG_FOOD)) {
-				e.setFlag(agent.getPosition(), ComplexEnvironment.FLAG_FOOD, false);
-			}
+	private Map<ComplexAgent, ProductionParams> agentData = new HashMap<ComplexAgent, ProductionParams>();
 
-			e.setFlag(agent.getPosition(), ComplexEnvironment.FLAG_DROP, true);
+	@Override
+	public Collection<String> logDataAgent(int agentType) {
+		return NO_DATA;
+	}
 
+	@Override
+	public Collection<String> logDataTotal() {
+		return NO_DATA;
+	}
+
+	@Override
+	public Collection<String> logHeadersAgent() {
+		return NO_DATA;
+	}
+
+	@Override
+	public Collection<String> logHeaderTotal() {
+		return NO_DATA;
+	}
+
+	@Override
+	public void onDeath(ComplexAgent agent) {
+		agentData.remove(agent);
+	}
+
+	@Override
+	public void onSpawn(ComplexAgent agent) {
+		agentData.put(
+				agent,
+				(ProductionParams) initialParams[agent.getAgentType()].clone()
+				);
+	}
+
+	@Override
+	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
+		agentData.put(
+				agent,
+				(ProductionParams) agentData.get(parent).clone()
+				);
+	}
+
+	@Override
+	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
+		agentData.put(
+				agent,
+				(ProductionParams) agentData.get(parent1).clone()
+				);
+	}
+
+	public void setParams(SimulationInternals sim, ProductionParams[] productionParams, boolean keepOldProducts) {
+		simulation = sim;
+		environment = (ComplexEnvironment) sim.getEnvironment();
+
+		initialParams = productionParams;
+
+		if (vals == null || !keepOldProducts) {
+			vals = new float[environment.getWidth()][environment.getHeight()];
+		} else {
+			vals = ArrayUtilities.resizeArray(vals, environment.getWidth(), environment.getHeight());
 		}
 	}
 

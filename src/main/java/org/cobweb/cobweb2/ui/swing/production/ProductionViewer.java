@@ -37,7 +37,7 @@ public class ProductionViewer implements ViewerPlugin {
 		}
 
 		ProductionMapper newMapper = ((Simulation)theScheduler.getSimulation()).prodMapper;
-		productionDisplay = new Disp(newMapper, theEnvironment.getWidth(), theEnvironment.getHeight());
+		productionDisplay = new Disp(newMapper);
 
 		productionDisplay.addWindowListener(new WindowAdapter() {
 			@Override
