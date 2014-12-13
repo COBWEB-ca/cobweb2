@@ -2,7 +2,7 @@ package org.cobweb.cobweb2.abiotic;
 
 import java.util.Arrays;
 
-import org.cobweb.cobweb2.interconnect.AgentFoodCountable;
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.io.ConfDisplayName;
 import org.w3c.dom.Document;

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.cobweb.cobweb2.interconnect.AgentFoodCountable;
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.io.ConfDisplayName;
 import org.w3c.dom.Document;

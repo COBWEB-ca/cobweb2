@@ -3,7 +3,7 @@
  */
 package org.cobweb.cobweb2.core.params;
 
-import org.cobweb.cobweb2.interconnect.AgentFoodCountable;
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.interconnect.GeneMutatable;
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;

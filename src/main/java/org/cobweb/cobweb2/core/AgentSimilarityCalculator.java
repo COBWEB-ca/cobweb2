@@ -1,6 +1,5 @@
-package org.cobweb.cobweb2.interconnect;
+package org.cobweb.cobweb2.core;
 
-import org.cobweb.cobweb2.core.ComplexAgent;
 
 /**
  * Calculates similarity between two agents.

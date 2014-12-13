@@ -6,9 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.io.ConfDisplayName;

@@ -2,7 +2,6 @@ package org.cobweb.cobweb2.core;
 
 import java.util.Collection;
 
-import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.util.RandomNoGenerator;
 

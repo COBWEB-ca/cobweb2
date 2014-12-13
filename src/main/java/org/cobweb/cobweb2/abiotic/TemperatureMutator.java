@@ -2,9 +2,9 @@ package org.cobweb.cobweb2.abiotic;
 
 import java.util.Collection;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.interconnect.AgentFoodCountable;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
 import org.cobweb.util.ReflectionUtil;

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.cobweb.cobweb2.abiotic.TemperatureMutator;
 import org.cobweb.cobweb2.core.AgentListener;
+import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
@@ -17,7 +18,6 @@ import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
-import org.cobweb.cobweb2.interconnect.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.interconnect.MutatorListener;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.interconnect.StatePlugin;

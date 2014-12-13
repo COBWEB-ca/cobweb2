@@ -3,7 +3,7 @@ package org.cobweb.cobweb2.ai;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cobweb.cobweb2.interconnect.AgentFoodCountable;
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;

@@ -15,11 +15,11 @@ import org.cobweb.cobweb2.waste.Waste;
  * be used to call the tickNotification method.  This is done in the
  * TickScheduler.doTick private method.
  *
- * @see org.cobweb.cobweb2.core.Agent
+ * @see Agent
  * @see java.io.Serializable
  *
  */
-public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updatable, Serializable {
+public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	/**
 	 * This class provides the information of what an agent sees.
@@ -108,10 +108,10 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	/** The current tick we are in (or the last tick this agent was notified */
 	protected long currTick = 0;
 
-	private static final org.cobweb.cobweb2.core.Direction[] dirList = { org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH,
-		org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH, org.cobweb.cobweb2.core.Environment.DIRECTION_WEST, org.cobweb.cobweb2.core.Environment.DIRECTION_EAST,
-		org.cobweb.cobweb2.core.Environment.DIRECTION_NORTHEAST, org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTHEAST,
-		org.cobweb.cobweb2.core.Environment.DIRECTION_NORTHWEST, org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTHWEST };
+	private static final Direction[] dirList = {Environment.DIRECTION_NORTH,
+		Environment.DIRECTION_SOUTH,Environment.DIRECTION_WEST,Environment.DIRECTION_EAST,
+		Environment.DIRECTION_NORTHEAST,Environment.DIRECTION_SOUTHEAST,
+		Environment.DIRECTION_NORTHWEST,Environment.DIRECTION_SOUTHWEST };
 
 	public transient ComplexEnvironment environment;
 
@@ -225,7 +225,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 *
 	 * @param loc The location of food.
 	 */
-	protected void broadcastFood(org.cobweb.cobweb2.core.Location loc) { // []SK
+	protected void broadcastFood(Location loc) { // []SK
 		String message = loc.toString();
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, id, message, energy
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
@@ -245,7 +245,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * @param destPos The location of the agents next position.
 	 * @return True if agent can eat this type of food.
 	 */
-	public boolean canEat(org.cobweb.cobweb2.core.Location destPos) {
+	public boolean canEat(Location destPos) {
 		return params.foodweb.canEatFood[environment.getFoodType(destPos)];
 	}
 
@@ -366,7 +366,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 *
 	 * @param destPos Location of food.
 	 */
-	public void eat(org.cobweb.cobweb2.core.Location destPos) {
+	public void eat(Location destPos) {
 		// TODO: CHECK if setting flag before determining type is ok
 		// Eat first before we can produce waste, of course.
 		environment.setFlag(destPos, ComplexEnvironment.FLAG_FOOD, false);
@@ -407,7 +407,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	protected Agent getAdjacentAgent() {
-		org.cobweb.cobweb2.core.Location destPos = environment.getAdjacent(getPosition(), getPosition().direction);
+		Location destPos = environment.getAdjacent(getPosition(), getPosition().direction);
 		if (destPos == null) {
 			return null;
 		}
@@ -456,13 +456,13 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * @return A number representation of the direction the agent is getPosition().direction.
 	 */
 	public int getIntFacing() {
-		if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH))
+		if (getPosition().direction.equals(Environment.DIRECTION_NORTH))
 			return 0;
-		if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_EAST))
+		if (getPosition().direction.equals(Environment.DIRECTION_EAST))
 			return 1;
-		if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH))
+		if (getPosition().direction.equals(Environment.DIRECTION_SOUTH))
 			return 2;
-		if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_WEST))
+		if (getPosition().direction.equals(Environment.DIRECTION_WEST))
 			return 3;
 		return 0;
 	}
@@ -774,7 +774,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 * @see ComplexAgent#playPDonStep(ComplexAgent, int)
 	 */
 	public void step() {
-		org.cobweb.cobweb2.core.Agent adjAgent;
+		Agent adjAgent;
 		LocationDirection destPos = environment.getAdjacent(getPosition());
 
 		if (canStep(destPos)) {
@@ -1011,7 +1011,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		// For this method, "adjacent" implies tiles around the agent including
 		// tiles that are diagonally adjacent
 
-		org.cobweb.cobweb2.core.Location loc;
+		Location loc;
 
 		// Place the drop at an available location adjacent to the agent
 		for (int i = 0; i < dirList.length; i++) {
