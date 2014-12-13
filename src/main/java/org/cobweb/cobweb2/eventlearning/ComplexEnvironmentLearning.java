@@ -22,11 +22,6 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 	}
 
 	@Override
-	public void setDefaultMutableAgentParam() {
-		ComplexAgentLearning.setDefaultMutableParams(agentData, learningData);
-	}
-
-	@Override
 	protected void spawnAgent(LocationDirection location, int agentType) {
 		ComplexAgentLearning child = (ComplexAgentLearning)simulation.newAgent();
 		child.init(this, agentType, location, (ComplexAgentParams) agentData[agentType].clone(),

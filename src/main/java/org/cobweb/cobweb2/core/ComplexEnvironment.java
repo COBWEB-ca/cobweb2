@@ -488,8 +488,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		copyParamsFromParser(config);
 
-		setDefaultMutableAgentParam();
-
 		/**
 		 * If the random seed is set to 0 in the data file, it means we use the
 		 * system time instead
@@ -765,11 +763,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	public void resetAgentInfo() {
 		agentInfoVector.clear();
-	}
-
-	/** Sets the default mutable variables of each agent type. */
-	public void setDefaultMutableAgentParam() {
-		ComplexAgent.setDefaultMutableParams(agentData);
 	}
 
 	/**

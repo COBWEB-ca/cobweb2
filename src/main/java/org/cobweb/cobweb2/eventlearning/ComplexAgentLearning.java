@@ -28,10 +28,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	private static final long serialVersionUID = 6166561879146733801L;
 
-
-	@Deprecated //FIXME static!
-	private static LearningAgentParams learningParams[];
-
 	@Deprecated //FIXME static!
 	public static List<Occurrence> allOccurrences = new LinkedList<Occurrence>();
 
@@ -83,17 +79,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 
 	public LearningAgentParams lParams;
-
-	@Deprecated //FIXME static!
-	public static void setDefaultMutableParams(ComplexAgentParams[] params, LearningAgentParams[] lParams) {
-		ComplexAgent.setDefaultMutableParams(params);
-
-		learningParams = lParams.clone();
-		for (int i = 0; i < params.length; i++) {
-			learningParams[i] = (LearningAgentParams) lParams[i].clone();
-		}
-	}
-
 
 	public long getCurrTick() {
 		return currTick;

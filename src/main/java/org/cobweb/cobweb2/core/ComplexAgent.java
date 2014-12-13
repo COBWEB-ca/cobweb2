@@ -71,11 +71,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	 */
 	private static final long serialVersionUID = -5310096345506441368L;
 
-	/** Default mutable parameters of each agent type. */
-
-	@Deprecated //FIXME static!
-	private static ComplexAgentParams defaultParams[];
-
 	@Deprecated //FIXME static!
 	protected static AgentSimilarityCalculator simCalc;
 
@@ -117,15 +112,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 				blah.add(s);
 		}
 		return blah;
-	}
-
-	/** Sets the default mutable parameters of each agent type. */
-	@Deprecated //FIXME static!
-	public static void setDefaultMutableParams(ComplexAgentParams[] params) {
-		defaultParams = params.clone();
-		for (int i = 0; i < params.length; i++) {
-			defaultParams[i] = (ComplexAgentParams) params[i].clone();
-		}
 	}
 
 	@Deprecated //FIXME static!
@@ -425,7 +411,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 	}
 
 	public void copyConstants(ComplexAgent p) {
-		setConstants((ComplexAgentParams) defaultParams[p.getAgentType()].clone());
+		setConstants((ComplexAgentParams) environment.agentData[p.getAgentType()].clone());
 		pdCheater = p.pdCheater;
 	}
 
