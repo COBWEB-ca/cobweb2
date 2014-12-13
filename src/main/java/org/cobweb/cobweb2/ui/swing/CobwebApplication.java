@@ -514,7 +514,7 @@ public class CobwebApplication extends JFrame {
 			viewers.add(new LinearAIViewer());
 		}
 
-		viewers.add(new ProductionViewer(simRunner.getSimulation().theEnvironment, simRunner));
+		viewers.add(new ProductionViewer(simRunner));
 
 		viewers.add(new LiveStats(simRunner));
 

@@ -4,8 +4,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
@@ -16,13 +14,11 @@ public class ProductionViewer implements ViewerPlugin {
 	private Disp productionDisplay;
 	private ViewerClosedCallback onClosed;
 
-	private ComplexEnvironment theEnvironment;
 	private SimulationRunner theScheduler;
 
 
-	public ProductionViewer(Environment theEnvironment, SimulationRunner theScheduler) {
+	public ProductionViewer(SimulationRunner theScheduler) {
 		super();
-		this.theEnvironment = (ComplexEnvironment) theEnvironment;
 		this.theScheduler = theScheduler;
 	}
 
