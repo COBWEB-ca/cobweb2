@@ -5,13 +5,13 @@ package org.cobweb.cobweb2.ai;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexAgent.SeeInfo;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.io.CobwebParam;
 
-public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller {
+public class LinearWeightsController implements Controller {
 
 	public static final int ENERGY_THRESHOLD = 160;
 
@@ -113,7 +113,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 
 		agent.setMemoryBuffer((int) memout);
 		agent.setCommOutbox((int) commout);
-		agent.setAsexFlag(asexflag > 0.50);
+		agent.setShouldReproduceAsex(asexflag > 0.50);
 
 		if (right > left && right > step)
 			agent.turnRight();

@@ -11,6 +11,7 @@ import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
+import org.cobweb.util.ArrayUtilities;
 
 /**
  * 2D grid where agents and food live
@@ -26,14 +27,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	public static final int FLAG_AGENT = 3;
 
 	public static final int FLAG_DROP = 4;
-
-	public int PD_PAYOFF_REWARD;
-
-	public int PD_PAYOFF_SUCKER;
-
-	public int PD_PAYOFF_TEMPTATION;
-
-	public int PD_PAYOFF_PUNISHMENT;
 
 	private ComplexFoodParams foodData[];
 
@@ -57,15 +50,15 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	// Returns current location's food type
-	public int getFoodType(org.cobweb.cobweb2.core.Location l) {
+	public int getFoodType(Location l) {
 		return foodarray[l.x][l.y];
 	}
 
 	public final List<ComplexAgentStatistics> agentInfoVector = new ArrayList<ComplexAgentStatistics>();
 
-	private org.cobweb.cobweb2.core.ArrayEnvironment array;
+	private ArrayEnvironment array;
 
-	private ComplexEnvironmentParams data = new ComplexEnvironmentParams();
+	public ComplexEnvironmentParams data = new ComplexEnvironmentParams();
 
 	private int[][] foodarray = new int[0][];
 
@@ -95,7 +88,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public synchronized void addAgent(int x, int y, int type) {
 		super.addAgent(x, y, type);
-		org.cobweb.cobweb2.core.Location l;
+		Location l;
 		l = getUserDefinedLocation(x, y);
 		if ((getAgent(l) == null) && !testFlag(l, ComplexEnvironment.FLAG_STONE)
 				&& !testFlag(l, ComplexEnvironment.FLAG_DROP)) {
@@ -131,7 +124,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public synchronized void addFood(int x, int y, int type) {
 
-		org.cobweb.cobweb2.core.Location l;
+		Location l;
 		l = getUserDefinedLocation(x, y);
 		if (testFlag(l, ComplexEnvironment.FLAG_STONE)) {
 			throw new IllegalArgumentException("stone here already");
@@ -142,7 +135,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	@Override
 	public synchronized void addStone(int x, int y) {
-		org.cobweb.cobweb2.core.Location l;
+		Location l;
 		l = getUserDefinedLocation(x, y);
 		if (getAgent(l) != null) {
 			return;
@@ -208,11 +201,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		foodData = p.getFoodParams();
 
 		agentData = p.getAgentParams();
-
-		PD_PAYOFF_REWARD = data.pdParams.reward;
-		PD_PAYOFF_TEMPTATION = data.pdParams.temptation;
-		PD_PAYOFF_SUCKER = data.pdParams.sucker;
-		PD_PAYOFF_PUNISHMENT = data.pdParams.punishment;
 	}
 
 	/* Return totalEnergy of all agents */
@@ -306,7 +294,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		float foodDrop = foodData[type].dropRate;
 		while (simulation.getRandom().nextFloat() < foodDrop) {
 			--foodDrop;
-			org.cobweb.cobweb2.core.Location l;
+			Location l;
 			int j = 0;
 			do {
 				++j;
@@ -337,7 +325,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return agentInfoVector.size();
 	}
 
-	protected int getLocationBits(org.cobweb.cobweb2.core.Location l) {
+	protected int getLocationBits(Location l) {
 		return array.getLocationBits(l);
 	}
 
@@ -497,10 +485,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		if (data.keepOldArray) {
 			int[] boardIndices = { data.width, data.height };
-			array = new org.cobweb.cobweb2.core.ArrayEnvironment(data.width, data.height, array);
-			foodarray = org.cobweb.util.ArrayUtilities.resizeArray(foodarray, boardIndices);
+			array = new ArrayEnvironment(data.width, data.height, array);
+			foodarray = ArrayUtilities.resizeArray(foodarray, boardIndices);
 		} else {
-			array = new org.cobweb.cobweb2.core.ArrayEnvironment(data.width, data.height);
+			array = new ArrayEnvironment(data.width, data.height);
 			foodarray = new int[data.width][data.height];
 		}
 		backArray = new ArrayEnvironment(data.width, data.height);
@@ -527,7 +515,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		// add stones in to random locations
 		for (int i = 0; i < data.initialStones; ++i) {
-			org.cobweb.cobweb2.core.Location l;
+			Location l;
 			int tries = 0;
 			do {
 				l = getRandomLocation();
@@ -583,7 +571,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 			for (int j = 0; j < agentData[i].initialAgents; ++j) {
 
-				org.cobweb.cobweb2.core.Location location;
+				Location location;
 				int tries = 0;
 				do {
 					location = getRandomLocation();
@@ -604,7 +592,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	private void loadNewFood() {
 		for (int i = 0; i < data.getFoodTypes(); ++i) {
 			for (int j = 0; j < foodData[i].initial; ++j) {
-				org.cobweb.cobweb2.core.Location l;
+				Location l;
 				int tries = 0;
 				do {
 					l = getRandomLocation();
@@ -771,7 +759,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * does nothing when (0,0) is a stone
 	 */
 	@Override
-	public void setFlag(org.cobweb.cobweb2.core.Location l, int flag, boolean state) {
+	public void setFlag(Location l, int flag, boolean state) {
 		switch (flag) {
 			case FLAG_STONE:
 				// Sanity check
@@ -807,16 +795,16 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	// Sets Food Type in foodarray [];
-	public void setFoodType(org.cobweb.cobweb2.core.Location l, int i) {
+	public void setFoodType(Location l, int i) {
 		foodarray[l.x][l.y] = i;
 	}
 
-	protected void setLocationBits(org.cobweb.cobweb2.core.Location l, int bits) {
+	protected void setLocationBits(Location l, int bits) {
 		array.setLocationBits(l, bits);
 	}
 
 	@Override
-	public boolean testFlag(org.cobweb.cobweb2.core.Location l, int flag) {
+	public boolean testFlag(Location l, int flag) {
 		switch (flag) {
 			case FLAG_STONE:
 				return ((getLocationBits(l) & MASK_TYPE) == STONE_CODE);

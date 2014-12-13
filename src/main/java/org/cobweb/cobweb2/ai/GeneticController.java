@@ -5,7 +5,7 @@ package org.cobweb.cobweb2.ai;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexAgent.SeeInfo;
+import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.io.CobwebParam;
@@ -18,7 +18,7 @@ import org.cobweb.util.BitField;
  * @author ???
  *
  */
-public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
+public class GeneticController implements Controller {
 
 	//true, false, file not found
 	protected final static int TURN_LEFT = 0;
@@ -63,7 +63,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 	 * Converts the parameters of the agent into a behavior (turn left or right,
 	 * step).
 	 *
-	 * @see org.cobweb.cobweb2.ai.BehaviorArray
+	 * @see BehaviorArray
 	 * @see ComplexAgent#turnLeft()
 	 * @see ComplexAgent#turnRight()
 	 * @see ComplexAgent#step()
@@ -80,7 +80,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 		theAgent.setMemoryBuffer(outputArray[1]);
 		theAgent.setCommOutbox(outputArray[2]);
 		//whether to breed
-		theAgent.setAsexFlag(outputArray[3] != 0);
+		theAgent.setShouldReproduceAsex(outputArray[3] != 0);
 
 		theAgent.setCommInbox(0);
 

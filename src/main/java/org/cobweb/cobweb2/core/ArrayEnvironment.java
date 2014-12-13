@@ -1,5 +1,7 @@
 package org.cobweb.cobweb2.core;
 
+import org.cobweb.util.ArrayUtilities;
+
 
 public class ArrayEnvironment {
 
@@ -10,7 +12,7 @@ public class ArrayEnvironment {
 	}
 
 	public ArrayEnvironment(int w, int h, ArrayEnvironment a) {
-		locationBits = org.cobweb.util.ArrayUtilities.resizeArray(a.getBitArray(), w, h);
+		locationBits = ArrayUtilities.resizeArray(a.getBitArray(), w, h);
 	}
 
 	public int getAxisCount() {
@@ -21,11 +23,11 @@ public class ArrayEnvironment {
 		return locationBits;
 	}
 
-	public int getLocationBits(org.cobweb.cobweb2.core.Location l) {
+	public int getLocationBits(Location l) {
 		return locationBits[l.x][l.y];
 	}
 
-	public void setLocationBits(org.cobweb.cobweb2.core.Location l, int bits) {
+	public void setLocationBits(Location l, int bits) {
 		locationBits[l.x][l.y] = bits;
 	}
 }

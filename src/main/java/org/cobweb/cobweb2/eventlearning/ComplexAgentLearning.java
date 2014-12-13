@@ -3,8 +3,10 @@ package org.cobweb.cobweb2.eventlearning;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
@@ -91,7 +93,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	protected void broadcastFood(org.cobweb.cobweb2.core.Location loc) { // []SK
+	protected void broadcastFood(Location loc) { // []SK
 		super.broadcastFood(loc);
 
 		// Deduct broadcasting cost from energy
@@ -105,7 +107,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	public void eat(org.cobweb.cobweb2.core.Location destPos) {
+	public void eat(Location destPos) {
 		if (environment.getFoodType(destPos) == agentType) {
 			// Eating food is ideal!!
 			remember(new MemorableEvent(currTick, lParams.foodPleasure, "food"));
@@ -128,7 +130,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	protected void iveBeenCheated(int othersID) {
+	protected void iveBeenCheated(long othersID) {
 		super.iveBeenCheated(othersID);
 		remember(new MemorableEvent(currTick, -1, "agent-" + othersID));
 	}
@@ -143,7 +145,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	@Override
 	public void step() {
-		org.cobweb.cobweb2.core.Agent adjAgent;
+		Agent adjAgent;
 		final LocationDirection destPos = environment.getAdjacent(getPosition());
 
 		if (canStep(destPos)) {
@@ -318,17 +320,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 				});
 			}
 
-			want2meet = true;
-
-			final int othersID = adjacentAgent.stats.getAgentNumber();
-			// scan the memory array, is the 'other' agents ID is found in the
-			// array,
-			// then choose not to have a transaction with him.
-			for (int i = 0; i < params.pdMemory; i++) {
-				if (photo_memory[i] == othersID) {
-					want2meet = false;
-				}
-			}
 			// if the agents are of the same type, check if they have enough
 			// resources to breed
 			if (adjacentAgent.agentType == agentType) {
@@ -352,7 +343,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 
 				if (canBreed && sim >= params.breedSimMin
-						&& (want2meet && adjacentAgent.want2meet)) {
+						&& checkCredibility(adjacentAgent.id) && adjacentAgent.checkCredibility(this.id)) {
 					// Initiate pregnancy
 					queue(new SmartAction(this, "breed") {
 
@@ -366,15 +357,14 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				}
 			}
-			// perform the transaction only if non-pregnant and both agents want
-			// to meet
-			if (!pregnant && want2meet && adjacentAgent.want2meet) {
+
+			if (!pregnant && checkCredibility(adjacentAgent.id) && adjacentAgent.checkCredibility(this.id)) {
 
 				queue(new SmartAction(this) {
 
 					@Override
 					public void desiredAction(ComplexAgentLearning agent) {
-						agent.playPDonStep(adjacentAgent, othersID);
+						agent.playPDonStep(adjacentAgent, adjacentAgent.id);
 					}
 				});
 
@@ -501,25 +491,25 @@ public class ComplexAgentLearning extends ComplexAgent {
 						&& (lParams.learnFromDifferentOthers || occTarget.type() == type())) {
 					String desc = null;
 
-					if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_EAST)) {
+					if (getPosition().direction.equals(Environment.DIRECTION_EAST)) {
 						if (loc2.y > loc.y) {
 							desc = "turnRight";
 						} else if (loc2.y != loc.y) {
 							desc = "turnLeft";
 						}
-					} else if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_WEST)) {
+					} else if (getPosition().direction.equals(Environment.DIRECTION_WEST)) {
 						if (loc2.y > loc.y) {
 							desc = "turnLeft";
 						} else if (loc2.y != loc.y) {
 							desc = "turnRight";
 						}
-					} else if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_NORTH)) {
+					} else if (getPosition().direction.equals(Environment.DIRECTION_NORTH)) {
 						if (loc2.x > loc.x) {
 							desc = "turnRight";
 						} else if (loc2.x != loc.x) {
 							desc = "turnLeft";
 						}
-					} else if (getPosition().direction.equals(org.cobweb.cobweb2.core.Environment.DIRECTION_SOUTH)) {
+					} else if (getPosition().direction.equals(Environment.DIRECTION_SOUTH)) {
 						if (loc2.x > loc.x) {
 							desc = "turnLeft";
 						} else if (loc2.x != loc.x) {

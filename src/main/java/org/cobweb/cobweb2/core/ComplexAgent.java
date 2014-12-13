@@ -20,47 +20,6 @@ import org.cobweb.cobweb2.waste.Waste;
  *
  */
 public class ComplexAgent extends Agent implements Updatable, Serializable {
-
-	/**
-	 * This class provides the information of what an agent sees.
-	 *
-	 */
-	public static class SeeInfo {
-		private int dist;
-
-		private int type;
-
-		/**
-		 * Contains the information of what the agent sees.
-		 *
-		 * @param d Distance to t.
-		 * @param t Type of object seen.
-		 */
-		public SeeInfo(int d, int t) {
-			dist = d;
-			type = t;
-		}
-
-		/**
-		 * @return How far away the object is.
-		 */
-		public int getDist() {
-			return dist;
-		}
-
-		/**
-		 * @return What the agent sees (rock, food, etc.)
-		 */
-		public int getType() {
-			return type;
-		}
-	}
-
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -5310096345506441368L;
-
 	/**
 	 * The agent's type.
 	 */
@@ -81,9 +40,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	private int commOutbox;
 	// memory size is the maximum capacity of the number of cheaters an agent
 	// can remember
-	protected long photo_memory[];
+	private long photo_memory[];
 	private int photo_num = 0;
-	protected boolean want2meet = false;
 
 	/* Waste variables */
 	private int wasteCounterGain;
@@ -94,7 +52,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	protected ComplexAgent breedPartner;
 
-	private boolean asexFlag;
+	// FIXME: AI should call asexBreed() instead of setting flag and agent doing so.
+	private boolean shouldReproduceAsex;
 
 	protected ComplexAgentStatistics stats;
 
@@ -210,7 +169,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		}
 	}
 
-	void broadcastCheating(int cheaterID) { // []SK
+	void broadcastCheating(long cheaterID) { // []SK
 		String message = Long.toString(cheaterID);
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, id, message, energy
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
@@ -282,15 +241,12 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		return true;
 	}
 
-	boolean checkCredibility(long agentId) {
-		// check if dispatcherId is in list
-		// if (agentId != null) {
+	protected boolean checkCredibility(long agentId) {
 		for (int i = 0; i < params.pdMemory; i++) {
 			if (photo_memory[i] == agentId) {
 				return false;
 			}
 		}
-		// }
 		return true;
 	}
 
@@ -298,13 +254,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	BroadcastPacket checkforBroadcasts() {
 		return environment.commManager.findPacket(getPosition());
 	}
-
-	//@Override
-	//	public Object clone() {
-	//		ComplexAgent cp = new ComplexAgent(getAgentType(), pdCheater, params, getPosition().direction);
-	//		//cp.hibernate();
-	//		return cp;
-	//	}
 
 	protected void communicate(ComplexAgent target) {
 		target.setCommInbox(getCommOutbox());
@@ -490,10 +439,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			position = new LocationDirection(position, Environment.DIRECTION_WEST);
 	}
 
-	public boolean isAsexFlag() {
-		return asexFlag;
-	}
-
 	/**
 	 * The agent will remember the last variable number of agents that
 	 * cheated it.  How many cheaters it remembers is determined by its
@@ -501,7 +446,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 *
 	 * @param othersID In a game of PD, the opposing agents ID
 	 */
-	protected void iveBeenCheated(int othersID) {
+	protected void iveBeenCheated(long othersID) {
 
 		if (params.pdMemory > 0) {
 			photo_memory[photo_num++] = othersID;
@@ -599,11 +544,11 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 *
 	 * @param adjacentAgent Agent playing PD with
 	 * @param othersID ID of the adjacent agent.
-	 * @see ComplexAgent#playPD()
+	 * @see ComplexAgent#playPD(ComplexAgent)
 	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
 	 */
 	@SuppressWarnings("javadoc")
-	public void playPDonStep(ComplexAgent adjacentAgent, int othersID) {
+	public void playPDonStep(ComplexAgent adjacentAgent, long othersID) {
 		if (!environment.isPDenabled())
 			return;
 
@@ -620,26 +565,26 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		if (!pdCheater && !adjacentAgent.pdCheater) {
 			/* Both cooperate */
-			energy += environment.PD_PAYOFF_REWARD;
-			adjacentAgent.energy += environment.PD_PAYOFF_REWARD;
+			energy += environment.data.pdParams.reward;
+			adjacentAgent.energy += environment.data.pdParams.reward;
 			stats.addPDReward();
 
 		} else if (!pdCheater && adjacentAgent.pdCheater) {
 			/* Only other agent cheats */
-			energy += environment.PD_PAYOFF_SUCKER;
-			adjacentAgent.energy += environment.PD_PAYOFF_TEMPTATION;
+			energy += environment.data.pdParams.sucker;
+			adjacentAgent.energy += environment.data.pdParams.temptation;
 			stats.addPDTemptation();
 
 		} else if (pdCheater && !adjacentAgent.pdCheater) {
 			/* Only this agent cheats */
-			energy += environment.PD_PAYOFF_TEMPTATION;
-			adjacentAgent.energy += environment.PD_PAYOFF_SUCKER;
+			energy += environment.data.pdParams.temptation;
+			adjacentAgent.energy += environment.data.pdParams.sucker;
 			stats.addPDSucker();
 
 		} else if (pdCheater && adjacentAgent.pdCheater) {
 			/* Both cheat */
-			energy += environment.PD_PAYOFF_PUNISHMENT;
-			adjacentAgent.energy += environment.PD_PAYOFF_PUNISHMENT;
+			energy += environment.data.pdParams.punishment;
+			adjacentAgent.energy += environment.data.pdParams.punishment;
 			stats.addPDPunishment();
 
 		}
@@ -689,8 +634,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	}
 
-	public void setAsexFlag(boolean asexFlag) {
-		this.asexFlag = asexFlag;
+	public void setShouldReproduceAsex(boolean asexFlag) {
+		this.shouldReproduceAsex = asexFlag;
 	}
 
 	public void setCommInbox(int commInbox) {
@@ -717,14 +662,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		setWasteCounterLoss(params.wasteLimitLoss);
 
 		photo_memory = new long[params.pdMemory];
-
-		this.lastPDcheated = false;
-		// "KeepOldAgents" need pass this
-		// parameter. (as a reasonable side
-		// effect, the parameter of a parent
-		// would also pass to its child)
-		// See ComplexEnvironment.load(cobweb.Scheduler s, Parser p/*
-		// java.io.Reader r */) @ if (keepOldAgents[0]) {...
 
 	}
 
@@ -771,7 +708,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 *
 	 * <p> Energy penalties are deducted from the agent.
 	 *
-	 * @see ComplexAgent#playPDonStep(ComplexAgent, int)
+	 * @see ComplexAgent#playPDonStep(ComplexAgent, long)
 	 */
 	public void step() {
 		Agent adjAgent;
@@ -840,7 +777,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 			breedPos = new LocationDirection(getPosition(), Environment.DIRECTION_NONE);
 		} else if (!pregnant) {
-			// TODO: make AI control this choice?
 			tryAsexBreed();
 		}
 
@@ -879,16 +815,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			eat(adjacentAgent);
 		}
 
-		want2meet = true;
-
 		int othersID = adjacentAgent.stats.getAgentNumber();
-		// scan the memory array, is the 'other' agents ID is found in the array,
-		// then choose not to have a transaction with him.
-		for (int i = 0; i < params.pdMemory; i++) {
-			if (photo_memory[i] == othersID) {
-				want2meet = false;
-			}
-		}
+
 		// if the agents are of the same type, check if they have enough
 		// resources to breed
 		if (adjacentAgent.agentType == agentType) {
@@ -905,14 +833,14 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			}
 
 			if (canBreed && sim >= params.breedSimMin
-					&& (want2meet && adjacentAgent.want2meet)) {
+					&& checkCredibility(othersID) && adjacentAgent.checkCredibility(this.id)) {
 				pregnant = true;
 				pregPeriod = params.sexualPregnancyPeriod;
 				breedPartner = adjacentAgent;
 			}
 		}
-		// perform the transaction only if non-pregnant and both agents want to meet
-		if (!pregnant && want2meet && adjacentAgent.want2meet) {
+
+		if (!pregnant && checkCredibility(othersID) && adjacentAgent.checkCredibility(this.id)) {
 
 			playPDonStep(adjacentAgent, othersID);
 		}
@@ -975,11 +903,11 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	/**
 	 * If the agent has enough energy to breed, is randomly chosen to breed,
-	 * and its asexFlag is true, then the agent will be pregnant and set to
+	 * and its shouldReproduceAsex is true, then the agent will be pregnant and set to
 	 * produce a child agent after the agent's asexPregnancyPeriod is up.
 	 */
 	protected void tryAsexBreed() {
-		if (isAsexFlag() && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
+		if (shouldReproduceAsex && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
 				&& simulation.getRandom().nextFloat() < params.asexualBreedChance) {
 			pregPeriod = params.asexPregnancyPeriod;
 			pregnant = true;
@@ -1088,4 +1016,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	public int getWasteCounterLoss() {
 		return wasteCounterLoss;
 	}
+
+	private static final long serialVersionUID = 2L;
 }
