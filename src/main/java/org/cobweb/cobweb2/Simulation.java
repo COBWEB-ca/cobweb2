@@ -38,6 +38,8 @@ public class Simulation implements SimulationInterface {
 
 	private RandomNoGenerator random;
 
+	private AgentSpawner agentSpawner;
+
 	/* return number of TYPES of agents in the environment */
 	@Override
 	public int getAgentTypeCount() {
@@ -95,7 +97,7 @@ public class Simulation implements SimulationInterface {
 	@Override
 	public void load(SimulationConfig p) {
 		this.simulationConfig = p;
-		AgentSpawner.SetType(p.getEnvParams().agentName);
+		agentSpawner = new AgentSpawner(p.getEnvParams().agentName, this);
 
 		// TODO: this is a hack to make the applet work when we switch grids and
 		// the static information is not cleared, ComplexAgent should really
@@ -163,6 +165,11 @@ public class Simulation implements SimulationInterface {
 	@Override
 	public RandomNoGenerator getRandom() {
 		return random;
+	}
+
+	@Override
+	public ComplexAgent newAgent() {
+		return agentSpawner.spawn();
 	}
 
 	@Override

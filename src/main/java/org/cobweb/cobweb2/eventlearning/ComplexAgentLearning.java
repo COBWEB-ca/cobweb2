@@ -3,11 +3,11 @@ package org.cobweb.cobweb2.eventlearning;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
+import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
@@ -22,6 +22,10 @@ import org.cobweb.cobweb2.production.ProductionParams;
 
 
 public class ComplexAgentLearning extends ComplexAgent {
+
+	public ComplexAgentLearning(SimulationInterface sim) {
+		super(sim);
+	}
 
 	private static final long serialVersionUID = 6166561879146733801L;
 
@@ -236,7 +240,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 						if (concernedAgent.breedPartner == null) {
 							concernedAgent.getInfo().addDirectChild();
-							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn();
+							ComplexAgentLearning child = (ComplexAgentLearning)simulation.newAgent();
 							child.init(environment, concernedAgent.getBreedPos(), concernedAgent);
 
 							// Retain emotions for our child!
@@ -253,7 +257,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 							concernedAgent.getInfo().addDirectChild();
 							concernedAgent.breedPartner.getInfo().addDirectChild();
-							ComplexAgentLearning child = (ComplexAgentLearning)AgentSpawner.spawn();
+							ComplexAgentLearning child = (ComplexAgentLearning)simulation.newAgent();
 							child.init(environment, concernedAgent.getBreedPos(), concernedAgent,
 									(ComplexAgentLearning)concernedAgent.breedPartner);
 

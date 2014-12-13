@@ -16,8 +16,11 @@ public abstract class Agent {
 
 	private boolean alive = true;
 
-	protected Agent() {
+	protected SimulationInterface simulation;
+
+	protected Agent(SimulationInterface sim) {
 		id = makeID();
+		simulation = sim;
 	}
 
 	protected long id;

@@ -214,8 +214,8 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 
 	public transient ComplexEnvironment environment;
 
-	public ComplexAgent() {
-
+	public ComplexAgent(SimulationInterface sim) {
+		super(sim);
 	}
 
 	/**
@@ -962,7 +962,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 			stats.useReproductionEnergy(params.initEnergy);
 			stats.addDirectChild();
 
-			ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
+			ComplexAgent child = simulation.newAgent();
 
 			if (breedPartner == null) {
 				child.init(environment, breedPos, this);

@@ -50,4 +50,6 @@ public interface SimulationInterface {
 	public void addAgent(ComplexAgent agent);
 
 	public RandomNoGenerator getRandom();
+
+	public ComplexAgent newAgent();
 }

@@ -121,7 +121,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	protected void spawnAgent(LocationDirection location, int agentType) {
-		ComplexAgent child = (ComplexAgent)AgentSpawner.spawn();
+		ComplexAgent child = (ComplexAgent)simulation.newAgent();
 		child.init(this, agentType, location, (ComplexAgentParams) agentData[agentType].clone(),
 				(ProductionParams) prodData[agentType].clone()); // Default
 	}

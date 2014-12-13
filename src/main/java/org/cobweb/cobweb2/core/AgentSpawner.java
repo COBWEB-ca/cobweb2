@@ -5,9 +5,11 @@ import java.lang.reflect.InvocationTargetException;
 
 public class AgentSpawner {
 
-	private static Class<?> spawnType;
+	private Class<?> spawnType;
+	private SimulationInterface simulation;
 
-	public static void SetType(String classname) {
+	public AgentSpawner(String classname, SimulationInterface sim) {
+		simulation = sim;
 		try {
 			spawnType = Class.forName(classname);
 		} catch (ClassNotFoundException ex) {
@@ -15,9 +17,9 @@ public class AgentSpawner {
 		}
 	}
 
-	public static Agent spawn() {
+	public ComplexAgent spawn() {
 		try {
-			return (Agent)spawnType.getConstructor((Class<?>[])null).newInstance((Object[])null);
+			return (ComplexAgent)spawnType.getConstructor(SimulationInterface.class).newInstance(simulation);
 
 		} catch (IllegalArgumentException ex) {
 			throw new RuntimeException(ex);

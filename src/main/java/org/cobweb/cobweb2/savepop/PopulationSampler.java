@@ -16,7 +16,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
@@ -219,7 +218,7 @@ public class PopulationSampler {
 				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
 
 
-				ComplexAgent cAgent = (ComplexAgent)AgentSpawner.spawn();
+				ComplexAgent cAgent = (ComplexAgent)sim.newAgent();
 				cAgent.init(sim.theEnvironment, agentType, locDir, params, prodParams);
 				cAgent.pdCheater = pdCheater;
 				sim.theEnvironment.setAgent(loc, cAgent);
