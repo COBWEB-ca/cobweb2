@@ -26,8 +26,6 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 
 	public static final String[] outputNames = { "Memory", "Communication", "Left", "Right", "Forward", "Asexual Breed" };
 
-	private static float mutationCounter = 0;
-
 	private static final double UPDATE_RATE = 0.001;
 
 	@Deprecated //FIXME static!
@@ -131,7 +129,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 	}
 
 	private void mutate(float mutation) {
-		mutationCounter += params.data.length * params.data[0].length * mutation;
+		double mutationCounter = params.data.length * params.data[0].length * mutation;
 		while (mutationCounter > 1) {
 			int i = simulator.getRandom().nextInt(params.data.length);
 			int j = simulator.getRandom().nextInt(params.data[i].length);
