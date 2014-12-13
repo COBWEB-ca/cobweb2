@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.ui.swing.production;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.production.ProductionMapper;
@@ -35,7 +36,7 @@ public class ProductionViewer implements ViewerPlugin {
 			productionDisplay.dispose();
 		}
 
-		ProductionMapper newMapper = (theEnvironment).prodMapper;
+		ProductionMapper newMapper = ((Simulation)theScheduler.getSimulation()).prodMapper;
 		productionDisplay = new Disp(newMapper, theEnvironment.getWidth(), theEnvironment.getHeight());
 
 		productionDisplay.addWindowListener(new WindowAdapter() {

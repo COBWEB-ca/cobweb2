@@ -74,7 +74,7 @@ public class LinearWeightsController implements org.cobweb.cobweb2.ai.Controller
 		{
 			int i = 10;
 			for (String plugin : LinearWeightsControllerParams.pluginNames) {
-				StateParameter sp = agent.environment.getStateParameter(plugin);
+				StateParameter sp = simulator.getStateParameter(plugin);
 				variables[i] = sp.getValue(agent);
 				i++;
 			}

@@ -67,7 +67,7 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		}
 	}
 
-	private ProductionParams prodParams;
+	public ProductionParams prodParams;
 
 	/**
 	 *
@@ -1094,10 +1094,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 		/* Produce waste if able */
 		if (params.wasteMode && shouldPoop())
 			tryPoop();
-
-		if (prodParams.productionMode) {
-			tryProduction();
-		}
 	}
 
 	/**
@@ -1172,109 +1168,6 @@ public class ComplexAgent extends org.cobweb.cobweb2.core.Agent implements Updat
 					break;
 				}
 			}
-		}
-	}
-	private boolean roll(float chance) {
-		return chance > simulation.getRandom().nextFloat();
-	}
-
-	boolean shouldProduce() {
-		if (prodParams == null || !roll(prodParams.initProdChance)) {
-			return false;
-		}
-
-		float locationValue = environment.prodMapper.getValueAtLocation(position);
-
-		if (locationValue > prodParams.highDemandCutoff) {
-			return false;
-		}
-
-		// ADDITIONS:
-		// Learning agents should adapt to products
-
-		if (locationValue <= prodParams.lowDemandThreshold) {
-			// In an area of low demand
-			return roll(prodParams.lowDemandProdChance);
-		} else if (locationValue <= prodParams.sweetDemandThreshold) {
-			/*
-			 * The sweet spot is an inverted parabola, the vertex is 100% probability in the middle of the sweet spot
-			 * (between lowDemandThreshold and sweetDemandThreshold)
-			 * the tips are sweetDemandStartChance probability at the thresholds.
-			 *
-			 */
-
-			// parabola shape
-			float peak = (prodParams.lowDemandThreshold + prodParams.sweetDemandThreshold) * 0.5f;
-			float width = prodParams.sweetDemandThreshold - prodParams.lowDemandThreshold;
-			// position along standard parabola
-			float x = (locationValue - peak) / (width / 2);
-			// parabola value
-			float y = x * x  * (1-prodParams.sweetDemandStartChance);
-
-			float chance = prodParams.sweetDemandStartChance + (1 - y);
-
-			// Sweet spot; perfect balance of competition and attraction here;
-			// likelihood of producing products here
-			// is modelled by a parabola
-			return roll(chance);
-		}
-
-		// locationValue > 10f; Very high competition in this area!
-		// The higher the value the lower the production chances are.
-
-		// Let: d = prodParams.sweetDemandThreshold
-		// e = prodParams.highDemandCutoff
-		// f = prodParams.highDemandProdChance
-		//
-		// p1 = (d, f);
-		// p2 = (e, 0);
-		//
-		// rise = f - 0 = f;
-		// run = d - e
-		//
-		// m = f / (d - e)
-		//
-		// y = mx + b
-		//
-		// b = y - mx
-		// b = 0 - me
-		// b = -(f / (d -e))e
-		//
-		// y = ((f - e) / d)x + e
-
-		float d = prodParams.sweetDemandThreshold;
-		float e = prodParams.highDemandCutoff;
-		float f = prodParams.highDemandProdChance;
-
-		float rise = f;
-		float run = d - e;
-
-		float m = rise / run;
-
-		float b = -1 * m * e;
-
-		// y = mx + b
-		float y = (m * locationValue) + b;
-
-		// p1 = (sweetDemandThreshold, prodParams.highDemandProdChance)
-		// p2 = (
-		// minChance
-
-		return roll(y);
-	}
-
-	private void tryProduction() {
-		if (shouldProduce()) {
-			// TODO: find a more clean way to create and assign product
-			// Healthy agents produce high-value products, and vice-versa
-			environment.prodMapper.createProduct((float) energy / (float) params.initEnergy, this);
-
-			if (environment.testFlag(position, ComplexEnvironment.FLAG_FOOD)) {
-				environment.setFlag(position, ComplexEnvironment.FLAG_FOOD, false);
-			}
-
-			environment.setFlag(position, ComplexEnvironment.FLAG_DROP, true);
-
 		}
 	}
 

@@ -124,7 +124,7 @@ public class GeneticController implements org.cobweb.cobweb2.ai.Controller {
 		inputCode.add(theAgent.getCommInbox(), commSize);
 
 		for (StateSize ss : params.agentParams.agentParams[theAgent.type()].stateSizes) {
-			StateParameter sp = theAgent.environment.getStateParameter(ss.name);
+			StateParameter sp = simulation.getStateParameter(ss.name);
 			double value = sp.getValue(theAgent);
 			int val = (int) Math.round(value * ((1 << ss.size) - 1));
 			inputCode.add(val, ss.size);

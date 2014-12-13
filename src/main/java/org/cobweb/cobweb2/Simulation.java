@@ -1,8 +1,11 @@
 package org.cobweb.cobweb2;
 
 import java.lang.reflect.Constructor;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.cobweb.cobweb2.abiotic.TemperatureMutator;
 import org.cobweb.cobweb2.core.AgentSpawner;
@@ -13,6 +16,9 @@ import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
+import org.cobweb.cobweb2.interconnect.StateParameter;
+import org.cobweb.cobweb2.interconnect.StatePlugin;
+import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.util.RandomNoGenerator;
 
 /**
@@ -132,7 +138,20 @@ public class Simulation implements SimulationInternals {
 
 		random = new RandomNoGenerator(p.getEnvParams().randomSeed);
 
+
 		InitEnvironment(p.getEnvParams().environmentName, p);
+
+		if (prodMapper == null) {
+			prodMapper = new ProductionMapper(this);
+			plugins.add(prodMapper);
+		}
+
+		if (!p.getEnvParams().keepOldWaste) {
+			plugins.remove(prodMapper);
+			prodMapper = new ProductionMapper(this);
+			plugins.add(prodMapper);
+		}
+		setupPlugins();
 	}
 
 	@Override
@@ -144,6 +163,8 @@ public class Simulation implements SimulationInternals {
 		synchronized(theEnvironment) {
 			for (ComplexAgent agent : new LinkedList<ComplexAgent>(agents)) {
 				agent.update(time);
+
+				prodMapper.tryProduction(agent);
 
 				if (!agent.isAlive())
 					agents.remove(agent);
@@ -176,5 +197,29 @@ public class Simulation implements SimulationInternals {
 	public Environment getEnvironment() {
 		return theEnvironment;
 	}
+
+	@Override
+	public StateParameter getStateParameter(String name) {
+		return pluginMap.get(name);
+	}
+
+	private Map<String, StateParameter> pluginMap = new LinkedHashMap<String, StateParameter>();
+
+	private List<StatePlugin> plugins = new LinkedList<StatePlugin>();
+
+	private void setupPlugins() {
+		for (StatePlugin plugin : plugins) {
+			for (StateParameter param : plugin.getParameters()) {
+				pluginMap.put(param.getName(), param);
+			}
+		}
+	}
+
+	@Override
+	public Set<String> getStatePlugins() {
+		return pluginMap.keySet();
+	}
+
+	public ProductionMapper prodMapper;
 
 }

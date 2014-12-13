@@ -2,10 +2,8 @@ package org.cobweb.cobweb2.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.ControllerFactory;
@@ -13,9 +11,6 @@ import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
-import org.cobweb.cobweb2.interconnect.StateParameter;
-import org.cobweb.cobweb2.interconnect.StatePlugin;
-import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.cobweb2.production.ProductionParams;
 
 /**
@@ -97,8 +92,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		super(simulation);
 		commManager = new PacketConduit();
 	}
-
-	public ProductionMapper prodMapper;
 
 	public ControllerFactory controllerFactory;
 
@@ -569,18 +562,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			loadNewAgents();
 		}
 
-		plugins.add(prodMapper);
-
-		setupPlugins();
-
-	}
-
-	private void setupPlugins() {
-		for (StatePlugin plugin : plugins) {
-			for (StateParameter param : plugin.getParameters()) {
-				pluginMap.put(param.getName(), param);
-			}
-		}
 	}
 
 	/**
@@ -650,7 +631,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 */
 	private void loadNewWaste() {
 		dropArray = new Drop[data.width][data.height];
-		prodMapper = new ProductionMapper(simulation);
 		for (int x = 0; x < getWidth(); ++x) {
 			for (int y = 0; y < getHeight(); ++y) {
 				setFlag(getLocation(x, y), FLAG_DROP, false);
@@ -954,14 +934,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public boolean hasStone(int x, int y) {
 		return testFlag(getUserDefinedLocation(x, y), FLAG_STONE);
-	}
-
-	private List<StatePlugin> plugins = new LinkedList<StatePlugin>();
-
-	private Map<String, StateParameter> pluginMap = new HashMap<String, StateParameter>();
-
-	public StateParameter getStateParameter(String name) {
-		return pluginMap.get(name);
 	}
 
 	public boolean isPDenabled() {
