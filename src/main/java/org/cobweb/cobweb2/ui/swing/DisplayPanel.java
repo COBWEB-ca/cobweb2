@@ -392,8 +392,8 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		size.width -= ins.left + ins.right + PADDING + THERMAL_MARKER_WIDTH;
 		size.height -= ins.top + ins.bottom + PADDING;
 
-		mapWidth = simulation.theEnvironment.getWidth();
-		mapHeight = simulation.theEnvironment.getHeight();
+		mapWidth = simulation.theEnvironment.topology.width;
+		mapHeight = simulation.theEnvironment.topology.height;
 		if (mapWidth != 0) {
 			tileWidth = size.width / mapWidth;
 		}
@@ -402,9 +402,9 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		}
 		tileWidth = Math.min(tileWidth, tileHeight);
 		tileHeight = tileWidth;
-		int borderWidth = (size.width - tileWidth * simulation.theEnvironment.getWidth() + PADDING) / 2;
+		int borderWidth = (size.width - tileWidth * simulation.theEnvironment.topology.width + PADDING) / 2;
 		borderLeft = borderWidth + THERMAL_MARKER_WIDTH;
-		borderHeight = (size.height - tileHeight * simulation.theEnvironment.getHeight() + PADDING) / 2;
+		borderHeight = (size.height - tileHeight * simulation.theEnvironment.topology.height + PADDING) / 2;
 
 		repaint();
 	}

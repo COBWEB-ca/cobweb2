@@ -63,10 +63,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	/** The current tick we are in (or the last tick this agent was notified */
 	protected long currTick = 0;
 
-	private static final Direction[] dirList = {Environment.DIRECTION_NORTH,
-		Environment.DIRECTION_SOUTH,Environment.DIRECTION_WEST,Environment.DIRECTION_EAST,
-		Environment.DIRECTION_NORTHEAST,Environment.DIRECTION_SOUTHEAST,
-		Environment.DIRECTION_NORTHWEST,Environment.DIRECTION_SOUTHWEST };
+	private static final Direction[] dirList = {Topology.DIRECTION_NORTH,
+		Topology.DIRECTION_SOUTH,Topology.DIRECTION_WEST,Topology.DIRECTION_EAST,
+		Topology.DIRECTION_NORTHEAST,Topology.DIRECTION_SOUTHEAST,
+		Topology.DIRECTION_NORTHWEST,Topology.DIRECTION_SOUTHWEST };
 
 	public transient ComplexEnvironment environment;
 
@@ -275,7 +275,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 * @return What the agent sees and at what distance.
 	 */
 	public SeeInfo distanceLook() {
-		LocationDirection destPos = environment.getAdjacent(getPosition());
+		LocationDirection destPos = environment.topology.getAdjacent(getPosition());
 
 		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
 
@@ -298,7 +298,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			if (environment.testFlag(destPos, ComplexEnvironment.FLAG_DROP))
 				return new SeeInfo(dist, ComplexEnvironment.FLAG_DROP);
 
-			destPos = environment.getAdjacent(destPos);
+			destPos = environment.topology.getAdjacent(destPos);
 		}
 		return new SeeInfo(LOOK_DISTANCE, 0);
 	}
@@ -350,7 +350,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	protected Agent getAdjacentAgent() {
-		Location destPos = environment.getAdjacent(getPosition(), getPosition().direction);
+		Location destPos = environment.topology.getAdjacent(getPosition(), getPosition().direction);
 		if (destPos == null) {
 			return null;
 		}
@@ -399,13 +399,13 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 * @return A number representation of the direction the agent is getPosition().direction.
 	 */
 	public int getIntFacing() {
-		if (getPosition().direction.equals(Environment.DIRECTION_NORTH))
+		if (getPosition().direction.equals(Topology.DIRECTION_NORTH))
 			return 0;
-		if (getPosition().direction.equals(Environment.DIRECTION_EAST))
+		if (getPosition().direction.equals(Topology.DIRECTION_EAST))
 			return 1;
-		if (getPosition().direction.equals(Environment.DIRECTION_SOUTH))
+		if (getPosition().direction.equals(Topology.DIRECTION_SOUTH))
 			return 2;
-		if (getPosition().direction.equals(Environment.DIRECTION_WEST))
+		if (getPosition().direction.equals(Topology.DIRECTION_WEST))
 			return 3;
 		return 0;
 	}
@@ -424,13 +424,13 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	private void InitFacing() {
 		int f = simulation.getRandom().nextInt(4);
 		if (f == 0)
-			position = new LocationDirection(position, Environment.DIRECTION_NORTH);
+			position = new LocationDirection(position, Topology.DIRECTION_NORTH);
 		else if (f == 1)
-			position = new LocationDirection(position, Environment.DIRECTION_SOUTH);
+			position = new LocationDirection(position, Topology.DIRECTION_SOUTH);
 		else if (f == 2)
-			position = new LocationDirection(position, Environment.DIRECTION_EAST);
+			position = new LocationDirection(position, Topology.DIRECTION_EAST);
 		else
-			position = new LocationDirection(position, Environment.DIRECTION_WEST);
+			position = new LocationDirection(position, Topology.DIRECTION_WEST);
 	}
 
 	/**
@@ -704,7 +704,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	public void step() {
 		Agent adjAgent;
-		LocationDirection destPos = environment.getAdjacent(getPosition());
+		LocationDirection destPos = environment.topology.getAdjacent(getPosition());
 
 		if (canStep(destPos)) {
 
@@ -767,7 +767,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		}
 
 		if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
-			breedPos = new LocationDirection(getPosition(), Environment.DIRECTION_NONE);
+			breedPos = new LocationDirection(getPosition(), Topology.DIRECTION_NONE);
 		} else if (!pregnant) {
 			tryAsexBreed();
 		}
@@ -847,7 +847,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		double closeness = 1;
 
 		if (!target.equals(getPosition()))
-			closeness = 1 / environment.getDistance(target, this.getPosition());
+			closeness = 1 / environment.topology.getDistance(target, this.getPosition());
 
 		int o =(int)Math.round(closeness * ((1 << this.params.communicationBits) - 1));
 
@@ -935,7 +935,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		// Place the drop at an available location adjacent to the agent
 		for (int i = 0; i < dirList.length; i++) {
-			loc = environment.getAdjacent(getPosition(), dirList[i]);
+			loc = environment.topology.getAdjacent(getPosition(), dirList[i]);
 			if (loc != null && environment.getAgent(loc) == null
 					&& !environment.testFlag(loc, ComplexEnvironment.FLAG_STONE)
 					&& !environment.testFlag(loc, ComplexEnvironment.FLAG_DROP)
@@ -955,7 +955,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		 */
 		if (!added) {
 			for (int i = 0; i < dirList.length; i++) {
-				loc = environment.getAdjacent(getPosition(), dirList[i]);
+				loc = environment.topology.getAdjacent(getPosition(), dirList[i]);
 				if (loc != null
 						&& environment.getAgent(loc) == null
 						&& environment.testFlag(loc, ComplexEnvironment.FLAG_FOOD)) {
@@ -974,7 +974,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 * energy it took to turn.
 	 */
 	public void turnLeft() {
-		position = environment.getTurnLeftPosition(position);
+		position = environment.topology.getTurnLeftPosition(position);
 		energy -= params.turnLeftEnergy;
 		setWasteCounterLoss(getWasteCounterLoss() - params.turnLeftEnergy);
 		stats.addTurn(params.turnLeftEnergy);
@@ -987,7 +987,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 * to turn.
 	 */
 	public void turnRight() {
-		position = environment.getTurnRightPosition(position);
+		position = environment.topology.getTurnRightPosition(position);
 		energy -= params.turnRightEnergy;
 		setWasteCounterLoss(getWasteCounterLoss() - params.turnRightEnergy);
 		stats.addTurn(params.turnRightEnergy);

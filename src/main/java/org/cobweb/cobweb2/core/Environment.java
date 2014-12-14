@@ -34,28 +34,16 @@ public abstract class Environment {
 
 	protected SimulationInternals simulation;
 
+	public Topology topology;
+
 	public Environment(SimulationInternals simulation) {
 		this.simulation = simulation;
 	}
 
-	// Some predefined directions for 2D
-	public static final Direction DIRECTION_NORTH = new Direction(0, -1);
+	public void load(int width, int height, boolean wrap) {
+		topology = new Topology(simulation, width, height, wrap);
+	}
 
-	public static final Direction DIRECTION_SOUTH = new Direction(0, +1);
-
-	public static final Direction DIRECTION_WEST =  new Direction(-1, 0);
-
-	public static final Direction DIRECTION_EAST =  new Direction(+1, 0);
-
-	public static final Direction DIRECTION_NORTHEAST = new Direction(+1, -1);
-
-	public static final Direction DIRECTION_SOUTHEAST = new Direction(+1, +1);
-
-	public static final Direction DIRECTION_NORTHWEST = new Direction(-1, -1);
-
-	public static final Direction DIRECTION_SOUTHWEST = new Direction(-1, +1);
-
-	public static final Direction DIRECTION_NONE = new Direction(0, 0);
 
 	/**
 	 * The implementation uses a hash table to store agents, as we assume there
@@ -133,33 +121,11 @@ public abstract class Environment {
 
 	}
 
-	public boolean isValidLocation(Location l) {
-		return l.x >= 0 && l.x < getWidth()
-				&& l.y >= 0 && l.y < getHeight();
-	}
-
-	/**
-	 * @return Random location.
-	 */
-	public Location getRandomLocation() {
-		Location l;
-		do {
-			l = new Location(
-					simulation.getRandom().nextInt(getWidth()),
-					simulation.getRandom().nextInt(getHeight()));
-		} while (!isValidLocation(l));
-		return l;
-	}
-
-	public abstract int getWidth();
-
-	public abstract int getHeight();
-
 	public abstract EnvironmentStats getStatistics();
 
 	public Location getUserDefinedLocation(int x, int y) {
 		Location l = new Location(x, y);
-		if (!isValidLocation(l))
+		if (!topology.isValidLocation(l))
 			throw new IllegalArgumentException("Location not inside environment");
 
 		return l;
@@ -219,25 +185,5 @@ public abstract class Environment {
 	public abstract int getFood(int x, int y);
 
 	public abstract boolean hasStone(int x, int y);
-
-	public abstract LocationDirection getAdjacent(LocationDirection location);
-
-	public Location getAdjacent(Location location, Direction direction) {
-		return getAdjacent(new LocationDirection(location, direction));
-	}
-
-	public abstract double getDistanceSquared(Location from, Location to);
-
-	public double getDistance(Location from, Location to) {
-		return Math.sqrt(getDistanceSquared(from, to));
-	}
-
-	public LocationDirection getTurnRightPosition(LocationDirection location) {
-		return new LocationDirection(location, new Direction(-location.direction.y, location.direction.x));
-	}
-
-	public LocationDirection getTurnLeftPosition(LocationDirection location) {
-		return new LocationDirection(location, new Direction(location.direction.y, -location.direction.x));
-	}
 
 }

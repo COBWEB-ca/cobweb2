@@ -65,7 +65,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 
 	private float getDifAtLoc(Product source, Location loc2) {
 		float val = source.getValue();
-		val /= Math.max(1, simulation.getEnvironment().getDistanceSquared(source.getLocation(), loc2));
+		val /= Math.max(1, simulation.getEnvironment().topology.getDistanceSquared(source.getLocation(), loc2));
 		return val;
 	}
 
@@ -113,8 +113,8 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		@Override
 		public double getValue(ComplexAgent agent) {
 			Location here = agent.getPosition();
-			Location ahead = environment.getAdjacent(here, agent.getFacing());
-			if (ahead == null || !environment.isValidLocation(ahead)) {
+			Location ahead = environment.topology.getAdjacent(here, agent.getFacing());
+			if (ahead == null || !environment.topology.isValidLocation(ahead)) {
 				return 0;
 			}
 
@@ -316,9 +316,9 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		initialParams = productionParams;
 
 		if (vals == null || !keepOldProducts) {
-			vals = new float[environment.getWidth()][environment.getHeight()];
+			vals = new float[environment.topology.width][environment.topology.height];
 		} else {
-			vals = ArrayUtilities.resizeArray(vals, environment.getWidth(), environment.getHeight());
+			vals = ArrayUtilities.resizeArray(vals, environment.topology.width, environment.topology.height);
 		}
 	}
 

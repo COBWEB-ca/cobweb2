@@ -94,7 +94,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				&& !testFlag(l, ComplexEnvironment.FLAG_DROP)) {
 			int agentType = type;
 
-			spawnAgent(new LocationDirection(l, DIRECTION_NONE), agentType);
+			spawnAgent(new LocationDirection(l, Topology.DIRECTION_NONE), agentType);
 
 		}
 	}
@@ -156,8 +156,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	private void clearFlag(int flag) {
-		for (int x = 0; x < getWidth(); ++x) {
-			for (int y = 0; y < getHeight(); ++y) {
+		for (int x = 0; x < topology.width; ++x) {
+			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
 
 				if (testFlag(currentPos, flag)) {
@@ -239,8 +239,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	public long countFoodTiles() {
 		long foodCount = 0;
 
-		for (int x = 0; x < getWidth(); ++x) {
-			for (int y = 0; y < getHeight(); ++y) {
+		for (int x = 0; x < topology.width; ++x) {
+			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
 				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD))
 					++foodCount;
@@ -252,8 +252,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	/* Return foodCount (long) for a specific foodType (int) */
 	public int countFoodTiles(int foodType) {
 		int foodCount = 0;
-		for (int x = 0; x < getWidth(); ++x) {
-			for (int y = 0; y < getHeight(); ++y) {
+		for (int x = 0; x < topology.width; ++x) {
+			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
 				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD))
 					if (getFoodType(currentPos) == foodType)
@@ -273,8 +273,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		// and we destroy the food at the positions occupying the last N
 		// spots in our vector
 		LinkedList<Location> locations = new LinkedList<Location>();
-		for (int x = 0; x < getWidth(); ++x)
-			for (int y = 0; y < getHeight(); ++y) {
+		for (int x = 0; x < topology.width; ++x)
+			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
 				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
 					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
@@ -298,7 +298,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			int j = 0;
 			do {
 				++j;
-				l = getRandomLocation();
+				l = topology.getRandomLocation();
 
 			} while (j < DROP_ATTEMPTS_MAX
 					&& (testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_FOOD)
@@ -342,20 +342,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return stats;
 	}
 
-	@Override
-	public int getWidth() {
-		return data.width;
-	}
-
-	@Override
-	public int getHeight() {
-		return data.height;
-	}
-
 	private void growFood() {
 
-		for (int y = 0; y < getHeight(); ++y) {
-			for (int x = 0; x < getWidth(); ++x) {
+		for (int y = 0; y < topology.height; ++y) {
+			for (int x = 0; x < topology.width; ++x) {
 				Location currentPos = new Location(x, y);
 				// if there's a stone or already food, we simply copy the
 				// information from the old arrays to the new ones
@@ -366,8 +356,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		// create a new ArrayEnvironment and a new food type array
 		// loop through all positions
-		for (int y = 0; y < getHeight(); ++y) {
-			for (int x = 0; x < getWidth(); ++x) {
+		for (int y = 0; y < topology.height; ++y) {
+			for (int x = 0; x < topology.width; ++x) {
 				Location currentPos = new Location(x, y);
 				// if there's a stone or already food, we simply copy the
 				// information from the old arrays to the new ones
@@ -380,22 +370,22 @@ public class ComplexEnvironment extends Environment implements Updatable {
 					double foodCount = 0;
 					Arrays.fill(mostFood, 0);
 
-					Location checkPos = getAdjacent(currentPos, DIRECTION_NORTH);
+					Location checkPos = topology.getAdjacent(currentPos, Topology.DIRECTION_NORTH);
 					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
 						foodCount++;
 						mostFood[getFoodType(checkPos)]++;
 					}
-					checkPos = getAdjacent(currentPos, DIRECTION_SOUTH);
+					checkPos = topology.getAdjacent(currentPos, Topology.DIRECTION_SOUTH);
 					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
 						foodCount++;
 						mostFood[getFoodType(checkPos)]++;
 					}
-					checkPos = getAdjacent(currentPos, DIRECTION_EAST);
+					checkPos = topology.getAdjacent(currentPos, Topology.DIRECTION_EAST);
 					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
 						foodCount++;
 						mostFood[getFoodType(checkPos)]++;
 					}
-					checkPos = getAdjacent(currentPos, DIRECTION_WEST);
+					checkPos = topology.getAdjacent(currentPos, Topology.DIRECTION_WEST);
 					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
 						foodCount++;
 						mostFood[getFoodType(checkPos)]++;
@@ -463,16 +453,15 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * @param config The simulation  settings
 	 */
 	public synchronized void load(SimulationConfig config) throws IllegalArgumentException {
-
 		int oldH = data.height;
 		int oldW = data.width;
-
 		/**
 		 * the first parameter must be the number of agent types as we must
 		 * allocate space to store the parameter for each type
 		 */
 
 		copyParamsFromParser(config);
+		super.load(data.width, data.height, data.wrapMap);
 
 		/**
 		 * If the random seed is set to 0 in the data file, it means we use the
@@ -516,7 +505,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			Location l;
 			int tries = 0;
 			do {
-				l = getRandomLocation();
+				l = topology.getRandomLocation();
 			} while ((tries++ < 100)
 					&& ((testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_DROP))
 							&& getAgent(l) == null));
@@ -572,13 +561,13 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				Location location;
 				int tries = 0;
 				do {
-					location = getRandomLocation();
+					location = topology.getRandomLocation();
 				} while ((tries++ < 100) && ((getAgent(location) != null) // don't spawn on top of agents
 						|| testFlag(location, ComplexEnvironment.FLAG_STONE) // nor on stone tiles
 						|| testFlag(location, ComplexEnvironment.FLAG_DROP))); // nor on waste tiles
 				if (tries < 100) {
 					int agentType = i;
-					spawnAgent(new LocationDirection(location, DIRECTION_NONE), agentType);
+					spawnAgent(new LocationDirection(location, Topology.DIRECTION_NONE), agentType);
 				}
 			}
 		}
@@ -593,7 +582,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				Location l;
 				int tries = 0;
 				do {
-					l = getRandomLocation();
+					l = topology.getRandomLocation();
 				} while ((tries++ < 100)
 						&& (testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_DROP)));
 				if (tries < 100)
@@ -609,8 +598,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 */
 	private void loadNewWaste() {
 		dropArray = new Drop[data.width][data.height];
-		for (int x = 0; x < getWidth(); ++x) {
-			for (int y = 0; y < getHeight(); ++y) {
+		for (int x = 0; x < topology.width; ++x) {
+			for (int y = 0; y < topology.height; ++y) {
 				setFlag(new Location(x, y), FLAG_DROP, false);
 			}
 		}
@@ -628,8 +617,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		// Add in-bounds old agents to the new scheduler and update new
 		// constants
 		// TODO: a way to keep old parameters for old agents?
-		for (int x = 0; x < getWidth(); ++x) {
-			for (int y = 0; y < getHeight(); ++y) {
+		for (int x = 0; x < topology.width; ++x) {
+			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
 				ComplexAgent agent = (ComplexAgent) getAgent(currentPos);
 				if (agent != null) {
@@ -674,8 +663,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		// Add in-bounds old waste to the new scheduler and update new
 		// constants
-		for (int x = 0; x < getHeight(); ++x) {
-			for (int y = 0; y < getWidth(); ++y) {
+		for (int x = 0; x < topology.height; ++x) {
+			for (int y = 0; y < topology.width; ++y) {
 				Location currentPos = new Location(x, y);
 				if (getDrop(currentPos) != null) {
 					setFlag(currentPos, ComplexEnvironment.FLAG_FOOD, false);
@@ -868,8 +857,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 *
 	 */
 	private void updateWaste() {
-		for (int x = 0; x < getWidth(); x++) {
-			for (int y = 0; y < getHeight(); y++) {
+		for (int x = 0; x < topology.width; x++) {
+			for (int y = 0; y < topology.height; y++) {
 				Location l = new Location(x, y);
 				if (testFlag(l, ComplexEnvironment.FLAG_DROP) == false)
 					continue;
@@ -913,73 +902,4 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return data.prisDilemma;
 	}
 
-	@Override
-	public LocationDirection getAdjacent(LocationDirection location) {
-		Direction direction = location.direction;
-		int x = location.x + direction.x;
-		int y = location.y + direction.y;
-
-		if (data.wrapMap) {
-			x = (x + getWidth()) % getWidth();
-			boolean flip = false;
-			if (y < 0) {
-				y = -y - 1;
-				flip = true;
-			} else if (y >= getHeight()) {
-				y = getHeight() * 2 - y - 1;
-				flip = true;
-			}
-			if (flip) {
-				x = (x + getWidth() / 2) % getWidth();
-				direction = new Direction(-direction.x, -direction.y);
-			}
-		} else {
-			if ( x < 0 || x >= getWidth() || y < 0 || y >= getHeight())
-				return null;
-		}
-		return new LocationDirection(new Location(x, y), direction);
-	}
-
-	@Override
-	public double getDistanceSquared(Location from, Location to) {
-		double distance = Double.MAX_VALUE;
-
-		for(Location virtual : getWrapVirtualLocations(to)) {
-			double d = simpleDistanceSquared(from, virtual);
-			if (d < distance)
-				distance = d;
-		}
-
-		return distance;
-	}
-
-	private double simpleDistanceSquared(Location from, Location to) {
-		int deltaX = to.x - from.x;
-		int deltaY = to.y - from.y;
-		return deltaX * deltaX + deltaY * deltaY;
-	}
-
-	private List<Location> getWrapVirtualLocations(Location l) {
-		List<Location> result = new ArrayList<Location>(7);
-		result.add(l);
-
-		if (data.wrapMap) {
-			// wrap left
-			result.add(new Location(l.x - data.width, l.y));
-			// wrap right
-			result.add(new Location(l.x + data.width, l.y));
-
-			// wrap up left
-			result.add(new Location(l.x - data.width + data.width / 2, 2 * data.height - l.y - 1));
-			// wrap up right
-			result.add(new Location(l.x + data.width / 2,              2 * data.height - l.y - 1));
-
-			// wrap down left
-			result.add(new Location(l.x - data.width + data.width / 2, - l.y - 1));
-			// wrap down right
-			result.add(new Location(l.x + data.width / 2,              - l.y - 1));
-		}
-
-		return result;
-	}
 }

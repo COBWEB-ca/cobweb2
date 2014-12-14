@@ -114,6 +114,6 @@ public class BroadcastPacket {
 	}
 
 	public boolean isInRange(Location position) {
-		return environment.getDistance(this.location, position)< radius;
+		return environment.topology.getDistance(this.location, position) < radius;
 	}
 }

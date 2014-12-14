@@ -53,8 +53,8 @@ class DrawInfo {
 	 * array to the drawing info, and not keep any local references around.
 	 */
 	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents) {
-		width = sim.theEnvironment.getWidth();
-		height = sim.theEnvironment.getHeight();
+		width = sim.theEnvironment.topology.width;
+		height = sim.theEnvironment.topology.height;
 		tileColors = new Color[width * height];
 
 		int tileIndex = 0;

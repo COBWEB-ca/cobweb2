@@ -6,10 +6,10 @@ import java.util.List;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 
 //Food storage
@@ -146,7 +146,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	@Override
 	public void step() {
 		Agent adjAgent;
-		final LocationDirection destPos = environment.getAdjacent(getPosition());
+		final LocationDirection destPos = environment.topology.getAdjacent(getPosition());
 
 		if (canStep(destPos)) {
 
@@ -487,29 +487,29 @@ public class ComplexAgentLearning extends ComplexAgent {
 			if (oc.time - currTick >= 0) {
 				ComplexAgentLearning occTarget = oc.target;
 				Location loc2 = occTarget.getPosition();
-				if (environment.getDistance(loc,loc2) <= oc.detectableDistance
+				if (environment.topology.getDistance(loc,loc2) <= oc.detectableDistance
 						&& (lParams.learnFromDifferentOthers || occTarget.type() == type())) {
 					String desc = null;
 
-					if (getPosition().direction.equals(Environment.DIRECTION_EAST)) {
+					if (getPosition().direction.equals(Topology.DIRECTION_EAST)) {
 						if (loc2.y > loc.y) {
 							desc = "turnRight";
 						} else if (loc2.y != loc.y) {
 							desc = "turnLeft";
 						}
-					} else if (getPosition().direction.equals(Environment.DIRECTION_WEST)) {
+					} else if (getPosition().direction.equals(Topology.DIRECTION_WEST)) {
 						if (loc2.y > loc.y) {
 							desc = "turnLeft";
 						} else if (loc2.y != loc.y) {
 							desc = "turnRight";
 						}
-					} else if (getPosition().direction.equals(Environment.DIRECTION_NORTH)) {
+					} else if (getPosition().direction.equals(Topology.DIRECTION_NORTH)) {
 						if (loc2.x > loc.x) {
 							desc = "turnRight";
 						} else if (loc2.x != loc.x) {
 							desc = "turnLeft";
 						}
-					} else if (getPosition().direction.equals(Environment.DIRECTION_SOUTH)) {
+					} else if (getPosition().direction.equals(Topology.DIRECTION_SOUTH)) {
 						if (loc2.x > loc.x) {
 							desc = "turnLeft";
 						} else if (loc2.x != loc.x) {
