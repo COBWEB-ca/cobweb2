@@ -65,7 +65,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 
 	private float getDifAtLoc(Product source, Location loc2) {
 		float val = source.getValue();
-		val /= Math.max(1, source.getLocation().distanceSquared(loc2));
+		val /= Math.max(1, simulation.getEnvironment().getDistanceSquared(source.getLocation(), loc2));
 		return val;
 	}
 

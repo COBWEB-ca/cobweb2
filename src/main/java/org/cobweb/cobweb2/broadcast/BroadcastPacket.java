@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2.broadcast;
 
+import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 
 public class BroadcastPacket {
@@ -33,14 +34,17 @@ public class BroadcastPacket {
 
 	private final Location location;
 
+	private Environment environment;
+
 	/**
 	 * Constructor
-	 * 
-	 * 
+	 *
+	 *
 	 */
-	public BroadcastPacket(int type, long dispatcherId, String content, int energy, boolean energyBased, int fixedRange, Location location) {
+	public BroadcastPacket(int type, long dispatcherId, String content, int energy, boolean energyBased, int fixedRange, Location location, Environment env) {
 
 		this.location = location;
+		this.environment = env;
 		this.packetId = ++packetCounter;
 		this.type = type;
 		this.dispatcherId = dispatcherId;
@@ -110,8 +114,6 @@ public class BroadcastPacket {
 	}
 
 	public boolean isInRange(Location position) {
-		// Note: the old calculation used to be deltaX < radius && deltaY < radius
-		// Changing on an assumption that nobody actually used broadcasting before
-		return this.location.distance(position) < radius;
+		return environment.getDistance(this.location, position)< radius;
 	}
 }

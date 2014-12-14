@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 
-import org.cobweb.cobweb2.SimulationConfig;
-
 /**
  * The Environment class represents the simulation world; a collection of
  * locations with state, each of which may contain an agent.
@@ -221,4 +219,25 @@ public abstract class Environment {
 	public abstract int getFood(int x, int y);
 
 	public abstract boolean hasStone(int x, int y);
+
+	public abstract LocationDirection getAdjacent(LocationDirection location);
+
+	public Location getAdjacent(Location location, Direction direction) {
+		return getAdjacent(new LocationDirection(location, direction));
+	}
+
+	public abstract double getDistanceSquared(Location from, Location to);
+
+	public double getDistance(Location from, Location to) {
+		return Math.sqrt(getDistanceSquared(from, to));
+	}
+
+	public LocationDirection getTurnRightPosition(LocationDirection location) {
+		return new LocationDirection(location, new Direction(-location.direction.y, location.direction.x));
+	}
+
+	public LocationDirection getTurnLeftPosition(LocationDirection location) {
+		return new LocationDirection(location, new Direction(location.direction.y, -location.direction.x));
+	}
+
 }

@@ -913,6 +913,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return data.prisDilemma;
 	}
 
+	@Override
 	public LocationDirection getAdjacent(LocationDirection location) {
 		Direction direction = location.direction;
 		int x = location.x + direction.x;
@@ -939,16 +940,46 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return new LocationDirection(new Location(x, y), direction);
 	}
 
-	public Location getAdjacent(Location location, Direction direction) {
-		return getAdjacent(new LocationDirection(location, direction));
+	@Override
+	public double getDistanceSquared(Location from, Location to) {
+		double distance = Double.MAX_VALUE;
+
+		for(Location virtual : getWrapVirtualLocations(to)) {
+			double d = simpleDistanceSquared(from, virtual);
+			if (d < distance)
+				distance = d;
+		}
+
+		return distance;
 	}
 
-	public LocationDirection getTurnRightPosition(LocationDirection location) {
-		return new LocationDirection(location, new Direction(-location.direction.y, location.direction.x));
+	private double simpleDistanceSquared(Location from, Location to) {
+		int deltaX = to.x - from.x;
+		int deltaY = to.y - from.y;
+		return deltaX * deltaX + deltaY * deltaY;
 	}
 
-	public LocationDirection getTurnLeftPosition(LocationDirection location) {
-		return new LocationDirection(location, new Direction(location.direction.y, -location.direction.x));
-	}
+	private List<Location> getWrapVirtualLocations(Location l) {
+		List<Location> result = new ArrayList<Location>(7);
+		result.add(l);
 
+		if (data.wrapMap) {
+			// wrap left
+			result.add(new Location(l.x - data.width, l.y));
+			// wrap right
+			result.add(new Location(l.x + data.width, l.y));
+
+			// wrap up left
+			result.add(new Location(l.x - data.width + data.width / 2, 2 * data.height - l.y - 1));
+			// wrap up right
+			result.add(new Location(l.x + data.width / 2,              2 * data.height - l.y - 1));
+
+			// wrap down left
+			result.add(new Location(l.x - data.width + data.width / 2, - l.y - 1));
+			// wrap down right
+			result.add(new Location(l.x + data.width / 2,              - l.y - 1));
+		}
+
+		return result;
+	}
 }

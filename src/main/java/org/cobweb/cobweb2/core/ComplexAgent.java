@@ -166,7 +166,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	void broadcastCheating(long cheaterID) { // []SK
 		String message = Long.toString(cheaterID);
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, id, message, energy
-				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
+				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
 		environment.commManager.addPacketToList(msg);
 		// new CommPacket sent
 		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
@@ -181,7 +181,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	protected void broadcastFood(Location loc) { // []SK
 		String message = loc.toString();
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, id, message, energy
-				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition());
+				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
 		environment.commManager.addPacketToList(msg);
 		// new CommPacket sent
 		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
@@ -847,7 +847,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		double closeness = 1;
 
 		if (!target.equals(getPosition()))
-			closeness = 1 / target.distance(this.getPosition());
+			closeness = 1 / environment.getDistance(target, this.getPosition());
 
 		int o =(int)Math.round(closeness * ((1 << this.params.communicationBits) - 1));
 

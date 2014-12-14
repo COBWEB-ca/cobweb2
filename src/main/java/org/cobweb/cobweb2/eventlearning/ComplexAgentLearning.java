@@ -487,7 +487,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			if (oc.time - currTick >= 0) {
 				ComplexAgentLearning occTarget = oc.target;
 				Location loc2 = occTarget.getPosition();
-				if (loc.distance(loc2) <= oc.detectableDistance
+				if (environment.getDistance(loc,loc2) <= oc.detectableDistance
 						&& (lParams.learnFromDifferentOthers || occTarget.type() == type())) {
 					String desc = null;
 
