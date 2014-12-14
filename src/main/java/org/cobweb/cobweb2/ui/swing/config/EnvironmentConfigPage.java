@@ -94,7 +94,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		oldAgentNum = params.agentTypeCount;
 
 		LabeledJFormattedTextField AgentNum = new LabeledJFormattedTextField(params, "agentTypeCount", NumberFormat.getIntegerInstance());
-		AgentNum.setValue(theParams.agentTypeCount);
+		AgentNum.setValue(new Integer(theParams.agentTypeCount));
 		AgentNum.addPropertyChangeListener("value", new PropertyChangeListener() {
 
 			@Override
@@ -257,7 +257,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		return thePanel;
 	}
 
-	private void makeOptionsTable(JPanel fieldPane, int items) {
+	private static void makeOptionsTable(JPanel fieldPane, int items) {
 		fieldPane.setLayout(new SpringLayout());
 		SpringUtilities.makeCompactGrid(fieldPane, items, 2, 0, 0, 16, 0, 50, 0);
 	}

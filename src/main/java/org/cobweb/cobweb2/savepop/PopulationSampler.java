@@ -63,24 +63,9 @@ public class PopulationSampler {
 				break;
 			Node node = makeNode((ComplexAgent) agent, d);
 
-			Element locationElement = d.createElement("location");
-
-			{
-				Location location = agent.getPosition();
-				Element coordinateElement = d.createElement("x");
-				coordinateElement.appendChild(d.createTextNode(location.x +""));
-				locationElement.appendChild(coordinateElement);
-
-				coordinateElement = d.createElement("y");
-				coordinateElement.appendChild(d.createTextNode(location.y +""));
-				locationElement.appendChild(coordinateElement);
-			}
-
-			node.appendChild(locationElement);
-
 			root.appendChild(node);
-			currentPopCount++;
 
+			currentPopCount++;
 		}
 
 		d.appendChild(root);
@@ -97,6 +82,7 @@ public class PopulationSampler {
 			FileOutputStream stream = new FileOutputStream(popName);
 			Result r = new StreamResult(stream);
 			t.transform(s, r);
+			stream.close();
 		} catch (Exception ex) {
 			throw new RuntimeException("Couldn't save population", ex);
 		}
@@ -106,11 +92,6 @@ public class PopulationSampler {
 	public static Node makeNode(ComplexAgent a, Document d) {
 
 		Node agent = d.createElement("Agent");
-
-		Element agentTypeElement = d.createElement("agentType");
-		agentTypeElement.appendChild(d.createTextNode(a.getAgentType() +""));
-		agent.appendChild(agentTypeElement);
-
 
 		Element doCheatElement = d.createElement("doCheat");
 		doCheatElement.appendChild(d.createTextNode(a.pdCheater +""));
@@ -122,20 +103,23 @@ public class PopulationSampler {
 
 		agent.appendChild(paramsElement);
 
-		Element directionElement = d.createElement("direction");
-
 		{
-			Direction location = a.getPosition().direction;
-			Element coordinateElement = d.createElement("x");
-			coordinateElement.appendChild(d.createTextNode(location.x +""));
-			directionElement.appendChild(coordinateElement);
-
-			coordinateElement = d.createElement("y");
-			coordinateElement.appendChild(d.createTextNode(location.y +""));
-			directionElement.appendChild(coordinateElement);
+			Element locationElement = d.createElement("location");
+			Location location = a.getPosition();
+			locationElement.setAttribute("x", location.x + "");
+			locationElement.setAttribute("y", location.y + "");
+			agent.appendChild(locationElement);
 		}
 
-		agent.appendChild(directionElement);
+		{
+			Element directionElement = d.createElement("direction");
+			Direction direction = a.getPosition().direction;
+			directionElement.setAttribute("x", direction.x + "");
+			directionElement.setAttribute("y", direction.y + "");
+			agent.appendChild(directionElement);
+		}
+
+		// FIXME plugin params: production, disease, etc
 
 		return agent;
 	}
@@ -157,10 +141,10 @@ public class PopulationSampler {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			factory.setIgnoringElementContentWhitespace(true);
 			factory.setIgnoringComments(true);
-			// factory.setValidating(true);
 
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document document = builder.parse(file);
+			file.close();
 
 			NodeList agents = document.getElementsByTagName("Agent");
 
@@ -173,51 +157,29 @@ public class PopulationSampler {
 				NodeList paramsElement = element.getElementsByTagName("params");
 				Element paramNode = (Element) paramsElement.item(0);
 
-
-				//NodeList prodParamsElement = element.getElementsByTagName("prodParams");
-				//Element prodParamNode = (Element) prodParamsElement.item(0);
-
-				NodeList agentTypeElement = element.getElementsByTagName("agentType");
 				NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
 
-				NodeList directionElement = element.getElementsByTagName("direction");
-				Element direction = (Element) directionElement.item(0);
-				NodeList coordinates = direction.getElementsByTagName("coordinate");
+				Element location = (Element)element.getElementsByTagName("location").item(0);
+				Location loc = new Location(
+						Integer.parseInt(location.getAttribute("x")),
+						Integer.parseInt(location.getAttribute("y")));
 
-				NodeList locationElement = element.getElementsByTagName("location");
-				Element location = (Element) locationElement.item(0);
-				NodeList axisPos = location.getElementsByTagName("axisPos");
-
-				// location
-				int [] axis = new int [axisPos.getLength()];
-				for (int j = 0 ; j < axisPos.getLength(); j++) {
-					axis[j] = Integer.parseInt(axisPos.item(j).getChildNodes().item(0).getNodeValue());
-				}
-
-				Location loc = sim.theEnvironment.getLocation(axis[0], axis[1]);
-
-				// direction
-				int [] coords = new int [coordinates.getLength()];
-				for (int j = 0 ; j < coordinates.getLength(); j++) {
-					coords[j] = Integer.parseInt(coordinates.item(j).getChildNodes().item(0).getNodeValue());
-				}
-				Direction facing = new Direction(coords[0], coords[1]);
+				Element direction = (Element)element.getElementsByTagName("direction").item(0);
+				Direction facing = new Direction(
+						Integer.parseInt(direction.getAttribute("x")),
+						Integer.parseInt(direction.getAttribute("y")));
 
 				LocationDirection locDir = new LocationDirection(loc, facing);
 
-				// parameters
 				params.loadConfig(paramNode);
-				//prodParams.loadConfig(prodParamNode);
-
-				// agentType
-				int agentType = Integer.parseInt(agentTypeElement.item(0).getChildNodes().item(0).getNodeValue());
 
 				// doCheat
 				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
 
+				// FIXME plugin params: production, disease, etc
 
 				ComplexAgent cAgent = sim.newAgent();
-				cAgent.init(sim.theEnvironment, agentType, locDir, params);
+				cAgent.init(sim.theEnvironment, locDir, params);
 				cAgent.pdCheater = pdCheater;
 				sim.theEnvironment.setAgent(loc, cAgent);
 			}

@@ -46,7 +46,7 @@ public class BroadcastPacket {
 		this.dispatcherId = dispatcherId;
 		this.content = content; // could be a message or an enumerated type
 		// depending on the type
-		if (!energyBased)
+		if (energyBased)
 			this.radius = getRadius(energy);
 		else
 			this.radius = fixedRange;
@@ -76,7 +76,7 @@ public class BroadcastPacket {
 		return radius;
 	}
 
-	private int getRadius(int energy) {
+	private static int getRadius(int energy) {
 		return energy / 10 + 1; // limiting minimum to 1 unit of
 		// radius
 	}

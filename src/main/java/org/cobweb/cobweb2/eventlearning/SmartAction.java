@@ -15,7 +15,7 @@ public abstract class SmartAction implements Queueable {
 
 	/**
 	 * Create a new action with no information other than a description
-	 * 
+	 *
 	 * @param agent the target agent
 	 * @param desc a String to describe the action
 	 */
@@ -92,7 +92,7 @@ public abstract class SmartAction implements Queueable {
 	/**
 	 * The action that the agent is questioning whether or not to perform
 	 */
-	public abstract void desiredAction(ComplexAgentLearning agent);
+	protected abstract void desiredAction();
 
 	/**
 	 * What to do if the wantedAction() is undesireable. By default, cancels
@@ -109,14 +109,14 @@ public abstract class SmartAction implements Queueable {
 	/**
 	 * Performs desiredAction if it is a desireable thing to do. This is the
 	 * method called by the agent.
-	 * 
+	 *
 	 * desiredAction() will always be called if ignoreLearning = true.
 	 */
 	@Override
 	public final void happen() {
 
 		if (!agent.lParams.shouldLearn || actionIsDesireable()) {
-			desiredAction(getAgent());
+			desiredAction();
 			if (!agent.lParams.shouldLearn || irrelevantIfActionPerformed()) {
 				isIrrelevant = true;
 			}

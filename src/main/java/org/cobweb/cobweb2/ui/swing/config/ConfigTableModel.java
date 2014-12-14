@@ -134,7 +134,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		public Object getValue(CobwebParam param) {
 			Object value = null;
 			try {
-				value = Array.get(this.field.get(param), this.index);
+				value = Array.get(this.field.get(param), index);
 			} catch (IllegalAccessException ex) {
 				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
 			}
@@ -145,7 +145,6 @@ public class ConfigTableModel extends AbstractTableModel {
 		public void setValue(CobwebParam cobwebParam, Object value) {
 			try {
 				Object array = field.get(cobwebParam);
-				int index = this.index;
 				fromBoxedToElement(array, index, value);
 			} catch (IllegalAccessException ex) {
 				throw new IllegalArgumentException("Tagged field is not public: " + field.getName(), ex);

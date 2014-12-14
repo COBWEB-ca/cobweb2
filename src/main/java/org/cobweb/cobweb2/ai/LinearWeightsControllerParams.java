@@ -4,14 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
-import org.cobweb.cobweb2.io.CobwebParam;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class LinearWeightsControllerParams implements CobwebParam, ControllerParams {
+public class LinearWeightsControllerParams implements ControllerParams {
 
 	private static final long serialVersionUID = 8856565519749448009L;
 

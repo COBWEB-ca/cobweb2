@@ -24,7 +24,7 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 	@Override
 	protected void spawnAgent(LocationDirection location, int agentType) {
 		ComplexAgentLearning child = (ComplexAgentLearning)simulation.newAgent();
-		child.init(this, agentType, location, (ComplexAgentParams) agentData[agentType].clone(),
+		child.init(this, location, (ComplexAgentParams) agentData[agentType].clone(),
 				(LearningAgentParams)learningData[agentType].clone()); // Default
 	}
 }

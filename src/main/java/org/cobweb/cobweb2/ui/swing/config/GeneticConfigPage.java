@@ -176,10 +176,8 @@ public class GeneticConfigPage implements ConfigPage {
 		JPanel ga_combined_panel = new JPanel(new BorderLayout());
 
 		JPanel meiosis_mode_panel = makeMeiosisConfig();
-		JPanel updateConfig = makeUpdateConfig();
 
 		ga_combined_panel.add(meiosis_mode_panel, BorderLayout.NORTH);
-		ga_combined_panel.add(updateConfig, BorderLayout.SOUTH);
 		Util.makeGroupPanel(ga_combined_panel, "Tracking");
 
 		JPanel gene_info_display = new JPanel();
@@ -255,11 +253,6 @@ public class GeneticConfigPage implements ConfigPage {
 		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
 		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);
 		return meiosis_mode_panel;
-	}
-
-	private JPanel makeUpdateConfig() {
-		JPanel gene_check_boxes = new JPanel(new BorderLayout());
-		return gene_check_boxes;
 	}
 
 	private ListManipulator<Phenotype> phenosAvailable;

@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -95,6 +96,11 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 		InputStream datafile = getClass().getResourceAsStream("/experiments/" + experiments.get(expName));
 
 		SimulationConfig parser = new SimulationConfig(datafile);
+		try {
+			datafile.close();
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
 		Simulation simulation = new Simulation();
 		simulation.load(parser);
 		simRunner = new ThreadSimulationRunner(simulation);

@@ -187,25 +187,25 @@ public class SimulationConfigEditor {
 			}
 		});
 
-		JButton ok = new JButton("OK");
-		ok.setMaximumSize(new Dimension(80, 20));
-		ok.addActionListener(new OkButtonListener());
+		JButton okButton = new JButton("OK");
+		okButton.setMaximumSize(new Dimension(80, 20));
+		okButton.addActionListener(new OkButtonListener());
 
-		JButton save = new JButton("Save As...");
-		save.setMaximumSize(new Dimension(80, 20));
-		save.addActionListener(new SaveAsButtonListener());
+		JButton saveButton = new JButton("Save As...");
+		saveButton.setMaximumSize(new Dimension(80, 20));
+		saveButton.addActionListener(new SaveAsButtonListener());
 
 		JPanel buttons = new JPanel();
 		buttons.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		buttons.add(save);
-		buttons.add(ok);
+		buttons.add(saveButton);
+		buttons.add(okButton);
 
 		// Add the tabbed pane to this panel.
 		j.add(tabbedPane, BorderLayout.CENTER);
 		j.add(buttons, BorderLayout.SOUTH);
 		j.setPreferredSize(new Dimension(750, 513));
 
-		dialog.getRootPane().setDefaultButton(ok);
+		dialog.getRootPane().setDefaultButton(okButton);
 		dialog.add(j);
 		dialog.pack();
 		File filePath;
@@ -245,9 +245,12 @@ public class SimulationConfigEditor {
 							"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.", "Warning",
 							JOptionPane.WARNING_MESSAGE);
 				} else {
-					p.write(new FileOutputStream(theDialog.getDirectory() + theDialog.getFile()));
+					FileOutputStream configStream = new FileOutputStream(theDialog.getDirectory() + theDialog.getFile());
+					p.write(configStream);
+					configStream.close();
 
 					p = new SimulationConfig(theDialog.getDirectory() + theDialog.getFile());
+
 					return true;
 				}
 			} catch (IOException ex) {

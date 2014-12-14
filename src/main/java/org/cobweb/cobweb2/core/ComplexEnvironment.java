@@ -101,7 +101,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	protected void spawnAgent(LocationDirection location, int agentType) {
 		ComplexAgent child = simulation.newAgent();
-		child.init(this, agentType, location, (ComplexAgentParams) agentData[agentType].clone());
+		child.init(this, location, (ComplexAgentParams) agentData[agentType].clone());
 	}
 
 	ComplexAgentStatistics addAgentInfo(ComplexAgentStatistics info) {
@@ -158,7 +158,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	private void clearFlag(int flag) {
 		for (int x = 0; x < getWidth(); ++x) {
 			for (int y = 0; y < getHeight(); ++y) {
-				Location currentPos = getLocation(x, y);
+				Location currentPos = new Location(x, y);
 
 				if (testFlag(currentPos, flag)) {
 					setFlag(currentPos, flag, false);
@@ -241,7 +241,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		for (int x = 0; x < getWidth(); ++x) {
 			for (int y = 0; y < getHeight(); ++y) {
-				Location currentPos = getLocation(x, y);
+				Location currentPos = new Location(x, y);
 				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD))
 					++foodCount;
 			}
@@ -254,7 +254,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		int foodCount = 0;
 		for (int x = 0; x < getWidth(); ++x) {
 			for (int y = 0; y < getHeight(); ++y) {
-				Location currentPos = getLocation(x, y);
+				Location currentPos = new Location(x, y);
 				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD))
 					if (getFoodType(currentPos) == foodType)
 						++foodCount;
@@ -275,7 +275,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		LinkedList<Location> locations = new LinkedList<Location>();
 		for (int x = 0; x < getWidth(); ++x)
 			for (int y = 0; y < getHeight(); ++y) {
-				Location currentPos = getLocation(x, y);
+				Location currentPos = new Location(x, y);
 				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
 					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
 			}
@@ -356,7 +356,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		for (int y = 0; y < getHeight(); ++y) {
 			for (int x = 0; x < getWidth(); ++x) {
-				Location currentPos = getLocation(x, y);
+				Location currentPos = new Location(x, y);
 				// if there's a stone or already food, we simply copy the
 				// information from the old arrays to the new ones
 				backArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
@@ -368,7 +368,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		// loop through all positions
 		for (int y = 0; y < getHeight(); ++y) {
 			for (int x = 0; x < getWidth(); ++x) {
-				Location currentPos = getLocation(x, y);
+				Location currentPos = new Location(x, y);
 				// if there's a stone or already food, we simply copy the
 				// information from the old arrays to the new ones
 				if ((array.getLocationBits(currentPos) & MASK_TYPE) == 0) {
@@ -462,9 +462,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 *
 	 * @param config The simulation  settings
 	 */
-	@Override
 	public synchronized void load(SimulationConfig config) throws IllegalArgumentException {
-		super.load(config);
 
 		int oldH = data.height;
 		int oldW = data.width;
@@ -613,7 +611,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		dropArray = new Drop[data.width][data.height];
 		for (int x = 0; x < getWidth(); ++x) {
 			for (int y = 0; y < getHeight(); ++y) {
-				setFlag(getLocation(x, y), FLAG_DROP, false);
+				setFlag(new Location(x, y), FLAG_DROP, false);
 			}
 		}
 	}
@@ -632,7 +630,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		// TODO: a way to keep old parameters for old agents?
 		for (int x = 0; x < getWidth(); ++x) {
 			for (int y = 0; y < getHeight(); ++y) {
-				Location currentPos = getLocation(x, y);
+				Location currentPos = new Location(x, y);
 				ComplexAgent agent = (ComplexAgent) getAgent(currentPos);
 				if (agent != null) {
 					int theType = agent.getAgentType();
@@ -678,7 +676,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		// constants
 		for (int x = 0; x < getHeight(); ++x) {
 			for (int y = 0; y < getWidth(); ++y) {
-				Location currentPos = getLocation(x, y);
+				Location currentPos = new Location(x, y);
 				if (getDrop(currentPos) != null) {
 					setFlag(currentPos, ComplexEnvironment.FLAG_FOOD, false);
 					setFlag(currentPos, ComplexEnvironment.FLAG_STONE, false);
@@ -729,7 +727,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	public synchronized void removeAgent(int x, int y) {
 		super.removeAgent(x, y);
 
-		Location l = getLocation(x, y);
+		Location l = new Location(x, y);
 		Agent a = getAgent(l);
 		if (a != null)
 			a.die();
@@ -738,14 +736,14 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public synchronized void removeFood(int x, int y) {
 		super.removeFood(x, y);
-		Location l = getLocation(x, y);
+		Location l = new Location(x, y);
 		setFlag(l, FLAG_FOOD, false);
 	}
 
 	@Override
 	public synchronized void removeStone(int x, int y) {
 		super.removeStone(x, y);
-		Location l = getLocation(x, y);
+		Location l = new Location(x, y);
 		setFlag(l, FLAG_STONE, false);
 	}
 
@@ -872,7 +870,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	private void updateWaste() {
 		for (int x = 0; x < getWidth(); x++) {
 			for (int y = 0; y < getHeight(); y++) {
-				Location l = getLocation(x, y);
+				Location l = new Location(x, y);
 				if (testFlag(l, ComplexEnvironment.FLAG_DROP) == false)
 					continue;
 				Drop d = getDrop(l);

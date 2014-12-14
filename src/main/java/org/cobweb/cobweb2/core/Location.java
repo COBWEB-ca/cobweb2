@@ -71,7 +71,7 @@ public class Location implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("(%d,%d)", x, y);
+		return "(" + x + "," + y + ")";
 	}
 
 	private static final long serialVersionUID = 2L;

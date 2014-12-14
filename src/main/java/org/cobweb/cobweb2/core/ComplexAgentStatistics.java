@@ -159,10 +159,12 @@ public class ComplexAgentStatistics implements Serializable {
 
 	public void useAgentBumpEnergy(int val) {
 		countAgentBumps++;
+		energyLossMovement += val;
 	}
 
 	public void useRockBumpEnergy(int val) {
 		countRockBumps++;
+		energyLossMovement += val;
 	}
 
 	public void useStepEnergy(int val) {

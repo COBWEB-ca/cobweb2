@@ -43,7 +43,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		float newMax = 0;
 		for (int x = 0; x < vals.length; x++) {
 			for (int y = 0; y < vals[x].length; y++) {
-				float value = getDifAtLoc(p, environment.getLocation(x, y));
+				float value = getDifAtLoc(p, new Location(x, y));
 				vals[x][y] += addition ? value : - value;
 
 				if (vals[x][y] < 0) {
@@ -91,7 +91,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	}
 
 	public float getValueAtLocation(int x, int y) {
-		Location loc = environment.getLocation(x, y);
+		Location loc = new Location(x, y);
 		return getValueAtLocation(loc);
 	}
 

@@ -12,7 +12,7 @@ public class Versionator {
 			return version;
 
 		// Try JAR file first
-		String version = Versionator.class.getPackage().getImplementationVersion();
+		version = Versionator.class.getPackage().getImplementationVersion();
 
 		if (version == null) {
 			// Else look in the version text file

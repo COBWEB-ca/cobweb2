@@ -108,7 +108,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	@Override
 	public void eat(Location destPos) {
-		if (environment.getFoodType(destPos) == agentType) {
+		if (environment.getFoodType(destPos) == params.type) {
 			// Eating food is ideal!!
 			remember(new MemorableEvent(currTick, lParams.foodPleasure, "food"));
 		} else {
@@ -157,7 +157,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				queue(new SmartAction(this, "broadcast") {
 
 					@Override
-					public void desiredAction(ComplexAgentLearning agent) {
+					public void desiredAction() {
 						if (params.broadcastMode & canBroadcast()) {
 							agent.broadcastFood(destPos);
 
@@ -174,7 +174,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					queue(new SmartAction(this, "food") {
 
 						@Override
-						public void desiredAction(ComplexAgentLearning agent) {
+						public void desiredAction() {
 							agent.eat(destPos);
 						}
 
@@ -191,7 +191,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 						queue(new SmartAction(this, "asexBreed") {
 
 							@Override
-							public void desiredAction(ComplexAgentLearning agent) {
+							public void desiredAction() {
 								agent.tryAsexBreed();
 							}
 
@@ -212,7 +212,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			queue(new SmartAction(this, "move-" + destPos.toString()) {
 
 				@Override
-				public void desiredAction(ComplexAgentLearning agent) {
+				public void desiredAction() {
 					agent.move(destPos);
 				}
 			});
@@ -299,7 +299,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				queue(new SmartAction(this, "agent-" + adjacentAgent.id) {
 
 					@Override
-					public void desiredAction(ComplexAgentLearning agent) {
+					public void desiredAction() {
 						agent.eat(adjacentAgent);
 					}
 
@@ -322,7 +322,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 			// if the agents are of the same type, check if they have enough
 			// resources to breed
-			if (adjacentAgent.agentType == agentType) {
+			if (adjacentAgent.params.type == params.type) {
 
 				double sim = 0.0;
 				boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
@@ -336,7 +336,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					queue(new SmartAction(this, "communicate") {
 
 						@Override
-						public void desiredAction(ComplexAgentLearning agent) {
+						public void desiredAction() {
 							agent.communicate(adjacentAgent);
 						}
 					});
@@ -348,7 +348,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					queue(new SmartAction(this, "breed") {
 
 						@Override
-						public void desiredAction(ComplexAgentLearning agent) {
+						public void desiredAction() {
 							agent.pregnant = true;
 							agent.pregPeriod = agent.params.sexualPregnancyPeriod;
 							agent.breedPartner = adjacentAgent;
@@ -363,7 +363,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				queue(new SmartAction(this) {
 
 					@Override
-					public void desiredAction(ComplexAgentLearning agent) {
+					public void desiredAction() {
 						agent.playPDonStep(adjacentAgent, adjacentAgent.id);
 					}
 				});
@@ -411,7 +411,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			queue(new SmartAction(this) {
 
 				@Override
-				public void desiredAction(ComplexAgentLearning agent) {
+				public void desiredAction() {
 					agent.die();
 				}
 			});
@@ -420,7 +420,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			queue(new SmartAction(this) {
 
 				@Override
-				public void desiredAction(ComplexAgentLearning agent) {
+				public void desiredAction() {
 					agent.pregnant = false;
 					agent.breedPartner = null;
 				}
@@ -440,9 +440,9 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 	}
 
-	public void init(ComplexEnvironment env, int agentType, LocationDirection pos, ComplexAgentParams agentData,
+	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentParams agentData,
 			LearningAgentParams lAgentData) {
-		super.init(env, agentType, pos, agentData);
+		super.init(env, pos, agentData);
 
 		lParams = lAgentData;
 	}
@@ -564,7 +564,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 		queue(new SmartAction(this, "turnLeft") {
 			@Override
-			public void desiredAction(ComplexAgentLearning agent) {
+			public void desiredAction() {
 				ComplexAgentLearning.super.turnLeft();
 			}
 
@@ -603,7 +603,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		// Queue an action instead of executing it directly
 		queue(new SmartAction(this, "turnRight") {
 			@Override
-			public void desiredAction(ComplexAgentLearning agent) {
+			public void desiredAction() {
 				ComplexAgentLearning.super.turnRight();
 			}
 

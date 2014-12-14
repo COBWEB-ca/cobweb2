@@ -113,7 +113,7 @@ public class DiseaseParams extends AbstractReflectionParams {
 
 	}
 
-	public void resize(AgentFoodCountable envParams) {
+	public void resize() {
 		boolean[] n = Arrays.copyOf(transmitTo, env.getAgentTypes());
 		this.transmitTo = n;
 	}

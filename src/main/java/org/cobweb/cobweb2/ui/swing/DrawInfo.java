@@ -60,7 +60,7 @@ class DrawInfo {
 		int tileIndex = 0;
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				Location currentPos = sim.theEnvironment.getLocation(x, y);
+				Location currentPos = new Location(x, y);
 
 				if (sim.theEnvironment.testFlag(currentPos, ComplexEnvironment.FLAG_STONE))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
@@ -86,7 +86,7 @@ class DrawInfo {
 
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				Location currentPos = sim.theEnvironment.getLocation(x, y);
+				Location currentPos = new Location(x, y);
 				if (sim.theEnvironment.testFlag(currentPos, ComplexEnvironment.FLAG_DROP)){
 					drops.add(new DropDrawInfo(new Point2D(x, y), sim.theEnvironment.getDrop(currentPos)));
 				}

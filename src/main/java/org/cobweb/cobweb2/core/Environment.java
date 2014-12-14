@@ -36,8 +36,6 @@ public abstract class Environment {
 
 	protected SimulationInternals simulation;
 
-	protected int width, height;
-
 	public Environment(SimulationInternals simulation) {
 		this.simulation = simulation;
 	}
@@ -137,11 +135,6 @@ public abstract class Environment {
 
 	}
 
-	// Syntactic sugar for common cases
-	public Location getLocation(int x, int y) {
-		return new Location(x, y);
-	}
-
 	public boolean isValidLocation(Location l) {
 		return l.x >= 0 && l.x < getWidth()
 				&& l.y >= 0 && l.y < getHeight();
@@ -153,34 +146,25 @@ public abstract class Environment {
 	public Location getRandomLocation() {
 		Location l;
 		do {
-			l = getLocation(
+			l = new Location(
 					simulation.getRandom().nextInt(getWidth()),
 					simulation.getRandom().nextInt(getHeight()));
 		} while (!isValidLocation(l));
 		return l;
 	}
 
-	public int getWidth() {
-		return width;
-	}
+	public abstract int getWidth();
 
-	public int getHeight() {
-		return height;
-	}
+	public abstract int getHeight();
 
 	public abstract EnvironmentStats getStatistics();
 
 	public Location getUserDefinedLocation(int x, int y) {
-		Location l;
-		l = getLocation(x, y);
+		Location l = new Location(x, y);
 		if (!isValidLocation(l))
 			throw new IllegalArgumentException("Location not inside environment");
 
 		return l;
-	}
-
-	public void load(SimulationConfig config) {
-		// nothing
 	}
 
 	/**

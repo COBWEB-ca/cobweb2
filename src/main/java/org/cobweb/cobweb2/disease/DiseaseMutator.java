@@ -28,9 +28,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private int sickCount[];
 
-	Map<ComplexAgent, State> sick = new HashMap<ComplexAgent, State>();
-
-	private long time;
+	Map<ComplexAgent, State> agentState = new HashMap<ComplexAgent, State>();
 
 	private SimulationInternals simulation;
 
@@ -107,7 +105,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 			sickCount[agent.type()]++;
 
-			sick.put(agent, new State(true, false, time));
+			agentState.put(agent, new State(true, false, simulation.getTime()));
 		}
 
 	}
@@ -120,7 +118,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	@Override
 	public void onDeath(ComplexAgent agent) {
-		State state = sick.remove(agent);
+		State state = agentState.remove(agent);
 		if (state != null && state.sick)
 			sickCount[agent.type()]--;
 	}
@@ -169,7 +167,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			return;
 
 		if (isVaccinated(bumpee)
-				&& simulation.getRandom().nextFloat() < sick.get(bumpee).vaccineEffectiveness)
+				&& simulation.getRandom().nextFloat() < agentState.get(bumpee).vaccineEffectiveness)
 			return;
 
 		if (isSick(bumpee))
@@ -181,7 +179,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	}
 
 	private void unSick(ComplexAgent agent) {
-		sick.remove(agent);
+		agentState.remove(agent);
 		sickCount[agent.type()]--;
 	}
 
@@ -191,24 +189,23 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	}
 
 	public boolean isSick(ComplexAgent agent) {
-		return sick.containsKey(agent) && sick.get(agent).sick;
+		return agentState.containsKey(agent) && agentState.get(agent).sick;
 	}
 
 	private boolean isVaccinated(ComplexAgent agent) {
-		return sick.containsKey(agent) && sick.get(agent).vaccinated;
+		return agentState.containsKey(agent) && agentState.get(agent).vaccinated;
 	}
 
 	private void vaccinate(ComplexAgent bumpee, float effectiveness) {
-		sick.put(bumpee, new State(false, true, effectiveness));
+		agentState.put(bumpee, new State(false, true, effectiveness));
 	}
 
 	@Override
 	public void update(long time) {
-		this.time = time;
 
-		for (Iterator<ComplexAgent> agents = sick.keySet().iterator(); agents.hasNext();) {
+		for (Iterator<ComplexAgent> agents = agentState.keySet().iterator(); agents.hasNext();) {
 			ComplexAgent a = agents.next();
-			State s = sick.get(a);
+			State s = agentState.get(a);
 
 			if (params[a.type()].recoveryTime == 0)
 				continue;

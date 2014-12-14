@@ -664,6 +664,7 @@ public class CobwebApplication extends JFrame {
 				if (theDialog.getFile() != null) {
 					//Load the XML file
 					PopulationSampler.insertPopulation(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
+					simulatorUI.update(true);
 				}
 			}
 		}
@@ -796,7 +797,7 @@ public class CobwebApplication extends JFrame {
 			HashMap<String, Object> result = openSaveSamplePopOptionsDialog();
 			if (result != null){
 				String option = (String)result.get("option");
-				int amount = (Integer)result.get("amount");
+				int amount = ((Integer)result.get("amount")).intValue();
 
 				if (option != null && amount != -1) {
 					// Open file dialog box
@@ -918,7 +919,7 @@ public class CobwebApplication extends JFrame {
 
 		}
 
-		result.put("amount", am);
+		result.put("amount", new Integer(am));
 
 		if (b1.isSelected()) {
 			result.put("option", "percentage");

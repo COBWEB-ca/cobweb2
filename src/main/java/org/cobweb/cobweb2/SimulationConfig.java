@@ -142,7 +142,13 @@ public class SimulationConfig {
 	public SimulationConfig(String fileName) throws FileNotFoundException {
 		this();
 		this.fileName = fileName;
-		loadFile(new FileInputStream(fileName));
+		FileInputStream configStream = new FileInputStream(fileName);
+		loadFile(configStream);
+		try {
+			configStream.close();
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
 	/**
@@ -473,7 +479,7 @@ public class SimulationConfig {
 			DiseaseParams[] n = Arrays.copyOf(diseaseParams, count);
 
 			for (int i = 0; i < this.diseaseParams.length && i < count; i++) {
-				n[i].resize(envParams);
+				n[i].resize();
 			}
 
 			for (int i = this.diseaseParams.length; i < count; i++) {

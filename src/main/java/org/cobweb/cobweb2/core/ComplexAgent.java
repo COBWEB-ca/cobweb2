@@ -20,10 +20,6 @@ import org.cobweb.cobweb2.waste.Waste;
  *
  */
 public class ComplexAgent extends Agent implements Updatable, Serializable {
-	/**
-	 * The agent's type.
-	 */
-	protected int agentType = 0;
 
 	public ComplexAgentParams params;
 
@@ -101,7 +97,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			params.pdSimilaritySlope = parent2.params.pdSimilaritySlope;
 		} // else keep parent 1's PD config
 
-		stats = environment.addAgentInfo(agentType, parent1.stats, parent2.stats);
+		stats = environment.addAgentInfo(params.type, parent1.stats, parent2.stats);
 
 		move(pos);
 		InitFacing();
@@ -124,7 +120,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		init(env.controllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 
 		copyConstants(parent);
-		stats = environment.addAgentInfo(agentType, parent.stats);
+		stats = environment.addAgentInfo(params.type, parent.stats);
 
 		move(pos);
 		InitFacing();
@@ -137,18 +133,16 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	/**
 	 * Constructor with no parent agent; creates an agent using "immaculate conception" technique
 	 *
-	 * @param agentType agent type
 	 * @param pos spawn position
 	 * @param agentData agent parameters
 	 */
-	public void init(ComplexEnvironment env, int agentType, LocationDirection pos, ComplexAgentParams agentData) {
+	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentParams agentData) {
 		environment = (env);
-		init(env.controllerFactory.createNew(agentData.memoryBits, agentData.communicationBits, agentType));
 		setConstants(agentData);
 
-		params = agentData;
-		stats = environment.addAgentInfo(agentType);
-		this.agentType = agentType;
+		init(env.controllerFactory.createNew(params.memoryBits, params.communicationBits, params.type));
+
+		stats = environment.addAgentInfo(params.type);
 
 		move(pos);
 		InitFacing();
@@ -320,7 +314,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		// Eat first before we can produce waste, of course.
 		environment.setFlag(destPos, ComplexEnvironment.FLAG_FOOD, false);
 		// Gain Energy according to the food type.
-		if (environment.getFoodType(destPos) == agentType) {
+		if (environment.getFoodType(destPos) == params.type) {
 			energy += params.foodEnergy;
 			wasteCounterGain -= params.foodEnergy;
 			stats.addFoodEnergy(params.foodEnergy);
@@ -655,8 +649,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		this.params = agentData;
 
-		this.agentType = agentData.type;
-
 		energy = agentData.initEnergy;
 		wasteCounterGain = params.wasteLimitGain;
 		setWasteCounterLoss(params.wasteLimitLoss);
@@ -819,7 +811,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		// if the agents are of the same type, check if they have enough
 		// resources to breed
-		if (adjacentAgent.agentType == agentType) {
+		if (adjacentAgent.params.type == params.type) {
 
 			double sim = 0.0;
 			boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
@@ -850,7 +842,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	private void thinkAboutFoodLocation(int x, int y) {
-		Location target = environment.getLocation(x, y);
+		Location target = new Location(x, y);
 
 		double closeness = 1;
 
@@ -1005,7 +997,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	@Override
 	public int type() {
-		return agentType;
+		return params.type;
 	}
 
 	public void setWasteCounterLoss(int wasteCounterLoss) {
