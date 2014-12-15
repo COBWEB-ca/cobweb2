@@ -13,6 +13,7 @@ import java.util.List;
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.Location;
 import org.cobweb.swingutil.WaitableJComponent;
 
 /**
@@ -30,28 +31,25 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 	private abstract class Mouse extends MouseAdapter {
 
 
-		private boolean convertCoords(int x, int y, int[] out) {
+		private Location convertCoords(int x, int y) {
 			x -= borderLeft;
 			y -= borderHeight;
-			if (!(     x >= 0 && x < tileWidth  * mapWidth
-					&& y >= 0 && y < tileHeight * mapHeight)) {
-				return false;
-			}
 
 			int realX = x / tileWidth;
 			int realY = y / tileHeight;
-
-			out[0] = realX;
-			out[1] = realY;
-			return true;
+			Location l = new Location(realX, realY);
+			if (simulation.getEnvironment().topology.isValidLocation(l))
+				return l;
+			else
+				return null;
 		}
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			dragMode = DragMode.Click;
-			int[] out = { 0, 0 };
-			if (convertCoords(e.getX(), e.getY(), out)) {
-				click(out[0], out[1]);
+			Location loc = convertCoords(e.getX(), e.getY());
+			if (loc != null) {
+				click(loc);
 			}
 		}
 
@@ -68,81 +66,81 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 			if (dragMode == DragMode.Click) {
 				dragMode = DragMode.DragStart;
 			}
-			int[] out = {0,0};
-			if (convertCoords(e.getX(), e.getY(), out)) {
-				dragMode = drag(out[0], out[1], dragMode);
+			Location loc = convertCoords(e.getX(), e.getY());
+			if (loc != null) {
+				dragMode = drag(loc, dragMode);
 			}
 		}
 
 
 
-		private void click(int x, int y) {
-			if(!canClick(x, y))
+		private void click(Location loc) {
+			if(!canClick(loc))
 				return;
 
-			if (canSetOn(x, y)) {
-				setOn(x, y);
-			} else if (canSetOff(x, y)) {
-				setOff(x, y);
+			if (canSetOn(loc)) {
+				setOn(loc);
+			} else if (canSetOff(loc)) {
+				setOff(loc);
 			}
 			refresh(false);
 		}
 
-		private DragMode drag(int x, int y, DragMode dragmode) {
-			if (!canClick(x, y))
+		private DragMode drag(Location loc, DragMode dragmode) {
+			if (!canClick(loc))
 				return dragmode;
 			if (dragmode == DragMode.DragStart) {
-				if (canSetOn(x, y)) {
+				if (canSetOn(loc)) {
 					dragmode = DragMode.DragOn;
-				} else if (canSetOff(x, y)) {
+				} else if (canSetOff(loc)) {
 					dragmode = DragMode.DragOff;
 				}
 			}
 
-			if (dragmode == DragMode.DragOn && canSetOn(x, y)) {
-				setOn(x, y);
-			} else if (dragmode == DragMode.DragOff && canSetOff(x, y)) {
-				setOff(x, y);
+			if (dragmode == DragMode.DragOn && canSetOn(loc)) {
+				setOn(loc);
+			} else if (dragmode == DragMode.DragOff && canSetOff(loc)) {
+				setOff(loc);
 			}
 			refresh(false);
 			return dragmode;
 		}
-		abstract boolean canClick(int x, int y);
+		abstract boolean canClick(Location loc);
 
-		abstract boolean canSetOn(int x, int y);
-		abstract boolean canSetOff(int x, int y);
-		abstract void setOn(int x, int y);
-		abstract void setOff(int x, int y);
+		abstract boolean canSetOn(Location loc);
+		abstract boolean canSetOff(Location loc);
+		abstract void setOn(Location loc);
+		abstract void setOff(Location loc);
 	} // Mouse
 
 
 	private class ObserveMouseListener extends Mouse {
 
 		@Override
-		public boolean canClick(int x, int y) {
+		public boolean canClick(Location loc) {
 			return true;
 		}
 
 		@Override
-		boolean canSetOn(int x, int y) {
-			return simulation.theEnvironment.getAgent(x, y) != null && !canSetOff(x, y);
+		boolean canSetOn(Location loc) {
+			return simulation.theEnvironment.getAgent(loc) != null && !canSetOff(loc);
 		}
 
 		@Override
-		boolean canSetOff(int x, int y) {
-			return observedAgents.contains(simulation.theEnvironment.getAgent(x, y));
+		boolean canSetOff(Location loc) {
+			return observedAgents.contains(simulation.theEnvironment.getAgent(loc));
 		}
 
 		@Override
-		void setOn(int x, int y) {
-			ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(x, y);
+		void setOn(Location loc) {
+			ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(loc);
 			if (agent != null)
 				observedAgents.add(agent);
 		}
 
 		@Override
-		void setOff(int x, int y) {
-			ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(x, y);
+		void setOff(Location loc) {
+			ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(loc);
 			if (agent != null)
 				observedAgents.remove(agent);
 		}
@@ -152,28 +150,28 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 	private class StoneMouseListener extends Mouse {
 
 		@Override
-		public boolean canClick(int x, int y) {
-			return !simulation.theEnvironment.hasAgent(x, y);
+		public boolean canClick(Location loc) {
+			return simulation.theEnvironment.getAgent(loc) != null;
 		}
 
 		@Override
-		boolean canSetOn(int x, int y) {
-			return !canSetOff(x, y);
+		boolean canSetOn(Location loc) {
+			return !canSetOff(loc);
 		}
 
 		@Override
-		boolean canSetOff(int x, int y) {
-			return simulation.theEnvironment.hasStone(x, y);
+		boolean canSetOff(Location loc) {
+			return simulation.theEnvironment.hasStone(loc);
 		}
 
 		@Override
-		void setOn(int x, int y) {
-			simulation.theEnvironment.addStone(x, y);
+		void setOn(Location loc) {
+			simulation.theEnvironment.addStone(loc);
 		}
 
 		@Override
-		void setOff(int x, int y) {
-			simulation.theEnvironment.removeStone(x, y);
+		void setOff(Location loc) {
+			simulation.theEnvironment.removeStone(loc);
 		}
 
 	}
@@ -186,32 +184,32 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		}
 
 		@Override
-		public boolean canClick(int x, int y) {
-			Agent a = simulation.theEnvironment.getAgent(x, y);
-			return (a == null && !simulation.theEnvironment.hasStone(x, y)) ||
+		public boolean canClick(Location loc) {
+			Agent a = simulation.theEnvironment.getAgent(loc);
+			return (a == null && !simulation.theEnvironment.hasStone(loc)) ||
 					(a != null && a.type() == mytype);
 		}
 
 		@Override
-		boolean canSetOn(int x, int y) {
-			Agent a = simulation.theEnvironment.getAgent(x, y);
-			return (a == null && !simulation.theEnvironment.hasStone(x, y));
+		boolean canSetOn(Location loc) {
+			Agent a = simulation.theEnvironment.getAgent(loc);
+			return (a == null && !simulation.theEnvironment.hasStone(loc));
 		}
 
 		@Override
-		boolean canSetOff(int x, int y) {
-			Agent a = simulation.theEnvironment.getAgent(x, y);
+		boolean canSetOff(Location loc) {
+			Agent a = simulation.theEnvironment.getAgent(loc);
 			return (a != null && a.type() == mytype);
 		}
 
 		@Override
-		void setOn(int x, int y) {
-			simulation.theEnvironment.addAgent(x, y, mytype);
+		void setOn(Location loc) {
+			simulation.theEnvironment.addAgent(loc, mytype);
 		}
 
 		@Override
-		void setOff(int x, int y) {
-			simulation.theEnvironment.removeAgent(x, y);
+		void setOff(Location loc) {
+			simulation.theEnvironment.removeAgent(loc);
 		}
 
 	}
@@ -225,28 +223,28 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		}
 
 		@Override
-		public boolean canClick(int x, int y) {
-			return !simulation.theEnvironment.hasStone(x, y);
+		public boolean canClick(Location loc) {
+			return !simulation.theEnvironment.hasStone(loc);
 		}
 
 		@Override
-		boolean canSetOn(int x, int y) {
-			return !simulation.theEnvironment.hasFood(x, y) || simulation.theEnvironment.hasStone(x, y);
+		boolean canSetOn(Location loc) {
+			return !simulation.theEnvironment.hasFood(loc) || simulation.theEnvironment.hasStone(loc);
 		}
 
 		@Override
-		boolean canSetOff(int x, int y) {
-			return simulation.theEnvironment.hasFood(x, y) && simulation.theEnvironment.getFood(x, y) == mytype;
+		boolean canSetOff(Location loc) {
+			return simulation.theEnvironment.hasFood(loc) && simulation.theEnvironment.getFood(loc) == mytype;
 		}
 
 		@Override
-		void setOn(int x, int y) {
-			simulation.theEnvironment.addFood(x, y, mytype);
+		void setOn(Location loc) {
+			simulation.theEnvironment.addFood(loc, mytype);
 		}
 
 		@Override
-		void setOff(int x, int y) {
-			simulation.theEnvironment.removeFood(x, y);
+		void setOff(Location loc) {
+			simulation.theEnvironment.removeFood(loc);
 		}
 
 	}

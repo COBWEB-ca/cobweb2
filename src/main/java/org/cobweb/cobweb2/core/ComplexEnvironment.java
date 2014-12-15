@@ -85,11 +85,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	public ControllerFactory controllerFactory;
 
-	@Override
-	public synchronized void addAgent(int x, int y, int type) {
-		super.addAgent(x, y, type);
-		Location l;
-		l = getUserDefinedLocation(x, y);
+	public synchronized void addAgent(Location l, int type) {
 		if ((getAgent(l) == null) && !testFlag(l, ComplexEnvironment.FLAG_STONE)
 				&& !testFlag(l, ComplexEnvironment.FLAG_DROP)) {
 			int agentType = type;
@@ -121,11 +117,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return addAgentInfo(new ComplexAgentStatistics(getInfoNum(), agentT, simulation.getTime()));
 	}
 
-	@Override
-	public synchronized void addFood(int x, int y, int type) {
-
-		Location l;
-		l = getUserDefinedLocation(x, y);
+	public synchronized void addFood(Location l, int type) {
 		if (testFlag(l, ComplexEnvironment.FLAG_STONE)) {
 			throw new IllegalArgumentException("stone here already");
 		}
@@ -133,10 +125,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		setFoodType(l, type);
 	}
 
-	@Override
-	public synchronized void addStone(int x, int y) {
-		Location l;
-		l = getUserDefinedLocation(x, y);
+	public synchronized void addStone(Location l) {
 		if (getAgent(l) != null) {
 			return;
 		}
@@ -167,21 +156,15 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		}
 	}
 
-	@Override
 	public synchronized void clearFood() {
-		super.clearFood();
 		clearFlag(FLAG_FOOD);
 	}
 
-	@Override
 	public synchronized void clearStones() {
-		super.clearStones();
 		clearFlag(FLAG_STONE);
 	}
 
-	@Override
 	public synchronized void clearWaste() {
-		super.clearWaste();
 		clearFlag(FLAG_DROP);
 	}
 
@@ -712,27 +695,17 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 
-	@Override
-	public synchronized void removeAgent(int x, int y) {
-		super.removeAgent(x, y);
-
-		Location l = new Location(x, y);
+	public synchronized void removeAgent(Location l) {
 		Agent a = getAgent(l);
 		if (a != null)
 			a.die();
 	}
 
-	@Override
-	public synchronized void removeFood(int x, int y) {
-		super.removeFood(x, y);
-		Location l = new Location(x, y);
+	public synchronized void removeFood(Location l) {
 		setFlag(l, FLAG_FOOD, false);
 	}
 
-	@Override
-	public synchronized void removeStone(int x, int y) {
-		super.removeStone(x, y);
-		Location l = new Location(x, y);
+	public synchronized void removeStone(Location l) {
 		setFlag(l, FLAG_STONE, false);
 	}
 
@@ -873,29 +846,20 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		}
 	}
 
-	@Override
-	public boolean hasAgent(int x, int y) {
-		return getAgent(getUserDefinedLocation(x, y)) != null;
+	public boolean hasAgent(Location l) {
+		return getAgent(l) != null;
 	}
 
-	@Override
-	public Agent getAgent(int x, int y) {
-		return getAgent(getUserDefinedLocation(x, y));
+	public boolean hasFood(Location l) {
+		return testFlag(l, FLAG_FOOD);
 	}
 
-	@Override
-	public boolean hasFood(int x, int y) {
-		return testFlag(getUserDefinedLocation(x, y), FLAG_FOOD);
+	public int getFood(Location l) {
+		return foodarray[l.x][l.y];
 	}
 
-	@Override
-	public int getFood(int x, int y) {
-		return foodarray[x][y];
-	}
-
-	@Override
-	public boolean hasStone(int x, int y) {
-		return testFlag(getUserDefinedLocation(x, y), FLAG_STONE);
+	public boolean hasStone(Location l) {
+		return testFlag(l, FLAG_STONE);
 	}
 
 	public boolean isPDenabled() {

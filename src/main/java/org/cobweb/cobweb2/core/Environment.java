@@ -51,37 +51,6 @@ public abstract class Environment {
 	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 
-	/**
-	 * Adds agent at given position
-	 *
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 * @param type agent type
-	 */
-	public void addAgent(int x, int y, int type) {
-		// Nothing
-	}
-
-	/**
-	 * Adds food at given position
-	 *
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 * @param type agent type
-	 */
-	public void addFood(int x, int y, int type) {
-		// Nothing
-	}
-
-	/**
-	 * Adds stone at given position
-	 *
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 */
-	public void addStone(int x, int y) {
-		// Nothing
-	}
 
 	public void clearAgents() {
 		for (Agent a : new ArrayList<Agent>(getAgents())) {
@@ -90,19 +59,7 @@ public abstract class Environment {
 		agentTable.clear();
 	}
 
-	public void clearFood() {
-		// Nothing
-	}
-
-	public void clearStones() {
-		// Nothing
-	}
-
-	public void clearWaste() {
-		// Nothing
-	}
-
-	Agent getAgent(Location l) {
+	public Agent getAgent(Location l) {
 		return agentTable.get(l);
 	}
 
@@ -131,36 +88,6 @@ public abstract class Environment {
 		return l;
 	}
 
-	/**
-	 * Removes agent at given position
-	 *
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 */
-	public void removeAgent(int x, int y) {
-		// Nothing
-	}
-
-	/**
-	 * Removes food at given position
-	 *
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 */
-	public void removeFood(int x, int y) {
-		// Nothing
-	}
-
-	/**
-	 * Removes stone at given position
-	 *
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 */
-	public void removeStone(int x, int y) {
-		// Nothing
-	}
-
 	public final void setAgent(Location l, Agent a) {
 		if (a != null)
 			agentTable.put(l, a);
@@ -175,15 +102,5 @@ public abstract class Environment {
 	 * Core implementation of testFlag; this is what could be accelerated in C++
 	 */
 	protected abstract boolean testFlag(Location l, int flag);
-
-	public abstract boolean hasAgent(int x, int y);
-
-	public abstract Agent getAgent(int x, int y);
-
-	public abstract boolean hasFood(int x, int y);
-
-	public abstract int getFood(int x, int y);
-
-	public abstract boolean hasStone(int x, int y);
 
 }
