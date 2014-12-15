@@ -98,12 +98,12 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			isSick = true;
 
 		if (isSick) {
-			DiseaseParams effect = params[agent.type()];
+			DiseaseParams effect = params[agent.getType()];
 			Field f = effect.param.field;
 			if (f != null)
 				ReflectionUtil.multiplyField(agent.params, f, effect.factor);
 
-			sickCount[agent.type()]++;
+			sickCount[agent.getType()]++;
 
 			agentState.put(agent, new State(true, false, simulation.getTime()));
 		}
@@ -120,18 +120,18 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	public void onDeath(ComplexAgent agent) {
 		State state = agentState.remove(agent);
 		if (state != null && state.sick)
-			sickCount[agent.type()]--;
+			sickCount[agent.getType()]--;
 	}
 
 	@Override
 	public void onSpawn(ComplexAgent agent) {
-		makeRandomSick(agent, params[agent.type()].initialInfection);
+		makeRandomSick(agent, params[agent.getType()].initialInfection);
 	}
 
 	@Override
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
 		if (parent.isAlive() && isSick(parent))
-			makeRandomSick(agent, params[agent.type()].childTransmitRate);
+			makeRandomSick(agent, params[agent.getType()].childTransmitRate);
 		else
 			makeRandomSick(agent, 0);
 	}
@@ -139,7 +139,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	@Override
 	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
 		if ((parent1.isAlive() && isSick(parent1)) || (parent2.isAlive() && isSick(parent2)))
-			makeRandomSick(agent, params[agent.type()].childTransmitRate);
+			makeRandomSick(agent, params[agent.getType()].childTransmitRate);
 		else
 			makeRandomSick(agent, 0);
 	}
@@ -150,8 +150,8 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	}
 
 	private void transmitBumpOneWay(ComplexAgent bumper, ComplexAgent bumpee) {
-		int tr = bumper.type();
-		int te = bumpee.type();
+		int tr = bumper.getType();
+		int te = bumpee.getType();
 
 		if (params[tr].vaccinator && !isSick(bumpee) ) {
 			vaccinate(bumpee, params[tr].vaccineEffectiveness);
@@ -180,12 +180,12 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private void unSick(ComplexAgent agent) {
 		agentState.remove(agent);
-		sickCount[agent.type()]--;
+		sickCount[agent.getType()]--;
 	}
 
 	private void unSickIterating(ComplexAgent agent, Iterator<ComplexAgent> agents) {
 		agents.remove();
-		sickCount[agent.type()]--;
+		sickCount[agent.getType()]--;
 	}
 
 	public boolean isSick(ComplexAgent agent) {
@@ -207,10 +207,10 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			ComplexAgent a = agents.next();
 			State s = agentState.get(a);
 
-			if (params[a.type()].recoveryTime == 0)
+			if (params[a.getType()].recoveryTime == 0)
 				continue;
 
-			long randomRecovery = (long) (params[a.type()].recoveryTime * (simulation.getRandom().nextDouble() * 0.2 + 1.0));
+			long randomRecovery = (long) (params[a.getType()].recoveryTime * (simulation.getRandom().nextDouble() * 0.2 + 1.0));
 
 			if (s.sick && time - s.sickStart > randomRecovery) {
 				unSickIterating(a, agents);

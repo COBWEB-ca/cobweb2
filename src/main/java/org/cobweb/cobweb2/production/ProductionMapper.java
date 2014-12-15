@@ -290,7 +290,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	public void onSpawn(ComplexAgent agent) {
 		agentData.put(
 				agent,
-				(ProductionParams) initialParams[agent.getAgentType()].clone()
+				(ProductionParams) initialParams[agent.getType()].clone()
 				);
 	}
 

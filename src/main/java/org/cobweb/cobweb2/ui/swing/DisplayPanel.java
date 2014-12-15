@@ -187,7 +187,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		public boolean canClick(Location loc) {
 			Agent a = simulation.theEnvironment.getAgent(loc);
 			return (a == null && !simulation.theEnvironment.hasStone(loc)) ||
-					(a != null && a.type() == mytype);
+					(a != null && a.getType() == mytype);
 		}
 
 		@Override
@@ -199,7 +199,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		@Override
 		boolean canSetOff(Location loc) {
 			Agent a = simulation.theEnvironment.getAgent(loc);
-			return (a != null && a.type() == mytype);
+			return (a != null && a.getType() == mytype);
 		}
 
 		@Override

@@ -193,7 +193,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	protected boolean canEat(ComplexAgent adjacentAgent) {
 		boolean caneat = false;
-		caneat = params.foodweb.canEatAgent[adjacentAgent.getAgentType()];
+		caneat = params.foodweb.canEatAgent[adjacentAgent.getType()];
 		if (this.energy > params.breedEnergy)
 			caneat = false;
 
@@ -239,7 +239,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	public void copyConstants(ComplexAgent p) {
-		setConstants((ComplexAgentParams) environment.agentData[p.getAgentType()].clone());
+		setConstants((ComplexAgentParams) environment.agentData[p.getType()].clone());
 		pdCheater = p.pdCheater;
 	}
 
@@ -349,11 +349,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	public boolean getAgentPDActionCheat() {
 		return pdCheater;
 	}
-
-	public int getAgentType() {
-		return params.type;
-	}
-
 
 	public int getCommInbox() {
 		return commInbox;
@@ -948,7 +943,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 
 	@Override
-	public int type() {
+	public int getType() {
 		return params.type;
 	}
 

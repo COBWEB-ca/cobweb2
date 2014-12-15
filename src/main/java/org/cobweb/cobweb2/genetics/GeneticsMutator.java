@@ -105,13 +105,13 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 			// TODO LOW different formulas for different types of fields?
 			ReflectionUtil.multiplyField(agent.params, pheno.field, coefficient);
 		}
-		tracker.addAgent(agent.type(), getGene(agent));
+		tracker.addAgent(agent.getType(), getGene(agent));
 	}
 
 	@Override
 	public void onDeath(ComplexAgent agent) {
 		if (genes.containsKey(agent)) {
-			tracker.removeAgent(agent.type(), genes.get(agent));
+			tracker.removeAgent(agent.getType(), genes.get(agent));
 			genes.remove(agent);
 		}
 	}
@@ -120,7 +120,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	public void onSpawn(ComplexAgent agent) {
 		GeneticCode genetic_code = new GeneticCode(params.geneCount);
 		for (int i = 0; i < params.geneCount; i++) {
-			genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.type()][i], 0);
+			genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.getType()][i], 0);
 		}
 		genes.put(agent, genetic_code);
 		mutateAgentAttributes(agent);

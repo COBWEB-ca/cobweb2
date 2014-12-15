@@ -490,7 +490,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				ComplexAgentLearning occTarget = oc.target;
 				Location loc2 = occTarget.getPosition();
 				if (environment.topology.getDistance(loc,loc2) <= oc.detectableDistance
-						&& (lParams.learnFromDifferentOthers || occTarget.type() == type())) {
+						&& (lParams.learnFromDifferentOthers || occTarget.getType() == getType())) {
 
 					Direction directionTo = environment.topology.getDirectionBetween4way(loc, loc2);
 					if (!directionTo.equals(Topology.NONE)) {

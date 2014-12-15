@@ -201,7 +201,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		long totalEnergy = 0;
 		for(Agent a : getAgents()) {
 			ComplexAgent agent = (ComplexAgent) a;
-			if (agent.getAgentType() == agentType)
+			if (agent.getType() == agentType)
 				totalEnergy += agent.getEnergy();
 		}
 		return totalEnergy;
@@ -212,7 +212,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		int agentCount = 0;
 		for(Agent a : getAgents()) {
 			ComplexAgent agent = (ComplexAgent) a;
-			if (agent.getAgentType() == agentType)
+			if (agent.getType() == agentType)
 				agentCount++;
 		}
 		return agentCount;
@@ -592,7 +592,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				Location currentPos = new Location(x, y);
 				ComplexAgent agent = (ComplexAgent) getAgent(currentPos);
 				if (agent != null) {
-					int theType = agent.getAgentType();
+					int theType = agent.getType();
 					agent.setConstants(agentData[theType]);
 				}
 			}
@@ -669,10 +669,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		int coops = 0;
 		for(Agent a : getAgents()) {
 			ComplexAgent agent = (ComplexAgent) a;
-			if (agent.getAgentType() == agentType && !agent.getAgentPDActionCheat()) {
+			if (agent.getType() == agentType && !agent.getAgentPDActionCheat()) {
 				coops++;
 				stratArray[0] = coops;
-			} else if (agent.getAgentType() == agentType && agent.getAgentPDActionCheat()) {
+			} else if (agent.getType() == agentType && agent.getAgentPDActionCheat()) {
 				cheaters++;
 				stratArray[1] = cheaters;
 			}

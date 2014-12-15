@@ -126,7 +126,7 @@ public class GeneticController implements Controller {
 		//add the communications to the array
 		inputCode.add(theAgent.getCommInbox(), commSize);
 
-		for (StateSize ss : params.agentParams.agentParams[theAgent.type()].stateSizes) {
+		for (StateSize ss : params.agentParams.agentParams[theAgent.getType()].stateSizes) {
 			StateParameter sp = simulation.getStateParameter(ss.name);
 			double value = sp.getValue(theAgent);
 			int val = (int) Math.round(value * ((1 << ss.size) - 1));

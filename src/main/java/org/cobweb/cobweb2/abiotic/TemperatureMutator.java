@@ -83,7 +83,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 
 	@Override
 	public void onSpawn(ComplexAgent agent) {
-		TemperatureAgentParams aPar = params.agentParams[agent.type()];
+		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
 
 		float f = locToPenalty(agent.getPosition(), aPar);
 		if (aPar.parameter.field != null)
@@ -109,7 +109,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	 */
 	@Override
 	public void onStep(ComplexAgent agent, Location from, Location to) {
-		TemperatureAgentParams aPar = params.agentParams[agent.type()];
+		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
 
 		float toFactor = locToPenalty(to, aPar);
 		float fromFactor = locToPenalty(from, aPar);
