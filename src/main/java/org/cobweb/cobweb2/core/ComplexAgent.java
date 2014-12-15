@@ -63,11 +63,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	/** The current tick we are in (or the last tick this agent was notified */
 	protected long currTick = 0;
 
-	private static final Direction[] dirList = {Topology.DIRECTION_NORTH,
-		Topology.DIRECTION_SOUTH,Topology.DIRECTION_WEST,Topology.DIRECTION_EAST,
-		Topology.DIRECTION_NORTHEAST,Topology.DIRECTION_SOUTHEAST,
-		Topology.DIRECTION_NORTHWEST,Topology.DIRECTION_SOUTHWEST };
-
 	public transient ComplexEnvironment environment;
 
 	public ComplexAgent(SimulationInternals sim) {
@@ -83,10 +78,9 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent1, ComplexAgent parent2) {
 		environment = env;
+		copyConstants(parent1);
 		init(env.controllerFactory.createFromParents(parent1.getController(), parent2.getController(),
 				parent1.params.mutationRate));
-
-		copyConstants(parent1);
 
 		// child's strategy is determined by its parents, it has a
 		// 50% chance to get either parent's strategy
@@ -99,10 +93,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		stats = environment.addAgentInfo(params.type, parent1.stats, parent2.stats);
 
-		move(pos);
-		InitFacing();
-
-		environment.simulation.addAgent(this);
+		initPosition(pos);
 
 		simulation.getAgentListener().onSpawn(this, parent1, parent2);
 
@@ -117,15 +108,12 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	protected void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent) {
 		environment = (env);
+		copyConstants(parent);
 		init(env.controllerFactory.createFromParent(parent.getController(), parent.params.mutationRate));
 
-		copyConstants(parent);
 		stats = environment.addAgentInfo(params.type, parent.stats);
 
-		move(pos);
-		InitFacing();
-
-		environment.simulation.addAgent(this);
+		initPosition(pos);
 
 		simulation.getAgentListener().onSpawn(this, parent);
 	}
@@ -144,10 +132,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		stats = environment.addAgentInfo(params.type);
 
-		move(pos);
-		InitFacing();
-
-		environment.simulation.addAgent(this);
+		initPosition(pos);
 
 		simulation.getAgentListener().onSpawn(this);
 	}
@@ -390,47 +375,14 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		return stats;
 	}
 
-	/**
-	 * North = 0
-	 * <br>East = 1
-	 * <br>South = 2
-	 * <br>West = 3
-	 *
-	 * @return A number representation of the direction the agent is getPosition().direction.
-	 */
-	public int getIntFacing() {
-		if (getPosition().direction.equals(Topology.DIRECTION_NORTH))
-			return 0;
-		if (getPosition().direction.equals(Topology.DIRECTION_EAST))
-			return 1;
-		if (getPosition().direction.equals(Topology.DIRECTION_SOUTH))
-			return 2;
-		if (getPosition().direction.equals(Topology.DIRECTION_WEST))
-			return 3;
-		return 0;
-	}
-
-	public Direction getFacing() {
-		return getPosition().direction;
-	}
-
 	public int getMemoryBuffer() {
 		return memoryBuffer;
 	}
 
-	/**
-	 * Provide a random direction for the agent to face.
-	 */
-	private void InitFacing() {
-		int f = simulation.getRandom().nextInt(4);
-		if (f == 0)
-			position = new LocationDirection(position, Topology.DIRECTION_NORTH);
-		else if (f == 1)
-			position = new LocationDirection(position, Topology.DIRECTION_SOUTH);
-		else if (f == 2)
-			position = new LocationDirection(position, Topology.DIRECTION_EAST);
-		else
-			position = new LocationDirection(position, Topology.DIRECTION_WEST);
+	private void initPosition(LocationDirection pos) {
+		move(pos);
+		position = new LocationDirection(position, environment.topology.getRandomDirection());
+		environment.simulation.addAgent(this);
 	}
 
 	/**
@@ -767,7 +719,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		}
 
 		if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
-			breedPos = new LocationDirection(getPosition(), Topology.DIRECTION_NONE);
+			breedPos = new LocationDirection(getPosition());
 		} else if (!pregnant) {
 			tryAsexBreed();
 		}
@@ -934,8 +886,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		Location loc;
 
 		// Place the drop at an available location adjacent to the agent
-		for (int i = 0; i < dirList.length; i++) {
-			loc = environment.topology.getAdjacent(getPosition(), dirList[i]);
+		for (Direction dir : environment.topology.ALL_8_WAY) {
+			loc = environment.topology.getAdjacent(getPosition(), dir);
 			if (loc != null && environment.getAgent(loc) == null
 					&& !environment.testFlag(loc, ComplexEnvironment.FLAG_STONE)
 					&& !environment.testFlag(loc, ComplexEnvironment.FLAG_DROP)
@@ -954,8 +906,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		 * least one food tile that it will be able to replace with a waste tile. Nothing happens otherwise.
 		 */
 		if (!added) {
-			for (int i = 0; i < dirList.length; i++) {
-				loc = environment.topology.getAdjacent(getPosition(), dirList[i]);
+			for (Direction dir : environment.topology.ALL_8_WAY) {
+				loc = environment.topology.getAdjacent(getPosition(), dir);
 				if (loc != null
 						&& environment.getAgent(loc) == null
 						&& environment.testFlag(loc, ComplexEnvironment.FLAG_FOOD)) {

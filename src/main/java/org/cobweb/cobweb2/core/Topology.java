@@ -13,17 +13,6 @@ public class Topology {
 	public final int height;
 	public final boolean wrap;
 
-	// Some predefined directions for 2D
-	public static final Direction DIRECTION_NONE =  new Direction(0, 0);
-	public static final Direction DIRECTION_NORTH = new Direction(0, -1);
-	public static final Direction DIRECTION_EAST =  new Direction(+1, 0);
-	public static final Direction DIRECTION_SOUTH = new Direction(0, +1);
-	public static final Direction DIRECTION_WEST =  new Direction(-1, 0);
-	public static final Direction DIRECTION_NORTHEAST = new Direction(+1, -1);
-	public static final Direction DIRECTION_SOUTHEAST = new Direction(+1, +1);
-	public static final Direction DIRECTION_SOUTHWEST = new Direction(-1, +1);
-	public static final Direction DIRECTION_NORTHWEST = new Direction(-1, -1);
-
 	public Topology(RandomSource randomSource, int width, int height, boolean wrap) {
 		this.randomSource = randomSource;
 		this.width = width;
@@ -39,9 +28,6 @@ public class Topology {
 		return Math.sqrt(getDistanceSquared(from, to));
 	}
 
-	/**
-	 * @return Random location.
-	 */
 	public Location getRandomLocation() {
 		Location l;
 		do {
@@ -56,7 +42,6 @@ public class Topology {
 		return l.x >= 0 && l.x < width
 				&& l.y >= 0 && l.y < height;
 	}
-
 
 	public LocationDirection getAdjacent(LocationDirection location) {
 		Direction direction = location.direction;
@@ -85,18 +70,10 @@ public class Topology {
 	}
 
 	public double getDistanceSquared(Location from, Location to) {
-		double distance = Double.MAX_VALUE;
-
-		for(Location virtual : getWrapVirtualLocations(to)) {
-			double d = simpleDistanceSquared(from, virtual);
-			if (d < distance)
-				distance = d;
-		}
-
-		return distance;
+		return simpleDistanceSquared(from, getClosestWrapLocation(from, to));
 	}
 
-	private static double simpleDistanceSquared(Location from, Location to) {
+	private double simpleDistanceSquared(Location from, Location to) {
 		int deltaX = to.x - from.x;
 		int deltaY = to.y - from.y;
 		return deltaX * deltaX + deltaY * deltaY;
@@ -126,11 +103,130 @@ public class Topology {
 		return result;
 	}
 
+	private Location getClosestWrapLocation(Location zero, Location target) {
+		if (!wrap)
+			return target;
+
+		double distance = Double.MAX_VALUE;
+		Location best = target;
+		for(Location virtual : getWrapVirtualLocations(target)) {
+			double d = simpleDistanceSquared(zero, virtual);
+			if (d < distance) {
+				distance = d;
+				if (best != virtual)
+					best = virtual;
+			}
+		}
+		return best;
+	}
+
 	public LocationDirection getTurnRightPosition(LocationDirection location) {
-		return new LocationDirection(location, new Direction(-location.direction.y, location.direction.x));
+		return new LocationDirection(location, turnRight(location.direction));
 	}
 
 	public LocationDirection getTurnLeftPosition(LocationDirection location) {
-		return new LocationDirection(location, new Direction(location.direction.y, -location.direction.x));
+		return new LocationDirection(location, turnLeft(location.direction));
 	}
+
+	private Direction turnRight(Direction dir) {
+		return new Direction(-dir.y, +dir.x);
+	}
+
+	private Direction turnLeft(Direction dir) {
+		return new Direction(+dir.y, -dir.x);
+	}
+
+	public Rotation getRotationBetween(Direction from, Direction to) {
+		if (from.equals(to))
+			return Rotation.None;
+		else if (turnRight(from).equals(to))
+			return Rotation.Right;
+		else if (turnLeft(from).equals(to))
+			return Rotation.Left;
+		else
+			return Rotation.UTurn;
+	}
+
+	public Direction getDirectionBetween4way(Location from, Location to) {
+		to = getClosestWrapLocation(from, to);
+
+		int deltaX = to.x - from.x;
+		int deltaY = to.y - from.y;
+		if (deltaX == 0 && deltaY == 0)
+			return NONE;
+
+		// Split circle into 8 sections
+		// -3 -2 -1
+		//   \ | /
+		//  ------- 0
+		//   / | \
+		//  3  2  1
+		double division = Math.atan2(deltaY, deltaX) / Math.PI * 4;
+
+		if      (division >= -3 && division < -1)
+			return NORTH;
+		else if (division >= -1 && division <  1)
+			return EAST;
+		else if (division >=  1 && division <  3)
+			return SOUTH;
+		else
+			return WEST;
+	}
+
+	public Direction getDirectionBetween8way(Location from, Location to) {
+		to = getClosestWrapLocation(from, to);
+
+		int deltaX = to.x - from.x;
+		int deltaY = to.y - from.y;
+		if (deltaX == 0 && deltaY == 0)
+			return NONE;
+
+		double division = Math.atan2(deltaY, deltaX) / Math.PI * 8;
+
+		if      (division >= -7 && division < -5)
+			return NORTHWEST;
+		if      (division >= -5 && division < -3)
+			return NORTH;
+		if      (division >= -3 && division < -1)
+			return NORTHEAST;
+		else if (division >= -1 && division <  1)
+			return EAST;
+		else if (division >=  1 && division <  3)
+			return SOUTHEAST;
+		else if (division >=  3 && division <  5)
+			return SOUTH;
+		else if (division >=  5 && division <  7)
+			return SOUTHWEST;
+		else
+			return WEST;
+	}
+
+	// Some predefined directions for 2D
+	public static final Direction NONE =  new Direction(0, 0);
+	public static final Direction NORTH = new Direction(0, -1);
+	public static final Direction EAST =  new Direction(+1, 0);
+	public static final Direction SOUTH = new Direction(0, +1);
+	public static final Direction WEST =  new Direction(-1, 0);
+	public static final Direction NORTHEAST = new Direction(+1, -1);
+	public static final Direction SOUTHEAST = new Direction(+1, +1);
+	public static final Direction SOUTHWEST = new Direction(-1, +1);
+	public static final Direction NORTHWEST = new Direction(-1, -1);
+
+	public final Direction[] ALL_4_WAY = {
+			NORTH, EAST,
+			SOUTH, WEST
+	};
+
+	public final Direction[] ALL_8_WAY = {
+			NORTH, EAST,
+			SOUTH, WEST,
+			NORTHEAST, SOUTHEAST,
+			SOUTHWEST, NORTHWEST
+	};
+
+	public Direction getRandomDirection() {
+		int i = randomSource.getRandom().nextInt(ALL_4_WAY.length);
+		return ALL_4_WAY[i];
+	}
+
 }

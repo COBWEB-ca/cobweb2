@@ -16,14 +16,6 @@ public class Direction implements Serializable {
 		this.x = Integer.signum(x);
 		this.y = Integer.signum(y);
 	}
-	/**
-	 * Return the angle (between -pi and pi) between the x and y coordinates
-	 * of this direction vector. The angle is in standard position.
-	 * @return An angle between -pi and pi.
-	 */
-	public final double heading() {
-		return Math.atan2(y, x);
-	}
 
 	public boolean equals(Direction other) {
 		return x == other.x && y == other.y;

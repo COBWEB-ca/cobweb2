@@ -11,6 +11,7 @@ import java.util.Set;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StateParameter;
@@ -112,8 +113,8 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 
 		@Override
 		public double getValue(ComplexAgent agent) {
-			Location here = agent.getPosition();
-			Location ahead = environment.topology.getAdjacent(here, agent.getFacing());
+			LocationDirection here = agent.getPosition();
+			Location ahead = environment.topology.getAdjacent(here);
 			if (ahead == null || !environment.topology.isValidLocation(ahead)) {
 				return 0;
 			}

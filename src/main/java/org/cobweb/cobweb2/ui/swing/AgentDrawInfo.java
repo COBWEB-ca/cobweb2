@@ -5,8 +5,7 @@ import java.awt.Graphics;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.Direction;
-import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.genetics.GeneticCode;
 import org.cobweb.swingutil.ColorLookup;
 
@@ -27,13 +26,7 @@ class AgentDrawInfo {
 	java.awt.Color action;
 
 	/** Position in tile coordinates */
-	Location position;
-
-	/**
-	 * Facing vector; not normalised, but only the sign of each component is
-	 * considered.
-	 */
-	Direction facing;
+	LocationDirection position;
 
 	private int[] xPts = new int[3];
 
@@ -59,8 +52,6 @@ class AgentDrawInfo {
 
 		position = agent.getPosition();
 
-		facing = agent.getFacing();
-
 		action = agent.getAgentPDActionCheat() ? Color.RED : Color.BLACK;
 	}
 
@@ -69,17 +60,17 @@ class AgentDrawInfo {
 		int topLeftX = position.x * tileWidth;
 		int topLeftY = position.y * tileHeight;
 
-		if (facing.x != 0 || facing.y != 0) {
+		if (position.direction.x != 0 || position.direction.y != 0) {
 			int deltaX = tileWidth / 2;
 			int deltaY = tileHeight / 2;
 			int centerX = topLeftX + deltaX;
 			int centerY = topLeftY + deltaY;
-			if (facing.x != 0 && facing.y != 0) {
+			if (position.direction.x != 0 && position.direction.y != 0) {
 				// Diagonal; deal with this later
-			} else if (facing.x != 0) {
+			} else if (position.direction.x != 0) {
 				// Horizontal facing...
-				xPts[0] = centerX + facing.x * deltaX;
-				xPts[1] = centerX - facing.x * deltaX;
+				xPts[0] = centerX + position.direction.x * deltaX;
+				xPts[1] = centerX - position.direction.x * deltaX;
 				xPts[2] = xPts[1];
 
 				yPts[0] = centerY;
@@ -91,8 +82,8 @@ class AgentDrawInfo {
 				xPts[1] = centerX + deltaX;
 				xPts[2] = centerX - deltaX;
 
-				yPts[0] = centerY + facing.y * deltaY;
-				yPts[1] = centerY - facing.y * deltaY;
+				yPts[0] = centerY + position.direction.y * deltaY;
+				yPts[1] = centerY - position.direction.y * deltaY;
 				yPts[2] = yPts[1];
 			}
 			g.fillPolygon(xPts, yPts, 3);

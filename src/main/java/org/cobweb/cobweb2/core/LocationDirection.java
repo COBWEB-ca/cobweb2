@@ -9,5 +9,10 @@ public class LocationDirection extends Location {
 		direction = d;
 	}
 
+	public LocationDirection(Location l) {
+		super(l.x, l.y);
+		direction = Topology.NONE;
+	}
+
 	private static final long serialVersionUID = 2L;
 }

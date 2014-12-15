@@ -6,7 +6,7 @@ public class EnergyChangeOccurrence extends Occurrence {
 	private int amountChanged;
 
 	public EnergyChangeOccurrence(ComplexAgentLearning target, int amountChanged, String desc) {
-		this(target, amountChanged, desc, 0);
+		this(target, 0, desc, amountChanged);
 	}
 
 	public EnergyChangeOccurrence(ComplexAgentLearning target, float detectableDistance, String desc, int amountChanged) {

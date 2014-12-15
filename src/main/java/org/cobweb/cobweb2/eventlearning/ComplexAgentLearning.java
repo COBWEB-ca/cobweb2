@@ -6,8 +6,10 @@ import java.util.List;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
+import org.cobweb.cobweb2.core.Rotation;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
@@ -489,45 +491,31 @@ public class ComplexAgentLearning extends ComplexAgent {
 				Location loc2 = occTarget.getPosition();
 				if (environment.topology.getDistance(loc,loc2) <= oc.detectableDistance
 						&& (lParams.learnFromDifferentOthers || occTarget.type() == type())) {
-					String desc = null;
 
-					if (getPosition().direction.equals(Topology.DIRECTION_EAST)) {
-						if (loc2.y > loc.y) {
-							desc = "turnRight";
-						} else if (loc2.y != loc.y) {
+					Direction directionTo = environment.topology.getDirectionBetween4way(loc, loc2);
+					if (!directionTo.equals(Topology.NONE)) {
+						String desc = null;
+						Rotation rotationTo = environment.topology.getRotationBetween(getPosition().direction, directionTo);
+						if (rotationTo == Rotation.Left) {
 							desc = "turnLeft";
 						}
-					} else if (getPosition().direction.equals(Topology.DIRECTION_WEST)) {
-						if (loc2.y > loc.y) {
-							desc = "turnLeft";
-						} else if (loc2.y != loc.y) {
+						else if (rotationTo == Rotation.Right) {
 							desc = "turnRight";
 						}
-					} else if (getPosition().direction.equals(Topology.DIRECTION_NORTH)) {
-						if (loc2.x > loc.x) {
-							desc = "turnRight";
-						} else if (loc2.x != loc.x) {
-							desc = "turnLeft";
-						}
-					} else if (getPosition().direction.equals(Topology.DIRECTION_SOUTH)) {
-						if (loc2.x > loc.x) {
-							desc = "turnLeft";
-						} else if (loc2.x != loc.x) {
-							desc = "turnRight";
+
+
+						if (desc != null && oc.hasOccurred() && oc.getEvent() != null) {
+							remember(new MemorableEvent(currTick, oc.getEvent().getMagnitude(), desc){
+								//This information applies to only the present step the agent is about to take;
+								//it will be irrelevant in the future (because new occurrences will be present)
+								@Override
+								public boolean forgetAfterStep() {
+									return true;
+								}
+							});
 						}
 					}
 
-					// TODO: why are some events null?
-					if (desc != null && oc.hasOccurred() && oc.getEvent() != null) {
-						remember(new MemorableEvent(currTick, oc.getEvent().getMagnitude(), desc){
-							//This information applies to only the present step the agent is about to take;
-							//it will be irrelevant in the future (because new occurrences will be present)
-							@Override
-							public boolean forgetAfterStep() {
-								return true;
-							}
-						});
-					}
 				}
 				newOccList.add(oc);
 			}

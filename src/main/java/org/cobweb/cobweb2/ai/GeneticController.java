@@ -7,6 +7,7 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.util.BitField;
@@ -110,7 +111,9 @@ public class GeneticController implements Controller {
 		inputCode.add(getEnergy(theAgent.getEnergy()), 2);
 
 		//add the direction the agent is facing to the array
-		inputCode.add(theAgent.getIntFacing(), 2);
+		inputCode.add(simulation.getEnvironment().topology
+				.getRotationBetween(Topology.NORTH, theAgent.getPosition().direction)
+				.ordinal(), 2);
 
 		//add the viewing info to the array
 		SeeInfo get = theAgent.distanceLook();

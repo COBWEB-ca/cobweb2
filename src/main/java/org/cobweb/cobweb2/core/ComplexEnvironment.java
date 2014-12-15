@@ -90,7 +90,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				&& !testFlag(l, ComplexEnvironment.FLAG_DROP)) {
 			int agentType = type;
 
-			spawnAgent(new LocationDirection(l, Topology.DIRECTION_NONE), agentType);
+			spawnAgent(new LocationDirection(l), agentType);
 
 		}
 	}
@@ -353,25 +353,12 @@ public class ComplexEnvironment extends Environment implements Updatable {
 					double foodCount = 0;
 					Arrays.fill(mostFood, 0);
 
-					Location checkPos = topology.getAdjacent(currentPos, Topology.DIRECTION_NORTH);
-					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
-						foodCount++;
-						mostFood[getFoodType(checkPos)]++;
-					}
-					checkPos = topology.getAdjacent(currentPos, Topology.DIRECTION_SOUTH);
-					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
-						foodCount++;
-						mostFood[getFoodType(checkPos)]++;
-					}
-					checkPos = topology.getAdjacent(currentPos, Topology.DIRECTION_EAST);
-					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
-						foodCount++;
-						mostFood[getFoodType(checkPos)]++;
-					}
-					checkPos = topology.getAdjacent(currentPos, Topology.DIRECTION_WEST);
-					if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
-						foodCount++;
-						mostFood[getFoodType(checkPos)]++;
+					for (Direction dir : topology.ALL_4_WAY) {
+						Location checkPos = topology.getAdjacent(currentPos, dir);
+						if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
+							foodCount++;
+							mostFood[getFoodType(checkPos)]++;
+						}
 					}
 
 					// and if we have found any adjacent food, theres a
@@ -550,7 +537,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 						|| testFlag(location, ComplexEnvironment.FLAG_DROP))); // nor on waste tiles
 				if (tries < 100) {
 					int agentType = i;
-					spawnAgent(new LocationDirection(location, Topology.DIRECTION_NONE), agentType);
+					spawnAgent(new LocationDirection(location), agentType);
 				}
 			}
 		}

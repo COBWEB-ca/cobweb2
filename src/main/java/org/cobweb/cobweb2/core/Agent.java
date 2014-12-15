@@ -81,7 +81,7 @@ public abstract class Agent {
 		return alive;
 	}
 
-
+	// FIXME: rename to getType()
 	public int type() {
 		return -1;
 	}

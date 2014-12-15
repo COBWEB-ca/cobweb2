@@ -8,6 +8,7 @@ import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.io.CobwebParam;
 
@@ -66,7 +67,9 @@ public class LinearWeightsController implements Controller {
 		variables[2] = type == ComplexEnvironment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
 		variables[3] = type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
 		variables[4] = type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_DROP ? ((double) ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0;
-		variables[5] = (double) agent.getIntFacing() / 2;
+		variables[5] = simulator.getEnvironment().topology
+				.getRotationBetween(Topology.NORTH, agent.getPosition().direction)
+				.ordinal() / 2.0;
 		variables[6] = memSize == 0 ? 0 : (double) agent.getMemoryBuffer() / ((1 << memSize) - 1);
 		variables[7] = commSize == 0 ? 0 : (double) agent.getCommInbox() / ((1 << commSize) - 1);
 		variables[8] = Math.max(agent.getAge() / 100.0, 2);
