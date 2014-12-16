@@ -148,7 +148,11 @@ public class Simulation implements SimulationInternals {
 
 		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
 
-		random = new RandomNoGenerator(p.getEnvParams().randomSeed);
+		// 0 = use default seed
+		if (p.getEnvParams().randomSeed == 0)
+			random = new RandomNoGenerator();
+		else
+			random = new RandomNoGenerator(p.getEnvParams().randomSeed);
 
 
 		InitEnvironment(p.getEnvParams().environmentName, p);

@@ -433,13 +433,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		copyParamsFromParser(config);
 		super.load(data.width, data.height, data.wrapMap);
 
-		/**
-		 * If the random seed is set to 0 in the data file, it means we use the
-		 * system time instead
-		 */
-		if (data.randomSeed == 0)
-			data.randomSeed = System.currentTimeMillis();
-
 		if (data.keepOldArray) {
 			int[] boardIndices = { data.width, data.height };
 			array = new ArrayEnvironment(data.width, data.height, array);
