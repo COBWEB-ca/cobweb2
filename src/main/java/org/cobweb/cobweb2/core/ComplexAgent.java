@@ -335,7 +335,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	protected Agent getAdjacentAgent() {
-		Location destPos = environment.topology.getAdjacent(getPosition(), getPosition().direction);
+		Location destPos = environment.topology.getAdjacent(getPosition());
 		if (destPos == null) {
 			return null;
 		}
@@ -376,7 +376,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	private void initPosition(LocationDirection pos) {
 		move(pos);
-		position = new LocationDirection(position, environment.topology.getRandomDirection());
+		if (position.direction.equals(Topology.NONE))
+			position = new LocationDirection(position, environment.topology.getRandomDirection());
 		environment.simulation.addAgent(this);
 	}
 
@@ -794,7 +795,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		double closeness = 1;
 
 		if (!target.equals(getPosition()))
-			closeness = 1 / environment.topology.getDistance(target, this.getPosition());
+			closeness = 1 / environment.topology.getDistance(this.getPosition(), target);
 
 		int o =(int)Math.round(closeness * ((1 << this.params.communicationBits) - 1));
 

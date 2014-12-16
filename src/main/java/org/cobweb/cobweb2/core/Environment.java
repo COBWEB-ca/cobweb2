@@ -67,12 +67,6 @@ public abstract class Environment {
 		return agentTable.values();
 	}
 
-	/** @return the dimensionality of this Environment. */
-	public abstract int getAxisCount();
-
-	/** @return true if the axis specified wraps. */
-	public abstract boolean getAxisWrap(int axis);
-
 	public int getAgentCount() {
 		return agentTable.keySet().size();
 

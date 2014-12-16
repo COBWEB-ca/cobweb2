@@ -108,7 +108,7 @@ public class MutatorListener implements AgentListener {
 		return blah;
 	}
 
-	public Collection<String> logHederAgent() {
+	public Collection<String> logHeaderAgent() {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logHeadersAgent())
@@ -117,7 +117,7 @@ public class MutatorListener implements AgentListener {
 		return blah;
 	}
 
-	public Iterable<String> logHederTotal() {
+	public Iterable<String> logHeaderTotal() {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logHeaderTotal())

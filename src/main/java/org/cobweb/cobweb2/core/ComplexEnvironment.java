@@ -126,7 +126,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			throw new IllegalArgumentException("stone here already");
 		}
 		setFlag(l, ComplexEnvironment.FLAG_FOOD, true);
-		setFoodType(l, type);
+		foodarray[l.x][l.y] = type;
 	}
 
 	public synchronized void addStone(Location l) {
@@ -145,7 +145,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public synchronized void clearAgents() {
 		super.clearAgents();
-		resetAgentInfo();
+		agentInfoVector.clear();
 	}
 
 	private void clearFlag(int flag) {
@@ -292,20 +292,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 							|| testFlag(l, ComplexEnvironment.FLAG_DROP) || getAgent(l) != null));
 
 			if (j < DROP_ATTEMPTS_MAX) {
-				setFlag(l, ComplexEnvironment.FLAG_FOOD, true);
-				setFoodType(l, type);
+				addFood(l, type);
 			}
 		}
-	}
-
-	@Override
-	public int getAxisCount() {
-		return 2;
-	}
-
-	@Override
-	public boolean getAxisWrap(int axis) {
-		return data.wrapMap;
 	}
 
 	protected int getLocationBits(Location l) {
@@ -548,9 +537,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 					l = topology.getRandomLocation();
 				} while ((tries++ < 100)
 						&& (testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_DROP)));
-				if (tries < 100)
-					setFlag(l, ComplexEnvironment.FLAG_FOOD, true);
-				setFoodType(l, i);
+				if (tries < 100) {
+					addFood(l, i);
+				}
 			}
 		}
 	}
@@ -689,10 +678,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		setFlag(l, FLAG_STONE, false);
 	}
 
-	public void resetAgentInfo() {
-		agentInfoVector.clear();
-	}
-
 	/**
 	 * Flags locations as a food/stone/waste location. It does nothing if
 	 * the square is already occupied (for example, setFlag((0,0),FOOD,true)
@@ -732,11 +717,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				break;
 			default:
 		}
-	}
-
-	// Sets Food Type in foodarray [];
-	public void setFoodType(Location l, int i) {
-		foodarray[l.x][l.y] = i;
 	}
 
 	protected void setLocationBits(Location l, int bits) {

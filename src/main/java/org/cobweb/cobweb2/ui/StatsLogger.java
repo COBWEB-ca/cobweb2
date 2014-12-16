@@ -114,7 +114,7 @@ public class StatsLogger implements UpdatableUI {
 				logStream.print("AgentEnergy " + i + "\t");
 				logStream.print("Cheat " + i + "\t");
 				logStream.print("Coop " + i + "\t");
-				for (String s : simulation.mutatorListener.logHederAgent()) {
+				for (String s : simulation.mutatorListener.logHeaderAgent()) {
 					logStream.print(s);
 					logStream.print(" " + i);
 					logStream.print('\t');
@@ -128,7 +128,7 @@ public class StatsLogger implements UpdatableUI {
 			logStream.print("AgentEnergy T\t");
 			logStream.print("Num. Cheat T\t");
 			logStream.print("Num. Coop T\t");
-			for (String s : simulation.mutatorListener.logHederTotal()) {
+			for (String s : simulation.mutatorListener.logHeaderTotal()) {
 				logStream.print(s);
 				logStream.print(" T");
 				logStream.print('\t');
