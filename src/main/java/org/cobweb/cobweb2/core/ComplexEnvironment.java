@@ -105,16 +105,20 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return info;
 	}
 
+	private int makeNextAgentID() {
+		return agentInfoVector.size();
+	}
+
 	ComplexAgentStatistics addAgentInfo(int agentT, ComplexAgentStatistics p1, ComplexAgentStatistics p2) {
-		return addAgentInfo(new ComplexAgentStatistics(getInfoNum(), agentT, simulation.getTime(), p1, p2));
+		return addAgentInfo(new ComplexAgentStatistics(makeNextAgentID(), agentT, simulation.getTime(), p1, p2));
 	}
 
 	ComplexAgentStatistics addAgentInfo(int agentT, ComplexAgentStatistics p1) {
-		return addAgentInfo(new ComplexAgentStatistics(getInfoNum(), agentT, simulation.getTime(), p1));
+		return addAgentInfo(new ComplexAgentStatistics(makeNextAgentID(), agentT, simulation.getTime(), p1));
 	}
 
 	ComplexAgentStatistics addAgentInfo(int agentT) {
-		return addAgentInfo(new ComplexAgentStatistics(getInfoNum(), agentT, simulation.getTime()));
+		return addAgentInfo(new ComplexAgentStatistics(makeNextAgentID(), agentT, simulation.getTime()));
 	}
 
 	public synchronized void addFood(Location l, int type) {
@@ -302,10 +306,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public boolean getAxisWrap(int axis) {
 		return data.wrapMap;
-	}
-
-	public int getInfoNum() {
-		return agentInfoVector.size();
 	}
 
 	protected int getLocationBits(Location l) {

@@ -57,7 +57,7 @@ public class AgentReporter {
 	}
 
 	private static void printInfo(PrintWriter pw, ComplexAgentStatistics agentInfo) {
-		pw.print(agentInfo.agentNumber);
+		pw.print(agentInfo.id);
 		pw.print("\t" + (agentInfo.type + 1));
 		pw.print("\t" + agentInfo.birthTick);
 		pw.print("\t" + agentInfo.parent1);

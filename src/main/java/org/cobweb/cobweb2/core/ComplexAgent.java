@@ -51,7 +51,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	// FIXME: AI should call asexBreed() instead of setting flag and agent doing so.
 	private boolean shouldReproduceAsex;
 
-	protected ComplexAgentStatistics stats;
+	public ComplexAgentStatistics stats;
 
 	// pregnancyPeriod is set value while pregPeriod constantly changes
 	protected int pregPeriod;
@@ -150,7 +150,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	void broadcastCheating(long cheaterID) { // []SK
 		String message = Long.toString(cheaterID);
-		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, id, message, energy
+		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, stats.id, message, energy
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
 		environment.commManager.addPacketToList(msg);
 		// new CommPacket sent
@@ -165,7 +165,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	protected void broadcastFood(Location loc) { // []SK
 		String message = loc.toString();
-		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, id, message, energy
+		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, stats.id, message, energy
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
 		environment.commManager.addPacketToList(msg);
 		// new CommPacket sent
@@ -754,7 +754,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			eat(adjacentAgent);
 		}
 
-		int othersID = adjacentAgent.stats.getAgentNumber();
+		int othersID = adjacentAgent.stats.id;
 
 		// if the agents are of the same type, check if they have enough
 		// resources to breed
@@ -772,14 +772,14 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			}
 
 			if (canBreed && sim >= params.breedSimMin
-					&& checkCredibility(othersID) && adjacentAgent.checkCredibility(this.id)) {
+					&& checkCredibility(othersID) && adjacentAgent.checkCredibility(stats.id)) {
 				pregnant = true;
 				pregPeriod = params.sexualPregnancyPeriod;
 				breedPartner = adjacentAgent;
 			}
 		}
 
-		if (!pregnant && checkCredibility(othersID) && adjacentAgent.checkCredibility(this.id)) {
+		if (!pregnant && checkCredibility(othersID) && adjacentAgent.checkCredibility(stats.id)) {
 
 			playPDonStep(adjacentAgent, othersID);
 		}

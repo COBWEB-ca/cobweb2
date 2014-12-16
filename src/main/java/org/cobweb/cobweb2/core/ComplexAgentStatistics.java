@@ -17,7 +17,7 @@ public class ComplexAgentStatistics implements Serializable {
 
 	public int parent2 = -1;
 
-	public long birthTick = -1;
+	public final long birthTick;
 
 	public long deathTick = -1;
 
@@ -31,9 +31,9 @@ public class ComplexAgentStatistics implements Serializable {
 
 	public int countRockBumps;
 
-	public int agentNumber;
+	public final int id;
 
-	public int type;
+	public final int type;
 
 	public int sexualPregs;
 
@@ -48,22 +48,22 @@ public class ComplexAgentStatistics implements Serializable {
 
 	public ComplexAgentStatistics(int num, int type, long birth, ComplexAgentStatistics p1, ComplexAgentStatistics p2) {
 		this.type = type;
-		agentNumber = num;
+		id = num;
 		birthTick = birth;
-		parent1 = p1 != null ? p1.agentNumber : -1;
-		parent2 = p2 != null ? p2.agentNumber : -1;
+		parent1 = p1 != null ? p1.id : -1;
+		parent2 = p2 != null ? p2.id : -1;
 	}
 
 	public ComplexAgentStatistics(int num, int type, long birth, ComplexAgentStatistics p1) {
 		this.type = type;
-		agentNumber = num;
+		id = num;
 		birthTick = birth;
-		parent1 = p1 != null ? p1.agentNumber : -1;
+		parent1 = p1 != null ? p1.id : -1;
 	}
 
 	public ComplexAgentStatistics(int num, int type, long birth) {
 		this.type = type;
-		agentNumber = num;
+		id = num;
 		birthTick = birth;
 	}
 
@@ -118,10 +118,6 @@ public class ComplexAgentStatistics implements Serializable {
 	public void addTurn(int cost) {
 		countTurns++;
 		energyLossMovement += cost;
-	}
-
-	public int getAgentNumber() {
-		return agentNumber;
 	}
 
 	public int getAgentType() {

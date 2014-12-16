@@ -19,25 +19,7 @@ public abstract class Agent {
 	protected SimulationInternals simulation;
 
 	protected Agent(SimulationInternals sim) {
-		id = makeID();
 		simulation = sim;
-	}
-
-	protected long id;
-
-	@Deprecated //FIXME static!
-	private static long nextID = 1;
-
-	@Deprecated //FIXME static!
-	private static long makeID() {
-		if ((nextID + 1) == Long.MAX_VALUE) {
-			nextID = Long.MIN_VALUE;
-		}
-		return nextID++;
-	}
-
-	public long getID() {
-		return id;
 	}
 
 	protected LocationDirection position;

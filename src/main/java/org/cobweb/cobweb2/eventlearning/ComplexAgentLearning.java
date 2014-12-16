@@ -232,7 +232,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 							child.init(environment, concernedAgent.getBreedPos(), concernedAgent);
 
 							// Retain emotions for our child!
-							concernedAgent.remember(new MemorableEvent(currTick, lParams.emotionForChildren, "agent-" + child.id));
+							concernedAgent.remember(new MemorableEvent(currTick, lParams.emotionForChildren, "agent-" + child.stats.id));
 						} else {
 							// child's strategy is determined by its parents, it
 							// has a
@@ -241,7 +241,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 							// We like the agent we are breeding with; remember
 							// that
 							// this agent is favourable
-							concernedAgent.remember(new MemorableEvent(currTick, lParams.loveForPartner, "agent-" + breedPartner.getID()));
+							concernedAgent.remember(new MemorableEvent(currTick, lParams.loveForPartner, "agent-" + breedPartner.stats.id));
 
 							concernedAgent.getInfo().addDirectChild();
 							concernedAgent.breedPartner.getInfo().addDirectChild();
@@ -298,7 +298,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 			if (canEat(adjacentAgent)) {
 				//An action to conditionally eat the agent
-				queue(new SmartAction(this, "agent-" + adjacentAgent.id) {
+				queue(new SmartAction(this, "agent-" + adjacentAgent.stats.id) {
 
 					@Override
 					public void desiredAction() {
@@ -317,7 +317,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					public void actionIfUndesireable() {
 						// Agent in question needs to appreciate the fact that
 						// we didn't just EAT HIM ALIVE.
-						adjacentAgent.remember(new MemorableEvent(currTick, lParams.sparedEmotion, "agent-" + id));
+						adjacentAgent.remember(new MemorableEvent(currTick, lParams.sparedEmotion, "agent-" + stats.id));
 					}
 				});
 			}
@@ -345,7 +345,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 
 				if (canBreed && sim >= params.breedSimMin
-						&& checkCredibility(adjacentAgent.id) && adjacentAgent.checkCredibility(this.id)) {
+						&& checkCredibility(adjacentAgent.stats.id) && adjacentAgent.checkCredibility(this.stats.id)) {
 					// Initiate pregnancy
 					queue(new SmartAction(this, "breed") {
 
@@ -360,13 +360,13 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			}
 
-			if (!pregnant && checkCredibility(adjacentAgent.id) && adjacentAgent.checkCredibility(this.id)) {
+			if (!pregnant && checkCredibility(adjacentAgent.stats.id) && adjacentAgent.checkCredibility(this.stats.id)) {
 
 				queue(new SmartAction(this) {
 
 					@Override
 					public void desiredAction() {
-						agent.playPDonStep(adjacentAgent, adjacentAgent.id);
+						agent.playPDonStep(adjacentAgent, adjacentAgent.stats.id);
 					}
 				});
 
