@@ -190,27 +190,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		agentData = p.getAgentParams();
 	}
 
-	/* Return totalEnergy of all agents */
-	public long countAgentEnergy() {
-		long totalEnergy = 0;
-		for(Agent a : getAgents()){
-			ComplexAgent agent = (ComplexAgent) a;
-			totalEnergy += agent.getEnergy();
-		}
-		return totalEnergy;
-	}
-
-	/* Return totalEnergy (long) for a certain agentType (int) */
-	public long countAgentEnergy(int agentType) {
-		long totalEnergy = 0;
-		for(Agent a : getAgents()) {
-			ComplexAgent agent = (ComplexAgent) a;
-			if (agent.getType() == agentType)
-				totalEnergy += agent.getEnergy();
-		}
-		return totalEnergy;
-	}
-
 	/* Return the number of agents (int) for a certain agentType (int) */
 	public int countAgents(int agentType) {
 		int agentCount = 0;
@@ -626,43 +605,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			}
 		}
 	}
-
-	public int[] numAgentsStrat() {
-		int stratArray[] = new int[2];
-		int cheaters = 0;
-		int coops = 0;
-		for(Agent a : getAgents()) {
-			ComplexAgent agent = (ComplexAgent) a;
-			if (!agent.getAgentPDActionCheat()) {
-				coops++;
-				stratArray[0] = coops;
-			} else if (agent.getAgentPDActionCheat()) {
-				cheaters++;
-				stratArray[1] = cheaters;
-			}
-
-		}
-		return stratArray;
-	}
-
-	public int[] numAgentsStrat(int agentType) {
-		int stratArray[] = new int[2];
-		int cheaters = 0;
-		int coops = 0;
-		for(Agent a : getAgents()) {
-			ComplexAgent agent = (ComplexAgent) a;
-			if (agent.getType() == agentType && !agent.getAgentPDActionCheat()) {
-				coops++;
-				stratArray[0] = coops;
-			} else if (agent.getType() == agentType && agent.getAgentPDActionCheat()) {
-				cheaters++;
-				stratArray[1] = cheaters;
-			}
-
-		}
-		return stratArray;
-	}
-
 
 	public synchronized void removeAgent(Location l) {
 		Agent a = getAgent(l);

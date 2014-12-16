@@ -5,6 +5,8 @@ import java.io.Writer;
 import java.text.DecimalFormat;
 
 import org.cobweb.cobweb2.Simulation;
+import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.core.ComplexAgent;
 
 
 public class StatsLogger implements UpdatableUI {
@@ -33,14 +35,14 @@ public class StatsLogger implements UpdatableUI {
 		for (int i = 0; i < simulation.getAgentTypeCount(); i++) {
 
 			long agentCount = simulation.theEnvironment.countAgents(i);
-			long agentEnergy = simulation.theEnvironment.countAgentEnergy(i);
+			long agentEnergy = countAgentEnergy(i);
 			/*
 			 * System.out
 			 * .println("************* Near Agent Count *************");
 			 */
 
-			int cheaters = (simulation.theEnvironment.numAgentsStrat(i))[1];
-			int coops = (simulation.theEnvironment.numAgentsStrat(i))[0];
+			int cheaters = numAgentsStrat(i)[1];
+			int coops = numAgentsStrat(i)[0];
 			logStream.print(simulation.getTime());
 			logStream.print('\t');
 			logStream.print(simulation.theEnvironment.countFoodTiles(i));
@@ -76,9 +78,9 @@ public class StatsLogger implements UpdatableUI {
 		 * System.out
 		 * .println("************* After Agent Count Call *************");
 		 */
-		long agentEnergyAll = simulation.theEnvironment.countAgentEnergy();
-		int total_cheaters = (simulation.theEnvironment.numAgentsStrat())[1];
-		int total_coops = (simulation.theEnvironment.numAgentsStrat())[0];
+		long agentEnergyAll = countAgentEnergy();
+		int total_cheaters = numAgentsStrat()[1];
+		int total_coops = numAgentsStrat()[0];
 		logStream.print(simulation.getTime());
 		logStream.print('\t');
 		logStream.print(simulation.theEnvironment.countFoodTiles());
@@ -136,6 +138,65 @@ public class StatsLogger implements UpdatableUI {
 			logStream.println();
 		}
 	}
+
+
+	public long countAgentEnergy() {
+		long totalEnergy = 0;
+		for(Agent a : simulation.theEnvironment.getAgents()){
+			ComplexAgent agent = (ComplexAgent) a;
+			totalEnergy += agent.getEnergy();
+		}
+		return totalEnergy;
+	}
+
+	public long countAgentEnergy(int agentType) {
+		long totalEnergy = 0;
+		for(Agent a : simulation.theEnvironment.getAgents()) {
+			ComplexAgent agent = (ComplexAgent) a;
+			if (agent.getType() == agentType)
+				totalEnergy += agent.getEnergy();
+		}
+		return totalEnergy;
+	}
+
+
+	public int[] numAgentsStrat() {
+		int stratArray[] = new int[2];
+		int cheaters = 0;
+		int coops = 0;
+		for(Agent a : simulation.theEnvironment.getAgents()) {
+			ComplexAgent agent = (ComplexAgent) a;
+			if (!agent.getAgentPDActionCheat()) {
+				coops++;
+				stratArray[0] = coops;
+			} else if (agent.getAgentPDActionCheat()) {
+				cheaters++;
+				stratArray[1] = cheaters;
+			}
+
+		}
+		return stratArray;
+	}
+
+	public int[] numAgentsStrat(int agentType) {
+		int stratArray[] = new int[2];
+		int cheaters = 0;
+		int coops = 0;
+		for(Agent a : simulation.theEnvironment.getAgents()) {
+			ComplexAgent agent = (ComplexAgent) a;
+			if (agent.getType() == agentType && !agent.getAgentPDActionCheat()) {
+				coops++;
+				stratArray[0] = coops;
+			} else if (agent.getType() == agentType && agent.getAgentPDActionCheat()) {
+				cheaters++;
+				stratArray[1] = cheaters;
+			}
+
+		}
+		return stratArray;
+	}
+
+
 
 	public void dispose() {
 		logStream.flush();
