@@ -5,7 +5,7 @@ package org.cobweb.cobweb2.ai;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
@@ -64,9 +64,9 @@ public class LinearWeightsController implements Controller {
 		double variables[] = new double[INPUT_COUNT + LinearWeightsControllerParams.pluginNames.size()];
 		variables[0] = 1.0;
 		variables[1] = ((double) agent.getEnergy() / (ENERGY_THRESHOLD));
-		variables[2] = type == ComplexEnvironment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
-		variables[3] = type == ComplexEnvironment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
-		variables[4] = type == ComplexEnvironment.FLAG_STONE || type == ComplexEnvironment.FLAG_DROP ? ((double) ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0;
+		variables[2] = type == Environment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
+		variables[3] = type == Environment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
+		variables[4] = type == Environment.FLAG_STONE || type == Environment.FLAG_DROP ? ((double) ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0;
 		variables[5] = simulator.getEnvironment().topology
 				.getRotationBetween(Topology.NORTH, agent.getPosition().direction)
 				.ordinal() / 2.0;

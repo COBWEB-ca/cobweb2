@@ -20,26 +20,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	private static final int DROP_ATTEMPTS_MAX = 5;
 
-	public static final int FLAG_STONE = 1;
-
-	public static final int FLAG_FOOD = 2;
-
-	public static final int FLAG_AGENT = 3;
-
-	public static final int FLAG_DROP = 4;
-
 	private ComplexFoodParams foodData[];
 
 	protected ComplexAgentParams agentData[];
-
-	// Bitmasks for boolean states
-	private static final int MASK_TYPE = 15;
-
-	private static final int STONE_CODE = 1;
-
-	private static final int FOOD_CODE = 2;
-
-	private static final int WASTE_CODE = 4;
 
 	public void setDrop(Location loc, Drop d) {
 		dropArray[loc.x][loc.y] = d;
@@ -49,18 +32,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return dropArray[loc.x][loc.y];
 	}
 
-	// Returns current location's food type
-	public int getFoodType(Location l) {
-		return foodarray[l.x][l.y];
-	}
-
 	public final List<ComplexAgentStatistics> agentInfoVector = new ArrayList<ComplexAgentStatistics>();
 
-	private ArrayEnvironment array;
-
 	public ComplexEnvironmentParams data = new ComplexEnvironmentParams();
-
-	private int[][] foodarray = new int[0][];
 
 	/*
 	 * Waste tile array to store the data per waste tile. Needed to allow
@@ -68,26 +42,21 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 */
 	public Drop[][] dropArray;
 
-	private int draughtdays[];
-
-	int[][] backFoodArray;
-
-	ArrayEnvironment backArray;
-
-	int mostFood[];
-
 	public PacketConduit commManager;
+
+	public Food foodManager;
 
 	public ComplexEnvironment(SimulationInternals simulation) {
 		super(simulation);
 		commManager = new PacketConduit();
+		foodManager = new Food(simulation);
 	}
 
 	public ControllerFactory controllerFactory;
 
 	public synchronized void addAgent(Location l, int type) {
-		if ((getAgent(l) == null) && !testFlag(l, ComplexEnvironment.FLAG_STONE)
-				&& !testFlag(l, ComplexEnvironment.FLAG_DROP)) {
+		if ((getAgent(l) == null) && !testFlag(l, Environment.FLAG_STONE)
+				&& !testFlag(l, Environment.FLAG_DROP)) {
 			int agentType = type;
 
 			spawnAgent(new LocationDirection(l), agentType);
@@ -121,25 +90,17 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return addAgentInfo(new ComplexAgentStatistics(makeNextAgentID(), agentT, simulation.getTime()));
 	}
 
-	public synchronized void addFood(Location l, int type) {
-		if (testFlag(l, ComplexEnvironment.FLAG_STONE)) {
-			throw new IllegalArgumentException("stone here already");
-		}
-		setFlag(l, ComplexEnvironment.FLAG_FOOD, true);
-		foodarray[l.x][l.y] = type;
-	}
-
 	public synchronized void addStone(Location l) {
 		if (getAgent(l) != null) {
 			return;
 		}
 
-		if (testFlag(l, FLAG_FOOD))
-			setFlag(l, FLAG_FOOD, false);
-		if (testFlag(l, FLAG_DROP))
-			setFlag(l, FLAG_DROP, false);
+		if (testFlag(l, Environment.FLAG_FOOD))
+			setFlag(l, Environment.FLAG_FOOD, false);
+		if (testFlag(l, Environment.FLAG_DROP))
+			setFlag(l, Environment.FLAG_DROP, false);
 
-		setFlag(l, ComplexEnvironment.FLAG_STONE, true);
+		setFlag(l, Environment.FLAG_STONE, true);
 	}
 
 	@Override
@@ -148,28 +109,12 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		agentInfoVector.clear();
 	}
 
-	private void clearFlag(int flag) {
-		for (int x = 0; x < topology.width; ++x) {
-			for (int y = 0; y < topology.height; ++y) {
-				Location currentPos = new Location(x, y);
-
-				if (testFlag(currentPos, flag)) {
-					setFlag(currentPos, flag, false);
-				}
-			}
-		}
-	}
-
-	public synchronized void clearFood() {
-		clearFlag(FLAG_FOOD);
-	}
-
 	public synchronized void clearStones() {
-		clearFlag(FLAG_STONE);
+		clearFlag(Environment.FLAG_STONE);
 	}
 
 	public synchronized void clearWaste() {
-		clearFlag(FLAG_DROP);
+		clearFlag(Environment.FLAG_DROP);
 	}
 
 	/**
@@ -208,7 +153,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
-				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD))
+				if (testFlag(currentPos, Environment.FLAG_FOOD))
 					++foodCount;
 			}
 		}
@@ -221,7 +166,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
-				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD))
+				if (testFlag(currentPos, Environment.FLAG_FOOD))
 					if (getFoodType(currentPos) == foodType)
 						++foodCount;
 			}
@@ -242,7 +187,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < topology.width; ++x)
 			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
-				if (testFlag(currentPos, ComplexEnvironment.FLAG_FOOD) && getFoodType(currentPos) == type)
+				if (testFlag(currentPos, Environment.FLAG_FOOD) && getFoodType(currentPos) == type)
 					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
 			}
 
@@ -251,7 +196,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int j = 0; j < foodToDeplete; ++j) {
 			Location loc = locations.removeLast();
 
-			setFlag(loc, FLAG_FOOD, false);
+			setFlag(loc, Environment.FLAG_FOOD, false);
 		}
 		draughtdays[type] = foodData[type].draughtPeriod;
 	}
@@ -267,8 +212,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				l = topology.getRandomLocation();
 
 			} while (j < DROP_ATTEMPTS_MAX
-					&& (testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_FOOD)
-							|| testFlag(l, ComplexEnvironment.FLAG_DROP) || getAgent(l) != null));
+					&& (testFlag(l, Environment.FLAG_STONE) || testFlag(l, Environment.FLAG_FOOD)
+							|| testFlag(l, Environment.FLAG_DROP) || getAgent(l) != null));
 
 			if (j < DROP_ATTEMPTS_MAX) {
 				addFood(l, type);
@@ -323,7 +268,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 					for (Direction dir : topology.ALL_4_WAY) {
 						Location checkPos = topology.getAdjacent(currentPos, dir);
-						if (checkPos != null && testFlag(checkPos, ComplexEnvironment.FLAG_FOOD)) {
+						if (checkPos != null && testFlag(checkPos, Environment.FLAG_FOOD)) {
 							foodCount++;
 							mostFood[getFoodType(checkPos)]++;
 						}
@@ -352,7 +297,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 						// finally, we grow food according to a certain
 						// amount of random chance
 						if (foodCount * foodData[growingType].growRate > 100 * simulation.getRandom().nextFloat()) {
-							backArray.setLocationBits(currentPos, FOOD_CODE);
+							backArray.setLocationBits(currentPos, Environment.FOOD_CODE);
 							// setFoodType (currentPos, growMe);
 							backFoodArray[currentPos.x][currentPos.y] = growingType;
 						} else {
@@ -438,10 +383,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			do {
 				l = topology.getRandomLocation();
 			} while ((tries++ < 100)
-					&& ((testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_DROP))
+					&& ((testFlag(l, Environment.FLAG_STONE) || testFlag(l, Environment.FLAG_DROP))
 							&& getAgent(l) == null));
 			if (tries < 100)
-				setFlag(l, ComplexEnvironment.FLAG_STONE, true);
+				setFlag(l, Environment.FLAG_STONE, true);
 		}
 
 		// add food to random locations
@@ -494,8 +439,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				do {
 					location = topology.getRandomLocation();
 				} while ((tries++ < 100) && ((getAgent(location) != null) // don't spawn on top of agents
-						|| testFlag(location, ComplexEnvironment.FLAG_STONE) // nor on stone tiles
-						|| testFlag(location, ComplexEnvironment.FLAG_DROP))); // nor on waste tiles
+						|| testFlag(location, Environment.FLAG_STONE) // nor on stone tiles
+						|| testFlag(location, Environment.FLAG_DROP))); // nor on waste tiles
 				if (tries < 100) {
 					int agentType = i;
 					spawnAgent(new LocationDirection(location), agentType);
@@ -515,7 +460,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				do {
 					l = topology.getRandomLocation();
 				} while ((tries++ < 100)
-						&& (testFlag(l, ComplexEnvironment.FLAG_STONE) || testFlag(l, ComplexEnvironment.FLAG_DROP)));
+						&& (testFlag(l, Environment.FLAG_STONE) || testFlag(l, Environment.FLAG_DROP)));
 				if (tries < 100) {
 					addFood(l, i);
 				}
@@ -531,7 +476,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		dropArray = new Drop[data.width][data.height];
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
-				setFlag(new Location(x, y), FLAG_DROP, false);
+				setFlag(new Location(x, y), Environment.FLAG_DROP, false);
 			}
 		}
 	}
@@ -598,9 +543,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			for (int y = 0; y < topology.width; ++y) {
 				Location currentPos = new Location(x, y);
 				if (getDrop(currentPos) != null) {
-					setFlag(currentPos, ComplexEnvironment.FLAG_FOOD, false);
-					setFlag(currentPos, ComplexEnvironment.FLAG_STONE, false);
-					setFlag(currentPos, ComplexEnvironment.FLAG_DROP, true);
+					setFlag(currentPos, Environment.FLAG_FOOD, false);
+					setFlag(currentPos, Environment.FLAG_STONE, false);
+					setFlag(currentPos, Environment.FLAG_DROP, true);
 				}
 			}
 		}
@@ -612,12 +557,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			a.die();
 	}
 
-	public synchronized void removeFood(Location l) {
-		setFlag(l, FLAG_FOOD, false);
-	}
-
 	public synchronized void removeStone(Location l) {
-		setFlag(l, FLAG_STONE, false);
+		setFlag(l, Environment.FLAG_STONE, false);
 	}
 
 	/**
@@ -628,33 +569,33 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public void setFlag(Location l, int flag, boolean state) {
 		switch (flag) {
-			case FLAG_STONE:
+			case Environment.FLAG_STONE:
 				// Sanity check
-				if ((getLocationBits(l) & (FOOD_CODE | WASTE_CODE)) != 0)
+				if ((getLocationBits(l) & (Environment.FOOD_CODE | Environment.WASTE_CODE)) != 0)
 					break;
 				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~MASK_TYPE) | STONE_CODE);
+					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.STONE_CODE);
 				} else {
-					setLocationBits(l, getLocationBits(l) & ~MASK_TYPE);
+					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
 				}
 				break;
-			case FLAG_FOOD:
+			case Environment.FLAG_FOOD:
 				// Sanity check
-				if ((getLocationBits(l) & (STONE_CODE | WASTE_CODE)) != 0)
+				if ((getLocationBits(l) & (Environment.STONE_CODE | Environment.WASTE_CODE)) != 0)
 					break;
 				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~MASK_TYPE) | FOOD_CODE);
+					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.FOOD_CODE);
 				} else
-					setLocationBits(l, getLocationBits(l) & ~MASK_TYPE);
+					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
 				break;
-			case FLAG_DROP:
+			case Environment.FLAG_DROP:
 				// Sanity check
-				if ((getLocationBits(l) & (FOOD_CODE | STONE_CODE)) != 0)
+				if ((getLocationBits(l) & (Environment.FOOD_CODE | Environment.STONE_CODE)) != 0)
 					break;
 				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~MASK_TYPE) | WASTE_CODE);
+					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.WASTE_CODE);
 				} else {
-					setLocationBits(l, getLocationBits(l) & ~MASK_TYPE);
+					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
 				}
 				break;
 			default:
@@ -668,12 +609,12 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	@Override
 	public boolean testFlag(Location l, int flag) {
 		switch (flag) {
-			case FLAG_STONE:
-				return ((getLocationBits(l) & MASK_TYPE) == STONE_CODE);
-			case FLAG_FOOD:
-				return ((getLocationBits(l) & MASK_TYPE) == FOOD_CODE);
-			case FLAG_DROP:
-				return ((getLocationBits(l) & MASK_TYPE) == WASTE_CODE);
+			case Environment.FLAG_STONE:
+				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.STONE_CODE);
+			case Environment.FLAG_FOOD:
+				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.FOOD_CODE);
+			case Environment.FLAG_DROP:
+				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.WASTE_CODE);
 			default:
 				return false;
 		}
@@ -735,11 +676,11 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < topology.width; x++) {
 			for (int y = 0; y < topology.height; y++) {
 				Location l = new Location(x, y);
-				if (testFlag(l, ComplexEnvironment.FLAG_DROP) == false)
+				if (testFlag(l, Environment.FLAG_DROP) == false)
 					continue;
 				Drop d = getDrop(l);
 				if (!d.isActive(simulation.getTime())) {
-					setFlag(l, ComplexEnvironment.FLAG_DROP, false);
+					setFlag(l, Environment.FLAG_DROP, false);
 					d.expire();
 					setDrop(l, null); // consider deactivating
 					// and not deleting
@@ -752,16 +693,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return getAgent(l) != null;
 	}
 
-	public boolean hasFood(Location l) {
-		return testFlag(l, FLAG_FOOD);
-	}
-
-	public int getFood(Location l) {
-		return foodarray[l.x][l.y];
-	}
-
 	public boolean hasStone(Location l) {
-		return testFlag(l, FLAG_STONE);
+		return testFlag(l, Environment.FLAG_STONE);
 	}
 
 	public boolean isPDenabled() {

@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
@@ -35,7 +36,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	void remProduct(Product p) {
 		Location loc = p.loc;
 		environment.setDrop(loc, null);
-		environment.setFlag(loc, ComplexEnvironment.FLAG_DROP, false);
+		environment.setFlag(loc, Environment.FLAG_DROP, false);
 
 		updateValues(p, false);
 	}
@@ -148,11 +149,11 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 
 		products.add(prod);
 
-		if (environment.testFlag(owner.getPosition(), ComplexEnvironment.FLAG_FOOD)) {
-			environment.setFlag(owner.getPosition(), ComplexEnvironment.FLAG_FOOD, false);
+		if (environment.testFlag(owner.getPosition(), Environment.FLAG_FOOD)) {
+			environment.setFlag(owner.getPosition(), Environment.FLAG_FOOD, false);
 		}
 
-		environment.setFlag(owner.getPosition(), ComplexEnvironment.FLAG_DROP, true);
+		environment.setFlag(owner.getPosition(), Environment.FLAG_DROP, true);
 		environment.setDrop(loc, prod);
 	}
 

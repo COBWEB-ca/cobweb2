@@ -7,6 +7,7 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Direction;
+import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.Rotation;
@@ -153,7 +154,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		if (canStep(destPos)) {
 
 			// Check for food...
-			if (environment.testFlag(destPos, ComplexEnvironment.FLAG_FOOD)) {
+			if (environment.testFlag(destPos, Environment.FLAG_FOOD)) {
 
 				// Queues the agent to broadcast about the food
 				queue(new SmartAction(this, "broadcast") {
@@ -376,7 +377,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			stats.useAgentBumpEnergy(params.stepAgentEnergy);
 
 		} // end of two agents meet
-		else if (destPos != null && environment.testFlag(destPos, ComplexEnvironment.FLAG_DROP)) {
+		else if (destPos != null && environment.testFlag(destPos, Environment.FLAG_DROP)) {
 
 			// Allow agents up to a distance of 5 to see this agent hit the
 			// waste

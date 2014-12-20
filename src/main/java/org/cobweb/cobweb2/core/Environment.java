@@ -51,6 +51,27 @@ public abstract class Environment {
 	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 
+	public ArrayEnvironment array;
+
+	public int[][] foodarray = new int[0][];
+
+	public static final int FLAG_STONE = 1;
+
+	public static final int FLAG_FOOD = 2;
+
+	public static final int FLAG_AGENT = 3;
+
+	public static final int FLAG_DROP = 4;
+
+	// Bitmasks for boolean states
+	public static final int MASK_TYPE = 15;
+
+	public static final int STONE_CODE = 1;
+
+	public static final int FOOD_CODE = 2;
+
+	public static final int WASTE_CODE = 4;
+
 
 	public void clearAgents() {
 		for (Agent a : new ArrayList<Agent>(getAgents())) {
@@ -74,14 +95,6 @@ public abstract class Environment {
 
 	public abstract EnvironmentStats getStatistics();
 
-	public Location getUserDefinedLocation(int x, int y) {
-		Location l = new Location(x, y);
-		if (!topology.isValidLocation(l))
-			throw new IllegalArgumentException("Location not inside environment");
-
-		return l;
-	}
-
 	public final void setAgent(Location l, Agent a) {
 		if (a != null)
 			agentTable.put(l, a);
@@ -90,11 +103,51 @@ public abstract class Environment {
 	}
 
 	/** Core implementation of setFlag; this is what could be accelerated in C++ */
-	protected abstract void setFlag(Location l, int flag, boolean state);
+	public abstract void setFlag(Location l, int flag, boolean state);
 
 	/**
 	 * Core implementation of testFlag; this is what could be accelerated in C++
 	 */
-	protected abstract boolean testFlag(Location l, int flag);
+	public abstract boolean testFlag(Location l, int flag);
+
+	public int getFoodType(Location l) {
+		return foodarray[l.x][l.y];
+	}
+
+	public synchronized void addFood(Location l, int type) {
+		if (testFlag(l, Environment.FLAG_STONE)) {
+			throw new IllegalArgumentException("stone here already");
+		}
+		setFlag(l, Environment.FLAG_FOOD, true);
+		foodarray[l.x][l.y] = type;
+	}
+
+	public synchronized void clearFood() {
+		clearFlag(Environment.FLAG_FOOD);
+	}
+
+	public synchronized void removeFood(Location l) {
+		setFlag(l, Environment.FLAG_FOOD, false);
+	}
+
+	public boolean hasFood(Location l) {
+		return testFlag(l, Environment.FLAG_FOOD);
+	}
+
+	public int getFood(Location l) {
+		return foodarray[l.x][l.y];
+	}
+
+	protected void clearFlag(int flag) {
+		for (int x = 0; x < topology.width; ++x) {
+			for (int y = 0; y < topology.height; ++y) {
+				Location currentPos = new Location(x, y);
+
+				if (testFlag(currentPos, flag)) {
+					setFlag(currentPos, flag, false);
+				}
+			}
+		}
+	}
 
 }
