@@ -1,8 +1,6 @@
 package org.cobweb.cobweb2.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.SimulationConfig;
@@ -10,17 +8,13 @@ import org.cobweb.cobweb2.ai.ControllerFactory;
 import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
-import org.cobweb.cobweb2.core.params.ComplexFoodParams;
+import org.cobweb.cobweb2.food.Food;
 import org.cobweb.util.ArrayUtilities;
 
 /**
  * 2D grid where agents and food live
  */
 public class ComplexEnvironment extends Environment implements Updatable {
-
-	private static final int DROP_ATTEMPTS_MAX = 5;
-
-	private ComplexFoodParams foodData[];
 
 	protected ComplexAgentParams agentData[];
 
@@ -130,8 +124,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	protected void copyParamsFromParser(SimulationConfig p) {
 		data = p.getEnvParams();
 
-		foodData = p.getFoodParams();
-
 		agentData = p.getAgentParams();
 	}
 
@@ -174,53 +166,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return foodCount;
 	}
 
-	private void depleteFood(int type) {
-		// the algorithm for randomly selecting the food cells to delete
-		// is as follows:
-		// We iterate through all of the cells and the location of each
-		// one containing food type i is added to
-		// a random position in our vector. We then calculate exactly
-		// how many food items we need to destroy, say N,
-		// and we destroy the food at the positions occupying the last N
-		// spots in our vector
-		LinkedList<Location> locations = new LinkedList<Location>();
-		for (int x = 0; x < topology.width; ++x)
-			for (int y = 0; y < topology.height; ++y) {
-				Location currentPos = new Location(x, y);
-				if (testFlag(currentPos, Environment.FLAG_FOOD) && getFoodType(currentPos) == type)
-					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
-			}
-
-		int foodToDeplete = (int) (locations.size() * foodData[type].depleteRate);
-
-		for (int j = 0; j < foodToDeplete; ++j) {
-			Location loc = locations.removeLast();
-
-			setFlag(loc, Environment.FLAG_FOOD, false);
-		}
-		draughtdays[type] = foodData[type].draughtPeriod;
-	}
-
-	private void dropFood(int type) {
-		float foodDrop = foodData[type].dropRate;
-		while (simulation.getRandom().nextFloat() < foodDrop) {
-			--foodDrop;
-			Location l;
-			int j = 0;
-			do {
-				++j;
-				l = topology.getRandomLocation();
-
-			} while (j < DROP_ATTEMPTS_MAX
-					&& (testFlag(l, Environment.FLAG_STONE) || testFlag(l, Environment.FLAG_FOOD)
-							|| testFlag(l, Environment.FLAG_DROP) || getAgent(l) != null));
-
-			if (j < DROP_ATTEMPTS_MAX) {
-				addFood(l, type);
-			}
-		}
-	}
-
 	protected int getLocationBits(Location l) {
 		return array.getLocationBits(l);
 	}
@@ -236,91 +181,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		}
 		stats.timestep = simulation.getTime();
 		return stats;
-	}
-
-	private void growFood() {
-
-		for (int y = 0; y < topology.height; ++y) {
-			for (int x = 0; x < topology.width; ++x) {
-				Location currentPos = new Location(x, y);
-				// if there's a stone or already food, we simply copy the
-				// information from the old arrays to the new ones
-				backArray.setLocationBits(currentPos, array.getLocationBits(currentPos));
-				backFoodArray[currentPos.x][currentPos.y] = foodarray[currentPos.x][currentPos.y];
-			}
-		}
-
-		// create a new ArrayEnvironment and a new food type array
-		// loop through all positions
-		for (int y = 0; y < topology.height; ++y) {
-			for (int x = 0; x < topology.width; ++x) {
-				Location currentPos = new Location(x, y);
-				// if there's a stone or already food, we simply copy the
-				// information from the old arrays to the new ones
-				if ((array.getLocationBits(currentPos) & MASK_TYPE) == 0) {
-					// otherwise, we want to see if we should grow food here
-					// the following code block tests all adjacent squares
-					// to this one and counts how many have food
-					// as well how many of each food type exist
-
-					double foodCount = 0;
-					Arrays.fill(mostFood, 0);
-
-					for (Direction dir : topology.ALL_4_WAY) {
-						Location checkPos = topology.getAdjacent(currentPos, dir);
-						if (checkPos != null && testFlag(checkPos, Environment.FLAG_FOOD)) {
-							foodCount++;
-							mostFood[getFoodType(checkPos)]++;
-						}
-					}
-
-					// and if we have found any adjacent food, theres a
-					// chance we want to grow food here
-					if (foodCount > 0) {
-
-						int max = 0;
-						int growingType;
-
-						// find the food that exists in the largest quantity
-						for (int i = 1; i < mostFood.length; ++i)
-							if (mostFood[i] > mostFood[max])
-								max = i;
-
-						// give the max food an extra chance to be chosen
-
-						if (data.likeFoodProb >= simulation.getRandom().nextFloat()) {
-							growingType = max;
-						} else {
-							growingType = simulation.getRandom().nextInt(data.getFoodTypes());
-						}
-
-						// finally, we grow food according to a certain
-						// amount of random chance
-						if (foodCount * foodData[growingType].growRate > 100 * simulation.getRandom().nextFloat()) {
-							backArray.setLocationBits(currentPos, Environment.FOOD_CODE);
-							// setFoodType (currentPos, growMe);
-							backFoodArray[currentPos.x][currentPos.y] = growingType;
-						} else {
-							backArray.setLocationBits(currentPos, 0);
-							backFoodArray[currentPos.x][currentPos.y] = -123154534;
-						}
-					} else {
-						backArray.setLocationBits(currentPos, 0);
-						backFoodArray[currentPos.x][currentPos.y] = -123154534;
-					}
-				}
-			}
-		}
-
-		// The tile array we've just computed becomes the current tile array
-		ArrayEnvironment swapArray = array;
-		array = backArray;
-		backArray = swapArray;
-
-		int[][] swapFoodArray = foodarray;
-		foodarray = backFoodArray;
-		backFoodArray = swapFoodArray;
-
 	}
 
 	/**
@@ -354,17 +214,14 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			array = new ArrayEnvironment(data.width, data.height);
 			foodarray = new int[data.width][data.height];
 		}
-		backArray = new ArrayEnvironment(data.width, data.height);
-		backFoodArray = new int[data.width][data.height];
-		mostFood = new int[data.getFoodTypes()];
+
+		foodManager.load(data.dropNewFood, data.likeFoodProb, config.getFoodParams());
 
 		if (dropArray == null || !data.keepOldWaste) {
 			loadNewWaste();
 		} else {
 			loadOldWaste();
 		}
-
-		loadFoodMode();
 
 		if (data.keepOldAgents) {
 			loadOldAgents(oldH, oldW);
@@ -389,11 +246,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				setFlag(l, Environment.FLAG_STONE, true);
 		}
 
-		// add food to random locations
-		if (data.dropNewFood) {
-			loadNewFood();
-		}
-
 		try {
 			controllerFactory = new ControllerFactory(data.controllerName, config.getControllerParams(), simulation);
 		} catch (ClassNotFoundException ex) {
@@ -405,23 +257,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			loadNewAgents();
 		}
 
-	}
-
-	/**
-	 * Initializes drought days for each food type to zero.  Also checks to see if
-	 * food deplete rates and times are valid for each food type.  Valid random food
-	 * deplete rates and times will be generated using the environments random number
-	 * generator for each invalid entry.
-	 */
-	private void loadFoodMode() {
-		draughtdays = new int[data.getFoodTypes()];
-		for (int i = 0; i < data.getFoodTypes(); ++i) {
-			draughtdays[i] = 0;
-			if (foodData[i].depleteRate < 0.0f || foodData[i].depleteRate > 1.0f)
-				foodData[i].depleteRate = simulation.getRandom().nextFloat();
-			if (foodData[i].depleteTime <= 0)
-				foodData[i].depleteTime = simulation.getRandom().nextInt(100) + 1;
-		}
 	}
 
 	/**
@@ -444,25 +279,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				if (tries < 100) {
 					int agentType = i;
 					spawnAgent(new LocationDirection(location), agentType);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Randomly places food in the environment.
-	 */
-	private void loadNewFood() {
-		for (int i = 0; i < data.getFoodTypes(); ++i) {
-			for (int j = 0; j < foodData[i].initial; ++j) {
-				Location l;
-				int tries = 0;
-				do {
-					l = topology.getRandomLocation();
-				} while ((tries++ < 100)
-						&& (testFlag(l, Environment.FLAG_STONE) || testFlag(l, Environment.FLAG_DROP)));
-				if (tries < 100) {
-					addFood(l, i);
 				}
 			}
 		}
@@ -635,38 +451,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 		updateWaste();
 
-		// for each agent type, we test to see if its deplete time step has
-		// come, and if so deplete the food random
-		// by the appropriate percentage
-
-		for (int i = 0; i < data.getFoodTypes(); ++i) {
-			if (foodData[i].depleteRate != 0.0f && foodData[i].growRate > 0
-					&& (simulation.getTime() % foodData[i].depleteTime) == 0) {
-				depleteFood(i);
-			}
-		}
-
-		boolean shouldGrow = false;
-		for (int i = 0; i < data.getAgentTypes(); ++i) {
-			if (foodData[i].growRate > 0) {
-				shouldGrow = true;
-				break;
-			}
-		}
-
-		// if no food is growing (total == 0) this loop is not nessesary
-		if (shouldGrow) {
-			growFood();
-		}
-
-		// Air-drop food into the environment
-		for (int i = 0; i < data.foodTypeCount; ++i) {
-			if (draughtdays[i] == 0) {
-				dropFood(i);
-			} else {
-				draughtdays[i]--;
-			}
-		}
+		foodManager.update(tick);
 	}
 
 	/**
