@@ -95,10 +95,9 @@ public class Food {
 		for (int y = 0; y < env.topology.height; ++y) {
 			for (int x = 0; x < env.topology.width; ++x) {
 				Location currentPos = new Location(x, y);
-				// if there's a stone or already food, we simply copy the
-				// information from the old arrays to the new ones
-				if ((env.array.getLocationBits(currentPos) & Environment.MASK_TYPE) == 0) {
-					// otherwise, we want to see if we should grow food here
+
+				if (!env.hasAnythingAt(currentPos)) {
+					// we should grow food here
 					// the following code block tests all adjacent squares
 					// to this one and counts how many have food
 					// as well how many of each food type exist

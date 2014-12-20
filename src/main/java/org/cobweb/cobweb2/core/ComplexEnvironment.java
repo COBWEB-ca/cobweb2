@@ -9,7 +9,6 @@ import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.food.Food;
-import org.cobweb.util.ArrayUtilities;
 
 /**
  * 2D grid where agents and food live
@@ -84,27 +83,10 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return addAgentInfo(new ComplexAgentStatistics(makeNextAgentID(), agentT, simulation.getTime()));
 	}
 
-	public synchronized void addStone(Location l) {
-		if (getAgent(l) != null) {
-			return;
-		}
-
-		if (testFlag(l, Environment.FLAG_FOOD))
-			setFlag(l, Environment.FLAG_FOOD, false);
-		if (testFlag(l, Environment.FLAG_DROP))
-			setFlag(l, Environment.FLAG_DROP, false);
-
-		setFlag(l, Environment.FLAG_STONE, true);
-	}
-
 	@Override
 	public synchronized void clearAgents() {
 		super.clearAgents();
 		agentInfoVector.clear();
-	}
-
-	public synchronized void clearStones() {
-		clearFlag(Environment.FLAG_STONE);
 	}
 
 	public synchronized void clearWaste() {
@@ -166,10 +148,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return foodCount;
 	}
 
-	protected int getLocationBits(Location l) {
-		return array.getLocationBits(l);
-	}
-
 	@Override
 	public synchronized EnvironmentStats getStatistics() {
 		EnvironmentStats stats = new EnvironmentStats();
@@ -204,16 +182,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		 */
 
 		copyParamsFromParser(config);
-		super.load(data.width, data.height, data.wrapMap);
-
-		if (data.keepOldArray) {
-			int[] boardIndices = { data.width, data.height };
-			array = new ArrayEnvironment(data.width, data.height, array);
-			foodarray = ArrayUtilities.resizeArray(foodarray, boardIndices);
-		} else {
-			array = new ArrayEnvironment(data.width, data.height);
-			foodarray = new int[data.width][data.height];
-		}
+		super.load(data.width, data.height, data.wrapMap, data.keepOldArray);
 
 		foodManager.load(data.dropNewFood, data.likeFoodProb, config.getFoodParams());
 
@@ -373,69 +342,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			a.die();
 	}
 
-	public synchronized void removeStone(Location l) {
-		setFlag(l, Environment.FLAG_STONE, false);
-	}
-
-	/**
-	 * Flags locations as a food/stone/waste location. It does nothing if
-	 * the square is already occupied (for example, setFlag((0,0),FOOD,true)
-	 * does nothing when (0,0) is a stone
-	 */
-	@Override
-	public void setFlag(Location l, int flag, boolean state) {
-		switch (flag) {
-			case Environment.FLAG_STONE:
-				// Sanity check
-				if ((getLocationBits(l) & (Environment.FOOD_CODE | Environment.WASTE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.STONE_CODE);
-				} else {
-					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
-				}
-				break;
-			case Environment.FLAG_FOOD:
-				// Sanity check
-				if ((getLocationBits(l) & (Environment.STONE_CODE | Environment.WASTE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.FOOD_CODE);
-				} else
-					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
-				break;
-			case Environment.FLAG_DROP:
-				// Sanity check
-				if ((getLocationBits(l) & (Environment.FOOD_CODE | Environment.STONE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.WASTE_CODE);
-				} else {
-					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
-				}
-				break;
-			default:
-		}
-	}
-
-	protected void setLocationBits(Location l, int bits) {
-		array.setLocationBits(l, bits);
-	}
-
-	@Override
-	public boolean testFlag(Location l, int flag) {
-		switch (flag) {
-			case Environment.FLAG_STONE:
-				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.STONE_CODE);
-			case Environment.FLAG_FOOD:
-				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.FOOD_CODE);
-			case Environment.FLAG_DROP:
-				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.WASTE_CODE);
-			default:
-				return false;
-		}
-	}
-
 	/**
 	 * tickNotification is the method called by the scheduler for each of its
 	 * clients for every tick of the simulation. For environment,
@@ -472,14 +378,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				}
 			}
 		}
-	}
-
-	public boolean hasAgent(Location l) {
-		return getAgent(l) != null;
-	}
-
-	public boolean hasStone(Location l) {
-		return testFlag(l, Environment.FLAG_STONE);
 	}
 
 	public boolean isPDenabled() {
