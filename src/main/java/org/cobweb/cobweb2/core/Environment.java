@@ -228,7 +228,7 @@ public abstract class Environment {
 	}
 
 	public boolean hasAnythingAt(Location l) {
-		return (getLocationBits(l) & MASK_TYPE) == 0;
+		return (getLocationBits(l) & MASK_TYPE) != 0;
 	}
 
 	public synchronized void removeStone(Location l) {

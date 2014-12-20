@@ -25,7 +25,7 @@ public class Food {
 
 	private Environment env;
 
-	private float likeFoodProb;
+	private float sameFoodProb;
 
 	public Food(SimulationInternals simulation) {
 		this.simulation = simulation;
@@ -127,7 +127,7 @@ public class Food {
 
 						// give the max food an extra chance to be chosen
 
-						if (likeFoodProb >= simulation.getRandom().nextFloat()) {
+						if (sameFoodProb >= simulation.getRandom().nextFloat()) {
 							growingType = max;
 						} else {
 							growingType = simulation.getRandom().nextInt(getTypeCount());
@@ -212,7 +212,7 @@ public class Food {
 		for (ComplexFoodParams f : foodData) {
 			if (f.depleteRate != 0.0f
 					&& f.growRate > 0
-					&& (simulation.getTime() % f.depleteTime) == 0) {
+					&& (tick % f.depleteTime) == 0) {
 				depleteFood(f);
 			}
 		}
@@ -242,13 +242,12 @@ public class Food {
 
 	public void load(boolean dropNewFood, float likeFoodProb, ComplexFoodParams[] foodParams) {
 		foodData = foodParams;
+		this.sameFoodProb = likeFoodProb;
 
 		env = simulation.getEnvironment();
 
 		backFoodArray = new int[env.topology.width][env.topology.height];
 		backArray = new ArrayEnvironment(env.topology.width, env.topology.height);
-
-		this.likeFoodProb = likeFoodProb;
 
 		loadFoodMode();
 
