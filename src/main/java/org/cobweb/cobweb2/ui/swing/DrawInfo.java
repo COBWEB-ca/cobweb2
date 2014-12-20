@@ -8,7 +8,6 @@ import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.TypeColorEnumeration;
@@ -62,10 +61,10 @@ class DrawInfo {
 			for (int x = 0; x < width; ++x) {
 				Location currentPos = new Location(x, y);
 
-				if (sim.theEnvironment.testFlag(currentPos, Environment.FLAG_STONE))
+				if (sim.theEnvironment.hasStone(currentPos))
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
 
-				else if (sim.theEnvironment.testFlag(currentPos, Environment.FLAG_FOOD))
+				else if (sim.theEnvironment.hasFood(currentPos))
 					tileColors[tileIndex++] = colorMap.getColor(sim.theEnvironment.getFoodType(currentPos), 0 /* agentTypeCount */);
 
 				else
@@ -87,7 +86,7 @@ class DrawInfo {
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
 				Location currentPos = new Location(x, y);
-				if (sim.theEnvironment.testFlag(currentPos, Environment.FLAG_DROP)){
+				if (sim.theEnvironment.hasDrop(currentPos)){
 					drops.add(new DropDrawInfo(new Point2D(x, y), sim.theEnvironment.getDrop(currentPos)));
 				}
 			}

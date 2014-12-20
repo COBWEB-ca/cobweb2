@@ -9,6 +9,7 @@ import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.food.Food;
+import org.cobweb.util.ArrayUtilities;
 
 /**
  * 2D grid where agents and food live
@@ -17,12 +18,27 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	protected ComplexAgentParams agentData[];
 
-	public void setDrop(Location loc, Drop d) {
+	public void addDrop(Location loc, Drop d) {
+		if (hasFood(loc)) {
+			removeFood(loc);
+		}
+
+		setFlag(loc, Environment.FLAG_DROP, true);
+
 		dropArray[loc.x][loc.y] = d;
+	}
+
+	public void removeDrop(Location loc) {
+		setFlag(loc, FLAG_DROP, false);
+		dropArray[loc.x][loc.y] = null;
 	}
 
 	public Drop getDrop(Location loc) {
 		return dropArray[loc.x][loc.y];
+	}
+
+	public boolean hasDrop(Location loc) {
+		return testFlag(loc, FLAG_DROP);
 	}
 
 	public final List<ComplexAgentStatistics> agentInfoVector = new ArrayList<ComplexAgentStatistics>();
@@ -48,8 +64,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	public ControllerFactory controllerFactory;
 
 	public synchronized void addAgent(Location l, int type) {
-		if ((getAgent(l) == null) && !testFlag(l, Environment.FLAG_STONE)
-				&& !testFlag(l, Environment.FLAG_DROP)) {
+		if (!hasAgent(l) && !hasStone(l) && !hasDrop(l)) {
 			int agentType = type;
 
 			spawnAgent(new LocationDirection(l), agentType);
@@ -127,7 +142,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
-				if (testFlag(currentPos, Environment.FLAG_FOOD))
+				if (hasFood(currentPos))
 					++foodCount;
 			}
 		}
@@ -140,7 +155,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
 				Location currentPos = new Location(x, y);
-				if (testFlag(currentPos, Environment.FLAG_FOOD))
+				if (hasFood(currentPos))
 					if (getFoodType(currentPos) == foodType)
 						++foodCount;
 			}
@@ -148,7 +163,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		return foodCount;
 	}
 
-	@Override
 	public synchronized EnvironmentStats getStatistics() {
 		EnvironmentStats stats = new EnvironmentStats();
 		stats.agentCounts = new long[data.agentTypeCount];
@@ -208,11 +222,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			int tries = 0;
 			do {
 				l = topology.getRandomLocation();
-			} while ((tries++ < 100)
-					&& ((testFlag(l, Environment.FLAG_STONE) || testFlag(l, Environment.FLAG_DROP))
-							&& getAgent(l) == null));
+			} while (tries++ < 100 && (hasStone(l) || hasDrop(l) || hasAgent(l)));
 			if (tries < 100)
-				setFlag(l, Environment.FLAG_STONE, true);
+				addStone(l);
 		}
 
 		try {
@@ -242,9 +254,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				int tries = 0;
 				do {
 					location = topology.getRandomLocation();
-				} while ((tries++ < 100) && ((getAgent(location) != null) // don't spawn on top of agents
-						|| testFlag(location, Environment.FLAG_STONE) // nor on stone tiles
-						|| testFlag(location, Environment.FLAG_DROP))); // nor on waste tiles
+				} while (tries++ < 100 && (hasAgent(location) || hasStone(location) || hasDrop(location)));
 				if (tries < 100) {
 					int agentType = i;
 					spawnAgent(new LocationDirection(location), agentType);
@@ -261,7 +271,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		dropArray = new Drop[data.width][data.height];
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
-				setFlag(new Location(x, y), Environment.FLAG_DROP, false);
+				Location loc = new Location(x, y);
+				removeDrop(loc);
 			}
 		}
 	}
@@ -313,27 +324,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * that was stored in old waste array.
 	 */
 	private void loadOldWaste() {
-		Drop[][] oldWasteArray = dropArray;
-		dropArray = new Drop[data.width][data.height];
-
-		int width = Math.min(data.width, oldWasteArray.length);
-		int height = Math.min(data.height, oldWasteArray[0].length);
-		for (int i = 0; i < width; i++)
-			for (int j = 0; j < height; j++)
-				dropArray[i][j] = oldWasteArray[i][j];
-
-		// Add in-bounds old waste to the new scheduler and update new
-		// constants
-		for (int x = 0; x < topology.height; ++x) {
-			for (int y = 0; y < topology.width; ++y) {
-				Location currentPos = new Location(x, y);
-				if (getDrop(currentPos) != null) {
-					setFlag(currentPos, Environment.FLAG_FOOD, false);
-					setFlag(currentPos, Environment.FLAG_STONE, false);
-					setFlag(currentPos, Environment.FLAG_DROP, true);
-				}
-			}
-		}
+		dropArray = ArrayUtilities.resizeArray(dropArray, topology.width, topology.height);
 	}
 
 	public synchronized void removeAgent(Location l) {
@@ -367,14 +358,12 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < topology.width; x++) {
 			for (int y = 0; y < topology.height; y++) {
 				Location l = new Location(x, y);
-				if (testFlag(l, Environment.FLAG_DROP) == false)
+				if (!hasDrop(l))
 					continue;
 				Drop d = getDrop(l);
 				if (!d.isActive(simulation.getTime())) {
-					setFlag(l, Environment.FLAG_DROP, false);
 					d.expire();
-					setDrop(l, null); // consider deactivating
-					// and not deleting
+					removeDrop(l);
 				}
 			}
 		}

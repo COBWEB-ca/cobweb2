@@ -32,7 +32,7 @@ import org.cobweb.util.ArrayUtilities;
  * environment they are operating in, but all access should be through this
  * interface, using implementation specific access constants.
  */
-public abstract class Environment {
+public  class Environment {
 
 	protected SimulationInternals simulation;
 
@@ -103,8 +103,6 @@ public abstract class Environment {
 
 	}
 
-	public abstract EnvironmentStats getStatistics();
-
 	public final void setAgent(Location l, Agent a) {
 		if (a != null)
 			agentTable.put(l, a);
@@ -117,7 +115,8 @@ public abstract class Environment {
 	 * the square is already occupied (for example, setFlag((0,0),FOOD,true)
 	 * does nothing when (0,0) is a stone
 	 */
-	public void setFlag(Location l, int flag, boolean state) {
+	protected void setFlag(Location l, int flag, boolean state) {
+		// FIXME: check/removal of other existing flags should be done by the caller
 		switch (flag) {
 			case Environment.FLAG_STONE:
 				// Sanity check
@@ -153,17 +152,8 @@ public abstract class Environment {
 	}
 
 
-	public boolean testFlag(Location l, int flag) {
-		switch (flag) {
-			case Environment.FLAG_STONE:
-				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.STONE_CODE);
-			case Environment.FLAG_FOOD:
-				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.FOOD_CODE);
-			case Environment.FLAG_DROP:
-				return ((getLocationBits(l) & Environment.MASK_TYPE) == Environment.WASTE_CODE);
-			default:
-				return false;
-		}
+	protected boolean testFlag(Location l, int flag) {
+		return (getLocationBits(l) & MASK_TYPE & (1 << flag)) != 0;
 	}
 
 	public int getFoodType(Location l) {
@@ -171,7 +161,7 @@ public abstract class Environment {
 	}
 
 	public synchronized void addFood(Location l, int type) {
-		if (testFlag(l, Environment.FLAG_STONE)) {
+		if (hasStone(l)) {
 			throw new IllegalArgumentException("stone here already");
 		}
 		setFlag(l, Environment.FLAG_FOOD, true);
@@ -207,12 +197,12 @@ public abstract class Environment {
 	}
 
 	public synchronized void addStone(Location l) {
-		if (getAgent(l) != null) {
+		if (hasAgent(l)) {
 			return;
 		}
 
-		if (testFlag(l, Environment.FLAG_FOOD))
-			setFlag(l, Environment.FLAG_FOOD, false);
+		if (hasFood(l))
+			removeFood(l);
 		if (testFlag(l, Environment.FLAG_DROP))
 			setFlag(l, Environment.FLAG_DROP, false);
 
@@ -228,7 +218,7 @@ public abstract class Environment {
 	}
 
 	public boolean hasAnythingAt(Location l) {
-		return (getLocationBits(l) & MASK_TYPE) != 0;
+		return (getLocationBits(l) & MASK_TYPE) != 0 || hasAgent(l);
 	}
 
 	public synchronized void removeStone(Location l) {

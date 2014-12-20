@@ -44,7 +44,7 @@ public class Food {
 		for (int x = 0; x < env.topology.width; ++x)
 			for (int y = 0; y < env.topology.height; ++y) {
 				Location currentPos = new Location(x, y);
-				if (env.testFlag(currentPos, Environment.FLAG_FOOD) && env.getFoodType(currentPos) == food.type)
+				if (env.hasFood(currentPos) && env.getFoodType(currentPos) == food.type)
 					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
 			}
 
@@ -53,7 +53,7 @@ public class Food {
 		for (int j = 0; j < foodToDeplete; ++j) {
 			Location loc = locations.removeLast();
 
-			env.setFlag(loc, Environment.FLAG_FOOD, false);
+			env.removeFood(loc);
 		}
 		draughtdays[food.type] = food.draughtPeriod;
 	}
@@ -68,9 +68,7 @@ public class Food {
 				++j;
 				l = env.topology.getRandomLocation();
 
-			} while (j < DROP_ATTEMPTS_MAX
-					&& (env.testFlag(l, Environment.FLAG_STONE) || env.testFlag(l, Environment.FLAG_FOOD)
-							|| env.testFlag(l, Environment.FLAG_DROP) || env.getAgent(l) != null));
+			} while (j < DROP_ATTEMPTS_MAX &&  env.hasAnythingAt(l));
 
 			if (j < DROP_ATTEMPTS_MAX) {
 				env.addFood(l, type);
@@ -107,7 +105,7 @@ public class Food {
 
 					for (Direction dir : env.topology.ALL_4_WAY) {
 						Location checkPos = env.topology.getAdjacent(currentPos, dir);
-						if (checkPos != null && env.testFlag(checkPos, Environment.FLAG_FOOD)) {
+						if (checkPos != null && env.hasFood(checkPos)) {
 							foodCount++;
 							mostFood[env.getFoodType(checkPos)]++;
 						}
@@ -189,8 +187,7 @@ public class Food {
 				int tries = 0;
 				do {
 					l = env.topology.getRandomLocation();
-				} while ((tries++ < 100)
-						&& (env.testFlag(l, Environment.FLAG_STONE) || env.testFlag(l, Environment.FLAG_DROP)));
+				} while (tries++ < 100 && env.hasAnythingAt(l));
 				if (tries < 100) {
 					env.addFood(l, i);
 				}

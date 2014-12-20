@@ -209,13 +209,13 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		if (destPos == null)
 			return false;
 		// and the destination must be clear of stones
-		if (environment.testFlag(destPos, Environment.FLAG_STONE))
+		if (environment.hasStone(destPos))
 			return false;
 		// and clear of wastes
-		if (environment.testFlag(destPos, Environment.FLAG_DROP))
+		if (environment.hasDrop(destPos))
 			return environment.getDrop(destPos).canStep();
 		// as well as other agents...
-		if (environment.getAgent(destPos) != null)
+		if (environment.hasAgent(destPos))
 			return false;
 		return true;
 	}
@@ -269,18 +269,18 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 				return new SeeInfo(dist, Environment.FLAG_STONE);
 
 			// Check for stone...
-			if (environment.testFlag(destPos, Environment.FLAG_STONE))
+			if (environment.hasStone(destPos))
 				return new SeeInfo(dist, Environment.FLAG_STONE);
 
 			// If there's another agent there, then return that it's a stone...
-			if (environment.getAgent(destPos) != null && environment.getAgent(destPos) != this)
+			if (environment.hasAgent(destPos) && environment.getAgent(destPos) != this)
 				return new SeeInfo(dist, Environment.FLAG_AGENT);
 
 			// If there's food there, return the food...
-			if (environment.testFlag(destPos, Environment.FLAG_FOOD))
+			if (environment.hasFood(destPos))
 				return new SeeInfo(dist, Environment.FLAG_FOOD);
 
-			if (environment.testFlag(destPos, Environment.FLAG_DROP))
+			if (environment.hasDrop(destPos))
 				return new SeeInfo(dist, Environment.FLAG_DROP);
 
 			destPos = environment.topology.getAdjacent(destPos);
@@ -297,7 +297,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	public void eat(Location destPos) {
 		// TODO: CHECK if setting flag before determining type is ok
 		// Eat first before we can produce waste, of course.
-		environment.setFlag(destPos, Environment.FLAG_FOOD, false);
+		environment.removeFood(destPos);
 		// Gain Energy according to the food type.
 		if (environment.getFoodType(destPos) == params.type) {
 			energy += params.foodEnergy;
@@ -676,7 +676,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		}
 		energy -= energyPenalty();
 
-		if (destPos != null && environment.testFlag(destPos, Environment.FLAG_DROP)) {
+		if (destPos != null && environment.hasDrop(destPos)) {
 			// Bumps into drop
 			Drop d = environment.getDrop(destPos);
 
@@ -704,8 +704,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	protected void onstepFreeTile(LocationDirection destPos) {
 		// Check for food...
-		LocationDirection breedPos = null;
-		if (environment.testFlag(destPos, Environment.FLAG_FOOD)) {
+		if (environment.hasFood(destPos)) {
 			if (params.broadcastMode && canBroadcast()) {
 				broadcastFood(destPos);
 			}
@@ -714,6 +713,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			}
 		}
 
+		LocationDirection breedPos = null;
 		if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 			breedPos = new LocationDirection(getPosition());
 		} else if (!pregnant) {
@@ -884,14 +884,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		// Place the drop at an available location adjacent to the agent
 		for (Direction dir : environment.topology.ALL_8_WAY) {
 			loc = environment.topology.getAdjacent(getPosition(), dir);
-			if (loc != null && environment.getAgent(loc) == null
-					&& !environment.testFlag(loc, Environment.FLAG_STONE)
-					&& !environment.testFlag(loc, Environment.FLAG_DROP)
-					&& !environment.testFlag(loc, Environment.FLAG_FOOD)) {
-				environment.setFlag(loc, Environment.FLAG_FOOD, false);
-				environment.setFlag(loc, Environment.FLAG_STONE, false);
-				environment.setFlag(loc, Environment.FLAG_DROP, true);
-				environment.setDrop(loc, d);
+			if (loc != null && !environment.hasAnythingAt(loc)) {
+				environment.addDrop(loc, d);
 				break;
 			}
 		}
@@ -905,11 +899,11 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			for (Direction dir : environment.topology.ALL_8_WAY) {
 				loc = environment.topology.getAdjacent(getPosition(), dir);
 				if (loc != null
-						&& environment.getAgent(loc) == null
-						&& environment.testFlag(loc, Environment.FLAG_FOOD)) {
-					environment.setFlag(loc, Environment.FLAG_FOOD, false);
-					environment.setFlag(loc, Environment.FLAG_DROP, true);
-					environment.setDrop(loc, d);
+						&& !environment.hasStone(loc)
+						&& !environment.hasAgent(loc)
+						&& environment.hasFood(loc)) {
+					environment.removeFood(loc);
+					environment.addDrop(loc, d);
 					break;
 				}
 			}
