@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.core;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.cobweb.util.ArrayUtilities;
 
@@ -60,7 +61,7 @@ public  class Environment {
 	 * The implementation uses a hash table to store agents, as we assume there
 	 * are many more locations than agents.
 	 */
-	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
+	protected Map<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 
 	private ArrayEnvironment array;
 
@@ -73,15 +74,6 @@ public  class Environment {
 	public static final int FLAG_AGENT = 3;
 
 	public static final int FLAG_DROP = 4;
-
-	private static final int STONE_CODE = 1 << FLAG_STONE;
-
-	private static final int FOOD_CODE = 1 << FLAG_FOOD;
-
-	private static final int WASTE_CODE = 1 << FLAG_DROP;
-
-	// Bitmasks for boolean states
-	private static final int MASK_TYPE = STONE_CODE | FOOD_CODE | WASTE_CODE;
 
 	public void clearAgents() {
 		for (Agent a : new ArrayList<Agent>(getAgents())) {
@@ -116,44 +108,25 @@ public  class Environment {
 	 * does nothing when (0,0) is a stone
 	 */
 	protected void setFlag(Location l, int flag, boolean state) {
-		// FIXME: check/removal of other existing flags should be done by the caller
-		switch (flag) {
-			case Environment.FLAG_STONE:
-				// Sanity check
-				if ((getLocationBits(l) & (Environment.FOOD_CODE | Environment.WASTE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.STONE_CODE);
-				} else {
-					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
-				}
-				break;
-			case Environment.FLAG_FOOD:
-				// Sanity check
-				if ((getLocationBits(l) & (Environment.STONE_CODE | Environment.WASTE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.FOOD_CODE);
-				} else
-					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
-				break;
-			case Environment.FLAG_DROP:
-				// Sanity check
-				if ((getLocationBits(l) & (Environment.FOOD_CODE | Environment.STONE_CODE)) != 0)
-					break;
-				if (state) {
-					setLocationBits(l, (getLocationBits(l) & ~Environment.MASK_TYPE) | Environment.WASTE_CODE);
-				} else {
-					setLocationBits(l, getLocationBits(l) & ~Environment.MASK_TYPE);
-				}
-				break;
-			default:
-		}
+		int flagBits = 1 << (flag - 1);
+
+		assert (!state || getLocationBits(l) == 0) : "Attempted to set flag when location flags non-zero";
+		assert (state || (getLocationBits(l) & flagBits) != 0) : "Attempting to unset an unset flag";
+
+		int newValue = getLocationBits(l);
+
+		if (state)
+			newValue |= flagBits;
+		else
+			newValue &= ~flagBits;
+
+		setLocationBits(l, newValue);
 	}
 
 
 	protected boolean testFlag(Location l, int flag) {
-		return (getLocationBits(l) & MASK_TYPE & (1 << flag)) != 0;
+		int flagBits = 1 << (flag - 1);
+		return (getLocationBits(l) & flagBits) != 0;
 	}
 
 	public int getFoodType(Location l) {
@@ -218,7 +191,7 @@ public  class Environment {
 	}
 
 	public boolean hasAnythingAt(Location l) {
-		return (getLocationBits(l) & MASK_TYPE) != 0 || hasAgent(l);
+		return getLocationBits(l) != 0 || hasAgent(l);
 	}
 
 	public synchronized void removeStone(Location l) {

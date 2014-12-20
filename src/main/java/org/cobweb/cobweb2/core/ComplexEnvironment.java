@@ -272,7 +272,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
 				Location loc = new Location(x, y);
-				removeDrop(loc);
+				if (hasDrop(loc))
+					removeDrop(loc);
 			}
 		}
 	}

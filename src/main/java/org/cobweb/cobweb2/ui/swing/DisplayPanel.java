@@ -151,7 +151,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		public boolean canClick(Location loc) {
-			return simulation.theEnvironment.getAgent(loc) != null;
+			return !simulation.theEnvironment.hasAgent(loc);
 		}
 
 		@Override
