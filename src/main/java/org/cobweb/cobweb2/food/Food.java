@@ -2,7 +2,6 @@ package org.cobweb.cobweb2.food;
 
 import java.util.LinkedList;
 
-import org.cobweb.cobweb2.core.ArrayEnvironment;
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
@@ -17,9 +16,6 @@ public class Food {
 	private ComplexFoodParams foodData[];
 
 	private int draughtdays[];
-
-	ArrayEnvironment backArray;
-	int[][] backFoodArray;
 
 	private SimulationInternals simulation;
 
@@ -77,17 +73,6 @@ public class Food {
 	}
 
 	private void growFood() {
-
-		for (int y = 0; y < env.topology.height; ++y) {
-			for (int x = 0; x < env.topology.width; ++x) {
-				Location currentPos = new Location(x, y);
-				// if there's a stone or already food, we simply copy the
-				// information from the old arrays to the new ones
-				backArray.setLocationBits(currentPos, env.array.getLocationBits(currentPos));
-				backFoodArray[currentPos.x][currentPos.y] = env.foodarray[currentPos.x][currentPos.y];
-			}
-		}
-
 		// create a new ArrayEnvironment and a new food type array
 		// loop through all positions
 		for (int y = 0; y < env.topology.height; ++y) {
@@ -134,30 +119,12 @@ public class Food {
 						// finally, we grow food according to a certain
 						// amount of random chance
 						if (foodCount * foodData[growingType].growRate > 100 * simulation.getRandom().nextFloat()) {
-							backArray.setLocationBits(currentPos, Environment.FOOD_CODE);
-							// setFoodType (currentPos, growMe);
-							backFoodArray[currentPos.x][currentPos.y] = growingType;
-						} else {
-							backArray.setLocationBits(currentPos, 0);
-							backFoodArray[currentPos.x][currentPos.y] = -123154534;
+							env.addFood(currentPos, growingType);
 						}
-					} else {
-						backArray.setLocationBits(currentPos, 0);
-						backFoodArray[currentPos.x][currentPos.y] = -123154534;
 					}
 				}
 			}
 		}
-
-		// The tile array we've just computed becomes the current tile array
-		ArrayEnvironment swapArray = env.array;
-		env.array = backArray;
-		backArray = swapArray;
-
-		int[][] swapFoodArray = env.foodarray;
-		env.foodarray = backFoodArray;
-		backFoodArray = swapFoodArray;
-
 	}
 
 	/**
@@ -242,9 +209,6 @@ public class Food {
 		this.sameFoodProb = likeFoodProb;
 
 		env = simulation.getEnvironment();
-
-		backFoodArray = new int[env.topology.width][env.topology.height];
-		backArray = new ArrayEnvironment(env.topology.width, env.topology.height);
 
 		loadFoodMode();
 

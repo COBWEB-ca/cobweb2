@@ -62,9 +62,9 @@ public  class Environment {
 	 */
 	protected java.util.Hashtable<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 
-	public ArrayEnvironment array;
+	private ArrayEnvironment array;
 
-	public int[][] foodarray = new int[0][];
+	private int[][] foodarray = new int[0][];
 
 	public static final int FLAG_STONE = 1;
 
@@ -76,7 +76,7 @@ public  class Environment {
 
 	private static final int STONE_CODE = 1 << FLAG_STONE;
 
-	public static final int FOOD_CODE = 1 << FLAG_FOOD;
+	private static final int FOOD_CODE = 1 << FLAG_FOOD;
 
 	private static final int WASTE_CODE = 1 << FLAG_DROP;
 
