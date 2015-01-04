@@ -67,7 +67,7 @@ public class LinearWeightsController implements Controller {
 		variables[2] = type == Environment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
 		variables[3] = type == Environment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
 		variables[4] = type == Environment.FLAG_STONE || type == Environment.FLAG_DROP ? ((double) ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0;
-		variables[5] = simulator.getEnvironment().topology
+		variables[5] = simulator.getTopology()
 				.getRotationBetween(Topology.NORTH, agent.getPosition().direction)
 				.ordinal() / 2.0;
 		variables[6] = memSize == 0 ? 0 : (double) agent.getMemoryBuffer() / ((1 << memSize) - 1);

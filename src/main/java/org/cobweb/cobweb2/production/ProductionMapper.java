@@ -1,9 +1,9 @@
 package org.cobweb.cobweb2.production;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,10 +26,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	SimulationInternals simulation;
 	private ProductionParams[] initialParams;
 
-	public ProductionMapper(ProductionParams[] productionParams) {
-		initialParams = productionParams;
-		params = new LinkedList<StateParameter>();
-		params.add(new ProductHunt());
+	public ProductionMapper() {
 	}
 
 	void remProduct(Product p) {
@@ -65,7 +62,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 
 	private float getDifAtLoc(Product source, Location loc2) {
 		float val = source.getValue();
-		val /= Math.max(1, simulation.getEnvironment().topology.getDistanceSquared(source.getLocation(), loc2));
+		val /= Math.max(1, simulation.getTopology().getDistanceSquared(source.getLocation(), loc2));
 		return val;
 	}
 
@@ -113,8 +110,8 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		@Override
 		public double getValue(ComplexAgent agent) {
 			LocationDirection here = agent.getPosition();
-			Location ahead = environment.topology.getAdjacent(here);
-			if (ahead == null || !environment.topology.isValidLocation(ahead)) {
+			Location ahead = simulation.getTopology().getAdjacent(here);
+			if (ahead == null || !simulation.getTopology().isValidLocation(ahead)) {
 				return 0;
 			}
 
@@ -130,7 +127,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 
 	}
 
-	private List<StateParameter> params;
+	private List<StateParameter> params = Arrays.asList(new StateParameter[] { new ProductHunt() });
 
 	@Override
 	public List<StateParameter> getParameters() {
@@ -304,16 +301,20 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 				);
 	}
 
-	public void setParams(SimulationInternals sim, ProductionParams[] productionParams, boolean keepOldProducts) {
+	public void setParams(SimulationInternals sim, ProductionParams[] productionParams) {
 		simulation = sim;
-		environment = (ComplexEnvironment) sim.getEnvironment();
 
 		initialParams = productionParams;
+	}
 
+	public void initEnvironment(ComplexEnvironment env, boolean keepOldProducts) {
+		environment = env;
+
+		// FIXME: this has to happen after environment is set up, since simulation.getTopology comes from the environment
 		if (vals == null || !keepOldProducts) {
-			vals = new float[environment.topology.width][environment.topology.height];
+			vals = new float[simulation.getTopology().width][simulation.getTopology().height];
 		} else {
-			vals = ArrayUtilities.resizeArray(vals, environment.topology.width, environment.topology.height);
+			vals = ArrayUtilities.resizeArray(vals, simulation.getTopology().width, simulation.getTopology().height);
 		}
 	}
 

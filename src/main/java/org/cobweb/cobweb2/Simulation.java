@@ -13,9 +13,9 @@ import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.interconnect.MutatorListener;
@@ -137,7 +137,7 @@ public class Simulation implements SimulationInternals {
 			mutatorListener.addMutator(tempMutator);
 		}
 		if (prodMapper == null) {
-			prodMapper = new ProductionMapper(simulationConfig.getProdParams());
+			prodMapper = new ProductionMapper();
 			plugins.add(prodMapper);
 			mutatorListener.addMutator(prodMapper);
 		}
@@ -148,6 +148,8 @@ public class Simulation implements SimulationInternals {
 
 		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
 
+		prodMapper.setParams(this, simulationConfig.getProdParams());
+
 		// 0 = use default seed
 		if (p.getEnvParams().randomSeed == 0)
 			random = new RandomNoGenerator();
@@ -157,10 +159,7 @@ public class Simulation implements SimulationInternals {
 
 		InitEnvironment(p.getEnvParams().environmentName, p);
 
-		prodMapper.setParams(
-				this,
-				simulationConfig.getProdParams(),
-				p.getEnvParams().keepOldWaste);
+		prodMapper.initEnvironment(theEnvironment, p.getEnvParams().keepOldWaste);
 
 		setupPlugins();
 	}
@@ -205,8 +204,8 @@ public class Simulation implements SimulationInternals {
 	}
 
 	@Override
-	public Environment getEnvironment() {
-		return theEnvironment;
+	public Topology getTopology() {
+		return theEnvironment.topology;
 	}
 
 	@Override

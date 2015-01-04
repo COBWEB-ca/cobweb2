@@ -198,7 +198,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		copyParamsFromParser(config);
 		super.load(data.width, data.height, data.wrapMap, data.keepOldArray);
 
-		foodManager.load(data.dropNewFood, data.likeFoodProb, config.getFoodParams());
+		foodManager.load(this, data.dropNewFood, data.likeFoodProb, config.getFoodParams());
 
 		if (dropArray == null || !data.keepOldWaste) {
 			loadNewWaste();

@@ -111,7 +111,7 @@ public class GeneticController implements Controller {
 		inputCode.add(getEnergy(theAgent.getEnergy()), 2);
 
 		//add the direction the agent is facing to the array
-		inputCode.add(simulation.getEnvironment().topology
+		inputCode.add(simulation.getTopology()
 				.getRotationBetween(Topology.NORTH, theAgent.getPosition().direction)
 				.ordinal(), 2);
 

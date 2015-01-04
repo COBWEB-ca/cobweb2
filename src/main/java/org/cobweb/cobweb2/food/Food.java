@@ -37,8 +37,8 @@ public class Food {
 		// and we destroy the food at the positions occupying the last N
 		// spots in our vector
 		LinkedList<Location> locations = new LinkedList<Location>();
-		for (int x = 0; x < env.topology.width; ++x)
-			for (int y = 0; y < env.topology.height; ++y) {
+		for (int x = 0; x < simulation.getTopology().width; ++x)
+			for (int y = 0; y < simulation.getTopology().height; ++y) {
 				Location currentPos = new Location(x, y);
 				if (env.hasFood(currentPos) && env.getFoodType(currentPos) == food.type)
 					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
@@ -62,7 +62,7 @@ public class Food {
 			int j = 0;
 			do {
 				++j;
-				l = env.topology.getRandomLocation();
+				l = simulation.getTopology().getRandomLocation();
 
 			} while (j < DROP_ATTEMPTS_MAX &&  env.hasAnythingAt(l));
 
@@ -75,8 +75,8 @@ public class Food {
 	private void growFood() {
 		// create a new ArrayEnvironment and a new food type array
 		// loop through all positions
-		for (int y = 0; y < env.topology.height; ++y) {
-			for (int x = 0; x < env.topology.width; ++x) {
+		for (int y = 0; y < simulation.getTopology().height; ++y) {
+			for (int x = 0; x < simulation.getTopology().width; ++x) {
 				Location currentPos = new Location(x, y);
 
 				if (!env.hasAnythingAt(currentPos)) {
@@ -88,8 +88,8 @@ public class Food {
 					double foodCount = 0;
 					int[] mostFood = new int[getTypeCount()];
 
-					for (Direction dir : env.topology.ALL_4_WAY) {
-						Location checkPos = env.topology.getAdjacent(currentPos, dir);
+					for (Direction dir : simulation.getTopology().ALL_4_WAY) {
+						Location checkPos = simulation.getTopology().getAdjacent(currentPos, dir);
 						if (checkPos != null && env.hasFood(checkPos)) {
 							foodCount++;
 							mostFood[env.getFoodType(checkPos)]++;
@@ -153,7 +153,7 @@ public class Food {
 				Location l;
 				int tries = 0;
 				do {
-					l = env.topology.getRandomLocation();
+					l = simulation.getTopology().getRandomLocation();
 				} while (tries++ < 100 && env.hasAnythingAt(l));
 				if (tries < 100) {
 					env.addFood(l, i);
@@ -204,11 +204,11 @@ public class Food {
 		}
 	}
 
-	public void load(boolean dropNewFood, float likeFoodProb, ComplexFoodParams[] foodParams) {
+	public void load(Environment environment, boolean dropNewFood, float likeFoodProb, ComplexFoodParams[] foodParams) {
 		foodData = foodParams;
 		this.sameFoodProb = likeFoodProb;
 
-		env = simulation.getEnvironment();
+		env = environment;
 
 		loadFoodMode();
 

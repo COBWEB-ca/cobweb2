@@ -36,7 +36,7 @@ import org.cobweb.cobweb2.SimulationConfig;
  */
 public interface SimulationInterface {
 
-	public Environment getEnvironment();
+	public Topology getTopology();
 
 	/* returns the number of agents */
 	public int getAgentTypeCount();

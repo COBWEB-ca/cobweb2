@@ -38,7 +38,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 			int realX = x / tileWidth;
 			int realY = y / tileHeight;
 			Location l = new Location(realX, realY);
-			if (simulation.getEnvironment().topology.isValidLocation(l))
+			if (simulation.getTopology().isValidLocation(l))
 				return l;
 			else
 				return null;
