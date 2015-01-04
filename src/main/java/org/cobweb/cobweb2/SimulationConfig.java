@@ -459,7 +459,7 @@ public class SimulationConfig {
 		{
 			ComplexAgentParams[] n = Arrays.copyOf(this.agentParams, count);
 			for (int i = 0; i < this.agentParams.length && i < count; i++) {
-				n[i].resizeFoodweb(envParams);
+				n[i].resize(envParams);
 			}
 			for (int i = this.agentParams.length; i < count; i++) {
 				n[i] = new ComplexAgentParams(envParams);

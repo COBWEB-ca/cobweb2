@@ -333,7 +333,7 @@ public class ComplexAgentParams extends AbstractReflectionParams {
 		}
 	}
 
-	public void resizeFoodweb(ComplexEnvironmentParams envParams) {
+	public void resize(AgentFoodCountable envParams) {
 		foodweb.resize(envParams);
 	}
 }
