@@ -19,7 +19,7 @@ public class LinearWeightsControllerParams implements ControllerParams {
 	@Deprecated //FIXME static!
 	public static List<String> pluginNames = new LinkedList<String>();
 
-	{
+	static {
 		//TODO: automatic plugin detection
 		pluginNames.add("ProdHunt");
 	}
