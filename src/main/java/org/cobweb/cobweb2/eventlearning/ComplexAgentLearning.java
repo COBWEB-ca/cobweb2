@@ -458,7 +458,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			LearningAgentParams lAgentData) {
 		super.init(env, pos, agentData);
 
-		lParams = lAgentData;
+		lParams = (LearningAgentParams) lAgentData.clone();
 	}
 
 	private void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2) {

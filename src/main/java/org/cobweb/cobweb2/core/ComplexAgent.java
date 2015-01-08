@@ -111,9 +111,9 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 * @param parent1 first parent
 	 * @param parent2 second parent
 	 */
-	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent1, ComplexAgent parent2) {
+	protected void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent1, ComplexAgent parent2) {
 		environment = env;
-		copyConstants(parent1);
+		copyParams(parent1);
 		setController(
 				parent1.controller.createChildSexual(
 						parent2.getController(),
@@ -146,7 +146,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	protected void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent) {
 		environment = (env);
-		copyConstants(parent);
+		copyParams(parent);
 		setController(parent.controller.createChildAsexual(parent.params.mutationRate));
 
 		stats = environment.addAgentInfo(params.type, parent.stats);
@@ -164,7 +164,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentParams agentData) {
 		environment = (env);
-		setConstants(agentData);
+		setParams(agentData);
 
 		setController(env.controllerFactory.createNew(params.memoryBits, params.communicationBits, params.type));
 
@@ -276,8 +276,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		target.setCommInbox(getCommOutbox());
 	}
 
-	public void copyConstants(ComplexAgent p) {
-		setConstants((ComplexAgentParams) environment.agentData[p.getType()].clone());
+	private void copyParams(ComplexAgent p) {
+		// Copies default constants for this agent type, not directly from agent
+		// TODO: should copy directly?
+		setParams(environment.agentData[p.getType()]);
 		pdCheater = p.pdCheater;
 	}
 
@@ -394,14 +396,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	public int getCommOutbox() {
 		return commOutbox;
-	}
-
-	/**
-	 * return Agent's energy
-	 */
-	@Override
-	public int getEnergy() {
-		return energy;
 	}
 
 	public ComplexAgentStatistics getInfo() {
@@ -631,9 +625,9 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 *
 	 * @param agentData The ComplexAgentParams used for this complex agent.
 	 */
-	public void setConstants(ComplexAgentParams agentData) {
+	public void setParams(ComplexAgentParams agentData) {
 
-		this.params = agentData;
+		this.params = (ComplexAgentParams) agentData.clone();
 
 		energy = agentData.initEnergy;
 		wasteCounterGain = params.wasteLimitGain;
