@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.cobweb.cobweb2.ai.Controller;
 import org.cobweb.cobweb2.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.waste.Waste;
@@ -23,10 +24,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	public ComplexAgentParams params;
 
-	/**
-	 * Energy gauge
-	 */
-	protected int energy;
 	/** Prisoner's Dilemma */
 	public boolean pdCheater; // The agent's action; 1 == cheater, else cooperator
 	private boolean lastPDcheated; // Remember the opponent's move in the last game
@@ -65,8 +62,20 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	public transient ComplexEnvironment environment;
 
+	protected transient SimulationInternals simulation;
+
 	public ComplexAgent(SimulationInternals sim) {
-		super(sim);
+		this.simulation = sim;
+	}
+
+	protected Controller controller;
+
+	protected void init(Controller ai) {
+		controller = ai;
+	}
+
+	public Controller getController() {
+		return controller;
 	}
 
 	/**

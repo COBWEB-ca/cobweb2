@@ -1,41 +1,19 @@
 package org.cobweb.cobweb2.core;
 
-import org.cobweb.cobweb2.ai.Controller;
-
-
-
-
-
 /**
- * The Agent class represents the physical notion of an Agent in a simulation
- * (living or not, location, colour).  Instances of the Agent class are not
- * responsible for implementing the intelligence of the Agent, this is deferred
- * to the Agent.Controller class.
+ * Basic properties of an Agent
  */
 public abstract class Agent {
 
 	private boolean alive = true;
 
-	protected SimulationInternals simulation;
-
-	protected Agent(SimulationInternals sim) {
-		simulation = sim;
-	}
-
 	protected LocationDirection position;
 
-	protected Controller controller;
-
-	protected void init(Controller ai) {
-		controller = ai;
-		// nothing for both simple and
-		// complex implementations of
-		// controller
-	}
-
 	/**
-	 * Removes this Agent from the Environment.
+	 * Energy the Agent can use to do things and can gain doing other things
 	 */
+	protected int energy;
+
 	public void die() {
 		assert (isAlive());
 		if (!isAlive())
@@ -44,12 +22,8 @@ public abstract class Agent {
 		alive = false;
 	}
 
-	public Controller getController() {
-		return controller;
-	}
-
 	public int getEnergy() {
-		return -1;
+		return energy;
 	}
 
 	/**
@@ -63,7 +37,5 @@ public abstract class Agent {
 		return alive;
 	}
 
-	public int getType() {
-		return -1;
-	}
+	public abstract int getType();
 }
