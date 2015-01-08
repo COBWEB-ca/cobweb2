@@ -286,7 +286,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		getAgentListener().onDeath(this);
 
-		stats.setDeath(environment.simulation.getTime());
+		stats.setDeath(simulation.getTime());
 	}
 
 	/**
@@ -410,10 +410,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	private void initPosition(LocationDirection pos) {
+		if (pos.direction.equals(Topology.NONE))
+			pos = new LocationDirection(pos, simulation.getTopology().getRandomDirection());
 		move(pos);
-		if (position.direction.equals(Topology.NONE))
-			position = new LocationDirection(position, environment.topology.getRandomDirection());
-		environment.simulation.addAgent(this);
+		simulation.addAgent(this);
 	}
 
 	/**
