@@ -14,6 +14,7 @@ import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.EnvironmentStats;
+import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
@@ -29,7 +30,7 @@ import org.cobweb.util.RandomNoGenerator;
  * on a local machine.
  *
  */
-public class Simulation implements SimulationInternals {
+public class Simulation implements SimulationInternals, SimulationInterface {
 
 	// TODO access level?
 	public ComplexEnvironment theEnvironment;
