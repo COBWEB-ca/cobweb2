@@ -12,21 +12,21 @@ public interface Controller {
 
 	/**
 	 * Cause the specified agent to act.
-	 * 
+	 *
 	 * @param theAgent agent to control
 	 */
 	public void controlAgent(Agent theAgent);
 
 	/**
 	 * Returns current controller configuration
-	 * 
+	 *
 	 * @return configuration
 	 */
 	public CobwebParam getParams();
 
 	/**
 	 * Sets controller up based on environment parameters
-	 * 
+	 *
 	 * @param memoryBits memory size
 	 * @param commBits communication size
 	 * @param params other parameters
@@ -34,19 +34,17 @@ public interface Controller {
 	public void setupFromEnvironment(int memoryBits, int commBits, CobwebParam params, int type);
 
 	/**
-	 * Sets controller up based on parameters of the asexual breeding parent
-	 * 
-	 * @param parent parent
+	 * Creates controller for child based on parameters of the asexual breeding parent
+	 *
 	 * @param mutationRate rate at which mutations can occur during breeding
 	 */
-	public void setupFromParent(Controller parent, float mutationRate);
+	public Controller createChildAsexual(float mutationRate);
 
 	/**
-	 * Sets controller up based on parameters of the sexual breeding parents
-	 * 
-	 * @param parent1 first parent
+	 * Creates controller for child based on parameters of the sexual breeding parents
+	 *
 	 * @param parent2 second parent
 	 * @param mutationRate rate at which mutations can occur during breeding
 	 */
-	public void setupFromParents(Controller parent1, Controller parent2, float mutationRate);
+	public Controller createChildSexual(Controller parent2, float mutationRate);
 }

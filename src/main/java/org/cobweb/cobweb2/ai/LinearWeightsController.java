@@ -153,35 +153,34 @@ public class LinearWeightsController implements Controller {
 	}
 
 	@Override
-	public void setupFromParent(Controller p, float mutation) {
-		if (!(p instanceof LinearWeightsController))
-			throw new RuntimeException("Parent's controller type must match the child's");
+	public LinearWeightsController createChildAsexual(float mutation) {
+		LinearWeightsController child = new LinearWeightsController(simulator);
+		child.params = this.params.copy();
 
-		LinearWeightsController pa = (LinearWeightsController) p;
-		this.params = pa.params.copy();
-
-		mutate(mutation);
+		child.mutate(mutation);
+		return child;
 	}
 
 	@Override
-	public void setupFromParents(Controller p1, Controller p2, float mutation) {
-		if (!(p1 instanceof LinearWeightsController) || !(p2 instanceof LinearWeightsController)) {
+	public LinearWeightsController createChildSexual(Controller p2, float mutation) {
+		if (!(p2 instanceof LinearWeightsController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");
 		}
-		LinearWeightsController pa1 = (LinearWeightsController) p1;
 		LinearWeightsController pa2 = (LinearWeightsController) p2;
 
-		params = pa1.params.copy();
+		LinearWeightsController child = new LinearWeightsController(simulator);
+		child.params = this.params.copy();
 
 		for (int i = 0; i < params.data.length; i++) {
 			for (int j = 0; j < params.data[i].length; j++) {
 				if (simulator.getRandom().nextBoolean()) {
-					params.data[i][j] = pa2.params.data[i][j];
+					child.params.data[i][j] = pa2.params.data[i][j];
 				}
 			}
 		}
 
-		mutate(mutation);
+		child.mutate(mutation);
+		return child;
 	}
 
 	public double similarity(LinearWeightsController other) {

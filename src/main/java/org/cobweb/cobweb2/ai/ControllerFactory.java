@@ -47,16 +47,4 @@ public class ControllerFactory {
 		}
 	}
 
-	public Controller createFromParent(Controller p, float mutation) {
-		Controller c = newInstance();
-		c.setupFromParent(p, mutation);
-		return c;
-	}
-
-	public Controller createFromParents(Controller p1, Controller p2, float mutation) {
-		Controller c = newInstance();
-		c.setupFromParents(p1, p2, mutation);
-		return c;
-	}
-
 }

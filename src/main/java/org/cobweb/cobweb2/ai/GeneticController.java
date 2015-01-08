@@ -158,35 +158,30 @@ public class GeneticController implements Controller {
 	}
 
 	@Override
-	public void setupFromParent(Controller parent, float mutationRate) {
-		if (!(parent instanceof GeneticController)) {
-			throw new RuntimeException("Parent's controller type must match the child's");
-		}
+	public GeneticController createChildAsexual(float mutationRate) {
+		GeneticController child = new GeneticController(simulation);
 
-		GeneticController p = (GeneticController) parent;
-		ga = p.ga.copy(mutationRate);
-		memorySize = p.memorySize;
-		this.params = p.params;
+		child.ga = this.ga.copy(mutationRate);
+		child.memorySize = this.memorySize;
+		child.params = this.params;
+
+		return child;
 	}
 
-	/**
-	 * sexual reproduction
-	 *
-	 * @param parent1 first parent
-	 * @param parent2 second parent
-	 * @param mutationRate mutation rate
-	 */
 	@Override
-	public void setupFromParents(Controller parent1, Controller parent2, float mutationRate) {
-		if (!(parent1 instanceof GeneticController) || !(parent2 instanceof GeneticController)) {
+	public GeneticController createChildSexual(Controller parent2, float mutationRate) {
+		if (!(parent2 instanceof GeneticController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");
 		}
-
-		GeneticController p = (GeneticController) parent1;
 		GeneticController p2 = (GeneticController) parent2;
-		ga = BehaviorArray.splice(p.ga, p2.ga, simulation.getRandom()).copy(mutationRate);
-		memorySize = p.memorySize;
-		this.params = p.params;
+
+		GeneticController child = new GeneticController(simulation);
+
+		child.ga = BehaviorArray.splice(this.ga, p2.ga, simulation.getRandom()).copy(mutationRate);
+		child.memorySize = this.memorySize;
+		child.params = this.params;
+
+		return child;
 	}
 
 	/** return the measure of similiarity between this agent and the 'other'
