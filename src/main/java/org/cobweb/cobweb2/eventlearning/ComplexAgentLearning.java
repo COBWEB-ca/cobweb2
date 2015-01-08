@@ -228,8 +228,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 						if (concernedAgent.breedPartner == null) {
 							concernedAgent.getInfo().addDirectChild();
-							ComplexAgentLearning child = (ComplexAgentLearning)simulation.newAgent();
-							child.init(environment, concernedAgent.getBreedPos(), concernedAgent);
+							ComplexAgentLearning child = concernedAgent.createChildAsexual(concernedAgent.getBreedPos());
 
 							// Retain emotions for our child!
 							concernedAgent.remember(new MemorableEvent(currTick, lParams.emotionForChildren, "agent-" + child.stats.id));
@@ -245,8 +244,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 							concernedAgent.getInfo().addDirectChild();
 							concernedAgent.breedPartner.getInfo().addDirectChild();
-							ComplexAgentLearning child = (ComplexAgentLearning)simulation.newAgent();
-							child.init(environment, concernedAgent.getBreedPos(), concernedAgent,
+							ComplexAgentLearning child = concernedAgent.createChildSexual(
+									concernedAgent.getBreedPos(),
 									(ComplexAgentLearning)concernedAgent.breedPartner);
 
 							// Retain an undying feeling of love for our
@@ -440,6 +439,19 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			});
 		}
+	}
+
+	@Override
+	protected ComplexAgentLearning createChildAsexual(LocationDirection location) {
+		ComplexAgentLearning child = new ComplexAgentLearning(simulation);
+		child.init(environment, location, this);
+		return child;
+	}
+
+	private ComplexAgentLearning createChildSexual(LocationDirection location, ComplexAgentLearning otherParent) {
+		ComplexAgentLearning child = new ComplexAgentLearning(simulation);
+		child.init(environment, location, this, otherParent);
+		return child;
 	}
 
 	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentParams agentData,

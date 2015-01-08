@@ -38,4 +38,6 @@ public abstract class Agent {
 	}
 
 	public abstract int getType();
+
+	protected abstract Agent createChildAsexual(LocationDirection location);
 }

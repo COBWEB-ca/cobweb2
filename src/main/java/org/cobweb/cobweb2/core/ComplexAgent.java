@@ -91,6 +91,19 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		return simulation.getSimilarityCalculator().similarity(this, other);
 	}
 
+	@Override
+	protected ComplexAgent createChildAsexual(LocationDirection location) {
+		ComplexAgent child = new ComplexAgent(simulation);
+		child.init(environment, location, this);
+		return child;
+	}
+
+	private ComplexAgent createChildSexual(LocationDirection location, ComplexAgent otherParent) {
+		ComplexAgent child = new ComplexAgent(simulation);
+		child.init(environment, location, this, otherParent);
+		return child;
+	}
+
 	/**
 	 * Constructor with two parents
 	 *
@@ -753,14 +766,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			stats.useReproductionEnergy(params.initEnergy);
 			stats.addDirectChild();
 
-			ComplexAgent child = simulation.newAgent();
-
 			if (breedPartner == null) {
-				child.init(environment, breedPos, this);
+				createChildAsexual(breedPos);
 			} else {
-				breedPartner.stats.addDirectChild();
-				child.init(environment, breedPos, this, breedPartner);
-				stats.addSexPreg();
+				createChildSexual(breedPos, breedPartner);
 			}
 			breedPartner = null;
 			pregnant = false;
