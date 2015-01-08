@@ -8,6 +8,7 @@ import org.cobweb.cobweb2.ai.Controller;
 import org.cobweb.cobweb2.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.waste.Waste;
+import org.cobweb.util.RandomNoGenerator;
 
 /**
  * TODO better comments
@@ -78,6 +79,18 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		return controller;
 	}
 
+	protected AgentListener getAgentListener() {
+		return simulation.getAgentListener();
+	}
+
+	protected RandomNoGenerator getRandom() {
+		return simulation.getRandom();
+	}
+
+	protected float calculateSimilarity(ComplexAgent other) {
+		return simulation.getSimilarityCalculator().similarity(this, other);
+	}
+
 	/**
 	 * Constructor with two parents
 	 *
@@ -93,7 +106,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		// child's strategy is determined by its parents, it has a
 		// 50% chance to get either parent's strategy
-		if (simulation.getRandom().nextBoolean()) {
+		if (getRandom().nextBoolean()) {
 			params.pdCoopProb = parent2.params.pdCoopProb;
 			params.pdTitForTat = parent2.params.pdTitForTat;
 			params.pdSimilarityNeutral = parent2.params.pdSimilarityNeutral;
@@ -104,7 +117,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		initPosition(pos);
 
-		simulation.getAgentListener().onSpawn(this, parent1, parent2);
+		getAgentListener().onSpawn(this, parent1, parent2);
 
 	}
 
@@ -124,7 +137,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		initPosition(pos);
 
-		simulation.getAgentListener().onSpawn(this, parent);
+		getAgentListener().onSpawn(this, parent);
 	}
 
 	/**
@@ -143,7 +156,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		initPosition(pos);
 
-		simulation.getAgentListener().onSpawn(this);
+		getAgentListener().onSpawn(this);
 	}
 
 	private void afterTurnAction() {
@@ -258,7 +271,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		environment.setAgent(position, null);
 
-		simulation.getAgentListener().onDeath(this);
+		getAgentListener().onDeath(this);
 
 		stats.setDeath(environment.simulation.getTime());
 	}
@@ -442,7 +455,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		double coopProb = params.pdCoopProb / 100.0d;
 
-		float similarity = simulation.getSimilarityCalculator().similarity(this, other);
+		float similarity = calculateSimilarity(other);
 
 		coopProb += (similarity - params.pdSimilarityNeutral) * params.pdSimilaritySlope;
 
@@ -450,7 +463,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			pdCheater = lastPDcheated;
 		} else {
 			pdCheater = false; // agent is assumed to cooperate
-			float rnd = simulation.getRandom().nextFloat();
+			float rnd = getRandom().nextFloat();
 			if (rnd > coopProb)
 				pdCheater = true; // agent defects depending on
 			// probability
@@ -729,7 +742,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			tryAsexBreed();
 		}
 
-		simulation.getAgentListener().onStep(this, getPosition(), destPos);
+		getAgentListener().onStep(this, getPosition(), destPos);
 
 		move(destPos);
 
@@ -758,7 +771,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	protected void onstepAgentBump(ComplexAgent adjacentAgent) {
-		simulation.getAgentListener().onContact(this, adjacentAgent);
+		getAgentListener().onContact(this, adjacentAgent);
 
 		if (canEat(adjacentAgent)) {
 			eat(adjacentAgent);
@@ -772,10 +785,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 			double sim = 0.0;
 			boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-					&& simulation.getRandom().nextFloat() < params.sexualBreedChance;
+					&& getRandom().nextFloat() < params.sexualBreedChance;
 
 			// Generate genetic similarity number
-			sim = simulation.getSimilarityCalculator().similarity(this, adjacentAgent);
+			sim = calculateSimilarity(adjacentAgent);
 
 			if (sim >= params.commSimMin) {
 				communicate(adjacentAgent);
@@ -857,7 +870,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	protected void tryAsexBreed() {
 		if (shouldReproduceAsex && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
-				&& simulation.getRandom().nextFloat() < params.asexualBreedChance) {
+				&& getRandom().nextFloat() < params.asexualBreedChance) {
 			pregPeriod = params.asexPregnancyPeriod;
 			pregnant = true;
 		}

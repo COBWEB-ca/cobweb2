@@ -205,7 +205,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			queue(new Occurrence(this, 0, "stepMutate") {
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-					simulation.getAgentListener().onStep(concernedAgent, getPosition(), destPos);
+					getAgentListener().onStep(concernedAgent, getPosition(), destPos);
 					return null;
 				}
 			});
@@ -291,7 +291,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-					simulation.getAgentListener().onContact(concernedAgent, adjacentAgent);
+					getAgentListener().onContact(concernedAgent, adjacentAgent);
 					return null;
 				}
 			});
@@ -328,10 +328,10 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				double sim = 0.0;
 				boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
-						&& simulation.getRandom().nextFloat() < params.sexualBreedChance;
+						&& getRandom().nextFloat() < params.sexualBreedChance;
 
 				// Generate genetic similarity number
-				sim = simulation.getSimilarityCalculator().similarity(this, adjacentAgent);
+				sim = calculateSimilarity(adjacentAgent);
 
 				if (sim >= params.commSimMin) {
 					// Communicate with the smiliar agent
@@ -452,7 +452,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	private void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2) {
 		super.init(env, pos, parent1, parent2);
 
-		if (simulation.getRandom().nextBoolean()) {
+		if (getRandom().nextBoolean()) {
 			lParams = parent1.lParams;
 		} else {
 			lParams = parent2.lParams;
