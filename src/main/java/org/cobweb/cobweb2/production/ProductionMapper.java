@@ -3,10 +3,8 @@ package org.cobweb.cobweb2.production;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
@@ -87,11 +85,6 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		return vals[loc.x][loc.y];
 	}
 
-	public float getValueAtLocation(int x, int y) {
-		Location loc = new Location(x, y);
-		return getValueAtLocation(loc);
-	}
-
 	public float[][] getValues() {
 		return vals;
 	}
@@ -134,15 +127,11 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		return params;
 	}
 
-	Set<Product> products = new LinkedHashSet<Product>();
-
 	public void addProduct(float value, ComplexAgent owner) {
 		Location loc = owner.getPosition();
 		Product prod = new Product(value, owner, loc, this);
 
 		updateValues(prod, true);
-
-		products.add(prod);
 
 		environment.addDrop(loc, prod);
 	}
@@ -162,11 +151,16 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 			return false;
 		}
 
-		float locationValue = getValueAtLocation(agent.getPosition());
+		LocationDirection loc = agent.getPosition();
+		if (environment.hasDrop(loc))
+			return false;
+
+		float locationValue = getValueAtLocation(loc);
 
 		if (locationValue > params.highDemandCutoff) {
 			return false;
 		}
+
 
 		// ADDITIONS:
 		// Learning agents should adapt to products

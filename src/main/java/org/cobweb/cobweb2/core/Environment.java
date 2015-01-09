@@ -110,8 +110,8 @@ public  class Environment {
 	protected void setFlag(Location l, int flag, boolean state) {
 		int flagBits = 1 << (flag - 1);
 
-		assert (!state || getLocationBits(l) == 0) : "Attempted to set flag when location flags non-zero";
-		assert (state || (getLocationBits(l) & flagBits) != 0) : "Attempting to unset an unset flag";
+		assert (!(state && getLocationBits(l) != 0)) : "Attempted to set flag when location flags non-zero: " + getLocationBits(l);
+		assert (!(!state && (getLocationBits(l) & flagBits) == 0)) : "Attempting to unset an unset flag" + flagBits;
 
 		int newValue = getLocationBits(l);
 
