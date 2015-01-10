@@ -5,12 +5,12 @@ public class EnergyChangeOccurrence extends Occurrence {
 
 	private int amountChanged;
 
-	public EnergyChangeOccurrence(ComplexAgentLearning target, int amountChanged, String desc) {
-		this(target, 0, desc, amountChanged);
+	public EnergyChangeOccurrence(ComplexAgentLearning target, long time, int amountChanged, String desc) {
+		this(target, time, 0, desc, amountChanged);
 	}
 
-	public EnergyChangeOccurrence(ComplexAgentLearning target, float detectableDistance, String desc, int amountChanged) {
-		super(target, detectableDistance, desc);
+	public EnergyChangeOccurrence(ComplexAgentLearning target, long time, float detectableDistance, String desc, int amountChanged) {
+		super(target, time, detectableDistance, desc);
 		this.amountChanged = amountChanged;
 	}
 

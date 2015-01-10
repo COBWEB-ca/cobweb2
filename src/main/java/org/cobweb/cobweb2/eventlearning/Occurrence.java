@@ -3,16 +3,17 @@ package org.cobweb.cobweb2.eventlearning;
 
 public abstract class Occurrence implements Queueable {
 
-	public float detectableDistance;
-	public ComplexAgentLearning target;
-	public long time;
+	public final float detectableDistance;
+	public final ComplexAgentLearning target;
+	public final long time;
+	private final String desc;
+
 	private MemorableEvent event;
 	private boolean hasOccurred = false;
-	String desc;
 
-	public Occurrence(ComplexAgentLearning target, float detectableDistance, String desc) {
+	public Occurrence(ComplexAgentLearning target, long time, float detectableDistance, String desc) {
 		this.target = target;
-		time = target.getCurrTick();
+		this.time = time;
 		this.detectableDistance = detectableDistance;
 		this.desc = desc;
 		ComplexAgentLearning.allOccurrences.add(this);

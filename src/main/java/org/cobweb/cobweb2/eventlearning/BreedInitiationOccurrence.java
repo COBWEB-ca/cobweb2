@@ -6,8 +6,8 @@ public class BreedInitiationOccurrence extends Occurrence {
 
 	private ComplexAgent partner;
 
-	public BreedInitiationOccurrence(ComplexAgentLearning target, float detectableDistance, String desc, ComplexAgent partner) {
-		super(target, detectableDistance, desc);
+	public BreedInitiationOccurrence(ComplexAgentLearning target, long time, float detectableDistance, String desc, ComplexAgent partner) {
+		super(target, time, detectableDistance, desc);
 		this.partner = partner;
 	}
 
@@ -25,7 +25,7 @@ public class BreedInitiationOccurrence extends Occurrence {
 		// energy
 		int energyLost = (int) (concernedAgent.params.initEnergy + concernedAgent.energyPenalty());
 
-		EnergyChangeOccurrence energyChange = new EnergyChangeOccurrence(concernedAgent, 5f, "breed", -energyLost);
+		EnergyChangeOccurrence energyChange = new EnergyChangeOccurrence(concernedAgent, time, 5f, "breed", -energyLost);
 		energyChange.happen();
 
 		concernedAgent.setWasteCounterLoss(concernedAgent.getWasteCounterLoss() - concernedAgent.params.initEnergy);

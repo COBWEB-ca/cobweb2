@@ -82,10 +82,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	public LearningAgentParams lParams;
 
-	public long getCurrTick() {
-		return currTick;
-	}
-
 	/**
 	 * Add the given amount to the agent's energy.
 	 * @param amount Amount to add.
@@ -104,7 +100,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			// lose energy
 			// due to broadcasting
 			float howSadThisMakesMe = Math.max(Math.min((float) -params.broadcastEnergyCost / (float) energy, 1), -1);
-			remember(new MemorableEvent(currTick, howSadThisMakesMe, "broadcast"));
+			remember(new MemorableEvent(getTime(), howSadThisMakesMe, "broadcast"));
 		}
 	}
 
@@ -112,13 +108,13 @@ public class ComplexAgentLearning extends ComplexAgent {
 	public void eat(Location destPos) {
 		if (environment.getFoodType(destPos) == params.type) {
 			// Eating food is ideal!!
-			remember(new MemorableEvent(currTick, lParams.foodPleasure, "food"));
+			remember(new MemorableEvent(getTime(), lParams.foodPleasure, "food"));
 		} else {
 			// Eating other food has a ratio of goodness compared to eating
 			// normal food.
 			float howHappyThisMakesMe = (float) params.otherFoodEnergy / (float) params.foodEnergy
 					* lParams.foodPleasure;
-			remember(new MemorableEvent(currTick, howHappyThisMakesMe, "food"));
+			remember(new MemorableEvent(getTime(), howHappyThisMakesMe, "food"));
 		}
 
 		super.eat(destPos);
@@ -128,13 +124,13 @@ public class ComplexAgentLearning extends ComplexAgent {
 	protected void eat(ComplexAgent adjacentAgent) {
 		super.eat(adjacentAgent);
 		// Bloodily consuming agents makes us happy
-		remember(new MemorableEvent(currTick, lParams.ateAgentPleasure, "ateAgent"));
+		remember(new MemorableEvent(getTime(), lParams.ateAgentPleasure, "ateAgent"));
 	}
 
 	@Override
 	protected void iveBeenCheated(long othersID) {
 		super.iveBeenCheated(othersID);
-		remember(new MemorableEvent(currTick, -1, "agent-" + othersID));
+		remember(new MemorableEvent(getTime(), -1, "agent-" + othersID));
 	}
 
 	@Override
@@ -165,7 +161,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 							// Remember a sense of pleasure from helping out
 							// other agents by broadcasting
-							agent.remember(new MemorableEvent(currTick, lParams.broadcastPleasure, "broadcast"));
+							agent.remember(new MemorableEvent(getTime(), lParams.broadcastPleasure, "broadcast"));
 						}
 					}
 
@@ -185,7 +181,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
 
-					queue(new BreedInitiationOccurrence(this, 0, "breedInit", breedPartner));
+					queue(new BreedInitiationOccurrence(this, getTime(), 0, "breedInit", breedPartner));
 
 				} else {
 					if (!pregnant) {
@@ -202,7 +198,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			}
 
-			queue(new Occurrence(this, 0, "stepMutate") {
+			queue(new Occurrence(this, getTime(), 0, "stepMutate") {
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 					getAgentListener().onStep(concernedAgent, getPosition(), destPos);
@@ -220,7 +216,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			});
 
 			// Try to breed
-			queue(new Occurrence(this, 0, "breed") {
+			queue(new Occurrence(this, getTime(), 0, "breed") {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
@@ -231,7 +227,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 							ComplexAgentLearning child = concernedAgent.createChildAsexual(concernedAgent.getBreedPos());
 
 							// Retain emotions for our child!
-							concernedAgent.remember(new MemorableEvent(currTick, lParams.emotionForChildren, "agent-" + child.stats.id));
+							concernedAgent.remember(new MemorableEvent(getTime(), lParams.emotionForChildren, "agent-" + child.stats.id));
 						} else {
 							// child's strategy is determined by its parents, it
 							// has a
@@ -240,7 +236,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 							// We like the agent we are breeding with; remember
 							// that
 							// this agent is favourable
-							concernedAgent.remember(new MemorableEvent(currTick, lParams.loveForPartner, "agent-" + breedPartner.stats.id));
+							concernedAgent.remember(new MemorableEvent(getTime(), lParams.loveForPartner, "agent-" + breedPartner.stats.id));
 
 							concernedAgent.getInfo().addDirectChild();
 							concernedAgent.breedPartner.getInfo().addDirectChild();
@@ -250,7 +246,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 							// Retain an undying feeling of love for our
 							// child
-							MemorableEvent weLoveOurChild = new MemorableEvent(currTick, lParams.emotionForChildren, "" + child);
+							MemorableEvent weLoveOurChild = new MemorableEvent(getTime(), lParams.emotionForChildren, "" + child);
 							concernedAgent.remember(weLoveOurChild);
 							((ComplexAgentLearning)concernedAgent.breedPartner).remember(weLoveOurChild);
 
@@ -266,7 +262,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			});
 
 			// Lose energy from stepping
-			queue(new EnergyChangeOccurrence(this, -params.stepEnergy, "step") {
+			queue(new EnergyChangeOccurrence(this, getTime(), -params.stepEnergy, "step") {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
@@ -286,7 +282,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 			final ComplexAgentLearning adjacentAgent = (ComplexAgentLearning) adjAgent;
 
-			queue(new Occurrence(this, 0, "contactMutate") {
+			queue(new Occurrence(this, getTime(), 0, "contactMutate") {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
@@ -316,7 +312,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					public void actionIfUndesireable() {
 						// Agent in question needs to appreciate the fact that
 						// we didn't just EAT HIM ALIVE.
-						adjacentAgent.remember(new MemorableEvent(currTick, lParams.sparedEmotion, "agent-" + stats.id));
+						adjacentAgent.remember(new MemorableEvent(getTime(), lParams.sparedEmotion, "agent-" + stats.id));
 					}
 				});
 			}
@@ -379,11 +375,11 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 			// Allow agents up to a distance of 5 to see this agent hit the
 			// waste
-			queue(new Occurrence(this, 5, "bumpWaste") {
+			queue(new Occurrence(this, getTime(), 5, "bumpWaste") {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-					concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, -params.wastePen, "bumpWaste"));
+					concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.wastePen, "bumpWaste"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.wastePen);
 					stats.useRockBumpEnergy(params.wastePen);
 					return null;
@@ -392,12 +388,12 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 		} else {
 			// Rock bump
-			queue(new Occurrence(this, 0, "bumpRock") {
+			queue(new Occurrence(this, getTime(), 0, "bumpRock") {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 					concernedAgent
-					.queue(new EnergyChangeOccurrence(concernedAgent, -params.stepRockEnergy, "bumpRock"));
+					.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, "bumpRock"));
 					setWasteCounterLoss(getWasteCounterLoss() - params.stepRockEnergy);
 					stats.useRockBumpEnergy(params.stepRockEnergy);
 					return null;
@@ -406,7 +402,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 
 		// Energy penalty
-		queue(new EnergyChangeOccurrence(this, -(int) energyPenalty(), "energyPenalty"));
+		queue(new EnergyChangeOccurrence(this, getTime(), -(int) energyPenalty(), "energyPenalty"));
 
 		if (energy <= 0)
 			queue(new SmartAction(this) {
@@ -430,7 +426,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 		if (pregnant) {
 			// Reduce pregnancy period
-			queue(new Occurrence(this, 0, "preg") {
+			queue(new Occurrence(this, getTime(), 0, "preg") {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
@@ -498,7 +494,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		List<Occurrence> newOccList = new LinkedList<Occurrence>();
 
 		for (Occurrence oc : allOccurrences) {
-			if (oc.time - currTick >= 0) {
+			if (oc.time - getTime() >= 0) {
 				ComplexAgentLearning occTarget = oc.target;
 				Location loc2 = occTarget.getPosition();
 				if (environment.topology.getDistance(loc,loc2) <= oc.detectableDistance
@@ -517,7 +513,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 
 						if (desc != null && oc.hasOccurred() && oc.getEvent() != null) {
-							remember(new MemorableEvent(currTick, oc.getEvent().getMagnitude(), desc){
+							remember(new MemorableEvent(getTime(), oc.getEvent().getMagnitude(), desc){
 								//This information applies to only the present step the agent is about to take;
 								//it will be irrelevant in the future (because new occurrences will be present)
 								@Override

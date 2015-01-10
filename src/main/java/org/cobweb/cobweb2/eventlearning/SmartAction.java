@@ -46,7 +46,7 @@ public abstract class SmartAction implements Queueable {
 	 * @return true if the parameter event is relevant to this action
 	 */
 	public boolean eventIsRelated(MemorableEvent event) {
-		return desc.equals(event.desc);
+		return desc.equals(event.getDescription());
 	}
 
 	/*

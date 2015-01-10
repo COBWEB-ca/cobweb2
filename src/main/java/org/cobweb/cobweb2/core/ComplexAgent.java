@@ -58,9 +58,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	public static final int LOOK_DISTANCE = 4;
 
-	/** The current tick we are in (or the last tick this agent was notified */
-	protected long currTick = 0;
-
 	public transient ComplexEnvironment environment;
 
 	protected transient SimulationInternals simulation;
@@ -81,6 +78,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	protected AgentListener getAgentListener() {
 		return simulation.getAgentListener();
+	}
+
+	protected long getTime() {
+		return simulation.getTime();
 	}
 
 	protected RandomNoGenerator getRandom() {
@@ -383,7 +384,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	public long getAge() {
-		return currTick - stats.birthTick;
+		return getTime() - stats.birthTick;
 	}
 
 	public boolean getAgentPDActionCheat() {
@@ -842,10 +843,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		if (!isAlive())
 			return;
 
-		//update current tick
-		currTick = tick;
-
-
 		/* Time to die, Agent (mister) Bond */
 		if (params.agingMode) {
 			if ((getAge()) >= params.agingLimit) {
@@ -898,7 +895,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 * Produce waste
 	 */
 	private void tryPoop() {
-		forceDrop(new Waste(currTick, params.wasteInit, params.wasteDecay));
+		forceDrop(new Waste(getTime(), params.wasteInit, params.wasteDecay));
 	}
 
 	private void forceDrop(Drop d) {
