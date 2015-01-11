@@ -54,6 +54,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -110,6 +112,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -166,6 +170,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -222,6 +228,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -278,6 +286,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -334,6 +344,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>true</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -390,6 +402,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>true</broadcastMode>
     <broadcastEnergyBased>true</broadcastEnergyBased>
@@ -557,8 +571,6 @@
     <geneCount>2</geneCount>
     <geneLength>8</geneLength>
     <meiosismode>Colour Averaging</meiosismode>
-    <trackgenevaluedistribution>false</trackgenevaluedistribution>
-    <chartupdatefrequency>10</chartupdatefrequency>
     <linkedphenotype1>FoodEnergy</linkedphenotype1>
     <linkedphenotype2>OtherFoodEnergy</linkedphenotype2>
     <agent1gene1>11110</agent1gene1>
@@ -579,7 +591,7 @@
   <disease>
     <agent>
       <Index>0</Index>
-      <initialInfection>0.05</initialInfection>
+      <initialInfection>1.0</initialInfection>
       <contactTransmitRate>0.5</contactTransmitRate>
       <childTransmitRate>0.9</childTransmitRate>
       <parameter>None</parameter>
@@ -604,7 +616,7 @@
       <initialInfection>0.0</initialInfection>
       <contactTransmitRate>0.5</contactTransmitRate>
       <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
+      <parameter>StepEnergy</parameter>
       <factor>2.0</factor>
       <vaccinator>true</vaccinator>
       <vaccineEffectiveness>1.0</vaccineEffectiveness>
@@ -648,7 +660,7 @@
       <initialInfection>0.0</initialInfection>
       <contactTransmitRate>0.5</contactTransmitRate>
       <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
+      <parameter>StepRockEnergy</parameter>
       <factor>2.0</factor>
       <vaccinator>false</vaccinator>
       <vaccineEffectiveness>1.0</vaccineEffectiveness>
@@ -793,7 +805,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent1>
@@ -801,7 +813,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent2>
@@ -817,7 +829,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent4>
@@ -825,7 +837,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent5>
@@ -833,7 +845,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent6>
@@ -841,12 +853,12 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent7>
       </AgentParams>
     </PluginParams>
   </ControllerConfig>
-  <!--Generated by COBWEB2 version 2.2011-10-12-prodhunt-26-g72b9699 2014-11-06-20:05-->
+  <!--Generated by COBWEB2 version 2.2014-11-29-pd-90-g2b33bea-modified (restructure) 2015-01-11-14:46-->
 </inputData>
