@@ -34,8 +34,8 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 		allPhenos = Collections.unmodifiableList(bindables);
 	}
 
-	public Phenotype(){
-		// Nothing
+	public Phenotype() {
+		// Empty constructor for new Phenotype().getPossibleValues()
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		String value = root.getTextContent();
-		for (Phenotype p : allPhenos) {
+		for (Phenotype p : getPossibleValues()) {
 			if (value.equals("None")) {
 				this.field = null;
 				return;

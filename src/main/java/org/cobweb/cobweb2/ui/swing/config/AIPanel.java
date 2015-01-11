@@ -20,14 +20,12 @@ class AIPanel extends SettingsPanel {
 
 	private static final long serialVersionUID = 6045306756522429063L;
 
-	static final String[] AI_LIST = { GeneticController.class.getName(), LinearWeightsController.class.getName() };
+	static final String[] AI_LIST = { GeneticController.class.getSimpleName(), LinearWeightsController.class.getSimpleName() };
 
-	CardLayout cardSwitch = new CardLayout();
-	JPanel inner = new JPanel();
+	private CardLayout cardSwitch = new CardLayout();
+	private JPanel inner = new JPanel();
 
-	JComboBox aiSwitch;
-
-	SettingsPanel[] tabs;
+	private SettingsPanel[] tabs;
 
 	private SimulationConfig parser;
 
@@ -35,15 +33,16 @@ class AIPanel extends SettingsPanel {
 
 	public AIPanel(ColorLookup agentColors) {
 		this.agentColors = agentColors;
+
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		inner.setLayout(cardSwitch);
+
+		tabs = new SettingsPanel[AI_LIST.length];
 	}
 
 	@Override
 	public void bindToParser(SimulationConfig p) {
 		parser = p;
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		inner.setLayout(cardSwitch);
-
-		tabs = new SettingsPanel[AI_LIST.length];
 
 		SettingsPanel genPanel = new GeneticAIPanel(agentColors);
 		inner.add(genPanel, AI_LIST[0]);
@@ -53,7 +52,7 @@ class AIPanel extends SettingsPanel {
 		inner.add(lWpanel, AI_LIST[1]);
 		tabs[1] = lWpanel;
 
-		aiSwitch = new JComboBox(AI_LIST);
+		final JComboBox aiSwitch = new JComboBox(AI_LIST);
 		aiSwitch.setEditable(false);
 		aiSwitch.addItemListener(new ItemListener() {
 			@Override
