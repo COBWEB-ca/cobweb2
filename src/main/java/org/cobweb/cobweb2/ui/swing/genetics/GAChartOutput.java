@@ -18,7 +18,6 @@ import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.cobweb.cobweb2.ui.swing.DisplaySettings;
-import org.cobweb.io.ConfDisplayName;
 import org.cobweb.swingutil.JComponentWaiter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -129,7 +128,7 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 
 		String[] names = new String[geneCount];
 		for(int i = 0; i < geneCount; i++) {
-			names[i] = params.phenotype[i].field.getAnnotation(ConfDisplayName.class).value();
+			names[i] = params.phenotype[i].toString();
 		}
 
 		gene_value_distribution_chart = new JFreeChart[geneCount];
