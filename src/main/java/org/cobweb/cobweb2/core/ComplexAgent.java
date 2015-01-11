@@ -855,10 +855,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		if (params.broadcastMode)
 			receiveBroadcast();
 
-		// If updateAgent called die();
-		if (!isAlive())
-			return;
-
 		controller.controlAgent(this);
 
 		/* Produce waste if able */
