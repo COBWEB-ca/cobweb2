@@ -16,7 +16,7 @@ public abstract class Occurrence implements Queueable {
 		this.time = time;
 		this.detectableDistance = detectableDistance;
 		this.desc = desc;
-		ComplexAgentLearning.allOccurrences.add(this);
+		this.target.getEnvironment().allOccurrences.add(this);
 	}
 
 	// Effects the agent in whatever way necessary returning a memory of the

@@ -54,11 +54,9 @@ public abstract class SmartAction implements Queueable {
 	 */
 	final ArrayList<MemorableEvent> getRelatedEvents() {
 		ArrayList<MemorableEvent> ret = new ArrayList<MemorableEvent>();
-		if (getAgent().memEvents != null) {
-			for (MemorableEvent me : getAgent().memEvents) {
-				if (eventIsRelated(me)) {
-					ret.add(me);
-				}
+		for (MemorableEvent me : getAgent().memEvents) {
+			if (eventIsRelated(me)) {
+				ret.add(me);
 			}
 		}
 		return ret;

@@ -1,5 +1,7 @@
 package org.cobweb.cobweb2.eventlearning;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,16 +32,17 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	private static final long serialVersionUID = 6166561879146733801L;
 
-	@Deprecated //FIXME static!
-	public static List<Occurrence> allOccurrences = new LinkedList<Occurrence>();
+	protected ComplexEnvironmentLearning getEnvironment() {
+		return (ComplexEnvironmentLearning) environment;
+	}
 
 	/**
 	 * A collection of events in memory.
 	 */
-	public List<MemorableEvent> memEvents;
+	public List<MemorableEvent> memEvents = new LinkedList<MemorableEvent>();
 
 
-	private List<Queueable> queueables;
+	private List<Queueable> queueables = new LinkedList<Queueable>();
 
 	/**
 	 * MemorableEvents are placed in the agent's memory with this method. Earliest memories will
@@ -51,9 +54,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		if (event == null) {
 			return;
 		}
-		if (memEvents == null) {
-			memEvents = new LinkedList<MemorableEvent>();
-		}
+
 		memEvents.add(event);
 		if (memEvents.size() > lParams.numMemories) {
 			memEvents.remove(0);
@@ -67,10 +68,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 	public void queue(Queueable act) {
 		if (act == null) {
 			return;
-		}
-
-		if (queueables == null) {
-			queueables = new LinkedList<Queueable>();
 		}
 
 		queueables.add(act);
@@ -491,56 +488,49 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 		Location loc = this.getPosition();
 
-		List<Occurrence> newOccList = new LinkedList<Occurrence>();
+		for (Occurrence oc : getEnvironment().allOccurrences)
+		{
+			ComplexAgentLearning occTarget = oc.target;
+			Location loc2 = occTarget.getPosition();
+			if (environment.topology.getDistance(loc,loc2) <= oc.detectableDistance
+					&& (lParams.learnFromDifferentOthers || occTarget.getType() == getType())) {
 
-		for (Occurrence oc : allOccurrences) {
-			if (oc.time - getTime() >= 0) {
-				ComplexAgentLearning occTarget = oc.target;
-				Location loc2 = occTarget.getPosition();
-				if (environment.topology.getDistance(loc,loc2) <= oc.detectableDistance
-						&& (lParams.learnFromDifferentOthers || occTarget.getType() == getType())) {
-
-					Direction directionTo = environment.topology.getDirectionBetween4way(loc, loc2);
-					if (!directionTo.equals(Topology.NONE)) {
-						String desc = null;
-						Rotation rotationTo = environment.topology.getRotationBetween(getPosition().direction, directionTo);
-						if (rotationTo == Rotation.Left) {
-							desc = "turnLeft";
-						}
-						else if (rotationTo == Rotation.Right) {
-							desc = "turnRight";
-						}
-
-
-						if (desc != null && oc.hasOccurred() && oc.getEvent() != null) {
-							remember(new MemorableEvent(getTime(), oc.getEvent().getMagnitude(), desc){
-								//This information applies to only the present step the agent is about to take;
-								//it will be irrelevant in the future (because new occurrences will be present)
-								@Override
-								public boolean forgetAfterStep() {
-									return true;
-								}
-							});
-						}
+				Direction directionTo = environment.topology.getDirectionBetween4way(loc, loc2);
+				if (!directionTo.equals(Topology.NONE)) {
+					String desc = null;
+					Rotation rotationTo = environment.topology.getRotationBetween(getPosition().direction, directionTo);
+					if (rotationTo == Rotation.Left) {
+						desc = "turnLeft";
+					}
+					else if (rotationTo == Rotation.Right) {
+						desc = "turnRight";
 					}
 
+
+					if (desc != null && oc.hasOccurred() && oc.getEvent() != null) {
+						remember(new MemorableEvent(getTime(), oc.getEvent().getMagnitude(), desc){
+							//This information applies to only the present step the agent is about to take;
+							//it will be irrelevant in the future (because new occurrences will be present)
+							@Override
+							public boolean forgetAfterStep() {
+								return true;
+							}
+						});
+					}
 				}
-				newOccList.add(oc);
 			}
+
 		}
 
-		allOccurrences = newOccList;
 	}
 
-	private void purgeMemory() {
-		if (memEvents != null) {
-			List<MemorableEvent> newMemEvents = new LinkedList<MemorableEvent>();
-			for (MemorableEvent me : memEvents) {
-				if (!me.forgetAfterStep()) {
-					newMemEvents.add(me);
-				}
-			}
-			memEvents = newMemEvents;
+	private void pruneMemory() {
+		// Clean up events
+		Iterator<MemorableEvent> events = memEvents.iterator();
+		while (events.hasNext()) {
+			MemorableEvent me = events.next();
+			if (me.forgetAfterStep())
+				events.remove();
 		}
 	}
 
@@ -591,6 +581,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		observeOccurrences();
 		super.update(tick);
 		performQueuedActions();
+		pruneMemory();
 	}
 
 	@Override
@@ -620,34 +611,27 @@ public class ComplexAgentLearning extends ComplexAgent {
 		});
 	}
 
+	/*
+	 * Perform all queued actions
+	 */
 	protected void performQueuedActions() {
-		/*
-		 * Perform all queued actions
-		 */
-		if (queueables != null && !queueables.isEmpty()) {
-			// Use a second Collection to avoid concurrent modification issues
-			List<Queueable> queueablesCopy = new LinkedList<Queueable>();
-			queueablesCopy.addAll(queueables);
-			queueables.clear();
-			/*
-			 * queueables is never iterated therefore a queueable may internally
-			 * add new queueables to the queue without concurrently modifying
-			 */
-			for (Queueable act : queueablesCopy) {
-				act.happen();
-				if (!act.isComplete()) {
-					/*
-					 * The action is not complete therefore it will be performed
-					 * again at the next tickNotification
-					 */
-					queueables.add(act);
-				}
-			}
-			// Actions are essentially "queued" so once they are irrelevant they
-			// are "forgotten"
+		// Copy current list, some actions could queue new actions
+		List<Queueable> currentActions = new ArrayList<Queueable>(queueables);
+
+		// Clear current list, we will re-add any left-over actions later
+		queueables.clear();
+
+		Iterator<Queueable> iterator = currentActions.iterator();
+		while (iterator.hasNext()) {
+			Queueable act = iterator.next();
+
+			act.happen();
+
+			if (act.isComplete())
+				iterator.remove();
 		}
 
-		purgeMemory();
-
+		// Re-add actions that did not complete on this turn
+		queueables.addAll(currentActions);
 	}
 }
