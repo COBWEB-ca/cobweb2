@@ -26,6 +26,7 @@ import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.CobwebApplication;
+import org.cobweb.cobweb2.ui.swing.DisplaySettings;
 
 /**
  * Simulation configuration dialog
@@ -119,9 +120,9 @@ public class SimulationConfigEditor {
 	/**
 	 * Create the SimulationConfigEditor and show it. For thread safety, this method should be invoked from the event-dispatching thread.
 	 */
-	public static SimulationConfigEditor show(Window parent, String filename, boolean allowModify) {
+	public static SimulationConfigEditor show(Window parent, String filename, boolean allowModify, DisplaySettings displaySettings) {
 		// Create and set up the content pane.
-		SimulationConfigEditor configEditor = new SimulationConfigEditor(parent, filename, allowModify);
+		SimulationConfigEditor configEditor = new SimulationConfigEditor(parent, filename, allowModify, displaySettings);
 		configEditor.show();
 		return configEditor;
 	}
@@ -146,8 +147,13 @@ public class SimulationConfigEditor {
 
 	private LearningConfigPage learnPage;
 
+
+
+	private DisplaySettings displaySettings;
+
 	// SimulationConfigEditor Special Constructor
-	public SimulationConfigEditor(Window parent, String filename, boolean allowModify) {
+	public SimulationConfigEditor(Window parent, String filename, boolean allowModify, DisplaySettings dispSettings) {
+		this.displaySettings = dispSettings;
 		dialog = new JDialog(parent, WINDOW_TITLE, Dialog.DEFAULT_MODALITY_TYPE);
 
 		JPanel j = new JPanel();
@@ -270,21 +276,21 @@ public class SimulationConfigEditor {
 
 		/* Resources panel */
 		removeOldPage(resourcePage);
-		resourcePage = new ResourceConfigPage(p.getFoodParams());
+		resourcePage = new ResourceConfigPage(p.getFoodParams(), displaySettings.agentColor);
 		tabbedPane.addTab("Resources", resourcePage.getPanel());
 
 		/* Agents' panel */
 		removeOldPage(agentPage);
-		agentPage = new AgentConfigPage(p.getAgentParams());
+		agentPage = new AgentConfigPage(p.getAgentParams(), displaySettings.agentColor);
 		tabbedPane.addTab("Agents", agentPage.getPanel());
 
 		/* Production panel */
 		removeOldPage(prodPage);
-		prodPage = new ProductionConfigPage(p.getProdParams());
+		prodPage = new ProductionConfigPage(p.getProdParams(), displaySettings.agentColor);
 		tabbedPane.addTab("Production", prodPage.getPanel());
 
 		removeOldPage(foodwebPage);
-		foodwebPage = new FoodwebConfigPage(p.getAgentParams());
+		foodwebPage = new FoodwebConfigPage(p.getAgentParams(), displaySettings.agentColor);
 		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
 
 		removeOldPage(pdPage);
@@ -294,29 +300,29 @@ public class SimulationConfigEditor {
 		}
 
 		removeOldPage(geneticPage);
-		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
+		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes(), displaySettings.agentColor);
 		JComponent panelGA = geneticPage.getPanel();
 		tabbedPane.addTab("Genetics", panelGA);
 
 		if (controllerPanel != null) {
 			tabbedPane.remove(controllerPanel);
 		}
-		controllerPanel = new AIPanel();
+		controllerPanel = new AIPanel(displaySettings.agentColor);
 		controllerPanel.bindToParser(p);
 		tabbedPane.addTab("AI", controllerPanel);
 
 		removeOldPage(diseaseConfigPage);
-		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams());
+		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
 		removeOldPage(tempPage);
-		tempPage = new TemperatureConfigPage(p.getTempParams());
+		tempPage = new TemperatureConfigPage(p.getTempParams(), displaySettings.agentColor);
 		tabbedPane.addTab("Abiotic Factor", tempPage.getPanel());
 
 
 		removeOldPage(learnPage);
 		if (p.getEnvParams().agentName.equals(ComplexAgentLearning.class.getName())) {
-			learnPage = new LearningConfigPage(p.getLearningParams().getLearningAgentParams());
+			learnPage = new LearningConfigPage(p.getLearningParams().getLearningAgentParams(), displaySettings.agentColor);
 			tabbedPane.addTab("Learning", learnPage.getPanel());
 		}
 	}

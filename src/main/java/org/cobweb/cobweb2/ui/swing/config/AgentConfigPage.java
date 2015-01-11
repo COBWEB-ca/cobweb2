@@ -6,13 +6,14 @@ import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
+import org.cobweb.swingutil.ColorLookup;
 
 
 public class AgentConfigPage implements ConfigPage {
 	JPanel agentPanel;
 	private MixedValueJTable agentParamTable;
 
-	public AgentConfigPage(ComplexAgentParams[] params) {
+	public AgentConfigPage(ComplexAgentParams[] params, ColorLookup agentColors) {
 		agentPanel = new JPanel();
 		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
 		Util.makeGroupPanel(agentPanel, "Agent Parameters");
@@ -25,7 +26,7 @@ public class AgentConfigPage implements ConfigPage {
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 
 
-		Util.colorHeaders(agentParamTable, true);
+		Util.colorHeaders(agentParamTable, true, agentColors);
 		JScrollPane agentScroll = new JScrollPane(agentParamTable);
 		// Add the scroll pane to this panel.
 		agentPanel.add(agentScroll);

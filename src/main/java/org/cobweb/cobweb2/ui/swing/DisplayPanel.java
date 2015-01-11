@@ -271,8 +271,11 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 
-	public DisplayPanel(Simulation simulation) {
+	private DisplaySettings displaySettings;
+
+	public DisplayPanel(Simulation simulation, DisplaySettings displaySettings) {
 		this.simulation = simulation;
+		this.displaySettings = displaySettings;
 		addComponentListener(this);
 
 		setMouse(new ObserveMouseListener());
@@ -330,7 +333,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 				if (!a.isAlive())
 					ai.remove();
 			}
-			drawInfo = new DrawInfo(simulation, observedAgents);
+			drawInfo = new DrawInfo(simulation, observedAgents, displaySettings);
 		}
 		super.refresh(wait);
 	}

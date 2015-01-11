@@ -81,6 +81,8 @@ public class CobwebApplication extends JFrame {
 
 	protected final Logger myLogger = Logger.getLogger("COBWEB2");
 
+	private DisplaySettings displaySettings = new DisplaySettings();
+
 	// constructor
 	public CobwebApplication() {
 		super(WINDOW_TITLE);
@@ -108,7 +110,7 @@ public class CobwebApplication extends JFrame {
 
 		openFile(new SimulationConfig());
 
-		simulatorUI = new SimulatorUI(simRunner);
+		simulatorUI = new SimulatorUI(simRunner, displaySettings);
 		add(simulatorUI, BorderLayout.CENTER);
 
 		setVisible(true);
@@ -122,7 +124,7 @@ public class CobwebApplication extends JFrame {
 	 */
 	public void createNewData() {
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME;
-		SimulationConfigEditor editor = SimulationConfigEditor.show(this, newInput, false);
+		SimulationConfigEditor editor = SimulationConfigEditor.show(this, newInput, false, displaySettings);
 		if (editor.isOK()) {
 			openFile(editor.getConfig(), editor.isContinuation());
 		}
@@ -224,7 +226,7 @@ public class CobwebApplication extends JFrame {
 			throw new UserInputException("Cannot open config file", ex);
 		}
 
-		SimulationConfigEditor editor = SimulationConfigEditor.show(this, currentData, true);
+		SimulationConfigEditor editor = SimulationConfigEditor.show(this, currentData, true, displaySettings);
 		if (editor.isOK()) {
 			openFile(editor.getConfig(), editor.isContinuation());
 		}
@@ -240,7 +242,7 @@ public class CobwebApplication extends JFrame {
 		if (CURRENT_DATA_FILE_NAME.equals(currentFile)) {
 			throw new UserInputException("File not currently saved, use \"Modify Current Data\" instead");
 		}
-		SimulationConfigEditor editor = SimulationConfigEditor.show(this, currentFile, true);
+		SimulationConfigEditor editor = SimulationConfigEditor.show(this, currentFile, true, displaySettings);
 		if (editor.isOK()) {
 			openFile(editor.getConfig(), editor.isContinuation());
 		}
@@ -306,7 +308,7 @@ public class CobwebApplication extends JFrame {
 		if (file != null && directory != null) {
 			File of = new File(directory + file);
 			if (of.exists()) {
-				SimulationConfigEditor editor = SimulationConfigEditor.show(this, directory + file, true);
+				SimulationConfigEditor editor = SimulationConfigEditor.show(this, directory + file, true, displaySettings);
 				if (editor.isOK()) {
 					openFile(editor.getConfig(), editor.isContinuation());
 				}
@@ -385,7 +387,7 @@ public class CobwebApplication extends JFrame {
 			}
 		}
 
-		SimulationConfigEditor editor = SimulationConfigEditor.show(this, tempDefaultData, false);
+		SimulationConfigEditor editor = SimulationConfigEditor.show(this, tempDefaultData, false, displaySettings);
 		if (editor.isOK()) {
 			openFile(editor.getConfig(), editor.isContinuation());
 		}
@@ -522,7 +524,8 @@ public class CobwebApplication extends JFrame {
 			GAChartOutput gaViewer = new GAChartOutput(
 					simRunner.getSimulation().geneticMutator.getTracker(),
 					simRunner.getSimulation().simulationConfig.getGeneticParams(),
-					simRunner);
+					simRunner,
+					displaySettings);
 			viewers.add(gaViewer);
 		}
 	}

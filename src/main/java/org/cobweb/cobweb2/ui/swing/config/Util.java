@@ -8,20 +8,19 @@ import javax.swing.JTable;
 import javax.swing.LookAndFeel;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.cobweb.swingutil.TypeColorEnumeration;
+import org.cobweb.swingutil.ColorLookup;
 
 
 public class Util {
 
-	static void colorHeaders(JTable ft, boolean skipFirst) {
-		TypeColorEnumeration tc = TypeColorEnumeration.getInstance();
-
+	static void colorHeaders(JTable ft, boolean skipFirst, ColorLookup colorMap) {
 		int firstCol = skipFirst ? 1 : 0;
 
-		for (int col = firstCol; col < ft.getColumnCount(); col++) {
+		int count = ft.getColumnCount() - firstCol;
+		for (int col = 0; col < count; col++) {
 			DefaultTableCellRenderer r = new DefaultTableCellRenderer();
-			r.setBackground(tc.getColor(col - firstCol, 0));
-			ft.getColumnModel().getColumn(col).setHeaderRenderer(r);
+			r.setBackground(colorMap.getColor(col, count));
+			ft.getColumnModel().getColumn(col + firstCol).setHeaderRenderer(r);
 			LookAndFeel.installBorder(ft.getTableHeader(), "TableHeader.cellBorder");
 		}
 	}

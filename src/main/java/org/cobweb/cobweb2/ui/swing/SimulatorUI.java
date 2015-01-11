@@ -37,14 +37,17 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 
 	private ThreadSimulationRunner simRunner;
 
-	public SimulatorUI(ThreadSimulationRunner runner) {
+	private DisplaySettings displaySettings;
+
+	public SimulatorUI(ThreadSimulationRunner runner, DisplaySettings displaySettings) {
 		simRunner = runner;
+		this.displaySettings = displaySettings;
 
 		setLayout(new BorderLayout());
 
 		JPanel controls = new JPanel();
 
-		displayPanel = new DisplayPanel(simRunner.getSimulation());
+		displayPanel = new DisplayPanel(simRunner.getSimulation(), this.displaySettings);
 
 		add(controls, BorderLayout.NORTH);
 		add(displayPanel, BorderLayout.CENTER);

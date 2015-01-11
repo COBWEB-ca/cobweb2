@@ -7,20 +7,21 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.cobweb.cobweb2.eventlearning.LearningAgentParams;
+import org.cobweb.swingutil.ColorLookup;
 
 
 public class LearningConfigPage implements ConfigPage {
 	private JPanel learningPanel;
 	private JTable learnTable;
 
-	public LearningConfigPage(LearningAgentParams[] params) {
+	public LearningConfigPage(LearningAgentParams[] params, ColorLookup agentColors) {
 		ConfigTableModel ctm = new ConfigTableModel(params, "Agent");
 		learnTable = new MixedValueJTable();
 		learnTable.setModel(ctm);
 		JScrollPane sp = new JScrollPane(learnTable);
 
 		Util.makeGroupPanel(sp, "Agent Learning Parameters");
-		Util.colorHeaders(learnTable, true);
+		Util.colorHeaders(learnTable, true, agentColors);
 		learnTable.getColumnModel().getColumn(0).setPreferredWidth(150);
 
 		learningPanel = new JPanel(new BorderLayout());

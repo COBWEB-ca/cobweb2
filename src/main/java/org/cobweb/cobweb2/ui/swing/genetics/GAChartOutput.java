@@ -17,10 +17,9 @@ import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
+import org.cobweb.cobweb2.ui.swing.DisplaySettings;
 import org.cobweb.io.ConfDisplayName;
-import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.JComponentWaiter;
-import org.cobweb.swingutil.TypeColorEnumeration;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -57,8 +56,6 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 
 	/** Current component on display. */
 	private JPanel current_display;
-
-	private ColorLookup colorMap = TypeColorEnumeration.getInstance();
 
 	@Override
 	public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -104,7 +101,7 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 			XYItemRenderer renderer = gene_status_distribution_chart[i].getXYPlot().getRenderer();
 
 			for (int agent = 0; agent < numAgentTypes; agent++) {
-				renderer.setSeriesPaint(agent, colorMap.getColor(agent, 0));
+				renderer.setSeriesPaint(agent, displaySettings.agentColor.getColor(agent, numAgentTypes));
 			}
 
 			ChartPanel cp = new ChartPanel(gene_status_distribution_chart[i]);
@@ -121,10 +118,12 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 	private int geneCount;
 	private SimulationRunner scheduler;
 	private GATracker gaTracker;
+	private DisplaySettings displaySettings;
 
 
-	public GAChartOutput(GATracker tracker, GeneticParams params, SimulationRunner scheduler) {
+	public GAChartOutput(GATracker tracker, GeneticParams params, SimulationRunner scheduler, DisplaySettings dispSettings) {
 		gaTracker = tracker;
+		this.displaySettings = dispSettings;
 		numAgentTypes = gaTracker.getAgentTypeCount();
 		geneCount = gaTracker.getGeneCount();
 
@@ -153,7 +152,7 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 
 			XYItemRenderer renderer = gene_value_distribution_chart[i].getXYPlot().getRenderer();
 			for (int agent = 0; agent < numAgentTypes; agent++) {
-				renderer.setSeriesPaint(agent, colorMap.getColor(agent, 0));
+				renderer.setSeriesPaint(agent, displaySettings.agentColor.getColor(agent, numAgentTypes));
 			}
 
 

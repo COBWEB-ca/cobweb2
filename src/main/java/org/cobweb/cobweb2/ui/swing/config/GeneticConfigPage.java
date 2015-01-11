@@ -25,6 +25,7 @@ import javax.swing.table.TableColumnModel;
 import org.cobweb.cobweb2.genetics.GeneticParams;
 import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.ui.UserInputException;
+import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.binding.EnumComboBoxModel;
 
 public class GeneticConfigPage implements ConfigPage {
@@ -151,7 +152,7 @@ public class GeneticConfigPage implements ConfigPage {
 		}
 	}
 
-	public GeneticConfigPage(GeneticParams params, int agentTypes) {
+	public GeneticConfigPage(GeneticParams params, int agentTypes, ColorLookup agentColors) {
 		this.params = params;
 		this.agentTypes = agentTypes;
 
@@ -161,7 +162,7 @@ public class GeneticConfigPage implements ConfigPage {
 		JComponent phenotypeScroller = setupPhenotypeList();
 		myPanel.add(phenotypeScroller);
 
-		JComponent phenoSelectedScroller = setupSelectedList();
+		JComponent phenoSelectedScroller = setupSelectedList(agentColors);
 
 
 
@@ -210,7 +211,7 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private JTable listSelected;
 
-	private JComponent setupSelectedList() {
+	private JComponent setupSelectedList(ColorLookup agentColors) {
 		phenosUsed = new LinkedList<Phenotype>();
 
 		modelSelected = new GenesTableModel();
@@ -236,7 +237,7 @@ public class GeneticConfigPage implements ConfigPage {
 		// Get the column at index pColumn, and set its preferred width.
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 
-		Util.colorHeaders(listSelected, true);
+		Util.colorHeaders(listSelected, true, agentColors);
 
 		Util.makeGroupPanel(phenotypeScroller, "Selected Phenotypes");
 		return phenotypeScroller;

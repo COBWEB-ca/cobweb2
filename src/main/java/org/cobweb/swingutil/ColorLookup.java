@@ -1,7 +1,6 @@
 package org.cobweb.swingutil;
 
 import java.awt.Color;
-import java.awt.color.ColorSpace;
 
 /**
  * ColorLookup is an interface for mapping numbers inside of finite ranges to
@@ -10,6 +9,4 @@ import java.awt.color.ColorSpace;
 public interface ColorLookup {
 
 	public Color getColor(int index, int num);
-
-	public ColorSpace getSpace();
 }

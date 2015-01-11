@@ -6,6 +6,7 @@ import javax.swing.JScrollPane;
 
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.FoodwebParams;
+import org.cobweb.swingutil.ColorLookup;
 
 
 public class FoodwebConfigPage implements ConfigPage {
@@ -13,7 +14,7 @@ public class FoodwebConfigPage implements ConfigPage {
 	private JPanel foodPanel;
 	private MixedValueJTable foodTable;
 
-	public FoodwebConfigPage(ComplexAgentParams[] params) {
+	public FoodwebConfigPage(ComplexAgentParams[] params, ColorLookup agentColors) {
 		foodPanel = new JPanel();
 		// tabbedPane.addTab("Agents", panel3);
 
@@ -25,7 +26,7 @@ public class FoodwebConfigPage implements ConfigPage {
 		}
 		foodTable.setModel(new ConfigTableModel(foodweb, "Agent "));
 
-		Util.colorHeaders(foodTable, true);
+		Util.colorHeaders(foodTable, true, agentColors);
 
 		// Create the scroll pane and add the table to it.
 		JScrollPane foodScroll = new JScrollPane(foodTable);

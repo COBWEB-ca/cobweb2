@@ -9,8 +9,6 @@ import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Location;
-import org.cobweb.swingutil.ColorLookup;
-import org.cobweb.swingutil.TypeColorEnumeration;
 import org.cobweb.util.Point2D;
 
 /**
@@ -44,14 +42,15 @@ class DrawInfo {
 
 	static final Color COLOR_GRIDLINES = Color.lightGray;
 
-	private ColorLookup colorMap = TypeColorEnumeration.getInstance();
+	private DisplaySettings displaySettings;
 
 	/**
 	 * Construct a DrawInfo width specific width, height and tile colors.
 	 * The tiles array is not copied; the caller is assumed to "give" the
 	 * array to the drawing info, and not keep any local references around.
 	 */
-	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents) {
+	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents, DisplaySettings dispSettings) {
+		this.displaySettings = dispSettings;
 		width = sim.theEnvironment.topology.width;
 		height = sim.theEnvironment.topology.height;
 		tileColors = new Color[width * height];
@@ -65,7 +64,7 @@ class DrawInfo {
 					tileColors[tileIndex++] = java.awt.Color.darkGray;
 
 				else if (sim.theEnvironment.hasFood(currentPos))
-					tileColors[tileIndex++] = colorMap.getColor(sim.theEnvironment.getFoodType(currentPos), 0 /* agentTypeCount */);
+					tileColors[tileIndex++] = displaySettings.agentColor.getColor(sim.theEnvironment.getFoodType(currentPos), sim.getAgentTypeCount());
 
 				else
 					tileColors[tileIndex++] = java.awt.Color.white;
@@ -74,7 +73,7 @@ class DrawInfo {
 
 
 		for (Agent a : sim.theEnvironment.getAgents()) {
-			agents.add(new AgentDrawInfo((ComplexAgent) a, colorMap, sim));
+			agents.add(new AgentDrawInfo((ComplexAgent) a, displaySettings.agentColor, sim));
 		}
 
 		for (ComplexAgent observedAgent: observedAgents) {
@@ -141,7 +140,7 @@ class DrawInfo {
 		// Temperature band labels
 		for (int y = 0; y < height; y++) {
 			int band = y * limit / height;
-			g.setColor(colorMap.getColor(band, 5));
+			g.setColor(displaySettings.agentColor.getColor(band, TemperatureParams.TEMPERATURE_BANDS));
 			int offset = (limit / 2 - band) * 3 / -2;
 			for (int i = 0; i <= band; i++) {
 				int x = (i + 2) * -3 + offset;

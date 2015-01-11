@@ -6,6 +6,7 @@ import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
+import org.cobweb.swingutil.ColorLookup;
 
 
 public class ResourceConfigPage implements ConfigPage {
@@ -14,14 +15,14 @@ public class ResourceConfigPage implements ConfigPage {
 
 	JPanel myPanel = new JPanel();
 
-	public ResourceConfigPage(ComplexFoodParams[] params) {
+	public ResourceConfigPage(ComplexFoodParams[] params, ColorLookup agentColors) {
 		resourceParamTable = new MixedValueJTable();
 		resourceParamTable.setModel(new ConfigTableModel(params, "Food "));
 
 		TableColumnModel colModel = resourceParamTable.getColumnModel();
 		colModel.getColumn(0).setPreferredWidth(120);
 
-		Util.colorHeaders(resourceParamTable, true);
+		Util.colorHeaders(resourceParamTable, true, agentColors);
 
 		JScrollPane resourceScroll = new JScrollPane(resourceParamTable);
 		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.X_AXIS));

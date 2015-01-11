@@ -16,12 +16,18 @@ import javax.swing.table.TableColumnModel;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.GeneticController;
 import org.cobweb.cobweb2.ai.GeneticControllerParams;
+import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.binding.BoundJFormattedTextField;
 
 final class GeneticAIPanel extends SettingsPanel {
 	private static final long serialVersionUID = 1139521733160862828L;
 	private GeneticControllerParams params;
 	private BoundJFormattedTextField seed;
+	private ColorLookup agentColors;
+
+	public GeneticAIPanel(ColorLookup agentColors) {
+		this.agentColors = agentColors;
+	}
 
 	@Override
 	public void bindToParser(SimulationConfig p) {
@@ -64,7 +70,7 @@ final class GeneticAIPanel extends SettingsPanel {
 		// Get the column at index pColumn, and set its preferred width.
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 
-		Util.colorHeaders(agentParamTable, true);
+		Util.colorHeaders(agentParamTable, true, agentColors);
 		JScrollPane agentScroll = new JScrollPane(agentParamTable);
 		// Add the scroll pane to this panel.
 		agentPanel.add(agentScroll);

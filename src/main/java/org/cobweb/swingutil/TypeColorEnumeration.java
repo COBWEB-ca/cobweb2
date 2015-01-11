@@ -1,26 +1,15 @@
 package org.cobweb.swingutil;
 
 import java.awt.Color;
-import java.awt.color.ColorSpace;
 
 public class TypeColorEnumeration implements ColorLookup {
-
-	private static ColorSpace space = ColorSpace.getInstance(ColorSpace.CS_sRGB);
 
 	private static Color[] table = { Color.yellow, Color.cyan, Color.green, Color.red, Color.orange, Color.blue,
 		Color.magenta, Color.pink };
 
-	@Deprecated //FIXME static!
-	private static TypeColorEnumeration instance = new TypeColorEnumeration();
-
-	@Deprecated //FIXME static!
-	public static TypeColorEnumeration getInstance() {
-		return instance;
-	}
-
 	@Override
 	public java.awt.Color getColor(int index, int num) {
-
+		// generates any number of colors, num bound is ignored.
 		Color c = table[index % table.length];
 		while (index >= table.length) {
 			index -= table.length;
@@ -29,10 +18,4 @@ public class TypeColorEnumeration implements ColorLookup {
 		return c;
 
 	}
-
-	@Override
-	public ColorSpace getSpace() {
-		return space;
-	}
-
 }

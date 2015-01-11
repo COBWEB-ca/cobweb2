@@ -7,13 +7,14 @@ import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.production.ProductionParams;
+import org.cobweb.swingutil.ColorLookup;
 
 
 public class ProductionConfigPage implements ConfigPage {
 	JPanel prodPanel;
 	private MixedValueJTable prodParamTable;
 
-	public ProductionConfigPage(ProductionParams[] params) {
+	public ProductionConfigPage(ProductionParams[] params, ColorLookup agentColors) {
 		prodPanel = new JPanel(new BorderLayout());
 
 		prodParamTable = new MixedValueJTable();
@@ -23,7 +24,7 @@ public class ProductionConfigPage implements ConfigPage {
 		JScrollPane sp = new JScrollPane(prodParamTable);
 		Util.makeGroupPanel(sp, "Resource Production");
 
-		Util.colorHeaders(prodParamTable, true);
+		Util.colorHeaders(prodParamTable, true, agentColors);
 
 		prodPanel.add(sp);
 	}

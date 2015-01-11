@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.GeneticController;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
+import org.cobweb.swingutil.ColorLookup;
 
 class AIPanel extends SettingsPanel {
 
@@ -30,8 +31,10 @@ class AIPanel extends SettingsPanel {
 
 	private SimulationConfig parser;
 
-	public AIPanel() {
-		// Nothing
+	private ColorLookup agentColors;
+
+	public AIPanel(ColorLookup agentColors) {
+		this.agentColors = agentColors;
 	}
 
 	@Override
@@ -42,7 +45,7 @@ class AIPanel extends SettingsPanel {
 
 		tabs = new SettingsPanel[AI_LIST.length];
 
-		SettingsPanel genPanel = new GeneticAIPanel();
+		SettingsPanel genPanel = new GeneticAIPanel(agentColors);
 		inner.add(genPanel, AI_LIST[0]);
 		tabs[0] = genPanel;
 
