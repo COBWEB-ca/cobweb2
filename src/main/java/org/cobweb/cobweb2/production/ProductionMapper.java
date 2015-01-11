@@ -24,9 +24,6 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	SimulationInternals simulation;
 	private ProductionParams[] initialParams;
 
-	public ProductionMapper() {
-	}
-
 	void remProduct(Product p) {
 		Location loc = p.loc;
 		environment.removeDrop(loc);

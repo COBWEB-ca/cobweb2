@@ -26,13 +26,6 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 	private int height = -9000;
 
 	/**
-	 * TemperatureMutator is an instance of Step and Spawn Mutator.
-	 */
-	public TemperatureMutator() {
-		// Nothing
-	}
-
-	/**
 	 * @param loc Scrutinized location.
 	 * @return The temperature of the location within the temperature band.
 	 */

@@ -125,12 +125,12 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		}
 
 		if (geneticMutator == null) {
-			geneticMutator = new GeneticsMutator(this);
+			geneticMutator = new GeneticsMutator();
 			mutatorListener.addMutator(geneticMutator);
 			similarityCalculator = geneticMutator;
 		}
 		if (diseaseMutator == null) {
-			diseaseMutator = new DiseaseMutator(this);
+			diseaseMutator = new DiseaseMutator();
 			mutatorListener.addMutator(diseaseMutator);
 		}
 		if (tempMutator == null) {
@@ -143,9 +143,9 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(prodMapper);
 		}
 
-		geneticMutator.setParams(p.getGeneticParams(), p.getEnvParams().getAgentTypes());
+		geneticMutator.setParams(this, p.getGeneticParams(), p.getEnvParams().getAgentTypes());
 
-		diseaseMutator.setParams(p.getDiseaseParams(), p.getEnvParams().getAgentTypes());
+		diseaseMutator.setParams(this, p.getDiseaseParams(), p.getEnvParams().getAgentTypes());
 
 		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
 

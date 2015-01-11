@@ -26,7 +26,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private DiseaseParams[] params;
 
-	private int sickCount[];
+	private int sickCount[] = new int[0];
 
 	Map<ComplexAgent, State> agentState = new HashMap<ComplexAgent, State>();
 
@@ -50,14 +50,6 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			this.vaccineEffectiveness = vaccineEffectiveness;
 
 		}
-	}
-
-	/**
-	 * DiseaseMutator is an instance of Contact and Spawn Mutators
-	 */
-	public DiseaseMutator(SimulationInternals sim) {
-		sickCount = new int[0];
-		simulation = sim;
 	}
 
 	@Override
@@ -144,7 +136,8 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 			makeRandomSick(agent, 0);
 	}
 
-	public void setParams(DiseaseParams[] diseaseParams, int agentTypes) {
+	public void setParams(SimulationInternals sim, DiseaseParams[] diseaseParams, int agentTypes) {
+		this.simulation = sim;
 		this.params = diseaseParams;
 		sickCount = ArrayUtilities.resizeArray(sickCount, agentTypes);
 	}
