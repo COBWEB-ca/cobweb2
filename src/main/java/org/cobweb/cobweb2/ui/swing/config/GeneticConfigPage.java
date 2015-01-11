@@ -265,16 +265,14 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private JScrollPane setupPhenotypeList() {
 		//TODO fix this weird selection process
-		phenoAvailable = new LinkedList<Phenotype>(new Phenotype().getPossibleValues());
-		phenoAvailable.remove(0);
-		phenosAvailable = new ListManipulator<Phenotype>(phenoAvailable);
+		phenosAvailable = new ListManipulator<Phenotype>(new Phenotype().getPossibleValues());
 
 		listAvailable = new JList(phenosAvailable);
 		listAvailable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		listAvailable.setLayoutOrientation(JList.VERTICAL_WRAP);
+		listAvailable.setLayoutOrientation(JList.VERTICAL);
 		listAvailable.setVisibleRowCount(-1);
 		JScrollPane phenotypeScroller = new JScrollPane(listAvailable);
-		phenotypeScroller.setPreferredSize(new Dimension(220, 500));
+		phenotypeScroller.setPreferredSize(new Dimension(240, 500));
 
 		Util.makeGroupPanel(phenotypeScroller, "Agent Parameter Selection");
 		return phenotypeScroller;

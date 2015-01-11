@@ -1,8 +1,9 @@
 package org.cobweb.cobweb2.interconnect;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.io.CobwebSelectionParam;
@@ -18,27 +19,20 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 	public Field field = null;
 
 	@Deprecated //FIXME static!
-	private static Collection<Field> bindableFields = new LinkedList<Field>() {
-		private static final long serialVersionUID = -6369342528741543712L;
-		{
-			for (Field f: ComplexAgentParams.class.getFields()) {
-				if (f.getAnnotation(GeneMutatable.class) == null)
-					continue;
-				this.add(f);
-			}
-		}
-	};
+	private final static List<Phenotype> allPhenos;
 
-	@Deprecated //FIXME static!
-	private static Collection<Phenotype> bindables = new LinkedList<Phenotype>() {
-		private static final long serialVersionUID = -6369342528741543712L;
-		{
-			this.add(new Phenotype());
-			for (Field f: bindableFields) {
-				this.add(new Phenotype(f));
-			}
+	static {
+		List<Phenotype> bindables = new ArrayList<Phenotype>();
+		// Null phenotype
+		bindables.add(new Phenotype());
+
+		// @GeneMutatable fields
+		for (Field f: ComplexAgentParams.class.getFields()) {
+			if (f.getAnnotation(GeneMutatable.class) != null)
+				bindables.add(new Phenotype(f));
 		}
-	};
+		allPhenos = Collections.unmodifiableList(bindables);
+	}
 
 	public Phenotype(){
 		// Nothing
@@ -74,18 +68,19 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
 		String value = root.getTextContent();
-		for (Field f : bindableFields) {
+		for (Phenotype p : allPhenos) {
 			if (value.equals("None")) {
 				this.field = null;
 				return;
-			}
-			if (f.getAnnotation(ConfXMLTag.class).value().equals(value)) {
-				this.field = f;
-				return;
-			}
-			if (f.getAnnotation(ConfDisplayName.class).value().equals(value)) {
-				this.field = f;
-				return;
+			} else if (p.field != null) {
+				if (p.field.getAnnotation(ConfXMLTag.class).value().equals(value)) {
+					this.field = p.field;
+					return;
+				}
+				if (p.field.getAnnotation(ConfDisplayName.class).value().equals(value)) {
+					this.field = p.field;
+					return;
+				}
 			}
 		}
 		throw new IllegalArgumentException("Cannot match Phenotype '" + value + "' to any field");
@@ -94,7 +89,7 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 	@Override
 	public String toString() {
 		if (field == null)
-			return "[Not Bound]";
+			return "[Null]";
 
 		return field.getAnnotation(ConfDisplayName.class).value();
 	}
@@ -111,14 +106,7 @@ public class Phenotype implements CobwebSelectionParam<Phenotype> {
 	}
 
 	@Override
-	public Collection<Phenotype> getPossibleValues() {
-		return bindables;
+	public List<Phenotype> getPossibleValues() {
+		return allPhenos;
 	}
-
-	@Override
-	public void setValue(Phenotype value) {
-		Phenotype p = value;
-		this.field = p.field;
-	}
-
 }
