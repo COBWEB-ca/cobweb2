@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.BoxLayout;
@@ -48,6 +49,8 @@ public class LinearAIPanel extends SettingsPanel {
 	private JScrollPane scrollpane;
 
 	private DoubleMatrixModel matrixModel;
+
+	private List<String> pluginNames;
 
 	private final class RandomButtonListener implements ActionListener {
 
@@ -115,7 +118,7 @@ public class LinearAIPanel extends SettingsPanel {
 		if (!(p.getControllerParams() instanceof LinearWeightsControllerParams)) {
 			p.getEnvParams().controllerName = LinearWeightsController.class.getName();
 			if (params == null)
-				params = new LinearWeightsControllerParams();
+				params = new LinearWeightsControllerParams(p);
 			p.setControllerParams(params);
 		} else {
 			params = (LinearWeightsControllerParams) p.getControllerParams();
@@ -123,10 +126,11 @@ public class LinearAIPanel extends SettingsPanel {
 
 		removeAll();
 
-		String[] fullInputNames = new String[LinearWeightsController.inputNames.length + LinearWeightsControllerParams.pluginNames.size()];
+		pluginNames = p.getPluginParameters();
+		String[] fullInputNames = new String[LinearWeightsController.inputNames.length + pluginNames.size()];
 		System.arraycopy(LinearWeightsController.inputNames, 0, fullInputNames, 0, LinearWeightsController.inputNames.length);
-		for (int i = 0; i < LinearWeightsControllerParams.pluginNames.size(); i++) {
-			fullInputNames[LinearWeightsController.inputNames.length + i] = LinearWeightsControllerParams.pluginNames.get(i);
+		for (int i = 0; i < pluginNames.size(); i++) {
+			fullInputNames[LinearWeightsController.inputNames.length + i] = pluginNames.get(i);
 		}
 
 		matrixModel = new DoubleMatrixModel(fullInputNames, LinearWeightsController.outputNames, params.data);
@@ -154,12 +158,12 @@ public class LinearAIPanel extends SettingsPanel {
 
 
 	private void prettyTable() {
-		JTable rowHead = new JTable(LinearWeightsController.INPUT_COUNT + LinearWeightsControllerParams.pluginNames.size(), 1);
+		JTable rowHead = new JTable(LinearWeightsController.INPUT_COUNT + pluginNames.size(), 1);
 		for (int i = 0; i < LinearWeightsController.INPUT_COUNT; i++) {
 			rowHead.setValueAt(LinearWeightsController.inputNames[i], i, 0);
 		}
-		for (int i = 0; i < LinearWeightsControllerParams.pluginNames.size(); i++) {
-			rowHead.setValueAt(LinearWeightsControllerParams.pluginNames.get(i), i + LinearWeightsController.INPUT_COUNT, 0);
+		for (int i = 0; i < pluginNames.size(); i++) {
+			rowHead.setValueAt(pluginNames.get(i), i + LinearWeightsController.INPUT_COUNT, 0);
 		}
 		scrollpane.setRowHeaderView(rowHead);
 		LookAndFeel.installColorsAndFont(rowHead, "TableHeader.background","TableHeader.foreground", "TableHeader.font");

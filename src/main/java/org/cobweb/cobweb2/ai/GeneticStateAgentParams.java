@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.ai;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cobweb.cobweb2.core.params.SimulationParams;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.io.ConfDisplayName;
 import org.w3c.dom.Document;
@@ -20,11 +21,13 @@ public class GeneticStateAgentParams implements CobwebParam {
 	@ConfDisplayName("state")
 	public List<StateSize> stateSizes = new LinkedList<StateSize>();
 
-	public GeneticStateAgentParams() {
-		StateSize ss = new StateSize();
-		ss.name = "ProdHunt";
-		ss.size = 0;
-		stateSizes.add(ss);
+	public GeneticStateAgentParams(SimulationParams simParam) {
+		for(String p : simParam.getPluginParameters()) {
+			StateSize ss = new StateSize();
+			ss.name = p;
+			ss.size = 0;
+			stateSizes.add(ss);
+		}
 	}
 
 

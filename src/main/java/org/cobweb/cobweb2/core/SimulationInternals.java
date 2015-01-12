@@ -3,7 +3,6 @@ package org.cobweb.cobweb2.core;
 import java.util.Collection;
 
 import org.cobweb.cobweb2.RandomSource;
-import org.cobweb.cobweb2.interconnect.StateParameter;
 
 /**
  * Methods that only simulation components need access to.

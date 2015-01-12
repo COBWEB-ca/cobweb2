@@ -4,6 +4,7 @@
 package org.cobweb.cobweb2.ai;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.core.params.SimulationParams;
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
@@ -24,7 +25,11 @@ public class GeneticControllerParams extends AbstractReflectionParams implements
 
 	@ConfDisplayName("Parameter Plugins")
 	@ConfXMLTag("PluginParams")
-	public GeneticStateParams agentParams = new GeneticStateParams();
+	public GeneticStateParams agentParams;
+
+	public GeneticControllerParams(SimulationParams simParams) {
+		agentParams = new GeneticStateParams(simParams);
+	}
 
 	@Override
 	public void setTypeCount(int count) {

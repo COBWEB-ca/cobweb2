@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.interconnect;
+package org.cobweb.cobweb2.core;
 
 import java.util.List;
 

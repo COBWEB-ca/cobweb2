@@ -167,7 +167,7 @@ public class CobwebApplicationRunner {
 		} catch (Exception e) {
 			String message = "Cannot load " + inputFileName + "";
 			if (visible) {
-				throw new UserInputException(message);
+				throw new UserInputException(message, e);
 			} else {
 				System.err.println(message);
 				throw new RuntimeException(e);

@@ -1,5 +1,8 @@
 package org.cobweb.cobweb2.production;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
@@ -7,11 +10,14 @@ import org.cobweb.io.ConfXMLTag;
 
 public class ProductionParams extends AbstractReflectionParams {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 7452975610085145539L;
 
-	public ProductionParams() {
+	static final String STATE_NAME_PRODHUNT = "ProdHunt";
+
+	public static List<String> getPluginNames() {
+		return Arrays.asList(STATE_NAME_PRODHUNT);
 	}
 
 	/**

@@ -6,14 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.StateParameter;
+import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
-import org.cobweb.cobweb2.interconnect.StateParameter;
-import org.cobweb.cobweb2.interconnect.StatePlugin;
 import org.cobweb.util.ArrayUtilities;
 
 public class ProductionMapper implements StatePlugin, SpawnMutator {
@@ -94,11 +95,11 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 
 		@Override
 		public String getName() {
-			return "ProdHunt";
+			return ProductionParams.STATE_NAME_PRODHUNT;
 		}
 
 		@Override
-		public double getValue(ComplexAgent agent) {
+		public double getValue(Agent agent) {
 			LocationDirection here = agent.getPosition();
 			Location ahead = simulation.getTopology().getAdjacent(here);
 			if (ahead == null || !simulation.getTopology().isValidLocation(ahead)) {

@@ -5,7 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,9 +26,11 @@ import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.ai.ControllerParams;
 import org.cobweb.cobweb2.ai.GeneticControllerParams;
 import org.cobweb.cobweb2.compatibility.ConfigUpgrader;
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
+import org.cobweb.cobweb2.core.params.SimulationParams;
 import org.cobweb.cobweb2.disease.DiseaseParams;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.eventlearning.LearningParams;
@@ -44,7 +48,7 @@ import org.xml.sax.SAXException;
 /**
  * Used to organize, modify, and access simulation parameters.
  */
-public class SimulationConfig {
+public class SimulationConfig implements SimulationParams {
 	private static void removeIgnorableWSNodes(Element parent) {
 		Node nextNode = parent.getFirstChild();
 		for (Node child = parent.getFirstChild(); nextNode != null;) {
@@ -117,7 +121,7 @@ public class SimulationConfig {
 
 		learningParams = new LearningParams(envParams);
 
-		controllerParams = new GeneticControllerParams();
+		controllerParams = new GeneticControllerParams(this);
 
 		fileName = "default simulation";
 	}
@@ -264,16 +268,7 @@ public class SimulationConfig {
 		prodParams = new ProductionParams[envParams.getAgentTypes()];
 		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
 		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
-		try {
-			controllerParams = (ControllerParams) Class.forName(envParams.controllerName + "Params").newInstance();
-			controllerParams.setTypeCount(envParams.agentTypeCount);
-		} catch (InstantiationException ex) {
-			throw new RuntimeException(ex);
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException(ex);
-		} catch (ClassNotFoundException ex) {
-			throw new RuntimeException(ex);
-		}
+
 		for (int i = 0; i < envParams.getAgentTypes(); i++)
 			diseaseParams[i] = new DiseaseParams(envParams);
 
@@ -348,6 +343,16 @@ public class SimulationConfig {
 				foodParams[i].type = i;
 			}
 		}
+
+		try {
+			controllerParams = (ControllerParams) Class.forName(envParams.controllerName + "Params")
+					.getConstructor(SimulationParams.class)
+					.newInstance((SimulationParams) this);
+			controllerParams.setTypeCount(envParams.agentTypeCount);
+		} catch (Exception ex) {
+			throw new RuntimeException("Could not set up controller", ex);
+		}
+
 	}
 
 	private void parseDiseaseParams(Node root) {
@@ -526,6 +531,19 @@ public class SimulationConfig {
 				envParams.keepOldArray ||
 				envParams.keepOldPackets ||
 				envParams.keepOldWaste;
+	}
+
+	@Override
+	public List<String> getPluginParameters() {
+		List<String> result = new ArrayList<String>();
+		result.addAll(ProductionParams.getPluginNames());
+
+		return result;
+	}
+
+	@Override
+	public AgentFoodCountable getCounts() {
+		return this.envParams;
 	}
 
 }

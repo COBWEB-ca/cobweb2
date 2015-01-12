@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.cobweb.cobweb2.core.params.SimulationParams;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -21,14 +22,17 @@ public class GeneticStateParams implements CobwebParam {
 
 	private static final Pattern agentRE = Pattern.compile("^Agent(\\d+)$");
 
-	GeneticStateParams() {
-		agentParams = new GeneticStateAgentParams[4];
+	private SimulationParams simParam;
+
+	GeneticStateParams(SimulationParams simParam) {
+		this.simParam = simParam;
+		agentParams = new GeneticStateAgentParams[simParam.getCounts().getAgentTypes()];
 		init();
 	}
 
 	private void init() {
 		for (int i = 0; i < agentParams.length; i++) {
-			agentParams[i] = new GeneticStateAgentParams();
+			agentParams[i] = new GeneticStateAgentParams(simParam);
 		}
 	}
 
@@ -55,7 +59,7 @@ public class GeneticStateParams implements CobwebParam {
 				if (id >= typeCount)
 					continue;
 
-				GeneticStateAgentParams ss = new GeneticStateAgentParams();
+				GeneticStateAgentParams ss = new GeneticStateAgentParams(simParam);
 				ss.loadConfig(tt);
 				agentParams[id] = ss;
 			}
@@ -81,7 +85,7 @@ public class GeneticStateParams implements CobwebParam {
 		GeneticStateAgentParams[] n = Arrays.copyOf(agentParams, agentTypes);
 
 		for (int i = agentParams.length; i < agentTypes; i++) {
-			n[i] = new GeneticStateAgentParams();
+			n[i] = new GeneticStateAgentParams(simParam);
 		}
 		agentParams = n;
 	}

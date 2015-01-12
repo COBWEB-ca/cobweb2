@@ -1,9 +1,7 @@
 package org.cobweb.cobweb2.ai;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.core.params.SimulationParams;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -16,20 +14,15 @@ public class LinearWeightsControllerParams implements ControllerParams {
 
 	public double[][] data;
 
-	@Deprecated //FIXME static!
-	public static List<String> pluginNames = new LinkedList<String>();
+	private SimulationParams simParam;
 
-	static {
-		//TODO: automatic plugin detection
-		pluginNames.add("ProdHunt");
-	}
-
-	public LinearWeightsControllerParams() {
-		data = new double[LinearWeightsController.INPUT_COUNT + pluginNames.size()][LinearWeightsController.OUTPUT_COUNT];
+	public LinearWeightsControllerParams(SimulationParams simParam) {
+		this.simParam = simParam;
+		data = new double[LinearWeightsController.INPUT_COUNT + this.simParam.getPluginParameters().size()][LinearWeightsController.OUTPUT_COUNT];
 	}
 
 	public LinearWeightsControllerParams copy() {
-		LinearWeightsControllerParams p = new LinearWeightsControllerParams();
+		LinearWeightsControllerParams p = new LinearWeightsControllerParams(simParam);
 		p.data = new double[data.length][data[0].length];
 		for (int i = 0; i < p.data.length; i++)
 			for (int j = 0; j < p.data[i].length; j++)

@@ -34,7 +34,7 @@ final class GeneticAIPanel extends SettingsPanel {
 		if (!(p.getControllerParams() instanceof GeneticControllerParams)) {
 			p.getEnvParams().controllerName = GeneticController.class.getName();
 			if (params == null)
-				params = new GeneticControllerParams();
+				params = new GeneticControllerParams(p);
 
 			p.setControllerParams(params);
 

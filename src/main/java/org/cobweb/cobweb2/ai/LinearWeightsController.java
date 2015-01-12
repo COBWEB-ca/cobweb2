@@ -8,8 +8,8 @@ import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
-import org.cobweb.cobweb2.interconnect.StateParameter;
 import org.cobweb.cobweb2.io.CobwebParam;
 
 public class LinearWeightsController implements Controller {
@@ -61,7 +61,7 @@ public class LinearWeightsController implements Controller {
 		/* careful with this block, eclipse likes to screw up the tabs!
 		 * if it breaks upon saving, undo and save again, this should save it without breaking
 		 */
-		double variables[] = new double[INPUT_COUNT + LinearWeightsControllerParams.pluginNames.size()];
+		double variables[] = new double[INPUT_COUNT + simulator.getStatePlugins().size()];
 		variables[0] = 1.0;
 		variables[1] = ((double) agent.getEnergy() / (ENERGY_THRESHOLD));
 		variables[2] = type == Environment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
@@ -76,7 +76,7 @@ public class LinearWeightsController implements Controller {
 		variables[9] = simulator.getRandom().nextGaussian();
 		{
 			int i = 10;
-			for (String plugin : LinearWeightsControllerParams.pluginNames) {
+			for (String plugin : simulator.getStatePlugins()) {
 				StateParameter sp = simulator.getStateParameter(plugin);
 				variables[i] = sp.getValue(agent);
 				i++;

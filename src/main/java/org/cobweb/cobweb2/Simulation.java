@@ -16,12 +16,12 @@ import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.StateParameter;
+import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.disease.DiseaseMutator;
 import org.cobweb.cobweb2.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.interconnect.MutatorListener;
-import org.cobweb.cobweb2.interconnect.StateParameter;
-import org.cobweb.cobweb2.interconnect.StatePlugin;
 import org.cobweb.cobweb2.production.ProductionMapper;
 import org.cobweb.util.RandomNoGenerator;
 
