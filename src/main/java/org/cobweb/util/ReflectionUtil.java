@@ -5,14 +5,15 @@ import java.lang.reflect.Field;
 public class ReflectionUtil {
 
 	/**
-	 * Adds <code>factor</code> to the value of <code>field</code> contained
-	 * within the parameters, <code>object</code>.
-	 * 
-	 * @param object Parameters.
-	 * @param field Field to be added to.
-	 * @param factor Factor added to field value.
+	 * Modifies value of <code>object.field</code> using the formula
+	 * <code>x' = x * m + b</code>
+	 *
+	 * @param object Object to be modified
+	 * @param field Field to be modified
+	 * @param m scale factor
+	 * @param b offset factor
 	 */
-	public static void addField(Object object, Field field, float factor) {
+	public static void modifyFieldLinear(Object object, Field field, float m, float b) {
 		try {
 			Object o;
 			o = field.get(object);
@@ -20,10 +21,10 @@ public class ReflectionUtil {
 			// Modify the value according to the coefficient.
 			if (o instanceof Float) {
 				float value = ((Float) o).floatValue();
-				field.setFloat(object, value + factor);
+				field.setFloat(object, value * m + b);
 			} else if (o instanceof Integer) {
 				double value = ((Integer) o).doubleValue();
-				field.setInt(object, (int) Math.round(value + factor));
+				field.setInt(object, (int) Math.round(value * m + b));
 			} else {
 				throw new IllegalArgumentException("Unknown phenotype field type");
 			}
@@ -32,33 +33,6 @@ public class ReflectionUtil {
 		}
 	}
 
-	/**
-	 * Multiplies <code>factor</code> to the value of <code>field</code> contained
-	 * within the parameters, <code>object</code>.
-	 * 
-	 * @param object Parameters.
-	 * @param field Field to be multiplied with.
-	 * @param factor Factor multiplied to field value.
-	 */
-	public static void multiplyField(Object object, Field field, float factor) {
-		try {
-			Object o;
-			o = field.get(object);
-
-			// Modify the value according to the coefficient.
-			if (o instanceof Float) {
-				float value = ((Float) o).floatValue();
-				field.setFloat(object, value * factor);
-			} else if (o instanceof Integer) {
-				double value = ((Integer) o).doubleValue();
-				field.setInt(object, (int) Math.round(value * factor));
-			} else {
-				throw new IllegalArgumentException("Unknown phenotype field type");
-			}
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException("Cannot access field: " + field.toString(), ex);
-		}
-	}
 
 	@SuppressWarnings("boxing")
 	public static final Object stringToBoxed(Class<?> t, String strVal) {

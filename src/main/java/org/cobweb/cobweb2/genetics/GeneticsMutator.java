@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.RandomSource;
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.io.ConfDisplayName;
-import org.cobweb.util.ReflectionUtil;
 
 /**
  * GeneticsMutator is an instance of SpawnMutator.
@@ -95,7 +95,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 
 			// Get instance variable linked to attribute in agent
 			// TODO LOW different formulas for different types of fields?
-			ReflectionUtil.multiplyField(agent.params, pheno.field, coefficient);
+			pheno.modifyValue(agent, coefficient, 0);
 		}
 		tracker.addAgent(agent.getType(), getGene(agent));
 	}

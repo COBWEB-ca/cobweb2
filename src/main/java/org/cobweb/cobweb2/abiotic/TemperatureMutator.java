@@ -12,7 +12,6 @@ import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
-import org.cobweb.util.ReflectionUtil;
 
 /**
  * TemperatureMutator is an instance of Step and Spawn Mutator
@@ -85,7 +84,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 
 		float f = locToPenalty(agent.getPosition(), aPar);
 		if (aPar.parameter.field != null)
-			ReflectionUtil.addField(agent.params, aPar.parameter.field, f);
+			aPar.parameter.modifyValue(agent, 1, f);
 	}
 
 	@Override
@@ -115,7 +114,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 		float delta = toFactor - fromFactor;
 
 		if (Math.abs(delta) < 1e-10 && aPar.parameter.field != null) {
-			ReflectionUtil.addField(agent.params, aPar.parameter.field, delta);
+			aPar.parameter.modifyValue(agent, 1, delta);
 		}
 	}
 

@@ -3,7 +3,6 @@
  */
 package org.cobweb.cobweb2.disease;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,12 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Updatable;
 import org.cobweb.cobweb2.interconnect.ContactMutator;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.util.ArrayUtilities;
-import org.cobweb.util.ReflectionUtil;
 
 /**
  * Simulates various diseases that can affect agents.
@@ -91,9 +90,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 		if (isSick) {
 			DiseaseParams effect = params[agent.getType()];
-			Field f = effect.param.field;
-			if (f != null)
-				ReflectionUtil.multiplyField(agent.params, f, effect.factor);
+			effect.param.modifyValue(agent, effect.factor, 0);
 
 			sickCount[agent.getType()]++;
 
