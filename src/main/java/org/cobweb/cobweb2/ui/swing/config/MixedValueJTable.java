@@ -18,11 +18,11 @@ import org.cobweb.cobweb2.io.CobwebSelectionParam;
 
 class MixedValueJTable extends JTable {
 
-	public static class CobwebSelectionEditor<T> extends DefaultCellEditor {
+	private static class CobwebSelectionEditor<T> extends DefaultCellEditor {
 
 		private static final long serialVersionUID = 3458173499957389679L;
 
-		public CobwebSelectionEditor(T[] options) {
+		private CobwebSelectionEditor(T[] options) {
 			super(new JComboBox(options));
 		}
 

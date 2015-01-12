@@ -28,7 +28,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private int sickCount[] = new int[0];
 
-	Map<ComplexAgent, State> agentState = new HashMap<ComplexAgent, State>();
+	private Map<ComplexAgent, State> agentState = new HashMap<ComplexAgent, State>();
 
 	private SimulationInternals simulation;
 

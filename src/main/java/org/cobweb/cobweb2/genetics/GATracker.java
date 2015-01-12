@@ -14,10 +14,10 @@ public class GATracker {
 	public static final int GENE_VALUE_DISTRIBUTION_SIZE = 256;
 
 	/** Number of agents stored in GATracker's 'agents' */
-	public int[] total_agents;
+	private int[] total_agents;
 
 	/** The sum of specific gene status numbers over particular agent types. */
-	public double[][] total_gene_status;
+	private double[][] total_gene_status;
 
 	/**
 	 * The distribution of the status of a specific gene over particular agent types.
@@ -33,16 +33,9 @@ public class GATracker {
 	 * */
 	private double[][][] gene_value_distribution;
 
-	/** Which GA-info type to track/print. */
-	private boolean track_gene_value_distribution;
-
 	private int typeCount;
 
 	private int geneCount;
-
-	public GATracker() {
-		// Nothing
-	}
 
 	public void setParams(int agentTypes, int geneNo) {
 		typeCount = agentTypes;
@@ -110,7 +103,7 @@ public class GATracker {
 	}
 
 	/** Gets the appropriate index of a gene of a specific value in a gene status distribution hash table (or array). */
-	public int geneStatusHash(int gene_value) {
+	private int geneStatusHash(int gene_value) {
 		int index;
 		if (gene_value > 90) {
 			index = Math.abs(180 - gene_value);
@@ -118,16 +111,6 @@ public class GATracker {
 			index = gene_value;
 		}
 		return index;
-	}
-
-	/** Returns the current state of 'track_gene_value_distribution'. */
-	public boolean getTrackGeneValueDistribution() {
-		return track_gene_value_distribution;
-	}
-
-	/** Sets the state of 'track_gene_value_distribution'. */
-	public void setTrackGeneValueDistribution(boolean state) {
-		track_gene_value_distribution = state;
 	}
 
 	public double getAvgStatus(int agentType, int geneType) {

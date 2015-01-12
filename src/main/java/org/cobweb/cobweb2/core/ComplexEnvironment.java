@@ -49,11 +49,11 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * Waste tile array to store the data per waste tile. Needed to allow
 	 * depletion of waste
 	 */
-	public Drop[][] dropArray;
+	private Drop[][] dropArray;
 
 	public PacketConduit commManager;
 
-	public Food foodManager;
+	private Food foodManager;
 
 	public ComplexEnvironment(SimulationInternals simulation) {
 		super(simulation);
@@ -77,7 +77,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		child.init(this, location, agentData[agentType]);
 	}
 
-	ComplexAgentStatistics addAgentInfo(ComplexAgentStatistics info) {
+	private ComplexAgentStatistics addAgentInfo(ComplexAgentStatistics info) {
 		agentInfoVector.add(info);
 		return info;
 	}

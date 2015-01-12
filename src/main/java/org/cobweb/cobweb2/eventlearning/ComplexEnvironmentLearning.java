@@ -12,7 +12,7 @@ import org.cobweb.cobweb2.core.SimulationInternals;
 
 public class ComplexEnvironmentLearning extends ComplexEnvironment {
 
-	public ComplexEnvironmentLearning(SimulationInternals simulation) {
+	public ComplexEnvironmentLearning(SimulationInternals simulation) { // NO_UCD (unused code) called through reflection
 		super(simulation);
 	}
 
@@ -40,7 +40,7 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 		pruneOccurrences();
 	}
 
-	protected void pruneOccurrences() {
+	private void pruneOccurrences() {
 		Iterator<Occurrence> iterator = allOccurrences.iterator();
 		while (iterator.hasNext()) {
 			Occurrence oc = iterator.next();

@@ -5,8 +5,8 @@ import java.util.ArrayList;
 
 public abstract class SmartAction implements Queueable {
 
-	String desc;
-	boolean isIrrelevant = false;
+	private String desc;
+	private boolean isIrrelevant = false;
 	ComplexAgentLearning agent;
 
 	public SmartAction(ComplexAgentLearning agent) {
@@ -33,11 +33,11 @@ public abstract class SmartAction implements Queueable {
 	 * @return true if the action is no longer relevant (if it has already
 	 *         been performed.)
 	 */
-	boolean irrelevantIfActionPerformed() {
+	public boolean irrelevantIfActionPerformed() {
 		return true;
 	}
 
-	boolean irrelevantIfActionFailed() {
+	public boolean irrelevantIfActionFailed() {
 		return true;
 	}
 

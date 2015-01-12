@@ -27,7 +27,6 @@ public class LearningParams implements CobwebParam {
 
 		for (int i = 0; i < env.getAgentTypes(); i++) {
 			learningParams[i] = new LearningAgentParams();
-			learningParams[i].type = i;
 		}
 	}
 

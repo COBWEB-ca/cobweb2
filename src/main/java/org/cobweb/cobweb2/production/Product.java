@@ -16,7 +16,7 @@ public class Product implements Drop {
 		this.productionMapper = productionMapper;
 	}
 
-	Agent owner;
+	private Agent owner;
 	private float value;
 
 	public Agent getOwner() {

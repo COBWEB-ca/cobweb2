@@ -19,18 +19,14 @@ import org.cobweb.swingutil.ColorLookup;
 class AgentDrawInfo {
 
 	/** Solid color of the agent. */
-	java.awt.Color agentColor;
+	private final java.awt.Color agentColor;
 
-	java.awt.Color type;
+	private final java.awt.Color type;
 
-	java.awt.Color action;
+	private final java.awt.Color action;
 
 	/** Position in tile coordinates */
-	LocationDirection position;
-
-	private int[] xPts = new int[3];
-
-	private int[] yPts = new int[3];
+	private final LocationDirection position;
 
 	AgentDrawInfo(ComplexAgent agent, ColorLookup colorMap, Simulation sim) {
 		int[] rgb = new int[3];
@@ -65,6 +61,11 @@ class AgentDrawInfo {
 			int deltaY = tileHeight / 2;
 			int centerX = topLeftX + deltaX;
 			int centerY = topLeftY + deltaY;
+
+
+			int[] xPts = new int[3];
+			int[] yPts = new int[3];
+
 			if (position.direction.x != 0 && position.direction.y != 0) {
 				// Diagonal; deal with this later
 			} else if (position.direction.x != 0) {

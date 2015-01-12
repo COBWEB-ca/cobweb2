@@ -22,10 +22,10 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 	 */
 	private static final long serialVersionUID = 674068154319803208L;
 
-	ChartPanel chartPan;
+	private ChartPanel chartPan;
 
-	DefaultCategoryDataset catd = new DefaultCategoryDataset();
-	JFreeChart chart;
+	private DefaultCategoryDataset catd = new DefaultCategoryDataset();
+	private JFreeChart chart;
 
 	private Timer refreshTimer;
 

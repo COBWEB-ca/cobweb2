@@ -62,7 +62,7 @@ public class SimulationConfigEditor {
 
 	}
 
-	protected void validateSettings() {
+	private void validateSettings() {
 		try {
 			environmentPage.validateUI();
 			resourcePage.validateUI();
@@ -115,7 +115,7 @@ public class SimulationConfigEditor {
 
 	private String datafile;
 
-	SettingsPanel controllerPanel;
+	private SettingsPanel controllerPanel;
 	public static final long serialVersionUID = 0xB9967684A8375BC0L;
 	/**
 	 * Create the SimulationConfigEditor and show it. For thread safety, this method should be invoked from the event-dispatching thread.
@@ -127,7 +127,7 @@ public class SimulationConfigEditor {
 		return configEditor;
 	}
 
-	public void show() {
+	private void show() {
 		dialog.setVisible(true);
 	}
 

@@ -11,7 +11,7 @@ import org.cobweb.swingutil.ColorLookup;
 
 
 public class ProductionConfigPage implements ConfigPage {
-	JPanel prodPanel;
+	private JPanel prodPanel;
 	private MixedValueJTable prodParamTable;
 
 	public ProductionConfigPage(ProductionParams[] params, ColorLookup agentColors) {

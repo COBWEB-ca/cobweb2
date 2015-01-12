@@ -7,7 +7,7 @@ import javax.swing.JComponent;
  */
 public class WaitableJComponent extends JComponent implements SynchronousDisplay {
 
-	JComponentWaiter waiter = new JComponentWaiter(this);
+	private JComponentWaiter waiter = new JComponentWaiter(this);
 
 	@Override
 	public void refresh(boolean wait) {

@@ -20,7 +20,7 @@ class AIPanel extends SettingsPanel {
 
 	private static final long serialVersionUID = 6045306756522429063L;
 
-	static final String[] AI_LIST = { GeneticController.class.getSimpleName(), LinearWeightsController.class.getSimpleName() };
+	private static final String[] AI_LIST = { GeneticController.class.getSimpleName(), LinearWeightsController.class.getSimpleName() };
 
 	private CardLayout cardSwitch = new CardLayout();
 	private JPanel inner = new JPanel();

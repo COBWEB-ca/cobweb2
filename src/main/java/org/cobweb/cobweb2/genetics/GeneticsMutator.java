@@ -80,7 +80,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		return blank;
 	}
 
-	public void mutateAgentAttributes(ComplexAgent agent) {
+	private void mutateAgentAttributes(ComplexAgent agent) {
 		for (int i = 0; i < params.phenotype.length; i++) {
 			GeneticCode gc = getGene(agent);
 

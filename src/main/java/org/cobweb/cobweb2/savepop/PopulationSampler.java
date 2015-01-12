@@ -89,7 +89,7 @@ public class PopulationSampler {
 	}
 
 
-	public static Node makeNode(ComplexAgent a, Document d) {
+	private static Node makeNode(ComplexAgent a, Document d) {
 
 		Node agent = d.createElement("Agent");
 

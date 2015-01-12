@@ -11,7 +11,7 @@ public class Topology {
 	private RandomSource randomSource;
 	public final int width;
 	public final int height;
-	public final boolean wrap;
+	private final boolean wrap;
 
 	public Topology(RandomSource randomSource, int width, int height, boolean wrap) {
 		this.randomSource = randomSource;

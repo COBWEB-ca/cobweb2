@@ -81,7 +81,7 @@ public class ConfigTableModel extends AbstractTableModel {
 
 	protected class MyNamedField extends MyArrayField {
 
-		public MyNamedField(Field f, int i) {
+		private MyNamedField(Field f, int i) {
 			super(f, i);
 		}
 
@@ -117,10 +117,10 @@ public class ConfigTableModel extends AbstractTableModel {
 
 	}
 
-	protected class MyArrayField extends MyField {
+	private class MyArrayField extends MyField {
 		protected int index;
 
-		public MyArrayField(Field f, int i) {
+		private MyArrayField(Field f, int i) {
 			super(f);
 			this.index = i;
 		}
@@ -157,7 +157,7 @@ public class ConfigTableModel extends AbstractTableModel {
 	}
 
 	private class MyField {
-		public MyField(Field f) {
+		private MyField(Field f) {
 			field = f;
 		}
 

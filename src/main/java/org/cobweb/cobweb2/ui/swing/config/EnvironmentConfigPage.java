@@ -34,25 +34,25 @@ import org.cobweb.swingutil.binding.LabeledJFormattedTextField;
  */
 public class EnvironmentConfigPage implements ConfigPage {
 
-	public BoundJFormattedTextField Width;
-	public BoundJFormattedTextField Height;
-	public BoundCheckBox wrap;
+	private BoundJFormattedTextField Width;
+	private BoundJFormattedTextField Height;
+	private BoundCheckBox wrap;
 
-	public BoundCheckBox keepOldAgents;
-	public BoundCheckBox spawnNewAgents;
-	public BoundCheckBox keepOldArray;
-	public BoundCheckBox dropNewFood;
-	public BoundCheckBox keepOldWaste;
-	public BoundCheckBox keepOldPackets;
-	public BoundCheckBox PrisDilemma;
-	public JCheckBox LearningAgents;
-	public BoundJFormattedTextField randomSeed;
-	public BoundJFormattedTextField initialStones;
-	public BoundJFormattedTextField maxFoodChance;
+	private BoundCheckBox keepOldAgents;
+	private BoundCheckBox spawnNewAgents;
+	private BoundCheckBox keepOldArray;
+	private BoundCheckBox dropNewFood;
+	private BoundCheckBox keepOldWaste;
+	private BoundCheckBox keepOldPackets;
+	private BoundCheckBox PrisDilemma;
+	private JCheckBox LearningAgents;
+	private BoundJFormattedTextField randomSeed;
+	private BoundJFormattedTextField initialStones;
+	private BoundJFormattedTextField maxFoodChance;
 
-	JPanel thePanel;
+	private JPanel thePanel;
 
-	ComplexEnvironmentParams params;
+	private ComplexEnvironmentParams params;
 
 	private int oldAgentNum;
 

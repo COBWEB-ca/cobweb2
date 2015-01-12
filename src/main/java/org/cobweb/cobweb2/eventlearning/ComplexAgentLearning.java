@@ -26,7 +26,7 @@ import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 
 public class ComplexAgentLearning extends ComplexAgent {
 
-	public ComplexAgentLearning(SimulationInternals sim) {
+	public ComplexAgentLearning(SimulationInternals sim) { // NO_UCD (unused code) called through reflection
 		super(sim);
 	}
 

@@ -21,7 +21,7 @@ public class Disp extends JFrame implements UpdatableUI {
 	 */
 	private static final long serialVersionUID = 8153897860751883610L;
 
-	WaitableJComponent display;
+	private WaitableJComponent display;
 	private float[][] tiles;
 	private float max;
 

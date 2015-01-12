@@ -10,8 +10,8 @@ import org.cobweb.swingutil.ColorLookup;
 
 
 public class AgentConfigPage implements ConfigPage {
-	JPanel agentPanel;
-	private MixedValueJTable agentParamTable;
+	private final JPanel agentPanel;
+	private final MixedValueJTable agentParamTable;
 
 	public AgentConfigPage(ComplexAgentParams[] params, ColorLookup agentColors) {
 		agentPanel = new JPanel();

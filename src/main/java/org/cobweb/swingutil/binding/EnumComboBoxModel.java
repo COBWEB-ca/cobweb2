@@ -10,9 +10,9 @@ import javax.swing.DefaultComboBoxModel;
 public class EnumComboBoxModel extends DefaultComboBoxModel {
 	private static final long serialVersionUID = -9190442597939410887L;
 
-	Object[] values;
-	Field field;
-	Object obj;
+	private Object[] values;
+	private Field field;
+	private Object obj;
 
 	public EnumComboBoxModel(Object obj, String fieldName) {
 		try {

@@ -21,27 +21,26 @@ import org.cobweb.util.BitField;
  */
 public class GeneticController implements Controller {
 
-	//true, false, file not found
-	protected final static int TURN_LEFT = 0;
-	protected final static int TURN_RIGHT = 1;
-	protected final static int MOVE_STRAIGHT = 2;
-	protected final static int NONE = 3;
+	private final static int TURN_LEFT = 0;
+	private final static int TURN_RIGHT = 1;
+	private final static int MOVE_STRAIGHT = 2;
+	private final static int NONE = 3;
 
-	BehaviorArray ga;
-	int memorySize;
-	int commSize;
+	private BehaviorArray ga;
+	private int memorySize;
+	private int commSize;
 
-	public static final int INPUT_BITS = 8;
+	private static final int INPUT_BITS = 8;
 
-	public static final int OUTPUT_BITS = 2;
+	private static final int OUTPUT_BITS = 2;
 
-	public static final int ENERGY_THRESHOLD = 160;
+	private static final int ENERGY_THRESHOLD = 160;
 
 	private GeneticControllerParams params;
 
 	private SimulationInternals simulation;
 
-	public GeneticController(SimulationInternals sim) {
+	public GeneticController(SimulationInternals sim) { // NO_UCD (unused code) called through reflection
 		simulation = sim;
 	}
 
@@ -49,7 +48,7 @@ public class GeneticController implements Controller {
 	 * Given the agent's energy, get the amount of energy to add to the array.
 	 * @param energy The agent's energy.
 	 */
-	protected int getEnergy(int energy) {
+	private int getEnergy(int energy) {
 		final int maxEnergy = 3;
 
 		if(energy > ENERGY_THRESHOLD) {

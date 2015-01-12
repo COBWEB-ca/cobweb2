@@ -131,7 +131,7 @@ public class BehaviorArray {
 		return newArray;
 	}
 
-	public int get(int index) {
+	private int get(int index) {
 
 		/* bitbase is the first bit of the target element */
 		int bitbase = index * outputBits;
@@ -166,7 +166,7 @@ public class BehaviorArray {
 		return out;
 	}
 
-	public void getOutput(int in, int[] out) {
+	private void getOutput(int in, int[] out) {
 		BitField outputCode = new BitField(get(in & totalInMask));
 		for (int i = 0; i < outputSize.length; ++i) {
 			out[i] = outputCode.remove(outputSize[i]);
@@ -190,7 +190,7 @@ public class BehaviorArray {
 
 	}
 
-	public void set(int index, int value) {
+	private void set(int index, int value) {
 
 		/* bitbase is the first bit of the target element */
 		int bitbase = index * outputBits;
@@ -228,23 +228,6 @@ public class BehaviorArray {
 		for (int i = 0; i < cmpsize; ++i) {
 			BitField outputCode1 = new BitField(get(i));
 			BitField outputCode2 = new BitField(other.get(i));
-			for (int j = 0; j < outputSize.length; ++j) {
-				if (outputCode1.remove(outputSize[j]) == outputCode2.remove(outputSize[j])) {
-					total += outputSize[j];
-				}
-			}
-		}
-		return total / (size * outputBits);
-	}
-
-	public double similarity(int other) {
-
-		double total = 0;
-		int cmpsize = size;
-
-		for (int i = 0; i < cmpsize; ++i) {
-			BitField outputCode1 = new BitField(get(i));
-			BitField outputCode2 = new BitField(other);
 			for (int j = 0; j < outputSize.length; ++j) {
 				if (outputCode1.remove(outputSize[j]) == outputCode2.remove(outputSize[j])) {
 					total += outputSize[j];

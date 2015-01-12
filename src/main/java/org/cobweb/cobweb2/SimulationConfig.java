@@ -528,4 +528,4 @@ public class SimulationConfig {
 				envParams.keepOldWaste;
 	}
 
-} // Parser
+}

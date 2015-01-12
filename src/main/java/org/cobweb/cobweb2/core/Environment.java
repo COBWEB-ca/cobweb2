@@ -186,7 +186,7 @@ public  class Environment {
 		clearFlag(Environment.FLAG_STONE);
 	}
 
-	protected int getLocationBits(Location l) {
+	private int getLocationBits(Location l) {
 		return array.getLocationBits(l);
 	}
 
@@ -198,7 +198,7 @@ public  class Environment {
 		setFlag(l, Environment.FLAG_STONE, false);
 	}
 
-	protected void setLocationBits(Location l, int bits) {
+	private void setLocationBits(Location l, int bits) {
 		array.setLocationBits(l, bits);
 	}
 

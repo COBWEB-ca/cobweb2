@@ -267,7 +267,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private int mapHeight = 0;
 
-	Simulation simulation;
+	private Simulation simulation;
 
 	public static final long serialVersionUID = 0x09FE6158DCF2CA3BL;
 
@@ -291,7 +291,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		addMouseMotionListener(myMouse);
 	}
 
-	enum DragMode {
+	private enum DragMode {
 		Click,
 		DragStart,
 		DragOn,
@@ -383,7 +383,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		updateScale();
 	}
 
-	void updateScale() {
+	private void updateScale() {
 		java.awt.Dimension size = getSize();
 		if (size.width <= 0 || size.height <= 0) {
 			return;

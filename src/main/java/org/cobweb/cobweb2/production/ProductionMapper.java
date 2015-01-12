@@ -78,7 +78,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	 *         chance of dropping a product on a tile with a moderate prob. val.
 	 *
 	 */
-	public float getValueAtLocation(Location loc) {
+	private float getValueAtLocation(Location loc) {
 		return vals[loc.x][loc.y];
 	}
 
@@ -90,7 +90,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		return maxValue;
 	}
 
-	public class ProductHunt implements StateParameter {
+	private class ProductHunt implements StateParameter {
 
 		@Override
 		public String getName() {
@@ -124,7 +124,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		return params;
 	}
 
-	public void addProduct(float value, ComplexAgent owner) {
+	private void addProduct(float value, ComplexAgent owner) {
 		Location loc = owner.getPosition();
 		Product prod = new Product(value, owner, loc, this);
 

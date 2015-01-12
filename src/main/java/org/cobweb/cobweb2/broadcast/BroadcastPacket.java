@@ -13,7 +13,7 @@ public class BroadcastPacket {
 
 	private int packetCounter;
 
-	int packetId; // Unique ID for each communication packet
+	private int packetId; // Unique ID for each communication packet
 
 	private int type; // Type of packet (Food or ). This is an enumerated
 	// number that can be extended

@@ -31,9 +31,9 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 
 	private StepButton stepButton;
 
-	public JTextField tickField;
+	private JTextField tickField;
 
-	public JLabel tickDisplay;
+	private JLabel tickDisplay;
 
 	private ThreadSimulationRunner simRunner;
 

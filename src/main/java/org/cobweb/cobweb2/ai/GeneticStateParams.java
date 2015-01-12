@@ -17,7 +17,7 @@ public class GeneticStateParams implements CobwebParam {
 
 	public GeneticStateAgentParams[] agentParams;
 
-	int typeCount = 4;
+	private int typeCount = 4;
 
 	private static final Pattern agentRE = Pattern.compile("^Agent(\\d+)$");
 

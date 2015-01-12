@@ -14,7 +14,7 @@ import org.cobweb.cobweb2.io.CobwebParam;
 
 public class LinearWeightsController implements Controller {
 
-	public static final int ENERGY_THRESHOLD = 160;
+	private static final int ENERGY_THRESHOLD = 160;
 
 	public static final int INPUT_COUNT = 10;
 	public static final int OUTPUT_COUNT = 6;
@@ -42,7 +42,7 @@ public class LinearWeightsController implements Controller {
 
 	private SimulationInternals simulator;
 
-	public LinearWeightsController(SimulationInternals sim) {
+	public LinearWeightsController(SimulationInternals sim) { // NO_UCD (unused code) called through reflection
 		simulator = sim;
 	}
 

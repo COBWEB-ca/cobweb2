@@ -14,7 +14,7 @@ public class PacketConduit {
 
 	/**
 	 * adds packets to the list of packets
-	 * 
+	 *
 	 * @param packet packet
 	 */
 	public void addPacketToList(BroadcastPacket packet) {

@@ -22,25 +22,25 @@ import org.cobweb.util.Point2D;
 class DrawInfo {
 
 	/** Width of the frame info, in tiles */
-	int width;
+	private int width;
 
 	/** Height of the frame info, in tiles */
-	int height;
+	private int height;
 
 	/**
 	 * width * height array of colors for the tiles; The color for a
 	 * specific tile at (x,y) is tileColors[y * width * + x]
 	 */
-	java.awt.Color[] tileColors;
+	private java.awt.Color[] tileColors;
 
 	/** Linked list of AgentDrawInfo for the display of agents. */
-	List<AgentDrawInfo> agents = new LinkedList<AgentDrawInfo>();
+	private List<AgentDrawInfo> agents = new LinkedList<AgentDrawInfo>();
 
-	List<PathDrawInfo> paths = new LinkedList<PathDrawInfo>();
+	private List<PathDrawInfo> paths = new LinkedList<PathDrawInfo>();
 
-	public List<DropDrawInfo> drops = new LinkedList<DropDrawInfo>();
+	private List<DropDrawInfo> drops = new LinkedList<DropDrawInfo>();
 
-	static final Color COLOR_GRIDLINES = Color.lightGray;
+	private static final Color COLOR_GRIDLINES = Color.lightGray;
 
 	private DisplaySettings displaySettings;
 

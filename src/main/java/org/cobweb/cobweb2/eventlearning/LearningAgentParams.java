@@ -7,17 +7,9 @@ import org.cobweb.io.ConfXMLTag;
 
 public class LearningAgentParams extends AbstractReflectionParams {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 6152370881108746535L;
-
-	public LearningAgentParams() {
-	}
-
-	/**
-	 * What type of agent this is
-	 */
-	public int type;
 
 	@ConfXMLTag("BroadcastPleasure")
 	@ConfDisplayName("Affection for broadcasting")

@@ -6,7 +6,7 @@ import java.util.List;
 
 public class ComplexAgentStatistics implements Serializable {
 
-	public static final int MAX_PATH_HISTORY = 32;
+	private static final int MAX_PATH_HISTORY = 32;
 
 	public int pdReward = 0;
 	public int pdTemptation = 0;

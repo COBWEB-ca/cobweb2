@@ -83,7 +83,7 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 	}
 
 	/** Initialize a chart representation of gene status distribution among agents. */
-	public void initGeneStatusDistributionPlot(String[] names) {
+	private void initGeneStatusDistributionPlot(String[] names) {
 		chart_display_frame.setName("Genotype-Phenotype Correlation Value Distribution");
 		gene_status_distribution_panel = new JPanel(new GridLayout(1,geneCount));
 		for (int i = 0; i < geneCount; i++) {
@@ -201,7 +201,7 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 	}
 
 	/** Initialize the gene_status_distribution_range x-vector. */
-	public void initGeneStatusDistributionRangeVector() {
+	private void initGeneStatusDistributionRangeVector() {
 		for (int i = 0; i < GATracker.GENE_STATUS_DISTRIBUTION_SIZE; i++) {
 			// Rounding the number off to the 4 significand digits
 			gene_status_distribution_range[i] = Math.round(2*Math.abs(Math.sin(i*Math.PI/180)*10000))/10000.0;
@@ -209,7 +209,7 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 	}
 
 	/** Initialize the gene_value_distribution_range x-vector. */
-	public void initGeneValueDistributionRangeVector() {
+	private void initGeneValueDistributionRangeVector() {
 		for (int i = 0; i < GATracker.GENE_VALUE_DISTRIBUTION_SIZE; i++) {
 			// Rounding the number off to the 4 significand digits
 			gene_value_distribution_range[i] = i;
@@ -217,11 +217,11 @@ public class GAChartOutput implements ViewerPlugin, ActionListener, UpdatableUI 
 		}
 	}
 
-	JComponentWaiter refreshWaiter;
+	private JComponentWaiter refreshWaiter;
 	private ViewerClosedCallback onClosed;
 
 	/** Update the gene_status_distribution data */
-	public void updateGeneStatusDistributionData() {
+	private void updateGeneStatusDistributionData() {
 		double[][][] value = gaTracker.getGeneValueDistribution();
 		double[][][] status = gaTracker.getGeneStatusDistribution();
 

@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -65,7 +66,7 @@ public class GeneticConfigPage implements ConfigPage {
 	/**
 	 * Default genes. <code>default.get(gene)[agent] = x;</code>
 	 */
-	List<int[]> defaults = new LinkedList<int[]>();
+	private List<int[]> defaults = new LinkedList<int[]>();
 
 	private class GenesTableModel extends AbstractTableModel {
 
@@ -193,14 +194,14 @@ public class GeneticConfigPage implements ConfigPage {
 		Util.makeGroupPanel(myPanel, "Genetic Algorithm Parameters");
 	}
 
-	public void removeGene(Phenotype phenotype) {
+	private void removeGene(Phenotype phenotype) {
 		phenosAvailable.addItem(phenotype);
 		int i = phenosUsed.indexOf(phenotype);
 		phenosUsed.remove(phenotype);
 		defaults.remove(i);
 	}
 
-	public void addGene(Phenotype p) {
+	private void addGene(Phenotype p) {
 		phenosUsed.add(phenosAvailable.removeItem(p));
 		int[] temp = new int[agentTypes];
 		for (int i = 0; i < temp.length; i++) {
@@ -221,7 +222,7 @@ public class GeneticConfigPage implements ConfigPage {
 
 		int j = 0;
 		for (Phenotype p : params.phenotype)
-			for (Phenotype p2 : new LinkedList<Phenotype>(phenoAvailable))
+			for (Phenotype p2 : new LinkedList<Phenotype>(phenosAvailable.items))
 				if (p.equals(p2)) {
 					addGene(p2);
 					for (int i = 0; i < agentTypes; i++) {
@@ -261,11 +262,9 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private GenesTableModel modelSelected;
 
-	List<Phenotype> phenoAvailable = new LinkedList<Phenotype>();
-
 	private JScrollPane setupPhenotypeList() {
 		//TODO fix this weird selection process
-		phenosAvailable = new ListManipulator<Phenotype>(new Phenotype().getPossibleValues());
+		phenosAvailable = new ListManipulator<Phenotype>(new ArrayList<Phenotype>(new Phenotype().getPossibleValues()));
 
 		listAvailable = new JList(phenosAvailable);
 		listAvailable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);

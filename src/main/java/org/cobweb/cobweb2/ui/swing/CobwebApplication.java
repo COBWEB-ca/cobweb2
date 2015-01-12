@@ -59,7 +59,7 @@ public class CobwebApplication extends JFrame {
 	private static final String WINDOW_TITLE = "COBWEB 2";
 
 	/** Filename of current simulation config */
-	String currentFile;
+	private String currentFile;
 
 	private SimulatorUI simulatorUI;
 
@@ -69,17 +69,17 @@ public class CobwebApplication extends JFrame {
 
 	public static final String CONFIG_FILE_EXTENSION = ".xml";
 
-	public static final String TEMPORARY_FILE_EXTENSION = ".cwtemp";
+	private static final String TEMPORARY_FILE_EXTENSION = ".cwtemp";
 
 	static final String INITIAL_OR_NEW_INPUT_FILE_NAME = "initial_or_new_input_(reserved)" + CONFIG_FILE_EXTENSION;
 
 	public static final String DEFAULT_DATA_FILE_NAME = "default_data_(reserved)";
 
-	public static final String CURRENT_DATA_FILE_NAME = "current_data_(reserved)" + TEMPORARY_FILE_EXTENSION;
+	private static final String CURRENT_DATA_FILE_NAME = "current_data_(reserved)" + TEMPORARY_FILE_EXTENSION;
 
 	public ThreadSimulationRunner simRunner = new ThreadSimulationRunner(new Simulation());
 
-	protected final Logger myLogger = Logger.getLogger("COBWEB2");
+	private final Logger myLogger = Logger.getLogger("COBWEB2");
 
 	private DisplaySettings displaySettings = new DisplaySettings();
 
@@ -122,7 +122,7 @@ public class CobwebApplication extends JFrame {
 	 * settings to a new file.  The method is invoked when the user selects
 	 * "Create New Data" located under "File" in the main tool bar.
 	 */
-	public void createNewData() {
+	private void createNewData() {
 		String newInput = INITIAL_OR_NEW_INPUT_FILE_NAME;
 		SimulationConfigEditor editor = SimulationConfigEditor.show(this, newInput, false, displaySettings);
 		if (editor.isOK()) {
@@ -137,7 +137,7 @@ public class CobwebApplication extends JFrame {
 	/**
 	 * Allows the user to select the log file to write to.
 	 */
-	public void logFileDialog() {
+	private void logFileDialog() {
 		FileDialog theDialog = new FileDialog(this,
 				"Choose a file to save log to", FileDialog.SAVE);
 		theDialog.setVisible(true);
@@ -238,7 +238,7 @@ public class CobwebApplication extends JFrame {
 	 * to overwrite data found in the default data file, a dialog box will be
 	 * created to tell the user the proper way to create new default data.
 	 */
-	public void openCurrentFile() {
+	private void openCurrentFile() {
 		if (CURRENT_DATA_FILE_NAME.equals(currentFile)) {
 			throw new UserInputException("File not currently saved, use \"Modify Current Data\" instead");
 		}
@@ -297,7 +297,7 @@ public class CobwebApplication extends JFrame {
 	 *Opens an existing xml file, selected by the user through a dialog box,
 	 *which contains all the information for a simulation environment.
 	 */
-	public void openFileDialog() {
+	private void openFileDialog() {
 		FileDialog theDialog = new FileDialog(CobwebApplication.this,
 				"Open a State File", FileDialog.LOAD);
 		theDialog.setFile("*.xml");
@@ -324,7 +324,7 @@ public class CobwebApplication extends JFrame {
 	/**
 	 * Exits the CobwebApplication.
 	 */
-	public void quitApplication() {
+	private void quitApplication() {
 		simRunner.stop();
 		System.exit(0);
 	}
@@ -333,7 +333,7 @@ public class CobwebApplication extends JFrame {
 	 * Opens a dialog box for the user to select the file he/she would like
 	 * to report to.
 	 */
-	public void reportDialog() {
+	private void reportDialog() {
 		FileDialog theDialog = new FileDialog(this,
 				"Choose a file to save report to", FileDialog.SAVE);
 		theDialog.setVisible(true);
@@ -399,7 +399,7 @@ public class CobwebApplication extends JFrame {
 	 * @param savingFile Contains the file path and name
 	 * @see CobwebApplication#saveFileDialog()
 	 */
-	public void saveFile(String savingFile) {
+	private void saveFile(String savingFile) {
 		try {
 			File sf = new File(savingFile);
 			if (sf.isHidden() || (sf.exists() && !sf.canWrite())) {
@@ -419,7 +419,7 @@ public class CobwebApplication extends JFrame {
 	 * Opens the dialog box to allow the user to select the file to save
 	 * the current data to.
 	 */
-	public void saveFileDialog() {
+	private void saveFileDialog() {
 		FileDialog theDialog = new FileDialog(this,
 				"Choose a file to save state to", FileDialog.SAVE);
 		theDialog.setFile("*.xml");
@@ -492,7 +492,7 @@ public class CobwebApplication extends JFrame {
 		}
 	}
 
-	public void updateDynamicUI() {
+	private void updateDynamicUI() {
 		setupViewers();
 
 		makeAgentFoodSelectMenu();

@@ -13,7 +13,7 @@ public class ResourceConfigPage implements ConfigPage {
 
 	private MixedValueJTable resourceParamTable;
 
-	JPanel myPanel = new JPanel();
+	private JPanel myPanel = new JPanel();
 
 	public ResourceConfigPage(ComplexFoodParams[] params, ColorLookup agentColors) {
 		resourceParamTable = new MixedValueJTable();

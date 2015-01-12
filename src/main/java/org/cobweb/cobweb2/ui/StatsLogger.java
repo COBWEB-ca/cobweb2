@@ -25,7 +25,7 @@ public class StatsLogger implements UpdatableUI {
 	 * Write to Log file: FoodCount, AgentCount, Average Agent Energy and Agent
 	 * Energy at the most recent ticks ( by tick and by Agent/Food preference)
 	 */
-	public void writeLogEntry() {
+	private void writeLogEntry() {
 		if (logStream == null) {
 			return;
 		}

@@ -22,21 +22,21 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 public class LiveStats implements UpdatableUI, ViewerPlugin {
 
-	JFrame graph = new JFrame("Population");
+	private JFrame graph = new JFrame("Population");
 
-	JComponentWaiter graphSynchronizer = new JComponentWaiter(graph);
+	private JComponentWaiter graphSynchronizer = new JComponentWaiter(graph);
 
-	int frame = 0;
-
-
-	static final int frameskip = 50;
+	private int frame = 0;
 
 
-	XYSeries agentData = new XYSeries("Agents");
-	XYSeries foodData = new XYSeries("Food");
+	private static final int frameskip = 50;
 
-	XYSeriesCollection data = new XYSeriesCollection();
-	JFreeChart plot = ChartFactory.createXYLineChart(
+
+	private XYSeries agentData = new XYSeries("Agents");
+	private XYSeries foodData = new XYSeries("Food");
+
+	private XYSeriesCollection data = new XYSeriesCollection();
+	private JFreeChart plot = ChartFactory.createXYLineChart(
 			"Agent and Food count"
 			, "Time"
 			, "Count"
@@ -46,7 +46,7 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 			, false
 			, false);
 
-	SimulationRunner scheduler;
+	private SimulationRunner scheduler;
 
 	public LiveStats(SimulationRunner scheduler) {
 		this.scheduler = scheduler;
@@ -128,7 +128,7 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 		graph.setVisible(false);
 	}
 
-	ViewerClosedCallback onClosed;
+	private ViewerClosedCallback onClosed;
 	@Override
 	public void setClosedCallback(ViewerClosedCallback onClosed) {
 		this.onClosed = onClosed;
