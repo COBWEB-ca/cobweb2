@@ -125,7 +125,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		return params;
 	}
 
-	private void addProduct(float value, ComplexAgent owner) {
+	private void addProduct(float value, Agent owner) {
 		Location loc = owner.getPosition();
 		Product prod = new Product(value, owner, loc, this);
 
@@ -139,7 +139,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		return chance > simulation.getRandom().nextFloat();
 	}
 
-	private boolean shouldProduce(ComplexAgent agent) {
+	private boolean shouldProduce(Agent agent) {
 		if (!agentData.containsKey(agent)) {
 			return false;
 		}
@@ -234,15 +234,15 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		return roll(y);
 	}
 
-	public void tryProduction(ComplexAgent agent) {
+	public void tryProduction(Agent agent) {
 		if (shouldProduce(agent)) {
 			// TODO: find a more clean way to create and assign product
 			// Healthy agents produce high-value products, and vice-versa
-			addProduct(agent.getEnergy() / (float) agent.params.initEnergy, agent);
+			addProduct(agent.getEnergy() / (float) ((ComplexAgent)agent).params.initEnergy, agent);
 		}
 	}
 
-	private Map<ComplexAgent, ProductionParams> agentData = new HashMap<ComplexAgent, ProductionParams>();
+	private Map<Agent, ProductionParams> agentData = new HashMap<Agent, ProductionParams>();
 
 	@Override
 	public Collection<String> logDataAgent(int agentType) {
@@ -265,12 +265,12 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	}
 
 	@Override
-	public void onDeath(ComplexAgent agent) {
+	public void onDeath(Agent agent) {
 		agentData.remove(agent);
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent) {
+	public void onSpawn(Agent agent) {
 		agentData.put(
 				agent,
 				(ProductionParams) initialParams[agent.getType()].clone()
@@ -278,7 +278,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
+	public void onSpawn(Agent agent, Agent parent) {
 		agentData.put(
 				agent,
 				(ProductionParams) agentData.get(parent).clone()
@@ -286,7 +286,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
+	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		agentData.put(
 				agent,
 				(ProductionParams) agentData.get(parent1).clone()

@@ -1,6 +1,6 @@
 package org.cobweb.cobweb2.waste;
 
-import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Drop;
 
 
@@ -58,7 +58,7 @@ public class Waste implements Drop {
 	}
 
 	@Override
-	public void onStep(ComplexAgent agent) {
+	public void onStep(Agent agent) {
 		throw new IllegalStateException("Agents can't step on waste");
 	}
 }

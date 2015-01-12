@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Updatable;
@@ -27,7 +26,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private int sickCount[] = new int[0];
 
-	private Map<ComplexAgent, State> agentState = new HashMap<ComplexAgent, State>();
+	private Map<Agent, State> agentState = new HashMap<Agent, State>();
 
 	private SimulationInternals simulation;
 
@@ -83,7 +82,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 		return header;
 	}
 
-	private void makeRandomSick(ComplexAgent agent, float rate) {
+	private void makeRandomSick(Agent agent, float rate) {
 		boolean isSick = false;
 		if (simulation.getRandom().nextFloat() < rate)
 			isSick = true;
@@ -100,25 +99,25 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	}
 
 	@Override
-	public void onContact(ComplexAgent bumper, ComplexAgent bumpee) {
+	public void onContact(Agent bumper, Agent bumpee) {
 		transmitBumpOneWay(bumper, bumpee);
 		transmitBumpOneWay(bumpee, bumper);
 	}
 
 	@Override
-	public void onDeath(ComplexAgent agent) {
+	public void onDeath(Agent agent) {
 		State state = agentState.remove(agent);
 		if (state != null && state.sick)
 			sickCount[agent.getType()]--;
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent) {
+	public void onSpawn(Agent agent) {
 		makeRandomSick(agent, params[agent.getType()].initialInfection);
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
+	public void onSpawn(Agent agent, Agent parent) {
 		if (parent.isAlive() && isSick(parent))
 			makeRandomSick(agent, params[agent.getType()].childTransmitRate);
 		else
@@ -126,7 +125,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
+	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		if ((parent1.isAlive() && isSick(parent1)) || (parent2.isAlive() && isSick(parent2)))
 			makeRandomSick(agent, params[agent.getType()].childTransmitRate);
 		else
@@ -139,7 +138,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 		sickCount = ArrayUtilities.resizeArray(sickCount, agentTypes);
 	}
 
-	private void transmitBumpOneWay(ComplexAgent bumper, ComplexAgent bumpee) {
+	private void transmitBumpOneWay(Agent bumper, Agent bumpee) {
 		int tr = bumper.getType();
 		int te = bumpee.getType();
 
@@ -168,33 +167,33 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 		}
 	}
 
-	private void unSick(ComplexAgent agent) {
+	private void unSick(Agent agent) {
 		agentState.remove(agent);
 		sickCount[agent.getType()]--;
 	}
 
-	private void unSickIterating(ComplexAgent agent, Iterator<ComplexAgent> agents) {
+	private void unSickIterating(Agent agent, Iterator<Agent> agents) {
 		agents.remove();
 		sickCount[agent.getType()]--;
 	}
 
-	public boolean isSick(ComplexAgent agent) {
+	public boolean isSick(Agent agent) {
 		return agentState.containsKey(agent) && agentState.get(agent).sick;
 	}
 
-	private boolean isVaccinated(ComplexAgent agent) {
+	private boolean isVaccinated(Agent agent) {
 		return agentState.containsKey(agent) && agentState.get(agent).vaccinated;
 	}
 
-	private void vaccinate(ComplexAgent bumpee, float effectiveness) {
+	private void vaccinate(Agent bumpee, float effectiveness) {
 		agentState.put(bumpee, new State(false, true, effectiveness));
 	}
 
 	@Override
 	public void update(long time) {
 
-		for (Iterator<ComplexAgent> agents = agentState.keySet().iterator(); agents.hasNext();) {
-			ComplexAgent a = agents.next();
+		for (Iterator<Agent> agents = agentState.keySet().iterator(); agents.hasNext();) {
+			Agent a = agents.next();
 			State s = agentState.get(a);
 
 			if (params[a.getType()].recoveryTime == 0)

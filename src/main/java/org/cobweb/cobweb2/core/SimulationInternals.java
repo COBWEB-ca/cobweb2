@@ -12,7 +12,7 @@ public interface SimulationInternals extends RandomSource, StatePluginSource {
 
 	public Topology getTopology();
 
-	public ComplexAgent newAgent();
+	public Agent newAgent();
 
 	public void addAgent(ComplexAgent agent);
 

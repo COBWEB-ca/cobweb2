@@ -1,6 +1,6 @@
 package org.cobweb.cobweb2.interconnect;
 
-import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
 
 /**
@@ -14,5 +14,5 @@ public interface StepMutator extends AgentMutator {
 	 * @param from Old Location.
 	 * @param to New location.
 	 */
-	public void onStep(ComplexAgent agent, Location from, Location to);
+	public void onStep(Agent agent, Location from, Location to);
 }

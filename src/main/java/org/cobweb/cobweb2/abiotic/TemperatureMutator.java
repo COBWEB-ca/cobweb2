@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentFoodCountable;
-import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
@@ -74,12 +73,12 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 	}
 
 	@Override
-	public void onDeath(ComplexAgent agent) {
+	public void onDeath(Agent agent) {
 		// Nothing
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent) {
+	public void onSpawn(Agent agent) {
 		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
 
 		float f = locToPenalty(agent.getPosition(), aPar);
@@ -88,12 +87,12 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
+	public void onSpawn(Agent agent, Agent parent) {
 		onSpawn(agent);
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
+	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		onSpawn(agent);
 	}
 
@@ -105,7 +104,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 	 * @param to Location the agent is moving to.
 	 */
 	@Override
-	public void onStep(ComplexAgent agent, Location from, Location to) {
+	public void onStep(Agent agent, Location from, Location to) {
 		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
 
 		float toFactor = locToPenalty(to, aPar);

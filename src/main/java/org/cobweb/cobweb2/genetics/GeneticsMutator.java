@@ -25,7 +25,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 
 	private GATracker tracker;
 
-	private Map<ComplexAgent, GeneticCode> genes = new HashMap<ComplexAgent, GeneticCode>();
+	private Map<Agent, GeneticCode> genes = new HashMap<Agent, GeneticCode>();
 
 	private RandomSource simulation;
 
@@ -37,7 +37,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	 * @param agent The complex agent that the genes will come from.
 	 * @return The genetic code of agent
 	 */
-	public GeneticCode getGene(ComplexAgent agent) {
+	public GeneticCode getGene(Agent agent) {
 		if (!agent.isAlive())
 			return null;
 
@@ -80,7 +80,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		return blank;
 	}
 
-	private void mutateAgentAttributes(ComplexAgent agent) {
+	private void mutateAgentAttributes(Agent agent) {
 		for (int i = 0; i < params.phenotype.length; i++) {
 			GeneticCode gc = getGene(agent);
 
@@ -101,7 +101,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	}
 
 	@Override
-	public void onDeath(ComplexAgent agent) {
+	public void onDeath(Agent agent) {
 		if (genes.containsKey(agent)) {
 			tracker.removeAgent(agent.getType(), genes.get(agent));
 			genes.remove(agent);
@@ -109,7 +109,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent) {
+	public void onSpawn(Agent agent) {
 		GeneticCode genetic_code = new GeneticCode(params.geneCount);
 		for (int i = 0; i < params.geneCount; i++) {
 			genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.getType()][i], 0);
@@ -119,21 +119,14 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
+	public void onSpawn(Agent agent, Agent parent) {
 		GeneticCode genetic_code = new GeneticCode(getGene(parent));
 
-		if (params.geneCount > 0) {
-			if (simulation.getRandom().nextFloat() <= parent.params.mutationRate) {
-				genetic_code.mutate(simulation.getRandom().nextInt(params.geneCount * params.geneLength));
-			}
-		}
-
-		genes.put(agent, genetic_code);
-		mutateAgentAttributes(agent);
+		mutateAndSave(agent, ((ComplexAgent)parent).params.mutationRate, genetic_code);
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
+	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		GeneticCode genetic_code = null;
 		GeneticCode gc1 = getGene(parent1);
 		GeneticCode gc2 = getGene(parent2);
@@ -161,8 +154,12 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 				break;
 		}
 
+		mutateAndSave(agent, ((ComplexAgent)parent1).params.mutationRate, genetic_code);
+	}
+
+	protected void mutateAndSave(Agent agent, float mutationRate, GeneticCode genetic_code) {
 		if (genetic_code.getNumGenes() > 0) {
-			if (simulation.getRandom().nextFloat() < parent1.params.mutationRate) {
+			if (simulation.getRandom().nextFloat() <= mutationRate) {
 				genetic_code.mutate(simulation.getRandom().nextInt(params.geneCount * params.geneLength));
 			}
 		}
@@ -187,7 +184,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	}
 
 	@Override
-	public float similarity(ComplexAgent a1, ComplexAgent a2) {
+	public float similarity(Agent a1, Agent a2) {
 		return GeneticCode.compareGeneticSimilarity(getGene(a1), getGene(a2));
 	}
 

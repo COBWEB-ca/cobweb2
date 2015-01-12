@@ -13,5 +13,5 @@ public interface AgentSimilarityCalculator {
 	 * @param a2 Second agent.
 	 * @return similarity value.
 	 */
-	public float similarity(ComplexAgent a1, ComplexAgent a2);
+	public float similarity(Agent a1, Agent a2);
 }

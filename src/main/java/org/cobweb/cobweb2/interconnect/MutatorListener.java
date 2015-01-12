@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentListener;
-import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.LocationDirection;
 
 
@@ -47,42 +47,42 @@ public class MutatorListener implements AgentListener {
 	}
 
 	@Override
-	public void onContact(ComplexAgent bumper, ComplexAgent bumpee) {
+	public void onContact(Agent bumper, Agent bumpee) {
 		for (ContactMutator mut : contactMutators) {
 			mut.onContact(bumper, bumpee);
 		}
 	}
 
 	@Override
-	public void onStep(ComplexAgent agent, LocationDirection from, LocationDirection to) {
+	public void onStep(Agent agent, LocationDirection from, LocationDirection to) {
 		for (StepMutator m : stepMutators) {
 			m.onStep(agent, from, to);
 		}
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent1, ComplexAgent parent2) {
+	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		for (SpawnMutator mutator : spawnMutators) {
 			mutator.onSpawn(agent, parent1, parent2);
 		}
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent, ComplexAgent parent) {
+	public void onSpawn(Agent agent, Agent parent) {
 		for (SpawnMutator mutator : spawnMutators) {
 			mutator.onSpawn(agent, parent);
 		}
 	}
 
 	@Override
-	public void onSpawn(ComplexAgent agent) {
+	public void onSpawn(Agent agent) {
 		for (SpawnMutator mutator : spawnMutators) {
 			mutator.onSpawn(agent);
 		}
 	}
 
 	@Override
-	public void onDeath(ComplexAgent agent) {
+	public void onDeath(Agent agent) {
 		for (SpawnMutator mutator : spawnMutators) {
 			mutator.onDeath(agent);
 		}

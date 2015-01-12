@@ -12,5 +12,5 @@ public interface Drop {
 
 	public void expire();
 
-	public void onStep(ComplexAgent agent);
+	public void onStep(Agent agent);
 }
