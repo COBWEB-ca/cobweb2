@@ -3,12 +3,13 @@ package org.cobweb.cobweb2.production;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cobweb.cobweb2.core.StatePluginSource;
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 
 
-public class ProductionParams extends AbstractReflectionParams {
+public class ProductionParams extends AbstractReflectionParams implements StatePluginSource {
 	/**
 	 *
 	 */
@@ -16,7 +17,8 @@ public class ProductionParams extends AbstractReflectionParams {
 
 	static final String STATE_NAME_PRODHUNT = "ProdHunt";
 
-	public static List<String> getPluginNames() {
+	@Override
+	public List<String> getStatePluginKeys() {
 		return Arrays.asList(STATE_NAME_PRODHUNT);
 	}
 

@@ -6,9 +6,9 @@ import java.lang.reflect.InvocationTargetException;
 public class AgentSpawner {
 
 	private Class<?> spawnType;
-	private SimulationInternals simulation;
+	private StatePluginSource simulation;
 
-	public AgentSpawner(String classname, SimulationInternals sim) {
+	public AgentSpawner(String classname, StatePluginSource sim) {
 		simulation = sim;
 		try {
 			spawnType = Class.forName(classname);

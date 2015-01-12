@@ -61,7 +61,7 @@ public class LinearWeightsController implements Controller {
 		/* careful with this block, eclipse likes to screw up the tabs!
 		 * if it breaks upon saving, undo and save again, this should save it without breaking
 		 */
-		double variables[] = new double[INPUT_COUNT + simulator.getStatePlugins().size()];
+		double variables[] = new double[INPUT_COUNT + simulator.getStatePluginKeys().size()];
 		variables[0] = 1.0;
 		variables[1] = ((double) agent.getEnergy() / (ENERGY_THRESHOLD));
 		variables[2] = type == Environment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
@@ -76,7 +76,7 @@ public class LinearWeightsController implements Controller {
 		variables[9] = simulator.getRandom().nextGaussian();
 		{
 			int i = 10;
-			for (String plugin : simulator.getStatePlugins()) {
+			for (String plugin : simulator.getStatePluginKeys()) {
 				StateParameter sp = simulator.getStateParameter(plugin);
 				variables[i] = sp.getValue(agent);
 				i++;

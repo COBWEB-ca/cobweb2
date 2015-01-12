@@ -227,7 +227,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	}
 
 	@Override
-	public Set<String> getStatePlugins() {
+	public Set<String> getStatePluginKeys() {
 		return pluginMap.keySet();
 	}
 

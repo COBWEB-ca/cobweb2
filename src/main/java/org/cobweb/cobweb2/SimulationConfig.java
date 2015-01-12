@@ -536,7 +536,7 @@ public class SimulationConfig implements SimulationParams {
 	@Override
 	public List<String> getPluginParameters() {
 		List<String> result = new ArrayList<String>();
-		result.addAll(ProductionParams.getPluginNames());
+		result.addAll(this.prodParams[0].getStatePluginKeys());
 
 		return result;
 	}
