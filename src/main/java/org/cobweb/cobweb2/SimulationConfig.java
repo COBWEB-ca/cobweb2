@@ -322,6 +322,14 @@ public class SimulationConfig implements SimulationParams {
 			} else if (nodeName.equals("Learning")) {
 				learningParams.loadConfig(node);
 			} else if (nodeName.equals("ControllerConfig")){
+				try {
+					controllerParams = (ControllerParams) Class.forName(envParams.controllerName + "Params")
+							.getConstructor(SimulationParams.class)
+							.newInstance((SimulationParams) this);
+					controllerParams.setTypeCount(envParams.agentTypeCount);
+				} catch (Exception ex) {
+					throw new RuntimeException("Could not set up controller", ex);
+				}
 				controllerParams.loadConfig(node);
 			}
 		}
@@ -342,15 +350,6 @@ public class SimulationConfig implements SimulationParams {
 				foodParams[i] = new ComplexFoodParams();
 				foodParams[i].type = i;
 			}
-		}
-
-		try {
-			controllerParams = (ControllerParams) Class.forName(envParams.controllerName + "Params")
-					.getConstructor(SimulationParams.class)
-					.newInstance((SimulationParams) this);
-			controllerParams.setTypeCount(envParams.agentTypeCount);
-		} catch (Exception ex) {
-			throw new RuntimeException("Could not set up controller", ex);
 		}
 
 	}
