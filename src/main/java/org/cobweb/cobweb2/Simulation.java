@@ -135,6 +135,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		}
 		if (tempMutator == null) {
 			tempMutator = new TemperatureMutator();
+			plugins.add(tempMutator);
 			mutatorListener.addMutator(tempMutator);
 		}
 		if (prodMapper == null) {

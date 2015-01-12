@@ -1,10 +1,15 @@
 package org.cobweb.cobweb2.abiotic;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.StateParameter;
+import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
 import org.cobweb.util.ReflectionUtil;
@@ -14,7 +19,7 @@ import org.cobweb.util.ReflectionUtil;
  *
  * @author ???
  */
-public class TemperatureMutator implements StepMutator, SpawnMutator {
+public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugin {
 
 	private TemperatureParams params;
 
@@ -107,8 +112,10 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 		float toFactor = locToPenalty(to, aPar);
 		float fromFactor = locToPenalty(from, aPar);
 
-		if (toFactor != fromFactor && aPar.parameter.field != null) {
-			ReflectionUtil.addField(agent.params, aPar.parameter.field, toFactor - fromFactor);
+		float delta = toFactor - fromFactor;
+
+		if (Math.abs(delta) < 1e-10 && aPar.parameter.field != null) {
+			ReflectionUtil.addField(agent.params, aPar.parameter.field, delta);
 		}
 	}
 
@@ -122,6 +129,29 @@ public class TemperatureMutator implements StepMutator, SpawnMutator {
 		this.params = params;
 		height = env.getHeight();
 		bandNumber = Math.min(TemperatureParams.TEMPERATURE_BANDS, height);
+	}
+
+	@Override
+	public List<StateParameter> getParameters() {
+		return Arrays.asList((StateParameter)new AbioticStatePenalty());
+	}
+
+	/**
+	 * Magnitude of abiotic discomfort the agent is experiencing
+	 */
+	private class AbioticStatePenalty implements StateParameter {
+
+		@Override
+		public String getName() {
+			return TemperatureParams.STATE_NAME_ABIOTIC_PENALTY;
+		}
+
+		@Override
+		public double getValue(Agent agent) {
+			double value = locToPenalty(agent.getPosition(), params.agentParams[agent.getType()]);
+			return value;
+		}
+
 	}
 
 }

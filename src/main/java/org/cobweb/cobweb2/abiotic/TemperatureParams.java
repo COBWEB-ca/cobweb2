@@ -1,15 +1,17 @@
 package org.cobweb.cobweb2.abiotic;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.core.StatePluginSource;
 import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.io.ConfDisplayName;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class TemperatureParams implements CobwebParam {
+public class TemperatureParams implements CobwebParam, StatePluginSource {
 
 	public static final int TEMPERATURE_BANDS = 5;
 
@@ -28,7 +30,7 @@ public class TemperatureParams implements CobwebParam {
 	/**
 	 * Constructor sets the environment parameters, and temperature agent type
 	 * parameters.
-	 * 
+	 *
 	 * @param env Environment parameters.
 	 */
 	public TemperatureParams(AgentFoodCountable env) {
@@ -97,5 +99,11 @@ public class TemperatureParams implements CobwebParam {
 			n[i] = new TemperatureAgentParams();
 		}
 		agentParams = n;
+	}
+
+	static final String STATE_NAME_ABIOTIC_PENALTY = "Abiotic Penalty";
+	@Override
+	public Collection<String> getStatePluginKeys() {
+		return Arrays.asList(STATE_NAME_ABIOTIC_PENALTY);
 	}
 }
