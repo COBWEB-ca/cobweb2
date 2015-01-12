@@ -130,14 +130,11 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		GeneticCode genetic_code = null;
 		GeneticCode gc1 = getGene(parent1);
 		GeneticCode gc2 = getGene(parent2);
-		//TODO deal with nulls. already done?
 
-		if (gc1 == null && gc2 == null) {
-			gc1 = new GeneticCode(params.geneCount);
-			gc2 = new GeneticCode(params.geneCount);
-		} else if (gc1 == null) {
-			gc1 = gc2;
-		} else if (gc2 == null) {
+		// if parent2 is dead, the GeneticCode got removed in onDeath()
+		// TODO: keep GeneticCode inside Agent so it doesn't get disposed while we still have parent2 reference?
+		if (gc2 == null) {
+			assert !parent2.isAlive() : "parent2 has no genes but is alive";
 			gc2 = gc1;
 		}
 
