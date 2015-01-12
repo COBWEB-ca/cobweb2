@@ -576,7 +576,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			return;
 
 		// check if dispatcherId is in list
-		// TODO what does this do?
+		// TODO replace switch() with different subclasses of BroadcastPacket
 		checkCredibility(commPacket.getDispatcherId());
 
 		int type = commPacket.getType();

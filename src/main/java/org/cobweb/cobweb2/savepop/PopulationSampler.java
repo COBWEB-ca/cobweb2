@@ -125,7 +125,7 @@ public class PopulationSampler {
 	}
 
 	/**
-	 * TODO: Check if this works, possibly rewrite
+	 * Loads agent population saved with savePopulation()
 	 * @param fileName path to population file
 	 * @param replace delete current population before inserting
 	 */

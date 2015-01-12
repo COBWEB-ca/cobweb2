@@ -94,7 +94,6 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 			float coefficient = gc.getStatus(i);
 
 			// Get instance variable linked to attribute in agent
-			// TODO LOW different formulas for different types of fields?
 			pheno.modifyValue(agent, coefficient, 0);
 		}
 		tracker.addAgent(agent.getType(), getGene(agent));
