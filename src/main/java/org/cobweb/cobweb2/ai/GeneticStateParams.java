@@ -18,7 +18,7 @@ public class GeneticStateParams implements CobwebParam {
 
 	public GeneticStateAgentParams[] agentParams;
 
-	private int typeCount = 4;
+	private int typeCount;
 
 	private static final Pattern agentRE = Pattern.compile("^Agent(\\d+)$");
 
@@ -26,7 +26,8 @@ public class GeneticStateParams implements CobwebParam {
 
 	GeneticStateParams(SimulationParams simParam) {
 		this.simParam = simParam;
-		agentParams = new GeneticStateAgentParams[simParam.getCounts().getAgentTypes()];
+		typeCount = simParam.getCounts().getAgentTypes();
+		agentParams = new GeneticStateAgentParams[typeCount];
 		init();
 	}
 
@@ -77,10 +78,6 @@ public class GeneticStateParams implements CobwebParam {
 		root.appendChild(trans);
 	}
 
-	public void setTypeCount(int count) {
-		this.typeCount = count;
-	}
-
 	public void resize(int agentTypes) {
 		GeneticStateAgentParams[] n = Arrays.copyOf(agentParams, agentTypes);
 
@@ -88,6 +85,7 @@ public class GeneticStateParams implements CobwebParam {
 			n[i] = new GeneticStateAgentParams(simParam);
 		}
 		agentParams = n;
+		typeCount = agentTypes;
 	}
 
 }

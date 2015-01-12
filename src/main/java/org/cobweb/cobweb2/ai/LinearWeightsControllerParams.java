@@ -79,11 +79,6 @@ public class LinearWeightsControllerParams implements ControllerParams {
 	}
 
 	@Override
-	public void setTypeCount(int count) {
-		// Doesn't do anything so far
-	}
-
-	@Override
 	public void resize(AgentFoodCountable envParams) {
 		// Doesn't do anything so far
 	}

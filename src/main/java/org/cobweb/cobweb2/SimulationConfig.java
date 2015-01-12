@@ -326,7 +326,7 @@ public class SimulationConfig implements SimulationParams {
 					controllerParams = (ControllerParams) Class.forName(envParams.controllerName + "Params")
 							.getConstructor(SimulationParams.class)
 							.newInstance((SimulationParams) this);
-					controllerParams.setTypeCount(envParams.agentTypeCount);
+					controllerParams.resize(envParams);
 				} catch (Exception ex) {
 					throw new RuntimeException("Could not set up controller", ex);
 				}

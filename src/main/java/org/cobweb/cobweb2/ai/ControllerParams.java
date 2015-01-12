@@ -6,8 +6,6 @@ import org.cobweb.cobweb2.io.CobwebParam;
 
 public interface ControllerParams extends CobwebParam {
 
-	public void setTypeCount(int count);
-
 	public void resize(AgentFoodCountable envParams);
 
 }

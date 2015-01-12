@@ -32,11 +32,6 @@ public class GeneticControllerParams extends AbstractReflectionParams implements
 	}
 
 	@Override
-	public void setTypeCount(int count) {
-		agentParams.setTypeCount(count);
-	}
-
-	@Override
 	public void resize(AgentFoodCountable envParams) {
 		agentParams.resize(envParams.getAgentTypes());
 	}
