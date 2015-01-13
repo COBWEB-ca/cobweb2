@@ -62,7 +62,7 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 		JLabel selectorlabel = new JLabel("Experiment:");
 		controls.add(selectorlabel);
 
-		ExperementSelector expselector = new ExperementSelector(experiments);
+		ExperimentSelector expselector = new ExperimentSelector(experiments);
 		controls.add(expselector);
 		expselector.addItemListener(new ItemListener() {
 			@Override
