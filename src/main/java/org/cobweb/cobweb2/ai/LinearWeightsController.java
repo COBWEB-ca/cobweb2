@@ -10,7 +10,6 @@ import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
-import org.cobweb.cobweb2.io.CobwebParam;
 
 public class LinearWeightsController implements Controller {
 
@@ -140,11 +139,6 @@ public class LinearWeightsController implements Controller {
 			mutationCounter -= 1;
 		}
 	}
-
-	public void setParams(CobwebParam params) {
-		this.params = (LinearWeightsControllerParams) params;
-	}
-
 
 	@Override
 	public LinearWeightsController createChildAsexual(float mutation) {

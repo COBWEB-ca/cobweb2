@@ -21,6 +21,7 @@ import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
+import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -99,7 +100,7 @@ public class PopulationSampler {
 
 		Element paramsElement = d.createElement("params");
 
-		a.params.saveConfig(paramsElement, d);
+		ParameterSerializer.save(a.params, paramsElement, d);
 
 		agent.appendChild(paramsElement);
 
@@ -171,7 +172,7 @@ public class PopulationSampler {
 
 				LocationDirection locDir = new LocationDirection(loc, facing);
 
-				params.loadConfig(paramNode);
+				ParameterSerializer.load(params, paramNode);
 
 				// doCheat
 				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());

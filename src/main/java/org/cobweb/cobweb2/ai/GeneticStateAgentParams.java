@@ -4,14 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.params.SimulationParams;
-import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ParameterCustomSerializable;
+import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
-public class GeneticStateAgentParams implements CobwebParam {
+public class GeneticStateAgentParams implements ParameterCustomSerializable {
 
 	private static final long serialVersionUID = -6295295048720208502L;
 
@@ -50,7 +50,7 @@ public class GeneticStateAgentParams implements CobwebParam {
 					continue;
 
 				StateSize ss = new StateSize();
-				ss.loadConfig(tt);
+				ParameterSerializer.load(ss, tt);
 				stateSizes.add(ss);
 			}
 		}
@@ -61,7 +61,7 @@ public class GeneticStateAgentParams implements CobwebParam {
 		Node trans = document.createElement(STATES_ELEMENT);
 		for (StateSize ss : stateSizes) {
 			Node n = document.createElement(STATE_ELEMENT);
-			ss.saveConfig(n, document);
+			ParameterSerializer.save(ss, n, document);
 			trans.appendChild(n);
 		}
 		root.appendChild(trans);

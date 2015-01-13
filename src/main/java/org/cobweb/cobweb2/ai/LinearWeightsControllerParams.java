@@ -3,13 +3,14 @@ package org.cobweb.cobweb2.ai;
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.params.SimulationParams;
+import org.cobweb.io.ParameterCustomSerializable;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class LinearWeightsControllerParams implements ControllerParams {
+public class LinearWeightsControllerParams implements ControllerParams, ParameterCustomSerializable {
 
 	private static final long serialVersionUID = 8856565519749448009L;
 

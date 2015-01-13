@@ -5,13 +5,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cobweb.cobweb2.core.params.SimulationParams;
-import org.cobweb.cobweb2.io.CobwebParam;
+import org.cobweb.io.ParameterCustomSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class GeneticStateParams implements CobwebParam {
+public class GeneticStateParams implements ParameterCustomSerializable {
 
 
 	private static final long serialVersionUID = -7136336946033726870L;

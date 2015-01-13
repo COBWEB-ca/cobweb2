@@ -6,14 +6,14 @@ import java.util.regex.Pattern;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.interconnect.Phenotype;
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterCustomSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class DiseaseParams extends AbstractReflectionParams {
+public class DiseaseParams implements ParameterCustomSerializable {
 
 	private static final long serialVersionUID = 6866958975246266955L;
 
@@ -72,8 +72,6 @@ public class DiseaseParams extends AbstractReflectionParams {
 
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
-		super.loadConfig(root);
-
 		transmitTo = new boolean[env.getAgentTypes()];
 
 		NodeList nl = root.getChildNodes();
@@ -101,8 +99,6 @@ public class DiseaseParams extends AbstractReflectionParams {
 
 	@Override
 	public void saveConfig(Node root, Document document) {
-		super.saveConfig(root, document);
-
 		Node trans = document.createElement("transmitTo");
 		for (int i = 0; i < transmitTo.length; i++) {
 			Node n = document.createElement("agent" + (i + 1));

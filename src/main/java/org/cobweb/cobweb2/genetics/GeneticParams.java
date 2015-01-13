@@ -9,16 +9,15 @@ import java.util.regex.Pattern;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.interconnect.Phenotype;
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
-import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterCustomSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class GeneticParams extends AbstractReflectionParams {
+public class GeneticParams implements ParameterCustomSerializable {
 	/**
 	 *
 	 */
@@ -36,7 +35,7 @@ public class GeneticParams extends AbstractReflectionParams {
 	@ConfDisplayName("Phenotype ")
 	public Phenotype[] phenotype;
 
-	public static class MeiosisModeParam implements CobwebParam {
+	public static class MeiosisModeParam implements ParameterCustomSerializable {
 		/**
 		 *
 		 */
@@ -96,12 +95,10 @@ public class GeneticParams extends AbstractReflectionParams {
 	private static final Pattern phenotypeRE = Pattern.compile("linkedphenotype(\\d+)");
 
 	/**
-	 * 
+	 *
 	 */
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
-		super.loadConfig(root);
-
 		phenotype = new Phenotype[geneCount];
 		for (int i = 0; i < geneCount; i++)
 			phenotype[i] = new Phenotype();
@@ -150,8 +147,6 @@ public class GeneticParams extends AbstractReflectionParams {
 
 	@Override
 	public void saveConfig(Node root, Document document) {
-		super.saveConfig(root, document);
-
 		for (int i = 0; i < phenotype.length; i++) {
 			Node n = document.createElement("linkedphenotype" + (i + 1));
 			phenotype[i].saveConfig(n, document);

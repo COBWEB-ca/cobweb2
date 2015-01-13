@@ -2,14 +2,14 @@ package org.cobweb.cobweb2.ai;
 
 import java.lang.reflect.Field;
 
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.cobweb2.io.NamedParam;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterSerializable;
 
 /**
  * Number of bits assigned to the given parameter within GeneticController
  */
-public class StateSize extends AbstractReflectionParams implements NamedParam {
+public class StateSize implements ParameterSerializable, NamedParam {
 
 	private static final long serialVersionUID = 1776929913108636457L;
 

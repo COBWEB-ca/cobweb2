@@ -3,15 +3,18 @@ package org.cobweb.cobweb2.eventlearning;
 import java.util.Arrays;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
-import org.cobweb.cobweb2.io.CobwebParam;
+import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterCustomSerializable;
+import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class LearningParams implements CobwebParam {
+public class LearningParams implements ParameterCustomSerializable {
 	private static final long serialVersionUID = 2682098543563943839L;
 
+	@ConfXMLTag("AgentParams") //FIXME
 	private LearningAgentParams[] learningParams;
 
 	private final AgentFoodCountable env;
@@ -46,7 +49,7 @@ public class LearningParams implements CobwebParam {
 					}
 					Node paramNode = nodeList2.item(j);
 					learningParams[j] = new LearningAgentParams();
-					learningParams[j].loadConfig(paramNode);
+					ParameterSerializer.load(learningParams[j], paramNode);
 				}
 			}
 		}
@@ -63,7 +66,7 @@ public class LearningParams implements CobwebParam {
 		Node params = document.createElement("AgentParams");
 		for (int i = 0; i < learningParams.length; i++) {
 			Node n = document.createElement("Agent" + (i + 1));
-			learningParams[i].saveConfig(n, document);
+			ParameterSerializer.save(learningParams[i], n, document);
 			params.appendChild(n);
 		}
 		root.appendChild(params);

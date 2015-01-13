@@ -1,11 +1,11 @@
 package org.cobweb.cobweb2.eventlearning;
 
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterSerializable;
 
 
-public class LearningAgentParams extends AbstractReflectionParams {
+public class LearningAgentParams implements ParameterSerializable {
 	/**
 	 *
 	 */

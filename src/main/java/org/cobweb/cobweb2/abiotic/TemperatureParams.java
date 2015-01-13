@@ -5,13 +5,14 @@ import java.util.Collection;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.StatePluginSource;
-import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ParameterCustomSerializable;
+import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class TemperatureParams implements CobwebParam, StatePluginSource {
+public class TemperatureParams implements ParameterCustomSerializable, StatePluginSource {
 
 	public static final int TEMPERATURE_BANDS = 5;
 
@@ -64,7 +65,7 @@ public class TemperatureParams implements CobwebParam, StatePluginSource {
 					if (j >= env.getAgentTypes())
 						break;
 					agentParams[j] = new TemperatureAgentParams();
-					agentParams[j].loadConfig(tt);
+					ParameterSerializer.load(agentParams[j], tt);
 				}
 			}
 		}
@@ -86,7 +87,7 @@ public class TemperatureParams implements CobwebParam, StatePluginSource {
 		Node agents = document.createElement("AgentParams");
 		for (int i = 0; i < agentParams.length; i++) {
 			Node n = document.createElement("Agent" + (i + 1));
-			agentParams[i].saveConfig(n, document);
+			ParameterSerializer.save(agentParams[i], n, document);
 			agents.appendChild(n);
 		}
 		root.appendChild(agents);

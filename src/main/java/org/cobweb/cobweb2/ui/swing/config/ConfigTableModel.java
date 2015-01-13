@@ -10,7 +10,6 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.cobweb2.io.NamedParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.util.ReflectionUtil;
@@ -33,13 +32,13 @@ public class ConfigTableModel extends AbstractTableModel {
 	 * @param data CobwebParam array to display as columns
 	 * @param prefix Prefix for the column names
 	 */
-	public ConfigTableModel(CobwebParam[] data, String prefix) {
+	public ConfigTableModel(Object[] data, String prefix) {
 		super();
 		this.data = data;
 		this.prefix = prefix;
 		columns = data.length;
 
-		CobwebParam d = data[0];
+		Object d = data[0];
 		Class<?> c = d.getClass();
 		for (Field f : c.getFields()) {
 			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
@@ -91,7 +90,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 
 		@Override
-		public Object getValue(CobwebParam param) {
+		public Object getValue(Object param) {
 			Object value = null;
 			try {
 				@SuppressWarnings("unchecked")
@@ -105,7 +104,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 
 		@Override
-		public void setValue(CobwebParam cobwebParam, Object value) {
+		public void setValue(Object cobwebParam, Object value) {
 			try {
 				@SuppressWarnings("unchecked")
 				List<NamedParam> list = (List<NamedParam>) this.field.get(cobwebParam);
@@ -131,7 +130,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 
 		@Override
-		public Object getValue(CobwebParam param) {
+		public Object getValue(Object param) {
 			Object value = null;
 			try {
 				value = Array.get(this.field.get(param), index);
@@ -142,7 +141,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 
 		@Override
-		public void setValue(CobwebParam cobwebParam, Object value) {
+		public void setValue(Object cobwebParam, Object value) {
 			try {
 				Object array = field.get(cobwebParam);
 				fromBoxedToElement(array, index, value);
@@ -168,7 +167,7 @@ public class ConfigTableModel extends AbstractTableModel {
 			return field.toString();
 		}
 
-		public Object getValue(CobwebParam param) {
+		public Object getValue(Object param) {
 			Object value = null;
 			try {
 				value = this.field.get(param);
@@ -177,7 +176,7 @@ public class ConfigTableModel extends AbstractTableModel {
 			}
 			return value;
 		}
-		public void setValue(CobwebParam cobwebParam, Object value) {
+		public void setValue(Object cobwebParam, Object value) {
 			Field f = this.field;
 			try {
 				fromBoxedToField(cobwebParam, f, value);
@@ -190,14 +189,14 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 	}
 
-	private CobwebParam[] data;
+	private Object[] data;
 
 	private List<MyField> fields = new ArrayList<MyField>();
 
 	private List<String> rowNames = new ArrayList<String>();
 
-	public ConfigTableModel(CobwebParam data, String prefix) {
-		this(new CobwebParam[] { data }, prefix);
+	public ConfigTableModel(Object data, String prefix) {
+		this(new Object[] { data }, prefix);
 	}
 
 	private int columns;

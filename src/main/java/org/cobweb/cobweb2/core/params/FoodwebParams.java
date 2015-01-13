@@ -8,8 +8,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
-import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ParameterCustomSerializable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -17,7 +17,7 @@ import org.w3c.dom.NodeList;
 /**
  * Food web parameters for an agent.
  */
-public class FoodwebParams implements CobwebParam {
+public class FoodwebParams implements ParameterCustomSerializable {
 
 	private static final long serialVersionUID = 1380425322335531943L;
 

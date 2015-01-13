@@ -11,11 +11,12 @@ import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.io.CobwebSelectionParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterCustomSerializable;
 import org.cobweb.util.ReflectionUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-public class Phenotype implements CobwebSelectionParam<Phenotype> {
+public class Phenotype implements CobwebSelectionParam<Phenotype>, ParameterCustomSerializable {
 
 	private static final long serialVersionUID = -6142169580857190598L;
 

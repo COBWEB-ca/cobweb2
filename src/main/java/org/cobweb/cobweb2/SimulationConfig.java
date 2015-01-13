@@ -35,8 +35,8 @@ import org.cobweb.cobweb2.disease.DiseaseParams;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.eventlearning.LearningParams;
 import org.cobweb.cobweb2.genetics.GeneticParams;
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.cobweb2.production.ProductionParams;
+import org.cobweb.io.ParameterSerializer;
 import org.cobweb.util.Versionator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -259,7 +259,7 @@ public class SimulationConfig implements SimulationParams {
 
 		envParams = new ComplexEnvironmentParams();
 
-		envParams.loadConfig(root);
+		ParameterSerializer.load(envParams, root);
 
 		ConfigUpgrader.upgrade(envParams);
 
@@ -286,11 +286,11 @@ public class SimulationConfig implements SimulationParams {
 			String nodeName = node.getNodeName();
 
 			if (nodeName.equals("ga")) {
-				geneticParams.loadConfig(node);
+				ParameterSerializer.load(geneticParams, node);
 
 			} else if (nodeName.equals("agent")) {
 				ComplexAgentParams p = new ComplexAgentParams(envParams);
-				p.loadConfig(node);
+				ParameterSerializer.load(p, node);
 				if (p.type < 0)
 					p.type = agent++;
 				if (p.type >= envParams.getAgentTypes())
@@ -298,7 +298,7 @@ public class SimulationConfig implements SimulationParams {
 				agentParams[p.type] = p;
 			} else if (nodeName.equals("production")) {
 				ProductionParams p = new ProductionParams();
-				p.loadConfig(node);
+				ParameterSerializer.load(p, node);
 				if (p.type < 0)
 					p.type = prod++;
 				if (p.type >= envParams.getAgentTypes())
@@ -306,7 +306,7 @@ public class SimulationConfig implements SimulationParams {
 				prodParams[p.type] = p;
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
-				p.loadConfig(node);
+				ParameterSerializer.load(p, node);
 				if (p.type < 0)
 					p.type = food++;
 
@@ -317,9 +317,9 @@ public class SimulationConfig implements SimulationParams {
 			} else if (nodeName.equals("disease")) {
 				parseDiseaseParams(node);
 			} else if (nodeName.equals("Temperature")) {
-				tempParams.loadConfig(node);
+				ParameterSerializer.load(tempParams, node);
 			} else if (nodeName.equals("Learning")) {
-				learningParams.loadConfig(node);
+				ParameterSerializer.load(learningParams, node);
 			} else if (nodeName.equals("ControllerConfig")){
 				// FIXME: this is initialized after everything else because
 				// Controllers use SimulationParams.getPluginParameters()
@@ -332,7 +332,7 @@ public class SimulationConfig implements SimulationParams {
 				} catch (Exception ex) {
 					throw new RuntimeException("Could not set up controller", ex);
 				}
-				controllerParams.loadConfig(node);
+				ParameterSerializer.load(controllerParams, node);
 			}
 		}
 		for (int i = 0; i < agentParams.length; i++) {
@@ -363,7 +363,7 @@ public class SimulationConfig implements SimulationParams {
 			if (i >= envParams.getAgentTypes())
 				break;
 			DiseaseParams dp = new DiseaseParams(envParams);
-			dp.loadConfig(n);
+			ParameterSerializer.load(dp, n);
 			diseaseParams[i] = dp;
 		}
 		for (int i = 0; i < diseaseParams.length; i++) {
@@ -385,50 +385,51 @@ public class SimulationConfig implements SimulationParams {
 		}
 		Node root = d.createElement("inputData");
 
-		envParams.saveConfig(root, d);
+
+		ParameterSerializer.save(envParams, root, d);
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			Node node = d.createElement("agent");
-			agentParams[i].saveConfig(node, d);
+			ParameterSerializer.save(agentParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			Node node = d.createElement("production");
-			prodParams[i].saveConfig(node, d);
+			ParameterSerializer.save(prodParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		for (int i = 0; i < envParams.getFoodTypes(); i++) {
 			Node node = d.createElement("food");
-			foodParams[i].saveConfig(node, d);
+			ParameterSerializer.save(foodParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		Node ga = d.createElement("ga");
-		geneticParams.saveConfig(ga, d);
+		ParameterSerializer.save(geneticParams, ga, d);
 
 		root.appendChild(ga);
 
 		Node disease = d.createElement("disease");
 		for (DiseaseParams diseaseParam : diseaseParams) {
 			Node node = d.createElement("agent");
-			diseaseParam.saveConfig(node, d);
+			ParameterSerializer.save(diseaseParam, node, d);
 			disease.appendChild(node);
 		}
 		root.appendChild(disease);
 
 		Node temp = d.createElement("Temperature");
-		tempParams.saveConfig(temp, d);
+		ParameterSerializer.save(tempParams, temp, d);
 		root.appendChild(temp);
 
 		if (this.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
 			Node learn = d.createElement("Learning");
-			learningParams.saveConfig(learn, d);
+			ParameterSerializer.save(learningParams, learn, d);
 			root.appendChild(learn);
 		}
 
 		Node controller = d.createElement("ControllerConfig");
-		controllerParams.saveConfig(controller, d);
+		ParameterSerializer.save(controllerParams, controller, d);
 		root.appendChild(controller);
 
 		Node version = d.createComment("Generated by COBWEB2 version " + Versionator.getVersion() );
