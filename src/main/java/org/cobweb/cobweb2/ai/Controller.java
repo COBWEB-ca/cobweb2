@@ -1,7 +1,6 @@
 package org.cobweb.cobweb2.ai;
 
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.io.CobwebParam;
 
 /**
  * The "brain" of an Agent, the controller causes the controlled agent to act by
@@ -16,22 +15,6 @@ public interface Controller {
 	 * @param theAgent agent to control
 	 */
 	public void controlAgent(Agent theAgent);
-
-	/**
-	 * Returns current controller configuration
-	 *
-	 * @return configuration
-	 */
-	public CobwebParam getParams();
-
-	/**
-	 * Sets controller up based on environment parameters
-	 *
-	 * @param memoryBits memory size
-	 * @param commBits communication size
-	 * @param params other parameters
-	 */
-	public void setupFromEnvironment(int memoryBits, int commBits, CobwebParam params, int type);
 
 	/**
 	 * Creates controller for child based on parameters of the asexual breeding parent

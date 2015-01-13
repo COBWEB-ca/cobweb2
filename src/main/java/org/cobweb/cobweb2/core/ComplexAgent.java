@@ -68,14 +68,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	protected Controller controller;
 
-	protected void setController(Controller ai) {
-		controller = ai;
-	}
-
-	public Controller getController() {
-		return controller;
-	}
-
 	protected AgentListener getAgentListener() {
 		return simulation.getAgentListener();
 	}
@@ -115,11 +107,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	protected void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent1, ComplexAgent parent2) {
 		environment = env;
 		copyParams(parent1);
-		setController(
+		controller =
 				parent1.controller.createChildSexual(
-						parent2.getController(),
-						parent1.params.mutationRate)
-				);
+						parent2.controller,
+						parent1.params.mutationRate);
 
 		// child's strategy is determined by its parents, it has a
 		// 50% chance to get either parent's strategy
@@ -148,7 +139,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	protected void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent) {
 		environment = (env);
 		copyParams(parent);
-		setController(parent.controller.createChildAsexual(parent.params.mutationRate));
+		controller =
+				parent.controller.createChildAsexual(parent.params.mutationRate);
 
 		stats = environment.addAgentInfo(params.type, parent.stats);
 
@@ -167,7 +159,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		environment = (env);
 		setParams(agentData);
 
-		setController(env.controllerFactory.createNew(params.memoryBits, params.communicationBits, params.type));
+		controller = env.controllerParams.createController(
+				simulation, params.memoryBits, params.communicationBits, params.type);
 
 		stats = environment.addAgentInfo(params.type);
 

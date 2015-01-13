@@ -36,7 +36,6 @@ import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.eventlearning.LearningParams;
 import org.cobweb.cobweb2.genetics.GeneticParams;
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
-import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.cobweb2.production.ProductionParams;
 import org.cobweb.util.Versionator;
 import org.w3c.dom.Document;
@@ -516,7 +515,7 @@ public class SimulationConfig implements SimulationParams {
 
 	}
 
-	public CobwebParam getControllerParams() {
+	public ControllerParams getControllerParams() {
 		return controllerParams;
 	}
 

@@ -4,6 +4,7 @@
 package org.cobweb.cobweb2.ai;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.params.SimulationParams;
 import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
@@ -34,5 +35,11 @@ public class GeneticControllerParams extends AbstractReflectionParams implements
 	@Override
 	public void resize(AgentFoodCountable envParams) {
 		agentParams.resize(envParams.getAgentTypes());
+	}
+
+	@Override
+	public Controller createController(SimulationInternals sim, int memoryBits, int communicationBits, int type) {
+		GeneticController controller = new GeneticController(sim, this, memoryBits, communicationBits, type);
+		return controller;
 	}
 }

@@ -1,6 +1,7 @@
 package org.cobweb.cobweb2.ai;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.params.SimulationParams;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -81,6 +82,12 @@ public class LinearWeightsControllerParams implements ControllerParams {
 	@Override
 	public void resize(AgentFoodCountable envParams) {
 		// Doesn't do anything so far
+	}
+
+	@Override
+	public Controller createController(SimulationInternals sim, int memoryBits, int communicationBits, int type) {
+		LinearWeightsController controller = new LinearWeightsController(sim, this, memoryBits, communicationBits, type);
+		return controller;
 	}
 
 }

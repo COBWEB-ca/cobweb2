@@ -42,8 +42,32 @@ public class LinearWeightsController implements Controller {
 
 	private SimulationInternals simulator;
 
-	public LinearWeightsController(SimulationInternals sim) { // NO_UCD (unused code) called through reflection
-		simulator = sim;
+	public LinearWeightsController(SimulationInternals sim, LinearWeightsControllerParams params, int memSize, int commSize, int type) {
+		this.simulator = sim;
+		this.params = params;
+		this.memSize = memSize;
+		this.commSize = commSize;
+	}
+
+	protected LinearWeightsController(LinearWeightsController parent, float mutation) {
+		this.simulator = parent.simulator;
+		this.params = parent.params.copy();
+		mutate(mutation);
+	}
+
+	protected LinearWeightsController(LinearWeightsController parent1, LinearWeightsController parent2, float mutation) {
+		this.simulator = parent1.simulator;
+		this.params = parent1.params.copy();
+
+		for (int i = 0; i < params.data.length; i++) {
+			for (int j = 0; j < params.data[i].length; j++) {
+				if (simulator.getRandom().nextBoolean()) {
+					this.params.data[i][j] = parent2.params.data[i][j];
+				}
+			}
+		}
+
+		mutate(mutation);
 	}
 
 	@Override
@@ -126,11 +150,6 @@ public class LinearWeightsController implements Controller {
 			agent.step();
 	}
 
-	@Override
-	public CobwebParam getParams() {
-		return params;
-	}
-
 	private void mutate(float mutation) {
 		double mutationCounter = params.data.length * params.data[0].length * mutation;
 		while (mutationCounter > 1) {
@@ -145,19 +164,10 @@ public class LinearWeightsController implements Controller {
 		this.params = (LinearWeightsControllerParams) params;
 	}
 
-	@Override
-	public void setupFromEnvironment(int memSize, int commSize, CobwebParam params, int type) {
-		this.params = (LinearWeightsControllerParams) params;
-		this.memSize = memSize;
-		this.commSize = commSize;
-	}
 
 	@Override
 	public LinearWeightsController createChildAsexual(float mutation) {
-		LinearWeightsController child = new LinearWeightsController(simulator);
-		child.params = this.params.copy();
-
-		child.mutate(mutation);
+		LinearWeightsController child = new LinearWeightsController(this, mutation);
 		return child;
 	}
 
@@ -168,18 +178,7 @@ public class LinearWeightsController implements Controller {
 		}
 		LinearWeightsController pa2 = (LinearWeightsController) p2;
 
-		LinearWeightsController child = new LinearWeightsController(simulator);
-		child.params = this.params.copy();
-
-		for (int i = 0; i < params.data.length; i++) {
-			for (int j = 0; j < params.data[i].length; j++) {
-				if (simulator.getRandom().nextBoolean()) {
-					child.params.data[i][j] = pa2.params.data[i][j];
-				}
-			}
-		}
-
-		child.mutate(mutation);
+		LinearWeightsController child = new LinearWeightsController(this, pa2, mutation);
 		return child;
 	}
 

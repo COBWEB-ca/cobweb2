@@ -9,7 +9,6 @@ import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
-import org.cobweb.cobweb2.io.CobwebParam;
 import org.cobweb.util.BitField;
 
 /**
@@ -40,8 +39,36 @@ public class GeneticController implements Controller {
 
 	private SimulationInternals simulation;
 
-	public GeneticController(SimulationInternals sim) { // NO_UCD (unused code) called through reflection
-		simulation = sim;
+	public GeneticController(SimulationInternals sim, GeneticControllerParams params, int memory, int comm, int type) {
+		this.simulation = sim;
+		this.params = params;
+		this.memorySize = memory; // TODO: convert this into StateParameter
+		this.commSize = comm;
+		int[] outputArray = { OUTPUT_BITS, memorySize, commSize, 1 };
+
+		int inputSize = INPUT_BITS + memorySize + commSize;
+		for (StateSize ss : this.params.agentParams.agentParams[type].stateSizes) {
+			inputSize += ss.size;
+		}
+
+		ga = new BehaviorArray(inputSize, outputArray);
+		ga.randomInit(this.params.randomSeed);
+	}
+
+	protected GeneticController(GeneticController parent, float mutationRate) {
+		simulation = parent.simulation;
+		params = parent.params;
+		memorySize = parent.memorySize;
+		commSize = parent.commSize;
+		ga = parent.ga.copy(mutationRate);
+	}
+
+	protected GeneticController(GeneticController parent1, GeneticController parent2, float mutationRate) {
+		simulation = parent1.simulation;
+		params = parent1.params;
+		memorySize = parent1.memorySize;
+		commSize = parent1.commSize;
+		ga = BehaviorArray.splice(parent1.ga, parent2.ga, simulation.getRandom()).copy(mutationRate);
 	}
 
 	/**
@@ -136,34 +163,8 @@ public class GeneticController implements Controller {
 	}
 
 	@Override
-	public CobwebParam getParams() {
-		return params;
-	}
-
-	@Override
-	public void setupFromEnvironment(int memory, int comm, CobwebParam params, int type) {
-		memorySize = memory;
-		commSize = comm;
-		this.params = (GeneticControllerParams) params;
-		int[] outputArray = { OUTPUT_BITS, memorySize, commSize, 1 };
-
-		int inputSize = INPUT_BITS + memorySize + commSize;
-		for (StateSize ss : this.params.agentParams.agentParams[type].stateSizes) {
-			inputSize += ss.size;
-		}
-
-		ga = new BehaviorArray(inputSize, outputArray);
-		ga.randomInit(this.params.randomSeed);
-	}
-
-	@Override
 	public GeneticController createChildAsexual(float mutationRate) {
-		GeneticController child = new GeneticController(simulation);
-
-		child.ga = this.ga.copy(mutationRate);
-		child.memorySize = this.memorySize;
-		child.params = this.params;
-
+		GeneticController child = new GeneticController(this, mutationRate);
 		return child;
 	}
 
@@ -174,12 +175,7 @@ public class GeneticController implements Controller {
 		}
 		GeneticController p2 = (GeneticController) parent2;
 
-		GeneticController child = new GeneticController(simulation);
-
-		child.ga = BehaviorArray.splice(this.ga, p2.ga, simulation.getRandom()).copy(mutationRate);
-		child.memorySize = this.memorySize;
-		child.params = this.params;
-
+		GeneticController child = new GeneticController(this, p2, mutationRate);
 		return child;
 	}
 

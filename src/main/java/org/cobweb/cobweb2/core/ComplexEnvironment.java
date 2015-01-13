@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.ai.ControllerFactory;
+import org.cobweb.cobweb2.ai.ControllerParams;
 import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
@@ -55,13 +55,13 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	private Food foodManager;
 
+	public ControllerParams controllerParams;
+
 	public ComplexEnvironment(SimulationInternals simulation) {
 		super(simulation);
 		commManager = new PacketConduit();
 		foodManager = new Food(simulation);
 	}
-
-	public ControllerFactory controllerFactory;
 
 	public synchronized void addAgent(Location l, int type) {
 		if (!hasAgent(l) && !hasStone(l) && !hasDrop(l)) {
@@ -226,11 +226,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				addStone(l);
 		}
 
-		try {
-			controllerFactory = new ControllerFactory(data.controllerName, config.getControllerParams(), simulation);
-		} catch (ClassNotFoundException ex) {
-			throw new RuntimeException(ex);
-		}
+		controllerParams = config.getControllerParams();
 
 		// spawn new random agents for each type
 		if (data.spawnNewAgents) {
