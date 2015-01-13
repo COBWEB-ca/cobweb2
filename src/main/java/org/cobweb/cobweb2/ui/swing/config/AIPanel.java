@@ -65,8 +65,14 @@ class AIPanel extends SettingsPanel {
 		add(aiSwitch);
 		add(inner);
 
-		aiSwitch.setSelectedItem(p.getEnvParams().controllerName);
+		aiSwitch.setSelectedItem(getSimpleName(p.getEnvParams().controllerName));
 		tabs[aiSwitch.getSelectedIndex()].bindToParser(parser);
+	}
+
+	private static String getSimpleName(String qualifiedName) {
+		int lastDot = qualifiedName.lastIndexOf('.');
+		String name = qualifiedName.substring(lastDot + 1);
+		return name;
 	}
 
 }
