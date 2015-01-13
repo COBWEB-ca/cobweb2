@@ -14,26 +14,6 @@ import org.cobweb.cobweb2.io.CobwebParam;
 
 public class LinearWeightsController implements Controller {
 
-	private static final int ENERGY_THRESHOLD = 160;
-
-	public static final int INPUT_COUNT = 10;
-	public static final int OUTPUT_COUNT = 6;
-
-	@Deprecated //FIXME static!
-	private static double[] runningOutputMean = new double[OUTPUT_COUNT];
-
-	public static final String[] inputNames = { "Constant", "Energy", "Distance to agent", "Distance to food",
-		"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random" };
-
-	public static final String[] outputNames = { "Memory", "Communication", "Left", "Right", "Forward", "Asexual Breed" };
-
-	private static final double UPDATE_RATE = 0.001;
-
-	@Deprecated //FIXME static!
-	public static double[] getRunningOutputMean() {
-		return runningOutputMean;
-	}
-
 	private int memSize;
 
 	private int commSize;
@@ -70,6 +50,8 @@ public class LinearWeightsController implements Controller {
 		mutate(mutation);
 	}
 
+	private static int ENERGY_THRESHOLD = 160;
+
 	@Override
 	public void controlAgent(Agent theAgent) {
 		ComplexAgent agent;
@@ -85,7 +67,7 @@ public class LinearWeightsController implements Controller {
 		/* careful with this block, eclipse likes to screw up the tabs!
 		 * if it breaks upon saving, undo and save again, this should save it without breaking
 		 */
-		double variables[] = new double[INPUT_COUNT + simulator.getStatePluginKeys().size()];
+		double variables[] = new double[params.INPUT_COUNT + simulator.getStatePluginKeys().size()];
 		variables[0] = 1.0;
 		variables[1] = ((double) agent.getEnergy() / (ENERGY_THRESHOLD));
 		variables[2] = type == Environment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
@@ -114,15 +96,12 @@ public class LinearWeightsController implements Controller {
 		double right = 0.0;
 		double step = 0.0;
 		double asexflag = 0.0;
-		for (int eq = 0; eq < OUTPUT_COUNT; eq++) {
+		for (int eq = 0; eq < params.OUTPUT_COUNT; eq++) {
 			double res = 0.0;
 			variables[9] = simulator.getRandom().nextGaussian();
 			for (int v = 0; v < variables.length; v++) {
 				res += params.data[v][eq] * variables[v];
 			}
-
-			runningOutputMean[eq] *= (1 - UPDATE_RATE);
-			runningOutputMean[eq] += UPDATE_RATE * res;
 
 			if (eq == 0)
 				memout = res;
@@ -136,6 +115,8 @@ public class LinearWeightsController implements Controller {
 				step = res;
 			else if (eq == 5)
 				asexflag = res;
+
+			params.updateStats(eq, res);
 		}
 
 		agent.setMemoryBuffer((int) memout);

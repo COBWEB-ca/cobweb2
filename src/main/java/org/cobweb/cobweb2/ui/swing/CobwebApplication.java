@@ -37,6 +37,7 @@ import javax.swing.WindowConstants;
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
+import org.cobweb.cobweb2.ai.LinearWeightsControllerParams;
 import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.savepop.PopulationSampler;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
@@ -513,7 +514,7 @@ public class CobwebApplication extends JFrame {
 
 		// TODO: ViewerPlugin.isCompatible(simulationConfig)
 		if (simRunner.getSimulation().simulationConfig.getEnvParams().controllerName.equals(LinearWeightsController.class.getName())) {
-			viewers.add(new LinearAIViewer());
+			viewers.add(new LinearAIViewer((LinearWeightsControllerParams)simRunner.getSimulation().theEnvironment.controllerParams));
 		}
 
 		viewers.add(new ProductionViewer(simRunner));

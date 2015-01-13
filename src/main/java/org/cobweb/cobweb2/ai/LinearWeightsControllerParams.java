@@ -19,7 +19,7 @@ public class LinearWeightsControllerParams implements ControllerParams {
 
 	public LinearWeightsControllerParams(SimulationParams simParam) {
 		this.simParam = simParam;
-		data = new double[LinearWeightsController.INPUT_COUNT + this.simParam.getPluginParameters().size()][LinearWeightsController.OUTPUT_COUNT];
+		data = new double[INPUT_COUNT + this.simParam.getPluginParameters().size()][OUTPUT_COUNT];
 	}
 
 	public LinearWeightsControllerParams copy() {
@@ -88,6 +88,27 @@ public class LinearWeightsControllerParams implements ControllerParams {
 	public Controller createController(SimulationInternals sim, int memoryBits, int communicationBits, int type) {
 		LinearWeightsController controller = new LinearWeightsController(sim, this, memoryBits, communicationBits, type);
 		return controller;
+	}
+
+	public final int INPUT_COUNT = 10;
+	public final int OUTPUT_COUNT = 6;
+
+	public final String[] inputNames = { "Constant", "Energy", "Distance to agent", "Distance to food",
+			"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random" };
+
+	public final String[] outputNames = { "Memory", "Communication", "Left", "Right", "Forward", "Asexual Breed" };
+
+	private final double UPDATE_RATE = 0.001;
+
+	private transient double[] runningOutputMean = new double[OUTPUT_COUNT];
+
+	public void updateStats(int output, double value) {
+		runningOutputMean[output] *= (1 - UPDATE_RATE);
+		runningOutputMean[output] += UPDATE_RATE * value;
+	}
+
+	public double[] getRunningOutputMean() {
+		return runningOutputMean;
 	}
 
 }

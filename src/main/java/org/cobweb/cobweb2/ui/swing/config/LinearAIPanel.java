@@ -127,13 +127,13 @@ public class LinearAIPanel extends SettingsPanel {
 		removeAll();
 
 		pluginNames = p.getPluginParameters();
-		String[] fullInputNames = new String[LinearWeightsController.inputNames.length + pluginNames.size()];
-		System.arraycopy(LinearWeightsController.inputNames, 0, fullInputNames, 0, LinearWeightsController.inputNames.length);
+		String[] fullInputNames = new String[params.inputNames.length + pluginNames.size()];
+		System.arraycopy(params.inputNames, 0, fullInputNames, 0, params.inputNames.length);
 		for (int i = 0; i < pluginNames.size(); i++) {
-			fullInputNames[LinearWeightsController.inputNames.length + i] = pluginNames.get(i);
+			fullInputNames[params.inputNames.length + i] = pluginNames.get(i);
 		}
 
-		matrixModel = new DoubleMatrixModel(fullInputNames, LinearWeightsController.outputNames, params.data);
+		matrixModel = new DoubleMatrixModel(fullInputNames, params.outputNames, params.data);
 		matrix = new JTable(matrixModel);
 
 		scrollpane = new JScrollPane(matrix);
@@ -158,12 +158,12 @@ public class LinearAIPanel extends SettingsPanel {
 
 
 	private void prettyTable() {
-		JTable rowHead = new JTable(LinearWeightsController.INPUT_COUNT + pluginNames.size(), 1);
-		for (int i = 0; i < LinearWeightsController.INPUT_COUNT; i++) {
-			rowHead.setValueAt(LinearWeightsController.inputNames[i], i, 0);
+		JTable rowHead = new JTable(params.INPUT_COUNT + pluginNames.size(), 1);
+		for (int i = 0; i < params.INPUT_COUNT; i++) {
+			rowHead.setValueAt(params.inputNames[i], i, 0);
 		}
 		for (int i = 0; i < pluginNames.size(); i++) {
-			rowHead.setValueAt(pluginNames.get(i), i + LinearWeightsController.INPUT_COUNT, 0);
+			rowHead.setValueAt(pluginNames.get(i), i + params.INPUT_COUNT, 0);
 		}
 		scrollpane.setRowHeaderView(rowHead);
 		LookAndFeel.installColorsAndFont(rowHead, "TableHeader.background","TableHeader.foreground", "TableHeader.font");

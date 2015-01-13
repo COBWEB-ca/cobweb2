@@ -321,6 +321,9 @@ public class SimulationConfig implements SimulationParams {
 			} else if (nodeName.equals("Learning")) {
 				learningParams.loadConfig(node);
 			} else if (nodeName.equals("ControllerConfig")){
+				// FIXME: this is initialized after everything else because
+				// Controllers use SimulationParams.getPluginParameters()
+				// and things like disease provide are those plugins
 				try {
 					controllerParams = (ControllerParams) Class.forName(envParams.controllerName + "Params")
 							.getConstructor(SimulationParams.class)

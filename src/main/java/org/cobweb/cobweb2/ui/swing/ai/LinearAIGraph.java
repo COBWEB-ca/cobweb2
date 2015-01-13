@@ -8,7 +8,7 @@ import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
-import org.cobweb.cobweb2.ai.LinearWeightsController;
+import org.cobweb.cobweb2.ai.LinearWeightsControllerParams;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -29,10 +29,13 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 
 	private Timer refreshTimer;
 
-	public LinearAIGraph() {
-		super("AI output distribution");
+	private LinearWeightsControllerParams params;
 
-		for (String x : LinearWeightsController.outputNames) {
+	public LinearAIGraph(LinearWeightsControllerParams controllerParams) {
+		super("AI output distribution");
+		this.params = controllerParams;
+
+		for (String x : params.outputNames) {
 			catd.addValue(0, x, "");
 		}
 		chart = ChartFactory.createBarChart("AI output distribution", "Output", "Value", catd, PlotOrientation.VERTICAL, true, false, false);
@@ -85,9 +88,9 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 	 */
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-		double data[] = LinearWeightsController.getRunningOutputMean();
-		for (int i = 0; i < LinearWeightsController.OUTPUT_COUNT; i++) {
-			catd.setValue(data[i], LinearWeightsController.outputNames[i], "");
+		double data[] = params.getRunningOutputMean();
+		for (int i = 0; i < params.OUTPUT_COUNT; i++) {
+			catd.setValue(data[i], params.outputNames[i], "");
 		}
 	}
 
