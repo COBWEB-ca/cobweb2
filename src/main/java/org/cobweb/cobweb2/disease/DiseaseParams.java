@@ -81,7 +81,7 @@ public class DiseaseParams implements ParameterSerializable {
 	public boolean[] transmitTo;
 
 
-	private final AgentFoodCountable env;
+	private final transient AgentFoodCountable env;
 
 	public DiseaseParams(AgentFoodCountable env) {
 		this.env = env;
