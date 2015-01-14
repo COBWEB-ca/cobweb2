@@ -3,6 +3,8 @@
  */
 package org.cobweb.cobweb2.ai;
 
+import java.util.Map.Entry;
+
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.SeeInfo;
@@ -47,8 +49,8 @@ public class GeneticController implements Controller {
 		int[] outputArray = { OUTPUT_BITS, memorySize, commSize, 1 };
 
 		int inputSize = INPUT_BITS + memorySize + commSize;
-		for (StateSize ss : this.params.agentParams.agentParams[type].stateSizes) {
-			inputSize += ss.size;
+		for (int ss : this.params.agentParams.agentParams[type].stateSizes.values()) {
+			inputSize += ss;
 		}
 
 		ga = new BehaviorArray(inputSize, outputArray);
@@ -152,11 +154,12 @@ public class GeneticController implements Controller {
 		//add the communications to the array
 		inputCode.add(theAgent.getCommInbox(), commSize);
 
-		for (StateSize ss : params.agentParams.agentParams[theAgent.getType()].stateSizes) {
-			StateParameter sp = simulation.getStateParameter(ss.name);
+		for (Entry<String, Integer> ss : params.agentParams.agentParams[theAgent.getType()].stateSizes.entrySet()) {
+			StateParameter sp = simulation.getStateParameter(ss.getKey());
 			double value = sp.getValue(theAgent);
-			int val = (int) Math.round(value * ((1 << ss.size) - 1));
-			inputCode.add(val, ss.size);
+			int size = ss.getValue();
+			int val = (int) Math.round(value * ((1 << size) - 1));
+			inputCode.add(val, size);
 		}
 
 		return inputCode;
