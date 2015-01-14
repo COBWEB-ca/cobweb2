@@ -55,7 +55,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	@Override
 	public Collection<String> logDataAgent(int agentType) {
 		List<String> s = new LinkedList<String>();
-		for (int i = 0; i < params.geneCount; i++) {
+		for (int i = 0; i < params.getGeneCount(); i++) {
 			s.add(Double.toString(tracker.getAvgStatus(agentType, i)));
 		}
 		return s;
@@ -69,7 +69,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	@Override
 	public Collection<String> logHeadersAgent() {
 		List<String> s = new LinkedList<String>();
-		for (int i = 0; i < params.geneCount; i++) {
+		for (int i = 0; i < params.getGeneCount(); i++) {
 			s.add("Avg. Gene: " + params.phenotype[i].field.getAnnotation(ConfDisplayName.class).value());
 		}
 		return s;
@@ -109,8 +109,8 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 
 	@Override
 	public void onSpawn(Agent agent) {
-		GeneticCode genetic_code = new GeneticCode(params.geneCount);
-		for (int i = 0; i < params.geneCount; i++) {
+		GeneticCode genetic_code = new GeneticCode(params.getGeneCount());
+		for (int i = 0; i < params.getGeneCount(); i++) {
 			genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.getType()][i], 0);
 		}
 		genes.put(agent, genetic_code);
@@ -156,7 +156,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	protected void mutateAndSave(Agent agent, float mutationRate, GeneticCode genetic_code) {
 		if (genetic_code.getNumGenes() > 0) {
 			if (simulation.getRandom().nextFloat() <= mutationRate) {
-				genetic_code.mutate(simulation.getRandom().nextInt(params.geneCount * params.geneLength));
+				genetic_code.mutate(simulation.getRandom().nextInt(params.getGeneCount() * params.geneLength));
 			}
 		}
 
@@ -176,7 +176,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		if (tracker == null)
 			this.tracker = new GATracker();
 
-		tracker.setParams(agentCount, params.geneCount);
+		tracker.setParams(agentCount, params.getGeneCount());
 	}
 
 	@Override

@@ -279,12 +279,11 @@ public class GeneticConfigPage implements ConfigPage {
 
 	@Override
 	public void validateUI() throws IllegalArgumentException {
-		params.geneCount = phenosUsed.size();
 		params.phenotype = phenosUsed.toArray(new Phenotype[0]);
 
 		params.geneLength = 8;
-		params.geneValues = new String[agentTypes][params.geneCount];
-		for (int g = 0; g < params.geneCount; g++) {
+		params.geneValues = new String[agentTypes][params.getGeneCount()];
+		for (int g = 0; g < params.getGeneCount(); g++) {
 			for (int a = 0; a < agentTypes; a++) {
 				params.geneValues[a][g] = Integer.toString(defaults.get(g)[a], 2);
 			}

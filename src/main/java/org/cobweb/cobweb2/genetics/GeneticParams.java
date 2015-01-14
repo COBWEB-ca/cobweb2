@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ConfList;
+import org.cobweb.io.ConfSquishParent;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterCustomSerializable;
 import org.w3c.dom.Document;
@@ -23,17 +25,13 @@ public class GeneticParams implements ParameterCustomSerializable {
 	 */
 	private static final long serialVersionUID = 4935757387466603476L;
 
-	@ConfDisplayName("Gene count")
-	@ConfXMLTag("geneCount")
-	public int geneCount;
+	public int getGeneCount() {
+		return phenotype.length;
+	}
 
 	@ConfDisplayName("Gene length")
 	@ConfXMLTag("geneLength")
 	public int geneLength;
-
-
-	@ConfDisplayName("Phenotype ")
-	public Phenotype[] phenotype;
 
 	public static class MeiosisModeParam implements ParameterCustomSerializable {
 		/**
@@ -83,46 +81,39 @@ public class GeneticParams implements ParameterCustomSerializable {
 	@ConfXMLTag("meiosismode")
 	public MeiosisModeParam meiosisMode;
 
-	private AgentFoodCountable env;
+	@ConfDisplayName("Phenotype ")
+	@ConfSquishParent
+	@ConfList(indexName = "linkedphenotype", startAtOne = true)
+	public Phenotype[] phenotype = new Phenotype[0];
+
+	private final transient AgentFoodCountable env;
 
 
 	/**
 	 * geneValues[agent][gene]
 	 */
-	public String[][] geneValues;
+	public String[][] geneValues = new String[0][0];
 
 	private static final Pattern geneValRE = Pattern.compile("agent(\\d+)gene(\\d+)");
-	private static final Pattern phenotypeRE = Pattern.compile("linkedphenotype(\\d+)");
 
 	/**
 	 *
 	 */
 	@Override
 	public void loadConfig(Node root) throws IllegalArgumentException {
-		phenotype = new Phenotype[geneCount];
-		for (int i = 0; i < geneCount; i++)
-			phenotype[i] = new Phenotype();
-
-		geneValues = new String[env.getAgentTypes()][geneCount];
+		geneValues = new String[env.getAgentTypes()][getGeneCount()];
 
 		NodeList nodes = root.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Node n = nodes.item(i);
 
-			Matcher m = phenotypeRE.matcher(n.getNodeName());
+			Matcher m = geneValRE.matcher(n.getNodeName());
 			if (m.matches()) {
-				int index = Integer.parseInt(m.group(1)) - 1;
-				phenotype[index] = new Phenotype();
-				phenotype[index].loadConfig(n);
-			} else {
-				m = geneValRE.matcher(n.getNodeName());
-				if (m.matches()) {
-					int agent = Integer.parseInt(m.group(1)) - 1;
-					int gene = Integer.parseInt(m.group(2)) - 1;
-					if (agent >= env.getAgentTypes() || gene >= geneCount)
-						continue;
-					geneValues[agent][gene] = n.getFirstChild().getNodeValue();
-				}
+				int agent = Integer.parseInt(m.group(1)) - 1;
+				int gene = Integer.parseInt(m.group(2)) - 1;
+				if (agent >= env.getAgentTypes() || gene >= getGeneCount())
+					continue;
+				geneValues[agent][gene] = n.getFirstChild().getNodeValue();
 			}
 		}
 		for (int i = 0; i < geneValues.length; i++) {
@@ -131,30 +122,12 @@ public class GeneticParams implements ParameterCustomSerializable {
 					geneValues[i][j] = Integer.toBinaryString(30);
 			}
 		}
-
-		for (int i = 0; i < geneCount; i++) {
-			if (phenotype[i].field == null) {
-				for (int j = i; j < geneCount - 1; j++) {
-					phenotype[i] = phenotype[i + 1];
-					for (int ag = 0; ag < env.getAgentTypes(); ag++) {
-						geneValues[ag][i] = geneValues[ag][i + 1];
-					}
-					geneCount--;
-				}
-			}
-		}
 	}
 
 	@Override
 	public void saveConfig(Node root, Document document) {
-		for (int i = 0; i < phenotype.length; i++) {
-			Node n = document.createElement("linkedphenotype" + (i + 1));
-			phenotype[i].saveConfig(n, document);
-			root.appendChild(n);
-		}
-
-		for (int agent = 0; agent < env.getAgentTypes(); agent++) {
-			for (int gene = 0; gene < geneCount; gene++) {
+		for (int agent = 0; agent < geneValues.length; agent++) {
+			for (int gene = 0; gene < getGeneCount(); gene++) {
 				Node n = document.createElement(String.format("agent%dgene%d", new Integer(agent + 1), new Integer(gene + 1)));
 				n.setTextContent(geneValues[agent][gene]);
 				root.appendChild(n);
@@ -165,18 +138,10 @@ public class GeneticParams implements ParameterCustomSerializable {
 
 	public GeneticParams(AgentFoodCountable env) {
 		this.env = env;
-		geneCount = 0;
 		geneLength = 8;
-
-		phenotype = new Phenotype[geneCount];
-		for (int i = 0; i < geneCount; i++)
-			phenotype[i] = new Phenotype();
 		meiosisMode = new MeiosisModeParam();
 
-		geneValues = new String[env.getAgentTypes()][geneCount];
-		for (int i = 0; i < env.getAgentTypes(); i++)
-			for (int j = 0; j < geneCount; j++)
-				geneValues[i][j] = "00011110";
+		resize(env);
 	}
 
 	public void resize(AgentFoodCountable envParams) {
@@ -184,8 +149,8 @@ public class GeneticParams implements ParameterCustomSerializable {
 		String[][] n = Arrays.copyOf(geneValues, envParams.getAgentTypes());
 
 		for (int i = geneValues.length; i < envParams.getAgentTypes(); i++) {
-			n[i] = new String[geneCount];
-			for (int j = 0; j < geneCount; j++)
+			n[i] = new String[getGeneCount()];
+			for (int j = 0; j < getGeneCount(); j++)
 				n[i][j] = "00011110";
 		}
 		geneValues = n;

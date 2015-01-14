@@ -521,7 +521,7 @@ public class CobwebApplication extends JFrame {
 
 		viewers.add(new LiveStats(simRunner));
 
-		if (simRunner.getSimulation().simulationConfig.getGeneticParams().geneCount != 0) {
+		if (simRunner.getSimulation().simulationConfig.getGeneticParams().getGeneCount() != 0) {
 			GAChartOutput gaViewer = new GAChartOutput(
 					simRunner.getSimulation().geneticMutator.getTracker(),
 					simRunner.getSimulation().simulationConfig.getGeneticParams(),
