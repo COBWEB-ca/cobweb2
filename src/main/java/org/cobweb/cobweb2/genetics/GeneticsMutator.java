@@ -137,7 +137,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 			gc2 = gc1;
 		}
 
-		switch (params.meiosisMode.mode) {
+		switch (params.meiosisMode) {
 			case ColourAveraging:
 				genetic_code = GeneticCode.createGeneticCodeMeiosisAverage(gc1, gc2);
 				break;

@@ -250,7 +250,7 @@ public class GeneticConfigPage implements ConfigPage {
 	}
 
 	private JPanel makeMeiosisConfig() {
-		JComboBox meiosis_mode = new JComboBox(new EnumComboBoxModel(this.params.meiosisMode, "mode"));
+		JComboBox meiosis_mode = new JComboBox(new EnumComboBoxModel(this.params, "meiosisMode"));
 		JPanel meiosis_mode_panel = new JPanel(new BorderLayout());
 		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
 		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);

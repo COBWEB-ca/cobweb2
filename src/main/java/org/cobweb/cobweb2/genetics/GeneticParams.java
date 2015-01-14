@@ -33,53 +33,34 @@ public class GeneticParams implements ParameterCustomSerializable {
 	@ConfXMLTag("geneLength")
 	public int geneLength;
 
-	public static class MeiosisModeParam implements ParameterCustomSerializable {
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = 3831838182413236946L;
+	public static enum MeiosisMode {
+		ColourAveraging("Colour Averaging"),
+		RandomRecombination("Random Recombination"),
+		GeneSwapping("Gene Swapping");
 
-		public static enum MeiosisMode {
-			ColourAveraging("Colour Averaging"),
-			RandomRecombination("Random Recombination"),
-			GeneSwapping("Gene Swapping");
+		private final String value;
 
-			private final String value;
-
-			private MeiosisMode(String s) {
-				value = s;
-			}
-
-			public static MeiosisMode fromString(String s) {
-				for (MeiosisMode m : MeiosisMode.values()) {
-					if (m.value.equals(s))
-						return m;
-				}
-				throw new IllegalArgumentException("Invalid value");
-			}
-
-			@Override
-			public String toString() {
-				return value;
-			}
+		private MeiosisMode(String s) {
+			value = s;
 		}
 
-		public MeiosisMode mode = MeiosisMode.ColourAveraging;
-
-		@Override
-		public void loadConfig(Node root) throws IllegalArgumentException {
-			mode = MeiosisMode.fromString(root.getTextContent());
+		public static MeiosisMode fromString(String s) {
+			for (MeiosisMode m : MeiosisMode.values()) {
+				if (m.value.equals(s))
+					return m;
+			}
+			throw new IllegalArgumentException("Invalid value");
 		}
 
 		@Override
-		public void saveConfig(Node root, Document document) {
-			root.setTextContent(mode.toString());
+		public String toString() {
+			return value;
 		}
 	}
 
 	@ConfDisplayName("Meiosis Mode")
 	@ConfXMLTag("meiosismode")
-	public MeiosisModeParam meiosisMode;
+	public MeiosisMode meiosisMode = MeiosisMode.ColourAveraging;
 
 	@ConfDisplayName("Phenotype ")
 	@ConfSquishParent
@@ -139,7 +120,6 @@ public class GeneticParams implements ParameterCustomSerializable {
 	public GeneticParams(AgentFoodCountable env) {
 		this.env = env;
 		geneLength = 8;
-		meiosisMode = new MeiosisModeParam();
 
 		resize(env);
 	}
