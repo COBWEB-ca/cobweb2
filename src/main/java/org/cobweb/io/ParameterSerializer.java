@@ -88,6 +88,9 @@ public class ParameterSerializer {
 			String strVal = objectNode.getFirstChild().getNodeValue();
 			newValue = ReflectionUtil.stringToBoxed(type, strVal);
 
+		} else if (type.isEnum()) {
+			newValue = loadEnum(type, objectNode.getFirstChild().getNodeValue());
+
 		} else if (canSerializeDirectly(type)) {
 			ParameterSerializable inner = (ParameterSerializable) currentValue;
 			// FIXME: create ParameterSerializable dynamically here
@@ -109,7 +112,7 @@ public class ParameterSerializer {
 	}
 
 	private static void saveObject(Class<?> type, AnnotatedElement annotationSource, Object value, Element tag, Document doc) {
-		if (isPrimitive(type)) {
+		if (isPrimitive(type) || type.isEnum()) {
 			tag.setTextContent(value.toString());
 
 		} else if (canSerializeDirectly(type)) {
@@ -236,6 +239,28 @@ public class ParameterSerializer {
 		if (obj instanceof ParameterCustomSerializable) {
 			ParameterCustomSerializable c = (ParameterCustomSerializable) obj;
 			c.saveConfig(config, doc);
+		}
+	}
+
+
+	protected static Object loadEnum(Class<?> type, String text) {
+		try {
+			// Simple enums
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			Enum<?> newValue = Enum.valueOf((Class<? extends Enum>)type, text);
+			return newValue;
+		} catch(IllegalArgumentException ex) {
+			// nothing
+		}
+
+		try {
+			// Enums with custom names, requires defining static fromString method
+			Object newValue = type
+					.getMethod("fromString", String.class)
+					.invoke(null, text);
+			return newValue;
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
