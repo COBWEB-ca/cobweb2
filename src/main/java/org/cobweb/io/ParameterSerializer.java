@@ -90,6 +90,13 @@ public class ParameterSerializer {
 
 		} else if (canSerializeDirectly(type)) {
 			ParameterSerializable inner = (ParameterSerializable) currentValue;
+			// FIXME: create ParameterSerializable dynamically here
+			if (inner == null)
+				try {
+					inner = (ParameterSerializable) type.newInstance();
+				} catch (InstantiationException ex) {
+					throw new RuntimeException(ex);
+				}
 			newValue = load(inner, objectNode);
 
 		} else if (type.isArray()) {
@@ -139,7 +146,9 @@ public class ParameterSerializer {
 			if (!itemNode.getNodeName().startsWith(listOptions.indexName()))
 				continue;
 
-			Object currentItem = Array.get(currentArray, arrayIndex);
+			Object currentItem = null;
+			if (arrayIndex < Array.getLength(currentArray))
+				currentItem = Array.get(currentArray, arrayIndex);
 
 			Object newItem = loadObject(componentType, arrayAnnotations, currentItem, itemNode);
 
