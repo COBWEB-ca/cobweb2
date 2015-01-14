@@ -227,7 +227,6 @@ public class SimulationConfig implements SimulationParams {
 	 * agents, etc.) using the environment parameters.
 	 *
 	 * @param file The current simulation configuration file.
-	 * @see AbstractReflectionParams#loadConfig(Node)
 	 * @see javax.xml.parsers.DocumentBuilder
 	 * @throws IllegalArgumentException Unable to open the simulation configuration file.
 	 */

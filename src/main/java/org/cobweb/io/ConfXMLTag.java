@@ -6,10 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Defines @ConfXMLTag, which returns the value of a
- * specified data field.
- * 
- * @author ???
+ * Parser-friendly name to use for field when serializing it
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

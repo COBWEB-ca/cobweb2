@@ -20,9 +20,9 @@ public class ParameterSerializer {
 	 * root node of a tree containing the data.
 	 *
 	 * @param obj The type of object parameters.
-	 * @param config The root node of the tree.
+	 * @param root The root node of the tree.
 	 */
-	public static void load(ParameterSerializable obj, Node config) {
+	public static ParameterSerializable load(ParameterSerializable obj, Node root) {
 		Class<?> T = obj.getClass();
 
 		Map<String, Field> fields = new LinkedHashMap<String, Field>();
@@ -33,7 +33,7 @@ public class ParameterSerializer {
 			}
 		}
 
-		NodeList children = config.getChildNodes();
+		NodeList children = root.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node n = children.item(i);
 			Field f = fields.get(n.getNodeName());
@@ -41,20 +41,16 @@ public class ParameterSerializer {
 				continue;
 			try {
 				if (n.getFirstChild() == null) {
+					// FIXME: shouldn't happen?
 					continue;
 				}
-				String strVal = n.getFirstChild().getNodeValue();
-				Class<?> t = f.getType();
-				if (t.isPrimitive() || t.equals(String.class)) {
-					f.set(obj, ReflectionUtil.stringToBoxed(t, strVal));
 
-				} else if (canSerialize(t)) {
-					ParameterSerializable inner = (ParameterSerializable) f.get(obj);
-					load(inner, n);
+				Object currentValue = f.get(obj);
 
-				} else {
-					throw new IllegalArgumentException("Unknown field type");
-				}
+				Object newValue = loadObject(f.getType(), currentValue, n);
+
+				f.set(obj, newValue);
+
 			} catch (Exception ex) {
 				throw new IllegalArgumentException("Cannot load configuration field: " + f.getName(), ex);
 			}
@@ -62,11 +58,47 @@ public class ParameterSerializer {
 
 		if (obj instanceof ParameterCustomSerializable) {
 			ParameterCustomSerializable c = (ParameterCustomSerializable) obj;
-			c.loadConfig(config);
+			c.loadConfig(root);
+		}
+
+		return obj;
+	}
+
+	private static Object loadObject(Class<?> type, Object currentValue, Node objectNode) throws IllegalArgumentException, IllegalAccessException {
+		Object newValue = currentValue;
+
+		if (isPrimitive(type)) {
+			String strVal = objectNode.getFirstChild().getNodeValue();
+			newValue = ReflectionUtil.stringToBoxed(type, strVal);
+
+		} else if (canSerializeDirectly(type)) {
+			ParameterSerializable inner = (ParameterSerializable) currentValue;
+			newValue = load(inner, objectNode);
+
+		} else {
+			throw new IllegalArgumentException("Unknown field type");
+		}
+		return newValue;
+	}
+
+	private static void saveObject(Class<?> type, Object value, Element tag, Document doc) {
+		if (isPrimitive(type)) {
+			tag.setTextContent(value.toString());
+
+		} else if (canSerializeDirectly(type)) {
+			ParameterSerializable inner = (ParameterSerializable) value;
+			save(inner, tag, doc);
+
+		} else {
+			throw new IllegalArgumentException("Unknown field type");
 		}
 	}
 
-	protected static boolean canSerialize(Class<?> T) {
+	protected static boolean isPrimitive(Class<?> t) {
+		return t.isPrimitive() || t.equals(String.class);
+	}
+
+	protected static boolean canSerializeDirectly(Class<?> T) {
 		return ParameterSerializable.class.isAssignableFrom(T);
 	}
 
@@ -82,7 +114,6 @@ public class ParameterSerializer {
 		Class<?> T = obj.getClass();
 
 		for (Field f : T.getFields()) {
-			Class<?> t = f.getType();
 
 			ConfXMLTag tagname = f.getAnnotation(ConfXMLTag.class);
 
@@ -91,20 +122,10 @@ public class ParameterSerializer {
 
 			Element tag = doc.createElement(tagname.value());
 			try {
-				String value = null;
-				if (t.isPrimitive() || t.equals(String.class)) {
-					value = f.get(obj).toString();
+				Class<?> t = f.getType();
+				Object value = f.get(obj);
+				saveObject(t, value, tag, doc);
 
-				} else if (canSerialize(t)) {
-					ParameterSerializable inner = (ParameterSerializable) f.get(obj);
-					save(inner, tag, doc);
-
-				} else {
-					throw new IllegalArgumentException("Unknown field type");
-				}
-
-				if (value != null)
-					tag.setTextContent(value);
 			} catch (Exception ex) {
 				throw new IllegalArgumentException("Cannot save configuration field: " + f.getName(), ex);
 			}
