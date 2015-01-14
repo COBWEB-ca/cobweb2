@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.cobweb.util.ReflectionUtil;
 import org.w3c.dom.Document;
@@ -105,6 +106,9 @@ public class ParameterSerializer {
 		} else if (type.isArray()) {
 			newValue = loadArray(type, annotationSource, currentValue, objectNode);
 
+		} else if (type.isAssignableFrom(Map.class)) {
+			newValue = loadMap(annotationSource, currentValue, objectNode);
+
 		} else {
 			throw new IllegalArgumentException("Unknown field type");
 		}
@@ -121,6 +125,9 @@ public class ParameterSerializer {
 
 		} else if (type.isArray()) {
 			saveArray(type, annotationSource, value, tag, doc);
+
+		} else if (type.isAssignableFrom(Map.class)) {
+			saveMap(annotationSource, value, tag, doc);
 
 		} else {
 			throw new IllegalArgumentException("Unknown field type");
@@ -189,6 +196,60 @@ public class ParameterSerializer {
 			tag.appendChild(itemTag);
 		}
 	}
+
+	private static Object loadMap(AnnotatedElement mapAnnotations, Object currentMap, Node mapNode)
+			throws IllegalArgumentException, IllegalAccessException {
+
+		ConfMap mapOptions = mapAnnotations.getAnnotation(ConfMap.class);
+		if (mapOptions == null)
+			throw new IllegalArgumentException("Config maps must be tagged @ConfList");
+
+		@SuppressWarnings("unchecked")
+		Map<String, Object> result = (Map<String, Object>) currentMap;
+
+		if (result == null)
+			result = new LinkedHashMap<String, Object>();
+
+		NodeList children = mapNode.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node itemNode = children.item(i);
+
+			if (!itemNode.getNodeName().equals(mapOptions.entryName()))
+				continue;
+
+			String key = itemNode.getAttributes().getNamedItem(mapOptions.keyName()).getTextContent();
+
+			Object currentItem = result.get(key);
+
+			Object newItem = loadObject(mapOptions.valueClass(), mapAnnotations, currentItem, itemNode);
+
+			result.put(key, newItem);
+		}
+
+		return result;
+	}
+
+	private static void saveMap(AnnotatedElement mapAnnotations, Object currentMap, Element tag,
+			Document doc) {
+
+		ConfMap mapOptions = mapAnnotations.getAnnotation(ConfMap.class);
+		if (mapOptions == null)
+			throw new IllegalArgumentException("Config maps must be tagged @ConfList");
+
+		@SuppressWarnings("unchecked")
+		Map<String, Object> result = (Map<String, Object>) currentMap;
+
+		for(Entry<String, Object>i : result.entrySet()) {
+			Element itemTag = doc.createElement(mapOptions.entryName());
+			itemTag.setAttribute(mapOptions.keyName(), i.getKey());
+
+			saveObject(mapOptions.valueClass(), mapAnnotations, i.getValue(), itemTag, doc);
+
+			tag.appendChild(itemTag);
+		}
+	}
+
+
 
 	protected static boolean isPrimitive(Class<?> t) {
 		return t.isPrimitive() || t.equals(String.class);
