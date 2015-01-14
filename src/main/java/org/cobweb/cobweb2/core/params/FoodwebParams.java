@@ -5,7 +5,6 @@ package org.cobweb.cobweb2.core.params;
 
 import java.util.Arrays;
 
-import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfSquishParent;

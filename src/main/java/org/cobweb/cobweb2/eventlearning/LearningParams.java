@@ -2,7 +2,7 @@ package org.cobweb.cobweb2.eventlearning;
 
 import java.util.Arrays;
 
-import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.core.params.AgentFoodCountable;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;

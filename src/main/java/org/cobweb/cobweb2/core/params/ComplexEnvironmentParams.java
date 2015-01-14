@@ -3,10 +3,6 @@
  */
 package org.cobweb.cobweb2.core.params;
 
-import org.cobweb.cobweb2.ai.GeneticController;
-import org.cobweb.cobweb2.core.AgentFoodCountable;
-import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
@@ -39,21 +35,21 @@ public class ComplexEnvironmentParams implements AgentFoodCountable, ParameterSe
 	 */
 	@ConfDisplayName("Controller type")
 	@ConfXMLTag("ControllerName")
-	public String controllerName = GeneticController.class.getName();
+	public String controllerName;
 
 	/**
 	 * Class name of the agent object
 	 */
 	@ConfDisplayName("Agent type")
 	@ConfXMLTag("AgentName")
-	public String agentName = ComplexAgent.class.getName();
+	public String agentName;
 
 	/**
 	 * Class name of environment object
 	 */
 	@ConfDisplayName("Environment type")
 	@ConfXMLTag("EnvironmentName")
-	public String environmentName = ComplexEnvironment.class.getName();
+	public String environmentName;
 
 	/**
 	 * Width of the grid.

@@ -24,9 +24,12 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.ai.ControllerParams;
+import org.cobweb.cobweb2.ai.GeneticController;
 import org.cobweb.cobweb2.ai.GeneticControllerParams;
 import org.cobweb.cobweb2.compatibility.ConfigUpgrader;
-import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.params.AgentFoodCountable;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
@@ -89,6 +92,10 @@ public class SimulationConfig implements SimulationParams {
 	 */
 	public SimulationConfig() {
 		envParams = new ComplexEnvironmentParams();
+
+		envParams.controllerName = GeneticController.class.getName();
+		envParams.agentName = ComplexAgent.class.getName();
+		envParams.environmentName = ComplexEnvironment.class.getName();
 
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {

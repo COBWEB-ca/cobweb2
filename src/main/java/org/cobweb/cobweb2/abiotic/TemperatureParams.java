@@ -3,8 +3,8 @@ package org.cobweb.cobweb2.abiotic;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.StatePluginSource;
+import org.cobweb.cobweb2.core.params.AgentFoodCountable;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
