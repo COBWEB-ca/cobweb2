@@ -119,16 +119,19 @@ public class ParameterSerializer {
 		List<Object> result = new ArrayList<Object>();
 
 		NodeList children = arrayNode.getChildNodes();
+		int arrayIndex = 0;
 		for (int i = 0; i < children.getLength(); i++) {
 			Node itemNode = children.item(i);
 
-			assert(itemNode.getNodeName().startsWith(listOptions.indexName()));
+			if (!itemNode.getNodeName().startsWith(listOptions.indexName()))
+				continue;
 
-			Object currentItem = Array.get(currentArray, i);
+			Object currentItem = Array.get(currentArray, arrayIndex);
 
 			Object newItem = loadObject(componentType, arrayAnnotations, currentItem, itemNode);
 
 			result.add(newItem);
+			arrayIndex++;
 		}
 
 		Object newArray = Array.newInstance(componentType, result.size());
