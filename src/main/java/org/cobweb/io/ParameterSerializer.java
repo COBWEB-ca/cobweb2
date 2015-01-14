@@ -1,7 +1,11 @@
 package org.cobweb.io;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.cobweb.util.ReflectionUtil;
@@ -47,7 +51,7 @@ public class ParameterSerializer {
 
 				Object currentValue = f.get(obj);
 
-				Object newValue = loadObject(f.getType(), currentValue, n);
+				Object newValue = loadObject(f.getType(), f, currentValue, n);
 
 				f.set(obj, newValue);
 
@@ -64,7 +68,7 @@ public class ParameterSerializer {
 		return obj;
 	}
 
-	private static Object loadObject(Class<?> type, Object currentValue, Node objectNode) throws IllegalArgumentException, IllegalAccessException {
+	private static Object loadObject(Class<?> type, AnnotatedElement annotationSource, Object currentValue, Node objectNode) throws IllegalArgumentException, IllegalAccessException {
 		Object newValue = currentValue;
 
 		if (isPrimitive(type)) {
@@ -75,13 +79,16 @@ public class ParameterSerializer {
 			ParameterSerializable inner = (ParameterSerializable) currentValue;
 			newValue = load(inner, objectNode);
 
+		} else if (type.isArray()) {
+			newValue = loadArray(type, annotationSource, currentValue, objectNode);
+
 		} else {
 			throw new IllegalArgumentException("Unknown field type");
 		}
 		return newValue;
 	}
 
-	private static void saveObject(Class<?> type, Object value, Element tag, Document doc) {
+	private static void saveObject(Class<?> type, AnnotatedElement annotationSource, Object value, Element tag, Document doc) {
 		if (isPrimitive(type)) {
 			tag.setTextContent(value.toString());
 
@@ -89,8 +96,69 @@ public class ParameterSerializer {
 			ParameterSerializable inner = (ParameterSerializable) value;
 			save(inner, tag, doc);
 
+		} else if (type.isArray()) {
+			saveArray(type, annotationSource, value, tag, doc);
+
 		} else {
 			throw new IllegalArgumentException("Unknown field type");
+		}
+	}
+
+	private static Object loadArray(Class<?> arrayType, AnnotatedElement arrayAnnotations,
+			Object currentArray, Node arrayNode)
+					throws IllegalArgumentException, IllegalAccessException {
+
+		Class<?> componentType = arrayType.getComponentType();
+		if (!isPrimitive(componentType) && !canSerializeDirectly(componentType))
+			throw new IllegalArgumentException("Unknown field type");
+
+		ConfList listOptions = arrayAnnotations.getAnnotation(ConfList.class);
+		if (listOptions == null)
+			throw new IllegalArgumentException("Config lists must be tagged @ConfList");
+
+		List<Object> result = new ArrayList<Object>();
+
+		NodeList children = arrayNode.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			Node itemNode = children.item(i);
+
+			assert(itemNode.getNodeName().startsWith(listOptions.indexName()));
+
+			Object currentItem = Array.get(currentArray, i);
+
+			Object newItem = loadObject(componentType, arrayAnnotations, currentItem, itemNode);
+
+			result.add(newItem);
+		}
+
+		Object newArray = Array.newInstance(componentType, result.size());
+		for (int i = 0; i < result.size(); i++) {
+			Array.set(newArray, i, result.get(i));
+		}
+
+		return newArray;
+	}
+
+	private static void saveArray(Class<?> arrayType, AnnotatedElement arrayAnnotations, Object array,
+			Element tag, Document doc) {
+
+		Class<?> componentType = arrayType.getComponentType();
+		if (!isPrimitive(componentType) && !canSerializeDirectly(componentType))
+			throw new IllegalArgumentException("Unknown field type");
+
+		ConfList listOptions = arrayAnnotations.getAnnotation(ConfList.class);
+		if (listOptions == null)
+			throw new IllegalArgumentException("Config lists must be tagged @ConfList");
+
+		for(int i = 0; i < Array.getLength(array); i++) {
+			int outputIndex = listOptions.startAtOne() ? i + 1 : i;
+			Element itemTag = doc.createElement(listOptions.indexName() + outputIndex );
+
+			Object item = Array.get(array, i);
+
+			saveObject(componentType, arrayAnnotations, item, itemTag, doc);
+
+			tag.appendChild(itemTag);
 		}
 	}
 
@@ -124,7 +192,7 @@ public class ParameterSerializer {
 			try {
 				Class<?> t = f.getType();
 				Object value = f.get(obj);
-				saveObject(t, value, tag, doc);
+				saveObject(t, f, value, tag, doc);
 
 			} catch (Exception ex) {
 				throw new IllegalArgumentException("Cannot save configuration field: " + f.getName(), ex);
