@@ -322,7 +322,7 @@ public class SimulationConfigEditor {
 
 		removeOldPage(learnPage);
 		if (p.getEnvParams().agentName.equals(ComplexAgentLearning.class.getName())) {
-			learnPage = new LearningConfigPage(p.getLearningParams().getLearningAgentParams(), displaySettings.agentColor);
+			learnPage = new LearningConfigPage(p.getLearningParams().learningParams, displaySettings.agentColor);
 			tabbedPane.addTab("Learning", learnPage.getPanel());
 		}
 	}
