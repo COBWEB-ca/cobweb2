@@ -33,40 +33,6 @@ public class GeneticParams implements ParameterCustomSerializable {
 	@ConfXMLTag("geneLength")
 	public int geneLength;
 
-	public static enum MeiosisMode {
-		ColourAveraging("Colour Averaging"),
-		RandomRecombination("Random Recombination"),
-		GeneSwapping("Gene Swapping");
-
-		/**
-		 * User-friendly name for mode
-		 */
-		private final String value;
-
-		private MeiosisMode(String s) {
-			value = s;
-		}
-
-		/**
-		 * Gets MeiosisMode from friendly name
-		 * @param s friendly name
-		 * @return MeiosisMode with given name
-		 * @throws IllegalArgumentException when no MeiosisMode has given friendly name
-		 */
-		public static MeiosisMode fromString(String s) {
-			for (MeiosisMode m : MeiosisMode.values()) {
-				if (m.value.equals(s))
-					return m;
-			}
-			throw new IllegalArgumentException("Invalid value");
-		}
-
-		@Override
-		public String toString() {
-			return value;
-		}
-	}
-
 	@ConfDisplayName("Meiosis Mode")
 	@ConfXMLTag("meiosismode")
 	public MeiosisMode meiosisMode = MeiosisMode.ColourAveraging;
@@ -75,6 +41,7 @@ public class GeneticParams implements ParameterCustomSerializable {
 	@ConfSquishParent
 	@ConfList(indexName = "linkedphenotype", startAtOne = true)
 	public Phenotype[] phenotype = new Phenotype[0];
+
 
 	private final transient AgentFoodCountable env;
 
