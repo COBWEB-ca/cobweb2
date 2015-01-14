@@ -30,9 +30,12 @@ public class ParameterSerializer {
 		Class<?> T = obj.getClass();
 
 		Map<String, Field> fields = new LinkedHashMap<String, Field>();
+		List<Field> squishFields = new ArrayList<Field>();
 		for (Field f : T.getFields()) {
 			ConfXMLTag tagname = f.getAnnotation(ConfXMLTag.class);
-			if (tagname != null) {
+			if (f.isAnnotationPresent(ConfSquishParent.class))
+				squishFields.add(f);
+			else if (tagname != null) {
 				fields.put(tagname.value(), f);
 			}
 		}
@@ -55,6 +58,16 @@ public class ParameterSerializer {
 
 				f.set(obj, newValue);
 
+			} catch (Exception ex) {
+				throw new IllegalArgumentException("Cannot load configuration field: " + f.getName(), ex);
+			}
+		}
+
+		for (Field f : squishFields) {
+			try {
+				Object currentValue = f.get(obj);
+				Object newValue = loadObject(f.getType(), f, currentValue, root);
+				f.set(obj, newValue);
 			} catch (Exception ex) {
 				throw new IllegalArgumentException("Cannot load configuration field: " + f.getName(), ex);
 			}
@@ -186,12 +199,17 @@ public class ParameterSerializer {
 
 		for (Field f : T.getFields()) {
 
+			boolean squish = f.isAnnotationPresent(ConfSquishParent.class);
 			ConfXMLTag tagname = f.getAnnotation(ConfXMLTag.class);
 
-			if (tagname == null)
+			Element tag;
+			if (squish) // store config in current node, don't create a child
+				tag = (Element) config;
+			else if (tagname != null) // store config in child node
+				tag = doc.createElement(tagname.value());
+			else // not a field we care about
 				continue;
 
-			Element tag = doc.createElement(tagname.value());
 			try {
 				Class<?> t = f.getType();
 				Object value = f.get(obj);
@@ -200,7 +218,9 @@ public class ParameterSerializer {
 			} catch (Exception ex) {
 				throw new IllegalArgumentException("Cannot save configuration field: " + f.getName(), ex);
 			}
-			config.appendChild(tag);
+
+			if (!squish)
+				config.appendChild(tag);
 		}
 
 
