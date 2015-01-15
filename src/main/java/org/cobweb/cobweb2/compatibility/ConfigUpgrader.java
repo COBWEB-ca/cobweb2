@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -14,6 +15,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -24,6 +26,7 @@ import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.eventlearning.ComplexEnvironmentLearning;
+import org.cobweb.util.Versionator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -73,7 +76,7 @@ public class ConfigUpgrader {
 
 	private static final String VERSION_LATEST = VERSIONS[VERSIONS.length - 1];
 
-	public static void upgradeXSLT(File filename) {
+	public static void upgradeConfigFile(File filename) {
 		FileInputStream file;
 		try {
 			file = new FileInputStream(filename);
@@ -82,6 +85,11 @@ public class ConfigUpgrader {
 		}
 
 		Document document = loadDocument(file);
+		try {
+			file.close();
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
 
 		Element root = document.getDocumentElement();
 		String version;
@@ -98,30 +106,51 @@ public class ConfigUpgrader {
 
 		if (version.equals(VERSIONS[0])) {
 			// Upgrade from 2011
-
-			InputStream xsltStream = ClassLoader.getSystemResourceAsStream("compatibility/upgrade-2011-2015-01-14.xslt");
-
-			TransformerFactory factory = TransformerFactory.newInstance();
-			try {
-				Transformer transformer = factory.newTransformer(new StreamSource(xsltStream));
-				StreamResult outputTarget = new StreamResult(new FileOutputStream("converted.xml"));
-				transformer.transform(new StreamSource(new FileInputStream(filename)), outputTarget);
-			} catch (TransformerConfigurationException ex) {
-				throw new RuntimeException(ex);
-			} catch (FileNotFoundException ex) {
-				throw new RuntimeException(ex);
-			} catch (TransformerException ex) {
-				throw new RuntimeException(ex);
-			} finally {
-				try {
-					xsltStream.close();
-				} catch (IOException ex) {
-					throw new RuntimeException(ex);
-				}
-			}
-
+			upgradeUsingXSLT(filename, "upgrade-2011-2015-01-14.xslt");
 		}
 
+	}
+
+	private static void upgradeUsingXSLT(File filename, String xsltName) throws TransformerFactoryConfigurationError {
+		// backup file
+		File bakFile = new File(filename + ".bak");
+		for (int attempt = 1; bakFile.exists(); attempt++) {
+			bakFile = new File(filename + ".bak" + attempt);
+		}
+		filename.renameTo(bakFile);
+
+		InputStream inStream = null;
+		try {
+			inStream = new FileInputStream(bakFile);
+		} catch (FileNotFoundException ex) {
+			throw new RuntimeException(ex);
+		}
+
+		OutputStream outStream = null;
+		try {
+			outStream = new FileOutputStream(filename);
+		} catch (FileNotFoundException ex) {
+			try { inStream.close(); } catch (IOException ex2) {}
+			throw new RuntimeException(ex);
+		}
+
+		InputStream xsltStream = null;
+		try {
+			xsltStream = ClassLoader.getSystemResourceAsStream("compatibility/" + xsltName);
+
+			TransformerFactory factory = TransformerFactory.newInstance();
+			Transformer transformer = factory.newTransformer(new StreamSource(xsltStream));
+
+			transformer.transform(new StreamSource(inStream), new StreamResult(outStream));
+		} catch (TransformerConfigurationException ex) {
+			throw new RuntimeException(ex);
+		} catch (TransformerException ex) {
+			throw new RuntimeException(ex);
+		} finally {
+			try { inStream.close(); } catch (IOException ex2) {}
+			try { outStream.close(); } catch (IOException ex2) {}
+			try { xsltStream.close(); } catch (IOException ex2) {}
+		}
 	}
 
 	protected static Document loadDocument(InputStream file) {

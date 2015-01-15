@@ -157,7 +157,7 @@ public class SimulationConfig implements SimulationParams {
 		this();
 		this.fileName = fileName;
 		File file = new File(fileName);
-		ConfigUpgrader.upgradeXSLT(file);
+		ConfigUpgrader.upgradeConfigFile(file);
 		FileInputStream configStream = new FileInputStream(file);
 		loadFile(configStream);
 		try {
