@@ -11,7 +11,7 @@
 	<!-- Copy document as is -->
 	<xsl:template match="node()|@*">
 		<xsl:copy>
-			<xsl:apply-templates />
+			<xsl:apply-templates select="node()|@*"/>
 		</xsl:copy>
 	</xsl:template>
 
