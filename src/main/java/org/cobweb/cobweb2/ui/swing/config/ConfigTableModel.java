@@ -58,7 +58,6 @@ public class ConfigTableModel extends AbstractTableModel {
 				}
 			} else if (Map.class.isAssignableFrom(f.getType())) {
 				try {
-					@SuppressWarnings("unchecked")
 					Map<?, ?> col = (Map<?, ?>) f.get(data[0]);
 					for (Object k : col.keySet()) {
 						fields.add(new MyMapField(f, k));
@@ -99,6 +98,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 
 		protected Map<Object, Object> getMap(Object obj) {
+			@SuppressWarnings("unchecked")
 			Map<Object, Object> map = (Map<Object, Object>) super.getValue(obj);
 			return map;
 		}

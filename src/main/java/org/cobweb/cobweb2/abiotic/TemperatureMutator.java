@@ -131,7 +131,8 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 
 	@Override
 	public List<StateParameter> getParameters() {
-		return Arrays.asList((StateParameter)new AbioticStatePenalty());
+		return Arrays.asList(
+				(StateParameter)new AbioticStatePenalty());
 	}
 
 	/**
