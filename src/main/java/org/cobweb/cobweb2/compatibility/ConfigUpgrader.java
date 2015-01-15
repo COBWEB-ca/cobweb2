@@ -140,6 +140,7 @@ public class ConfigUpgrader {
 
 			TransformerFactory factory = TransformerFactory.newInstance();
 			Transformer transformer = factory.newTransformer(new StreamSource(xsltStream));
+			transformer.setParameter("cobweb-version", Versionator.getVersion());
 
 			transformer.transform(new StreamSource(inStream), new StreamResult(outStream));
 		} catch (TransformerConfigurationException ex) {
