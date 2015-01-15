@@ -71,6 +71,31 @@
 			<xsl:apply-templates />
 		</linkedphenotype>
 	</xsl:template>
-	<!-- TODO: fix up agentXgeneY -->
+
+	<xsl:key name="gene-table-agentId"
+		match="*[substring(name(),1,5) = 'agent']"
+		use="substring-before(substring-after(name(),'agent'), 'gene')" />
+
+	<xsl:key name="gene-table-geneId"
+		match="*[substring(name(),1,5) = 'agent']"
+		use="substring-after(name(),'gene')" />
+
+	<xsl:template match="ga">
+		<xsl:copy>
+			<!-- passthrough -->
+			<xsl:apply-templates select="*[substring(name(),1,5) != 'agent']" />
+
+			<!-- default gene values -->
+			<xsl:for-each select="key('gene-table-geneId', 1)">
+				<agent id="{substring-before(substring-after(name(), 'agent'), 'gene')}">
+					<xsl:for-each select="key('gene-table-agentId', substring-before(substring-after(name(), 'agent'), 'gene'))">
+					<gene id="{substring-after(name(), 'gene')}">
+						<xsl:apply-templates />
+					</gene>
+					</xsl:for-each>
+				</agent>
+			</xsl:for-each>
+		</xsl:copy>
+	</xsl:template>
 
 </xsl:stylesheet>
