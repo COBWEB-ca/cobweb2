@@ -500,6 +500,9 @@ public class CobwebApplication extends JFrame {
 
 		makeViewMenu();
 
+		if (simulatorUI != null)
+			simulatorUI.simulationChanged();
+
 		validate();
 	}
 
