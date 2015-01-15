@@ -137,10 +137,16 @@ public class ParameterSerializer {
 	private static Object loadArray(Class<?> arrayType, AnnotatedElement arrayAnnotations,
 			Object currentArray, Node arrayNode)
 					throws IllegalArgumentException, IllegalAccessException {
+		return loadArray(arrayType, arrayAnnotations, currentArray, 0, arrayNode);
+	}
+
+	private static Object loadArray(Class<?> arrayType, AnnotatedElement arrayAnnotations,
+			Object currentArray, int depth, Node arrayNode)
+					throws IllegalArgumentException, IllegalAccessException {
 
 		Class<?> componentType = arrayType.getComponentType();
-		if (!isPrimitive(componentType) && !canSerializeDirectly(componentType))
-			throw new IllegalArgumentException("Unknown field type");
+		if (!canSerializeArray(componentType))
+			throw new IllegalArgumentException("Unknown array type");
 
 		ConfList listOptions = arrayAnnotations.getAnnotation(ConfList.class);
 		if (listOptions == null)
@@ -153,14 +159,18 @@ public class ParameterSerializer {
 		for (int i = 0; i < children.getLength(); i++) {
 			Node itemNode = children.item(i);
 
-			if (!itemNode.getNodeName().startsWith(listOptions.indexName()))
+			if (!itemNode.getNodeName().startsWith(listOptions.indexName()[depth]))
 				continue;
 
 			Object currentItem = null;
 			if (arrayIndex < Array.getLength(currentArray))
 				currentItem = Array.get(currentArray, arrayIndex);
 
-			Object newItem = loadObject(componentType, arrayAnnotations, currentItem, itemNode);
+			Object newItem = currentItem;
+			if (componentType.isArray())
+				newItem = loadArray(componentType, arrayAnnotations, currentItem, depth + 1, itemNode);
+			else
+				newItem = loadObject(componentType, arrayAnnotations, currentItem, itemNode);
 
 			result.add(newItem);
 			arrayIndex++;
@@ -176,10 +186,14 @@ public class ParameterSerializer {
 
 	private static void saveArray(Class<?> arrayType, AnnotatedElement arrayAnnotations, Object array,
 			Element tag, Document doc) {
+		saveArray(arrayType, arrayAnnotations, array, 0, tag, doc);
+	}
+	private static void saveArray(Class<?> arrayType, AnnotatedElement arrayAnnotations, Object array, int depth,
+			Element tag, Document doc) {
 
 		Class<?> componentType = arrayType.getComponentType();
-		if (!isPrimitive(componentType) && !canSerializeDirectly(componentType))
-			throw new IllegalArgumentException("Unknown field type");
+		if (!canSerializeArray(componentType))
+			throw new IllegalArgumentException("Unknown array type");
 
 		ConfList listOptions = arrayAnnotations.getAnnotation(ConfList.class);
 		if (listOptions == null)
@@ -187,13 +201,26 @@ public class ParameterSerializer {
 
 		for(int i = 0; i < Array.getLength(array); i++) {
 			int outputIndex = listOptions.startAtOne() ? i + 1 : i;
-			Element itemTag = doc.createElement(listOptions.indexName() + outputIndex );
+			Element itemTag = doc.createElement(listOptions.indexName()[depth]);
+			itemTag.setAttribute("id", Integer.toString(outputIndex));
 
 			Object item = Array.get(array, i);
 
-			saveObject(componentType, arrayAnnotations, item, itemTag, doc);
+			if (componentType.isArray())
+				saveArray(componentType, arrayAnnotations, item, depth + 1, itemTag, doc);
+			else
+				saveObject(componentType, arrayAnnotations, item, itemTag, doc);
 
 			tag.appendChild(itemTag);
+		}
+	}
+
+	protected static boolean canSerializeArray(Class<?> componentType) {
+		for (Class<?> ct = componentType; ; ct = ct.getComponentType()) {
+			if (isPrimitive(ct) || canSerializeDirectly(ct))
+				return true;
+			else if (!ct.isArray())
+				return false;
 		}
 	}
 
