@@ -35,4 +35,20 @@
 		</food>
 	</xsl:template>
 
+
+	<!-- Disease -->
+	<xsl:template match="disease/agent/transmitTo/*">
+		<agent id="{substring(name(),6)}">
+			<xsl:apply-templates />
+		</agent>
+	</xsl:template>
+
+
+	<!-- Abiotic -->
+	<xsl:template match="Temperature/AgentParams/*">
+		<Agent id="{substring(name(),6)}">
+			<xsl:apply-templates />
+		</Agent>
+	</xsl:template>
+
 </xsl:stylesheet>
