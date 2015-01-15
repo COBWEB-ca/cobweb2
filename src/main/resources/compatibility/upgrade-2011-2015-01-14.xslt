@@ -53,7 +53,7 @@
 
 
 	<!-- Fix up GeneticController StateSize map -->
-	<xsl:template match="ControllerConfig//AgentParams/*">
+	<xsl:template match="ControllerConfig//AgentParams/*[substring(name(),1,5) = 'Agent']">
 		<Agent id="{position()}">
 			<xsl:apply-templates />
 		</Agent>
@@ -95,6 +95,16 @@
 					</xsl:for-each>
 				</agent>
 			</xsl:for-each>
+		</xsl:copy>
+	</xsl:template>
+
+
+	<!-- LinearWeightsController -->
+	<xsl:template match="ControllerConfig[./inp]">
+		<xsl:copy>
+			<WeightMatrix>
+				<xsl:apply-templates select="inp" />
+			</WeightMatrix>
 		</xsl:copy>
 	</xsl:template>
 
