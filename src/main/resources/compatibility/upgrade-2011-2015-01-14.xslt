@@ -51,4 +51,17 @@
 		</Agent>
 	</xsl:template>
 
+
+	<!-- Fix up GeneticController StateSize map -->
+	<xsl:template match="ControllerConfig//AgentParams/*">
+		<Agent id="{position()}">
+			<xsl:apply-templates />
+		</Agent>
+	</xsl:template>
+	<xsl:template match="StateSize/*">
+		<State Name="{Name/text()}">
+			<xsl:apply-templates select="Size/node()" />
+		</State>
+	</xsl:template>
+
 </xsl:stylesheet>
