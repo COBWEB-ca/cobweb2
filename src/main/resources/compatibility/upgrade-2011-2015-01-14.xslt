@@ -64,4 +64,13 @@
 		</State>
 	</xsl:template>
 
+
+	<!-- Fix up GA -->
+	<xsl:template match="ga/*[substring(name(),1,15) = 'linkedphenotype']">
+		<linkedphenotype id="{substring(name(),16)}">
+			<xsl:apply-templates />
+		</linkedphenotype>
+	</xsl:template>
+	<!-- TODO: fix up agentXgeneY -->
+
 </xsl:stylesheet>
