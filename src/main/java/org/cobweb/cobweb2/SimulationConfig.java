@@ -92,10 +92,7 @@ public class SimulationConfig implements SimulationParams {
 	 */
 	public SimulationConfig() {
 		envParams = new ComplexEnvironmentParams();
-
-		envParams.controllerName = GeneticController.class.getName();
-		envParams.agentName = ComplexAgent.class.getName();
-		envParams.environmentName = ComplexEnvironment.class.getName();
+		setDefaultClassReferences();
 
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
@@ -130,6 +127,12 @@ public class SimulationConfig implements SimulationParams {
 		controllerParams = new GeneticControllerParams(this);
 
 		fileName = "default simulation";
+	}
+
+	protected void setDefaultClassReferences() {
+		envParams.controllerName = GeneticController.class.getName();
+		envParams.agentName = ComplexAgent.class.getName();
+		envParams.environmentName = ComplexEnvironment.class.getName();
 	}
 
 	/**
@@ -264,6 +267,7 @@ public class SimulationConfig implements SimulationParams {
 		removeIgnorableWSNodes((Element) root);
 
 		envParams = new ComplexEnvironmentParams();
+		setDefaultClassReferences();
 
 		ParameterSerializer.load(envParams, root);
 
