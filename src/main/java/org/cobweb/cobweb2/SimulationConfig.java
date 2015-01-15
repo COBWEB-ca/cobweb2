@@ -458,7 +458,7 @@ public class SimulationConfig implements SimulationParams {
 			throw new RuntimeException(ex);
 		}
 		t.setOutputProperty(OutputKeys.INDENT, "yes");
-		t.setParameter(OutputKeys.STANDALONE, "yes");
+		t.setOutputProperty(OutputKeys.STANDALONE, "yes");
 		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
 		Result r = new StreamResult(stream);
