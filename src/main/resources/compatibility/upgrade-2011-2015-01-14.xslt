@@ -24,11 +24,15 @@
 
 
 	<!-- Fix up foodweb -->
-	<xsl:template match="*//foodweb/*[substring(name(),1,5) = 'agent']">
-		<agent id="{position()}"><xsl:copy-of select="node()|@*"/></agent>
+	<xsl:template match="foodweb/*[substring(name(),1,5) = 'agent']">
+		<agent id="{substring(name(),6)}">
+			<xsl:apply-templates />
+		</agent>
 	</xsl:template>
-	<xsl:template match="*//foodweb/*[substring(name(),1,4) = 'food']">
-		<food id="{position()}"><xsl:copy-of select="node()|@*"/></food>
+	<xsl:template match="foodweb/*[substring(name(),1,4) = 'food']">
+		<food id="{substring(name(),5)}">
+			<xsl:apply-templates />
+		</food>
 	</xsl:template>
 
 </xsl:stylesheet>
