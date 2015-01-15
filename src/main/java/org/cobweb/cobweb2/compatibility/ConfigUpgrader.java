@@ -95,9 +95,15 @@ public class ConfigUpgrader {
 		String version;
 
 		if (root.getNodeName().equals("COBWEB2Config"))
+			// new root element includes version number
 			version = root.getAttribute("config-version");
-		else if (root.getNodeName().equals("inputData"))
+
+		else if (
+				root.getNodeName().equals("inputData") ||
+				// broken in 2.2009-09-29-3-g23f2baf, fixed in 2.0-34-g4db7bf2
+				root.getNodeName().equals("inputeData"))
 			version = VERSIONS[0];
+
 		else
 			throw new IllegalArgumentException("This config file is very old and can't be read");
 
