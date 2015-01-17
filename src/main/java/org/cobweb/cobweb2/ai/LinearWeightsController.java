@@ -21,7 +21,7 @@ public class LinearWeightsController implements Controller {
 
 	private SimulationInternals simulator;
 
-	public LinearWeightsController(SimulationInternals sim, LinearWeightsControllerParams params, int memSize, int commSize, int type) {
+	public LinearWeightsController(SimulationInternals sim, LinearWeightsControllerParams params, int memSize, int commSize) {
 		this.simulator = sim;
 		this.params = params;
 		this.memSize = memSize;

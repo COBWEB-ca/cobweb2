@@ -77,7 +77,7 @@ public class GeneticController implements Controller {
 	 * Given the agent's energy, get the amount of energy to add to the array.
 	 * @param energy The agent's energy.
 	 */
-	private int getEnergy(int energy) {
+	private static int getEnergy(int energy) {
 		final int maxEnergy = 3;
 
 		if(energy > ENERGY_THRESHOLD) {
