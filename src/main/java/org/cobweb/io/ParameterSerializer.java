@@ -18,6 +18,12 @@ import org.w3c.dom.NodeList;
 
 public class ParameterSerializer {
 
+	private ChoiceCatalog parts;
+
+	public ParameterSerializer(ChoiceCatalog parts) {
+		this.parts = parts;
+	}
+
 	/**
 	 * Allows the extraction of data from a configuration
 	 * file for any Cobweb parameters.  The data is passed in as the
@@ -73,11 +79,6 @@ public class ParameterSerializer {
 			}
 		}
 
-		if (obj instanceof ParameterCustomSerializable) {
-			ParameterCustomSerializable c = (ParameterCustomSerializable) obj;
-			c.loadConfig(root);
-		}
-
 		return obj;
 	}
 
@@ -117,12 +118,6 @@ public class ParameterSerializer {
 			if (!squish)
 				config.appendChild(tag);
 		}
-
-
-		if (obj instanceof ParameterCustomSerializable) {
-			ParameterCustomSerializable c = (ParameterCustomSerializable) obj;
-			c.saveConfig(config, doc);
-		}
 	}
 
 
@@ -136,7 +131,13 @@ public class ParameterSerializer {
 		} else if (type.isEnum()) {
 			newValue = loadEnum(type, objectNode.getFirstChild().getNodeValue());
 
-		} else if (canSerializeDirectly(type)) {
+		} else if (ParameterChoice.class.isAssignableFrom(type)) {
+			ParameterChoice inner = (ParameterChoice) currentValue;
+			@SuppressWarnings("unchecked")
+			Class<? extends ParameterChoice> dynamicType = (Class<? extends ParameterChoice>) type;
+			newValue = loadChoice(dynamicType, inner, objectNode);
+
+		} else if (ParameterSerializable.class.isAssignableFrom(type)) {
 			ParameterSerializable inner = (ParameterSerializable) currentValue;
 			// FIXME: create ParameterSerializable dynamically here
 			if (inner == null)
@@ -163,7 +164,11 @@ public class ParameterSerializer {
 		if (isPrimitive(type) || type.isEnum()) {
 			tag.setTextContent(value.toString());
 
-		} else if (canSerializeDirectly(type)) {
+		} else if (ParameterChoice.class.isAssignableFrom(type)) {
+			ParameterChoice inner = (ParameterChoice) value;
+			saveChoice(inner, tag, doc);
+
+		} else if (ParameterSerializable.class.isAssignableFrom(type)) {
 			ParameterSerializable inner = (ParameterSerializable) value;
 			save(inner, tag, doc);
 
@@ -262,7 +267,7 @@ public class ParameterSerializer {
 
 	protected boolean canSerializeArray(Class<?> componentType) {
 		for (Class<?> ct = componentType; ; ct = ct.getComponentType()) {
-			if (isPrimitive(ct) || canSerializeDirectly(ct))
+			if (canSerialize(ct))
 				return true;
 			else if (!ct.isArray())
 				return false;
@@ -327,8 +332,10 @@ public class ParameterSerializer {
 		return t.isPrimitive() || t.equals(String.class);
 	}
 
-	protected boolean canSerializeDirectly(Class<?> T) {
-		return ParameterSerializable.class.isAssignableFrom(T);
+	protected boolean canSerialize(Class<?> T) {
+		return isPrimitive(T) ||
+				ParameterSerializable.class.isAssignableFrom(T) ||
+				ParameterChoice.class.isAssignableFrom(T);
 	}
 
 	protected Object loadEnum(Class<?> type, String text) {
@@ -352,4 +359,19 @@ public class ParameterSerializer {
 		}
 	}
 
+	private ParameterChoice loadChoice(Class<? extends ParameterChoice> type, ParameterChoice obj, Node node) {
+		String identifier = node.getTextContent();
+		for (ParameterChoice x : parts.getChoices(type)) {
+			if (identifier == null && x.getIdentifier() == null)
+				return x;
+			else if (identifier != null && identifier.equals(x.getIdentifier()))
+				return x;
+		}
+		throw new IllegalArgumentException("Could not load ParameterChoice" + node.getNodeName());
+	}
+
+
+	private void saveChoice(ParameterChoice obj, Element node, Document doc) {
+		node.setTextContent(obj.getIdentifier());
+	}
 }

@@ -26,6 +26,7 @@ import javax.swing.table.TableColumnModel;
 import org.cobweb.cobweb2.genetics.GeneticParams;
 import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.ui.UserInputException;
+import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.binding.EnumComboBoxModel;
 
@@ -130,6 +131,8 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private int agentTypes;
 
+	private final ChoiceCatalog choiceCatalog;
+
 	private class AddListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -153,9 +156,10 @@ public class GeneticConfigPage implements ConfigPage {
 		}
 	}
 
-	public GeneticConfigPage(GeneticParams params, int agentTypes, ColorLookup agentColors) {
+	public GeneticConfigPage(GeneticParams params, int agentTypes, ChoiceCatalog choiceCatalog, ColorLookup agentColors) {
 		this.params = params;
 		this.agentTypes = agentTypes;
+		this.choiceCatalog = choiceCatalog;
 
 		myPanel = new JPanel();
 		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.X_AXIS));
@@ -263,8 +267,8 @@ public class GeneticConfigPage implements ConfigPage {
 	private GenesTableModel modelSelected;
 
 	private JScrollPane setupPhenotypeList() {
-		//TODO fix this weird selection process
-		phenosAvailable = new ListManipulator<Phenotype>(new ArrayList<Phenotype>(new Phenotype().getPossibleValues()));
+		phenosAvailable = new ListManipulator<Phenotype>(
+				new ArrayList<Phenotype>(choiceCatalog.getChoices(Phenotype.class)));
 
 		listAvailable = new JList(phenosAvailable);
 		listAvailable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);

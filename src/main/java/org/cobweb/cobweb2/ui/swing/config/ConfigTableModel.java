@@ -8,11 +8,14 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfMap;
+import org.cobweb.io.ParameterChoice;
+import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.util.ReflectionUtil;
 
 /**
@@ -200,6 +203,8 @@ public class ConfigTableModel extends AbstractTableModel {
 		this(new Object[] { data }, prefix);
 	}
 
+	public ChoiceCatalog choiceCatalog = null;
+
 	private int columns;
 
 	@Override
@@ -282,5 +287,15 @@ public class ConfigTableModel extends AbstractTableModel {
 			return prefix + " " + column;
 
 		return prefix;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ParameterChoice> Set<T> getRowOptions(int row) {
+		if (choiceCatalog == null)
+			throw new IllegalArgumentException("ConfigTableModel needs choiceCatalog for this row");
+
+		Class<T> clazz =(Class<T>) fields.get(row).getDeclaredClass();
+		Set<T> res = choiceCatalog.getChoices(clazz);
+		return res;
 	}
 }

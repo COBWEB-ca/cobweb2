@@ -39,8 +39,10 @@ import org.cobweb.cobweb2.disease.DiseaseParams;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.eventlearning.LearningParams;
 import org.cobweb.cobweb2.genetics.GeneticParams;
+import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.production.ProductionParams;
 import org.cobweb.io.ParameterSerializer;
+import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.util.Versionator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -90,11 +92,18 @@ public class SimulationConfig implements SimulationParams {
 
 	private ControllerParams controllerParams;
 
+	public final ChoiceCatalog choiceCatalog;
+
 	/**
 	 * Creates the default Cobweb simulation parameters.
 	 */
 	public SimulationConfig() {
-		serializer = new ParameterSerializer();
+		choiceCatalog = new ChoiceCatalog();
+		for(Phenotype x : Phenotype.getPossibleValues()) {
+			choiceCatalog.addChoice(Phenotype.class, x);
+		}
+
+		serializer = new ParameterSerializer(choiceCatalog);
 
 		envParams = new ComplexEnvironmentParams();
 		setDefaultClassReferences();
