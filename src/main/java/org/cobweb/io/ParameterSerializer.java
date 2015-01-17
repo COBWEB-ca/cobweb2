@@ -18,7 +18,6 @@ import org.w3c.dom.NodeList;
 
 public class ParameterSerializer {
 
-
 	/**
 	 * Allows the extraction of data from a configuration
 	 * file for any Cobweb parameters.  The data is passed in as the
@@ -82,7 +81,52 @@ public class ParameterSerializer {
 		return obj;
 	}
 
-	private static Object loadObject(Class<?> type, AnnotatedElement annotationSource, Object currentValue, Node objectNode) throws IllegalArgumentException, IllegalAccessException {
+	/**
+	 * Saves data fields from any object implementing the CobwebParam interface to a
+	 * data file, doc.
+	 *
+	 * @param obj Cobweb parameter object.
+	 * @param config Initial node to add data fields to.
+	 * @param doc Data file fields are saved to.
+	 */
+	public static void save(ParameterSerializable obj, Node config, Document doc) {
+		Class<?> T = obj.getClass();
+
+		for (Field f : T.getFields()) {
+
+			boolean squish = f.isAnnotationPresent(ConfSquishParent.class);
+			ConfXMLTag tagname = f.getAnnotation(ConfXMLTag.class);
+
+			Element tag;
+			if (squish) // store config in current node, don't create a child
+				tag = (Element) config;
+			else if (tagname != null) // store config in child node
+				tag = doc.createElement(tagname.value());
+			else // not a field we care about
+				continue;
+
+			try {
+				Class<?> t = f.getType();
+				Object value = f.get(obj);
+				saveObject(t, f, value, tag, doc);
+
+			} catch (Exception ex) {
+				throw new IllegalArgumentException("Cannot save configuration field: " + f.getName(), ex);
+			}
+
+			if (!squish)
+				config.appendChild(tag);
+		}
+
+
+		if (obj instanceof ParameterCustomSerializable) {
+			ParameterCustomSerializable c = (ParameterCustomSerializable) obj;
+			c.saveConfig(config, doc);
+		}
+	}
+
+
+	private Object loadObject(Class<?> type, AnnotatedElement annotationSource, Object currentValue, Node objectNode) throws IllegalArgumentException, IllegalAccessException {
 		Object newValue = currentValue;
 
 		if (isPrimitive(type)) {
@@ -285,51 +329,6 @@ public class ParameterSerializer {
 	protected static boolean canSerializeDirectly(Class<?> T) {
 		return ParameterSerializable.class.isAssignableFrom(T);
 	}
-
-	/**
-	 * Saves data fields from any object implementing the CobwebParam interface to a
-	 * data file, doc.
-	 *
-	 * @param obj Cobweb parameter object.
-	 * @param config Initial node to add data fields to.
-	 * @param doc Data file fields are saved to.
-	 */
-	public static void save(ParameterSerializable obj, Node config, Document doc) {
-		Class<?> T = obj.getClass();
-
-		for (Field f : T.getFields()) {
-
-			boolean squish = f.isAnnotationPresent(ConfSquishParent.class);
-			ConfXMLTag tagname = f.getAnnotation(ConfXMLTag.class);
-
-			Element tag;
-			if (squish) // store config in current node, don't create a child
-				tag = (Element) config;
-			else if (tagname != null) // store config in child node
-				tag = doc.createElement(tagname.value());
-			else // not a field we care about
-				continue;
-
-			try {
-				Class<?> t = f.getType();
-				Object value = f.get(obj);
-				saveObject(t, f, value, tag, doc);
-
-			} catch (Exception ex) {
-				throw new IllegalArgumentException("Cannot save configuration field: " + f.getName(), ex);
-			}
-
-			if (!squish)
-				config.appendChild(tag);
-		}
-
-
-		if (obj instanceof ParameterCustomSerializable) {
-			ParameterCustomSerializable c = (ParameterCustomSerializable) obj;
-			c.saveConfig(config, doc);
-		}
-	}
-
 
 	protected static Object loadEnum(Class<?> type, String text) {
 		try {
