@@ -7,12 +7,15 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.cobweb.cobweb2.io.CobwebParam;
-import org.cobweb.cobweb2.io.NamedParam;
 import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ConfMap;
+import org.cobweb.io.ParameterChoice;
+import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.util.ReflectionUtil;
 
 /**
@@ -33,13 +36,13 @@ public class ConfigTableModel extends AbstractTableModel {
 	 * @param data CobwebParam array to display as columns
 	 * @param prefix Prefix for the column names
 	 */
-	public ConfigTableModel(CobwebParam[] data, String prefix) {
+	public ConfigTableModel(Object[] data, String prefix) {
 		super();
 		this.data = data;
 		this.prefix = prefix;
 		columns = data.length;
 
-		CobwebParam d = data[0];
+		Object d = data[0];
 		Class<?> c = d.getClass();
 		for (Field f : c.getFields()) {
 			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
@@ -57,14 +60,12 @@ public class ConfigTableModel extends AbstractTableModel {
 				} catch (IllegalAccessException ex) {
 					throw new IllegalArgumentException("Unable to access field " + f.getName(), ex);
 				}
-			} else if (List.class.isAssignableFrom(f.getType())) {
+			} else if (Map.class.isAssignableFrom(f.getType())) {
 				try {
-					@SuppressWarnings("unchecked")
-					List<NamedParam> col = (List<NamedParam>) f.get(data[0]);
-					for (int i = 0; i < col.size(); i++) {
-						NamedParam param = col.get(i);
-						fields.add(new MyNamedField(f, i));
-						rowNames.add(param.getName());
+					Map<?, ?> col = (Map<?, ?>) f.get(data[0]);
+					for (Object k : col.keySet()) {
+						fields.add(new MyMapField(f, k));
+						rowNames.add(k.toString());
 					}
 
 				} catch (IllegalArgumentException ex) {
@@ -79,42 +80,42 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 	}
 
-	protected class MyNamedField extends MyArrayField {
+	private class MyMapField extends MyField {
+		private Object key;
 
-		private MyNamedField(Field f, int i) {
-			super(f, i);
+		private MyMapField(Field f, Object key) {
+			super(f);
+			this.key = key;
+
+		}
+
+		@Override
+		public Object getValue(Object obj) {
+			Map<Object, Object> map = getMap(obj);
+			return map.get(key);
+		}
+
+		@Override
+		public void setValue(Object cobwebParam, Object value) {
+			Map<Object, Object> map = getMap(cobwebParam);
+			map.put(key, value);
+		}
+
+		protected Map<Object, Object> getMap(Object obj) {
+			@SuppressWarnings("unchecked")
+			Map<Object, Object> map = (Map<Object, Object>) super.getValue(obj);
+			return map;
 		}
 
 		@Override
 		public String toString() {
-			return super.toString() + "(list)";
+			return super.toString() + "[" + key + "]";
 		}
 
 		@Override
-		public Object getValue(CobwebParam param) {
-			Object value = null;
-			try {
-				@SuppressWarnings("unchecked")
-				List<NamedParam> list = (List<NamedParam>) this.field.get(param);
-				NamedParam p = list.get(index);
-				value = p.getField().get(p);
-			} catch (IllegalAccessException ex) {
-				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
-			}
-			return value;
+		public Class<?> getDeclaredClass() {
+			return field.getAnnotation(ConfMap.class).valueClass();
 		}
-
-		@Override
-		public void setValue(CobwebParam cobwebParam, Object value) {
-			try {
-				@SuppressWarnings("unchecked")
-				List<NamedParam> list = (List<NamedParam>) this.field.get(cobwebParam);
-				fromBoxedToField(list.get(index), list.get(index).getField(), value);
-			} catch (IllegalAccessException ex) {
-				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
-			}
-		}
-
 	}
 
 	private class MyArrayField extends MyField {
@@ -127,32 +128,30 @@ public class ConfigTableModel extends AbstractTableModel {
 
 		@Override
 		public String toString() {
-			return field.toString() + "[" + index + "]";
+			return super.toString() + "[" + index + "]";
 		}
 
 		@Override
-		public Object getValue(CobwebParam param) {
+		public Object getValue(Object param) {
 			Object value = null;
-			try {
-				value = Array.get(this.field.get(param), index);
-			} catch (IllegalAccessException ex) {
-				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
-			}
+			value = Array.get(super.getValue(param), index);
 			return value;
 		}
 
 		@Override
-		public void setValue(CobwebParam cobwebParam, Object value) {
+		public void setValue(Object cobwebParam, Object value) {
 			try {
-				Object array = field.get(cobwebParam);
+				Object array = super.getValue(cobwebParam);
 				fromBoxedToElement(array, index, value);
-			} catch (IllegalAccessException ex) {
-				throw new IllegalArgumentException("Tagged field is not public: " + field.getName(), ex);
 			} catch (IllegalArgumentException ex) {
 				return;
 				//throw new UserInputException("Invalid Value");
 			}
+		}
 
+		@Override
+		public Class<?> getDeclaredClass() {
+			return super.getDeclaredClass().getComponentType();
 		}
 	}
 
@@ -168,7 +167,7 @@ public class ConfigTableModel extends AbstractTableModel {
 			return field.toString();
 		}
 
-		public Object getValue(CobwebParam param) {
+		public Object getValue(Object param) {
 			Object value = null;
 			try {
 				value = this.field.get(param);
@@ -177,7 +176,7 @@ public class ConfigTableModel extends AbstractTableModel {
 			}
 			return value;
 		}
-		public void setValue(CobwebParam cobwebParam, Object value) {
+		public void setValue(Object cobwebParam, Object value) {
 			Field f = this.field;
 			try {
 				fromBoxedToField(cobwebParam, f, value);
@@ -188,17 +187,23 @@ public class ConfigTableModel extends AbstractTableModel {
 				//throw new UserInputException("Invalid Value");
 			}
 		}
+
+		public Class<?> getDeclaredClass() {
+			return field.getType();
+		}
 	}
 
-	private CobwebParam[] data;
+	private Object[] data;
 
 	private List<MyField> fields = new ArrayList<MyField>();
 
 	private List<String> rowNames = new ArrayList<String>();
 
-	public ConfigTableModel(CobwebParam data, String prefix) {
-		this(new CobwebParam[] { data }, prefix);
+	public ConfigTableModel(Object data, String prefix) {
+		this(new Object[] { data }, prefix);
 	}
+
+	public ChoiceCatalog choiceCatalog = null;
 
 	private int columns;
 
@@ -282,5 +287,15 @@ public class ConfigTableModel extends AbstractTableModel {
 			return prefix + " " + column;
 
 		return prefix;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends ParameterChoice> Set<T> getRowOptions(int row) {
+		if (choiceCatalog == null)
+			throw new IllegalArgumentException("ConfigTableModel needs choiceCatalog for this row");
+
+		Class<T> clazz =(Class<T>) fields.get(row).getDeclaredClass();
+		Set<T> res = choiceCatalog.getChoices(clazz);
+		return res;
 	}
 }

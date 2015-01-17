@@ -5,6 +5,7 @@ package org.cobweb.cobweb2.ui.swing.config;
 
 import java.awt.Component;
 import java.text.DecimalFormat;
+import java.util.Set;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
@@ -14,16 +15,16 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import org.cobweb.cobweb2.io.CobwebSelectionParam;
+import org.cobweb.io.ParameterChoice;
 
 class MixedValueJTable extends JTable {
 
-	private static class CobwebSelectionEditor<T> extends DefaultCellEditor {
+	private static class CobwebSelectionEditor<T extends ParameterChoice> extends DefaultCellEditor {
 
 		private static final long serialVersionUID = 3458173499957389679L;
 
-		private CobwebSelectionEditor(T[] options) {
-			super(new JComboBox(options));
+		private CobwebSelectionEditor(Set<T> options) {
+			super(new JComboBox(options.toArray()));
 		}
 
 		@Override
@@ -69,18 +70,21 @@ class MixedValueJTable extends JTable {
 
 	private static final long serialVersionUID = -9106510371599896107L;
 
-	public MixedValueJTable() {
+	private ConfigTableModel configModel;
+
+	public MixedValueJTable(ConfigTableModel model) {
 		super();
 		this.getTableHeader().setReorderingAllowed(false);
+		this.configModel = model;
+		setModel(model);
 	}
 
 	@Override
 	public TableCellEditor getCellEditor(int row, int column) {
 		TableColumn tableColumn = getColumnModel().getColumn(column);
 		TableCellEditor editor = tableColumn.getCellEditor();
-		if (getValueAt(row, column) instanceof  CobwebSelectionParam<?>) {
-			CobwebSelectionParam<?> par = (CobwebSelectionParam<?>)getValueAt(row, column);
-			editor = new CobwebSelectionEditor<Object>(par.getPossibleValues().toArray());
+		if (getValueAt(row, column) instanceof ParameterChoice) {
+			editor = new CobwebSelectionEditor<ParameterChoice>(configModel.getRowOptions(row));
 		}
 		if (editor == null && getValueAt(row, column) != null) {
 			editor = getDefaultEditor(getValueAt(row, column).getClass());

@@ -5,11 +5,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 /**
- * Parser-friendly name to use for field when serializing it
+ * Name pattern to use for index when saving/loading lists
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ConfXMLTag {
-	String value();
+public @interface ConfList {
+	String[] indexName();
+	boolean startAtOne();
 }

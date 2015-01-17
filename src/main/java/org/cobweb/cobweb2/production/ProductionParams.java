@@ -4,12 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.StatePluginSource;
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterSerializable;
 
 
-public class ProductionParams extends AbstractReflectionParams implements StatePluginSource {
+public class ProductionParams implements ParameterSerializable, StatePluginSource {
 	/**
 	 *
 	 */

@@ -300,7 +300,8 @@ public class SimulationConfigEditor {
 		}
 
 		removeOldPage(geneticPage);
-		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes(), displaySettings.agentColor);
+		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes(),
+				p.choiceCatalog, displaySettings.agentColor);
 		JComponent panelGA = geneticPage.getPanel();
 		tabbedPane.addTab("Genetics", panelGA);
 
@@ -312,17 +313,17 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("AI", controllerPanel);
 
 		removeOldPage(diseaseConfigPage);
-		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), displaySettings.agentColor);
+		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), p.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
 		removeOldPage(tempPage);
-		tempPage = new TemperatureConfigPage(p.getTempParams(), displaySettings.agentColor);
+		tempPage = new TemperatureConfigPage(p.getTempParams(), p.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Abiotic Factor", tempPage.getPanel());
 
 
 		removeOldPage(learnPage);
 		if (p.getEnvParams().agentName.equals(ComplexAgentLearning.class.getName())) {
-			learnPage = new LearningConfigPage(p.getLearningParams().getLearningAgentParams(), displaySettings.agentColor);
+			learnPage = new LearningConfigPage(p.getLearningParams().learningParams, displaySettings.agentColor);
 			tabbedPane.addTab("Learning", learnPage.getPanel());
 		}
 	}

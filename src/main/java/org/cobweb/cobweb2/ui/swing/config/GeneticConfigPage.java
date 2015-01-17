@@ -23,9 +23,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.genetics.GeneticParams;
-import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.ui.UserInputException;
+import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.binding.EnumComboBoxModel;
 
@@ -130,6 +131,8 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private int agentTypes;
 
+	private final ChoiceCatalog choiceCatalog;
+
 	private class AddListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -153,9 +156,10 @@ public class GeneticConfigPage implements ConfigPage {
 		}
 	}
 
-	public GeneticConfigPage(GeneticParams params, int agentTypes, ColorLookup agentColors) {
+	public GeneticConfigPage(GeneticParams params, int agentTypes, ChoiceCatalog choiceCatalog, ColorLookup agentColors) {
 		this.params = params;
 		this.agentTypes = agentTypes;
+		this.choiceCatalog = choiceCatalog;
 
 		myPanel = new JPanel();
 		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.X_AXIS));
@@ -216,7 +220,7 @@ public class GeneticConfigPage implements ConfigPage {
 		phenosUsed = new LinkedList<Phenotype>();
 
 		modelSelected = new GenesTableModel();
-		listSelected = new MixedValueJTable();
+		listSelected = new JTable();
 
 		listSelected.setModel(modelSelected);
 
@@ -250,7 +254,7 @@ public class GeneticConfigPage implements ConfigPage {
 	}
 
 	private JPanel makeMeiosisConfig() {
-		JComboBox meiosis_mode = new JComboBox(new EnumComboBoxModel(this.params.meiosisMode, "mode"));
+		JComboBox meiosis_mode = new JComboBox(new EnumComboBoxModel(this.params, "meiosisMode"));
 		JPanel meiosis_mode_panel = new JPanel(new BorderLayout());
 		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
 		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);
@@ -263,8 +267,8 @@ public class GeneticConfigPage implements ConfigPage {
 	private GenesTableModel modelSelected;
 
 	private JScrollPane setupPhenotypeList() {
-		//TODO fix this weird selection process
-		phenosAvailable = new ListManipulator<Phenotype>(new ArrayList<Phenotype>(new Phenotype().getPossibleValues()));
+		phenosAvailable = new ListManipulator<Phenotype>(
+				new ArrayList<Phenotype>(choiceCatalog.getChoices(Phenotype.class)));
 
 		listAvailable = new JList(phenosAvailable);
 		listAvailable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -279,12 +283,11 @@ public class GeneticConfigPage implements ConfigPage {
 
 	@Override
 	public void validateUI() throws IllegalArgumentException {
-		params.geneCount = phenosUsed.size();
 		params.phenotype = phenosUsed.toArray(new Phenotype[0]);
 
 		params.geneLength = 8;
-		params.geneValues = new String[agentTypes][params.geneCount];
-		for (int g = 0; g < params.geneCount; g++) {
+		params.geneValues = new String[agentTypes][params.getGeneCount()];
+		for (int g = 0; g < params.getGeneCount(); g++) {
 			for (int a = 0; a < agentTypes; a++) {
 				params.geneValues[a][g] = Integer.toString(defaults.get(g)[a], 2);
 			}

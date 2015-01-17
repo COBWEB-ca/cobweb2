@@ -23,7 +23,7 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 	@Override
 	protected void copyParamsFromParser(SimulationConfig p) {
 		super.copyParamsFromParser(p);
-		learningData = p.getLearningParams().getLearningAgentParams();
+		learningData = p.getLearningParams().learningParams;
 	}
 
 	@Override

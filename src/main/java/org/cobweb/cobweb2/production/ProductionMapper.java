@@ -118,11 +118,10 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 
 	}
 
-	private List<StateParameter> params = Arrays.asList(new StateParameter[] { new ProductHunt() });
-
 	@Override
 	public List<StateParameter> getParameters() {
-		return params;
+		return Arrays.asList(
+				(StateParameter)new ProductHunt());
 	}
 
 	private void addProduct(float value, Agent owner) {

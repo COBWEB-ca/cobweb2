@@ -73,7 +73,7 @@ public class Topology {
 		return simpleDistanceSquared(from, getClosestWrapLocation(from, to));
 	}
 
-	private double simpleDistanceSquared(Location from, Location to) {
+	protected double simpleDistanceSquared(Location from, Location to) {
 		int deltaX = to.x - from.x;
 		int deltaY = to.y - from.y;
 		return deltaX * deltaX + deltaY * deltaY;
@@ -128,11 +128,11 @@ public class Topology {
 		return new LocationDirection(location, turnLeft(location.direction));
 	}
 
-	private Direction turnRight(Direction dir) {
+	protected Direction turnRight(Direction dir) {
 		return new Direction(-dir.y, +dir.x);
 	}
 
-	private Direction turnLeft(Direction dir) {
+	protected Direction turnLeft(Direction dir) {
 		return new Direction(+dir.y, -dir.x);
 	}
 

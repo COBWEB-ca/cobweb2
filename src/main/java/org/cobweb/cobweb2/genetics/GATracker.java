@@ -103,7 +103,7 @@ public class GATracker {
 	}
 
 	/** Gets the appropriate index of a gene of a specific value in a gene status distribution hash table (or array). */
-	private int geneStatusHash(int gene_value) {
+	private static int geneStatusHash(int gene_value) {
 		int index;
 		if (gene_value > 90) {
 			index = Math.abs(180 - gene_value);

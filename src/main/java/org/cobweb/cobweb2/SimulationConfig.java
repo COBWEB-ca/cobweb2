@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,9 +25,14 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.ai.ControllerParams;
+import org.cobweb.cobweb2.ai.GeneticController;
 import org.cobweb.cobweb2.ai.GeneticControllerParams;
 import org.cobweb.cobweb2.compatibility.ConfigUpgrader;
-import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.core.ComplexAgent;
+import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.NullPhenotype;
+import org.cobweb.cobweb2.core.Phenotype;
+import org.cobweb.cobweb2.core.params.AgentFoodCountable;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.core.params.ComplexFoodParams;
@@ -35,8 +41,10 @@ import org.cobweb.cobweb2.disease.DiseaseParams;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.eventlearning.LearningParams;
 import org.cobweb.cobweb2.genetics.GeneticParams;
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
+import org.cobweb.cobweb2.interconnect.FieldPhenotype;
 import org.cobweb.cobweb2.production.ProductionParams;
+import org.cobweb.io.ChoiceCatalog;
+import org.cobweb.io.ParameterSerializer;
 import org.cobweb.util.Versionator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -64,6 +72,8 @@ public class SimulationConfig implements SimulationParams {
 		}
 	}
 
+	public final ParameterSerializer serializer;
+
 	private String fileName = null;
 
 	private ComplexEnvironmentParams envParams;
@@ -84,11 +94,22 @@ public class SimulationConfig implements SimulationParams {
 
 	private ControllerParams controllerParams;
 
+	public final ChoiceCatalog choiceCatalog;
+
 	/**
 	 * Creates the default Cobweb simulation parameters.
 	 */
 	public SimulationConfig() {
+		choiceCatalog = new ChoiceCatalog();
+		choiceCatalog.addChoice(Phenotype.class, new NullPhenotype());
+		for(Phenotype x : FieldPhenotype.getPossibleValues()) {
+			choiceCatalog.addChoice(Phenotype.class, x);
+		}
+
+		serializer = new ParameterSerializer(choiceCatalog);
+
 		envParams = new ComplexEnvironmentParams();
+		setDefaultClassReferences();
 
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
@@ -125,6 +146,12 @@ public class SimulationConfig implements SimulationParams {
 		fileName = "default simulation";
 	}
 
+	protected void setDefaultClassReferences() {
+		envParams.controllerName = GeneticController.class.getName();
+		envParams.agentName = ComplexAgent.class.getName();
+		envParams.environmentName = ComplexEnvironment.class.getName();
+	}
+
 	/**
 	 * Constructor that allows input from a file stream to configure simulation parameters.
 	 *
@@ -145,7 +172,9 @@ public class SimulationConfig implements SimulationParams {
 	public SimulationConfig(String fileName) throws FileNotFoundException {
 		this();
 		this.fileName = fileName;
-		FileInputStream configStream = new FileInputStream(fileName);
+		File file = new File(fileName);
+		ConfigUpgrader.upgradeConfigFile(file);
+		FileInputStream configStream = new FileInputStream(file);
 		loadFile(configStream);
 		try {
 			configStream.close();
@@ -227,12 +256,10 @@ public class SimulationConfig implements SimulationParams {
 	 * agents, etc.) using the environment parameters.
 	 *
 	 * @param file The current simulation configuration file.
-	 * @see AbstractReflectionParams#loadConfig(Node)
 	 * @see javax.xml.parsers.DocumentBuilder
 	 * @throws IllegalArgumentException Unable to open the simulation configuration file.
 	 */
 	private void loadFile(InputStream file) throws IllegalArgumentException {
-
 		// read these variables from the xml file
 
 		// DOM initialization
@@ -258,8 +285,9 @@ public class SimulationConfig implements SimulationParams {
 		removeIgnorableWSNodes((Element) root);
 
 		envParams = new ComplexEnvironmentParams();
+		setDefaultClassReferences();
 
-		envParams.loadConfig(root);
+		serializer.load(envParams, root);
 
 		ConfigUpgrader.upgrade(envParams);
 
@@ -286,11 +314,11 @@ public class SimulationConfig implements SimulationParams {
 			String nodeName = node.getNodeName();
 
 			if (nodeName.equals("ga")) {
-				geneticParams.loadConfig(node);
+				serializer.load(geneticParams, node);
 
 			} else if (nodeName.equals("agent")) {
 				ComplexAgentParams p = new ComplexAgentParams(envParams);
-				p.loadConfig(node);
+				serializer.load(p, node);
 				if (p.type < 0)
 					p.type = agent++;
 				if (p.type >= envParams.getAgentTypes())
@@ -298,7 +326,7 @@ public class SimulationConfig implements SimulationParams {
 				agentParams[p.type] = p;
 			} else if (nodeName.equals("production")) {
 				ProductionParams p = new ProductionParams();
-				p.loadConfig(node);
+				serializer.load(p, node);
 				if (p.type < 0)
 					p.type = prod++;
 				if (p.type >= envParams.getAgentTypes())
@@ -306,7 +334,7 @@ public class SimulationConfig implements SimulationParams {
 				prodParams[p.type] = p;
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
-				p.loadConfig(node);
+				serializer.load(p, node);
 				if (p.type < 0)
 					p.type = food++;
 
@@ -317,9 +345,9 @@ public class SimulationConfig implements SimulationParams {
 			} else if (nodeName.equals("disease")) {
 				parseDiseaseParams(node);
 			} else if (nodeName.equals("Temperature")) {
-				tempParams.loadConfig(node);
+				serializer.load(tempParams, node);
 			} else if (nodeName.equals("Learning")) {
-				learningParams.loadConfig(node);
+				serializer.load(learningParams, node);
 			} else if (nodeName.equals("ControllerConfig")){
 				// FIXME: this is initialized after everything else because
 				// Controllers use SimulationParams.getPluginParameters()
@@ -332,7 +360,7 @@ public class SimulationConfig implements SimulationParams {
 				} catch (Exception ex) {
 					throw new RuntimeException("Could not set up controller", ex);
 				}
-				controllerParams.loadConfig(node);
+				serializer.load(controllerParams, node);
 			}
 		}
 		for (int i = 0; i < agentParams.length; i++) {
@@ -363,7 +391,7 @@ public class SimulationConfig implements SimulationParams {
 			if (i >= envParams.getAgentTypes())
 				break;
 			DiseaseParams dp = new DiseaseParams(envParams);
-			dp.loadConfig(n);
+			serializer.load(dp, n);
 			diseaseParams[i] = dp;
 		}
 		for (int i = 0; i < diseaseParams.length; i++) {
@@ -383,56 +411,55 @@ public class SimulationConfig implements SimulationParams {
 		} catch (ParserConfigurationException ex) {
 			throw new RuntimeException(ex);
 		}
-		Node root = d.createElement("inputData");
+		Element root = d.createElementNS("http://cobweb.ca/schema/cobweb2/config", "COBWEB2Config");
+		root.setAttribute("config-version", "2015-01-14");
+		root.setAttribute("cobweb-version", Versionator.getVersion());
 
-		envParams.saveConfig(root, d);
+		serializer.save(envParams, root, d);
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			Node node = d.createElement("agent");
-			agentParams[i].saveConfig(node, d);
+			Element node = d.createElement("agent");
+			serializer.save(agentParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			Node node = d.createElement("production");
-			prodParams[i].saveConfig(node, d);
+			Element node = d.createElement("production");
+			serializer.save(prodParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		for (int i = 0; i < envParams.getFoodTypes(); i++) {
-			Node node = d.createElement("food");
-			foodParams[i].saveConfig(node, d);
+			Element node = d.createElement("food");
+			serializer.save(foodParams[i], node, d);
 			root.appendChild(node);
 		}
 
-		Node ga = d.createElement("ga");
-		geneticParams.saveConfig(ga, d);
+		Element ga = d.createElement("ga");
+		serializer.save(geneticParams, ga, d);
 
 		root.appendChild(ga);
 
 		Node disease = d.createElement("disease");
 		for (DiseaseParams diseaseParam : diseaseParams) {
-			Node node = d.createElement("agent");
-			diseaseParam.saveConfig(node, d);
+			Element node = d.createElement("agent");
+			serializer.save(diseaseParam, node, d);
 			disease.appendChild(node);
 		}
 		root.appendChild(disease);
 
-		Node temp = d.createElement("Temperature");
-		tempParams.saveConfig(temp, d);
+		Element temp = d.createElement("Temperature");
+		serializer.save(tempParams, temp, d);
 		root.appendChild(temp);
 
 		if (this.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
-			Node learn = d.createElement("Learning");
-			learningParams.saveConfig(learn, d);
+			Element learn = d.createElement("Learning");
+			serializer.save(learningParams, learn, d);
 			root.appendChild(learn);
 		}
 
-		Node controller = d.createElement("ControllerConfig");
-		controllerParams.saveConfig(controller, d);
+		Element controller = d.createElement("ControllerConfig");
+		serializer.save(controllerParams, controller, d);
 		root.appendChild(controller);
-
-		Node version = d.createComment("Generated by COBWEB2 version " + Versionator.getVersion() );
-		root.appendChild(version);
 
 		d.appendChild(root);
 
@@ -447,7 +474,7 @@ public class SimulationConfig implements SimulationParams {
 			throw new RuntimeException(ex);
 		}
 		t.setOutputProperty(OutputKeys.INDENT, "yes");
-		t.setParameter(OutputKeys.STANDALONE, "yes");
+		t.setOutputProperty(OutputKeys.STANDALONE, "yes");
 		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
 		Result r = new StreamResult(stream);
@@ -537,7 +564,8 @@ public class SimulationConfig implements SimulationParams {
 	@Override
 	public List<String> getPluginParameters() {
 		List<String> result = new ArrayList<String>();
-		result.addAll(this.prodParams[0].getStatePluginKeys());
+		if (this.prodParams != null && this.prodParams[0] != null)
+			result.addAll(this.prodParams[0].getStatePluginKeys());
 		result.addAll(this.tempParams.getStatePluginKeys());
 
 		return result;

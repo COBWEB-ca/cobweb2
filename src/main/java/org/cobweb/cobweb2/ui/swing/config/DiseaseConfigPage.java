@@ -10,6 +10,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import org.cobweb.cobweb2.disease.DiseaseParams;
+import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
 
 /**
@@ -26,11 +27,11 @@ public class DiseaseConfigPage implements ConfigPage {
 	 *
 	 * @param params the agent specific disease parameters
 	 */
-	public DiseaseConfigPage(DiseaseParams[] params, ColorLookup agentColors) {
+	public DiseaseConfigPage(DiseaseParams[] params, ChoiceCatalog choiceCatalog, ColorLookup agentColors) {
 		ConfigTableModel ctm = new ConfigTableModel(params, "Agent");
-		confTable = new MixedValueJTable();
+		ctm.choiceCatalog = choiceCatalog;
+		confTable = new MixedValueJTable(ctm);
 		confTable.setRowHeight(20);
-		confTable.setModel(ctm);
 		JScrollPane sp = new JScrollPane(confTable);
 
 		Util.makeGroupPanel(sp, "Disease Parameters");

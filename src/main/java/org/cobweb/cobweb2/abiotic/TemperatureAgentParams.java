@@ -1,14 +1,15 @@
 package org.cobweb.cobweb2.abiotic;
 
-import org.cobweb.cobweb2.interconnect.Phenotype;
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
+import org.cobweb.cobweb2.core.NullPhenotype;
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterSerializable;
 
 /**
  * Contains temperature parameters that are agent type specific.
  */
-public class TemperatureAgentParams extends AbstractReflectionParams {
+public class TemperatureAgentParams implements ParameterSerializable {
 
 	private static final long serialVersionUID = -832525422408970835L;
 
@@ -35,5 +36,5 @@ public class TemperatureAgentParams extends AbstractReflectionParams {
 
 	@ConfXMLTag("Parameter")
 	@ConfDisplayName("Parameter")
-	public Phenotype parameter = new Phenotype();
+	public Phenotype parameter = new NullPhenotype();
 }

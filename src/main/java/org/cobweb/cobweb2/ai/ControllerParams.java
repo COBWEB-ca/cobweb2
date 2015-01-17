@@ -1,13 +1,13 @@
 package org.cobweb.cobweb2.ai;
 
-import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.io.CobwebParam;
+import org.cobweb.cobweb2.core.params.AgentFoodCountable;
+import org.cobweb.io.ParameterSerializable;
 
 /**
  * Configuration for a Controller
  */
-public interface ControllerParams extends CobwebParam {
+public interface ControllerParams extends ParameterSerializable {
 
 	/**
 	 * Updates configuration for the new number of agent/resource types

@@ -3,17 +3,16 @@
  */
 package org.cobweb.cobweb2.ai;
 
-import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.params.AgentFoodCountable;
 import org.cobweb.cobweb2.core.params.SimulationParams;
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 
 /**
  * Parameters for GeneticController
  */
-public class GeneticControllerParams extends AbstractReflectionParams implements ControllerParams {
+public class GeneticControllerParams implements ControllerParams {
 
 	private static final long serialVersionUID = -1252142643022378114L;
 

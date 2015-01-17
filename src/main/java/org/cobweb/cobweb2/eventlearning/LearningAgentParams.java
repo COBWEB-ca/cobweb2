@@ -1,15 +1,23 @@
 package org.cobweb.cobweb2.eventlearning;
 
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterSerializable;
 
 
-public class LearningAgentParams extends AbstractReflectionParams {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 6152370881108746535L;
+public class LearningAgentParams implements ParameterSerializable {
+
+	@ConfXMLTag("Learns")
+	@ConfDisplayName("Agent learns")
+	public boolean shouldLearn = false;
+
+	@ConfXMLTag("LearnFromDifferentOthers")
+	@ConfDisplayName("Learn from dissimilar agents")
+	public boolean learnFromDifferentOthers = false;
+
+	@ConfXMLTag("LearnFromOthers")
+	@ConfDisplayName("Learn from other agents")
+	public boolean learnFromOthers = false;
 
 	@ConfXMLTag("BroadcastPleasure")
 	@ConfDisplayName("Affection for broadcasting")
@@ -31,18 +39,6 @@ public class LearningAgentParams extends AbstractReflectionParams {
 	@ConfDisplayName("Emotional value when spared")
 	public float sparedEmotion = 0.8f;
 
-	@ConfXMLTag("Learns")
-	@ConfDisplayName("Agent learns")
-	public boolean shouldLearn;
-
-	@ConfXMLTag("LearnFromDifferentOthers")
-	@ConfDisplayName("Learn from dissimilar agents")
-	public boolean learnFromDifferentOthers;
-
-	@ConfXMLTag("LearnFromOthers")
-	@ConfDisplayName("Learn from other agents")
-	public boolean learnFromOthers;
-
 	@ConfXMLTag("ChildrenLove")
 	@ConfDisplayName("Affection for children")
 	public float emotionForChildren = 0;
@@ -63,4 +59,6 @@ public class LearningAgentParams extends AbstractReflectionParams {
 			throw new RuntimeException(ex);
 		}
 	}
+
+	private static final long serialVersionUID = 6152370881108746535L;
 }

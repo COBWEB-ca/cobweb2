@@ -5,10 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.cobweb.cobweb2.io.DynamicConfInstantiator;
-
+/**
+ * This field should not have its own configuration section, any child properties should be merged with parent
+ * Has priority over {@link ConfXMLTag}
+ */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ConfDynamicInstance {
-	Class<? extends DynamicConfInstantiator> value();
+public @interface ConfSquishParent {
 }

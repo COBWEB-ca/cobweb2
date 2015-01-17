@@ -1,13 +1,13 @@
 package org.cobweb.cobweb2.core.params;
 
-import org.cobweb.cobweb2.io.AbstractReflectionParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterSerializable;
 
 /**
  * Prisoner's Dilemma parameters
  */
-public class PDParams extends AbstractReflectionParams {
+public class PDParams implements ParameterSerializable {
 
 	private static final long serialVersionUID = 1380425322335531943L;
 

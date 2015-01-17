@@ -21,6 +21,7 @@ import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
+import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -61,7 +62,7 @@ public class PopulationSampler {
 		for (Agent agent : sim.theEnvironment.getAgents()) {
 			if (currentPopCount > totalPop)
 				break;
-			Node node = makeNode((ComplexAgent) agent, d);
+			Node node = makeNode(sim.simulationConfig.serializer, (ComplexAgent) agent, d);
 
 			root.appendChild(node);
 
@@ -89,7 +90,7 @@ public class PopulationSampler {
 	}
 
 
-	private static Node makeNode(ComplexAgent a, Document d) {
+	private static Node makeNode(ParameterSerializer serializer, ComplexAgent a, Document d) {
 
 		Node agent = d.createElement("Agent");
 
@@ -99,7 +100,7 @@ public class PopulationSampler {
 
 		Element paramsElement = d.createElement("params");
 
-		a.params.saveConfig(paramsElement, d);
+		serializer.save(a.params, paramsElement, d);
 
 		agent.appendChild(paramsElement);
 
@@ -171,7 +172,8 @@ public class PopulationSampler {
 
 				LocationDirection locDir = new LocationDirection(loc, facing);
 
-				params.loadConfig(paramNode);
+
+				sim.simulationConfig.serializer.load(params, paramNode);
 
 				// doCheat
 				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());

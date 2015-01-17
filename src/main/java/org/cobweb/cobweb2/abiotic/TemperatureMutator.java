@@ -5,10 +5,10 @@ import java.util.Collection;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
+import org.cobweb.cobweb2.core.params.AgentFoodCountable;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
 import org.cobweb.cobweb2.interconnect.StepMutator;
 
@@ -82,8 +82,8 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
 
 		float f = locToPenalty(agent.getPosition(), aPar);
-		if (aPar.parameter.field != null)
-			aPar.parameter.modifyValue(agent, 1, f);
+
+		aPar.parameter.modifyValue(agent, 1, f);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 
 		float delta = toFactor - fromFactor;
 
-		if (Math.abs(delta) < 1e-10 && aPar.parameter.field != null) {
+		if (Math.abs(delta) < 1e-10) {
 			aPar.parameter.modifyValue(agent, 1, delta);
 		}
 	}
@@ -131,7 +131,8 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 
 	@Override
 	public List<StateParameter> getParameters() {
-		return Arrays.asList((StateParameter)new AbioticStatePenalty());
+		return Arrays.asList(
+				(StateParameter)new AbioticStatePenalty());
 	}
 
 	/**

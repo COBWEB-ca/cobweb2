@@ -10,9 +10,8 @@ import org.cobweb.cobweb2.RandomSource;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.interconnect.Phenotype;
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
-import org.cobweb.io.ConfDisplayName;
 
 /**
  * GeneticsMutator is an instance of SpawnMutator.
@@ -55,7 +54,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	@Override
 	public Collection<String> logDataAgent(int agentType) {
 		List<String> s = new LinkedList<String>();
-		for (int i = 0; i < params.geneCount; i++) {
+		for (int i = 0; i < params.getGeneCount(); i++) {
 			s.add(Double.toString(tracker.getAvgStatus(agentType, i)));
 		}
 		return s;
@@ -69,8 +68,8 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	@Override
 	public Collection<String> logHeadersAgent() {
 		List<String> s = new LinkedList<String>();
-		for (int i = 0; i < params.geneCount; i++) {
-			s.add("Avg. Gene: " + params.phenotype[i].field.getAnnotation(ConfDisplayName.class).value());
+		for (int i = 0; i < params.getGeneCount(); i++) {
+			s.add("Avg. Gene: " + params.phenotype[i]);
 		}
 		return s;
 	}
@@ -85,8 +84,6 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 			GeneticCode gc = getGene(agent);
 
 			Phenotype pheno = params.phenotype[i];
-			if (pheno.field == null)
-				continue;
 
 			// Get the appropriate coefficient associated with the gene value
 			// Coefficient = absolute value of 2*sin(x), x being attribute value
@@ -109,8 +106,8 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 
 	@Override
 	public void onSpawn(Agent agent) {
-		GeneticCode genetic_code = new GeneticCode(params.geneCount);
-		for (int i = 0; i < params.geneCount; i++) {
+		GeneticCode genetic_code = new GeneticCode(params.getGeneCount());
+		for (int i = 0; i < params.getGeneCount(); i++) {
 			genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.getType()][i], 0);
 		}
 		genes.put(agent, genetic_code);
@@ -137,7 +134,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 			gc2 = gc1;
 		}
 
-		switch (params.meiosisMode.mode) {
+		switch (params.meiosisMode) {
 			case ColourAveraging:
 				genetic_code = GeneticCode.createGeneticCodeMeiosisAverage(gc1, gc2);
 				break;
@@ -156,7 +153,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	protected void mutateAndSave(Agent agent, float mutationRate, GeneticCode genetic_code) {
 		if (genetic_code.getNumGenes() > 0) {
 			if (simulation.getRandom().nextFloat() <= mutationRate) {
-				genetic_code.mutate(simulation.getRandom().nextInt(params.geneCount * params.geneLength));
+				genetic_code.mutate(simulation.getRandom().nextInt(params.getGeneCount() * params.geneLength));
 			}
 		}
 
@@ -176,7 +173,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 		if (tracker == null)
 			this.tracker = new GATracker();
 
-		tracker.setParams(agentCount, params.geneCount);
+		tracker.setParams(agentCount, params.getGeneCount());
 	}
 
 	@Override

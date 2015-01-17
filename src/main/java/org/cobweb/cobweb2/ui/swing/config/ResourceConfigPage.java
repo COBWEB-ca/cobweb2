@@ -16,8 +16,7 @@ public class ResourceConfigPage implements ConfigPage {
 	private JPanel myPanel = new JPanel();
 
 	public ResourceConfigPage(ComplexFoodParams[] params, ColorLookup agentColors) {
-		resourceParamTable = new MixedValueJTable();
-		resourceParamTable.setModel(new ConfigTableModel(params, "Food "));
+		resourceParamTable = new MixedValueJTable(new ConfigTableModel(params, "Food "));
 
 		TableColumnModel colModel = resourceParamTable.getColumnModel();
 		colModel.getColumn(0).setPreferredWidth(120);
