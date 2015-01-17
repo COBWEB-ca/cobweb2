@@ -20,4 +20,6 @@ public abstract class Phenotype implements ParameterChoice {
 	public String toString() {
 		return getName();
 	}
+
+	private static final long serialVersionUID = 2L;
 }

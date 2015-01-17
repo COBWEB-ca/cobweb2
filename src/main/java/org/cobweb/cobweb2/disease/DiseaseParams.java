@@ -14,9 +14,6 @@ public class DiseaseParams implements ParameterSerializable {
 
 	private static final long serialVersionUID = 6866958975246266955L;
 
-	@ConfXMLTag("Index")
-	public int type;
-
 	/**
 	 * Fraction of initially infected agents.
 	 */

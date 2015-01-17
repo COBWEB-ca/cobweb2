@@ -65,7 +65,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	 * Events are queued using this method
 	 * @param act The action to add to the queue.
 	 */
-	public void queue(Queueable act) {
+	protected void queue(Queueable act) {
 		if (act == null) {
 			return;
 		}

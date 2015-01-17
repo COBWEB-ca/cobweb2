@@ -20,4 +20,5 @@ public class NullPhenotype extends Phenotype {
 		return "[Null]";
 	}
 
+	private static final long serialVersionUID = 2L;
 }

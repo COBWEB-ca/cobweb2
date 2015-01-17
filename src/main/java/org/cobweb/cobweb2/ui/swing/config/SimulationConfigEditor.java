@@ -152,7 +152,7 @@ public class SimulationConfigEditor {
 	private DisplaySettings displaySettings;
 
 	// SimulationConfigEditor Special Constructor
-	public SimulationConfigEditor(Window parent, String filename, boolean allowModify, DisplaySettings dispSettings) {
+	private SimulationConfigEditor(Window parent, String filename, boolean allowModify, DisplaySettings dispSettings) {
 		this.displaySettings = dispSettings;
 		dialog = new JDialog(parent, WINDOW_TITLE, Dialog.DEFAULT_MODALITY_TYPE);
 

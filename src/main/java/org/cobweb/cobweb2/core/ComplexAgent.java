@@ -66,7 +66,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		this.simulation = sim;
 	}
 
-	protected Controller controller;
+	private Controller controller;
 
 	protected AgentListener getAgentListener() {
 		return simulation.getAgentListener();
@@ -180,7 +180,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		}
 	}
 
-	void broadcastCheating(long cheaterID) { // []SK
+	protected void broadcastCheating(long cheaterID) { // []SK
 		String message = Long.toString(cheaterID);
 		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, stats.id, message, energy
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
@@ -262,7 +262,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 
-	BroadcastPacket checkforBroadcasts() {
+	protected BroadcastPacket checkforBroadcasts() {
 		return environment.commManager.findPacket(getPosition());
 	}
 
@@ -585,14 +585,14 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		}
 	}
 
-	void receiveCheatingBroadcast(BroadcastPacket commPacket) {
+	protected void receiveCheatingBroadcast(BroadcastPacket commPacket) {
 		String message = commPacket.getContent();
 		long cheaterId = 0;
 		cheaterId = Long.parseLong(message);
 		photo_memory[photo_num] = cheaterId;
 	}
 
-	void receiveFoodBroadcast(BroadcastPacket commPacket) {
+	protected void receiveFoodBroadcast(BroadcastPacket commPacket) {
 		String message = commPacket.getContent();
 		String[] xy = message.substring(1, message.length() - 1).split(",");
 		int x = Integer.parseInt(xy[0]);

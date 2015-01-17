@@ -1,10 +1,12 @@
 package org.cobweb.io;
 
+import java.io.Serializable;
+
 
 /**
  * Parameter value that is one of multiple choices available
  */
-public interface ParameterChoice {
+public interface ParameterChoice extends Serializable {
 
 	/**
 	 * Unique Identifier for this choice.

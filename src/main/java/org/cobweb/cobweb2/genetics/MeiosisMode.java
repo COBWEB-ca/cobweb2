@@ -20,7 +20,7 @@ public enum MeiosisMode {
 	 * @return MeiosisMode with given name
 	 * @throws IllegalArgumentException when no MeiosisMode has given friendly name
 	 */
-	public static MeiosisMode fromString(String s) {
+	public static MeiosisMode fromString(String s) { // NO_UCD called through reflection
 		for (MeiosisMode m : MeiosisMode.values()) {
 			if (m.value.equals(s))
 				return m;

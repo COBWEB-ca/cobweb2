@@ -156,11 +156,11 @@ public class ConfigUpgrader {
 		} finally {
 			try { inStream.close(); } catch (IOException ex2) {}
 			try { outStream.close(); } catch (IOException ex2) {}
-			try { xsltStream.close(); } catch (IOException ex2) {}
+			try { if (xsltStream != null) xsltStream.close(); } catch (IOException ex2) {}
 		}
 	}
 
-	protected static Document loadDocument(InputStream file) {
+	private static Document loadDocument(InputStream file) {
 		// DOM initialization
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setIgnoringElementContentWhitespace(true);

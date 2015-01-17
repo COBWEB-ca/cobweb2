@@ -18,7 +18,7 @@ import org.cobweb.util.ReflectionUtil;
  */
 public class FieldPhenotype extends Phenotype {
 
-	public Field field = null;
+	private Field field = null;
 
 	@Override
 	public boolean equals(Object obj) {
@@ -40,7 +40,7 @@ public class FieldPhenotype extends Phenotype {
 	 *
 	 * @param f field to modify
 	 */
-	public FieldPhenotype(Field f) {
+	private FieldPhenotype(Field f) {
 		if (f != null &&
 				(f.getAnnotation(GeneMutatable.class) == null || f.getAnnotation(ConfDisplayName.class) == null))
 			throw new IllegalArgumentException("Field must be labeled as @GeneMutatable and have a @ConfDisplayName");
@@ -74,4 +74,6 @@ public class FieldPhenotype extends Phenotype {
 		}
 		return Collections.unmodifiableSet(bindables);
 	}
+
+	private static final long serialVersionUID = 2L;
 }

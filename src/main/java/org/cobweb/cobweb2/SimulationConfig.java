@@ -128,7 +128,6 @@ public class SimulationConfig implements SimulationParams {
 		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			diseaseParams[i] = new DiseaseParams(envParams);
-			diseaseParams[i].type = i;
 		}
 
 		prodParams = new ProductionParams[envParams.getAgentTypes()];
