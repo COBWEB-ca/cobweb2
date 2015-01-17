@@ -2,8 +2,9 @@ package org.cobweb.cobweb2.disease;
 
 import java.util.Arrays;
 
+import org.cobweb.cobweb2.core.NullPhenotype;
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.core.params.AgentFoodCountable;
-import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
@@ -42,7 +43,7 @@ public class DiseaseParams implements ParameterSerializable {
 	 */
 	@ConfXMLTag("parameter")
 	@ConfDisplayName("Parameter")
-	public Phenotype param = new Phenotype();
+	public Phenotype param = new NullPhenotype();
 
 	/**
 	 * The factor the parameter is multiplied by when the agent is infected.

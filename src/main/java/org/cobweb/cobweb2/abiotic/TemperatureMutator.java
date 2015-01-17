@@ -82,8 +82,8 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
 
 		float f = locToPenalty(agent.getPosition(), aPar);
-		if (aPar.parameter.field != null)
-			aPar.parameter.modifyValue(agent, 1, f);
+
+		aPar.parameter.modifyValue(agent, 1, f);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 
 		float delta = toFactor - fromFactor;
 
-		if (Math.abs(delta) < 1e-10 && aPar.parameter.field != null) {
+		if (Math.abs(delta) < 1e-10) {
 			aPar.parameter.modifyValue(agent, 1, delta);
 		}
 	}

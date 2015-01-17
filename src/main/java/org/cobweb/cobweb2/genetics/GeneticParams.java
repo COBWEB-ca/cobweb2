@@ -5,8 +5,8 @@ package org.cobweb.cobweb2.genetics;
 
 import java.util.Arrays;
 
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.core.params.AgentFoodCountable;
-import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfSquishParent;

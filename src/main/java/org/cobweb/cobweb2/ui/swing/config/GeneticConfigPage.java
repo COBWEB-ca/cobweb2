@@ -23,8 +23,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.genetics.GeneticParams;
-import org.cobweb.cobweb2.interconnect.Phenotype;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;

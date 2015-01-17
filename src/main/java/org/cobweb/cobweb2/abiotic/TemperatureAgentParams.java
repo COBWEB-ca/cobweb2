@@ -1,6 +1,7 @@
 package org.cobweb.cobweb2.abiotic;
 
-import org.cobweb.cobweb2.interconnect.Phenotype;
+import org.cobweb.cobweb2.core.NullPhenotype;
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
@@ -35,5 +36,5 @@ public class TemperatureAgentParams implements ParameterSerializable {
 
 	@ConfXMLTag("Parameter")
 	@ConfDisplayName("Parameter")
-	public Phenotype parameter = new Phenotype();
+	public Phenotype parameter = new NullPhenotype();
 }

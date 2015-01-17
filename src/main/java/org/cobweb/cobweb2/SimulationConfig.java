@@ -30,6 +30,8 @@ import org.cobweb.cobweb2.ai.GeneticControllerParams;
 import org.cobweb.cobweb2.compatibility.ConfigUpgrader;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.NullPhenotype;
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.core.params.AgentFoodCountable;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
@@ -39,7 +41,7 @@ import org.cobweb.cobweb2.disease.DiseaseParams;
 import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
 import org.cobweb.cobweb2.eventlearning.LearningParams;
 import org.cobweb.cobweb2.genetics.GeneticParams;
-import org.cobweb.cobweb2.interconnect.Phenotype;
+import org.cobweb.cobweb2.interconnect.FieldPhenotype;
 import org.cobweb.cobweb2.production.ProductionParams;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
@@ -99,7 +101,8 @@ public class SimulationConfig implements SimulationParams {
 	 */
 	public SimulationConfig() {
 		choiceCatalog = new ChoiceCatalog();
-		for(Phenotype x : Phenotype.getPossibleValues()) {
+		choiceCatalog.addChoice(Phenotype.class, new NullPhenotype());
+		for(Phenotype x : FieldPhenotype.getPossibleValues()) {
 			choiceCatalog.addChoice(Phenotype.class, x);
 		}
 

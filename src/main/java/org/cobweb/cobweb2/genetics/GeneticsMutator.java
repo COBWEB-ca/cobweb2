@@ -10,9 +10,8 @@ import org.cobweb.cobweb2.RandomSource;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.interconnect.Phenotype;
+import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.interconnect.SpawnMutator;
-import org.cobweb.io.ConfDisplayName;
 
 /**
  * GeneticsMutator is an instance of SpawnMutator.
@@ -85,8 +84,6 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 			GeneticCode gc = getGene(agent);
 
 			Phenotype pheno = params.phenotype[i];
-			if (pheno.field == null)
-				continue;
 
 			// Get the appropriate coefficient associated with the gene value
 			// Coefficient = absolute value of 2*sin(x), x being attribute value
