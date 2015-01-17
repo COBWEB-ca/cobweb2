@@ -5,9 +5,8 @@ import org.cobweb.cobweb2.core.params.AgentFoodCountable;
 import org.cobweb.cobweb2.core.params.SimulationParams;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
-import org.cobweb.io.ParameterSerializable;
 
-public class LinearWeightsControllerParams implements ControllerParams, ParameterSerializable {
+public class LinearWeightsControllerParams implements ControllerParams {
 
 	private static final long serialVersionUID = 8856565519749448009L;
 

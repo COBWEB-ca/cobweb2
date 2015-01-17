@@ -70,7 +70,7 @@ public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator 
 	public Collection<String> logHeadersAgent() {
 		List<String> s = new LinkedList<String>();
 		for (int i = 0; i < params.getGeneCount(); i++) {
-			s.add("Avg. Gene: " + params.phenotype[i].field.getAnnotation(ConfDisplayName.class).value());
+			s.add("Avg. Gene: " + params.phenotype[i]);
 		}
 		return s;
 	}

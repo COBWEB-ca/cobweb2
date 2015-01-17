@@ -132,10 +132,9 @@ public class ParameterSerializer {
 			newValue = loadEnum(type, objectNode.getFirstChild().getNodeValue());
 
 		} else if (ParameterChoice.class.isAssignableFrom(type)) {
-			ParameterChoice inner = (ParameterChoice) currentValue;
 			@SuppressWarnings("unchecked")
 			Class<? extends ParameterChoice> dynamicType = (Class<? extends ParameterChoice>) type;
-			newValue = loadChoice(dynamicType, inner, objectNode);
+			newValue = loadChoice(dynamicType,objectNode);
 
 		} else if (ParameterSerializable.class.isAssignableFrom(type)) {
 			ParameterSerializable inner = (ParameterSerializable) currentValue;
@@ -166,7 +165,7 @@ public class ParameterSerializer {
 
 		} else if (ParameterChoice.class.isAssignableFrom(type)) {
 			ParameterChoice inner = (ParameterChoice) value;
-			saveChoice(inner, tag, doc);
+			saveChoice(inner, tag);
 
 		} else if (ParameterSerializable.class.isAssignableFrom(type)) {
 			ParameterSerializable inner = (ParameterSerializable) value;
@@ -359,7 +358,7 @@ public class ParameterSerializer {
 		}
 	}
 
-	private ParameterChoice loadChoice(Class<? extends ParameterChoice> type, ParameterChoice obj, Node node) {
+	protected ParameterChoice loadChoice(Class<? extends ParameterChoice> type, Node node) {
 		String identifier = node.getTextContent();
 		for (ParameterChoice x : parts.getChoices(type)) {
 			if (identifier == null && x.getIdentifier() == null)
@@ -371,7 +370,7 @@ public class ParameterSerializer {
 	}
 
 
-	private void saveChoice(ParameterChoice obj, Element node, Document doc) {
+	protected void saveChoice(ParameterChoice obj, Element node) {
 		node.setTextContent(obj.getIdentifier());
 	}
 }
