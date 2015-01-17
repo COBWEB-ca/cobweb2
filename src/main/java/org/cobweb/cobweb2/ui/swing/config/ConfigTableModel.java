@@ -12,6 +12,7 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 
 import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ConfMap;
 import org.cobweb.util.ReflectionUtil;
 
 /**
@@ -107,6 +108,11 @@ public class ConfigTableModel extends AbstractTableModel {
 		public String toString() {
 			return super.toString() + "[" + key + "]";
 		}
+
+		@Override
+		public Class<?> getDeclaredClass() {
+			return field.getAnnotation(ConfMap.class).valueClass();
+		}
 	}
 
 	private class MyArrayField extends MyField {
@@ -138,7 +144,11 @@ public class ConfigTableModel extends AbstractTableModel {
 				return;
 				//throw new UserInputException("Invalid Value");
 			}
+		}
 
+		@Override
+		public Class<?> getDeclaredClass() {
+			return super.getDeclaredClass().getComponentType();
 		}
 	}
 
@@ -147,7 +157,7 @@ public class ConfigTableModel extends AbstractTableModel {
 			field = f;
 		}
 
-		private Field field;
+		protected Field field;
 
 		@Override
 		public String toString() {
@@ -173,6 +183,10 @@ public class ConfigTableModel extends AbstractTableModel {
 				return;
 				//throw new UserInputException("Invalid Value");
 			}
+		}
+
+		public Class<?> getDeclaredClass() {
+			return field.getType();
 		}
 	}
 
