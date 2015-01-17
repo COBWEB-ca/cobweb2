@@ -53,10 +53,6 @@ public class ParameterSerializer {
 			if (f == null)
 				continue;
 			try {
-				if (n.getFirstChild() == null) {
-					// FIXME: shouldn't happen?
-					continue;
-				}
 
 				Object currentValue = f.get(obj);
 
@@ -138,7 +134,6 @@ public class ParameterSerializer {
 
 		} else if (ParameterSerializable.class.isAssignableFrom(type)) {
 			ParameterSerializable inner = (ParameterSerializable) currentValue;
-			// FIXME: create ParameterSerializable dynamically here
 			if (inner == null)
 				try {
 					inner = (ParameterSerializable) type.newInstance();

@@ -272,7 +272,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	private void copyParams(ComplexAgent p) {
 		// Copies default constants for this agent type, not directly from agent
-		// TODO: should copy directly?
 		setParams(environment.agentData[p.getType()]);
 		pdCheater = p.pdCheater;
 	}
