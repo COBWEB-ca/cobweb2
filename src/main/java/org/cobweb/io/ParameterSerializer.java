@@ -26,7 +26,7 @@ public class ParameterSerializer {
 	 * @param obj The type of object parameters.
 	 * @param root The root node of the tree.
 	 */
-	public static ParameterSerializable load(ParameterSerializable obj, Node root) {
+	public ParameterSerializable load(ParameterSerializable obj, Node root) {
 		Class<?> T = obj.getClass();
 
 		Map<String, Field> fields = new LinkedHashMap<String, Field>();
@@ -89,7 +89,7 @@ public class ParameterSerializer {
 	 * @param config Initial node to add data fields to.
 	 * @param doc Data file fields are saved to.
 	 */
-	public static void save(ParameterSerializable obj, Node config, Document doc) {
+	public void save(ParameterSerializable obj, Node config, Document doc) {
 		Class<?> T = obj.getClass();
 
 		for (Field f : T.getFields()) {
@@ -159,7 +159,7 @@ public class ParameterSerializer {
 		return newValue;
 	}
 
-	private static void saveObject(Class<?> type, AnnotatedElement annotationSource, Object value, Element tag, Document doc) {
+	private void saveObject(Class<?> type, AnnotatedElement annotationSource, Object value, Element tag, Document doc) {
 		if (isPrimitive(type) || type.isEnum()) {
 			tag.setTextContent(value.toString());
 
@@ -178,13 +178,13 @@ public class ParameterSerializer {
 		}
 	}
 
-	private static Object loadArray(Class<?> arrayType, AnnotatedElement arrayAnnotations,
+	private Object loadArray(Class<?> arrayType, AnnotatedElement arrayAnnotations,
 			Object currentArray, Node arrayNode)
 					throws IllegalArgumentException, IllegalAccessException {
 		return loadArray(arrayType, arrayAnnotations, currentArray, 0, arrayNode);
 	}
 
-	private static Object loadArray(Class<?> arrayType, AnnotatedElement arrayAnnotations,
+	private Object loadArray(Class<?> arrayType, AnnotatedElement arrayAnnotations,
 			Object currentArray, int depth, Node arrayNode)
 					throws IllegalArgumentException, IllegalAccessException {
 
@@ -228,11 +228,12 @@ public class ParameterSerializer {
 		return newArray;
 	}
 
-	private static void saveArray(Class<?> arrayType, AnnotatedElement arrayAnnotations, Object array,
+	private void saveArray(Class<?> arrayType, AnnotatedElement arrayAnnotations, Object array,
 			Element tag, Document doc) {
 		saveArray(arrayType, arrayAnnotations, array, 0, tag, doc);
 	}
-	private static void saveArray(Class<?> arrayType, AnnotatedElement arrayAnnotations, Object array, int depth,
+
+	private void saveArray(Class<?> arrayType, AnnotatedElement arrayAnnotations, Object array, int depth,
 			Element tag, Document doc) {
 
 		Class<?> componentType = arrayType.getComponentType();
@@ -259,7 +260,7 @@ public class ParameterSerializer {
 		}
 	}
 
-	protected static boolean canSerializeArray(Class<?> componentType) {
+	protected boolean canSerializeArray(Class<?> componentType) {
 		for (Class<?> ct = componentType; ; ct = ct.getComponentType()) {
 			if (isPrimitive(ct) || canSerializeDirectly(ct))
 				return true;
@@ -268,7 +269,7 @@ public class ParameterSerializer {
 		}
 	}
 
-	private static Object loadMap(AnnotatedElement mapAnnotations, Object currentMap, Node mapNode)
+	private Object loadMap(AnnotatedElement mapAnnotations, Object currentMap, Node mapNode)
 			throws IllegalArgumentException, IllegalAccessException {
 
 		ConfMap mapOptions = mapAnnotations.getAnnotation(ConfMap.class);
@@ -300,7 +301,7 @@ public class ParameterSerializer {
 		return result;
 	}
 
-	private static void saveMap(AnnotatedElement mapAnnotations, Object currentMap, Element tag,
+	private void saveMap(AnnotatedElement mapAnnotations, Object currentMap, Element tag,
 			Document doc) {
 
 		ConfMap mapOptions = mapAnnotations.getAnnotation(ConfMap.class);
@@ -322,15 +323,15 @@ public class ParameterSerializer {
 
 
 
-	protected static boolean isPrimitive(Class<?> t) {
+	protected boolean isPrimitive(Class<?> t) {
 		return t.isPrimitive() || t.equals(String.class);
 	}
 
-	protected static boolean canSerializeDirectly(Class<?> T) {
+	protected boolean canSerializeDirectly(Class<?> T) {
 		return ParameterSerializable.class.isAssignableFrom(T);
 	}
 
-	protected static Object loadEnum(Class<?> type, String text) {
+	protected Object loadEnum(Class<?> type, String text) {
 		try {
 			// Simple enums
 			@SuppressWarnings({ "unchecked", "rawtypes" })

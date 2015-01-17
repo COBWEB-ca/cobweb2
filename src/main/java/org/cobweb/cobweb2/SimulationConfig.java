@@ -68,6 +68,8 @@ public class SimulationConfig implements SimulationParams {
 		}
 	}
 
+	public ParameterSerializer serializer;
+
 	private String fileName = null;
 
 	private ComplexEnvironmentParams envParams;
@@ -92,6 +94,8 @@ public class SimulationConfig implements SimulationParams {
 	 * Creates the default Cobweb simulation parameters.
 	 */
 	public SimulationConfig() {
+		serializer = new ParameterSerializer();
+
 		envParams = new ComplexEnvironmentParams();
 		setDefaultClassReferences();
 
@@ -271,7 +275,7 @@ public class SimulationConfig implements SimulationParams {
 		envParams = new ComplexEnvironmentParams();
 		setDefaultClassReferences();
 
-		ParameterSerializer.load(envParams, root);
+		serializer.load(envParams, root);
 
 		ConfigUpgrader.upgrade(envParams);
 
@@ -298,11 +302,11 @@ public class SimulationConfig implements SimulationParams {
 			String nodeName = node.getNodeName();
 
 			if (nodeName.equals("ga")) {
-				ParameterSerializer.load(geneticParams, node);
+				serializer.load(geneticParams, node);
 
 			} else if (nodeName.equals("agent")) {
 				ComplexAgentParams p = new ComplexAgentParams(envParams);
-				ParameterSerializer.load(p, node);
+				serializer.load(p, node);
 				if (p.type < 0)
 					p.type = agent++;
 				if (p.type >= envParams.getAgentTypes())
@@ -310,7 +314,7 @@ public class SimulationConfig implements SimulationParams {
 				agentParams[p.type] = p;
 			} else if (nodeName.equals("production")) {
 				ProductionParams p = new ProductionParams();
-				ParameterSerializer.load(p, node);
+				serializer.load(p, node);
 				if (p.type < 0)
 					p.type = prod++;
 				if (p.type >= envParams.getAgentTypes())
@@ -318,7 +322,7 @@ public class SimulationConfig implements SimulationParams {
 				prodParams[p.type] = p;
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
-				ParameterSerializer.load(p, node);
+				serializer.load(p, node);
 				if (p.type < 0)
 					p.type = food++;
 
@@ -329,9 +333,9 @@ public class SimulationConfig implements SimulationParams {
 			} else if (nodeName.equals("disease")) {
 				parseDiseaseParams(node);
 			} else if (nodeName.equals("Temperature")) {
-				ParameterSerializer.load(tempParams, node);
+				serializer.load(tempParams, node);
 			} else if (nodeName.equals("Learning")) {
-				ParameterSerializer.load(learningParams, node);
+				serializer.load(learningParams, node);
 			} else if (nodeName.equals("ControllerConfig")){
 				// FIXME: this is initialized after everything else because
 				// Controllers use SimulationParams.getPluginParameters()
@@ -344,7 +348,7 @@ public class SimulationConfig implements SimulationParams {
 				} catch (Exception ex) {
 					throw new RuntimeException("Could not set up controller", ex);
 				}
-				ParameterSerializer.load(controllerParams, node);
+				serializer.load(controllerParams, node);
 			}
 		}
 		for (int i = 0; i < agentParams.length; i++) {
@@ -375,7 +379,7 @@ public class SimulationConfig implements SimulationParams {
 			if (i >= envParams.getAgentTypes())
 				break;
 			DiseaseParams dp = new DiseaseParams(envParams);
-			ParameterSerializer.load(dp, n);
+			serializer.load(dp, n);
 			diseaseParams[i] = dp;
 		}
 		for (int i = 0; i < diseaseParams.length; i++) {
@@ -399,50 +403,50 @@ public class SimulationConfig implements SimulationParams {
 		root.setAttribute("config-version", "2015-01-14");
 		root.setAttribute("cobweb-version", Versionator.getVersion());
 
-		ParameterSerializer.save(envParams, root, d);
+		serializer.save(envParams, root, d);
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			Node node = d.createElement("agent");
-			ParameterSerializer.save(agentParams[i], node, d);
+			serializer.save(agentParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			Node node = d.createElement("production");
-			ParameterSerializer.save(prodParams[i], node, d);
+			serializer.save(prodParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		for (int i = 0; i < envParams.getFoodTypes(); i++) {
 			Node node = d.createElement("food");
-			ParameterSerializer.save(foodParams[i], node, d);
+			serializer.save(foodParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		Node ga = d.createElement("ga");
-		ParameterSerializer.save(geneticParams, ga, d);
+		serializer.save(geneticParams, ga, d);
 
 		root.appendChild(ga);
 
 		Node disease = d.createElement("disease");
 		for (DiseaseParams diseaseParam : diseaseParams) {
 			Node node = d.createElement("agent");
-			ParameterSerializer.save(diseaseParam, node, d);
+			serializer.save(diseaseParam, node, d);
 			disease.appendChild(node);
 		}
 		root.appendChild(disease);
 
 		Node temp = d.createElement("Temperature");
-		ParameterSerializer.save(tempParams, temp, d);
+		serializer.save(tempParams, temp, d);
 		root.appendChild(temp);
 
 		if (this.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
 			Node learn = d.createElement("Learning");
-			ParameterSerializer.save(learningParams, learn, d);
+			serializer.save(learningParams, learn, d);
 			root.appendChild(learn);
 		}
 
 		Node controller = d.createElement("ControllerConfig");
-		ParameterSerializer.save(controllerParams, controller, d);
+		serializer.save(controllerParams, controller, d);
 		root.appendChild(controller);
 
 		d.appendChild(root);

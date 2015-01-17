@@ -62,7 +62,7 @@ public class PopulationSampler {
 		for (Agent agent : sim.theEnvironment.getAgents()) {
 			if (currentPopCount > totalPop)
 				break;
-			Node node = makeNode((ComplexAgent) agent, d);
+			Node node = makeNode(sim.simulationConfig.serializer, (ComplexAgent) agent, d);
 
 			root.appendChild(node);
 
@@ -90,7 +90,7 @@ public class PopulationSampler {
 	}
 
 
-	private static Node makeNode(ComplexAgent a, Document d) {
+	private static Node makeNode(ParameterSerializer serializer, ComplexAgent a, Document d) {
 
 		Node agent = d.createElement("Agent");
 
@@ -100,7 +100,7 @@ public class PopulationSampler {
 
 		Element paramsElement = d.createElement("params");
 
-		ParameterSerializer.save(a.params, paramsElement, d);
+		serializer.save(a.params, paramsElement, d);
 
 		agent.appendChild(paramsElement);
 
@@ -172,7 +172,8 @@ public class PopulationSampler {
 
 				LocationDirection locDir = new LocationDirection(loc, facing);
 
-				ParameterSerializer.load(params, paramNode);
+
+				sim.simulationConfig.serializer.load(params, paramNode);
 
 				// doCheat
 				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
