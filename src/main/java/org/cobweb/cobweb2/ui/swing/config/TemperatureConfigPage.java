@@ -19,15 +19,13 @@ public class TemperatureConfigPage implements ConfigPage {
 	public TemperatureConfigPage(TemperatureParams params, ColorLookup agentColors) {
 
 		ConfigTableModel ctm = new ConfigTableModel(params, "Abiotic Factor");
-		bandsConf = new MixedValueJTable();
-		bandsConf.setModel(ctm);
+		bandsConf = new MixedValueJTable(ctm);
 		JScrollPane sp = new JScrollPane(bandsConf);
 		sp.setPreferredSize(new Dimension(200, 200));
 		Util.makeGroupPanel(sp, "Environment Bands");
 
 		ConfigTableModel agentConf = new ConfigTableModel(params.agentParams, "Agent");
-		agentTable = new MixedValueJTable();
-		agentTable.setModel(agentConf);
+		agentTable = new MixedValueJTable(agentConf);
 		JScrollPane sp2 = new JScrollPane(agentTable);
 		Util.makeGroupPanel(sp2, "Agent Preferences");
 		agentTable.getColumnModel().getColumn(0).setPreferredWidth(150);

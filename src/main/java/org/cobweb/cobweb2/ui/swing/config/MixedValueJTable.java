@@ -69,9 +69,13 @@ class MixedValueJTable extends JTable {
 
 	private static final long serialVersionUID = -9106510371599896107L;
 
-	public MixedValueJTable() {
+	private ConfigTableModel configModel;
+
+	public MixedValueJTable(ConfigTableModel model) {
 		super();
 		this.getTableHeader().setReorderingAllowed(false);
+		this.configModel = model;
+		setModel(model);
 	}
 
 	@Override

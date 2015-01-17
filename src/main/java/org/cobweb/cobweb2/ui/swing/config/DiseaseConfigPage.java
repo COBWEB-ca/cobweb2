@@ -28,9 +28,8 @@ public class DiseaseConfigPage implements ConfigPage {
 	 */
 	public DiseaseConfigPage(DiseaseParams[] params, ColorLookup agentColors) {
 		ConfigTableModel ctm = new ConfigTableModel(params, "Agent");
-		confTable = new MixedValueJTable();
+		confTable = new MixedValueJTable(ctm);
 		confTable.setRowHeight(20);
-		confTable.setModel(ctm);
 		JScrollPane sp = new JScrollPane(confTable);
 
 		Util.makeGroupPanel(sp, "Disease Parameters");

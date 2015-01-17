@@ -17,8 +17,7 @@ public class ProductionConfigPage implements ConfigPage {
 	public ProductionConfigPage(ProductionParams[] params, ColorLookup agentColors) {
 		prodPanel = new JPanel(new BorderLayout());
 
-		prodParamTable = new MixedValueJTable();
-		prodParamTable.setModel(new ConfigTableModel(params, "Agent "));
+		prodParamTable = new MixedValueJTable(new ConfigTableModel(params, "Agent "));
 		TableColumnModel agParamColModel = prodParamTable.getColumnModel();
 		agParamColModel.getColumn(0).setPreferredWidth(200);
 		JScrollPane sp = new JScrollPane(prodParamTable);

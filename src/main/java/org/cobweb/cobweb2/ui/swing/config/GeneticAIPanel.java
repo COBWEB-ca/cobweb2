@@ -63,8 +63,8 @@ final class GeneticAIPanel extends SettingsPanel {
 		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
 		Util.makeGroupPanel(agentPanel, "Agent Parameters");
 
-		MixedValueJTable agentParamTable = new MixedValueJTable();
-		agentParamTable.setModel(new ConfigTableModel(params.agentParams.agentParams, "Agent "));
+		MixedValueJTable agentParamTable = new MixedValueJTable(
+				new ConfigTableModel(params.agentParams.agentParams, "Agent "));
 
 		TableColumnModel agParamColModel = agentParamTable.getColumnModel();
 		// Get the column at index pColumn, and set its preferred width.

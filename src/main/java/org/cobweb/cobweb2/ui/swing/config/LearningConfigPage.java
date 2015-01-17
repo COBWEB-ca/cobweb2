@@ -16,8 +16,7 @@ public class LearningConfigPage implements ConfigPage {
 
 	public LearningConfigPage(LearningAgentParams[] params, ColorLookup agentColors) {
 		ConfigTableModel ctm = new ConfigTableModel(params, "Agent");
-		learnTable = new MixedValueJTable();
-		learnTable.setModel(ctm);
+		learnTable = new MixedValueJTable(ctm);
 		JScrollPane sp = new JScrollPane(learnTable);
 
 		Util.makeGroupPanel(sp, "Agent Learning Parameters");

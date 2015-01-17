@@ -18,8 +18,7 @@ public class AgentConfigPage implements ConfigPage {
 		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
 		Util.makeGroupPanel(agentPanel, "Agent Parameters");
 
-		agentParamTable = new MixedValueJTable();
-		agentParamTable.setModel(new ConfigTableModel(params, "Agent "));
+		agentParamTable = new MixedValueJTable(new ConfigTableModel(params, "Agent "));
 
 		TableColumnModel agParamColModel = agentParamTable.getColumnModel();
 		// Get the column at index pColumn, and set its preferred width.

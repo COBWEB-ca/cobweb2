@@ -18,13 +18,11 @@ public class FoodwebConfigPage implements ConfigPage {
 		foodPanel = new JPanel();
 		// tabbedPane.addTab("Agents", panel3);
 
-		foodTable = new MixedValueJTable();
-
 		FoodwebParams[] foodweb = new FoodwebParams[params.length];
 		for (int i = 0; i < params.length; i++) {
 			foodweb[i] = params[i].foodweb;
 		}
-		foodTable.setModel(new ConfigTableModel(foodweb, "Agent "));
+		foodTable = new MixedValueJTable(new ConfigTableModel(foodweb, "Agent "));
 
 		Util.colorHeaders(foodTable, true, agentColors);
 
