@@ -68,7 +68,7 @@ public class SimulationConfig implements SimulationParams {
 		}
 	}
 
-	public ParameterSerializer serializer;
+	public final ParameterSerializer serializer;
 
 	private String fileName = null;
 
@@ -405,47 +405,47 @@ public class SimulationConfig implements SimulationParams {
 
 		serializer.save(envParams, root, d);
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			Node node = d.createElement("agent");
+			Element node = d.createElement("agent");
 			serializer.save(agentParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			Node node = d.createElement("production");
+			Element node = d.createElement("production");
 			serializer.save(prodParams[i], node, d);
 			root.appendChild(node);
 		}
 
 		for (int i = 0; i < envParams.getFoodTypes(); i++) {
-			Node node = d.createElement("food");
+			Element node = d.createElement("food");
 			serializer.save(foodParams[i], node, d);
 			root.appendChild(node);
 		}
 
-		Node ga = d.createElement("ga");
+		Element ga = d.createElement("ga");
 		serializer.save(geneticParams, ga, d);
 
 		root.appendChild(ga);
 
 		Node disease = d.createElement("disease");
 		for (DiseaseParams diseaseParam : diseaseParams) {
-			Node node = d.createElement("agent");
+			Element node = d.createElement("agent");
 			serializer.save(diseaseParam, node, d);
 			disease.appendChild(node);
 		}
 		root.appendChild(disease);
 
-		Node temp = d.createElement("Temperature");
+		Element temp = d.createElement("Temperature");
 		serializer.save(tempParams, temp, d);
 		root.appendChild(temp);
 
 		if (this.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
-			Node learn = d.createElement("Learning");
+			Element learn = d.createElement("Learning");
 			serializer.save(learningParams, learn, d);
 			root.appendChild(learn);
 		}
 
-		Node controller = d.createElement("ControllerConfig");
+		Element controller = d.createElement("ControllerConfig");
 		serializer.save(controllerParams, controller, d);
 		root.appendChild(controller);
 

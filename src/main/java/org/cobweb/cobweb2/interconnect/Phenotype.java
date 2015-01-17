@@ -55,6 +55,9 @@ public class Phenotype implements CobwebSelectionParam<Phenotype>, ParameterCust
 
 	@Override
 	public int hashCode() {
+		if (field == null)
+			return 0;
+
 		return field.hashCode();
 	}
 

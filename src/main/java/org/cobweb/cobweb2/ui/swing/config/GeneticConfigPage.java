@@ -216,7 +216,7 @@ public class GeneticConfigPage implements ConfigPage {
 		phenosUsed = new LinkedList<Phenotype>();
 
 		modelSelected = new GenesTableModel();
-		listSelected = new MixedValueJTable();
+		listSelected = new JTable();
 
 		listSelected.setModel(modelSelected);
 

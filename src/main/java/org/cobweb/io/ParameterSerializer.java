@@ -89,7 +89,7 @@ public class ParameterSerializer {
 	 * @param config Initial node to add data fields to.
 	 * @param doc Data file fields are saved to.
 	 */
-	public void save(ParameterSerializable obj, Node config, Document doc) {
+	public void save(ParameterSerializable obj, Element config, Document doc) {
 		Class<?> T = obj.getClass();
 
 		for (Field f : T.getFields()) {
@@ -99,7 +99,7 @@ public class ParameterSerializer {
 
 			Element tag;
 			if (squish) // store config in current node, don't create a child
-				tag = (Element) config;
+				tag = config;
 			else if (tagname != null) // store config in child node
 				tag = doc.createElement(tagname.value());
 			else // not a field we care about
