@@ -12,10 +12,11 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.cobweb.io.ChoiceCatalog;
+import org.cobweb.io.ConfDisplayFormat;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfMap;
 import org.cobweb.io.ParameterChoice;
-import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.util.ReflectionUtil;
 
 /**
@@ -46,26 +47,29 @@ public class ConfigTableModel extends AbstractTableModel {
 		Class<?> c = d.getClass();
 		for (Field f : c.getFields()) {
 			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
-			if (display == null)
+			ConfDisplayFormat displayFormat = f.getAnnotation(ConfDisplayFormat.class);
+			if (display == null && displayFormat == null)
 				continue;
 
 			if (f.getType().isArray()) {
 				int len;
 				try {
+					String format = displayFormat == null ? "%s %d" : displayFormat.value();
 					len = Array.getLength(f.get(data[0]));
 					for (int i = 0; i < len; i++){
 						fields.add(new MyArrayField(f, i));
-						rowNames.add(display.value() + " " + (i + 1));
+						rowNames.add(String.format(format, display.value(), i + 1));
 					}
 				} catch (IllegalAccessException ex) {
 					throw new IllegalArgumentException("Unable to access field " + f.getName(), ex);
 				}
 			} else if (Map.class.isAssignableFrom(f.getType())) {
 				try {
+					String format = displayFormat == null ? "%s" : displayFormat.value();
 					Map<?, ?> col = (Map<?, ?>) f.get(data[0]);
 					for (Object k : col.keySet()) {
 						fields.add(new MyMapField(f, k));
-						rowNames.add(k.toString());
+						rowNames.add(String.format(format, k));
 					}
 
 				} catch (IllegalArgumentException ex) {
