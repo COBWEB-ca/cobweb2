@@ -15,7 +15,7 @@ public class ProductionParams implements ParameterSerializable, StatePluginSourc
 	 */
 	private static final long serialVersionUID = 7452975610085145539L;
 
-	static final String STATE_NAME_PRODHUNT = "ProdHunt";
+	static final String STATE_NAME_PRODHUNT = "Production Value";
 
 	@Override
 	public List<String> getStatePluginKeys() {

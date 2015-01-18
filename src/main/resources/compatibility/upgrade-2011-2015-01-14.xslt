@@ -62,11 +62,16 @@
 		</Agent>
 	</xsl:template>
 	<xsl:template match="StateSize/*">
-		<State Name="{Name/text()}">
+		<State>
+			<xsl:attribute name="Name">
+				<xsl:apply-templates select="Name/text()" />
+			</xsl:attribute>
 			<xsl:apply-templates select="Size/node()" />
 		</State>
 	</xsl:template>
-
+	<xsl:template match="*[text() = 'ProdHunt']/text()">
+		<xsl:text>Production Value</xsl:text>
+	</xsl:template>
 
 	<!-- Fix up GA -->
 	<xsl:template match="ga/*[substring(name(),1,15) = 'linkedphenotype']">
