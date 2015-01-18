@@ -37,7 +37,9 @@ public class GeneticController implements Controller {
 
 	private static final int ENERGY_THRESHOLD = 160;
 
-	private GeneticControllerParams params;
+	private final GeneticControllerParams params;
+
+	private final int agentType;
 
 	private SimulationInternals simulation;
 
@@ -46,10 +48,11 @@ public class GeneticController implements Controller {
 		this.params = params;
 		this.memorySize = memory; // TODO: convert this into StateParameter
 		this.commSize = comm;
+		this.agentType = type;
 		int[] outputArray = { OUTPUT_BITS, memorySize, commSize, 1 };
 
 		int inputSize = INPUT_BITS + memorySize + commSize;
-		for (int ss : this.params.agentParams.agentParams[type].stateSizes.values()) {
+		for (int ss : this.params.agentParams[agentType].stateSizes.values()) {
 			inputSize += ss;
 		}
 
@@ -63,6 +66,7 @@ public class GeneticController implements Controller {
 		memorySize = parent.memorySize;
 		commSize = parent.commSize;
 		ga = parent.ga.copy(mutationRate);
+		agentType = parent.agentType;
 	}
 
 	protected GeneticController(GeneticController parent1, GeneticController parent2, float mutationRate) {
@@ -71,6 +75,7 @@ public class GeneticController implements Controller {
 		memorySize = parent1.memorySize;
 		commSize = parent1.commSize;
 		ga = BehaviorArray.splice(parent1.ga, parent2.ga, simulation.getRandom()).copy(mutationRate);
+		agentType = parent1.agentType;
 	}
 
 	/**
@@ -154,7 +159,7 @@ public class GeneticController implements Controller {
 		//add the communications to the array
 		inputCode.add(theAgent.getCommInbox(), commSize);
 
-		for (Entry<String, Integer> ss : params.agentParams.agentParams[theAgent.getType()].stateSizes.entrySet()) {
+		for (Entry<String, Integer> ss : params.agentParams[theAgent.getType()].stateSizes.entrySet()) {
 			StateParameter sp = simulation.getStateParameter(ss.getKey());
 			double value = sp.getValue(theAgent);
 			int size = ss.getValue();

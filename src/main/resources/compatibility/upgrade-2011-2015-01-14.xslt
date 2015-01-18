@@ -53,6 +53,9 @@
 
 
 	<!-- Fix up GeneticController StateSize map -->
+	<xsl:template match="ControllerConfig/PluginParams">
+		<xsl:apply-templates select="node()|@*"/>
+	</xsl:template>
 	<xsl:template match="ControllerConfig//AgentParams/*[substring(name(),1,5) = 'Agent']">
 		<Agent id="{position()}">
 			<xsl:apply-templates />
