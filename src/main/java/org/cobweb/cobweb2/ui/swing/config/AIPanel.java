@@ -48,7 +48,7 @@ class AIPanel extends SettingsPanel {
 		inner.add(genPanel, AI_LIST[0]);
 		tabs[0] = genPanel;
 
-		SettingsPanel lWpanel = new LinearAIPanel();
+		SettingsPanel lWpanel = new LinearAIPanel(agentColors);
 		inner.add(lWpanel, AI_LIST[1]);
 		tabs[1] = lWpanel;
 

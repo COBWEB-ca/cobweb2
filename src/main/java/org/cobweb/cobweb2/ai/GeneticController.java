@@ -60,22 +60,25 @@ public class GeneticController implements Controller {
 		ga.randomInit(this.params.randomSeed);
 	}
 
-	protected GeneticController(GeneticController parent, float mutationRate) {
+	protected GeneticController(GeneticController parent) {
 		simulation = parent.simulation;
 		params = parent.params;
 		memorySize = parent.memorySize;
 		commSize = parent.commSize;
-		ga = parent.ga.copy(mutationRate);
 		agentType = parent.agentType;
+		ga = parent.ga
+				.copy(params.agentParams[agentType].mutationRate);
 	}
 
-	protected GeneticController(GeneticController parent1, GeneticController parent2, float mutationRate) {
+	protected GeneticController(GeneticController parent1, GeneticController parent2) {
 		simulation = parent1.simulation;
 		params = parent1.params;
 		memorySize = parent1.memorySize;
 		commSize = parent1.commSize;
-		ga = BehaviorArray.splice(parent1.ga, parent2.ga, simulation.getRandom()).copy(mutationRate);
 		agentType = parent1.agentType;
+		ga = BehaviorArray
+				.splice(parent1.ga, parent2.ga, simulation.getRandom())
+				.copy(params.agentParams[agentType].mutationRate);
 	}
 
 	/**
@@ -171,19 +174,19 @@ public class GeneticController implements Controller {
 	}
 
 	@Override
-	public GeneticController createChildAsexual(float mutationRate) {
-		GeneticController child = new GeneticController(this, mutationRate);
+	public GeneticController createChildAsexual() {
+		GeneticController child = new GeneticController(this);
 		return child;
 	}
 
 	@Override
-	public GeneticController createChildSexual(Controller parent2, float mutationRate) {
+	public GeneticController createChildSexual(Controller parent2) {
 		if (!(parent2 instanceof GeneticController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");
 		}
 		GeneticController p2 = (GeneticController) parent2;
 
-		GeneticController child = new GeneticController(this, p2, mutationRate);
+		GeneticController child = new GeneticController(this, p2);
 		return child;
 	}
 

@@ -25,6 +25,7 @@ import javax.swing.table.DefaultTableModel;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ai.LinearWeightsController;
 import org.cobweb.cobweb2.ai.LinearWeightsControllerParams;
+import org.cobweb.swingutil.ColorLookup;
 
 /**
  * @author Igor
@@ -37,8 +38,11 @@ public class LinearAIPanel extends SettingsPanel {
 	 */
 	private static final long serialVersionUID = 5135067595194478959L;
 
-	public LinearAIPanel() {
+	private ColorLookup agentColors;
+
+	public LinearAIPanel(ColorLookup agentColors) {
 		super(true);
+		this.agentColors = agentColors;
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 
@@ -135,19 +139,29 @@ public class LinearAIPanel extends SettingsPanel {
 
 		matrixModel = new DoubleMatrixModel(fullInputNames, params.outputNames, params.data);
 		matrix = new JTable(matrixModel);
-
 		scrollpane = new JScrollPane(matrix);
 
-		JPanel panel = new JPanel();
-		BorderLayout bl = new BorderLayout();
-		panel.setLayout(bl);
-		panel.add(scrollpane, BorderLayout.CENTER);
+		JPanel weightsPanel = new JPanel(new BorderLayout());
+		{
+			Util.makeGroupPanel(weightsPanel, "Weights");
+			JButton randomButton = new JButton("Randomize");
+			randomButton.addActionListener(new RandomButtonListener());
+			JPanel randomPanel = new JPanel();
+			randomPanel.add(randomButton);
 
-		JPanel randomPanel = new JPanel();
-		JButton randomButton = new JButton("Randomize");
-		randomButton.addActionListener(new RandomButtonListener());
-		randomPanel.add(randomButton);
-		panel.add(randomPanel, BorderLayout.SOUTH);
+			weightsPanel.add(scrollpane, BorderLayout.CENTER);
+			weightsPanel.add(randomPanel, BorderLayout.SOUTH);
+		}
+
+		JTable paramTable = new MixedValueJTable(new ConfigTableModel(params.agentParams, "Agent "));
+		JScrollPane paramScroll = new JScrollPane(paramTable);
+		paramScroll.setPreferredSize(new Dimension(0, 80));
+		Util.colorHeaders(paramTable, true, agentColors);
+		Util.makeGroupPanel(paramScroll, "Controller Parameters");
+
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(paramScroll, BorderLayout.NORTH);
+		panel.add(weightsPanel, BorderLayout.CENTER);
 
 		prettyTable();
 

@@ -13,30 +13,39 @@ import org.cobweb.cobweb2.core.Topology;
 
 public class LinearWeightsController implements Controller {
 
-	private int memSize;
+	private final int memSize;
 
-	private int commSize;
+	private final int commSize;
 
-	private LinearWeightsControllerParams params;
+	private final LinearWeightsControllerParams params;
 
-	private SimulationInternals simulator;
+	private final SimulationInternals simulator;
 
-	public LinearWeightsController(SimulationInternals sim, LinearWeightsControllerParams params, int memSize, int commSize) {
+	private final int agentType;
+
+	public LinearWeightsController(SimulationInternals sim, LinearWeightsControllerParams params, int memSize, int commSize, int agentType) {
 		this.simulator = sim;
 		this.params = params;
 		this.memSize = memSize;
 		this.commSize = commSize;
+		this.agentType = agentType;
 	}
 
-	protected LinearWeightsController(LinearWeightsController parent, float mutation) {
+	protected LinearWeightsController(LinearWeightsController parent) {
 		this.simulator = parent.simulator;
 		this.params = parent.params.copy();
-		mutate(mutation);
+		this.memSize = parent.memSize;
+		this.commSize = parent.commSize;
+		this.agentType = parent.agentType;
+		mutate(params.agentParams[agentType].mutationRate);
 	}
 
-	protected LinearWeightsController(LinearWeightsController parent1, LinearWeightsController parent2, float mutation) {
+	protected LinearWeightsController(LinearWeightsController parent1, LinearWeightsController parent2) {
 		this.simulator = parent1.simulator;
 		this.params = parent1.params.copy();
+		this.memSize = parent1.memSize;
+		this.commSize = parent1.commSize;
+		this.agentType = parent1.agentType;
 
 		for (int i = 0; i < params.data.length; i++) {
 			for (int j = 0; j < params.data[i].length; j++) {
@@ -46,7 +55,7 @@ public class LinearWeightsController implements Controller {
 			}
 		}
 
-		mutate(mutation);
+		mutate(params.agentParams[agentType].mutationRate);
 	}
 
 	private static int ENERGY_THRESHOLD = 160;
@@ -141,19 +150,19 @@ public class LinearWeightsController implements Controller {
 	}
 
 	@Override
-	public LinearWeightsController createChildAsexual(float mutation) {
-		LinearWeightsController child = new LinearWeightsController(this, mutation);
+	public LinearWeightsController createChildAsexual() {
+		LinearWeightsController child = new LinearWeightsController(this);
 		return child;
 	}
 
 	@Override
-	public LinearWeightsController createChildSexual(Controller p2, float mutation) {
+	public LinearWeightsController createChildSexual(Controller p2) {
 		if (!(p2 instanceof LinearWeightsController)) {
 			throw new RuntimeException("Parent's controller type must match the child's");
 		}
 		LinearWeightsController pa2 = (LinearWeightsController) p2;
 
-		LinearWeightsController child = new LinearWeightsController(this, pa2, mutation);
+		LinearWeightsController child = new LinearWeightsController(this, pa2);
 		return child;
 	}
 

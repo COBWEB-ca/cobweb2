@@ -14,6 +14,10 @@ public class GeneticStateAgentParams implements ParameterSerializable {
 
 	private static final long serialVersionUID = -6295295048720208502L;
 
+	@ConfDisplayName("Mutation Rate")
+	@ConfXMLTag("MutationRate")
+	public float mutationRate = 0.05f;
+
 	@ConfDisplayFormat("%s bits")
 	@ConfXMLTag("StateSize")
 	@ConfMap(entryName = "State", keyName = "Name", valueClass = int.class)

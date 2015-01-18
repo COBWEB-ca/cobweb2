@@ -109,8 +109,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		copyParams(parent1);
 		controller =
 				parent1.controller.createChildSexual(
-						parent2.controller,
-						parent1.params.mutationRate);
+						parent2.controller);
 
 		// child's strategy is determined by its parents, it has a
 		// 50% chance to get either parent's strategy
@@ -139,8 +138,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	protected void init(ComplexEnvironment env, LocationDirection pos, ComplexAgent parent) {
 		environment = (env);
 		copyParams(parent);
-		controller =
-				parent.controller.createChildAsexual(parent.params.mutationRate);
+		controller = parent.controller.createChildAsexual();
 
 		stats = environment.addAgentInfo(params.type, parent.stats);
 

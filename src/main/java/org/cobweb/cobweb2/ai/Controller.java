@@ -21,7 +21,7 @@ public interface Controller {
 	 *
 	 * @param mutationRate rate at which mutations can occur during breeding
 	 */
-	public Controller createChildAsexual(float mutationRate);
+	public Controller createChildAsexual();
 
 	/**
 	 * Creates controller for child based on parameters of the sexual breeding parents
@@ -29,5 +29,5 @@ public interface Controller {
 	 * @param parent2 second parent
 	 * @param mutationRate rate at which mutations can occur during breeding
 	 */
-	public Controller createChildSexual(Controller parent2, float mutationRate);
+	public Controller createChildSexual(Controller parent2);
 }
