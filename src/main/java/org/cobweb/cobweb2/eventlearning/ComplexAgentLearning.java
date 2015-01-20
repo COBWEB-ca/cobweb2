@@ -451,16 +451,16 @@ public class ComplexAgentLearning extends ComplexAgent {
 			LearningAgentParams lAgentData) {
 		super.init(env, pos, agentData);
 
-		lParams = (LearningAgentParams) lAgentData.clone();
+		lParams = lAgentData.clone();
 	}
 
 	private void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2) {
 		super.init(env, pos, parent1, parent2);
 
 		if (getRandom().nextBoolean()) {
-			lParams = parent1.lParams;
+			lParams = parent1.lParams.clone();
 		} else {
-			lParams = parent2.lParams;
+			lParams = parent2.lParams.clone();
 		}
 
 
@@ -469,7 +469,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	private void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentLearning parent) {
 		super.init(env, pos, parent);
 
-		lParams = parent.lParams;
+		lParams = parent.lParams.clone();
 	}
 
 

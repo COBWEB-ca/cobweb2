@@ -65,9 +65,9 @@ public class ProductionParams implements ParameterSerializable, StatePluginSourc
 	public float highDemandProdChance = 0.001f;
 
 	@Override
-	public Object clone() {
+	public ProductionParams clone() {
 		try {
-			return super.clone();
+			return (ProductionParams) super.clone();
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}

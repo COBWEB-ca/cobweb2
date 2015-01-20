@@ -272,7 +272,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	public void onSpawn(Agent agent) {
 		agentData.put(
 				agent,
-				(ProductionParams) initialParams[agent.getType()].clone()
+				initialParams[agent.getType()].clone()
 				);
 	}
 
@@ -280,7 +280,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	public void onSpawn(Agent agent, Agent parent) {
 		agentData.put(
 				agent,
-				(ProductionParams) agentData.get(parent).clone()
+				agentData.get(parent).clone()
 				);
 	}
 
@@ -288,7 +288,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		agentData.put(
 				agent,
-				(ProductionParams) agentData.get(parent1).clone()
+				agentData.get(parent1).clone()
 				);
 	}
 

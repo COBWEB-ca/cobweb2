@@ -324,9 +324,9 @@ public class ComplexAgentParams implements ParameterSerializable {
 	}
 
 	@Override
-	public Object clone() {
+	public ComplexAgentParams clone() {
 		try {
-			return super.clone();
+			return (ComplexAgentParams) super.clone();
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}

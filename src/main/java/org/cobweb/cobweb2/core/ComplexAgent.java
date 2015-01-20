@@ -618,7 +618,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	public void setParams(ComplexAgentParams agentData) {
 
-		this.params = (ComplexAgentParams) agentData.clone();
+		this.params = agentData.clone();
 
 		energy = agentData.initEnergy;
 		wasteCounterGain = params.wasteLimitGain;

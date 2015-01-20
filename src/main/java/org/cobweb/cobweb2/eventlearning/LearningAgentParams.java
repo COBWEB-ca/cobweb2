@@ -52,9 +52,9 @@ public class LearningAgentParams implements ParameterSerializable {
 	public float loveForPartner = -0.1f;
 
 	@Override
-	public Object clone() {
+	public LearningAgentParams clone() {
 		try {
-			return super.clone();
+			return (LearningAgentParams) super.clone();
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}
