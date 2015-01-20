@@ -109,23 +109,25 @@ public class BehaviorArray {
 
 	}
 
-	/* This method has been modified. It is now unaffected by mutationRate */
-	public BehaviorArray copy(float mutationRate) {
-		// TODO: should it mutate?
+	/**
+	 * Creates copy of BehaviorArray with mutationRate fraction of bits inverted
+	 * @param mutationRate fraction of bits to invert
+	 * @param rand random number source
+	 * @return mutated copy of BehaviorArray
+	 */
+	public BehaviorArray copy(float mutationRate, Random rand) {
 
 		BehaviorArray newArray = new BehaviorArray(inputSize, outputSize);
-		int[] get = new int[outputSize.length];
 
-		for (int i = 0; i < size; ++i) {
-			getOutput(i, get);
-			BitField outputCode = new BitField();
-
-			for (int j = outputSize.length - 1; j >= 0; --j) {
-
-				outputCode.add(get[j], outputSize[j]);
-
+		for (int i = 0; i < array.length; i++) {
+			int current = array[i];
+			for (int b = 0; b < 32; b++) {
+				if (rand.nextFloat() < mutationRate) {
+					int bitMask = 1 << b;
+					current ^= bitMask;
+				}
 			}
-			newArray.set(i, outputCode.intValue());
+			newArray.array[i] = current;
 		}
 
 		return newArray;
@@ -164,13 +166,6 @@ public class BehaviorArray {
 		}
 
 		return out;
-	}
-
-	private void getOutput(int in, int[] out) {
-		BitField outputCode = new BitField(get(in & totalInMask));
-		for (int i = 0; i < outputSize.length; ++i) {
-			out[i] = outputCode.remove(outputSize[i]);
-		}
 	}
 
 	public int getSize() {

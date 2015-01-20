@@ -65,7 +65,7 @@ public class GeneticController implements Controller {
 		params = parent.params;
 		agentType = parent.agentType;
 		ga = parent.ga
-				.copy(params.agentParams[agentType].mutationRate);
+				.copy(params.agentParams[agentType].mutationRate, simulation.getRandom());
 	}
 
 	protected GeneticController(GeneticController parent1, GeneticController parent2) {
@@ -74,7 +74,7 @@ public class GeneticController implements Controller {
 		agentType = parent1.agentType;
 		ga = BehaviorArray
 				.splice(parent1.ga, parent2.ga, simulation.getRandom())
-				.copy(params.agentParams[agentType].mutationRate);
+				.copy(params.agentParams[agentType].mutationRate, simulation.getRandom());
 	}
 
 	/**
