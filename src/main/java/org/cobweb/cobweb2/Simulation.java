@@ -8,9 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.cobweb.cobweb2.abiotic.TemperatureMutator;
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentListener;
 import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
-import org.cobweb.cobweb2.core.AgentSpawner;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.EnvironmentStats;
@@ -200,8 +200,9 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	}
 
 	@Override
-	public ComplexAgent newAgent() {
-		return agentSpawner.spawn();
+	public Agent newAgent() {
+		ComplexAgent agent = (ComplexAgent) agentSpawner.spawn();
+		return agent;
 	}
 
 	@Override

@@ -14,7 +14,6 @@ import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.Rotation;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
-import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 
 //Food storage
 //Vaccination/avoid infected agents
@@ -445,13 +444,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 		ComplexAgentLearning child = new ComplexAgentLearning(simulation);
 		child.init(environment, location, this, otherParent);
 		return child;
-	}
-
-	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentParams agentData,
-			LearningAgentParams lAgentData) {
-		super.init(env, pos, agentData);
-
-		lParams = lAgentData.clone();
 	}
 
 	private void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentLearning parent1, ComplexAgentLearning parent2) {

@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
@@ -27,10 +28,10 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 	}
 
 	@Override
-	protected void spawnAgent(LocationDirection location, int agentType) {
-		ComplexAgentLearning child = (ComplexAgentLearning)simulation.newAgent();
-		child.init(this, location, agentData[agentType],
-				learningData[agentType]);
+	protected Agent spawnAgent(LocationDirection location, int agentType) {
+		ComplexAgentLearning child = (ComplexAgentLearning)super.spawnAgent(location, agentType);
+		child.lParams = learningData[agentType].clone();
+		return child;
 	}
 
 	@Override

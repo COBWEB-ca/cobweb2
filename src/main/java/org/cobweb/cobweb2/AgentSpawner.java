@@ -1,6 +1,9 @@
-package org.cobweb.cobweb2.core;
+package org.cobweb.cobweb2;
 
 import java.lang.reflect.InvocationTargetException;
+
+import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.core.SimulationInternals;
 
 
 public class AgentSpawner {
@@ -17,9 +20,9 @@ public class AgentSpawner {
 		}
 	}
 
-	public ComplexAgent spawn() {
+	public Agent spawn() {
 		try {
-			return (ComplexAgent)spawnType.getConstructor(SimulationInternals.class).newInstance(simulation);
+			return (Agent)spawnType.getConstructor(SimulationInternals.class).newInstance(simulation);
 
 		} catch (IllegalArgumentException ex) {
 			throw new RuntimeException(ex);
