@@ -22,9 +22,9 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 	public List<Occurrence> allOccurrences = new LinkedList<Occurrence>();
 
 	@Override
-	protected void copyParamsFromParser(SimulationConfig p) {
-		super.copyParamsFromParser(p);
-		learningData = p.getLearningParams().learningParams;
+	protected void loadNew(SimulationConfig config) {
+		learningData = config.getLearningParams().learningParams;
+		super.loadNew(config);
 	}
 
 	@Override

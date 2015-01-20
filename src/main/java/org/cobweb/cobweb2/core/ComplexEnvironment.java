@@ -49,7 +49,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * Waste tile array to store the data per waste tile. Needed to allow
 	 * depletion of waste
 	 */
-	private Drop[][] dropArray;
+	private Drop[][] dropArray = new Drop[0][0];
 
 	public PacketConduit commManager;
 
@@ -73,8 +73,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	}
 
 	protected Agent spawnAgent(LocationDirection location, int agentType) {
-		ComplexAgent child = (ComplexAgent) simulation.newAgent();
-		child.init(this, location, agentData[agentType]);
+		ComplexAgent child = (ComplexAgent) simulation.newAgent(agentType);
+		ComplexAgentParams params = agentData[agentType];
+		child.init(this, location, params);
 		return child;
 	}
 
@@ -107,22 +108,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	public synchronized void clearWaste() {
 		clearFlag(Environment.FLAG_DROP);
-	}
-
-	/**
-	 * Stores the following types of parameters into ComplexEnvironment
-	 * member variables as well as Prisoner's Dilemma payoffs:
-	 *
-	 * <p>ComplexEnvironmentParams
-	 * <br>ComplexFoodParams
-	 * <br>ComplexAgentParams
-	 *
-	 * @param p The current simulation configuration file.
-	 */
-	protected void copyParamsFromParser(SimulationConfig p) {
-		data = p.getEnvParams();
-
-		agentData = p.getAgentParams();
 	}
 
 	/* Return the number of agents (int) for a certain agentType (int) */
@@ -188,21 +173,19 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * @param config The simulation  settings
 	 */
 	public synchronized void load(SimulationConfig config) throws IllegalArgumentException {
-		/**
-		 * the first parameter must be the number of agent types as we must
-		 * allocate space to store the parameter for each type
-		 */
+		data = config.getEnvParams();
+		agentData = config.getAgentParams();
 
-		copyParamsFromParser(config);
 		super.load(data.width, data.height, data.wrapMap, data.keepOldArray);
 
-		foodManager.load(this, data.dropNewFood, data.likeFoodProb, config.getFoodParams());
+		// Remove old components
+		loadExisting();
 
-		if (dropArray == null || !data.keepOldWaste) {
-			loadNewWaste();
-		} else {
-			loadOldWaste();
-		}
+		loadNew(config);
+	}
+
+	protected void loadExisting() {
+		removeOffgridAgents();
 
 		if (data.keepOldAgents) {
 			loadOldAgents();
@@ -210,10 +193,14 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			clearAgents();
 		}
 
+		resizeDropArray();
+
 		if (!data.keepOldPackets) {
 			commManager.clearPackets();
 		}
+	}
 
+	protected void loadNew(SimulationConfig config) {
 		// add stones in to random locations
 		for (int i = 0; i < data.initialStones; ++i) {
 			Location l;
@@ -225,13 +212,16 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				addStone(l);
 		}
 
-		controllerParams = config.getControllerParams();
+		foodManager.load(this, data.dropNewFood, data.likeFoodProb, config.getFoodParams());
+
+		if (!data.keepOldWaste) {
+			loadNewWaste();
+		}
 
 		// spawn new random agents for each type
 		if (data.spawnNewAgents) {
 			loadNewAgents();
 		}
-
 	}
 
 	/**
@@ -312,7 +302,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * Resizes old waste array to create a new waste array while keeping waste data
 	 * that was stored in old waste array.
 	 */
-	private void loadOldWaste() {
+	private void resizeDropArray() {
 		dropArray = ArrayUtilities.resizeArray(dropArray, topology.width, topology.height);
 	}
 

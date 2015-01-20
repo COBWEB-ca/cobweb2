@@ -13,29 +13,21 @@ import org.cobweb.cobweb2.core.Topology;
 
 public class LinearWeightsController implements Controller {
 
-	private final int memSize;
-
-	private final int commSize;
-
 	private final LinearWeightsControllerParams params;
 
 	private final SimulationInternals simulator;
 
 	private final int agentType;
 
-	public LinearWeightsController(SimulationInternals sim, LinearWeightsControllerParams params, int memSize, int commSize, int agentType) {
+	public LinearWeightsController(SimulationInternals sim, LinearWeightsControllerParams params, int agentType) {
 		this.simulator = sim;
 		this.params = params;
-		this.memSize = memSize;
-		this.commSize = commSize;
 		this.agentType = agentType;
 	}
 
 	protected LinearWeightsController(LinearWeightsController parent) {
 		this.simulator = parent.simulator;
 		this.params = parent.params.copy();
-		this.memSize = parent.memSize;
-		this.commSize = parent.commSize;
 		this.agentType = parent.agentType;
 		mutate(params.agentParams[agentType].mutationRate);
 	}
@@ -43,8 +35,6 @@ public class LinearWeightsController implements Controller {
 	protected LinearWeightsController(LinearWeightsController parent1, LinearWeightsController parent2) {
 		this.simulator = parent1.simulator;
 		this.params = parent1.params.copy();
-		this.memSize = parent1.memSize;
-		this.commSize = parent1.commSize;
 		this.agentType = parent1.agentType;
 
 		for (int i = 0; i < params.data.length; i++) {

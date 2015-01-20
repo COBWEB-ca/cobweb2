@@ -123,26 +123,12 @@ public class ComplexAgentParams implements ParameterSerializable {
 	public float mutationRate = 0.05f;
 
 	/**
-	 * Size of agent's memory in bits.
-	 */
-	@ConfDisplayName("Memory bits")
-	@ConfXMLTag("MemoryBits")
-	public int memoryBits = 2;
-
-	/**
 	 * Minimum agent similarity for communication to work.
 	 */
 	@ConfDisplayName("Communication minimum similarity")
 	@ConfXMLTag("commSimMin")
 	@GeneMutatable
 	public int commSimMin = 0;
-
-	/**
-	 * Size of communication message in bits.
-	 */
-	@ConfDisplayName("Communication bits")
-	@ConfXMLTag("communicationBits")
-	public int communicationBits = 2;
 
 	/**
 	 * Chance that bumping into another agent will result in sexual breeding.

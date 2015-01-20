@@ -18,6 +18,20 @@ public class GeneticStateAgentParams implements ParameterSerializable {
 	@ConfXMLTag("MutationRate")
 	public float mutationRate = 0.05f;
 
+	/**
+	 * Size of agent's memory in bits.
+	 */
+	@ConfDisplayName("Memory bits")
+	@ConfXMLTag("MemoryBits")
+	public int memoryBits = 2;
+
+	/**
+	 * Size of communication message in bits.
+	 */
+	@ConfDisplayName("Communication bits")
+	@ConfXMLTag("CommunicationBits")
+	public int communicationBits = 2;
+
 	@ConfDisplayFormat("%s bits")
 	@ConfXMLTag("StateSize")
 	@ConfMap(entryName = "State", keyName = "Name", valueClass = int.class)

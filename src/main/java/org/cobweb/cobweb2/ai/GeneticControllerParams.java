@@ -49,8 +49,8 @@ public class GeneticControllerParams implements ControllerParams {
 	}
 
 	@Override
-	public Controller createController(SimulationInternals sim, int memoryBits, int communicationBits, int type) {
-		GeneticController controller = new GeneticController(sim, this, memoryBits, communicationBits, type);
+	public Controller createController(SimulationInternals sim, int type) {
+		GeneticController controller = new GeneticController(sim, this, type);
 		return controller;
 	}
 }

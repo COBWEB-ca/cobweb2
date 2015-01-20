@@ -22,6 +22,12 @@
 		</COBWEB2Config>
 	</xsl:template>
 
+	<!-- Move variables from agent config -->
+	<xsl:template match="/*/agent">
+		<xsl:copy>
+			<xsl:apply-templates select="*[name() != 'MemoryBits' and name() != 'communicationBits']" />
+		</xsl:copy>
+	</xsl:template>
 
 	<!-- Fix up foodweb -->
 	<xsl:template match="foodweb/*[substring(name(),1,5) = 'agent']">
@@ -57,7 +63,15 @@
 		<xsl:apply-templates select="node()|@*"/>
 	</xsl:template>
 	<xsl:template match="ControllerConfig//AgentParams/*[substring(name(),1,5) = 'Agent']">
-		<Agent id="{position()}">
+		<xsl:variable name="agentIndex" select="substring-after(name(),'Agent') - 1" />
+		<xsl:variable name="agentParams" select="/inputData/agent[./Index/text() = $agentIndex]" />
+		<Agent id="{$agentIndex + 1}">
+			<MemoryBits>
+				<xsl:value-of select="$agentParams/MemoryBits" />
+			</MemoryBits>
+			<CommunicationBits>
+				<xsl:value-of select="$agentParams/communicationBits" />
+			</CommunicationBits>
 			<xsl:apply-templates />
 		</Agent>
 	</xsl:template>

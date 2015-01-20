@@ -156,14 +156,15 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		environment = (env);
 		setParams(agentData);
 
-		controller = env.controllerParams.createController(
-				simulation, params.memoryBits, params.communicationBits, params.type);
-
 		stats = environment.addAgentInfo(params.type);
 
 		initPosition(pos);
 
 		getAgentListener().onSpawn(this);
+	}
+
+	public void setController(Controller c) {
+		this.controller = c;
 	}
 
 	private void afterTurnAction() {

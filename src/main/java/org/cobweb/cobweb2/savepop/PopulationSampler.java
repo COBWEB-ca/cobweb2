@@ -180,7 +180,7 @@ public class PopulationSampler {
 
 				// FIXME plugin params: production, disease, etc
 
-				ComplexAgent cAgent = (ComplexAgent) sim.newAgent();
+				ComplexAgent cAgent = (ComplexAgent) sim.newAgent(params.type);
 				cAgent.init(sim.theEnvironment, locDir, params);
 				cAgent.pdCheater = pdCheater;
 				sim.theEnvironment.setAgent(loc, cAgent);

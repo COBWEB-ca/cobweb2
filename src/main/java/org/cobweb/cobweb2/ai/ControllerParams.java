@@ -18,10 +18,8 @@ public interface ControllerParams extends ParameterSerializable {
 	/**
 	 * Creates Controller for given agent type
 	 * @param sim simulation the agent is in
-	 * @param memoryBits number of bits of memory the controller will use // FIXME: this is controller dependent, should not be here
-	 * @param communicationBits number of bits the agent uses to communicate // FIXME: this is controller dependent, should not be here
 	 * @param type agent type
 	 * @return Controller for agent
 	 */
-	public Controller createController(SimulationInternals sim, int memoryBits, int communicationBits, int type);
+	public Controller createController(SimulationInternals sim, int type);
 }

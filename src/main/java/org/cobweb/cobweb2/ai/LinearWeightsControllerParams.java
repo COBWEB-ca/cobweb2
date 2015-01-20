@@ -49,8 +49,8 @@ public class LinearWeightsControllerParams implements ControllerParams {
 	}
 
 	@Override
-	public Controller createController(SimulationInternals sim, int memoryBits, int communicationBits, int type) {
-		LinearWeightsController controller = new LinearWeightsController(sim, this, memoryBits, communicationBits, type);
+	public Controller createController(SimulationInternals sim, int type) {
+		LinearWeightsController controller = new LinearWeightsController(sim, this, type);
 		return controller;
 	}
 
