@@ -114,8 +114,8 @@ public class GeneticController implements Controller {
 		int[] outputArray = ga.getOutput(inputCode.intValue());
 
 		int actionCode = outputArray[0];
-		theAgent.setMemoryBuffer(outputArray[1]);
-		theAgent.setCommOutbox(outputArray[2]);
+		theAgent.setMemoryBuffer(dequantize(outputArray[1], memorySize));
+		theAgent.setCommOutbox(dequantize(outputArray[2], commSize));
 		//whether to breed
 		theAgent.setShouldReproduceAsex(outputArray[3] != 0);
 
@@ -157,20 +157,36 @@ public class GeneticController implements Controller {
 		inputCode.add(get.getDist(), 2);
 
 		//add the memory buffer to the array
-		inputCode.add(theAgent.getMemoryBuffer(), memorySize);
+		inputCode.add(
+				quantize(theAgent.getMemoryBuffer(), memorySize),
+				memorySize);
 
 		//add the communications to the array
-		inputCode.add(theAgent.getCommInbox(), commSize);
+		inputCode.add(
+				quantize(theAgent.getCommInbox(), commSize),
+				commSize);
 
 		for (Entry<String, Integer> ss : params.agentParams[theAgent.getType()].stateSizes.entrySet()) {
 			StateParameter sp = simulation.getStateParameter(ss.getKey());
 			double value = sp.getValue(theAgent);
 			int size = ss.getValue();
-			int val = (int) Math.round(value * ((1 << size) - 1));
-			inputCode.add(val, size);
+			inputCode.add(quantize(value, size), size);
 		}
 
 		return inputCode;
+	}
+
+	private static int quantize(double val, int bits) {
+		int max = (1 << bits) - 1;
+		double doubleVal = val * max;
+		int intVal = (int) Math.round(doubleVal);
+		return intVal;
+	}
+
+	private static double dequantize(int val, int bits) {
+		int max = (1<< bits) -1;
+		double doubleVal = (double) val / max;
+		return doubleVal;
 	}
 
 	@Override

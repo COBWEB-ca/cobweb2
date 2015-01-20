@@ -84,8 +84,8 @@ public class LinearWeightsController implements Controller {
 		variables[5] = simulator.getTopology()
 				.getRotationBetween(Topology.NORTH, agent.getPosition().direction)
 				.ordinal() / 2.0;
-		variables[6] = memSize == 0 ? 0 : (double) agent.getMemoryBuffer() / ((1 << memSize) - 1);
-		variables[7] = commSize == 0 ? 0 : (double) agent.getCommInbox() / ((1 << commSize) - 1);
+		variables[6] = agent.getMemoryBuffer();
+		variables[7] = agent.getCommInbox();
 		variables[8] = Math.max(agent.getAge() / 100.0, 2);
 		variables[9] = simulator.getRandom().nextGaussian();
 		{
@@ -127,8 +127,8 @@ public class LinearWeightsController implements Controller {
 			params.updateStats(eq, res);
 		}
 
-		agent.setMemoryBuffer((int) memout);
-		agent.setCommOutbox((int) commout);
+		agent.setMemoryBuffer(memout);
+		agent.setCommOutbox(commout);
 		agent.setShouldReproduceAsex(asexflag > 0.50);
 
 		if (right > left && right > step)

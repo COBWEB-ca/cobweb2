@@ -29,9 +29,9 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	public boolean pdCheater; // The agent's action; 1 == cheater, else cooperator
 	private boolean lastPDcheated; // Remember the opponent's move in the last game
 
-	private int commInbox;
+	private double commInbox;
 
-	private int commOutbox;
+	private double commOutbox;
 	// memory size is the maximum capacity of the number of cheaters an agent
 	// can remember
 	private long photo_memory[];
@@ -41,7 +41,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	private int wasteCounterGain;
 	private int wasteCounterLoss;
 
-	private int memoryBuffer;
+	private double memoryBuffer;
 
 
 	protected ComplexAgent breedPartner;
@@ -380,11 +380,11 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		return pdCheater;
 	}
 
-	public int getCommInbox() {
+	public double getCommInbox() {
 		return commInbox;
 	}
 
-	public int getCommOutbox() {
+	public double getCommOutbox() {
 		return commOutbox;
 	}
 
@@ -392,7 +392,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		return stats;
 	}
 
-	public int getMemoryBuffer() {
+	public double getMemoryBuffer() {
 		return memoryBuffer;
 	}
 
@@ -602,11 +602,11 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		this.shouldReproduceAsex = asexFlag;
 	}
 
-	public void setCommInbox(int commInbox) {
+	public void setCommInbox(double commInbox) {
 		this.commInbox = commInbox;
 	}
 
-	public void setCommOutbox(int commOutbox) {
+	public void setCommOutbox(double commOutbox) {
 		this.commOutbox = commOutbox;
 	}
 
@@ -627,7 +627,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	}
 
-	public void setMemoryBuffer(int memoryBuffer) {
+	public void setMemoryBuffer(double memoryBuffer) {
 		this.memoryBuffer = memoryBuffer;
 	}
 
@@ -815,9 +815,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		if (!target.equals(getPosition()))
 			closeness = 1 / environment.topology.getDistance(this.getPosition(), target);
 
-		int o =(int)Math.round(closeness * ((1 << this.params.communicationBits) - 1));
-
-		setCommInbox(o);
+		setCommInbox(closeness);
 	}
 
 	/**
