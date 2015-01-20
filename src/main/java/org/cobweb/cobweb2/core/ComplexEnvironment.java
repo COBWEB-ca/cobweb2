@@ -187,8 +187,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * @param config The simulation  settings
 	 */
 	public synchronized void load(SimulationConfig config) throws IllegalArgumentException {
-		int oldH = data.height;
-		int oldW = data.width;
 		/**
 		 * the first parameter must be the number of agent types as we must
 		 * allocate space to store the parameter for each type
@@ -206,7 +204,7 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		}
 
 		if (data.keepOldAgents) {
-			loadOldAgents(oldH, oldW);
+			loadOldAgents();
 		} else {
 			clearAgents();
 		}
@@ -277,11 +275,8 @@ public class ComplexEnvironment extends Environment implements Updatable {
 	 * Searches through each location to find every old agent.  Each agent that is found
 	 * is added to the scheduler if the scheduler is new.  Agents that are off the new
 	 * environment are removed from the environment.
-	 *
-	 * @param oldH Height of old environment
-	 * @param oldW Width of old environment
 	 */
-	private void loadOldAgents(int oldH, int oldW) {
+	private void loadOldAgents() {
 		// Add in-bounds old agents to the new scheduler and update new
 		// constants
 		// TODO: a way to keep old parameters for old agents?
@@ -296,16 +291,13 @@ public class ComplexEnvironment extends Environment implements Updatable {
 			}
 		}
 
-		removeOffgridAgents(oldH, oldW);
+		removeOffgridAgents();
 	}
 
 	/**
 	 * Removes old agents that are off the new environment.
-	 *
-	 * @param oldH Old environment height
-	 * @param oldW Old environment width
 	 */
-	private void removeOffgridAgents(int oldH, int oldW) {
+	private void removeOffgridAgents() {
 		for (Agent a : new ArrayList<Agent>(getAgents())) {
 			Location l = a.getPosition();
 			if (l.x >= data.width || l.y >= data.height) {

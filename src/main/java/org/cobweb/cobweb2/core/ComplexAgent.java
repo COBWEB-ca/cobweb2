@@ -149,7 +149,6 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	/**
 	 * Constructor with no parent agent; creates an agent using "immaculate conception" technique
-	 *
 	 * @param pos spawn position
 	 * @param agentData agent parameters
 	 */
@@ -282,7 +281,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		getAgentListener().onDeath(this);
 
-		stats.setDeath(simulation.getTime());
+		stats.setDeath(getTime());
 	}
 
 	/**

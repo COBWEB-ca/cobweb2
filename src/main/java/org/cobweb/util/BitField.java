@@ -3,9 +3,9 @@ package org.cobweb.util;
 /**
  * The BitField class is used to store several numbers in a field of bits. This class is used for, among other things,
  * combining different input numbers into a single index number for use with BehaviorArray
- * 
+ *
  * BitField is first-in, last-out.
- * 
+ *
  */
 
 public class BitField {
@@ -36,7 +36,7 @@ public class BitField {
 	/**
 	 * The remove method performs the opposite operation of the add method. Remove takes a number of bits specified by
 	 * the first parameter and removes that many bits from value, returning them.
-	 * 
+	 *
 	 * @return the lower 'bits' bits of the value in BitField
 	 */
 	public int remove(int bits) {
