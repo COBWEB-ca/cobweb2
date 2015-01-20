@@ -35,20 +35,17 @@ public class GeneticController implements Controller {
 
 	private static final int ENERGY_THRESHOLD = 160;
 
-	private final GeneticControllerParams params;
-
-	private final int agentType;
+	private final GeneticStateAgentParams params;
 
 	private SimulationInternals simulation;
 
-	public GeneticController(SimulationInternals sim, GeneticControllerParams params, int type) {
+	public GeneticController(SimulationInternals sim, GeneticStateAgentParams params) {
 		this.simulation = sim;
 		this.params = params;
-		this.agentType = type;
-		int[] outputArray = { OUTPUT_BITS, getAgentParams().memoryBits, getAgentParams().communicationBits, 1 };
+		int[] outputArray = { OUTPUT_BITS, params.memoryBits, params.communicationBits, 1 };
 
-		int inputSize = INPUT_BITS + getAgentParams().memoryBits + getAgentParams().communicationBits;
-		for (int ss : this.params.agentParams[agentType].stateSizes.values()) {
+		int inputSize = INPUT_BITS + params.memoryBits + params.communicationBits;
+		for (int ss : this.params.stateSizes.values()) {
 			inputSize += ss;
 		}
 
@@ -56,25 +53,19 @@ public class GeneticController implements Controller {
 		ga.randomInit(this.params.randomSeed);
 	}
 
-	protected GeneticStateAgentParams getAgentParams() {
-		return params.agentParams[agentType];
-	}
-
 	protected GeneticController(GeneticController parent) {
 		simulation = parent.simulation;
 		params = parent.params;
-		agentType = parent.agentType;
 		ga = parent.ga
-				.copy(params.agentParams[agentType].mutationRate, simulation.getRandom());
+				.copy(params.mutationRate, simulation.getRandom());
 	}
 
 	protected GeneticController(GeneticController parent1, GeneticController parent2) {
 		simulation = parent1.simulation;
 		params = parent1.params;
-		agentType = parent1.agentType;
 		ga = BehaviorArray
 				.splice(parent1.ga, parent2.ga, simulation.getRandom())
-				.copy(params.agentParams[agentType].mutationRate, simulation.getRandom());
+				.copy(params.mutationRate, simulation.getRandom());
 	}
 
 	/**
@@ -110,8 +101,8 @@ public class GeneticController implements Controller {
 		int[] outputArray = ga.getOutput(inputCode.intValue());
 
 		int actionCode = outputArray[0];
-		theAgent.setMemoryBuffer(dequantize(outputArray[1], getAgentParams().memoryBits));
-		theAgent.setCommOutbox(dequantize(outputArray[2], getAgentParams().communicationBits));
+		theAgent.setMemoryBuffer(dequantize(outputArray[1], params.memoryBits));
+		theAgent.setCommOutbox(dequantize(outputArray[2], params.communicationBits));
 		//whether to breed
 		theAgent.setShouldReproduceAsex(outputArray[3] != 0);
 
@@ -154,15 +145,15 @@ public class GeneticController implements Controller {
 
 		//add the memory buffer to the array
 		inputCode.add(
-				quantize(theAgent.getMemoryBuffer(), getAgentParams().memoryBits),
-				getAgentParams().memoryBits);
+				quantize(theAgent.getMemoryBuffer(), params.memoryBits),
+				params.memoryBits);
 
 		//add the communications to the array
 		inputCode.add(
-				quantize(theAgent.getCommInbox(), getAgentParams().communicationBits),
-				getAgentParams().communicationBits);
+				quantize(theAgent.getCommInbox(), params.communicationBits),
+				params.communicationBits);
 
-		for (Entry<String, Integer> ss : params.agentParams[theAgent.getType()].stateSizes.entrySet()) {
+		for (Entry<String, Integer> ss : params.stateSizes.entrySet()) {
 			StateParameter sp = simulation.getStateParameter(ss.getKey());
 			double value = sp.getValue(theAgent);
 			int size = ss.getValue();

@@ -14,6 +14,13 @@ public class GeneticStateAgentParams implements ParameterSerializable {
 
 	private static final long serialVersionUID = -6295295048720208502L;
 
+	/**
+	 * Random seed used to initialize the behaviour array.
+	 */
+	@ConfDisplayName("AI Random Seed")
+	@ConfXMLTag("RandomSeed")
+	public long randomSeed = 42;
+
 	@ConfDisplayName("Mutation Rate")
 	@ConfXMLTag("MutationRate")
 	public float mutationRate = 0.05f;

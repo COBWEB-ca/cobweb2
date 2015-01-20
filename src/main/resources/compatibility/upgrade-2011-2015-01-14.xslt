@@ -62,10 +62,14 @@
 	<xsl:template match="ControllerConfig/PluginParams">
 		<xsl:apply-templates select="node()|@*"/>
 	</xsl:template>
+	<xsl:template match="ControllerConfig/RandomSeed" /><!-- moved under agent -->
 	<xsl:template match="ControllerConfig//AgentParams/*[substring(name(),1,5) = 'Agent']">
 		<xsl:variable name="agentIndex" select="substring-after(name(),'Agent') - 1" />
 		<xsl:variable name="agentParams" select="/inputData/agent[./Index/text() = $agentIndex]" />
 		<Agent id="{$agentIndex + 1}">
+			<RandomSeed>
+				<xsl:value-of select="./../../../RandomSeed" />
+			</RandomSeed>
 			<MemoryBits>
 				<xsl:value-of select="$agentParams/MemoryBits" />
 			</MemoryBits>
