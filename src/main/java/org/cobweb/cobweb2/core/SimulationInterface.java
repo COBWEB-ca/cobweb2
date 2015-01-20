@@ -28,7 +28,6 @@ package org.cobweb.cobweb2.core;
  * @see cobweb.LocalUIInterface
  */
 
-import org.cobweb.cobweb2.SimulationConfig;
 
 /**
  * Public methods for interacting with simulation.
@@ -44,8 +43,6 @@ public interface SimulationInterface {
 	public EnvironmentStats getStatistics();
 
 	public long getTime();
-
-	public void load(SimulationConfig p);
 
 	public void step();
 }

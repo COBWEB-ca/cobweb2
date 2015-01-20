@@ -106,7 +106,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	 * which will start the simulation.  This is a private helper to the
 	 * LocalUIInterface constructor.
 	 */
-	@Override
 	public void load(SimulationConfig p) {
 		this.simulationConfig = p;
 		agentSpawner = new AgentSpawner(p.getEnvParams().agentName, this);
