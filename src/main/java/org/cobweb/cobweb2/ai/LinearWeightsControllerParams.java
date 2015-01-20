@@ -15,6 +15,7 @@ public class LinearWeightsControllerParams implements ControllerParams {
 
 	@ConfDisplayName("Agent Parameters")
 	@ConfXMLTag("AgentParams")
+	@ConfList(indexName = "Agent", startAtOne = true)
 	public LinearWeightAgentParam[] agentParams = new LinearWeightAgentParam[0];
 
 	@ConfXMLTag("WeightMatrix")
