@@ -12,7 +12,7 @@ public abstract class Agent {
 	/**
 	 * Energy the Agent can use to do things and can gain doing other things
 	 */
-	protected int energy;
+	private int energy;
 
 	public void die() {
 		assert (isAlive());
@@ -22,8 +22,20 @@ public abstract class Agent {
 		alive = false;
 	}
 
+	protected void setEnergy(int value) {
+		energy = value;
+	}
+
 	public int getEnergy() {
 		return energy;
+	}
+
+	public boolean enoughEnergy(int required) {
+		return getEnergy() >= required;
+	}
+
+	public void changeEnergy(int delta) {
+		energy += delta;
 	}
 
 	/**

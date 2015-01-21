@@ -23,7 +23,7 @@ public class BreedInitiationOccurrence extends Occurrence {
 
 		// Subtract starting energy and energy penalty from
 		// energy
-		int energyLost = (int) (concernedAgent.params.initEnergy + concernedAgent.energyPenalty());
+		int energyLost = concernedAgent.params.initEnergy + concernedAgent.energyPenalty();
 
 		EnergyChangeOccurrence energyChange = new EnergyChangeOccurrence(concernedAgent, time, 5f, "breed", -energyLost);
 		energyChange.happen();

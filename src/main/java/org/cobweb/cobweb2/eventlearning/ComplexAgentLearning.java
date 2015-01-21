@@ -78,24 +78,16 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	public LearningAgentParams lParams;
 
-	/**
-	 * Add the given amount to the agent's energy.
-	 * @param amount Amount to add.
-	 */
-	public void changeEnergy(int amount) {
-		energy += amount;
-	}
-
 	@Override
 	protected void broadcastFood(Location loc) { // []SK
 		super.broadcastFood(loc);
 
 		// Deduct broadcasting cost from energy
-		if (energy > 0) {
+		if (getEnergy() > 0) {
 			// If still alive, the agent remembers that it is displeasing to
 			// lose energy
 			// due to broadcasting
-			float howSadThisMakesMe = Math.max(Math.min((float) -params.broadcastEnergyCost / (float) energy, 1), -1);
+			float howSadThisMakesMe = Math.max(Math.min(-params.broadcastEnergyCost / (float) getEnergy(), 1), -1);
 			remember(new MemorableEvent(getTime(), howSadThisMakesMe, "broadcast"));
 		}
 	}
@@ -175,7 +167,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					});
 				}
 
-				if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
+				if (pregnant && enoughEnergy(params.breedEnergy) && pregPeriod <= 0) {
 
 					queue(new BreedInitiationOccurrence(this, getTime(), 0, "breedInit", breedPartner));
 
@@ -318,7 +310,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			if (adjacentAgent.params.type == params.type) {
 
 				double sim = 0.0;
-				boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
+				boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy) && params.sexualBreedChance != 0.0
 						&& getRandom().nextFloat() < params.sexualBreedChance;
 
 				// Generate genetic similarity number
@@ -362,7 +354,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				});
 
 			}
-			energy -= params.stepAgentEnergy;
+			changeEnergy(-params.stepAgentEnergy);
 			setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
 			stats.useAgentBumpEnergy(params.stepAgentEnergy);
 
@@ -398,9 +390,9 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 
 		// Energy penalty
-		queue(new EnergyChangeOccurrence(this, getTime(), -(int) energyPenalty(), "energyPenalty"));
+		queue(new EnergyChangeOccurrence(this, getTime(), -energyPenalty(), "energyPenalty"));
 
-		if (energy <= 0)
+		if (getEnergy() <= 0)
 			queue(new SmartAction(this) {
 
 				@Override
@@ -409,7 +401,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			});
 
-		if (energy < params.breedEnergy) {
+		if (getEnergy() < params.breedEnergy) {
 			queue(new SmartAction(this) {
 
 				@Override

@@ -168,9 +168,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	private void afterTurnAction() {
-		energy -= energyPenalty();
-		if (energy <= 0)
-			die();
+		changeEnergy(-energyPenalty());
 		if (!pregnant)
 			tryAsexBreed();
 		if (pregnant) {
@@ -180,11 +178,11 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 	protected void broadcastCheating(long cheaterID) { // []SK
 		String message = Long.toString(cheaterID);
-		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, stats.id, message, energy
+		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, stats.id, message, getEnergy()
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
 		environment.commManager.addPacketToList(msg);
 		// new CommPacket sent
-		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
+		changeEnergy(-params.broadcastEnergyCost); // Deduct broadcasting cost from energy
 	}
 
 	/**
@@ -195,18 +193,18 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	protected void broadcastFood(Location loc) { // []SK
 		String message = loc.toString();
-		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, stats.id, message, energy
+		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, stats.id, message, getEnergy()
 				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
 		environment.commManager.addPacketToList(msg);
 		// new CommPacket sent
-		energy -= params.broadcastEnergyCost; // Deduct broadcasting cost from energy
+		changeEnergy(-params.broadcastEnergyCost); // Deduct broadcasting cost from energy
 	}
 
 	/**
 	 * @return True if agent has enough energy to broadcast
 	 */
 	protected boolean canBroadcast() {
-		return energy > params.broadcastEnergyMin;
+		return enoughEnergy(params.broadcastEnergyMin);
 	}
 
 	/**
@@ -224,7 +222,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	protected boolean canEat(ComplexAgent adjacentAgent) {
 		boolean caneat = false;
 		caneat = params.foodweb.canEatAgent[adjacentAgent.getType()];
-		if (this.energy > params.breedEnergy)
+		if (enoughEnergy(params.breedEnergy))
 			caneat = false;
 
 		return caneat;
@@ -331,11 +329,11 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		environment.removeFood(destPos);
 		// Gain Energy according to the food type.
 		if (environment.getFoodType(destPos) == params.type) {
-			energy += params.foodEnergy;
+			changeEnergy(+params.foodEnergy);
 			wasteCounterGain -= params.foodEnergy;
 			stats.addFoodEnergy(params.foodEnergy);
 		} else {
-			energy += params.otherFoodEnergy;
+			changeEnergy(+params.otherFoodEnergy);
 			wasteCounterGain -= params.otherFoodEnergy;
 			stats.addOthers(params.otherFoodEnergy);
 		}
@@ -348,18 +346,18 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 * @param adjacentAgent The agent being eaten.
 	 */
 	protected void eat(ComplexAgent adjacentAgent) {
-		int gain = (int) (adjacentAgent.energy * params.agentFoodEnergy);
-		energy += gain;
+		int gain = (int) (adjacentAgent.getEnergy() * params.agentFoodEnergy);
+		changeEnergy(+gain);
 		wasteCounterGain -= gain;
 		stats.addCannibalism(gain);
 		adjacentAgent.die();
 	}
 
-	public double energyPenalty() {
+	public int energyPenalty() {
 		if (!params.agingMode)
-			return 0.0;
+			return 0;
 		double tempAge = getAge();
-		int penaltyValue = Math.min(Math.max(0, energy), (int)(params.agingRate
+		int penaltyValue = Math.min(Math.max(0, getEnergy()), (int)(params.agingRate
 				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
 
 		return penaltyValue;
@@ -530,26 +528,26 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		if (!pdCheater && !adjacentAgent.pdCheater) {
 			/* Both cooperate */
-			energy += environment.data.pdParams.reward;
-			adjacentAgent.energy += environment.data.pdParams.reward;
+			changeEnergy(+environment.data.pdParams.reward);
+			adjacentAgent.changeEnergy(+environment.data.pdParams.reward);
 			stats.addPDReward();
 
 		} else if (!pdCheater && adjacentAgent.pdCheater) {
 			/* Only other agent cheats */
-			energy += environment.data.pdParams.sucker;
-			adjacentAgent.energy += environment.data.pdParams.temptation;
+			changeEnergy(+environment.data.pdParams.sucker);
+			adjacentAgent.changeEnergy(+environment.data.pdParams.temptation);
 			stats.addPDTemptation();
 
 		} else if (pdCheater && !adjacentAgent.pdCheater) {
 			/* Only this agent cheats */
-			energy += environment.data.pdParams.temptation;
-			adjacentAgent.energy += environment.data.pdParams.sucker;
+			changeEnergy(+environment.data.pdParams.temptation);
+			adjacentAgent.changeEnergy(+environment.data.pdParams.sucker);
 			stats.addPDSucker();
 
 		} else if (pdCheater && adjacentAgent.pdCheater) {
 			/* Both cheat */
-			energy += environment.data.pdParams.punishment;
-			adjacentAgent.energy += environment.data.pdParams.punishment;
+			changeEnergy(+environment.data.pdParams.punishment);
+			adjacentAgent.changeEnergy(+environment.data.pdParams.punishment);
 			stats.addPDPunishment();
 
 		}
@@ -620,7 +618,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 		this.params = agentData.clone();
 
-		energy = agentData.initEnergy;
+		setEnergy(agentData.initEnergy);
 		wasteCounterGain = params.wasteLimitGain;
 		setWasteCounterLoss(params.wasteLimitLoss);
 
@@ -693,11 +691,11 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		} // end of two agents meet
 		else {
 			// Non-free tile (rock/waste/etc) bump
-			energy -= params.stepRockEnergy;
+			changeEnergy(-params.stepRockEnergy);
 			wasteCounterLoss -= params.stepRockEnergy;
 			stats.useRockBumpEnergy(params.stepRockEnergy);
 		}
-		energy -= energyPenalty();
+		changeEnergy(-energyPenalty());
 
 		if (destPos != null && environment.hasDrop(destPos)) {
 			// Bumps into drop
@@ -712,10 +710,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			}
 		}
 
-		if (energy <= 0)
+		if (getEnergy() <= 0)
 			die();
 
-		if (energy < params.breedEnergy) {
+		if (!enoughEnergy(params.breedEnergy)) {
 			pregnant = false;
 			breedPartner = null;
 		}
@@ -737,7 +735,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		}
 
 		LocationDirection breedPos = null;
-		if (pregnant && energy >= params.breedEnergy && pregPeriod <= 0) {
+		if (pregnant && enoughEnergy(params.breedEnergy) && pregPeriod <= 0) {
 			breedPos = new LocationDirection(getPosition());
 		} else if (!pregnant) {
 			tryAsexBreed();
@@ -748,8 +746,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		move(destPos);
 
 		if (breedPos != null) {
-			energy -= params.initEnergy;
-			energy -= energyPenalty();
+			changeEnergy(-params.initEnergy);
+			changeEnergy(-energyPenalty());
 			wasteCounterLoss -= params.initEnergy;
 			stats.useReproductionEnergy(params.initEnergy);
 			stats.addDirectChild();
@@ -762,7 +760,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			breedPartner = null;
 			pregnant = false;
 		}
-		energy -= params.stepEnergy;
+		changeEnergy(-params.stepEnergy);
 		wasteCounterLoss -= params.stepEnergy;
 		stats.useStepEnergy(params.stepEnergy);
 	}
@@ -781,7 +779,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		if (adjacentAgent.params.type == params.type) {
 
 			double sim = 0.0;
-			boolean canBreed = !pregnant && energy >= params.breedEnergy && params.sexualBreedChance != 0.0
+			boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy) && params.sexualBreedChance != 0.0
 					&& getRandom().nextFloat() < params.sexualBreedChance;
 
 			// Generate genetic similarity number
@@ -803,7 +801,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 
 			playPDonStep(adjacentAgent, othersID);
 		}
-		energy -= params.stepAgentEnergy;
+		changeEnergy(-params.stepAgentEnergy);
 		setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
 		stats.useAgentBumpEnergy(params.stepAgentEnergy);
 	}
@@ -856,7 +854,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 * produce a child agent after the agent's asexPregnancyPeriod is up.
 	 */
 	protected void tryAsexBreed() {
-		if (shouldReproduceAsex && energy >= params.breedEnergy && params.asexualBreedChance != 0.0
+		if (shouldReproduceAsex && enoughEnergy(params.breedEnergy) && params.asexualBreedChance != 0.0
 				&& getRandom().nextFloat() < params.asexualBreedChance) {
 			pregPeriod = params.asexPregnancyPeriod;
 			pregnant = true;
@@ -926,7 +924,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	public void turnLeft() {
 		position = environment.topology.getTurnLeftPosition(position);
-		energy -= params.turnLeftEnergy;
+		changeEnergy(-params.turnLeftEnergy);
 		setWasteCounterLoss(getWasteCounterLoss() - params.turnLeftEnergy);
 		stats.addTurn(params.turnLeftEnergy);
 		afterTurnAction();
@@ -939,7 +937,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	public void turnRight() {
 		position = environment.topology.getTurnRightPosition(position);
-		energy -= params.turnRightEnergy;
+		changeEnergy(-params.turnRightEnergy);
 		setWasteCounterLoss(getWasteCounterLoss() - params.turnRightEnergy);
 		stats.addTurn(params.turnRightEnergy);
 		afterTurnAction();
