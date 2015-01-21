@@ -1,9 +1,11 @@
 package org.cobweb.cobweb2.core;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.cobweb.cobweb2.ai.Controller;
 import org.cobweb.cobweb2.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
@@ -32,10 +34,9 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	private double commInbox;
 
 	private double commOutbox;
-	// memory size is the maximum capacity of the number of cheaters an agent
-	// can remember
-	private long photo_memory[];
-	private int photo_num = 0;
+
+	/** IDs of bad agents. Cheaters, etc */
+	private Collection<Long> badAgentMemory;
 
 	/* Waste variables */
 	private int wasteCounterGain;
@@ -249,12 +250,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	}
 
 	protected boolean checkCredibility(long agentId) {
-		for (int i = 0; i < params.pdMemory; i++) {
-			if (photo_memory[i] == agentId) {
-				return false;
-			}
-		}
-		return true;
+		return !badAgentMemory.contains(agentId);
 	}
 
 
@@ -411,15 +407,16 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 	 */
 	protected void iveBeenCheated(long othersID) {
 
-		if (params.pdMemory > 0) {
-			photo_memory[photo_num++] = othersID;
-
-			if (photo_num >= params.pdMemory) {
-				photo_num = 0;
-			}
-		}
+		rememberCheater(othersID);
 
 		broadcastCheating(othersID);
+	}
+
+	protected void rememberCheater(long othersID) {
+		if (badAgentMemory.contains(othersID))
+			return;
+
+		badAgentMemory.add(othersID);
 	}
 
 	public void move(LocationDirection newPos) {
@@ -585,7 +582,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		String message = commPacket.getContent();
 		long cheaterId = 0;
 		cheaterId = Long.parseLong(message);
-		photo_memory[photo_num] = cheaterId;
+		rememberCheater(cheaterId);
 	}
 
 	protected void receiveFoodBroadcast(BroadcastPacket commPacket) {
@@ -626,7 +623,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		wasteCounterGain = params.wasteLimitGain;
 		setWasteCounterLoss(params.wasteLimitLoss);
 
-		photo_memory = new long[params.pdMemory];
+		badAgentMemory = new CircularFifoQueue<Long>(params.pdMemory);
 
 	}
 
