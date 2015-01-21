@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -356,7 +357,8 @@ public class SimulationConfig implements SimulationParams {
 							.getConstructor(SimulationParams.class)
 							.newInstance((SimulationParams) this);
 					controllerParams.resize(envParams);
-				} catch (Exception ex) {
+				} catch (InstantiationError | ClassNotFoundException | NoSuchMethodException |
+						InstantiationException | IllegalAccessException | InvocationTargetException ex) {
 					throw new RuntimeException("Could not set up controller", ex);
 				}
 				serializer.load(controllerParams, node);

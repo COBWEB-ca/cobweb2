@@ -2,6 +2,7 @@ package org.cobweb.cobweb2.savepop;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,6 +11,7 @@ import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -26,6 +28,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 
 public class PopulationSampler {
@@ -84,7 +87,7 @@ public class PopulationSampler {
 			Result r = new StreamResult(stream);
 			t.transform(s, r);
 			stream.close();
-		} catch (Exception ex) {
+		} catch (TransformerException | IOException ex) {
 			throw new RuntimeException("Couldn't save population", ex);
 		}
 	}
@@ -185,7 +188,7 @@ public class PopulationSampler {
 				cAgent.pdCheater = pdCheater;
 				sim.theEnvironment.setAgent(loc, cAgent);
 			}
-		} catch (Exception ex) {
+		} catch (ParserConfigurationException | SAXException | IOException ex) {
 			throw new RuntimeException("Can't open config file", ex);
 		}
 	}

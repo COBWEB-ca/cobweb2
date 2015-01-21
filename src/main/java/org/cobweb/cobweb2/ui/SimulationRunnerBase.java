@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2.ui;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -133,7 +134,7 @@ public class SimulationRunnerBase implements SimulationRunner {
 				AgentReporter.report(writer, simulation);
 				writer.flush();
 				writer.close();
-			} catch (Exception ex) {
+			} catch (IOException ex) {
 				throw new UserInputException("Cannot save report file", ex);
 			}
 		}

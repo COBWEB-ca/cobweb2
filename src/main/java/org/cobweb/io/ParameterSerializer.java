@@ -3,6 +3,7 @@ package org.cobweb.io;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,7 +61,7 @@ public class ParameterSerializer {
 
 				f.set(obj, newValue);
 
-			} catch (Exception ex) {
+			} catch (IllegalArgumentException | IllegalAccessException ex) {
 				throw new IllegalArgumentException("Cannot load configuration field: " + f.getName(), ex);
 			}
 		}
@@ -70,7 +71,7 @@ public class ParameterSerializer {
 				Object currentValue = f.get(obj);
 				Object newValue = loadObject(f.getType(), f, currentValue, root);
 				f.set(obj, newValue);
-			} catch (Exception ex) {
+			} catch (IllegalArgumentException | IllegalAccessException ex) {
 				throw new IllegalArgumentException("Cannot load configuration field: " + f.getName(), ex);
 			}
 		}
@@ -107,7 +108,7 @@ public class ParameterSerializer {
 				Object value = f.get(obj);
 				saveObject(t, f, value, tag, doc);
 
-			} catch (Exception ex) {
+			} catch (IllegalArgumentException | IllegalAccessException ex) {
 				throw new IllegalArgumentException("Cannot save configuration field: " + f.getName(), ex);
 			}
 
@@ -348,7 +349,8 @@ public class ParameterSerializer {
 					.getMethod("fromString", String.class)
 					.invoke(null, text);
 			return newValue;
-		} catch (Exception ex) {
+		} catch (IllegalAccessException | InvocationTargetException |
+				NoSuchMethodException | SecurityException ex) {
 			throw new RuntimeException(ex);
 		}
 	}

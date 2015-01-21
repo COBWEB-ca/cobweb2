@@ -19,12 +19,12 @@ import org.cobweb.io.ParameterChoice;
 
 class MixedValueJTable extends JTable {
 
-	private static class CobwebSelectionEditor<T extends ParameterChoice> extends DefaultCellEditor {
+	private static class CobwebSelectionEditor extends DefaultCellEditor {
 
 		private static final long serialVersionUID = 3458173499957389679L;
 
-		private CobwebSelectionEditor(Set<T> options) {
-			super(new JComboBox(options.toArray()));
+		private CobwebSelectionEditor(Set<ParameterChoice> options) {
+			super(new JComboBox<ParameterChoice>(options.toArray(new ParameterChoice[0])));
 		}
 
 		@Override
@@ -84,7 +84,7 @@ class MixedValueJTable extends JTable {
 		TableColumn tableColumn = getColumnModel().getColumn(column);
 		TableCellEditor editor = tableColumn.getCellEditor();
 		if (getValueAt(row, column) instanceof ParameterChoice) {
-			editor = new CobwebSelectionEditor<ParameterChoice>(configModel.getRowOptions(row));
+			editor = new CobwebSelectionEditor(configModel.getRowOptions(row));
 		}
 		if (editor == null && getValueAt(row, column) != null) {
 			editor = getDefaultEditor(getValueAt(row, column).getClass());

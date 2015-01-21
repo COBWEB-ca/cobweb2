@@ -161,8 +161,8 @@ public class CobwebApplicationRunner {
 				defaultconf.write(new FileOutputStream(inputFileName));
 				defaultconf = new SimulationConfig(inputFileName);
 			}
-			catch (Exception e) {
-				throw new RuntimeException("Could not write default configuration file");
+			catch (IOException e) {
+				throw new RuntimeException("Could not write default configuration file", e);
 			}
 		} catch (Exception e) {
 			String message = "Cannot load " + inputFileName + "";
