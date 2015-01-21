@@ -106,8 +106,6 @@ public class GeneticController implements Controller {
 		//whether to breed
 		theAgent.setShouldReproduceAsex(outputArray[3] != 0);
 
-		theAgent.setCommInbox(0);
-
 		switch (actionCode) {
 			case TURN_LEFT:
 				theAgent.turnLeft();

@@ -605,6 +605,10 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 		this.commInbox = commInbox;
 	}
 
+	protected void clearCommInbox() {
+		commInbox = 0;
+	}
+
 	public void setCommOutbox(double commOutbox) {
 		this.commOutbox = commOutbox;
 	}
@@ -842,6 +846,8 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 			receiveBroadcast();
 
 		controller.controlAgent(this);
+
+		clearCommInbox();
 
 		/* Produce waste if able */
 		if (params.wasteMode && shouldPoop())
