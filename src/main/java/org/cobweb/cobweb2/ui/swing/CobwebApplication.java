@@ -223,7 +223,7 @@ public class CobwebApplication extends JFrame {
 			FileOutputStream outStream = new FileOutputStream(cf);
 			simRunner.getSimulation().simulationConfig.write(outStream);
 			outStream.close();
-		} catch (Exception ex) {
+		} catch (IOException ex) {
 			throw new UserInputException("Cannot open config file", ex);
 		}
 
@@ -376,7 +376,7 @@ public class CobwebApplication extends JFrame {
 		if (isTheFirstFashion) {
 			try {
 				FileUtils.copyFile(defaultData, tempDefaultData);
-			} catch (Exception ex) {
+			} catch (IOException ex) {
 				isTheFirstFashion = false;
 			}
 		}
@@ -411,7 +411,7 @@ public class CobwebApplication extends JFrame {
 			} else {
 				FileUtils.copyFile(currentFile, savingFile);
 			}
-		} catch (Exception ex) {
+		} catch (IOException ex) {
 			throw new UserInputException("Save failed", ex);
 		}
 	}
@@ -465,7 +465,7 @@ public class CobwebApplication extends JFrame {
 				if (f.exists()) {
 					try {
 						FileUtils.copyFile(chosenFile, defaultData);
-					} catch (Exception ex) {
+					} catch (IOException ex) {
 						Logger.getLogger("COBWEB2").log(Level.WARNING, "Unable to set default data", ex);
 						JOptionPane.showMessageDialog(setDialog, "Fail to set default data!\n"
 								+ "\nPossible cause(s): " + ex.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
@@ -896,14 +896,14 @@ public class CobwebApplication extends JFrame {
 		group.add(b1);
 		group.add(b2);
 
-		JTextField amount = new JTextField(30);
+		JTextField amountField = new JTextField(30);
 
 		Object[] array = {
 				new JLabel("Select an option:"),
 				b1,
 				b2,
 				new JLabel("Enter the number for the selected option:"),
-				amount
+				amountField
 		};
 
 		int res = JOptionPane.showConfirmDialog(null, array, "Select",
@@ -912,21 +912,20 @@ public class CobwebApplication extends JFrame {
 		if (res == -1 || res == 2)
 			return null;
 
-		int am = -1;
+		int amount = -1;
 
 		HashMap<String, Object> result = new HashMap<String, Object>();
 
 		try {
-			am = Integer.parseInt(amount.getText());
-			if (am < 1)
-				throw new Exception();
-		} catch (Exception e) {
+			amount = Integer.parseInt(amountField.getText());
+			if (amount < 1)
+				throw new IllegalArgumentException("Amount must be 1 or greater");
+		} catch (IllegalArgumentException e) {
 			JOptionPane.showMessageDialog((Component)null, "Invalid input.");
 			return null;
-
 		}
 
-		result.put("amount", new Integer(am));
+		result.put("amount", new Integer(amount));
 
 		if (b1.isSelected()) {
 			result.put("option", "percentage");

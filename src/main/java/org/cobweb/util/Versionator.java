@@ -1,5 +1,6 @@
 package org.cobweb.util;
 
+import java.io.IOException;
 import java.util.Properties;
 
 
@@ -36,7 +37,7 @@ public class Versionator {
 								properties.getProperty("git.commit.time"));
 					}
 				}
-			} catch (Exception ex) {
+			} catch (IOException ex) {
 				// nothing
 			}
 		}

@@ -1,6 +1,7 @@
 package org.cobweb.cobweb2;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,7 +92,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 				theEnvironment = (ComplexEnvironment) environmentCtor.newInstance(this);
 			}
 			theEnvironment.load(p);
-		} catch (Exception ex) {
+		} catch (InstantiationError | ClassNotFoundException | NoSuchMethodException |
+				InstantiationException | IllegalAccessException | InvocationTargetException ex) {
 			throw new RuntimeException("Can't InitEnvironment", ex);
 		}
 	}

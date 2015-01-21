@@ -170,7 +170,7 @@ public class SimulationConfigEditor {
 		if (f.exists()) {
 			try {
 				p = new SimulationConfig(datafile);
-			} catch (Exception ex) {
+			} catch (FileNotFoundException ex) {
 				myLogger.log(Level.WARNING, "Cannot open config file", ex);
 				setDefault();
 			}
