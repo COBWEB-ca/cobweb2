@@ -7,13 +7,14 @@ import java.lang.reflect.Field;
 
 import javax.swing.DefaultComboBoxModel;
 
-public class EnumComboBoxModel extends DefaultComboBoxModel {
+public class EnumComboBoxModel<T extends Enum<T>> extends DefaultComboBoxModel<T> {
 	private static final long serialVersionUID = -9190442597939410887L;
 
-	private Object[] values;
+	private T[] values;
 	private Field field;
 	private Object obj;
 
+	@SuppressWarnings("unchecked")
 	public EnumComboBoxModel(Object obj, String fieldName) {
 		try {
 			this.field = obj.getClass().getField(fieldName);
@@ -25,7 +26,7 @@ public class EnumComboBoxModel extends DefaultComboBoxModel {
 			throw new IllegalArgumentException("Field must be an enum");
 
 		this.obj = obj;
-		values = type.getEnumConstants();
+		values = (T[]) type.getEnumConstants();
 	}
 
 	@Override
@@ -47,7 +48,7 @@ public class EnumComboBoxModel extends DefaultComboBoxModel {
 	}
 
 	@Override
-	public Object getElementAt(int arg0) {
+	public T getElementAt(int arg0) {
 		return values[arg0];
 	}
 

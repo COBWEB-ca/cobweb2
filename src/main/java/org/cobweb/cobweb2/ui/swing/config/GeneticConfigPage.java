@@ -25,6 +25,7 @@ import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.genetics.GeneticParams;
+import org.cobweb.cobweb2.genetics.MeiosisMode;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
@@ -32,7 +33,7 @@ import org.cobweb.swingutil.binding.EnumComboBoxModel;
 
 public class GeneticConfigPage implements ConfigPage {
 
-	private static class ListManipulator<T> extends AbstractListModel {
+	private static class ListManipulator<T> extends AbstractListModel<T> {
 		private static final long serialVersionUID = 6521578944695127260L;
 
 		List<T> items;
@@ -47,7 +48,7 @@ public class GeneticConfigPage implements ConfigPage {
 		}
 
 		@Override
-		public Object getElementAt(int index) {
+		public T getElementAt(int index) {
 			return items.get(index);
 		}
 
@@ -121,7 +122,7 @@ public class GeneticConfigPage implements ConfigPage {
 	}
 
 	/** The list of mutable phenotypes shown on Genetic Algorithm tab. */
-	private JList listAvailable;
+	private JList<Phenotype> listAvailable;
 
 	private JPanel myPanel;
 
@@ -136,7 +137,7 @@ public class GeneticConfigPage implements ConfigPage {
 	private class AddListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			for (Object o : listAvailable.getSelectedValues()) {
+			for (Object o : listAvailable.getSelectedValuesList()) {
 				Phenotype p = (Phenotype) o;
 				addGene(p);
 			}
@@ -254,7 +255,8 @@ public class GeneticConfigPage implements ConfigPage {
 	}
 
 	private JPanel makeMeiosisConfig() {
-		JComboBox meiosis_mode = new JComboBox(new EnumComboBoxModel(this.params, "meiosisMode"));
+		JComboBox<MeiosisMode> meiosis_mode = new JComboBox<MeiosisMode>(
+				new EnumComboBoxModel<MeiosisMode>(this.params, "meiosisMode"));
 		JPanel meiosis_mode_panel = new JPanel(new BorderLayout());
 		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
 		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);
@@ -270,7 +272,7 @@ public class GeneticConfigPage implements ConfigPage {
 		phenosAvailable = new ListManipulator<Phenotype>(
 				new ArrayList<Phenotype>(choiceCatalog.getChoices(Phenotype.class)));
 
-		listAvailable = new JList(phenosAvailable);
+		listAvailable = new JList<Phenotype>(phenosAvailable);
 		listAvailable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		listAvailable.setLayoutOrientation(JList.VERTICAL);
 		listAvailable.setVisibleRowCount(-1);

@@ -52,7 +52,7 @@ class AIPanel extends SettingsPanel {
 		inner.add(lWpanel, AI_LIST[1]);
 		tabs[1] = lWpanel;
 
-		final JComboBox aiSwitch = new JComboBox(AI_LIST);
+		final JComboBox<String> aiSwitch = new JComboBox<String>(AI_LIST);
 		aiSwitch.setEditable(false);
 		aiSwitch.addItemListener(new ItemListener() {
 			@Override
