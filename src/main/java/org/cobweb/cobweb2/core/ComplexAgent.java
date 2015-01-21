@@ -312,7 +312,7 @@ public class ComplexAgent extends Agent implements Updatable, Serializable {
 				return new SeeInfo(dist, Environment.FLAG_FOOD);
 
 			if (environment.hasDrop(destPos))
-				return new SeeInfo(dist, ComplexEnvironment.FLAG_DROP);
+				return new SeeInfo(dist, Environment.FLAG_DROP);
 
 			destPos = environment.topology.getAdjacent(destPos);
 		}

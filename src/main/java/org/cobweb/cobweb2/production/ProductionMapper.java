@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexEnvironment;
+import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
@@ -19,7 +19,7 @@ import org.cobweb.util.ArrayUtilities;
 
 public class ProductionMapper implements StatePlugin, SpawnMutator {
 
-	private ComplexEnvironment environment;
+	private Environment environment;
 	private float[][] vals;
 	private float maxValue;
 	SimulationInternals simulation;
@@ -298,7 +298,7 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		initialParams = productionParams;
 	}
 
-	public void initEnvironment(ComplexEnvironment env, boolean keepOldProducts) {
+	public void initEnvironment(Environment env, boolean keepOldProducts) {
 		environment = env;
 
 		// FIXME: this has to happen after environment is set up, since simulation.getTopology comes from the environment

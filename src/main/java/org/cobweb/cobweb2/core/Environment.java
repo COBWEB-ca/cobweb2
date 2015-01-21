@@ -47,13 +47,13 @@ public  class Environment {
 		topology = new Topology(simulation, width, height, wrap);
 
 		if (keepOldArray) {
-			int[] boardIndices = { width, height };
-			array = new ArrayEnvironment(width, height, array);
-			foodarray = ArrayUtilities.resizeArray(foodarray, boardIndices);
+			array = new ArrayEnvironment(topology.width, topology.height, array);
+			foodarray = ArrayUtilities.resizeArray(foodarray, topology.width, topology.height);
 		} else {
-			array = new ArrayEnvironment(width, height);
-			foodarray = new int[width][height];
+			array = new ArrayEnvironment(topology.width, topology.height);
+			foodarray = new int[topology.width][topology.height];
 		}
+		dropArray = ArrayUtilities.resizeArray(dropArray, topology.width, topology.height);
 	}
 
 
@@ -65,7 +65,9 @@ public  class Environment {
 
 	private ArrayEnvironment array;
 
-	private int[][] foodarray = new int[0][];
+	private int[][] foodarray = new int[0][0];
+
+	protected Drop[][] dropArray = new Drop[0][0];
 
 	public static final int FLAG_STONE = 1;
 
@@ -202,12 +204,84 @@ public  class Environment {
 		array.setLocationBits(l, bits);
 	}
 
+	public void addDrop(Location loc, Drop d) {
+		if (hasFood(loc)) {
+			removeFood(loc);
+		}
+
+		setFlag(loc, Environment.FLAG_DROP, true);
+
+		dropArray[loc.x][loc.y] = d;
+	}
+
+	public void removeDrop(Location loc) {
+		setFlag(loc, FLAG_DROP, false);
+		dropArray[loc.x][loc.y] = null;
+	}
+
+	public Drop getDrop(Location loc) {
+		return dropArray[loc.x][loc.y];
+	}
+
+	public boolean hasDrop(Location loc) {
+		return testFlag(loc, FLAG_DROP);
+	}
+
 	public boolean hasStone(Location l) {
 		return testFlag(l, Environment.FLAG_STONE);
 	}
 
 	public boolean hasAgent(Location l) {
 		return getAgent(l) != null;
+	}
+
+	public synchronized void clearWaste() {
+		clearFlag(Environment.FLAG_DROP);
+	}
+
+	public long countFoodTiles() {
+		long foodCount = 0;
+
+		for (int x = 0; x < topology.width; ++x) {
+			for (int y = 0; y < topology.height; ++y) {
+				Location currentPos = new Location(x, y);
+				if (hasFood(currentPos))
+					++foodCount;
+			}
+		}
+		return foodCount;
+	}
+
+	public int countFoodTiles(int foodType) {
+		int foodCount = 0;
+		for (int x = 0; x < topology.width; ++x) {
+			for (int y = 0; y < topology.height; ++y) {
+				Location currentPos = new Location(x, y);
+				if (hasFood(currentPos))
+					if (getFoodType(currentPos) == foodType)
+						++foodCount;
+			}
+		}
+		return foodCount;
+	}
+
+	/**
+	 * Removes old agents that are off the new environment.
+	 */
+	protected void removeOffgridAgents() {
+		for (Agent a : new ArrayList<Agent>(getAgents())) {
+			Location l = a.getPosition();
+			if (l.x >= topology.width || l.y >= topology.height) {
+				a.die();
+			}
+		}
+
+	}
+
+	public synchronized void removeAgent(Location l) {
+		Agent a = getAgent(l);
+		if (a != null)
+			a.die();
 	}
 
 }

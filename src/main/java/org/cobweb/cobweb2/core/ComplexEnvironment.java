@@ -9,7 +9,6 @@ import org.cobweb.cobweb2.broadcast.PacketConduit;
 import org.cobweb.cobweb2.core.params.ComplexAgentParams;
 import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.food.Food;
-import org.cobweb.util.ArrayUtilities;
 
 /**
  * 2D grid where agents and food live
@@ -18,38 +17,9 @@ public class ComplexEnvironment extends Environment implements Updatable {
 
 	protected ComplexAgentParams agentData[];
 
-	public void addDrop(Location loc, Drop d) {
-		if (hasFood(loc)) {
-			removeFood(loc);
-		}
-
-		setFlag(loc, Environment.FLAG_DROP, true);
-
-		dropArray[loc.x][loc.y] = d;
-	}
-
-	public void removeDrop(Location loc) {
-		setFlag(loc, FLAG_DROP, false);
-		dropArray[loc.x][loc.y] = null;
-	}
-
-	public Drop getDrop(Location loc) {
-		return dropArray[loc.x][loc.y];
-	}
-
-	public boolean hasDrop(Location loc) {
-		return testFlag(loc, FLAG_DROP);
-	}
-
 	public final List<ComplexAgentStatistics> agentInfoVector = new ArrayList<ComplexAgentStatistics>();
 
 	public ComplexEnvironmentParams data = new ComplexEnvironmentParams();
-
-	/*
-	 * Waste tile array to store the data per waste tile. Needed to allow
-	 * depletion of waste
-	 */
-	private Drop[][] dropArray = new Drop[0][0];
 
 	public PacketConduit commManager;
 
@@ -106,10 +76,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		agentInfoVector.clear();
 	}
 
-	public synchronized void clearWaste() {
-		clearFlag(Environment.FLAG_DROP);
-	}
-
 	/* Return the number of agents (int) for a certain agentType (int) */
 	public int countAgents(int agentType) {
 		int agentCount = 0;
@@ -118,34 +84,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 				agentCount++;
 		}
 		return agentCount;
-	}
-
-	/* Return foodCount (long) of all types of food */
-	public long countFoodTiles() {
-		long foodCount = 0;
-
-		for (int x = 0; x < topology.width; ++x) {
-			for (int y = 0; y < topology.height; ++y) {
-				Location currentPos = new Location(x, y);
-				if (hasFood(currentPos))
-					++foodCount;
-			}
-		}
-		return foodCount;
-	}
-
-	/* Return foodCount (long) for a specific foodType (int) */
-	public int countFoodTiles(int foodType) {
-		int foodCount = 0;
-		for (int x = 0; x < topology.width; ++x) {
-			for (int y = 0; y < topology.height; ++y) {
-				Location currentPos = new Location(x, y);
-				if (hasFood(currentPos))
-					if (getFoodType(currentPos) == foodType)
-						++foodCount;
-			}
-		}
-		return foodCount;
 	}
 
 	public synchronized EnvironmentStats getStatistics() {
@@ -192,8 +130,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		} else {
 			clearAgents();
 		}
-
-		resizeDropArray();
 
 		if (!data.keepOldPackets) {
 			commManager.clearPackets();
@@ -283,33 +219,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		}
 
 		removeOffgridAgents();
-	}
-
-	/**
-	 * Removes old agents that are off the new environment.
-	 */
-	private void removeOffgridAgents() {
-		for (Agent a : new ArrayList<Agent>(getAgents())) {
-			Location l = a.getPosition();
-			if (l.x >= data.width || l.y >= data.height) {
-				a.die();
-			}
-		}
-
-	}
-
-	/**
-	 * Resizes old waste array to create a new waste array while keeping waste data
-	 * that was stored in old waste array.
-	 */
-	private void resizeDropArray() {
-		dropArray = ArrayUtilities.resizeArray(dropArray, topology.width, topology.height);
-	}
-
-	public synchronized void removeAgent(Location l) {
-		Agent a = getAgent(l);
-		if (a != null)
-			a.die();
 	}
 
 	/**
