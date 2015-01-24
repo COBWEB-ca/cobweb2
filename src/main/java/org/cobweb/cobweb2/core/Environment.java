@@ -21,7 +21,7 @@ import org.cobweb.util.ArrayUtilities;
  * Java code still has a nice java flavoured interface to the data.
  *
  * Another advantage of the accessor model is that the internal data need not be
- * in a format that is reasonable for external access. An array of longs where
+ * in a format that is reasonable for external access. An flagArray of longs where
  * bitfields represent the location states makes sense in this context, because
  * the accessors allow friendly access to this state information.
  *
@@ -47,11 +47,11 @@ public  class Environment {
 		topology = new Topology(simulation, width, height, wrap);
 
 		if (keepOldArray) {
-			array = ArrayUtilities.resizeArray(array, topology.width, topology.height);
-			foodarray = ArrayUtilities.resizeArray(foodarray, topology.width, topology.height);
+			flagArray = ArrayUtilities.resizeArray(flagArray, topology.width, topology.height);
+			foodTypeArray = ArrayUtilities.resizeArray(foodTypeArray, topology.width, topology.height);
 		} else {
-			array = new int[topology.width][topology.height];
-			foodarray = new int[topology.width][topology.height];
+			flagArray = new int[topology.width][topology.height];
+			foodTypeArray = new int[topology.width][topology.height];
 		}
 		dropArray = ArrayUtilities.resizeArray(dropArray, topology.width, topology.height);
 	}
@@ -63,9 +63,9 @@ public  class Environment {
 	 */
 	protected Map<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 
-	private int[][] array = new int[0][0];
+	private int[][] flagArray = new int[0][0];
 
-	private int[][] foodarray = new int[0][0];
+	private int[][] foodTypeArray = new int[0][0];
 
 	protected Drop[][] dropArray = new Drop[0][0];
 
@@ -105,11 +105,11 @@ public  class Environment {
 	}
 
 	private int getLocationBits(Location l) {
-		return array[l.x][l.y];
+		return flagArray[l.x][l.y];
 	}
 
 	private void setLocationBits(Location l, int bits) {
-		array[l.x][l.y] = bits;
+		flagArray[l.x][l.y] = bits;
 	}
 
 	/**
@@ -140,7 +140,7 @@ public  class Environment {
 	}
 
 	public int getFoodType(Location l) {
-		return foodarray[l.x][l.y];
+		return foodTypeArray[l.x][l.y];
 	}
 
 	public synchronized void addFood(Location l, int type) {
@@ -148,7 +148,7 @@ public  class Environment {
 			throw new IllegalArgumentException("stone here already");
 		}
 		setFlag(l, Environment.FLAG_FOOD, true);
-		foodarray[l.x][l.y] = type;
+		foodTypeArray[l.x][l.y] = type;
 	}
 
 	public synchronized void clearFood() {
@@ -164,7 +164,7 @@ public  class Environment {
 	}
 
 	public int getFood(Location l) {
-		return foodarray[l.x][l.y];
+		return foodTypeArray[l.x][l.y];
 	}
 
 	protected void clearFlag(int flag) {
