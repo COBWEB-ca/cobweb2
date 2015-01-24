@@ -6,9 +6,10 @@ import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.Updatable;
 
 
-public class FoodGrowth {
+public class FoodGrowth implements Updatable {
 
 	private static final int DROP_ATTEMPTS_MAX = 5;
 
@@ -165,8 +166,8 @@ public class FoodGrowth {
 		return foodData.length;
 	}
 
-	public void update(long tick) {
-
+	@Override
+	public void update() {
 
 		// for each agent type, we test to see if its deplete time step has
 		// come, and if so deplete the food random
@@ -175,7 +176,8 @@ public class FoodGrowth {
 		for (ComplexFoodParams f : foodData) {
 			if (f.depleteRate != 0.0f
 					&& f.growRate > 0
-					&& (tick % f.depleteTime) == 0) {
+					&& simulation.getTime() != 0
+					&& (simulation.getTime() % f.depleteTime) == 0) {
 				depleteFood(f);
 			}
 		}

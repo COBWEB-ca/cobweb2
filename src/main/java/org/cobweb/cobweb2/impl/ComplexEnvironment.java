@@ -208,14 +208,15 @@ public class ComplexEnvironment extends Environment {
 	 * environment to function properly. These tasks include managing food
 	 * depletion, food growth, and random food-"dropping".
 	 */
-	public synchronized void update(long tick) {
+	@Override
+	public synchronized void update() {
+		super.update();
 
-		commManager.decrementPersistence();
-		commManager.unblockBroadcast();
+		commManager.update();
 
 		updateWaste();
 
-		foodManager.update(tick);
+		foodManager.update();
 	}
 
 	/**

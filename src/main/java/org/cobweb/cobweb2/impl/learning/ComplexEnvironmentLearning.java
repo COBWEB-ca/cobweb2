@@ -35,8 +35,8 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 	}
 
 	@Override
-	public synchronized void update(long tick) {
-		super.update(tick);
+	public synchronized void update() {
+		super.update();
 
 		pruneOccurrences();
 	}

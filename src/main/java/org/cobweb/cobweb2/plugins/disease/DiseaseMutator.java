@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.Updatable;
 import org.cobweb.cobweb2.plugins.ContactMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.util.ArrayUtilities;
@@ -19,7 +20,7 @@ import org.cobweb.util.ArrayUtilities;
 /**
  * Simulates various diseases that can affect agents.
  */
-public class DiseaseMutator implements ContactMutator, SpawnMutator {
+public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
 
 	private DiseaseParams[] params;
 
@@ -188,7 +189,8 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 		agentState.put(bumpee, new State(false, true, effectiveness));
 	}
 
-	public void update(long time) {
+	@Override
+	public void update() {
 
 		for (Iterator<Agent> agents = agentState.keySet().iterator(); agents.hasNext();) {
 			Agent a = agents.next();
@@ -199,7 +201,7 @@ public class DiseaseMutator implements ContactMutator, SpawnMutator {
 
 			long randomRecovery = (long) (params[a.getType()].recoveryTime * (simulation.getRandom().nextDouble() * 0.2 + 1.0));
 
-			if (s.sick && time - s.sickStart > randomRecovery) {
+			if (s.sick && simulation.getTime() - s.sickStart > randomRecovery) {
 				unSickIterating(a, agents);
 			}
 		}

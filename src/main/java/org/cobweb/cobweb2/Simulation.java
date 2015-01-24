@@ -165,7 +165,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	@Override
 	public void step() {
 
-		theEnvironment.update(time);
+		theEnvironment.update();
 
 		// TODO synchronize on something other than environment?
 		synchronized(theEnvironment) {
@@ -177,7 +177,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 				if (!agent.isAlive())
 					agents.remove(agent);
 			}
-			diseaseMutator.update(time);
+			diseaseMutator.update();
 			// TODO update other modules here
 		}
 

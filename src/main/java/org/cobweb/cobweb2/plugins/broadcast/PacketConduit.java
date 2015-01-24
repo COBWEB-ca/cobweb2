@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.Updatable;
 
-public class PacketConduit {
+public class PacketConduit implements Updatable {
 
 	private boolean broadcastBlocked = false;
 
@@ -53,6 +54,12 @@ public class PacketConduit {
 				return commPacket;
 		}
 		return null;
+	}
+
+	@Override
+	public void update() {
+		decrementPersistence();
+		unblockBroadcast();
 	}
 
 }

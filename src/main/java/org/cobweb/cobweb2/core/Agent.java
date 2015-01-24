@@ -3,7 +3,7 @@ package org.cobweb.cobweb2.core;
 /**
  * Basic properties of an Agent
  */
-public abstract class Agent {
+public abstract class Agent implements Updatable {
 
 	private boolean alive = true;
 
@@ -53,6 +53,7 @@ public abstract class Agent {
 
 	protected abstract Agent createChildAsexual(LocationDirection location);
 
+	@Override
 	public void update() {
 
 	}

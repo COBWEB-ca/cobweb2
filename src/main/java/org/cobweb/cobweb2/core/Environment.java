@@ -33,7 +33,7 @@ import org.cobweb.util.ArrayUtilities;
  * environment they are operating in, but all access should be through this
  * interface, using implementation specific access constants.
  */
-public  class Environment {
+public class Environment implements Updatable {
 
 	protected SimulationInternals simulation;
 
@@ -256,6 +256,11 @@ public  class Environment {
 		Agent a = getAgent(l);
 		if (a != null)
 			a.die();
+	}
+
+	@Override
+	public synchronized void update() {
+		// nothing
 	}
 
 }
