@@ -14,7 +14,6 @@ import org.cobweb.cobweb2.core.AgentListener;
 import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.EnvironmentStats;
 import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
@@ -57,11 +56,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	@Override
 	public int getAgentTypeCount() {
 		return simulationConfig.getEnvParams().agentTypeCount;
-	}
-
-	@Override
-	public EnvironmentStats getStatistics() {
-		return theEnvironment.getStatistics();
 	}
 
 	@Override

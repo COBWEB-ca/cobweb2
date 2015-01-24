@@ -5,17 +5,15 @@ import java.io.Writer;
 import java.text.DecimalFormat;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.ComplexAgent;
 
 
 public class StatsLogger implements UpdatableUI {
 
+	private final StatsTracker statsTracker;
 	private PrintWriter logStream;
-	private Simulation simulation;
 
 	public StatsLogger(Writer w, Simulation simulation) {
-		this.simulation = simulation;
+		statsTracker = new StatsTracker(simulation);
 		logStream = new java.io.PrintWriter(w, false);
 		writeLogTitles();
 	}
@@ -32,20 +30,20 @@ public class StatsLogger implements UpdatableUI {
 
 		java.text.DecimalFormat z = new DecimalFormat("#,##0.000");
 
-		for (int i = 0; i < simulation.getAgentTypeCount(); i++) {
+		for (int i = 0; i < statsTracker.getAgentTypeCount(); i++) {
 
-			long agentCount = simulation.theEnvironment.countAgents(i);
-			long agentEnergy = countAgentEnergy(i);
+			long agentCount = statsTracker.countAgents(i);
+			long agentEnergy = statsTracker.countAgentEnergy(i);
 			/*
 			 * System.out
 			 * .println("************* Near Agent Count *************");
 			 */
 
-			int cheaters = numAgentsStrat(i)[1];
-			int coops = numAgentsStrat(i)[0];
-			logStream.print(simulation.getTime());
+			int cheaters = statsTracker.numAgentsStrat(i)[1];
+			int coops = statsTracker.numAgentsStrat(i)[0];
+			logStream.print(statsTracker.getTime());
 			logStream.print('\t');
-			logStream.print(simulation.theEnvironment.countFoodTiles(i));
+			logStream.print(statsTracker.countFoodTiles(i));
 			logStream.print('\t');
 			logStream.print(agentCount);
 			logStream.print('\t');
@@ -62,7 +60,7 @@ public class StatsLogger implements UpdatableUI {
 			logStream.print(coops);
 			logStream.print('\t');
 
-			for (String s : simulation.mutatorListener.logDataAgent(i)) {
+			for (String s : statsTracker.pluginStatsAgent(i)) {
 				logStream.print(s);
 				logStream.print('\t');
 			}
@@ -73,17 +71,17 @@ public class StatsLogger implements UpdatableUI {
 		 * System.out
 		 * .println("************* Before Agent Count Call *************");
 		 */
-		long agentCountAll = simulation.theEnvironment.getAgentCount();
+		long agentCountAll = statsTracker.getAgentCount();
 		/*
 		 * System.out
 		 * .println("************* After Agent Count Call *************");
 		 */
-		long agentEnergyAll = countAgentEnergy();
-		int total_cheaters = numAgentsStrat()[1];
-		int total_coops = numAgentsStrat()[0];
-		logStream.print(simulation.getTime());
+		long agentEnergyAll = statsTracker.countAgentEnergy();
+		int total_cheaters = statsTracker.numAgentsStrat()[1];
+		int total_coops = statsTracker.numAgentsStrat()[0];
+		logStream.print(statsTracker.getTime());
 		logStream.print('\t');
-		logStream.print(simulation.theEnvironment.countFoodTiles());
+		logStream.print(statsTracker.countFoodTiles());
 		logStream.print('\t');
 		logStream.print(agentCountAll);
 		logStream.print('\t');
@@ -96,7 +94,7 @@ public class StatsLogger implements UpdatableUI {
 		logStream.print(total_coops);
 		logStream.print('\t');
 
-		for (String s : simulation.mutatorListener.logDataTotal()) {
+		for (String s : statsTracker.pluginStatsTotal()) {
 			logStream.print(s);
 			logStream.print('\t');
 		}
@@ -107,7 +105,7 @@ public class StatsLogger implements UpdatableUI {
 	/* Write the Log titles to the file,(called by log (java.io.Writer w)) */
 	private void writeLogTitles() {
 		if (logStream != null) {
-			for (int i = 1; i <= simulation.getAgentTypeCount(); i++) {
+			for (int i = 1; i <= statsTracker.getAgentTypeCount(); i++) {
 
 				logStream.print("Tick\t");
 				logStream.print("FoodCount " + i + "\t");
@@ -116,7 +114,7 @@ public class StatsLogger implements UpdatableUI {
 				logStream.print("AgentEnergy " + i + "\t");
 				logStream.print("Cheat " + i + "\t");
 				logStream.print("Coop " + i + "\t");
-				for (String s : simulation.mutatorListener.logHeaderAgent()) {
+				for (String s : statsTracker.pluginStatsHeaderAgent()) {
 					logStream.print(s);
 					logStream.print(" " + i);
 					logStream.print('\t');
@@ -130,7 +128,7 @@ public class StatsLogger implements UpdatableUI {
 			logStream.print("AgentEnergy T\t");
 			logStream.print("Num. Cheat T\t");
 			logStream.print("Num. Coop T\t");
-			for (String s : simulation.mutatorListener.logHeaderTotal()) {
+			for (String s : statsTracker.pluginStatsHeaderTotal()) {
 				logStream.print(s);
 				logStream.print(" T");
 				logStream.print('\t');
@@ -138,64 +136,6 @@ public class StatsLogger implements UpdatableUI {
 			logStream.println();
 		}
 	}
-
-
-	public long countAgentEnergy() {
-		long totalEnergy = 0;
-		for(Agent a : simulation.theEnvironment.getAgents()){
-			ComplexAgent agent = (ComplexAgent) a;
-			totalEnergy += agent.getEnergy();
-		}
-		return totalEnergy;
-	}
-
-	public long countAgentEnergy(int agentType) {
-		long totalEnergy = 0;
-		for(Agent a : simulation.theEnvironment.getAgents()) {
-			ComplexAgent agent = (ComplexAgent) a;
-			if (agent.getType() == agentType)
-				totalEnergy += agent.getEnergy();
-		}
-		return totalEnergy;
-	}
-
-
-	public int[] numAgentsStrat() {
-		int stratArray[] = new int[2];
-		int cheaters = 0;
-		int coops = 0;
-		for(Agent a : simulation.theEnvironment.getAgents()) {
-			ComplexAgent agent = (ComplexAgent) a;
-			if (!agent.getAgentPDActionCheat()) {
-				coops++;
-				stratArray[0] = coops;
-			} else if (agent.getAgentPDActionCheat()) {
-				cheaters++;
-				stratArray[1] = cheaters;
-			}
-
-		}
-		return stratArray;
-	}
-
-	public int[] numAgentsStrat(int agentType) {
-		int stratArray[] = new int[2];
-		int cheaters = 0;
-		int coops = 0;
-		for(Agent a : simulation.theEnvironment.getAgents()) {
-			ComplexAgent agent = (ComplexAgent) a;
-			if (agent.getType() == agentType && !agent.getAgentPDActionCheat()) {
-				coops++;
-				stratArray[0] = coops;
-			} else if (agent.getType() == agentType && agent.getAgentPDActionCheat()) {
-				cheaters++;
-				stratArray[1] = cheaters;
-			}
-
-		}
-		return stratArray;
-	}
-
 
 
 	public void dispose() {

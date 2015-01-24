@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.interconnect;
 
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,16 +89,16 @@ public class MutatorListener implements AgentListener {
 
 
 
-	public Collection<String> logDataAgent(int i) {
+	public List<String> logDataAgent(int type) {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logDataAgent(i))
+			for (String s : mut.logDataAgent(type))
 				blah.add(s);
 		}
 		return blah;
 	}
 
-	public Iterable<String> logDataTotal() {
+	public List<String> logDataTotal() {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logDataTotal())
@@ -108,7 +107,7 @@ public class MutatorListener implements AgentListener {
 		return blah;
 	}
 
-	public Collection<String> logHeaderAgent() {
+	public List<String> logHeaderAgent() {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logHeadersAgent())
@@ -117,7 +116,7 @@ public class MutatorListener implements AgentListener {
 		return blah;
 	}
 
-	public Iterable<String> logHeaderTotal() {
+	public List<String> logHeaderTotal() {
 		List<String> blah = new LinkedList<String>();
 		for (SpawnMutator mut : spawnMutators) {
 			for (String s : mut.logHeaderTotal())

@@ -239,32 +239,6 @@ public  class Environment {
 		clearFlag(Environment.FLAG_DROP);
 	}
 
-	public long countFoodTiles() {
-		long foodCount = 0;
-
-		for (int x = 0; x < topology.width; ++x) {
-			for (int y = 0; y < topology.height; ++y) {
-				Location currentPos = new Location(x, y);
-				if (hasFood(currentPos))
-					++foodCount;
-			}
-		}
-		return foodCount;
-	}
-
-	public int countFoodTiles(int foodType) {
-		int foodCount = 0;
-		for (int x = 0; x < topology.width; ++x) {
-			for (int y = 0; y < topology.height; ++y) {
-				Location currentPos = new Location(x, y);
-				if (hasFood(currentPos))
-					if (getFoodType(currentPos) == foodType)
-						++foodCount;
-			}
-		}
-		return foodCount;
-	}
-
 	/**
 	 * Removes old agents that are off the new environment.
 	 */

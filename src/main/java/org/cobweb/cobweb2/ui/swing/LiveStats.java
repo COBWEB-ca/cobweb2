@@ -5,9 +5,9 @@ import java.awt.event.ComponentEvent;
 
 import javax.swing.JFrame;
 
-import org.cobweb.cobweb2.core.EnvironmentStats;
-import org.cobweb.cobweb2.core.SimulationInterface;
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.ui.SimulationRunner;
+import org.cobweb.cobweb2.ui.StatsTracker;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
@@ -48,6 +48,8 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 
 	private SimulationRunner scheduler;
 
+	private StatsTracker statsTracker;
+
 	public LiveStats(SimulationRunner scheduler) {
 		this.scheduler = scheduler;
 		graph.addComponentListener(new ComponentAdapter() {
@@ -67,6 +69,8 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 		data.addSeries(agentData);
 		data.addSeries(foodData);
 
+		statsTracker = new StatsTracker((Simulation) this.scheduler.getSimulation());
+
 		scheduler.addUIComponent(this);
 	}
 
@@ -80,20 +84,12 @@ public class LiveStats implements UpdatableUI, ViewerPlugin {
 
 	@Override
 	public void update(boolean sync) {
-		SimulationInterface simulation = scheduler.getSimulation();
+		long time = statsTracker.getTime();
+		long agentCount = statsTracker.getAgentCount();
+		long foodCount = statsTracker.countFoodTiles();
 
-		EnvironmentStats stats = simulation.getStatistics();
-		long agentCount = 0;
-		for (long count : stats.agentCounts) {
-			agentCount += count;
-		}
-		long foodCount = 0;
-		for (long count : stats.foodCounts) {
-			foodCount += count;
-		}
-
-		agentData.add(stats.timestep, agentCount);
-		foodData.add(stats.timestep, foodCount);
+		agentData.add(time, agentCount);
+		foodData.add(time, foodCount);
 
 		if (frame++ >= frameskip) {
 			frame = 0;

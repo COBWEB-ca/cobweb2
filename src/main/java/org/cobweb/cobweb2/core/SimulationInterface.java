@@ -40,8 +40,6 @@ public interface SimulationInterface {
 	/* returns the number of agents */
 	public int getAgentTypeCount();
 
-	public EnvironmentStats getStatistics();
-
 	public long getTime();
 
 	public void step();

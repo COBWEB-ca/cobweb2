@@ -76,28 +76,6 @@ public class ComplexEnvironment extends Environment implements Updatable {
 		agentInfoVector.clear();
 	}
 
-	/* Return the number of agents (int) for a certain agentType (int) */
-	public int countAgents(int agentType) {
-		int agentCount = 0;
-		for(Agent a : getAgents()) {
-			if (a.getType() == agentType)
-				agentCount++;
-		}
-		return agentCount;
-	}
-
-	public synchronized EnvironmentStats getStatistics() {
-		EnvironmentStats stats = new EnvironmentStats();
-		stats.agentCounts = new long[data.agentTypeCount];
-		stats.foodCounts = new long[data.agentTypeCount];
-		for (int i = 0; i < data.agentTypeCount; i++) {
-			stats.agentCounts[i] = countAgents(i);
-			stats.foodCounts[i] = countFoodTiles(i);
-		}
-		stats.timestep = simulation.getTime();
-		return stats;
-	}
-
 	/**
 	 * Loads a new complex environment using the data held within the simulation
 	 * configuration object, p.  The following actions are performed during a load:
