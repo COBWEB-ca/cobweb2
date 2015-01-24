@@ -36,25 +36,40 @@ public class ReflectionUtil {
 
 	@SuppressWarnings("boxing")
 	public static final Object stringToBoxed(Class<?> t, String strVal) {
-		if (t.equals(boolean.class)) {
+		if (t.equals(boolean.class) || t.equals(Boolean.class)) {
 			return Boolean.parseBoolean(strVal);
-		} else if (t.equals(byte.class)) {
+		} else if (t.equals(byte.class) || t.equals(Byte.class)) {
 			return Byte.parseByte(strVal);
-		} else if (t.equals(char.class)) {
+		} else if (t.equals(char.class) || t.equals(Character.class)) {
 			return strVal.charAt(0);
-		} else if (t.equals(double.class)) {
+		} else if (t.equals(double.class) || t.equals(Double.class)) {
 			return Double.parseDouble(strVal);
-		} else if (t.equals(float.class)) {
+		} else if (t.equals(float.class) || t.equals(Float.class)) {
 			return Float.parseFloat(strVal);
-		} else if (t.equals(int.class)) {
+		} else if (t.equals(int.class) || t.equals(Integer.class)) {
 			return Integer.parseInt(strVal);
-		} else if (t.equals(long.class)) {
+		} else if (t.equals(long.class) || t.equals(Long.class)) {
 			return Long.parseLong(strVal);
-		} else if (t.equals(short.class)) {
+		} else if (t.equals(short.class) || t.equals(Short.class)) {
 			return Short.parseShort(strVal);
 		} else if (t.equals(String.class)) {
 			return strVal;
 		}
 		throw new IllegalArgumentException("Can't parse non-primitive type: " + t.getCanonicalName());
+	}
+
+
+	public static final boolean isPrimitive(Class<?> t) {
+		return t.isPrimitive() ||
+				t.equals(String.class) ||
+				t.equals(Boolean.class) ||
+				t.equals(Byte.class) ||
+				t.equals(Character.class) ||
+				t.equals(Double.class) ||
+				t.equals(Float.class) ||
+				t.equals(Integer.class) ||
+				t.equals(Long.class) ||
+				t.equals(Short.class) ||
+				t.equals(String.class);
 	}
 }

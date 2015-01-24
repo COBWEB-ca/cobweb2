@@ -121,7 +121,7 @@ public class ParameterSerializer {
 	private Object loadObject(Class<?> type, AnnotatedElement annotationSource, Object currentValue, Node objectNode) throws IllegalArgumentException, IllegalAccessException {
 		Object newValue = currentValue;
 
-		if (isPrimitive(type)) {
+		if (ReflectionUtil.isPrimitive(type)) {
 			String strVal = objectNode.getFirstChild().getNodeValue();
 			newValue = ReflectionUtil.stringToBoxed(type, strVal);
 
@@ -156,7 +156,7 @@ public class ParameterSerializer {
 	}
 
 	private void saveObject(Class<?> type, AnnotatedElement annotationSource, Object value, Element tag, Document doc) {
-		if (isPrimitive(type) || type.isEnum()) {
+		if (ReflectionUtil.isPrimitive(type) || type.isEnum()) {
 			tag.setTextContent(value.toString());
 
 		} else if (ParameterChoice.class.isAssignableFrom(type)) {
@@ -322,13 +322,8 @@ public class ParameterSerializer {
 	}
 
 
-
-	protected boolean isPrimitive(Class<?> t) {
-		return t.isPrimitive() || t.equals(String.class);
-	}
-
 	protected boolean canSerialize(Class<?> T) {
-		return isPrimitive(T) ||
+		return ReflectionUtil.isPrimitive(T) ||
 				ParameterSerializable.class.isAssignableFrom(T) ||
 				ParameterChoice.class.isAssignableFrom(T);
 	}
