@@ -46,7 +46,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	private double commOutbox;
 
 	/** IDs of bad agents. Cheaters, etc */
-	private Collection<Long> badAgentMemory;
+	private Collection<Integer> badAgentMemory;
 
 	/* Waste variables */
 	private int wasteCounterGain;
@@ -413,7 +413,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		if (cheater.equals(this)) // heh
 			return;
 
-		long othersID = cheater.stats.id;
+		int othersID = cheater.stats.id;
 		if (badAgentMemory.contains(othersID))
 			return;
 
@@ -594,7 +594,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		wasteCounterGain = params.wasteLimitGain;
 		setWasteCounterLoss(params.wasteLimitLoss);
 
-		badAgentMemory = new CircularFifoQueue<Long>(params.pdMemory);
+		badAgentMemory = new CircularFifoQueue<Integer>(params.pdMemory);
 
 	}
 
