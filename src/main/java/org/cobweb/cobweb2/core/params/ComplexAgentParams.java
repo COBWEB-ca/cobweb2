@@ -104,6 +104,7 @@ public class ComplexAgentParams implements ParameterSerializable {
 	 */
 	@ConfDisplayName("Turn right energy")
 	@ConfXMLTag("TurnRightEnergy")
+	@GeneMutatable
 	public int turnRightEnergy = 1;
 
 	/**
@@ -241,6 +242,7 @@ public class ComplexAgentParams implements ParameterSerializable {
 	 */
 	@ConfDisplayName("PD Cooperation probability")
 	@ConfXMLTag("pdCoopProb")
+	@GeneMutatable
 	public int pdCoopProb = 50;
 
 	@ConfDisplayName("PD similarity preference")
