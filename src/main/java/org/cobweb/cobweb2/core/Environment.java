@@ -47,10 +47,10 @@ public  class Environment {
 		topology = new Topology(simulation, width, height, wrap);
 
 		if (keepOldArray) {
-			array = new ArrayEnvironment(topology.width, topology.height, array);
+			array = ArrayUtilities.resizeArray(array, topology.width, topology.height);
 			foodarray = ArrayUtilities.resizeArray(foodarray, topology.width, topology.height);
 		} else {
-			array = new ArrayEnvironment(topology.width, topology.height);
+			array = new int[topology.width][topology.height];
 			foodarray = new int[topology.width][topology.height];
 		}
 		dropArray = ArrayUtilities.resizeArray(dropArray, topology.width, topology.height);
@@ -63,7 +63,7 @@ public  class Environment {
 	 */
 	protected Map<Location, Agent> agentTable = new Hashtable<Location, Agent>();
 
-	private ArrayEnvironment array;
+	private int[][] array = new int[0][0];
 
 	private int[][] foodarray = new int[0][0];
 
@@ -102,6 +102,14 @@ public  class Environment {
 			agentTable.put(l, a);
 		else
 			agentTable.remove(l);
+	}
+
+	private int getLocationBits(Location l) {
+		return array[l.x][l.y];
+	}
+
+	private void setLocationBits(Location l, int bits) {
+		array[l.x][l.y] = bits;
 	}
 
 	/**
@@ -188,20 +196,12 @@ public  class Environment {
 		clearFlag(Environment.FLAG_STONE);
 	}
 
-	private int getLocationBits(Location l) {
-		return array.getLocationBits(l);
-	}
-
 	public boolean hasAnythingAt(Location l) {
 		return getLocationBits(l) != 0 || hasAgent(l);
 	}
 
 	public synchronized void removeStone(Location l) {
 		setFlag(l, Environment.FLAG_STONE, false);
-	}
-
-	private void setLocationBits(Location l, int bits) {
-		array.setLocationBits(l, bits);
 	}
 
 	public void addDrop(Location loc, Drop d) {
