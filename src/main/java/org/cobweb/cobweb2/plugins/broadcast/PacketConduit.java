@@ -1,17 +1,25 @@
 package org.cobweb.cobweb2.plugins.broadcast;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedList;
 
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.core.Updatable;
 
 public class PacketConduit implements Updatable {
 
 	private boolean broadcastBlocked = false;
 
-	private List<BroadcastPacket> currentPackets = new ArrayList<BroadcastPacket>();
+	private Collection<BroadcastPacket> currentPackets = new LinkedList<BroadcastPacket>();
+
+	private Topology topology;
+
+	public void load(Topology topo) {
+		this.topology = topo;
+	}
 
 	/**
 	 * adds packets to the list of packets
@@ -34,8 +42,7 @@ public class PacketConduit implements Updatable {
 		Iterator<BroadcastPacket> i = currentPackets.iterator();
 		while (i.hasNext()) {
 			BroadcastPacket packet = i.next();
-			int persistence = packet.persistence--;
-			if (persistence <= 0)
+			if (!packet.updateCheckActive())
 				i.remove();
 		}
 	}
@@ -48,10 +55,13 @@ public class PacketConduit implements Updatable {
 		currentPackets.clear();
 	}
 
-	public BroadcastPacket findPacket(Location position) {
+	public BroadcastPacket findPacket(Location position, Agent receiver) {
 		for (BroadcastPacket commPacket : currentPackets) {
-			if (commPacket.isInRange(position))
+			double distance = topology.getDistance(position, commPacket.location);
+			if (distance < commPacket.range
+					&& !commPacket.sender.equals(receiver)) {
 				return commPacket;
+			}
 		}
 		return null;
 	}

@@ -116,9 +116,9 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	protected void iveBeenCheated(long othersID) {
+	protected void iveBeenCheated(ComplexAgent othersID) {
 		super.iveBeenCheated(othersID);
-		remember(new MemorableEvent(getTime(), -1, "agent-" + othersID));
+		remember(new MemorableEvent(getTime(), -1, "agent-" + othersID.stats.id));
 	}
 
 	@Override
@@ -328,7 +328,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 
 				if (canBreed && sim >= params.breedSimMin
-						&& checkCredibility(adjacentAgent.stats.id) && adjacentAgent.checkCredibility(this.stats.id)) {
+						&& checkCredibility(adjacentAgent) && adjacentAgent.checkCredibility(this)) {
 					// Initiate pregnancy
 					queue(new SmartAction(this, "breed") {
 
@@ -343,13 +343,13 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			}
 
-			if (!pregnant && checkCredibility(adjacentAgent.stats.id) && adjacentAgent.checkCredibility(this.stats.id)) {
+			if (!pregnant && checkCredibility(adjacentAgent) && adjacentAgent.checkCredibility(this)) {
 
 				queue(new SmartAction(this) {
 
 					@Override
 					public void desiredAction() {
-						agent.playPDonStep(adjacentAgent, adjacentAgent.stats.id);
+						agent.playPDonStep(adjacentAgent);
 					}
 				});
 

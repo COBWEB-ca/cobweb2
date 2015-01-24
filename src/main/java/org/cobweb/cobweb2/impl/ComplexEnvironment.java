@@ -111,6 +111,8 @@ public class ComplexEnvironment extends Environment {
 			clearAgents();
 		}
 
+		commManager.load(topology);
+
 		if (!data.keepOldPackets) {
 			commManager.clearPackets();
 		}

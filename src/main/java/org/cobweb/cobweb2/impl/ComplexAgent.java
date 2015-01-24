@@ -2,8 +2,6 @@ package org.cobweb.cobweb2.impl;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.cobweb.cobweb2.core.Agent;
@@ -19,6 +17,8 @@ import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
+import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
+import org.cobweb.cobweb2.plugins.broadcast.FoodBroadcast;
 import org.cobweb.cobweb2.plugins.waste.Waste;
 import org.cobweb.util.RandomNoGenerator;
 
@@ -187,11 +187,8 @@ public class ComplexAgent extends Agent implements Serializable {
 		}
 	}
 
-	protected void broadcastCheating(long cheaterID) { // []SK
-		String message = Long.toString(cheaterID);
-		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.CHEATER, stats.id, message, getEnergy()
-				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
-		environment.commManager.addPacketToList(msg);
+	protected void broadcastCheating(ComplexAgent cheater) {
+		environment.commManager.addPacketToList(new CheaterBroadcast(cheater, this));
 		// new CommPacket sent
 		changeEnergy(-params.broadcastEnergyCost); // Deduct broadcasting cost from energy
 	}
@@ -202,11 +199,8 @@ public class ComplexAgent extends Agent implements Serializable {
 	 *
 	 * @param loc The location of food.
 	 */
-	protected void broadcastFood(Location loc) { // []SK
-		String message = loc.toString();
-		BroadcastPacket msg = new BroadcastPacket(BroadcastPacket.FOOD, stats.id, message, getEnergy()
-				, params.broadcastEnergyBased, params.broadcastFixedRange, getPosition(), environment);
-		environment.commManager.addPacketToList(msg);
+	protected void broadcastFood(Location loc) {
+		environment.commManager.addPacketToList(new FoodBroadcast(loc, this));
 		// new CommPacket sent
 		changeEnergy(-params.broadcastEnergyCost); // Deduct broadcasting cost from energy
 	}
@@ -259,13 +253,8 @@ public class ComplexAgent extends Agent implements Serializable {
 		return true;
 	}
 
-	protected boolean checkCredibility(long agentId) {
-		return !badAgentMemory.contains(agentId);
-	}
-
-
-	protected BroadcastPacket checkforBroadcasts() {
-		return environment.commManager.findPacket(getPosition());
+	protected boolean checkCredibility(ComplexAgent other) {
+		return !badAgentMemory.contains(other.stats.id);
 	}
 
 	protected void communicate(ComplexAgent target) {
@@ -412,17 +401,19 @@ public class ComplexAgent extends Agent implements Serializable {
 	 * The agent will remember the last variable number of agents that
 	 * cheated it.  How many cheaters it remembers is determined by its
 	 * PD memory size.
-	 *
-	 * @param othersID In a game of PD, the opposing agents ID
 	 */
-	protected void iveBeenCheated(long othersID) {
+	protected void iveBeenCheated(ComplexAgent cheater) {
 
-		rememberCheater(othersID);
+		rememberCheater(cheater);
 
-		broadcastCheating(othersID);
+		broadcastCheating(cheater);
 	}
 
-	protected void rememberCheater(long othersID) {
+	public void rememberCheater(ComplexAgent cheater) {
+		if (cheater.equals(this)) // heh
+			return;
+
+		long othersID = cheater.stats.id;
 		if (badAgentMemory.contains(othersID))
 			return;
 
@@ -518,7 +509,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
 	 */
 	@SuppressWarnings("javadoc")
-	public void playPDonStep(ComplexAgent adjacentAgent, long othersID) {
+	public void playPDonStep(ComplexAgent adjacentAgent) {
 		if (!environment.isPDenabled())
 			return;
 
@@ -560,48 +551,18 @@ public class ComplexAgent extends Agent implements Serializable {
 		}
 
 		if (adjacentAgent.pdCheater)
-			iveBeenCheated(othersID);
+			iveBeenCheated(adjacentAgent);
 	}
 
 	protected void receiveBroadcast() {
-		BroadcastPacket commPacket = null;
+		BroadcastPacket commPacket = environment.commManager.findPacket(getPosition(), this);
 
-		commPacket = checkforBroadcasts();
 		if (commPacket == null)
 			return;
 
-		// check if dispatcherId is in list
-		// TODO replace switch() with different subclasses of BroadcastPacket
-		checkCredibility(commPacket.getDispatcherId());
-
-		int type = commPacket.getType();
-		switch (type) {
-			case BroadcastPacket.FOOD:
-				receiveFoodBroadcast(commPacket);
-				break;
-			case BroadcastPacket.CHEATER:
-				receiveCheatingBroadcast(commPacket);
-				break;
-			default:
-				Logger myLogger = Logger.getLogger("COBWEB2");
-				myLogger.log(Level.WARNING, "Unrecognised broadcast type");
+		if (checkCredibility(commPacket.sender)) {
+			commPacket.process(this);
 		}
-	}
-
-	protected void receiveCheatingBroadcast(BroadcastPacket commPacket) {
-		String message = commPacket.getContent();
-		long cheaterId = 0;
-		cheaterId = Long.parseLong(message);
-		rememberCheater(cheaterId);
-	}
-
-	protected void receiveFoodBroadcast(BroadcastPacket commPacket) {
-		String message = commPacket.getContent();
-		String[] xy = message.substring(1, message.length() - 1).split(",");
-		int x = Integer.parseInt(xy[0]);
-		int y = Integer.parseInt(xy[1]);
-		thinkAboutFoodLocation(x, y);
-
 	}
 
 	public void setShouldReproduceAsex(boolean asexFlag) {
@@ -679,8 +640,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	 * <p> 3 and 4. Run into waste/rock:
 	 *
 	 * <p> Energy penalties are deducted from the agent.
-	 *
-	 * @see ComplexAgent#playPDonStep(ComplexAgent, long)
 	 */
 	public void step() {
 		Agent adjAgent;
@@ -783,8 +742,6 @@ public class ComplexAgent extends Agent implements Serializable {
 			eat(adjacentAgent);
 		}
 
-		int othersID = adjacentAgent.stats.id;
-
 		// if the agents are of the same type, check if they have enough
 		// resources to breed
 		if (adjacentAgent.params.type == params.type) {
@@ -801,31 +758,20 @@ public class ComplexAgent extends Agent implements Serializable {
 			}
 
 			if (canBreed && sim >= params.breedSimMin
-					&& checkCredibility(othersID) && adjacentAgent.checkCredibility(stats.id)) {
+					&& checkCredibility(adjacentAgent) && adjacentAgent.checkCredibility(this)) {
 				pregnant = true;
 				pregPeriod = params.sexualPregnancyPeriod;
 				breedPartner = adjacentAgent;
 			}
 		}
 
-		if (!pregnant && checkCredibility(othersID) && adjacentAgent.checkCredibility(stats.id)) {
+		if (!pregnant && checkCredibility(adjacentAgent) && adjacentAgent.checkCredibility(this)) {
 
-			playPDonStep(adjacentAgent, othersID);
+			playPDonStep(adjacentAgent);
 		}
 		changeEnergy(-params.stepAgentEnergy);
 		setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
 		stats.useAgentBumpEnergy(params.stepAgentEnergy);
-	}
-
-	private void thinkAboutFoodLocation(int x, int y) {
-		Location target = new Location(x, y);
-
-		double closeness = 1;
-
-		if (!target.equals(getPosition()))
-			closeness = 1 / environment.topology.getDistance(this.getPosition(), target);
-
-		setCommInbox(closeness);
 	}
 
 	/**
