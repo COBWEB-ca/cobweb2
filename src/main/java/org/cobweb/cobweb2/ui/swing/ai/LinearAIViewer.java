@@ -3,7 +3,7 @@ package org.cobweb.cobweb2.ui.swing.ai;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import org.cobweb.cobweb2.ai.LinearWeightsControllerParams;
+import org.cobweb.cobweb2.impl.ai.LinearWeightsControllerParams;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 

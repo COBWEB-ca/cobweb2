@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.cobweb.cobweb2.disease.DiseaseParams;
+import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
 

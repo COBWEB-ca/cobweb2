@@ -1,6 +1,6 @@
 package org.cobweb.cobweb2.test.ga;
 
-import org.cobweb.cobweb2.genetics.GeneticCode;
+import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 
 import junit.framework.TestCase;
 

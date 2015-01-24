@@ -6,7 +6,7 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import org.cobweb.cobweb2.production.ProductionMapper;
+import org.cobweb.cobweb2.plugins.production.ProductionMapper;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.swingutil.WaitableJComponent;
 import org.cobweb.util.ArrayUtilities;

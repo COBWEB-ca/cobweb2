@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.ui;
 
-import org.cobweb.cobweb2.core.SimulationInterface;
 
 
 /**

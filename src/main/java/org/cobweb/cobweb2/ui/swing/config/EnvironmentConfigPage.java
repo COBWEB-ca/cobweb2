@@ -19,11 +19,11 @@ import javax.swing.SpringLayout;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
-import org.cobweb.cobweb2.eventlearning.ComplexAgentLearning;
-import org.cobweb.cobweb2.eventlearning.ComplexEnvironmentLearning;
+import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.impl.ComplexEnvironment;
+import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
+import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
+import org.cobweb.cobweb2.impl.learning.ComplexEnvironmentLearning;
 import org.cobweb.swingutil.SpringUtilities;
 import org.cobweb.swingutil.binding.BoundCheckBox;
 import org.cobweb.swingutil.binding.BoundJFormattedTextField;

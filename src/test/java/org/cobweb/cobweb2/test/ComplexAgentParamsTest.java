@@ -1,7 +1,7 @@
 package org.cobweb.cobweb2.test;
 
-import org.cobweb.cobweb2.core.params.ComplexAgentParams;
-import org.cobweb.cobweb2.core.params.ComplexEnvironmentParams;
+import org.cobweb.cobweb2.impl.ComplexAgentParams;
+import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 
 import junit.framework.TestCase;
 

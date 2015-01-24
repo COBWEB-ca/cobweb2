@@ -4,7 +4,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.production.ProductionMapper;
+import org.cobweb.cobweb2.plugins.production.ProductionMapper;
 import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;

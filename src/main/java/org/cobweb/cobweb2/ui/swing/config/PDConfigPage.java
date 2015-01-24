@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.cobweb.cobweb2.core.params.PDParams;
+import org.cobweb.cobweb2.impl.PDParams;
 
 
 public class PDConfigPage implements ConfigPage {

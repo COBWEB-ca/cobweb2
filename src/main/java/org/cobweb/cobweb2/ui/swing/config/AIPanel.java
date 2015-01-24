@@ -12,11 +12,11 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.ai.GeneticController;
-import org.cobweb.cobweb2.ai.LinearWeightsController;
+import org.cobweb.cobweb2.impl.ai.GeneticController;
+import org.cobweb.cobweb2.impl.ai.LinearWeightsController;
 import org.cobweb.swingutil.ColorLookup;
 
-class AIPanel extends SettingsPanel {
+public class AIPanel extends SettingsPanel {
 
 	private static final long serialVersionUID = 6045306756522429063L;
 

@@ -18,6 +18,7 @@ import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.swing.components.PauseButton;
 import org.cobweb.cobweb2.ui.swing.components.SpeedBar;
 import org.cobweb.cobweb2.ui.swing.components.StepButton;
+import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 
 /**
  *

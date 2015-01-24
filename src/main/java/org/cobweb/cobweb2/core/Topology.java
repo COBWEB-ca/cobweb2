@@ -3,8 +3,6 @@ package org.cobweb.cobweb2.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cobweb.cobweb2.RandomSource;
-
 
 public class Topology {
 

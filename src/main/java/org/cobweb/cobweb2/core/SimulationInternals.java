@@ -1,6 +1,6 @@
 package org.cobweb.cobweb2.core;
 
-import org.cobweb.cobweb2.RandomSource;
+
 
 /**
  * Methods that only simulation components need access to.
@@ -14,7 +14,7 @@ public interface SimulationInternals extends RandomSource, StatePluginSource {
 
 	public Agent newAgent(int type);
 
-	public void addAgent(ComplexAgent agent);
+	public void addAgent(Agent agent);
 
 	public StateParameter getStateParameter(String name);
 

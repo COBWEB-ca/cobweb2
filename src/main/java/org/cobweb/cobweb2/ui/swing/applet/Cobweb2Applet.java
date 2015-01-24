@@ -22,9 +22,9 @@ import javax.swing.JPanel;
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
-import org.cobweb.cobweb2.ui.swing.DisplaySettings;
 import org.cobweb.cobweb2.ui.swing.LiveStats;
 import org.cobweb.cobweb2.ui.swing.SimulatorUI;
+import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 
 
 /**

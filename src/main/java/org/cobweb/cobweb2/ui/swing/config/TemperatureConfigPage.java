@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.cobweb.cobweb2.abiotic.TemperatureParams;
+import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
 

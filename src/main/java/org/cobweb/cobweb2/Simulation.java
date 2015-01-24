@@ -8,21 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.cobweb.cobweb2.abiotic.TemperatureMutator;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentListener;
 import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
-import org.cobweb.cobweb2.core.ComplexAgent;
-import org.cobweb.cobweb2.core.ComplexEnvironment;
-import org.cobweb.cobweb2.core.SimulationInterface;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.core.Topology;
-import org.cobweb.cobweb2.disease.DiseaseMutator;
-import org.cobweb.cobweb2.genetics.GeneticsMutator;
-import org.cobweb.cobweb2.interconnect.MutatorListener;
-import org.cobweb.cobweb2.production.ProductionMapper;
+import org.cobweb.cobweb2.impl.AgentSpawner;
+import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.impl.ComplexEnvironment;
+import org.cobweb.cobweb2.plugins.MutatorListener;
+import org.cobweb.cobweb2.plugins.abiotic.TemperatureMutator;
+import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
+import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
+import org.cobweb.cobweb2.plugins.production.ProductionMapper;
+import org.cobweb.cobweb2.ui.SimulationInterface;
 import org.cobweb.util.RandomNoGenerator;
 
 /**
@@ -168,8 +169,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 		// TODO synchronize on something other than environment?
 		synchronized(theEnvironment) {
-			for (ComplexAgent agent : new LinkedList<ComplexAgent>(agents)) {
-				agent.update(time);
+			for (Agent agent : new LinkedList<Agent>(agents)) {
+				agent.update();
 
 				prodMapper.tryProduction(agent);
 
@@ -183,10 +184,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		time++;
 	}
 
-	private List<ComplexAgent> agents = new LinkedList<ComplexAgent>();
+	private List<Agent> agents = new LinkedList<Agent>();
 
 	@Override
-	public void addAgent(ComplexAgent agent) {
+	public void addAgent(Agent agent) {
 		agents.add(agent);
 	}
 

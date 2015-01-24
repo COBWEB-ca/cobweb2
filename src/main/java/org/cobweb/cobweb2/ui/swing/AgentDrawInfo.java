@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.LocationDirection;
-import org.cobweb.cobweb2.genetics.GeneticCode;
+import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 import org.cobweb.swingutil.ColorLookup;
 
 /**

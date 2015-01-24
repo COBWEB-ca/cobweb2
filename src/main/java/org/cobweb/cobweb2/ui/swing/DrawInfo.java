@@ -5,10 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.ComplexAgent;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
+import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.util.Point2D;
 
 /**

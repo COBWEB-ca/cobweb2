@@ -11,13 +11,13 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.cobweb.cobweb2.genetics.GATracker;
-import org.cobweb.cobweb2.genetics.GeneticParams;
+import org.cobweb.cobweb2.plugins.genetics.GATracker;
+import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.ui.SimulationRunner;
 import org.cobweb.cobweb2.ui.UpdatableUI;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
-import org.cobweb.cobweb2.ui.swing.DisplaySettings;
+import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.swingutil.JComponentWaiter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;

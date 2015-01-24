@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.core.ComplexAgentStatistics;
+import org.cobweb.cobweb2.core.AgentStatistics;
 
 
 public class AgentReporter {
@@ -14,7 +14,7 @@ public class AgentReporter {
 
 		printAgentHeaders(pw);
 
-		for (ComplexAgentStatistics info : simulation.theEnvironment.agentInfoVector) {
+		for (AgentStatistics info : simulation.theEnvironment.agentInfoVector) {
 			printInfo(pw, info);
 		}
 		pw.flush();
@@ -56,7 +56,7 @@ public class AgentReporter {
 		pw.println();
 	}
 
-	private static void printInfo(PrintWriter pw, ComplexAgentStatistics agentInfo) {
+	private static void printInfo(PrintWriter pw, AgentStatistics agentInfo) {
 		pw.print(agentInfo.id);
 		pw.print("\t" + (agentInfo.type + 1));
 		pw.print("\t" + agentInfo.birthTick);

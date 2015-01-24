@@ -8,7 +8,7 @@ import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
-import org.cobweb.cobweb2.ai.LinearWeightsControllerParams;
+import org.cobweb.cobweb2.impl.ai.LinearWeightsControllerParams;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

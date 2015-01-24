@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
-import org.cobweb.cobweb2.core.params.ComplexFoodParams;
+import org.cobweb.cobweb2.plugins.food.ComplexFoodParams;
 import org.cobweb.swingutil.ColorLookup;
 
 

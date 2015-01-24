@@ -2,7 +2,6 @@ package org.cobweb.cobweb2.core;
 
 import junit.framework.TestCase;
 
-import org.cobweb.cobweb2.RandomSource;
 import org.cobweb.util.RandomNoGenerator;
 
 

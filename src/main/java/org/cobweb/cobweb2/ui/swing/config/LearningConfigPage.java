@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import org.cobweb.cobweb2.eventlearning.LearningAgentParams;
+import org.cobweb.cobweb2.impl.learning.LearningAgentParams;
 import org.cobweb.swingutil.ColorLookup;
 
 

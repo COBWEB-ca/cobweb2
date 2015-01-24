@@ -11,8 +11,8 @@ import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.ai.GeneticController;
-import org.cobweb.cobweb2.ai.GeneticControllerParams;
+import org.cobweb.cobweb2.impl.ai.GeneticController;
+import org.cobweb.cobweb2.impl.ai.GeneticControllerParams;
 import org.cobweb.swingutil.ColorLookup;
 
 final class GeneticAIPanel extends SettingsPanel {

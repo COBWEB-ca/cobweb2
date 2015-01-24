@@ -4,8 +4,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.cobweb.cobweb2.core.params.ComplexAgentParams;
-import org.cobweb.cobweb2.core.params.FoodwebParams;
+import org.cobweb.cobweb2.impl.ComplexAgentParams;
+import org.cobweb.cobweb2.impl.FoodwebParams;
 import org.cobweb.swingutil.ColorLookup;
 
 
