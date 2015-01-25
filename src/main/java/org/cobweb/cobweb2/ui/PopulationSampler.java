@@ -1,20 +1,11 @@
 package org.cobweb.cobweb2.ui;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
@@ -23,7 +14,6 @@ import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
-import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -65,67 +55,15 @@ public class PopulationSampler {
 		for (Agent agent : sim.theEnvironment.getAgents()) {
 			if (currentPopCount > totalPop)
 				break;
-			Node node = makeNode(sim.simulationConfig.serializer, (ComplexAgent) agent, d);
 
-			root.appendChild(node);
+			//FIXME!!! Node node = saveAgent(serializer, (ComplexAgent) agent, d);
+
+			//FIXME!!! root.appendChild(node);
 
 			currentPopCount++;
 		}
 
 		d.appendChild(root);
-
-		Source s = new DOMSource(d);
-
-		try {
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer t = tf.newTransformer();
-			t.setOutputProperty(OutputKeys.INDENT, "yes");
-			t.setParameter(OutputKeys.STANDALONE, "yes");
-			t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-			FileOutputStream stream = new FileOutputStream(popName);
-			Result r = new StreamResult(stream);
-			t.transform(s, r);
-			stream.close();
-		} catch (TransformerException | IOException ex) {
-			throw new RuntimeException("Couldn't save population", ex);
-		}
-	}
-
-
-	private static Node makeNode(ParameterSerializer serializer, ComplexAgent a, Document d) {
-
-		Node agent = d.createElement("Agent");
-
-		Element doCheatElement = d.createElement("doCheat");
-		doCheatElement.appendChild(d.createTextNode(a.pdCheater +""));
-		agent.appendChild(doCheatElement);
-
-		Element paramsElement = d.createElement("params");
-
-		serializer.save(a.params, paramsElement, d);
-
-		agent.appendChild(paramsElement);
-
-		{
-			Element locationElement = d.createElement("location");
-			Location location = a.getPosition();
-			locationElement.setAttribute("x", location.x + "");
-			locationElement.setAttribute("y", location.y + "");
-			agent.appendChild(locationElement);
-		}
-
-		{
-			Element directionElement = d.createElement("direction");
-			Direction direction = a.getPosition().direction;
-			directionElement.setAttribute("x", direction.x + "");
-			directionElement.setAttribute("y", direction.y + "");
-			agent.appendChild(directionElement);
-		}
-
-		// FIXME plugin params: production, disease, etc
-
-		return agent;
 	}
 
 	/**
@@ -176,7 +114,7 @@ public class PopulationSampler {
 				LocationDirection locDir = new LocationDirection(loc, facing);
 
 
-				sim.simulationConfig.serializer.load(params, paramNode);
+				//FIXME!!! serializer.load(params, paramNode);
 
 				// doCheat
 				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());

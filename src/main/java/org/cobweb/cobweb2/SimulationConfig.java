@@ -1,42 +1,18 @@
 package org.cobweb.cobweb2;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.cobweb.cobweb2.core.NullPhenotype;
-import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.impl.AgentFoodCountable;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
 import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.impl.ControllerParams;
-import org.cobweb.cobweb2.impl.FieldPhenotype;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.ai.GeneticController;
 import org.cobweb.cobweb2.impl.ai.GeneticControllerParams;
-import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.impl.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
@@ -44,73 +20,37 @@ import org.cobweb.cobweb2.plugins.food.ComplexFoodParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.waste.WasteParams;
-import org.cobweb.cobweb2.ui.compatibility.ConfigUpgrader;
-import org.cobweb.io.ChoiceCatalog;
-import org.cobweb.io.ParameterSerializer;
-import org.cobweb.util.Versionator;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 /**
  * Used to organize, modify, and access simulation parameters.
  */
 public class SimulationConfig implements SimulationParams {
-	private static void removeIgnorableWSNodes(Element parent) {
-		Node nextNode = parent.getFirstChild();
-		for (Node child = parent.getFirstChild(); nextNode != null;) {
-			child = nextNode;
-			nextNode = child.getNextSibling();
-			if (child.getNodeType() == Node.TEXT_NODE) {
-				// Checks if the text node is ignorable
-				if (child.getTextContent().matches("^\\s*$")) {
-					parent.removeChild(child);
-				}
-			} else if (child.getNodeType() == Node.ELEMENT_NODE) {
-				removeIgnorableWSNodes((Element )child);
-			}
-		}
-	}
+	String fileName = null;
 
-	public final ParameterSerializer serializer;
+	public ComplexEnvironmentParams envParams;
 
-	private String fileName = null;
+	public GeneticParams geneticParams;
 
-	private ComplexEnvironmentParams envParams;
+	public ComplexAgentParams[] agentParams;
 
-	private GeneticParams geneticParams;
+	public ProductionParams prodParams;
 
-	private ComplexAgentParams[] agentParams;
+	public LearningParams learningParams;
 
-	private ProductionParams prodParams;
+	public ComplexFoodParams[] foodParams;
 
-	private LearningParams learningParams;
+	public DiseaseParams diseaseParams;
 
-	private ComplexFoodParams[] foodParams;
+	public TemperatureParams tempParams;
 
-	private DiseaseParams diseaseParams;
+	public WasteParams wasteParams;
 
-	private TemperatureParams tempParams;
-
-	private WasteParams wasteParams;
-
-	private ControllerParams controllerParams;
-
-	public final ChoiceCatalog choiceCatalog;
+	public ControllerParams controllerParams;
 
 	/**
 	 * Creates the default Cobweb simulation parameters.
 	 */
 	public SimulationConfig() {
-		choiceCatalog = new ChoiceCatalog();
-		choiceCatalog.addChoice(Phenotype.class, new NullPhenotype());
-		for(Phenotype x : FieldPhenotype.getPossibleValues()) {
-			choiceCatalog.addChoice(Phenotype.class, x);
-		}
-
-		serializer = new ParameterSerializer(choiceCatalog);
 
 		envParams = new ComplexEnvironmentParams();
 		setDefaultClassReferences();
@@ -148,37 +88,6 @@ public class SimulationConfig implements SimulationParams {
 		envParams.controllerName = GeneticController.class.getName();
 		envParams.agentName = ComplexAgent.class.getName();
 		envParams.environmentName = ComplexEnvironment.class.getName();
-	}
-
-	/**
-	 * Constructor that allows input from a file stream to configure simulation parameters.
-	 *
-	 * @param file Input file stream.
-	 */
-	public SimulationConfig(InputStream file) {
-		this();
-		this.fileName = ":STREAM:" + file.toString() + ":";
-		loadFile(file);
-	}
-
-	/**
-	 * Constructor that allows input from a file to configure the simulation parameters.
-	 *
-	 * @param fileName Name of the file used for simulation configuration.
-	 * @see SimulationConfig#loadFile(InputStream)
-	 */
-	public SimulationConfig(String fileName) throws FileNotFoundException {
-		this();
-		this.fileName = fileName;
-		File file = new File(fileName);
-		ConfigUpgrader.upgradeConfigFile(file);
-		FileInputStream configStream = new FileInputStream(file);
-		loadFile(configStream);
-		try {
-			configStream.close();
-		} catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
 	}
 
 	/**
@@ -239,225 +148,6 @@ public class SimulationConfig implements SimulationParams {
 		return learningParams;
 	}
 
-
-	/**
-	 * This method extracts data from the simulation configuration file and
-	 * loads the data into the simulation parameters.  It does this by first
-	 * creating a tree that holds all data from file using the DocumentBuilder
-	 * class.  Next, the root node of the tree is passed to the
-	 * AbstractReflectionParams.loadConfig(Node) method for processing.  This
-	 * processing allows the ConfXMLTags to overwrite the default parameters
-	 * used when constructing Cobweb environment parameters.
-	 *
-	 * <p>Once the environment parameters have been extracted successfully,
-	 * the rest of the Cobweb parameters can be set (temperature, genetics,
-	 * agents, etc.) using the environment parameters.
-	 *
-	 * @param file The current simulation configuration file.
-	 * @see javax.xml.parsers.DocumentBuilder
-	 * @throws IllegalArgumentException Unable to open the simulation configuration file.
-	 */
-	private void loadFile(InputStream file) throws IllegalArgumentException {
-		// read these variables from the xml file
-
-		// DOM initialization
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setIgnoringElementContentWhitespace(true);
-		factory.setIgnoringComments(true);
-		// factory.setValidating(true);
-
-		Document document;
-		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			document = builder.parse(file);
-		} catch (SAXException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (ParserConfigurationException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (IOException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		}
-
-
-		Node root = document.getFirstChild();
-		removeIgnorableWSNodes((Element) root);
-
-		envParams = new ComplexEnvironmentParams();
-		setDefaultClassReferences();
-
-		serializer.load(envParams, root);
-
-		ConfigUpgrader.upgrade(envParams);
-
-		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
-		prodParams = new ProductionParams(envParams);
-		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
-
-		diseaseParams = new DiseaseParams(envParams);
-
-		wasteParams = new WasteParams(envParams);
-
-		tempParams = new TemperatureParams(envParams);
-
-		learningParams = new LearningParams(envParams);
-
-		geneticParams = new GeneticParams(envParams);
-
-		NodeList nodes = root.getChildNodes();
-		int agent = 0;
-		int food = 0;
-		for (int j = 0; j < nodes.getLength(); j++) {
-			Node node = nodes.item(j);
-			String nodeName = node.getNodeName();
-
-			if (nodeName.equals("ga")) {
-				serializer.load(geneticParams, node);
-
-			} else if (nodeName.equals("agent")) {
-				ComplexAgentParams p = new ComplexAgentParams(envParams);
-				serializer.load(p, node);
-				if (p.type < 0)
-					p.type = agent++;
-				if (p.type >= envParams.getAgentTypes())
-					continue;
-				agentParams[p.type] = p;
-			} else if (nodeName.equals("Production")) {
-				serializer.load(prodParams, node);
-			} else if (nodeName.equals("food")) {
-				ComplexFoodParams p = new ComplexFoodParams();
-				serializer.load(p, node);
-				if (p.type < 0)
-					p.type = food++;
-
-				if (p.type >= envParams.getFoodTypes())
-					continue;
-
-				foodParams[p.type] = p;
-			} else if (nodeName.equals("Disease")) {
-				serializer.load(diseaseParams, node);
-			} else if (nodeName.equals("Temperature")) {
-				serializer.load(tempParams, node);
-			} else if (nodeName.equals("Waste")) {
-				serializer.load(wasteParams, node);
-			} else if (nodeName.equals("Learning")) {
-				serializer.load(learningParams, node);
-			} else if (nodeName.equals("ControllerConfig")){
-				// FIXME: this is initialized after everything else because
-				// Controllers use SimulationParams.getPluginParameters()
-				// and things like disease provide are those plugins
-				try {
-					controllerParams = (ControllerParams) Class.forName(envParams.controllerName + "Params")
-							.getConstructor(SimulationParams.class)
-							.newInstance((SimulationParams) this);
-					controllerParams.resize(envParams);
-				} catch (InstantiationError | ClassNotFoundException | NoSuchMethodException |
-						InstantiationException | IllegalAccessException | InvocationTargetException ex) {
-					throw new RuntimeException("Could not set up controller", ex);
-				}
-				serializer.load(controllerParams, node);
-			}
-		}
-		for (int i = 0; i < agentParams.length; i++) {
-			if (agentParams[i] == null) {
-				agentParams[i] = new ComplexAgentParams(envParams);
-				agentParams[i].type = i;
-			}
-		}
-		for (int i = 0; i < foodParams.length; i++) {
-			if (foodParams[i] == null) {
-				foodParams[i] = new ComplexFoodParams();
-				foodParams[i].type = i;
-			}
-		}
-		prodParams.resize(envParams);
-		diseaseParams.resize(envParams);
-		tempParams.resize(envParams);
-		wasteParams.resize(envParams);
-		learningParams.resize(envParams);
-
-	}
-
-	/**
-	 * Writes the information stored in this tree to an XML file, conforming to the rules of our spec.
-	 *
-	 */
-	public void write(OutputStream stream) {
-		Document d;
-		try {
-			d = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		} catch (ParserConfigurationException ex) {
-			throw new RuntimeException(ex);
-		}
-		Element root = d.createElementNS("http://cobweb.ca/schema/cobweb2/config", "COBWEB2Config");
-		root.setAttribute("config-version", "2015-01-14");
-		root.setAttribute("cobweb-version", Versionator.getVersion());
-
-		serializer.save(envParams, root, d);
-		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			Element node = d.createElement("agent");
-			serializer.save(agentParams[i], node, d);
-			root.appendChild(node);
-		}
-
-		Element prod = d.createElement("Production");
-		serializer.save(prodParams, prod, d);
-		root.appendChild(prod);
-
-		for (int i = 0; i < envParams.getFoodTypes(); i++) {
-			Element node = d.createElement("food");
-			serializer.save(foodParams[i], node, d);
-			root.appendChild(node);
-		}
-
-		Element ga = d.createElement("ga");
-		serializer.save(geneticParams, ga, d);
-		root.appendChild(ga);
-
-		Element disease = d.createElement("Disease");
-		serializer.save(diseaseParams, disease, d);
-		root.appendChild(disease);
-
-		Element temp = d.createElement("Temperature");
-		serializer.save(tempParams, temp, d);
-		root.appendChild(temp);
-
-		Element waste = d.createElement("Waste");
-		serializer.save(wasteParams, waste, d);
-		root.appendChild(waste);
-
-		if (this.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
-			Element learn = d.createElement("Learning");
-			serializer.save(learningParams, learn, d);
-			root.appendChild(learn);
-		}
-
-		Element controller = d.createElement("ControllerConfig");
-		serializer.save(controllerParams, controller, d);
-		root.appendChild(controller);
-
-		d.appendChild(root);
-
-		Source s = new DOMSource(d);
-
-		Transformer t;
-		TransformerFactory tf = TransformerFactory.newInstance();
-		try {
-			t = tf.newTransformer();
-
-		} catch (TransformerConfigurationException ex) {
-			throw new RuntimeException(ex);
-		}
-		t.setOutputProperty(OutputKeys.INDENT, "yes");
-		t.setOutputProperty(OutputKeys.STANDALONE, "yes");
-		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-		Result r = new StreamResult(stream);
-		try {
-			t.transform(s, r);
-		} catch (TransformerException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
 
 	public void SetAgentTypeCount(int count) {
 		this.envParams.agentTypeCount = count;

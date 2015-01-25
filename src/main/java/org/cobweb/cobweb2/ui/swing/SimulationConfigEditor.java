@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.SimulationConfigSerializer;
 import org.cobweb.cobweb2.impl.FoodwebParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.ui.UserInputException;
@@ -51,6 +52,8 @@ import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
  */
 public class SimulationConfigEditor {
 
+	private SimulationConfigSerializer serializer = new SimulationConfigSerializer();
+
 	private final class OkButtonListener implements ActionListener {
 		@Override
 		public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -59,14 +62,14 @@ public class SimulationConfigEditor {
 
 			/* write UI info to xml file */
 			try {
-				p.write(new FileOutputStream(datafile));
+				serializer.saveConfig(p, new FileOutputStream(datafile));
 			} catch (java.io.IOException ex) {
 				throw new UserInputException("Cannot write file! Make sure your file is not read-only.", ex);
 			}
 
 			/* create a new parser for the xml file */
 			try {
-				p = new SimulationConfig(datafile);
+				p = serializer.loadConfig(datafile);
 			} catch (FileNotFoundException ex) {
 				throw new UserInputException("Cannot open file!", ex);
 			}
@@ -188,7 +191,7 @@ public class SimulationConfigEditor {
 
 		if (f.exists()) {
 			try {
-				p = new SimulationConfig(datafile);
+				p = serializer.loadConfig(datafile);
 			} catch (FileNotFoundException ex) {
 				myLogger.log(Level.WARNING, "Cannot open config file", ex);
 				setDefault();
@@ -271,10 +274,10 @@ public class SimulationConfigEditor {
 							JOptionPane.WARNING_MESSAGE);
 				} else {
 					FileOutputStream configStream = new FileOutputStream(theDialog.getDirectory() + theDialog.getFile());
-					p.write(configStream);
+					serializer.saveConfig(p, configStream);
 					configStream.close();
 
-					p = new SimulationConfig(theDialog.getDirectory() + theDialog.getFile());
+					p = serializer.loadConfig(theDialog.getDirectory() + theDialog.getFile());
 
 					return true;
 				}
@@ -327,7 +330,7 @@ public class SimulationConfigEditor {
 
 		removeOldPage(geneticPage);
 		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes(),
-				p.choiceCatalog, displaySettings.agentColor);
+				serializer.choiceCatalog, displaySettings.agentColor);
 		JComponent panelGA = geneticPage.getPanel();
 		tabbedPane.addTab("Genetics", panelGA);
 
@@ -339,11 +342,11 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("AI", controllerPanel);
 
 		removeOldPage(diseaseConfigPage);
-		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), p.choiceCatalog, displaySettings.agentColor);
+		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
 		removeOldPage(tempPage);
-		tempPage = new TemperatureConfigPage(p.getTempParams(), p.choiceCatalog, displaySettings.agentColor);
+		tempPage = new TemperatureConfigPage(p.getTempParams(), serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Abiotic Factor", tempPage.getPanel());
 
 

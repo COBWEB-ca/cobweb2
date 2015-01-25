@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.SimulationConfigSerializer;
 import org.cobweb.cobweb2.ui.LoggingExceptionHandler;
 import org.cobweb.cobweb2.ui.SimulationRunnerBase;
 import org.cobweb.cobweb2.ui.UserInputException;
@@ -149,17 +150,18 @@ public class CobwebApplicationRunner {
 
 		}
 
+		SimulationConfigSerializer serializer = new SimulationConfigSerializer();
 		SimulationConfig defaultconf = null;
 		try {
-			defaultconf = new SimulationConfig(inputFileName);
+			defaultconf = serializer.loadConfig(inputFileName);
 		} catch (FileNotFoundException ex) {
 			if (!visible) {
 				System.err.println("Input file does not exist, creating it with default settings.");
 			}
 			defaultconf = new SimulationConfig();
 			try {
-				defaultconf.write(new FileOutputStream(inputFileName));
-				defaultconf = new SimulationConfig(inputFileName);
+				serializer.saveConfig(defaultconf, new FileOutputStream(inputFileName));
+				defaultconf = serializer.loadConfig(inputFileName);
 			}
 			catch (IOException e) {
 				throw new RuntimeException("Could not write default configuration file", e);
