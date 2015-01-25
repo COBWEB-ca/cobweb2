@@ -36,6 +36,11 @@ public class ProductionParams implements ParameterSerializable, StatePluginSourc
 	public boolean productionMode;
 
 
+	@ConfXMLTag("productionCost")
+	@ConfDisplayName("Production Cost")
+	public int productionCost = 0;
+
+
 	@ConfXMLTag("InitProdChance")
 	@ConfDisplayName("Initial production percentage roll")
 	public float initProdChance = 0.8f;

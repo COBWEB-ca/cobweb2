@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
@@ -132,6 +133,8 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionParams>
 		Product prod = new Product(value, owner, loc, this);
 
 		updateValues(prod, true);
+
+		owner.changeEnergy(-getAgentState(owner).productionCost, new ProduceProductCause());
 
 		environment.addDrop(loc, prod);
 	}
@@ -273,5 +276,10 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionParams>
 		}
 	}
 
+
+	public static class ProduceProductCause implements Cause {
+		@Override
+		public String getName() { return "Produce Product"; }
+	}
 
 }
