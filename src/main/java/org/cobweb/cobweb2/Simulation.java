@@ -41,11 +41,12 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 	private TemperatureMutator tempMutator;
 
+	// TODO access level
 	public GeneticsMutator geneticMutator;
 
-	public DiseaseMutator diseaseMutator;
+	private DiseaseMutator diseaseMutator;
 
-	public WasteMutator wasteMutator;
+	private WasteMutator wasteMutator;
 
 	// TODO access level?
 	public SimulationConfig simulationConfig;

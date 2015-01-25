@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 import org.cobweb.swingutil.ColorLookup;
 
@@ -30,15 +31,17 @@ class AgentDrawInfo {
 
 	AgentDrawInfo(ComplexAgent agent, ColorLookup colorMap, Simulation sim) {
 		int[] rgb = new int[3];
-		if (sim.geneticMutator != null) {
-			GeneticCode genes = sim.geneticMutator.getAgentState(agent);
+
+		GeneticCode genes = sim.mutatorListener.getMutatorState(GeneticCode.class, agent);
+		if (genes != null) {
 			for (int i = 0; i < Math.min(3, genes.getNumGenes()); i++) {
 				rgb[i] = genes.getValue(i);
 			}
 		}
 
-		if (sim.diseaseMutator != null) {
-			if (sim.diseaseMutator.isSick(agent))
+		DiseaseMutator.State sick = sim.mutatorListener.getMutatorState(DiseaseMutator.State.class, agent);
+		if (sick != null) {
+			if (sick.sick)
 				rgb[2] = 255;
 		}
 
