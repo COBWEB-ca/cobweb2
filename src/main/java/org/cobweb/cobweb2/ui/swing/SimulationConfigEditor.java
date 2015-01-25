@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.impl.FoodwebParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
@@ -303,7 +304,10 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("Production", prodPage.getPanel());
 
 		removeOldPage(foodwebPage);
-		foodwebPage = new FoodwebConfigPage(p.getAgentParams(), displaySettings.agentColor);
+		FoodwebParams[] foodwebArray = new FoodwebParams[p.getAgentParams().length];
+		for (int i = 0 ; i < p.getAgentParams().length; i++)
+			foodwebArray[i] = p.getAgentParams()[i].foodweb;
+		foodwebPage = new FoodwebConfigPage(foodwebArray, displaySettings.agentColor);
 		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
 
 		removeOldPage(pdPage);
