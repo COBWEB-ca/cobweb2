@@ -843,6 +843,45 @@
         <NumMemories>4</NumMemories>
         <PartnerLove>-0.1</PartnerLove>
       </Agent4>
+      <Agent5>
+        <BroadcastPleasure>0.1</BroadcastPleasure>
+        <FoodPleasure>0.5</FoodPleasure>
+        <AteAgentPleasure>0.2</AteAgentPleasure>
+        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
+        <SparedEmotion>0.8</SparedEmotion>
+        <Learns>true</Learns>
+        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
+        <LearnFromOthers>true</LearnFromOthers>
+        <ChildrenLove>0.0</ChildrenLove>
+        <NumMemories>4</NumMemories>
+        <PartnerLove>-0.1</PartnerLove>
+      </Agent5>
+      <Agent6>
+        <BroadcastPleasure>0.1</BroadcastPleasure>
+        <FoodPleasure>0.5</FoodPleasure>
+        <AteAgentPleasure>0.2</AteAgentPleasure>
+        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
+        <SparedEmotion>0.8</SparedEmotion>
+        <Learns>true</Learns>
+        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
+        <LearnFromOthers>true</LearnFromOthers>
+        <ChildrenLove>0.0</ChildrenLove>
+        <NumMemories>4</NumMemories>
+        <PartnerLove>-0.1</PartnerLove>
+      </Agent6>
+      <Agent7>
+        <BroadcastPleasure>0.1</BroadcastPleasure>
+        <FoodPleasure>0.5</FoodPleasure>
+        <AteAgentPleasure>0.2</AteAgentPleasure>
+        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
+        <SparedEmotion>0.8</SparedEmotion>
+        <Learns>true</Learns>
+        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
+        <LearnFromOthers>true</LearnFromOthers>
+        <ChildrenLove>0.0</ChildrenLove>
+        <NumMemories>4</NumMemories>
+        <PartnerLove>-0.1</PartnerLove>
+      </Agent7>
     </AgentParams>
   </Learning>
   <ControllerConfig>
