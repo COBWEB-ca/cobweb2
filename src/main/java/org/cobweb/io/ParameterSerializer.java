@@ -188,9 +188,17 @@ public class ParameterSerializer {
 			Object currentArray, int depth, Node arrayNode)
 					throws IllegalArgumentException, IllegalAccessException {
 
-		Class<?> componentType = arrayType.getComponentType();
+		Class<?> componentType;
+		if (currentArray != null) {
+			// This is required when serializing generic T[] arrays
+			// The T type is erased and ends up being Object or whatever T extends
+			// If there is an existing default array, it is using the correct type
+			componentType = currentArray.getClass().getComponentType();
+		} else {
+			componentType = arrayType.getComponentType();
+		}
 		if (!canSerializeArray(componentType))
-			throw new IllegalArgumentException("Unknown array type");
+			throw new IllegalArgumentException("Unknown array type: " + componentType);
 
 		ConfList listOptions = arrayAnnotations.getAnnotation(ConfList.class);
 		if (listOptions == null)
