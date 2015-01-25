@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Direction;
+import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.Rotation;
@@ -256,7 +257,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 					MemorableEvent ret = super.effect(concernedAgent);
 
-					concernedAgent.setWasteCounterLoss(getWasteCounterLoss() - concernedAgent.params.stepEnergy);
 					concernedAgent.getInfo().useStepEnergy(params.stepEnergy);
 					concernedAgent.getInfo().addPathStep(concernedAgent.getPosition());
 
@@ -355,24 +355,26 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 			}
 			changeEnergy(-params.stepAgentEnergy);
-			setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
 			stats.useAgentBumpEnergy(params.stepAgentEnergy);
 
 		} // end of two agents meet
 		else if (destPos != null && environment.hasDrop(destPos)) {
 
-			// Allow agents up to a distance of 5 to see this agent hit the
-			// waste
-			queue(new Occurrence(this, getTime(), 5, "bumpWaste") {
+			Drop d = environment.getDrop(destPos);
+			if (!d.canStep()) {
 
-				@Override
-				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-					concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.wastePen, "bumpWaste"));
-					setWasteCounterLoss(getWasteCounterLoss() - params.wastePen);
-					stats.useRockBumpEnergy(params.wastePen);
-					return null;
-				}
-			});
+				// Allow agents up to a distance of 5 to see this agent hit the
+				// waste
+				queue(new Occurrence(this, getTime(), 5, "bumpWaste") {
+
+					@Override
+					public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
+						concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, "bumpWaste"));
+						stats.useRockBumpEnergy(params.stepRockEnergy);
+						return null;
+					}
+				});
+			}
 
 		} else {
 			// Rock bump
@@ -382,7 +384,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 					concernedAgent
 					.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, "bumpRock"));
-					setWasteCounterLoss(getWasteCounterLoss() - params.stepRockEnergy);
 					stats.useRockBumpEnergy(params.stepRockEnergy);
 					return null;
 				}

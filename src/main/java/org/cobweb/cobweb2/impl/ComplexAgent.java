@@ -8,7 +8,6 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentListener;
 import org.cobweb.cobweb2.core.AgentStatistics;
 import org.cobweb.cobweb2.core.Controller;
-import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
@@ -19,7 +18,6 @@ import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
 import org.cobweb.cobweb2.plugins.broadcast.FoodBroadcast;
-import org.cobweb.cobweb2.plugins.waste.Waste;
 import org.cobweb.util.RandomNoGenerator;
 
 /**
@@ -47,10 +45,6 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	/** IDs of bad agents. Cheaters, etc */
 	private Collection<Integer> badAgentMemory;
-
-	/* Waste variables */
-	private int wasteCounterGain;
-	private int wasteCounterLoss;
 
 	private double memoryBuffer;
 
@@ -325,11 +319,9 @@ public class ComplexAgent extends Agent implements Serializable {
 		// Gain Energy according to the food type.
 		if (environment.getFoodType(destPos) == params.type) {
 			changeEnergy(+params.foodEnergy);
-			wasteCounterGain -= params.foodEnergy;
 			stats.addFoodEnergy(params.foodEnergy);
 		} else {
 			changeEnergy(+params.otherFoodEnergy);
-			wasteCounterGain -= params.otherFoodEnergy;
 			stats.addOthers(params.otherFoodEnergy);
 		}
 	}
@@ -343,7 +335,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	protected void eat(ComplexAgent adjacentAgent) {
 		int gain = (int) (adjacentAgent.getEnergy() * params.agentFoodEnergy);
 		changeEnergy(+gain);
-		wasteCounterGain -= gain;
 		stats.addCannibalism(gain);
 		adjacentAgent.die();
 	}
@@ -591,8 +582,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		this.params = agentData.clone();
 
 		setEnergy(agentData.initEnergy);
-		wasteCounterGain = params.wasteLimitGain;
-		setWasteCounterLoss(params.wasteLimitLoss);
 
 		badAgentMemory = new CircularFifoQueue<Integer>(params.pdMemory);
 
@@ -662,7 +651,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		else {
 			// Non-free tile (rock/waste/etc) bump
 			changeEnergy(-params.stepRockEnergy);
-			wasteCounterLoss -= params.stepRockEnergy;
 			stats.useRockBumpEnergy(params.stepRockEnergy);
 		}
 		changeEnergy(-energyPenalty());
@@ -718,7 +706,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		if (breedPos != null) {
 			changeEnergy(-params.initEnergy);
 			changeEnergy(-energyPenalty());
-			wasteCounterLoss -= params.initEnergy;
 			stats.useReproductionEnergy(params.initEnergy);
 			stats.addDirectChild();
 
@@ -731,7 +718,6 @@ public class ComplexAgent extends Agent implements Serializable {
 			pregnant = false;
 		}
 		changeEnergy(-params.stepEnergy);
-		wasteCounterLoss -= params.stepEnergy;
 		stats.useStepEnergy(params.stepEnergy);
 	}
 
@@ -770,7 +756,6 @@ public class ComplexAgent extends Agent implements Serializable {
 			playPDonStep(adjacentAgent);
 		}
 		changeEnergy(-params.stepAgentEnergy);
-		setWasteCounterLoss(getWasteCounterLoss() - params.stepAgentEnergy);
 		stats.useAgentBumpEnergy(params.stepAgentEnergy);
 	}
 
@@ -799,10 +784,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		controller.controlAgent(this);
 
 		clearCommInbox();
-
-		/* Produce waste if able */
-		if (params.wasteMode && shouldPoop())
-			tryPoop();
 	}
 
 	/**
@@ -818,62 +799,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		}
 	}
 
-	private boolean shouldPoop() {
-		if (wasteCounterGain <= 0 && params.wasteLimitGain > 0) {
-			wasteCounterGain += params.wasteLimitGain;
-			return true;
-		} else if (getWasteCounterLoss() <= 0 && params.wasteLimitLoss > 0) {
-			setWasteCounterLoss(getWasteCounterLoss() + params.wasteLimitLoss);
-			return true;
-		}
-		return false;
-	}
-
-
-	/**
-	 * Produce waste
-	 */
-	private void tryPoop() {
-		forceDrop(new Waste(getTime(), params.wasteInit, params.wasteDecay));
-	}
-
-	private void forceDrop(Drop d) {
-		boolean added = false;
-
-		// For this method, "adjacent" implies tiles around the agent including
-		// tiles that are diagonally adjacent
-
-		Location loc;
-
-		// Place the drop at an available location adjacent to the agent
-		for (Direction dir : environment.topology.ALL_8_WAY) {
-			loc = environment.topology.getAdjacent(getPosition(), dir);
-			if (loc != null && !environment.hasAnythingAt(loc)) {
-				environment.addDrop(loc, d);
-				break;
-			}
-		}
-
-		/*
-		 * Crowded! IF there is no empty tile in which to drop the waste, we can replace a food tile with a waste
-		 * tile... / This function is assumed to add a waste tile! That is, this function assumes an existence of at
-		 * least one food tile that it will be able to replace with a waste tile. Nothing happens otherwise.
-		 */
-		if (!added) {
-			for (Direction dir : environment.topology.ALL_8_WAY) {
-				loc = environment.topology.getAdjacent(getPosition(), dir);
-				if (loc != null
-						&& !environment.hasStone(loc)
-						&& !environment.hasAgent(loc)
-						&& environment.hasFood(loc)) {
-					environment.removeFood(loc);
-					environment.addDrop(loc, d);
-					break;
-				}
-			}
-		}
-	}
-
 	/**
 	 * This method makes the agent turn left.  It does this by updating
 	 * the direction of the agent and subtracts the amount of
@@ -882,7 +807,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	public void turnLeft() {
 		position = environment.topology.getTurnLeftPosition(position);
 		changeEnergy(-params.turnLeftEnergy);
-		setWasteCounterLoss(getWasteCounterLoss() - params.turnLeftEnergy);
 		stats.addTurn(params.turnLeftEnergy);
 		afterTurnAction();
 	}
@@ -895,7 +819,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	public void turnRight() {
 		position = environment.topology.getTurnRightPosition(position);
 		changeEnergy(-params.turnRightEnergy);
-		setWasteCounterLoss(getWasteCounterLoss() - params.turnRightEnergy);
 		stats.addTurn(params.turnRightEnergy);
 		afterTurnAction();
 	}
@@ -906,13 +829,10 @@ public class ComplexAgent extends Agent implements Serializable {
 		return params.type;
 	}
 
-	public void setWasteCounterLoss(int wasteCounterLoss) {
-		this.wasteCounterLoss = wasteCounterLoss;
-	}
-
-
-	public int getWasteCounterLoss() {
-		return wasteCounterLoss;
+	@Override
+	public void changeEnergy(int delta) {
+		super.changeEnergy(delta);
+		getAgentListener().onEnergyChange(this, delta);
 	}
 
 	private static final long serialVersionUID = 2L;

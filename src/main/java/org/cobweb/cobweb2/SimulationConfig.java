@@ -43,6 +43,7 @@ import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.ComplexFoodParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
+import org.cobweb.cobweb2.plugins.waste.WasteParams;
 import org.cobweb.cobweb2.ui.compatibility.ConfigUpgrader;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
@@ -93,6 +94,8 @@ public class SimulationConfig implements SimulationParams {
 
 	private TemperatureParams tempParams;
 
+	private WasteParams wasteParams;
+
 	private ControllerParams controllerParams;
 
 	public final ChoiceCatalog choiceCatalog;
@@ -136,6 +139,9 @@ public class SimulationConfig implements SimulationParams {
 			prodParams[i] = new ProductionParams();
 			prodParams[i].type = i;
 		}
+
+		wasteParams = new WasteParams();
+		wasteParams.resize(envParams);
 
 		tempParams = new TemperatureParams(envParams);
 
@@ -299,6 +305,9 @@ public class SimulationConfig implements SimulationParams {
 		for (int i = 0; i < envParams.getAgentTypes(); i++)
 			diseaseParams[i] = new DiseaseParams(envParams);
 
+		wasteParams = new WasteParams();
+		wasteParams.resize(envParams);
+
 		tempParams = new TemperatureParams(envParams);
 
 		learningParams = new LearningParams(envParams);
@@ -346,6 +355,8 @@ public class SimulationConfig implements SimulationParams {
 				parseDiseaseParams(node);
 			} else if (nodeName.equals("Temperature")) {
 				serializer.load(tempParams, node);
+			} else if (nodeName.equals("Waste")) {
+				serializer.load(wasteParams, node);
 			} else if (nodeName.equals("Learning")) {
 				serializer.load(learningParams, node);
 			} else if (nodeName.equals("ControllerConfig")){
@@ -452,6 +463,10 @@ public class SimulationConfig implements SimulationParams {
 		serializer.save(tempParams, temp, d);
 		root.appendChild(temp);
 
+		Element waste = d.createElement("Waste");
+		serializer.save(wasteParams, waste, d);
+		root.appendChild(waste);
+
 		if (this.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
 			Element learn = d.createElement("Learning");
 			serializer.save(learningParams, learn, d);
@@ -538,6 +553,9 @@ public class SimulationConfig implements SimulationParams {
 			this.tempParams.resize(envParams);
 		}
 		{
+			this.wasteParams.resize(envParams);
+		}
+		{
 			this.learningParams.resize(envParams);
 		}
 		{
@@ -575,6 +593,10 @@ public class SimulationConfig implements SimulationParams {
 	@Override
 	public AgentFoodCountable getCounts() {
 		return this.envParams;
+	}
+
+	public WasteParams getWasteParams() {
+		return this.wasteParams;
 	}
 
 }

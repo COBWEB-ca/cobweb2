@@ -19,13 +19,22 @@
 	<xsl:template match="inputData">
 		<COBWEB2Config config-version="2015-01-14" cobweb-version="{$cobweb-version}">
 			<xsl:apply-templates />
+			<Waste>
+				<AgentParams>
+					<xsl:for-each select="/*/agent">
+						<Agent id="{Index + 1}">
+							<xsl:apply-templates select="*[starts-with(name(), 'waste')]" />
+						</Agent>
+					</xsl:for-each>
+				</AgentParams>
+			</Waste>
 		</COBWEB2Config>
 	</xsl:template>
 
 	<!-- Move variables from agent config -->
 	<xsl:template match="/*/agent">
 		<xsl:copy>
-			<xsl:apply-templates select="*[name() != 'MemoryBits' and name() != 'communicationBits']" />
+			<xsl:apply-templates select="*[name() != 'MemoryBits' and name() != 'communicationBits' and not(starts-with(name(), 'waste'))]" />
 		</xsl:copy>
 	</xsl:template>
 

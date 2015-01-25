@@ -23,6 +23,7 @@ import org.cobweb.cobweb2.plugins.abiotic.TemperatureMutator;
 import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
+import org.cobweb.cobweb2.plugins.waste.WasteMutator;
 import org.cobweb.cobweb2.ui.SimulationInterface;
 import org.cobweb.util.RandomNoGenerator;
 
@@ -43,6 +44,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	public GeneticsMutator geneticMutator;
 
 	public DiseaseMutator diseaseMutator;
+
+	public WasteMutator wasteMutator;
 
 	// TODO access level?
 	public SimulationConfig simulationConfig;
@@ -118,6 +121,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			diseaseMutator = null;
 			tempMutator = null;
 			prodMapper = null;
+			wasteMutator = null;
 		}
 
 		if (geneticMutator == null) {
@@ -139,12 +143,18 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			plugins.add(prodMapper);
 			mutatorListener.addMutator(prodMapper);
 		}
+		if (wasteMutator == null) {
+			wasteMutator = new WasteMutator();
+			mutatorListener.addMutator(wasteMutator);
+		}
 
 		geneticMutator.setParams(this, p.getGeneticParams(), p.getEnvParams().getAgentTypes());
 
 		diseaseMutator.setParams(this, p.getDiseaseParams(), p.getEnvParams().getAgentTypes());
 
 		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
+
+		wasteMutator.setParams(this, p.getWasteParams());
 
 		prodMapper.setParams(this, simulationConfig.getProdParams());
 
@@ -158,6 +168,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		InitEnvironment(p.getEnvParams().environmentName, p);
 
 		prodMapper.initEnvironment(theEnvironment, p.getEnvParams().keepOldWaste);
+
+		wasteMutator.initEnvironment(theEnvironment, p.getEnvParams().keepOldWaste);
 
 		setupPlugins();
 	}

@@ -263,4 +263,15 @@ public class Environment implements Updatable {
 		// nothing
 	}
 
+	public Collection<Location> getNearLocations(Location position) {
+		Collection<Location> result = new ArrayList<>(8);
+		for (Direction dir : topology.ALL_8_WAY) {
+			Location loc = topology.getAdjacent(position, dir);
+			if (loc != null && !hasStone(loc)) {
+				result.add(loc);
+			}
+		}
+		return result;
+	}
+
 }

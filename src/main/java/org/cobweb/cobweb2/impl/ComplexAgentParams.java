@@ -188,49 +188,6 @@ public class ComplexAgentParams implements ParameterSerializable {
 	public float agingRate = 10;
 
 	/**
-	 * Enable waste creation.
-	 */
-	@ConfDisplayName("Waste")
-	@ConfXMLTag("wasteMode")
-	public boolean wasteMode = false;
-
-	/**
-	 * Energy lost when stepping into waste.
-	 */
-	@ConfDisplayName("Step waste energy loss")
-	@ConfXMLTag("wastePen")
-	public int wastePen = 2;
-
-	/**
-	 * Waste is produced when this amount of energy is gained.
-	 */
-	@ConfDisplayName("Waste gain limit")
-	@ConfXMLTag("wasteGain")
-	public int wasteLimitGain = 100;
-
-	/**
-	 * Waste is produced when this amount of energy is lost.
-	 */
-	@ConfDisplayName("Waste loss limit")
-	@ConfXMLTag("wasteLoss")
-	public int wasteLimitLoss = 0;
-
-	/**
-	 * Waste decay rate.
-	 * Formula for decay is: amount = wasteInit * e ^ -rate * time
-	 */
-	@ConfDisplayName("Waste decay")
-	@ConfXMLTag("wasteRate")
-	public float wasteDecay = 0.5f;
-
-	/**
-	 * Initial waste amount.
-	 */
-	@ConfDisplayName("Waste initial amount")
-	@ConfXMLTag("wasteInit")
-	public int wasteInit = 100;
-
-	/**
 	 * Use tit-for-tat strategy for prisoner's dilemma.
 	 */
 	@ConfDisplayName("PD:Use Tit-for-tat")
