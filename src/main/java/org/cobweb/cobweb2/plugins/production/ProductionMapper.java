@@ -14,9 +14,10 @@ import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
+import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
-public class ProductionMapper implements StatePlugin, SpawnMutator {
+public class ProductionMapper implements StatePlugin, SpawnMutator, UpdateMutator {
 
 	private Environment environment;
 	private float[][] vals;
@@ -232,7 +233,8 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 		return roll(y);
 	}
 
-	public void tryProduction(Agent agent) {
+	@Override
+	public void onUpdate(Agent agent) {
 		if (shouldProduce(agent)) {
 			// TODO: find a more clean way to create and assign product
 			// Healthy agents produce high-value products, and vice-versa

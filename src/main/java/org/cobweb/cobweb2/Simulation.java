@@ -172,7 +172,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			for (Agent agent : new LinkedList<Agent>(agents)) {
 				agent.update();
 
-				prodMapper.tryProduction(agent);
+				mutatorListener.onUpdate(agent);
 
 				if (!agent.isAlive())
 					agents.remove(agent);
