@@ -10,7 +10,7 @@ public class WasteAgentParams implements ParameterSerializable {
 	 * Enable waste creation.
 	 */
 	@ConfXMLTag("wasteMode")
-	@ConfDisplayName("Waste")
+	@ConfDisplayName("Produce Waste")
 	public boolean wasteMode = false;
 
 	/**

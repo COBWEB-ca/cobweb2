@@ -41,6 +41,7 @@ import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.SettingsPanel;
 import org.cobweb.cobweb2.ui.swing.config.TemperatureConfigPage;
+import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
 
 /**
  * Simulation configuration dialog
@@ -87,6 +88,8 @@ public class SimulationConfigEditor {
 			geneticPage.validateUI();
 			diseaseConfigPage.validateUI();
 			tempPage.validateUI();
+			prodPage.validateUI();
+			wastePage.validateUI();
 			if (learnPage != null)
 				learnPage.validateUI();
 		} catch (IllegalArgumentException ex) {
@@ -114,6 +117,8 @@ public class SimulationConfigEditor {
 	private EnvironmentConfigPage environmentPage;
 
 	private ResourceConfigPage resourcePage;
+
+	private WasteConfigPage wastePage;
 
 	private GeneticConfigPage geneticPage;
 
@@ -302,6 +307,10 @@ public class SimulationConfigEditor {
 		removeOldPage(prodPage);
 		prodPage = new ProductionConfigPage(p.getProdParams(), displaySettings.agentColor);
 		tabbedPane.addTab("Production", prodPage.getPanel());
+
+		removeOldPage(wastePage);
+		wastePage = new WasteConfigPage(p.getWasteParams().agentParams, displaySettings.agentColor);
+		tabbedPane.addTab("Waste", wastePage.getPanel());
 
 		removeOldPage(foodwebPage);
 		FoodwebParams[] foodwebArray = new FoodwebParams[p.getAgentParams().length];
