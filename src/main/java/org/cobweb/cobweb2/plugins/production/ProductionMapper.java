@@ -1,7 +1,6 @@
 package org.cobweb.cobweb2.plugins.production;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -242,26 +241,6 @@ public class ProductionMapper implements StatePlugin, SpawnMutator {
 	}
 
 	private Map<Agent, ProductionParams> agentData = new HashMap<Agent, ProductionParams>();
-
-	@Override
-	public Collection<String> logDataAgent(int agentType) {
-		return NO_DATA;
-	}
-
-	@Override
-	public Collection<String> logDataTotal() {
-		return NO_DATA;
-	}
-
-	@Override
-	public Collection<String> logHeadersAgent() {
-		return NO_DATA;
-	}
-
-	@Override
-	public Collection<String> logHeaderTotal() {
-		return NO_DATA;
-	}
 
 	@Override
 	public void onDeath(Agent agent) {

@@ -14,13 +14,14 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Updatable;
 import org.cobweb.cobweb2.plugins.ContactMutator;
+import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.util.ArrayUtilities;
 
 /**
  * Simulates various diseases that can affect agents.
  */
-public class DiseaseMutator implements ContactMutator, SpawnMutator, Updatable {
+public class DiseaseMutator implements ContactMutator, SpawnMutator, LoggingMutator, Updatable {
 
 	private DiseaseParams[] params;
 

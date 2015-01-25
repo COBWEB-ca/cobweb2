@@ -1,7 +1,6 @@
 package org.cobweb.cobweb2.plugins.abiotic;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
@@ -50,26 +49,6 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 		diff = Math.max(diff - aPar.preferedTempRange, 0);
 		float f = diff * aPar.differenceFactor;
 		return f;
-	}
-
-	@Override
-	public Collection<String> logDataAgent(int agentType) {
-		return NO_DATA;
-	}
-
-	@Override
-	public Collection<String> logDataTotal() {
-		return NO_DATA;
-	}
-
-	@Override
-	public Collection<String> logHeadersAgent() {
-		return NO_DATA;
-	}
-
-	@Override
-	public Collection<String> logHeaderTotal() {
-		return NO_DATA;
 	}
 
 	@Override

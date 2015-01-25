@@ -12,9 +12,12 @@ import org.cobweb.cobweb2.core.LocationDirection;
 
 public class MutatorListener implements AgentListener {
 
-	private Set<ContactMutator> contactMutators = new LinkedHashSet<ContactMutator>();
-	private Set<StepMutator> stepMutators = new LinkedHashSet<StepMutator>();
-	private Set<SpawnMutator> spawnMutators = new LinkedHashSet<SpawnMutator>();
+	private Set<SpawnMutator> spawnMutators = new LinkedHashSet<>();
+	private Set<ContactMutator> contactMutators = new LinkedHashSet<>();
+	private Set<StepMutator> stepMutators = new LinkedHashSet<>();
+	private Set<EnergyMutator> energyMutators = new LinkedHashSet<>();
+	private Set<UpdateMutator> updateMutators = new LinkedHashSet<>();
+	private Set<LoggingMutator> loggingMutators = new LinkedHashSet<>();
 
 	public void addMutator(AgentMutator mutator) {
 		if (mutator instanceof SpawnMutator)
@@ -25,24 +28,34 @@ public class MutatorListener implements AgentListener {
 
 		if (mutator instanceof StepMutator)
 			stepMutators.add((StepMutator) mutator);
+
+		if (mutator instanceof EnergyMutator)
+			energyMutators.add((EnergyMutator) mutator);
+
+		if (mutator instanceof UpdateMutator)
+			updateMutators.add((UpdateMutator) mutator);
+
+		if (mutator instanceof LoggingMutator)
+			loggingMutators.add((LoggingMutator) mutator);
 	}
 
 
 	public void removeMutator(AgentMutator mutator) {
-		if (mutator instanceof SpawnMutator)
-			spawnMutators.remove(mutator);
-
-		if (mutator instanceof ContactMutator)
-			contactMutators.remove(mutator);
-
-		if (mutator instanceof StepMutator)
-			stepMutators.remove(mutator);
+		spawnMutators.remove(mutator);
+		contactMutators.remove(mutator);
+		stepMutators.remove(mutator);
+		energyMutators.remove(mutator);
+		updateMutators.remove(mutator);
+		loggingMutators.remove(mutator);
 	}
 
 	public void clearMutators() {
 		spawnMutators.clear();
 		contactMutators.clear();
 		stepMutators.clear();
+		energyMutators.clear();
+		updateMutators.clear();
+		loggingMutators.clear();
 	}
 
 	@Override
@@ -87,44 +100,51 @@ public class MutatorListener implements AgentListener {
 		}
 	}
 
+	@Override
+	public void onEnergyChange(Agent agent, int delta) {
+		for(EnergyMutator mutator : energyMutators) {
+			mutator.onEnergyChange(agent, delta);
+		}
+	}
 
+	@Override
+	public void onUpdate(Agent agent) {
+		for(UpdateMutator mutator : updateMutators) {
+			mutator.onUpdate(agent);
+		}
+	}
 
 	public List<String> logDataAgent(int type) {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logDataAgent(type))
-				blah.add(s);
+		List<String> res = new LinkedList<String>();
+		for (LoggingMutator mut : loggingMutators) {
+			res.addAll(mut.logDataAgent(type));
 		}
-		return blah;
+		return res;
 	}
 
 	public List<String> logDataTotal() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logDataTotal())
-				blah.add(s);
+		List<String> res = new LinkedList<String>();
+		for (LoggingMutator mut : loggingMutators) {
+			res.addAll(mut.logDataTotal());
 		}
-		return blah;
+		return res;
 	}
 
 	public List<String> logHeaderAgent() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logHeadersAgent())
-				blah.add(s);
+		List<String> res = new LinkedList<String>();
+		for (LoggingMutator mut : loggingMutators) {
+			res.addAll(mut.logHeadersAgent());
 		}
-		return blah;
+		return res;
 	}
 
 	public List<String> logHeaderTotal() {
-		List<String> blah = new LinkedList<String>();
-		for (SpawnMutator mut : spawnMutators) {
-			for (String s : mut.logHeaderTotal())
-				blah.add(s);
+		List<String> res = new LinkedList<String>();
+		for (LoggingMutator mut : loggingMutators) {
+			res.addAll(mut.logHeaderTotal());
 		}
-		return blah;
+		return res;
 	}
-
 
 
 }

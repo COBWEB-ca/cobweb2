@@ -11,6 +11,7 @@ import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.core.RandomSource;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 
 /**
@@ -18,7 +19,7 @@ import org.cobweb.cobweb2.plugins.SpawnMutator;
  *
  * @see SpawnMutator
  */
-public class GeneticsMutator implements SpawnMutator, AgentSimilarityCalculator {
+public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimilarityCalculator {
 
 	private GeneticParams params;
 
