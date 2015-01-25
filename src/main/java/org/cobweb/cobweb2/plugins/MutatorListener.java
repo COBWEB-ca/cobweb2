@@ -9,6 +9,7 @@ import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentListener;
+import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.LocationDirection;
 
 
@@ -111,9 +112,9 @@ public class MutatorListener implements AgentListener {
 	}
 
 	@Override
-	public void onEnergyChange(Agent agent, int delta) {
+	public void onEnergyChange(Agent agent, int delta, Cause cause) {
 		for(EnergyMutator mutator : energyMutators) {
-			mutator.onEnergyChange(agent, delta);
+			mutator.onEnergyChange(agent, delta, cause);
 		}
 	}
 

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.core.Updatable;
@@ -70,6 +71,11 @@ public class PacketConduit implements Updatable {
 	public void update() {
 		decrementPersistence();
 		unblockBroadcast();
+	}
+
+	public static class BroadcastCause implements Cause {
+		@Override
+		public String getName() { return "Broadcast"; }
 	}
 
 }

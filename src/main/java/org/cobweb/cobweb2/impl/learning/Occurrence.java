@@ -1,6 +1,7 @@
 package org.cobweb.cobweb2.impl.learning;
 
 
+
 public abstract class Occurrence implements Queueable {
 
 	public final float detectableDistance;
@@ -50,7 +51,7 @@ public abstract class Occurrence implements Queueable {
 	}
 
 	@Override
-	public final String getDescription() {
+	public String getDescription() {
 		return desc;
 	}
 }

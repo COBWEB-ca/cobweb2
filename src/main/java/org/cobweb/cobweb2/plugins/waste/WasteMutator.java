@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.plugins.waste;
 import java.util.Collection;
 
 import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.SimulationInternals;
@@ -33,7 +34,7 @@ public class WasteMutator extends StatefulSpawnMutatorBase<WasteMutator.WasteSta
 	}
 
 	@Override
-	public void onEnergyChange(Agent agent, int delta) {
+	public void onEnergyChange(Agent agent, int delta, Cause cause) {
 		WasteState state = getAgentState(agent);
 		if (state == null)
 			return;

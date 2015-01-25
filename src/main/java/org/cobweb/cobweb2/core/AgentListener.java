@@ -14,7 +14,7 @@ public interface AgentListener {
 
 	public abstract void onDeath(Agent agent);
 
-	public abstract void onEnergyChange(Agent agent, int delta);
+	public abstract void onEnergyChange(Agent agent, int delta, Cause cause);
 
 	public abstract void onUpdate(Agent agent);
 

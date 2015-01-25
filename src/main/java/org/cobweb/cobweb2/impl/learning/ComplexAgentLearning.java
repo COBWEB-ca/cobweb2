@@ -23,7 +23,7 @@ import org.cobweb.cobweb2.impl.ComplexEnvironment;
 //Make learning toggleable
 //React to temperatures
 
-
+// FIXME: untangle this mess, split out ComplexAgent's functions this duplicates and override them, use Cause and similar
 public class ComplexAgentLearning extends ComplexAgent {
 
 	public ComplexAgentLearning(SimulationInternals sim) { // NO_UCD (unused code) called through reflection
@@ -170,7 +170,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				if (pregnant && enoughEnergy(params.breedEnergy) && pregPeriod <= 0) {
 
-					queue(new BreedInitiationOccurrence(this, getTime(), 0, "breedInit", breedPartner));
+					queue(new BreedInitiationOccurrence(this, getTime(), 0, breedPartner == null ? new AsexualReproductionCause() : new SexualReproductionCause() , breedPartner));
 
 				} else {
 					if (!pregnant) {
@@ -210,37 +210,34 @@ public class ComplexAgentLearning extends ComplexAgent {
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 					if (concernedAgent.getBreedPos() != null) {
-
+						ComplexAgentLearning child = null;
 						if (concernedAgent.breedPartner == null) {
-							concernedAgent.getInfo().addDirectChild();
-							ComplexAgentLearning child = concernedAgent.createChildAsexual(concernedAgent.getBreedPos());
-
-							// Retain emotions for our child!
-							concernedAgent.remember(new MemorableEvent(getTime(), lParams.emotionForChildren, "agent-" + child.stats.id));
+							child = concernedAgent.createChildAsexual(concernedAgent.getBreedPos());
 						} else {
-							// child's strategy is determined by its parents, it
-							// has a
-							// 50% chance to get either parent's strategy
+							child = concernedAgent.createChildSexual(
+									concernedAgent.getBreedPos(),
+									(ComplexAgentLearning)concernedAgent.breedPartner);
+
+							concernedAgent.getInfo().addSexPreg();
 
 							// We like the agent we are breeding with; remember
 							// that
 							// this agent is favourable
 							concernedAgent.remember(new MemorableEvent(getTime(), lParams.loveForPartner, "agent-" + breedPartner.stats.id));
 
-							concernedAgent.getInfo().addDirectChild();
-							concernedAgent.breedPartner.getInfo().addDirectChild();
-							ComplexAgentLearning child = concernedAgent.createChildSexual(
-									concernedAgent.getBreedPos(),
-									(ComplexAgentLearning)concernedAgent.breedPartner);
-
-							// Retain an undying feeling of love for our
-							// child
-							MemorableEvent weLoveOurChild = new MemorableEvent(getTime(), lParams.emotionForChildren, "" + child);
-							concernedAgent.remember(weLoveOurChild);
-							((ComplexAgentLearning)concernedAgent.breedPartner).remember(weLoveOurChild);
-
-							concernedAgent.getInfo().addSexPreg();
 						}
+						// Retain an undying feeling of love for our
+						// child
+						MemorableEvent weLoveOurChild = new MemorableEvent(getTime(), lParams.emotionForChildren, "" + child);
+
+						concernedAgent.getInfo().addDirectChild();
+						concernedAgent.remember(weLoveOurChild);
+
+						if (concernedAgent.breedPartner != null) {
+							concernedAgent.breedPartner.getInfo().addDirectChild();
+							((ComplexAgentLearning)concernedAgent.breedPartner).remember(weLoveOurChild);
+						}
+
 						concernedAgent.breedPartner = null;
 						concernedAgent.pregnant = false; // Is this boolean even
 						// necessary?
@@ -251,7 +248,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			});
 
 			// Lose energy from stepping
-			queue(new EnergyChangeOccurrence(this, getTime(), -params.stepEnergy, "step") {
+			queue(new EnergyChangeOccurrence(this, getTime(), -params.stepEnergy, new StepForwardCause()) {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
@@ -354,7 +351,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				});
 
 			}
-			changeEnergy(-params.stepAgentEnergy);
+			changeEnergy(-params.stepAgentEnergy, new StepForwardCause());
 			stats.useAgentBumpEnergy(params.stepAgentEnergy);
 
 		} // end of two agents meet
@@ -365,11 +362,11 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 				// Allow agents up to a distance of 5 to see this agent hit the
 				// waste
-				queue(new Occurrence(this, getTime(), 5, "bumpWaste") {
+				queue(new Occurrence(this, getTime(), 5, "Bump Wall") {
 
 					@Override
 					public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-						concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, "bumpWaste"));
+						concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, new BumpWallCause()));
 						stats.useRockBumpEnergy(params.stepRockEnergy);
 						return null;
 					}
@@ -378,12 +375,12 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 		} else {
 			// Rock bump
-			queue(new Occurrence(this, getTime(), 0, "bumpRock") {
+			queue(new Occurrence(this, getTime(), 0, "Bump Wall") {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 					concernedAgent
-					.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, "bumpRock"));
+					.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, new BumpWallCause()));
 					stats.useRockBumpEnergy(params.stepRockEnergy);
 					return null;
 				}
@@ -391,7 +388,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		}
 
 		// Energy penalty
-		queue(new EnergyChangeOccurrence(this, getTime(), -energyPenalty(), "energyPenalty"));
+		queue(new EnergyChangeOccurrence(this, getTime(), -energyPenalty(), new AgingPenaltyCause()));
 
 		if (getEnergy() <= 0)
 			queue(new SmartAction(this) {

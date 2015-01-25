@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2.core;
 
+
 /**
  * Basic properties of an Agent
  */
@@ -34,7 +35,12 @@ public abstract class Agent implements Updatable {
 		return getEnergy() >= required;
 	}
 
-	public void changeEnergy(int delta) {
+	/**
+	 * Changes the agent's energy level.
+	 * @param delta Energy change delta, positive means agent gains energy, negative means it loses
+	 * @param cause Why the energy changed.
+	 */
+	public void changeEnergy(int delta, Cause cause) {
 		energy += delta;
 	}
 
