@@ -673,7 +673,7 @@ public class ComplexAgent extends Agent implements Serializable {
 			changeEnergy(-params.stepRockEnergy, new BumpWallCause());
 			stats.useRockBumpEnergy(params.stepRockEnergy);
 		}
-		changeEnergy(-energyPenalty(), new AgingPenaltyCause());
+		applyAgePenalty();
 
 		if (destPos != null && environment.hasDrop(destPos)) {
 			// Bumps into drop
@@ -735,7 +735,7 @@ public class ComplexAgent extends Agent implements Serializable {
 			}
 			changeEnergy(-params.initEnergy, cause);
 			stats.useReproductionEnergy(params.initEnergy);
-			changeEnergy(-energyPenalty(), new AgingPenaltyCause());
+			applyAgePenalty();
 			stats.addDirectChild();
 			breedPartner = null;
 			pregnant = false;
@@ -847,12 +847,18 @@ public class ComplexAgent extends Agent implements Serializable {
 	}
 
 	private void afterTurnAction() {
-		changeEnergy(-energyPenalty(), new AgingPenaltyCause());
+		applyAgePenalty();
 		if (!pregnant)
 			tryAsexBreed();
 		if (pregnant) {
 			pregPeriod--;
 		}
+	}
+
+	protected void applyAgePenalty() {
+		int penalty = energyPenalty();
+		if (penalty > 0)
+			changeEnergy(-penalty, new AgingPenaltyCause());
 	}
 
 
