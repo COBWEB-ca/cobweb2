@@ -139,12 +139,12 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(tempMutator);
 		}
 		if (prodMapper == null) {
-			prodMapper = new ProductionMapper();
+			prodMapper = new ProductionMapper(this);
 			plugins.add(prodMapper);
 			mutatorListener.addMutator(prodMapper);
 		}
 		if (wasteMutator == null) {
-			wasteMutator = new WasteMutator();
+			wasteMutator = new WasteMutator(this);
 			mutatorListener.addMutator(wasteMutator);
 		}
 
@@ -154,9 +154,9 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
 
-		wasteMutator.setParams(this, p.getWasteParams());
+		wasteMutator.setParams(p.getWasteParams());
 
-		prodMapper.setParams(this, simulationConfig.getProdParams());
+		prodMapper.setParams(simulationConfig.getProdParams());
 
 		// 0 = use default seed
 		if (p.getEnvParams().randomSeed == 0)

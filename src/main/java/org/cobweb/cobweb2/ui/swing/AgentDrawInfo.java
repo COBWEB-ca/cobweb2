@@ -31,7 +31,7 @@ class AgentDrawInfo {
 	AgentDrawInfo(ComplexAgent agent, ColorLookup colorMap, Simulation sim) {
 		int[] rgb = new int[3];
 		if (sim.geneticMutator != null) {
-			GeneticCode genes = sim.geneticMutator.getGene(agent);
+			GeneticCode genes = sim.geneticMutator.getAgentState(agent);
 			for (int i = 0; i < Math.min(3, genes.getNumGenes()); i++) {
 				rgb[i] = genes.getValue(i);
 			}

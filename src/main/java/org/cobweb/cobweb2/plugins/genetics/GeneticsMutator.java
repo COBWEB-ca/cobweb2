@@ -1,10 +1,8 @@
 package org.cobweb.cobweb2.plugins.genetics;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentSimilarityCalculator;
@@ -13,39 +11,24 @@ import org.cobweb.cobweb2.core.RandomSource;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
+import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 
 /**
  * GeneticsMutator is an instance of SpawnMutator.
  *
  * @see SpawnMutator
  */
-public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimilarityCalculator {
+public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements SpawnMutator, LoggingMutator, AgentSimilarityCalculator {
 
 	private GeneticParams params;
 
 	private GATracker tracker;
 
-	private Map<Agent, GeneticCode> genes = new HashMap<Agent, GeneticCode>();
-
 	private RandomSource simulation;
 
-	private static final Collection<String> blank = new LinkedList<String>();
 
-	/**
-	 * Returns the genes of agent.  If the agent does not currently have genes, they will be created.
-	 *
-	 * @param agent The complex agent that the genes will come from.
-	 * @return The genetic code of agent
-	 */
-	public GeneticCode getGene(Agent agent) {
-		if (!agent.isAlive())
-			return null;
-
-		GeneticCode gc = genes.get(agent);
-		if (gc == null)
-			onSpawn(agent);
-
-		return gc;
+	public GeneticsMutator() {
+		super(GeneticCode.class);
 	}
 
 	public GATracker getTracker() {
@@ -63,7 +46,7 @@ public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimil
 
 	@Override
 	public Collection<String> logDataTotal() {
-		return blank;
+		return NO_DATA;
 	}
 
 	@Override
@@ -77,12 +60,12 @@ public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimil
 
 	@Override
 	public Collection<String> logHeaderTotal() {
-		return blank;
+		return NO_DATA;
 	}
 
 	private void mutateAgentAttributes(Agent agent) {
 		for (int i = 0; i < params.phenotype.length; i++) {
-			GeneticCode gc = getGene(agent);
+			GeneticCode gc = getAgentState(agent);
 
 			Phenotype pheno = params.phenotype[i];
 
@@ -94,15 +77,15 @@ public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimil
 			// Get instance variable linked to attribute in agent
 			pheno.modifyValue(agent, coefficient, 0);
 		}
-		tracker.addAgent(agent.getType(), getGene(agent));
+		tracker.addAgent(agent.getType(), getAgentState(agent));
 	}
 
 	@Override
 	public void onDeath(Agent agent) {
-		if (genes.containsKey(agent)) {
-			tracker.removeAgent(agent.getType(), genes.get(agent));
-			genes.remove(agent);
-		}
+		GeneticCode removeAgentState = removeAgentState(agent);
+		if (removeAgentState != null)
+			tracker.removeAgent(agent.getType(), removeAgentState);
+
 	}
 
 	@Override
@@ -111,13 +94,13 @@ public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimil
 		for (int i = 0; i < params.getGeneCount(); i++) {
 			genetic_code.bitsFromString(i * 8, 8, params.geneValues[agent.getType()][i], 0);
 		}
-		genes.put(agent, genetic_code);
+		setAgentState(agent, genetic_code);
 		mutateAgentAttributes(agent);
 	}
 
 	@Override
 	public void onSpawn(Agent agent, Agent parent) {
-		GeneticCode genetic_code = new GeneticCode(getGene(parent));
+		GeneticCode genetic_code = new GeneticCode(getAgentState(parent));
 
 		mutateAndSave(agent, ((ComplexAgent)parent).params.mutationRate, genetic_code);
 	}
@@ -125,8 +108,8 @@ public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimil
 	@Override
 	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		GeneticCode genetic_code = null;
-		GeneticCode gc1 = getGene(parent1);
-		GeneticCode gc2 = getGene(parent2);
+		GeneticCode gc1 = getAgentState(parent1);
+		GeneticCode gc2 = getAgentState(parent2);
 
 		// if parent2 is dead, the GeneticCode got removed in onDeath()
 		// TODO: keep GeneticCode inside Agent so it doesn't get disposed while we still have parent2 reference?
@@ -158,7 +141,7 @@ public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimil
 			}
 		}
 
-		genes.put(agent, genetic_code);
+		setAgentState(agent, genetic_code);
 		mutateAgentAttributes(agent);
 	}
 
@@ -179,7 +162,7 @@ public class GeneticsMutator implements SpawnMutator, LoggingMutator, AgentSimil
 
 	@Override
 	public float similarity(Agent a1, Agent a2) {
-		return GeneticCode.compareGeneticSimilarity(getGene(a1), getGene(a2));
+		return GeneticCode.compareGeneticSimilarity(getAgentState(a1), getAgentState(a2));
 	}
 
 }

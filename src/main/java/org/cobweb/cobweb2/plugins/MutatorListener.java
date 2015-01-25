@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentListener;
 import org.cobweb.cobweb2.core.LocationDirection;
@@ -18,6 +20,7 @@ public class MutatorListener implements AgentListener {
 	private Set<EnergyMutator> energyMutators = new LinkedHashSet<>();
 	private Set<UpdateMutator> updateMutators = new LinkedHashSet<>();
 	private Set<LoggingMutator> loggingMutators = new LinkedHashSet<>();
+	private BidiMap<Class<?>, StatefulMutator<?>> statefulMutators = new DualHashBidiMap<>();
 
 	public void addMutator(AgentMutator mutator) {
 		if (mutator instanceof SpawnMutator)
@@ -37,6 +40,11 @@ public class MutatorListener implements AgentListener {
 
 		if (mutator instanceof LoggingMutator)
 			loggingMutators.add((LoggingMutator) mutator);
+
+		if (mutator instanceof StatefulMutator) {
+			StatefulMutator<?> sm = (StatefulMutator<?>) mutator;
+			statefulMutators.put(sm.getStateClass(), sm);
+		}
 	}
 
 
@@ -47,6 +55,7 @@ public class MutatorListener implements AgentListener {
 		energyMutators.remove(mutator);
 		updateMutators.remove(mutator);
 		loggingMutators.remove(mutator);
+		statefulMutators.removeValue(mutator);
 	}
 
 	public void clearMutators() {
@@ -56,6 +65,7 @@ public class MutatorListener implements AgentListener {
 		energyMutators.clear();
 		updateMutators.clear();
 		loggingMutators.clear();
+		statefulMutators.clear();
 	}
 
 	@Override
@@ -146,5 +156,10 @@ public class MutatorListener implements AgentListener {
 		return res;
 	}
 
+	public <T> T getMutatorState(Class<T> stateClass, Agent a) {
+		@SuppressWarnings("unchecked")
+		StatefulMutator<T> mutator = (StatefulMutator<T>) statefulMutators.get(stateClass);
+		return mutator.getAgentState(a);
+	}
 
 }

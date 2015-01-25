@@ -49,5 +49,14 @@ public class WasteAgentParams implements ParameterSerializable {
 	@ConfDisplayName("Waste initial amount")
 	public int wasteInit = 100;
 
+	@Override
+	protected WasteAgentParams clone() {
+		try {
+			return (WasteAgentParams) super.clone();
+		} catch (CloneNotSupportedException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
 }

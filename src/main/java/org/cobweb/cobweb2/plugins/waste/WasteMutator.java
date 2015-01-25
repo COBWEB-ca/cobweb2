@@ -6,19 +6,23 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.plugins.AgentMutatorBase;
 import org.cobweb.cobweb2.plugins.EnergyMutator;
+import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 
 
-public class WasteMutator extends AgentMutatorBase<WasteMutator.WasteState> implements EnergyMutator, UpdateMutator {
+public class WasteMutator extends StatefulSpawnMutatorBase<WasteMutator.WasteState> implements EnergyMutator, UpdateMutator {
 
 	private WasteParams params;
 	private Environment environment;
 	private SimulationInternals sim;
 
-	public void setParams(SimulationInternals sim, WasteParams wasteParams) {
+	public WasteMutator(SimulationInternals sim) {
+		super(WasteMutator.WasteState.class, sim);
 		this.sim = sim;
+	}
+
+	public void setParams(WasteParams wasteParams) {
 		this.params = wasteParams;
 	}
 
@@ -106,12 +110,19 @@ public class WasteMutator extends AgentMutatorBase<WasteMutator.WasteState> impl
 	}
 
 	@Override
-	protected WasteState createState(Agent agent) {
+	public WasteState stateForNewAgent(Agent agent) {
 		WasteAgentParams agentParams = params.agentParams[agent.getType()];
 		if (!agentParams.wasteMode)
 			return null; // Don't need state when waste disabled
 
-		return new WasteState(agent, agentParams);
+		return new WasteState(agent, agentParams.clone());
+	}
+
+	@Override
+	protected WasteState stateFromParent(Agent agent, WasteState parentState) {
+		if (parentState == null)
+			return null;
+		return new WasteState(agent, parentState.agentParams.clone());
 	}
 
 }

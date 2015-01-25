@@ -1,9 +1,7 @@
 package org.cobweb.cobweb2.plugins.production;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Environment;
@@ -13,17 +11,22 @@ import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.plugins.SpawnMutator;
+import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
-public class ProductionMapper implements StatePlugin, SpawnMutator, UpdateMutator {
+public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionParams> implements StatePlugin, UpdateMutator {
 
 	private Environment environment;
 	private float[][] vals;
 	private float maxValue;
 	SimulationInternals simulation;
 	private ProductionParams[] initialParams;
+
+	public ProductionMapper(SimulationInternals sim) {
+		super(ProductionParams.class, sim);
+		simulation = sim;
+	}
 
 	void remProduct(Product p) {
 		Location loc = p.loc;
@@ -139,11 +142,11 @@ public class ProductionMapper implements StatePlugin, SpawnMutator, UpdateMutato
 	}
 
 	private boolean shouldProduce(Agent agent) {
-		if (!agentData.containsKey(agent)) {
+		if (!hasAgentState(agent)) {
 			return false;
 		}
 
-		ProductionParams params = agentData.get(agent);
+		ProductionParams params = getAgentState(agent);
 		if (!params.productionMode || !roll(params.initProdChance)){
 			return false;
 		}
@@ -242,40 +245,20 @@ public class ProductionMapper implements StatePlugin, SpawnMutator, UpdateMutato
 		}
 	}
 
-	private Map<Agent, ProductionParams> agentData = new HashMap<Agent, ProductionParams>();
 
 	@Override
-	public void onDeath(Agent agent) {
-		agentData.remove(agent);
+	public ProductionParams stateForNewAgent(Agent agent) {
+		return initialParams[agent.getType()].clone();
 	}
 
 	@Override
-	public void onSpawn(Agent agent) {
-		agentData.put(
-				agent,
-				initialParams[agent.getType()].clone()
-				);
+	protected ProductionParams stateFromParent(Agent agent, ProductionParams parentState) {
+		if (parentState == null)
+			return null;
+		return parentState.clone();
 	}
 
-	@Override
-	public void onSpawn(Agent agent, Agent parent) {
-		agentData.put(
-				agent,
-				agentData.get(parent).clone()
-				);
-	}
-
-	@Override
-	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
-		agentData.put(
-				agent,
-				agentData.get(parent1).clone()
-				);
-	}
-
-	public void setParams(SimulationInternals sim, ProductionParams[] productionParams) {
-		simulation = sim;
-
+	public void setParams(ProductionParams[] productionParams) {
 		initialParams = productionParams;
 	}
 
