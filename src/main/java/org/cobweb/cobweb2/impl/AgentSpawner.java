@@ -20,9 +20,9 @@ public class AgentSpawner {
 		}
 	}
 
-	public Agent spawn() {
+	public Agent spawn(int type) {
 		try {
-			return (Agent)spawnType.getConstructor(SimulationInternals.class).newInstance(simulation);
+			return (Agent)spawnType.getConstructor(SimulationInternals.class, int.class).newInstance(simulation, type);
 
 		} catch (IllegalArgumentException ex) {
 			throw new RuntimeException(ex);

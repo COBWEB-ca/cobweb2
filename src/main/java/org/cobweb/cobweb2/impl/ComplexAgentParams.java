@@ -16,12 +16,6 @@ public class ComplexAgentParams implements ParameterSerializable {
 	private static final long serialVersionUID = -7852361484228627541L;
 
 	/**
-	 * Agent type index.
-	 */
-	@ConfXMLTag("Index")
-	public int type = -1;
-
-	/**
 	 * Initial number of agents.
 	 */
 	@ConfDisplayName("Initial count")

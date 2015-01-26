@@ -57,7 +57,6 @@ public class SimulationConfig implements SimulationParams {
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			agentParams[i] = new ComplexAgentParams(envParams);
-			agentParams[i].type = i;
 		}
 
 		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];

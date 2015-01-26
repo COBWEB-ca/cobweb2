@@ -104,8 +104,8 @@ public class SimulationConfigSerializer {
 		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
 
 		NodeList nodes = root.getChildNodes();
-		int agent = 0;
-		int food = 0;
+		int agentIndex = 0;
+		int foodIndex = 0;
 		for (int j = 0; j < nodes.getLength(); j++) {
 			Node node = nodes.item(j);
 			String nodeName = node.getNodeName();
@@ -113,21 +113,19 @@ public class SimulationConfigSerializer {
 			if (nodeName.equals("agent")) {
 				ComplexAgentParams p = new ComplexAgentParams(conf.envParams);
 				serializer.load(p, node);
-				if (p.type < 0)
-					p.type = agent++;
-				if (p.type >= conf.envParams.getAgentTypes())
+				if (agentIndex >= conf.envParams.getAgentTypes())
 					continue;
-				conf.agentParams[p.type] = p;
+				conf.agentParams[agentIndex++] = p;
+
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
 				serializer.load(p, node);
 				if (p.type < 0)
-					p.type = food++;
-
+					p.type = foodIndex++;
 				if (p.type >= conf.envParams.getFoodTypes())
 					continue;
-
 				conf.foodParams[p.type] = p;
+
 			} else if (nodeName.equals("Waste")) {
 				serializer.load(conf.wasteParams, node);
 			} else if (nodeName.equals("Production")) {

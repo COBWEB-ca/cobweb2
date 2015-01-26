@@ -15,6 +15,12 @@ public abstract class Agent implements Updatable {
 	 */
 	private int energy;
 
+	private int type;
+
+	public Agent(int type) {
+		this.type = type;
+	}
+
 	public void die() {
 		assert (isAlive());
 		if (!isAlive())
@@ -55,7 +61,9 @@ public abstract class Agent implements Updatable {
 		return alive;
 	}
 
-	public abstract int getType();
+	public int getType() {
+		return type;
+	}
 
 	protected abstract Agent createChildAsexual(LocationDirection location);
 

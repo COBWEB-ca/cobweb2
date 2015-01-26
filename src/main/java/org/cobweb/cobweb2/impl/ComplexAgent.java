@@ -69,7 +69,8 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	protected transient SimulationInternals simulation;
 
-	public ComplexAgent(SimulationInternals sim) {
+	public ComplexAgent(SimulationInternals sim, int type) {
+		super(type);
 		this.simulation = sim;
 	}
 
@@ -93,13 +94,13 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	@Override
 	protected ComplexAgent createChildAsexual(LocationDirection location) {
-		ComplexAgent child = new ComplexAgent(simulation);
+		ComplexAgent child = new ComplexAgent(simulation, getType());
 		child.init(environment, location, this);
 		return child;
 	}
 
 	private ComplexAgent createChildSexual(LocationDirection location, ComplexAgent otherParent) {
-		ComplexAgent child = new ComplexAgent(simulation);
+		ComplexAgent child = new ComplexAgent(simulation, getType());
 		child.init(environment, location, this, otherParent);
 		return child;
 	}
@@ -127,7 +128,7 @@ public class ComplexAgent extends Agent implements Serializable {
 			params.pdSimilaritySlope = parent2.params.pdSimilaritySlope;
 		} // else keep parent 1's PD config
 
-		stats = environment.addAgentInfo(params.type, parent1.stats, parent2.stats);
+		stats = environment.addAgentInfo(getType(), parent1.stats, parent2.stats);
 
 		initPosition(pos);
 
@@ -147,7 +148,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		copyParams(parent);
 		controller = parent.controller.createChildAsexual();
 
-		stats = environment.addAgentInfo(params.type, parent.stats);
+		stats = environment.addAgentInfo(getType(), parent.stats);
 
 		initPosition(pos);
 
@@ -163,7 +164,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		environment = (env);
 		setParams(agentData);
 
-		stats = environment.addAgentInfo(params.type);
+		stats = environment.addAgentInfo(getType());
 
 		initPosition(pos);
 
@@ -312,7 +313,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		// Eat first before we can produce waste, of course.
 		environment.removeFood(destPos);
 		// Gain Energy according to the food type.
-		if (environment.getFoodType(destPos) == params.type) {
+		if (environment.getFoodType(destPos) == getType()) {
 			changeEnergy(+params.foodEnergy, new EatFavoriteFoodCause());
 			stats.addFoodEnergy(params.foodEnergy);
 		} else {
@@ -753,7 +754,7 @@ public class ComplexAgent extends Agent implements Serializable {
 
 		// if the agents are of the same type, check if they have enough
 		// resources to breed
-		if (adjacentAgent.params.type == params.type) {
+		if (adjacentAgent.getType() == getType()) {
 
 			double sim = 0.0;
 			boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy) && params.sexualBreedChance != 0.0
@@ -859,12 +860,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		int penalty = energyPenalty();
 		if (penalty > 0)
 			changeEnergy(-penalty, new AgingPenaltyCause());
-	}
-
-
-	@Override
-	public int getType() {
-		return params.type;
 	}
 
 	@Override

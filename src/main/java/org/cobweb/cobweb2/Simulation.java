@@ -211,7 +211,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 	@Override
 	public Agent newAgent(int type) {
-		ComplexAgent agent = (ComplexAgent) agentSpawner.spawn();
+		ComplexAgent agent = (ComplexAgent) agentSpawner.spawn(type);
 		agent.setController(simulationConfig.controllerParams.createController(this, type));
 		return agent;
 	}
