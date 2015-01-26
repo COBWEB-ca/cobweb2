@@ -18,7 +18,8 @@
 	<!-- Fix up header -->
 	<xsl:template match="inputData">
 		<COBWEB2Config config-version="2015-01-14" cobweb-version="{$cobweb-version}">
-			<xsl:apply-templates />
+			<xsl:apply-templates select="*[name() != 'production']" />
+			<!-- Move waste properties under own section -->
 			<Waste>
 				<AgentParams>
 					<xsl:for-each select="/*/agent">
@@ -28,6 +29,16 @@
 					</xsl:for-each>
 				</AgentParams>
 			</Waste>
+			<!-- Move production agent params under Production section -->
+			<Production>
+				<AgentParams>
+					<xsl:for-each select="/*/production">
+						<Agent id="{Index + 1}">
+							<xsl:apply-templates />
+						</Agent>
+					</xsl:for-each>
+				</AgentParams>
+			</Production>
 		</COBWEB2Config>
 	</xsl:template>
 

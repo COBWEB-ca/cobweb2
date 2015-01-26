@@ -4,16 +4,21 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.StatePluginSource;
-import org.cobweb.io.ConfDisplayName;
-import org.cobweb.io.ConfXMLTag;
-import org.cobweb.io.ParameterSerializable;
+import org.cobweb.cobweb2.impl.AgentFoodCountable;
+import org.cobweb.cobweb2.plugins.PerAgentParams;
 
 
-public class ProductionParams implements ParameterSerializable, StatePluginSource {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 7452975610085145539L;
+public class ProductionParams extends PerAgentParams<ProductionAgentParams> implements StatePluginSource {
+
+	public ProductionParams(AgentFoodCountable envParams) {
+		super(ProductionAgentParams.class, envParams);
+	}
+
+	@Override
+	protected ProductionAgentParams newAgentParam() {
+		return new ProductionAgentParams();
+	}
+
 
 	static final String STATE_NAME_PRODHUNT = "Production Value";
 
@@ -22,59 +27,5 @@ public class ProductionParams implements ParameterSerializable, StatePluginSourc
 		return Arrays.asList(STATE_NAME_PRODHUNT);
 	}
 
-	/**
-	 * Agent type index.
-	 */
-	@ConfXMLTag("Index")
-	public int type = -1;
-
-	/**
-	 * Enable production
-	 */
-	@ConfDisplayName("Production")
-	@ConfXMLTag("productionMode")
-	public boolean productionMode;
-
-
-	@ConfXMLTag("productionCost")
-	@ConfDisplayName("Production Cost")
-	public int productionCost = 0;
-
-
-	@ConfXMLTag("InitProdChance")
-	@ConfDisplayName("Initial production percentage roll")
-	public float initProdChance = 0.8f;
-
-	@ConfXMLTag("LowDemThresh")
-	@ConfDisplayName("The maximum prodVal to consider \"low\"")
-	public float lowDemandThreshold = 5f;
-
-	@ConfXMLTag("LowDemProdChance")
-	@ConfDisplayName("Percentage roll to produce in low demand area")
-	public float lowDemandProdChance = 0.001f;
-
-	@ConfXMLTag("SweetDemThresh")
-	@ConfDisplayName("The maximum prodVal to consider \"sweet\"")
-	public float sweetDemandThreshold = 6f;
-
-	@ConfXMLTag("SweetDemStartChance")
-	@ConfDisplayName("Minimum roll percentage in sweet zone")
-	public float sweetDemandStartChance = 0.001f;
-
-	@ConfXMLTag("HiDemCutoff")
-	@ConfDisplayName("Maximal prodVal to produce on")
-	public float highDemandCutoff = 20f;
-
-	@ConfXMLTag("HiDemProdChance")
-	@ConfDisplayName("Maximum roll percentage in high zone")
-	public float highDemandProdChance = 0.001f;
-
-	@Override
-	public ProductionParams clone() {
-		try {
-			return (ProductionParams) super.clone();
-		} catch (CloneNotSupportedException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
+	private static final long serialVersionUID = 1L;
 }

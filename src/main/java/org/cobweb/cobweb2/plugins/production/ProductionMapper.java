@@ -16,16 +16,16 @@ import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
-public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionParams> implements StatePlugin, UpdateMutator {
+public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionAgentParams> implements StatePlugin, UpdateMutator {
 
 	private Environment environment;
 	private float[][] vals;
 	private float maxValue;
 	SimulationInternals simulation;
-	private ProductionParams[] initialParams;
+	private ProductionAgentParams[] initialParams;
 
 	public ProductionMapper(SimulationInternals sim) {
-		super(ProductionParams.class, sim);
+		super(ProductionAgentParams.class, sim);
 		simulation = sim;
 	}
 
@@ -149,7 +149,7 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionParams>
 			return false;
 		}
 
-		ProductionParams params = getAgentState(agent);
+		ProductionAgentParams params = getAgentState(agent);
 		if (!params.productionMode || !roll(params.initProdChance)){
 			return false;
 		}
@@ -250,19 +250,19 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionParams>
 
 
 	@Override
-	public ProductionParams stateForNewAgent(Agent agent) {
+	public ProductionAgentParams stateForNewAgent(Agent agent) {
 		return initialParams[agent.getType()].clone();
 	}
 
 	@Override
-	protected ProductionParams stateFromParent(Agent agent, ProductionParams parentState) {
+	protected ProductionAgentParams stateFromParent(Agent agent, ProductionAgentParams parentState) {
 		if (parentState == null)
 			return null;
 		return parentState.clone();
 	}
 
-	public void setParams(ProductionParams[] productionParams) {
-		initialParams = productionParams;
+	public void setParams(ProductionParams productionParams) {
+		initialParams = productionParams.agentParams;
 	}
 
 	public void initEnvironment(Environment env, boolean keepOldProducts) {

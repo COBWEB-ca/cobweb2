@@ -84,7 +84,7 @@ public class SimulationConfig implements SimulationParams {
 
 	private ComplexAgentParams[] agentParams;
 
-	private ProductionParams[] prodParams;
+	private ProductionParams prodParams;
 
 	private LearningParams learningParams;
 
@@ -131,11 +131,7 @@ public class SimulationConfig implements SimulationParams {
 
 		diseaseParams = new DiseaseParams(envParams);
 
-		prodParams = new ProductionParams[envParams.getAgentTypes()];
-		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			prodParams[i] = new ProductionParams();
-			prodParams[i].type = i;
-		}
+		prodParams = new ProductionParams(envParams);
 
 		wasteParams = new WasteParams(envParams);
 
@@ -192,7 +188,7 @@ public class SimulationConfig implements SimulationParams {
 		return agentParams;
 	}
 
-	public ProductionParams[] getProdParams() {
+	public ProductionParams getProdParams() {
 		return prodParams;
 	}
 
@@ -294,7 +290,7 @@ public class SimulationConfig implements SimulationParams {
 		ConfigUpgrader.upgrade(envParams);
 
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
-		prodParams = new ProductionParams[envParams.getAgentTypes()];
+		prodParams = new ProductionParams(envParams);
 		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
 
 		diseaseParams = new DiseaseParams(envParams);
@@ -309,7 +305,6 @@ public class SimulationConfig implements SimulationParams {
 
 		NodeList nodes = root.getChildNodes();
 		int agent = 0;
-		int prod = 0;
 		int food = 0;
 		for (int j = 0; j < nodes.getLength(); j++) {
 			Node node = nodes.item(j);
@@ -326,14 +321,8 @@ public class SimulationConfig implements SimulationParams {
 				if (p.type >= envParams.getAgentTypes())
 					continue;
 				agentParams[p.type] = p;
-			} else if (nodeName.equals("production")) {
-				ProductionParams p = new ProductionParams();
-				serializer.load(p, node);
-				if (p.type < 0)
-					p.type = prod++;
-				if (p.type >= envParams.getAgentTypes())
-					continue;
-				prodParams[p.type] = p;
+			} else if (nodeName.equals("Production")) {
+				serializer.load(prodParams, node);
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
 				serializer.load(p, node);
@@ -374,19 +363,13 @@ public class SimulationConfig implements SimulationParams {
 				agentParams[i].type = i;
 			}
 		}
-		for (int i = 0; i < prodParams.length; i++) {
-			if (prodParams[i] == null) {
-				prodParams[i] = new ProductionParams();
-				prodParams[i].type = i;
-			}
-		}
 		for (int i = 0; i < foodParams.length; i++) {
 			if (foodParams[i] == null) {
 				foodParams[i] = new ComplexFoodParams();
 				foodParams[i].type = i;
 			}
 		}
-		// Make sure there are the right number of agentParams even if the file is bad
+		prodParams.resize(envParams);
 		diseaseParams.resize(envParams);
 		tempParams.resize(envParams);
 		wasteParams.resize(envParams);
@@ -416,11 +399,9 @@ public class SimulationConfig implements SimulationParams {
 			root.appendChild(node);
 		}
 
-		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			Element node = d.createElement("production");
-			serializer.save(prodParams[i], node, d);
-			root.appendChild(node);
-		}
+		Element prod = d.createElement("Production");
+		serializer.save(prodParams, prod, d);
+		root.appendChild(prod);
 
 		for (int i = 0; i < envParams.getFoodTypes(); i++) {
 			Element node = d.createElement("food");
@@ -501,33 +482,13 @@ public class SimulationConfig implements SimulationParams {
 			this.foodParams = n;
 		}
 
-		{
-			this.diseaseParams.resize(envParams);
-		}
-		{
-			ProductionParams[] n = Arrays.copyOf(prodParams, count);
-
-			for (int i = prodParams.length; i < count; i++) {
-				n[i] = new ProductionParams();
-				n[i].type = i;
-			}
-			this.prodParams = n;
-		}
-		{
-			this.geneticParams.resize(envParams);
-		}
-		{
-			this.tempParams.resize(envParams);
-		}
-		{
-			this.wasteParams.resize(envParams);
-		}
-		{
-			this.learningParams.resize(envParams);
-		}
-		{
-			this.controllerParams.resize(envParams);
-		}
+		this.diseaseParams.resize(envParams);
+		this.prodParams.resize(envParams);
+		this.geneticParams.resize(envParams);
+		this.tempParams.resize(envParams);
+		this.wasteParams.resize(envParams);
+		this.learningParams.resize(envParams);
+		this.controllerParams.resize(envParams);
 
 	}
 
@@ -550,8 +511,8 @@ public class SimulationConfig implements SimulationParams {
 	@Override
 	public List<String> getPluginParameters() {
 		List<String> result = new ArrayList<String>();
-		if (this.prodParams != null && this.prodParams[0] != null)
-			result.addAll(this.prodParams[0].getStatePluginKeys());
+		if (this.prodParams != null)
+			result.addAll(this.prodParams.getStatePluginKeys());
 		result.addAll(this.tempParams.getStatePluginKeys());
 
 		return result;

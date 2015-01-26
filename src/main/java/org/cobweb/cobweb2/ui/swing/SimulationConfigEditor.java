@@ -305,7 +305,7 @@ public class SimulationConfigEditor {
 
 		/* Production panel */
 		removeOldPage(prodPage);
-		prodPage = new ProductionConfigPage(p.getProdParams(), displaySettings.agentColor);
+		prodPage = new ProductionConfigPage(p.getProdParams().agentParams, displaySettings.agentColor);
 		tabbedPane.addTab("Production", prodPage.getPanel());
 
 		removeOldPage(wastePage);
