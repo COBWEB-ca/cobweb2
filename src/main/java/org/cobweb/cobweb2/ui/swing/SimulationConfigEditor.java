@@ -200,7 +200,7 @@ public class SimulationConfigEditor {
 			setDefault();
 		}
 
-		environmentPage = new EnvironmentConfigPage(p.getEnvParams(), allowModify);
+		environmentPage = new EnvironmentConfigPage(p.envParams, allowModify);
 
 		tabbedPane.addTab("Environment", environmentPage.getPanel());
 
@@ -237,8 +237,8 @@ public class SimulationConfigEditor {
 		dialog.add(j);
 		dialog.pack();
 		File filePath;
-		if (p.getFilename() == null ||
-				(filePath = new File(p.getFilename())).getName() == null)
+		if (p.fileName == null ||
+				(filePath = new File(p.fileName)).getName() == null)
 			filePath = new File(CobwebApplication.DEFAULT_DATA_FILE_NAME + CobwebApplication.CONFIG_FILE_EXTENSION);
 		dialog.setTitle(WINDOW_TITLE + " - " + filePath.getName());
 	}
@@ -298,38 +298,38 @@ public class SimulationConfigEditor {
 
 		/* Resources panel */
 		removeOldPage(resourcePage);
-		resourcePage = new ResourceConfigPage(p.getFoodParams(), displaySettings.agentColor);
+		resourcePage = new ResourceConfigPage(p.foodParams, displaySettings.agentColor);
 		tabbedPane.addTab("Resources", resourcePage.getPanel());
 
 		/* Agents' panel */
 		removeOldPage(agentPage);
-		agentPage = new AgentConfigPage(p.getAgentParams(), displaySettings.agentColor);
+		agentPage = new AgentConfigPage(p.agentParams, displaySettings.agentColor);
 		tabbedPane.addTab("Agents", agentPage.getPanel());
 
 		/* Production panel */
 		removeOldPage(prodPage);
-		prodPage = new ProductionConfigPage(p.getProdParams().agentParams, displaySettings.agentColor);
+		prodPage = new ProductionConfigPage(p.prodParams.agentParams, displaySettings.agentColor);
 		tabbedPane.addTab("Production", prodPage.getPanel());
 
 		removeOldPage(wastePage);
-		wastePage = new WasteConfigPage(p.getWasteParams().agentParams, displaySettings.agentColor);
+		wastePage = new WasteConfigPage(p.wasteParams.agentParams, displaySettings.agentColor);
 		tabbedPane.addTab("Waste", wastePage.getPanel());
 
 		removeOldPage(foodwebPage);
-		FoodwebParams[] foodwebArray = new FoodwebParams[p.getAgentParams().length];
-		for (int i = 0 ; i < p.getAgentParams().length; i++)
-			foodwebArray[i] = p.getAgentParams()[i].foodweb;
+		FoodwebParams[] foodwebArray = new FoodwebParams[p.agentParams.length];
+		for (int i = 0 ; i < p.agentParams.length; i++)
+			foodwebArray[i] = p.agentParams[i].foodweb;
 		foodwebPage = new FoodwebConfigPage(foodwebArray, displaySettings.agentColor);
 		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
 
 		removeOldPage(pdPage);
-		if (p.getEnvParams().prisDilemma) {
-			pdPage = new PDConfigPage(p.getEnvParams().pdParams);
+		if (p.envParams.prisDilemma) {
+			pdPage = new PDConfigPage(p.envParams.pdParams);
 			tabbedPane.addTab("PD Options", pdPage.getPanel());
 		}
 
 		removeOldPage(geneticPage);
-		geneticPage = new GeneticConfigPage(p.getGeneticParams(), p.getEnvParams().getAgentTypes(),
+		geneticPage = new GeneticConfigPage(p.geneticParams, p.envParams.getAgentTypes(),
 				serializer.choiceCatalog, displaySettings.agentColor);
 		JComponent panelGA = geneticPage.getPanel();
 		tabbedPane.addTab("Genetics", panelGA);
@@ -342,17 +342,17 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("AI", controllerPanel);
 
 		removeOldPage(diseaseConfigPage);
-		diseaseConfigPage = new DiseaseConfigPage(p.getDiseaseParams(), serializer.choiceCatalog, displaySettings.agentColor);
+		diseaseConfigPage = new DiseaseConfigPage(p.diseaseParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
 		removeOldPage(tempPage);
-		tempPage = new TemperatureConfigPage(p.getTempParams(), serializer.choiceCatalog, displaySettings.agentColor);
+		tempPage = new TemperatureConfigPage(p.tempParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Abiotic Factor", tempPage.getPanel());
 
 
 		removeOldPage(learnPage);
-		if (p.getEnvParams().agentName.equals(ComplexAgentLearning.class.getName())) {
-			learnPage = new LearningConfigPage(p.getLearningParams().agentParams, displaySettings.agentColor);
+		if (p.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
+			learnPage = new LearningConfigPage(p.learningParams.agentParams, displaySettings.agentColor);
 			tabbedPane.addTab("Learning", learnPage.getPanel());
 		}
 	}

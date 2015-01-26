@@ -91,8 +91,8 @@ public class ComplexEnvironment extends Environment {
 	 * @param config The simulation  settings
 	 */
 	public synchronized void load(SimulationConfig config) throws IllegalArgumentException {
-		data = config.getEnvParams();
-		agentData = config.getAgentParams();
+		data = config.envParams;
+		agentData = config.agentParams;
 
 		super.load(data.width, data.height, data.wrapMap, data.keepOldArray);
 
@@ -130,7 +130,7 @@ public class ComplexEnvironment extends Environment {
 				addStone(l);
 		}
 
-		foodManager.load(this, data.dropNewFood, data.likeFoodProb, config.getFoodParams());
+		foodManager.load(this, data.dropNewFood, data.likeFoodProb, config.foodParams);
 
 		if (!data.keepOldWaste) {
 			loadNewWaste();

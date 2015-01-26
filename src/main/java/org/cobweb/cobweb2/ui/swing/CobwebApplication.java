@@ -272,7 +272,7 @@ public class CobwebApplication extends JFrame {
 		}
 
 		simRunner.getSimulation().load(config);
-		File file = new File(config.getFilename());
+		File file = new File(config.fileName);
 
 		if (file.exists()) {
 			currentFile = file.getName();
@@ -518,18 +518,18 @@ public class CobwebApplication extends JFrame {
 		viewers.clear();
 
 		// TODO: ViewerPlugin.isCompatible(simulationConfig)
-		if (simRunner.getSimulation().simulationConfig.getEnvParams().controllerName.equals(LinearWeightsController.class.getName())) {
-			viewers.add(new LinearAIViewer((LinearWeightsControllerParams)simRunner.getSimulation().simulationConfig.getControllerParams()));
+		if (simRunner.getSimulation().simulationConfig.envParams.controllerName.equals(LinearWeightsController.class.getName())) {
+			viewers.add(new LinearAIViewer((LinearWeightsControllerParams)simRunner.getSimulation().simulationConfig.controllerParams));
 		}
 
 		viewers.add(new ProductionViewer(simRunner));
 
 		viewers.add(new LiveStats(simRunner));
 
-		if (simRunner.getSimulation().simulationConfig.getGeneticParams().getGeneCount() != 0) {
+		if (simRunner.getSimulation().simulationConfig.geneticParams.getGeneCount() != 0) {
 			GAChartOutput gaViewer = new GAChartOutput(
 					simRunner.getSimulation().geneticMutator.getTracker(),
-					simRunner.getSimulation().simulationConfig.getGeneticParams(),
+					simRunner.getSimulation().simulationConfig.geneticParams,
 					simRunner,
 					displaySettings);
 			viewers.add(gaViewer);

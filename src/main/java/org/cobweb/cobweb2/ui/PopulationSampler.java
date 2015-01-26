@@ -91,7 +91,7 @@ public class PopulationSampler {
 			NodeList agents = document.getElementsByTagName("Agent");
 
 			for (int i = 0 ; i < agents.getLength(); i++){
-				ComplexAgentParams params = new ComplexAgentParams(sim.simulationConfig.getEnvParams());
+				ComplexAgentParams params = new ComplexAgentParams(sim.simulationConfig.envParams);
 
 				Node agent = agents.item(i);
 				Element element = (Element) agent;

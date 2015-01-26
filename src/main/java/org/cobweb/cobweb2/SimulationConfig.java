@@ -25,7 +25,7 @@ import org.cobweb.cobweb2.plugins.waste.WasteParams;
  * Used to organize, modify, and access simulation parameters.
  */
 public class SimulationConfig implements SimulationParams {
-	String fileName = null;
+	public String fileName = null;
 
 	public ComplexEnvironmentParams envParams;
 
@@ -90,65 +90,6 @@ public class SimulationConfig implements SimulationParams {
 		envParams.environmentName = ComplexEnvironment.class.getName();
 	}
 
-	/**
-	 * @return Agent parameters
-	 */
-	public ComplexAgentParams[] getAgentParams() {
-		return agentParams;
-	}
-
-	public ProductionParams getProdParams() {
-		return prodParams;
-	}
-
-
-	/**
-	 * @return Disease parameters
-	 */
-	public DiseaseParams getDiseaseParams() {
-		return diseaseParams;
-	}
-
-	/**
-	 * @return Environment parameters
-	 */
-	public ComplexEnvironmentParams getEnvParams() {
-		return envParams;
-	}
-
-	/**
-	 * @return Simulation configuration file name
-	 */
-	public String getFilename() {
-		return fileName;
-	}
-
-	/**
-	 * @return Food parameters
-	 */
-	public ComplexFoodParams[] getFoodParams() {
-		return foodParams;
-	}
-
-	/**
-	 * @return Genetic parameters
-	 */
-	public GeneticParams getGeneticParams() {
-		return geneticParams;
-	}
-
-	/**
-	 * @return Temperature parameters
-	 */
-	public TemperatureParams getTempParams() {
-		return tempParams;
-	}
-
-	public LearningParams getLearningParams() {
-		return learningParams;
-	}
-
-
 	public void SetAgentTypeCount(int count) {
 		this.envParams.agentTypeCount = count;
 		this.envParams.foodTypeCount = count;
@@ -182,14 +123,6 @@ public class SimulationConfig implements SimulationParams {
 
 	}
 
-	public ControllerParams getControllerParams() {
-		return controllerParams;
-	}
-
-	public void setControllerParams(ControllerParams params) {
-		controllerParams = params;
-	}
-
 	public boolean isContinuation() {
 		return
 				envParams.keepOldAgents ||
@@ -201,8 +134,7 @@ public class SimulationConfig implements SimulationParams {
 	@Override
 	public List<String> getPluginParameters() {
 		List<String> result = new ArrayList<String>();
-		if (this.prodParams != null)
-			result.addAll(this.prodParams.getStatePluginKeys());
+		result.addAll(this.prodParams.getStatePluginKeys());
 		result.addAll(this.tempParams.getStatePluginKeys());
 
 		return result;
@@ -211,10 +143,6 @@ public class SimulationConfig implements SimulationParams {
 	@Override
 	public AgentFoodCountable getCounts() {
 		return this.envParams;
-	}
-
-	public WasteParams getWasteParams() {
-		return this.wasteParams;
 	}
 
 }
