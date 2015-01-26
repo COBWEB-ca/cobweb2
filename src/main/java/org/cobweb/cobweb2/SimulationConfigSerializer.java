@@ -22,13 +22,13 @@ import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.impl.learning.LearningParams;
 import org.cobweb.cobweb2.io.CobwebXmlHelper;
+import org.cobweb.cobweb2.io.ConfigUpgrader;
 import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.ComplexFoodParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.waste.WasteParams;
-import org.cobweb.cobweb2.ui.compatibility.ConfigUpgrader;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
@@ -52,23 +52,6 @@ public class SimulationConfigSerializer {
 		}
 		serializer = new ParameterSerializer(choiceCatalog);
 	}
-
-	private static void removeIgnorableWSNodes(Element parent) {
-		Node nextNode = parent.getFirstChild();
-		for (Node child = parent.getFirstChild(); nextNode != null;) {
-			child = nextNode;
-			nextNode = child.getNextSibling();
-			if (child.getNodeType() == Node.TEXT_NODE) {
-				// Checks if the text node is ignorable
-				if (child.getTextContent().matches("^\\s*$")) {
-					parent.removeChild(child);
-				}
-			} else if (child.getNodeType() == Node.ELEMENT_NODE) {
-				removeIgnorableWSNodes((Element )child);
-			}
-		}
-	}
-
 
 	/**
 	 * Constructor that allows input from a file stream to configure simulation parameters.
@@ -121,10 +104,7 @@ public class SimulationConfigSerializer {
 	 * @throws IllegalArgumentException Unable to open the simulation configuration file.
 	 */
 	private void loadFile(SimulationConfig conf, InputStream file) throws IllegalArgumentException {
-		Document document = CobwebXmlHelper.openDocument(file);
-
-		Node root = document.getFirstChild();
-		removeIgnorableWSNodes((Element) root);
+		Node root = CobwebXmlHelper.openDocument(file);
 
 		conf.envParams = new ComplexEnvironmentParams();
 		conf.setDefaultClassReferences();

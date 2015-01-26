@@ -20,6 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.cobweb.util.Versionator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
@@ -71,11 +72,18 @@ public class CobwebXmlHelper {
 		}
 	}
 
-	public static Document openDocument(InputStream file) {
+	/**
+	 * Opens XML file and returns the root node.
+	 * Strips whitespace elements after load.
+	 *
+	 * @param file where to read the document from
+	 * @return root node of document
+	 */
+	public static Element openDocument(InputStream file) {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		factory.setIgnoringElementContentWhitespace(true);
 		factory.setIgnoringComments(true);
-		// factory.setValidating(true);
+		factory.setValidating(true);
 
 		Document document;
 		try {
@@ -85,7 +93,27 @@ public class CobwebXmlHelper {
 			throw new IllegalArgumentException("Can't open config file", ex);
 		}
 
-		return document;
+		Element root = document.getDocumentElement();
+		stripWhitespaceNodes(root);
+
+		return root;
 	}
+
+
+	private static void stripWhitespaceNodes(Element parent) {
+		Node nextNode = parent.getFirstChild();
+		for (Node child = parent.getFirstChild(); nextNode != null;) {
+			child = nextNode;
+			nextNode = child.getNextSibling();
+			if (child.getNodeType() == Node.TEXT_NODE) {
+				if (child.getTextContent().matches("^\\s*$")) {
+					parent.removeChild(child);
+				}
+			} else if (child.getNodeType() == Node.ELEMENT_NODE) {
+				stripWhitespaceNodes((Element)child);
+			}
+		}
+	}
+
 
 }
