@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.SimulationConfigSerializer;
+import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.LoggingExceptionHandler;
 import org.cobweb.cobweb2.ui.SimulationRunnerBase;
 import org.cobweb.cobweb2.ui.UserInputException;
@@ -150,7 +150,7 @@ public class CobwebApplicationRunner {
 
 		}
 
-		SimulationConfigSerializer serializer = new SimulationConfigSerializer();
+		Cobweb2Serializer serializer = new Cobweb2Serializer();
 		SimulationConfig defaultconf = null;
 		try {
 			defaultconf = serializer.loadConfig(inputFileName);

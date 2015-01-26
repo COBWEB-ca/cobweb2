@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2;
+package org.cobweb.cobweb2.io;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
@@ -23,8 +24,6 @@ import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.FieldPhenotype;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
-import org.cobweb.cobweb2.io.CobwebXmlHelper;
-import org.cobweb.cobweb2.io.ConfigUpgrader;
 import org.cobweb.cobweb2.plugins.food.ComplexFoodParams;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
@@ -34,14 +33,14 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class SimulationConfigSerializer {
+public class Cobweb2Serializer {
 
 	public final ParameterSerializer serializer;
 
 
 	public final ChoiceCatalog choiceCatalog;
 
-	public SimulationConfigSerializer() {
+	public Cobweb2Serializer() {
 		choiceCatalog = new ChoiceCatalog();
 		choiceCatalog.addChoice(Phenotype.class, new NullPhenotype());
 		for(Phenotype x : FieldPhenotype.getPossibleValues()) {

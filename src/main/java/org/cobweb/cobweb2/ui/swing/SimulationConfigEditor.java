@@ -23,9 +23,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.SimulationConfigSerializer;
 import org.cobweb.cobweb2.impl.FoodwebParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
+import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
 import org.cobweb.cobweb2.ui.swing.config.AgentConfigPage;
@@ -52,7 +52,7 @@ import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
  */
 public class SimulationConfigEditor {
 
-	private SimulationConfigSerializer serializer = new SimulationConfigSerializer();
+	private Cobweb2Serializer serializer = new Cobweb2Serializer();
 
 	private final class OkButtonListener implements ActionListener {
 		@Override

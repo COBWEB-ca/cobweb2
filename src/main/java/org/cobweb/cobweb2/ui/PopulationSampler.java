@@ -11,10 +11,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.SimulationConfigSerializer;
-import org.cobweb.cobweb2.SimulationConfigSerializer.AgentSample;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.io.Cobweb2Serializer;
+import org.cobweb.cobweb2.io.Cobweb2Serializer.AgentSample;
 
 
 public class PopulationSampler {
@@ -23,7 +23,7 @@ public class PopulationSampler {
 	/** Save a sample population as an XML file */
 	public static void savePopulation(Simulation sim, String popName, int totalPop) {
 
-		SimulationConfigSerializer serializer = new SimulationConfigSerializer();
+		Cobweb2Serializer serializer = new Cobweb2Serializer();
 
 		List<Agent> allAgents = new ArrayList<>(sim.theEnvironment.getAgents());
 		Collections.shuffle(allAgents);
@@ -48,7 +48,7 @@ public class PopulationSampler {
 		}
 
 		try (InputStream inFile = new FileInputStream(fileName)) {
-			SimulationConfigSerializer serializer = new SimulationConfigSerializer();
+			Cobweb2Serializer serializer = new Cobweb2Serializer();
 			Collection<AgentSample> agents = serializer.loadAgents(inFile, sim.simulationConfig.envParams);
 
 			for (AgentSample agentSample : agents) {

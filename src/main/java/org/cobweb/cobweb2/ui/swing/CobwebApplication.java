@@ -36,9 +36,9 @@ import javax.swing.WindowConstants;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.SimulationConfigSerializer;
 import org.cobweb.cobweb2.impl.ai.LinearWeightsController;
 import org.cobweb.cobweb2.impl.ai.LinearWeightsControllerParams;
+import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.PopulationSampler;
 import org.cobweb.cobweb2.ui.SimulationInterface;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
@@ -221,7 +221,7 @@ public class CobwebApplication extends JFrame {
 		File cf = new File(currentData);
 		cf.deleteOnExit();
 		try {
-			SimulationConfigSerializer serializer = new SimulationConfigSerializer();
+			Cobweb2Serializer serializer = new Cobweb2Serializer();
 			FileOutputStream outStream = new FileOutputStream(cf);
 			serializer.saveConfig(simRunner.getSimulation().simulationConfig, outStream);
 			outStream.close();
