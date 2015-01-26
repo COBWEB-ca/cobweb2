@@ -233,6 +233,42 @@
       <food4>true</food4>
     </foodweb>
   </agent>
+  <food>
+    <Index>0</Index>
+    <Food>20</Food>
+    <FoodRate>0.1</FoodRate>
+    <FoodGrow>5</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>100</DraughtPeriod>
+  </food>
+  <food>
+    <Index>1</Index>
+    <Food>20</Food>
+    <FoodRate>0.1</FoodRate>
+    <FoodGrow>5</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>100</DraughtPeriod>
+  </food>
+  <food>
+    <Index>2</Index>
+    <Food>20</Food>
+    <FoodRate>0.1</FoodRate>
+    <FoodGrow>5</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>100</DraughtPeriod>
+  </food>
+  <food>
+    <Index>3</Index>
+    <Food>20</Food>
+    <FoodRate>0.1</FoodRate>
+    <FoodGrow>5</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>100</DraughtPeriod>
+  </food>
   <production>
     <Index>0</Index>
     <productionMode>false</productionMode>
@@ -277,49 +313,41 @@
     <HiDemCutoff>20.0</HiDemCutoff>
     <HiDemProdChance>0.0010</HiDemProdChance>
   </production>
-  <food>
-    <Index>0</Index>
-    <Food>20</Food>
-    <FoodRate>0.1</FoodRate>
-    <FoodGrow>5</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>100</DraughtPeriod>
-  </food>
-  <food>
-    <Index>1</Index>
-    <Food>20</Food>
-    <FoodRate>0.1</FoodRate>
-    <FoodGrow>5</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>100</DraughtPeriod>
-  </food>
-  <food>
-    <Index>2</Index>
-    <Food>20</Food>
-    <FoodRate>0.1</FoodRate>
-    <FoodGrow>5</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>100</DraughtPeriod>
-  </food>
-  <food>
-    <Index>3</Index>
-    <Food>20</Food>
-    <FoodRate>0.1</FoodRate>
-    <FoodGrow>5</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>100</DraughtPeriod>
-  </food>
-  <ga>
-    <geneCount>0</geneCount>
-    <geneLength>8</geneLength>
-    <meiosismode>Colour Averaging</meiosismode>
-    <trackgenevaluedistribution>false</trackgenevaluedistribution>
-    <chartupdatefrequency>10</chartupdatefrequency>
-  </ga>
+  <Temperature>
+    <TempBands>
+      <Band1>0.0</Band1>
+      <Band2>0.0</Band2>
+      <Band3>0.0</Band3>
+      <Band4>0.0</Band4>
+      <Band5>0.0</Band5>
+    </TempBands>
+    <AgentParams>
+      <Agent1>
+        <PreferedTemp>0.0</PreferedTemp>
+        <PreferedTempRange>0.0</PreferedTempRange>
+        <DifferenceFactor>0.0</DifferenceFactor>
+        <Parameter>None</Parameter>
+      </Agent1>
+      <Agent2>
+        <PreferedTemp>0.0</PreferedTemp>
+        <PreferedTempRange>0.0</PreferedTempRange>
+        <DifferenceFactor>0.0</DifferenceFactor>
+        <Parameter>None</Parameter>
+      </Agent2>
+      <Agent3>
+        <PreferedTemp>0.0</PreferedTemp>
+        <PreferedTempRange>0.0</PreferedTempRange>
+        <DifferenceFactor>0.0</DifferenceFactor>
+        <Parameter>None</Parameter>
+      </Agent3>
+      <Agent4>
+        <PreferedTemp>0.0</PreferedTemp>
+        <PreferedTempRange>0.0</PreferedTempRange>
+        <DifferenceFactor>0.0</DifferenceFactor>
+        <Parameter>None</Parameter>
+      </Agent4>
+    </AgentParams>
+  </Temperature>
   <disease>
     <agent>
       <Index>0</Index>
@@ -398,41 +426,13 @@
       </transmitTo>
     </agent>
   </disease>
-  <Temperature>
-    <TempBands>
-      <Band1>0.0</Band1>
-      <Band2>0.0</Band2>
-      <Band3>0.0</Band3>
-      <Band4>0.0</Band4>
-      <Band5>0.0</Band5>
-    </TempBands>
-    <AgentParams>
-      <Agent1>
-        <PreferedTemp>0.0</PreferedTemp>
-        <PreferedTempRange>0.0</PreferedTempRange>
-        <DifferenceFactor>0.0</DifferenceFactor>
-        <Parameter>None</Parameter>
-      </Agent1>
-      <Agent2>
-        <PreferedTemp>0.0</PreferedTemp>
-        <PreferedTempRange>0.0</PreferedTempRange>
-        <DifferenceFactor>0.0</DifferenceFactor>
-        <Parameter>None</Parameter>
-      </Agent2>
-      <Agent3>
-        <PreferedTemp>0.0</PreferedTemp>
-        <PreferedTempRange>0.0</PreferedTempRange>
-        <DifferenceFactor>0.0</DifferenceFactor>
-        <Parameter>None</Parameter>
-      </Agent3>
-      <Agent4>
-        <PreferedTemp>0.0</PreferedTemp>
-        <PreferedTempRange>0.0</PreferedTempRange>
-        <DifferenceFactor>0.0</DifferenceFactor>
-        <Parameter>None</Parameter>
-      </Agent4>
-    </AgentParams>
-  </Temperature>
+  <ga>
+    <geneCount>0</geneCount>
+    <geneLength>8</geneLength>
+    <meiosismode>Colour Averaging</meiosismode>
+    <trackgenevaluedistribution>false</trackgenevaluedistribution>
+    <chartupdatefrequency>10</chartupdatefrequency>
+  </ga>
   <ControllerConfig>
     <RandomSeed>42</RandomSeed>
     <PluginParams>
@@ -472,5 +472,5 @@
       </AgentParams>
     </PluginParams>
   </ControllerConfig>
-  <!--Generated by COBWEB2 version 2.2014-11-29-pd-1-gb1121b2 2014-11-29-18:39-->
+  <!--Generated by COBWEB2 version 2.2014-11-29-pd-1-gb1121b2-modified (master) 2015-01-26-14:41-->
 </inputData>
