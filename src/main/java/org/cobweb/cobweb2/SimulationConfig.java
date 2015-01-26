@@ -333,7 +333,7 @@ public class SimulationConfig implements SimulationParams {
 					continue;
 
 				foodParams[p.type] = p;
-			} else if (nodeName.equals("disease")) {
+			} else if (nodeName.equals("Disease")) {
 				serializer.load(diseaseParams, node);
 			} else if (nodeName.equals("Temperature")) {
 				serializer.load(tempParams, node);
@@ -413,7 +413,7 @@ public class SimulationConfig implements SimulationParams {
 		serializer.save(geneticParams, ga, d);
 		root.appendChild(ga);
 
-		Element disease = d.createElement("disease");
+		Element disease = d.createElement("Disease");
 		serializer.save(diseaseParams, disease, d);
 		root.appendChild(disease);
 

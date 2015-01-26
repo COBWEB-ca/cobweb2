@@ -63,10 +63,22 @@
 
 
 	<!-- Disease -->
-	<xsl:template match="disease/agent/transmitTo/*">
-		<agent id="{substring(name(),6)}">
+	<xsl:template match="disease">
+		<Disease>
+			<AgentParams>
+				<xsl:for-each select="agent">
+					<Agent id="{Index + 1}">
+						<xsl:apply-templates select="node()|@*"/>
+					</Agent>
+				</xsl:for-each>
+			</AgentParams>
+		</Disease>
+	</xsl:template>
+
+	<xsl:template match="transmitTo/*">
+		<Agent id="{substring(name(),6)}">
 			<xsl:apply-templates />
-		</agent>
+		</Agent>
 	</xsl:template>
 
 

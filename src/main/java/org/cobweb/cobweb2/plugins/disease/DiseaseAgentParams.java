@@ -74,7 +74,7 @@ public class DiseaseAgentParams implements ParameterSerializable {
 	 */
 	@ConfDisplayName("Transmit to")
 	@ConfXMLTag("transmitTo")
-	@ConfList(indexName = "agent", startAtOne = true)
+	@ConfList(indexName = "Agent", startAtOne = true)
 	public boolean[] transmitTo;
 
 	public DiseaseAgentParams(AgentFoodCountable size) {
