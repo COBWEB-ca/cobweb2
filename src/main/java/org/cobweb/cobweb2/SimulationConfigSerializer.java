@@ -14,20 +14,13 @@ import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
-import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.FieldPhenotype;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
-import org.cobweb.cobweb2.impl.learning.LearningParams;
 import org.cobweb.cobweb2.io.CobwebXmlHelper;
 import org.cobweb.cobweb2.io.ConfigUpgrader;
-import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
-import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.ComplexFoodParams;
-import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
-import org.cobweb.cobweb2.plugins.production.ProductionParams;
-import org.cobweb.cobweb2.plugins.waste.WasteParams;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
@@ -58,9 +51,8 @@ public class SimulationConfigSerializer {
 	 * @param file Input file stream.
 	 */
 	public SimulationConfig loadConfig(InputStream file) {
-		SimulationConfig res = new SimulationConfig();
+		SimulationConfig res = loadFile(file);
 		res.fileName = ":STREAM:" + file.toString() + ":";
-		loadFile(res, file);
 		return res;
 	}
 
@@ -70,12 +62,11 @@ public class SimulationConfigSerializer {
 	 * @param fileName Name of the file used for simulation configuration.
 	 */
 	public SimulationConfig loadConfig(String fileName) throws FileNotFoundException {
-		SimulationConfig res = new SimulationConfig();
-		res.fileName = fileName;
 		File file = new File(fileName);
 		ConfigUpgrader.upgradeConfigFile(file);
 		FileInputStream configStream = new FileInputStream(file);
-		loadFile(res, configStream);
+		SimulationConfig res = loadFile(configStream);
+		res.fileName = fileName;
 		try {
 			configStream.close();
 		} catch (IOException ex) {
@@ -102,31 +93,15 @@ public class SimulationConfigSerializer {
 	 * @see javax.xml.parsers.DocumentBuilder
 	 * @throws IllegalArgumentException Unable to open the simulation configuration file.
 	 */
-	private void loadFile(SimulationConfig conf, InputStream file) throws IllegalArgumentException {
+	private SimulationConfig loadFile(InputStream file) throws IllegalArgumentException {
 		Node root = CobwebXmlHelper.openDocument(file);
-
-		conf.envParams = new ComplexEnvironmentParams();
-		conf.setDefaultClassReferences();
+		SimulationConfig conf = new SimulationConfig();
 
 		serializer.load(conf.envParams, root);
-
 		ConfigUpgrader.upgrade(conf.envParams);
 
-		conf.agentParams = new ComplexAgentParams[conf.envParams.getAgentTypes()];
-
-		conf.prodParams = new ProductionParams(conf.envParams);
-
-		conf.foodParams = new ComplexFoodParams[conf.envParams.getFoodTypes()];
-
-		conf.diseaseParams = new DiseaseParams(conf.envParams);
-
-		conf.wasteParams = new WasteParams(conf.envParams);
-
-		conf.tempParams = new TemperatureParams(conf.envParams);
-
-		conf.learningParams = new LearningParams(conf.envParams);
-
-		conf.geneticParams = new GeneticParams(conf.envParams);
+		// Reset all the settings that depend on agent type count
+		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
 
 		NodeList nodes = root.getChildNodes();
 		int agent = 0;
@@ -182,24 +157,11 @@ public class SimulationConfigSerializer {
 				serializer.load(conf.controllerParams, node);
 			}
 		}
-		for (int i = 0; i < conf.agentParams.length; i++) {
-			if (conf.agentParams[i] == null) {
-				conf.agentParams[i] = new ComplexAgentParams(conf.envParams);
-				conf.agentParams[i].type = i;
-			}
-		}
-		for (int i = 0; i < conf.foodParams.length; i++) {
-			if (conf.foodParams[i] == null) {
-				conf.foodParams[i] = new ComplexFoodParams();
-				conf.foodParams[i].type = i;
-			}
-		}
-		conf.prodParams.resize(conf.envParams);
-		conf.diseaseParams.resize(conf.envParams);
-		conf.tempParams.resize(conf.envParams);
-		conf.wasteParams.resize(conf.envParams);
-		conf.learningParams.resize(conf.envParams);
 
+		// Correct any missing/extra parameters after the loading
+		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
+
+		return conf;
 	}
 
 	/**
