@@ -110,10 +110,7 @@ public class SimulationConfigSerializer {
 			Node node = nodes.item(j);
 			String nodeName = node.getNodeName();
 
-			if (nodeName.equals("ga")) {
-				serializer.load(conf.geneticParams, node);
-
-			} else if (nodeName.equals("agent")) {
+			if (nodeName.equals("agent")) {
 				ComplexAgentParams p = new ComplexAgentParams(conf.envParams);
 				serializer.load(p, node);
 				if (p.type < 0)
@@ -121,8 +118,6 @@ public class SimulationConfigSerializer {
 				if (p.type >= conf.envParams.getAgentTypes())
 					continue;
 				conf.agentParams[p.type] = p;
-			} else if (nodeName.equals("Production")) {
-				serializer.load(conf.prodParams, node);
 			} else if (nodeName.equals("food")) {
 				ComplexFoodParams p = new ComplexFoodParams();
 				serializer.load(p, node);
@@ -133,14 +128,18 @@ public class SimulationConfigSerializer {
 					continue;
 
 				conf.foodParams[p.type] = p;
-			} else if (nodeName.equals("Disease")) {
-				serializer.load(conf.diseaseParams, node);
-			} else if (nodeName.equals("Temperature")) {
-				serializer.load(conf.tempParams, node);
 			} else if (nodeName.equals("Waste")) {
 				serializer.load(conf.wasteParams, node);
+			} else if (nodeName.equals("Production")) {
+				serializer.load(conf.prodParams, node);
+			} else if (nodeName.equals("Temperature")) {
+				serializer.load(conf.tempParams, node);
 			} else if (nodeName.equals("Learning")) {
 				serializer.load(conf.learningParams, node);
+			} else if (nodeName.equals("Disease")) {
+				serializer.load(conf.diseaseParams, node);
+			} else if (nodeName.equals("ga")) {
+				serializer.load(conf.geneticParams, node);
 			} else if (nodeName.equals("ControllerConfig")){
 				// FIXME: this is initialized after everything else because
 				// Controllers use SimulationParams.getPluginParameters()
@@ -181,38 +180,37 @@ public class SimulationConfigSerializer {
 			root.appendChild(node);
 		}
 
-		Element prod = d.createElement("Production");
-		serializer.save(conf.prodParams, prod, d);
-		root.appendChild(prod);
-
 		for (int i = 0; i < conf.envParams.getFoodTypes(); i++) {
 			Element node = d.createElement("food");
 			serializer.save(conf.foodParams[i], node, d);
 			root.appendChild(node);
 		}
 
-		Element ga = d.createElement("ga");
-		serializer.save(conf.geneticParams, ga, d);
+		Element waste = d.createElement("Waste");
+		serializer.save(conf.wasteParams, waste, d);
+		root.appendChild(waste);
 
-		root.appendChild(ga);
-
-		Element disease = d.createElement("Disease");
-		serializer.save(conf.diseaseParams, disease, d);
-		root.appendChild(disease);
+		Element prod = d.createElement("Production");
+		serializer.save(conf.prodParams, prod, d);
+		root.appendChild(prod);
 
 		Element temp = d.createElement("Temperature");
 		serializer.save(conf.tempParams, temp, d);
 		root.appendChild(temp);
-
-		Element waste = d.createElement("Waste");
-		serializer.save(conf.wasteParams, waste, d);
-		root.appendChild(waste);
 
 		if (conf.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
 			Element learn = d.createElement("Learning");
 			serializer.save(conf.learningParams, learn, d);
 			root.appendChild(learn);
 		}
+
+		Element disease = d.createElement("Disease");
+		serializer.save(conf.diseaseParams, disease, d);
+		root.appendChild(disease);
+
+		Element ga = d.createElement("ga");
+		serializer.save(conf.geneticParams, ga, d);
+		root.appendChild(ga);
 
 		Element controller = d.createElement("ControllerConfig");
 		serializer.save(conf.controllerParams, controller, d);

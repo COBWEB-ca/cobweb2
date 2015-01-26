@@ -29,21 +29,21 @@ public class SimulationConfig implements SimulationParams {
 
 	public ComplexEnvironmentParams envParams;
 
-	public GeneticParams geneticParams;
-
 	public ComplexAgentParams[] agentParams;
-
-	public ProductionParams prodParams;
-
-	public LearningParams learningParams;
 
 	public ComplexFoodParams[] foodParams;
 
-	public DiseaseParams diseaseParams;
+	public WasteParams wasteParams;
+
+	public ProductionParams prodParams;
 
 	public TemperatureParams tempParams;
 
-	public WasteParams wasteParams;
+	public LearningParams learningParams;
+
+	public DiseaseParams diseaseParams;
+
+	public GeneticParams geneticParams;
 
 	public ControllerParams controllerParams;
 
@@ -51,7 +51,6 @@ public class SimulationConfig implements SimulationParams {
 	 * Creates the default Cobweb simulation parameters.
 	 */
 	public SimulationConfig() {
-
 		envParams = new ComplexEnvironmentParams();
 		setDefaultClassReferences();
 
@@ -67,17 +66,17 @@ public class SimulationConfig implements SimulationParams {
 			foodParams[i].type = i;
 		}
 
-		geneticParams = new GeneticParams(envParams);
-
-		diseaseParams = new DiseaseParams(envParams);
+		wasteParams = new WasteParams(envParams);
 
 		prodParams = new ProductionParams(envParams);
-
-		wasteParams = new WasteParams(envParams);
 
 		tempParams = new TemperatureParams(envParams);
 
 		learningParams = new LearningParams(envParams);
+
+		diseaseParams = new DiseaseParams(envParams);
+
+		geneticParams = new GeneticParams(envParams);
 
 		controllerParams = new GeneticControllerParams(this);
 
@@ -113,14 +112,13 @@ public class SimulationConfig implements SimulationParams {
 			this.foodParams = n;
 		}
 
-		this.diseaseParams.resize(envParams);
-		this.prodParams.resize(envParams);
-		this.geneticParams.resize(envParams);
-		this.tempParams.resize(envParams);
 		this.wasteParams.resize(envParams);
+		this.prodParams.resize(envParams);
+		this.tempParams.resize(envParams);
 		this.learningParams.resize(envParams);
+		this.diseaseParams.resize(envParams);
+		this.geneticParams.resize(envParams);
 		this.controllerParams.resize(envParams);
-
 	}
 
 	public boolean isContinuation() {
