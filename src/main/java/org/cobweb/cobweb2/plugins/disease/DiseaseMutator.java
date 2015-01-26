@@ -11,10 +11,10 @@ import java.util.List;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Updatable;
-import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.ContactMutator;
 import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
+import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.util.ArrayUtilities;
 
 /**
@@ -22,7 +22,7 @@ import org.cobweb.util.ArrayUtilities;
  */
 public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> implements ContactMutator, SpawnMutator, LoggingMutator, Updatable {
 
-	private DiseaseParams[] params;
+	private DiseaseParams params;
 
 	private int sickCount[] = new int[0];
 
@@ -90,7 +90,7 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 			isSick = true;
 
 		if (isSick) {
-			DiseaseParams effect = params[agent.getType()];
+			DiseaseAgentParams effect = params.agentParams[agent.getType()];
 			effect.param.modifyValue(agent, effect.factor, 0);
 
 			sickCount[agent.getType()]++;
@@ -115,13 +115,13 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 
 	@Override
 	public void onSpawn(Agent agent) {
-		makeRandomSick(agent, params[agent.getType()].initialInfection);
+		makeRandomSick(agent, params.agentParams[agent.getType()].initialInfection);
 	}
 
 	@Override
 	public void onSpawn(Agent agent, Agent parent) {
 		if (parent.isAlive() && isSick(parent))
-			makeRandomSick(agent, params[agent.getType()].childTransmitRate);
+			makeRandomSick(agent, params.agentParams[agent.getType()].childTransmitRate);
 		else
 			makeRandomSick(agent, 0);
 	}
@@ -129,12 +129,12 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 	@Override
 	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		if ((parent1.isAlive() && isSick(parent1)) || (parent2.isAlive() && isSick(parent2)))
-			makeRandomSick(agent, params[agent.getType()].childTransmitRate);
+			makeRandomSick(agent, params.agentParams[agent.getType()].childTransmitRate);
 		else
 			makeRandomSick(agent, 0);
 	}
 
-	public void setParams(SimulationInternals sim, DiseaseParams[] diseaseParams, int agentTypes) {
+	public void setParams(SimulationInternals sim, DiseaseParams diseaseParams, int agentTypes) {
 		this.simulation = sim;
 		this.params = diseaseParams;
 		sickCount = ArrayUtilities.resizeArray(sickCount, agentTypes);
@@ -144,12 +144,12 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 		int tr = bumper.getType();
 		int te = bumpee.getType();
 
-		if (params[tr].vaccinator && !isSick(bumpee) ) {
-			vaccinate(bumpee, params[tr].vaccineEffectiveness);
+		if (params.agentParams[tr].vaccinator && !isSick(bumpee) ) {
+			vaccinate(bumpee, params.agentParams[tr].vaccineEffectiveness);
 		}
 
-		if (params[tr].healer && isSick(bumpee)) {
-			if (simulation.getRandom().nextFloat() < params[tr].healerEffectiveness) {
+		if (params.agentParams[tr].healer && isSick(bumpee)) {
+			if (simulation.getRandom().nextFloat() < params.agentParams[tr].healerEffectiveness) {
 				unSick(bumpee);
 			}
 		}
@@ -164,8 +164,8 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 		if (isSick(bumpee))
 			return;
 
-		if (params[tr].transmitTo[te]) {
-			makeRandomSick(bumpee, params[te].contactTransmitRate);
+		if (params.agentParams[tr].transmitTo[te]) {
+			makeRandomSick(bumpee, params.agentParams[te].contactTransmitRate);
 		}
 	}
 
@@ -198,10 +198,10 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 			Agent a = agents.next();
 			State s = getAgentState(a);
 
-			if (params[a.getType()].recoveryTime == 0)
+			if (params.agentParams[a.getType()].recoveryTime == 0)
 				continue;
 
-			long randomRecovery = (long) (params[a.getType()].recoveryTime * (simulation.getRandom().nextDouble() * 0.2 + 1.0));
+			long randomRecovery = (long) (params.agentParams[a.getType()].recoveryTime * (simulation.getRandom().nextDouble() * 0.2 + 1.0));
 
 			if (s.sick && simulation.getTime() - s.sickStart > randomRecovery) {
 				unSickIterating(a, agents);

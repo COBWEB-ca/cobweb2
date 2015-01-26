@@ -90,7 +90,7 @@ public class SimulationConfig implements SimulationParams {
 
 	private ComplexFoodParams[] foodParams;
 
-	private DiseaseParams[] diseaseParams;
+	private DiseaseParams diseaseParams;
 
 	private TemperatureParams tempParams;
 
@@ -129,10 +129,7 @@ public class SimulationConfig implements SimulationParams {
 
 		geneticParams = new GeneticParams(envParams);
 
-		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
-		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			diseaseParams[i] = new DiseaseParams(envParams);
-		}
+		diseaseParams = new DiseaseParams(envParams);
 
 		prodParams = new ProductionParams[envParams.getAgentTypes()];
 		for (int i = 0; i < envParams.getAgentTypes(); i++) {
@@ -203,7 +200,7 @@ public class SimulationConfig implements SimulationParams {
 	/**
 	 * @return Disease parameters
 	 */
-	public DiseaseParams[] getDiseaseParams() {
+	public DiseaseParams getDiseaseParams() {
 		return diseaseParams;
 	}
 
@@ -299,10 +296,8 @@ public class SimulationConfig implements SimulationParams {
 		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
 		prodParams = new ProductionParams[envParams.getAgentTypes()];
 		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
-		diseaseParams = new DiseaseParams[envParams.getAgentTypes()];
 
-		for (int i = 0; i < envParams.getAgentTypes(); i++)
-			diseaseParams[i] = new DiseaseParams(envParams);
+		diseaseParams = new DiseaseParams(envParams);
 
 		wasteParams = new WasteParams(envParams);
 
@@ -350,7 +345,7 @@ public class SimulationConfig implements SimulationParams {
 
 				foodParams[p.type] = p;
 			} else if (nodeName.equals("disease")) {
-				parseDiseaseParams(node);
+				serializer.load(diseaseParams, node);
 			} else if (nodeName.equals("Temperature")) {
 				serializer.load(tempParams, node);
 			} else if (nodeName.equals("Waste")) {
@@ -394,22 +389,6 @@ public class SimulationConfig implements SimulationParams {
 
 	}
 
-	private void parseDiseaseParams(Node root) {
-		NodeList nodes = root.getChildNodes();
-		for (int i = 0; i < nodes.getLength(); i++) {
-			Node n = nodes.item(i);
-			if (i >= envParams.getAgentTypes())
-				break;
-			DiseaseParams dp = new DiseaseParams(envParams);
-			serializer.load(dp, n);
-			diseaseParams[i] = dp;
-		}
-		for (int i = 0; i < diseaseParams.length; i++) {
-			if (diseaseParams[i] == null)
-				diseaseParams[i] = new DiseaseParams(envParams);
-		}
-	}
-
 	/**
 	 * Writes the information stored in this tree to an XML file, conforming to the rules of our spec.
 	 *
@@ -446,15 +425,10 @@ public class SimulationConfig implements SimulationParams {
 
 		Element ga = d.createElement("ga");
 		serializer.save(geneticParams, ga, d);
-
 		root.appendChild(ga);
 
-		Node disease = d.createElement("disease");
-		for (DiseaseParams diseaseParam : diseaseParams) {
-			Element node = d.createElement("agent");
-			serializer.save(diseaseParam, node, d);
-			disease.appendChild(node);
-		}
+		Element disease = d.createElement("disease");
+		serializer.save(diseaseParams, disease, d);
 		root.appendChild(disease);
 
 		Element temp = d.createElement("Temperature");
@@ -523,17 +497,7 @@ public class SimulationConfig implements SimulationParams {
 		}
 
 		{
-			DiseaseParams[] n = Arrays.copyOf(diseaseParams, count);
-
-			for (int i = 0; i < this.diseaseParams.length && i < count; i++) {
-				n[i].resize();
-			}
-
-			for (int i = this.diseaseParams.length; i < count; i++) {
-				n[i] = new DiseaseParams(envParams);
-			}
-
-			this.diseaseParams = n;
+			this.diseaseParams.resize(envParams);
 		}
 		{
 			ProductionParams[] n = Arrays.copyOf(prodParams, count);
