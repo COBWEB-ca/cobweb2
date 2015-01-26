@@ -1,6 +1,8 @@
 package org.cobweb.cobweb2.ui;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -8,12 +10,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.cobweb.cobweb2.Simulation;
+import org.cobweb.cobweb2.SimulationConfigSerializer;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
+import org.cobweb.cobweb2.io.CobwebXmlHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -25,30 +29,14 @@ public class PopulationSampler {
 
 
 	/** Save a sample population as an XML file */
-	public static void savePopulation(Simulation sim, String popName, String option, int amount) {
+	public static void savePopulation(Simulation sim, String popName, int totalPop) {
 
-		int totalPop;
+		SimulationConfigSerializer serializer = new SimulationConfigSerializer();
 
-		if (option.equals("percentage")) {
-			totalPop = sim.theEnvironment.getAgentCount() * amount / 100;
-		} else {
-			int currPop = sim.theEnvironment.getAgentCount();
-			if (amount > currPop) {
 
-				totalPop = currPop;
-			} else {
-
-				totalPop = amount;
-			}
-		}
-
-		Document d;
-		try {
-			d = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		} catch (ParserConfigurationException ex) {
-			throw new RuntimeException(ex);
-		}
-		Node root = d.createElement("Agents");
+		Element root = CobwebXmlHelper.createDocument("PopulationSample", "population");
+		Document d = root.getOwnerDocument();
+		root.setAttribute("population-version", "2015-01-14");
 
 		int currentPopCount = 1;
 
@@ -56,14 +44,17 @@ public class PopulationSampler {
 			if (currentPopCount > totalPop)
 				break;
 
-			//FIXME!!! Node node = saveAgent(serializer, (ComplexAgent) agent, d);
-
-			//FIXME!!! root.appendChild(node);
+			Node agentNode = serializer.serializeAgent((ComplexAgent) agent, d);
+			root.appendChild(agentNode);
 
 			currentPopCount++;
 		}
 
-		d.appendChild(root);
+		try {
+			CobwebXmlHelper.writeDocument(new FileOutputStream(popName), d);
+		} catch (FileNotFoundException ex) {
+			throw new IllegalArgumentException("Could not write to chosen file!", ex);
+		}
 	}
 
 	/**

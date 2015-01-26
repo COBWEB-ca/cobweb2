@@ -815,9 +815,19 @@ public class CobwebApplication extends JFrame {
 					theDialog.setFile("*.xml");
 					theDialog.setVisible(true);
 					if (theDialog.getFile() != null) {
+						int saveNum;
+
+						int agentCount = simRunner.getSimulation().theEnvironment.getAgentCount();
+						if (option.equals("percentage")) {
+							saveNum = agentCount * amount / 100;
+						} else {
+							saveNum = amount;
+						}
+						if (saveNum > agentCount)
+							saveNum = agentCount;
 
 						//Save population in the specified file.
-						PopulationSampler.savePopulation(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile(), option, amount);
+						PopulationSampler.savePopulation(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile(), saveNum);
 					}
 				}
 			}

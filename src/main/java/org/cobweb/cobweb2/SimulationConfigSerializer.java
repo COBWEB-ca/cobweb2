@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
@@ -260,20 +259,7 @@ public class SimulationConfigSerializer {
 		CobwebXmlHelper.writeDocument(stream, d);
 	}
 
-	public void saveAgents(Collection<ComplexAgent> agents, OutputStream stream) {
-		Element root = CobwebXmlHelper.createDocument("COBWEB2Config", "population");
-		Document d = root.getOwnerDocument();
-		root.setAttribute("population-version", "2015-01-14");
-
-		for (ComplexAgent complexAgent : agents) {
-			Node agentNode = saveAgent(complexAgent, d);
-			root.appendChild(agentNode);
-		}
-
-		CobwebXmlHelper.writeDocument(stream, d);
-	}
-
-	private Node saveAgent(ComplexAgent a, Document d) {
+	public Node serializeAgent(ComplexAgent a, Document d) {
 
 		Node agent = d.createElement("Agent");
 
