@@ -1,7 +1,10 @@
 package org.cobweb.cobweb2.io;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -17,6 +20,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.cobweb.util.Versionator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 
 public class CobwebXmlHelper {
@@ -65,6 +69,23 @@ public class CobwebXmlHelper {
 		} catch (TransformerException ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	public static Document openDocument(InputStream file) {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setIgnoringElementContentWhitespace(true);
+		factory.setIgnoringComments(true);
+		// factory.setValidating(true);
+
+		Document document;
+		try {
+			DocumentBuilder builder = factory.newDocumentBuilder();
+			document = builder.parse(file);
+		} catch (SAXException | ParserConfigurationException | IOException ex) {
+			throw new IllegalArgumentException("Can't open config file", ex);
+		}
+
+		return document;
 	}
 
 }

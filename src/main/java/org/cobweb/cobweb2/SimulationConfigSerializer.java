@@ -9,10 +9,6 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.NullPhenotype;
@@ -39,7 +35,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 
 public class SimulationConfigSerializer {
@@ -126,26 +121,7 @@ public class SimulationConfigSerializer {
 	 * @throws IllegalArgumentException Unable to open the simulation configuration file.
 	 */
 	private void loadFile(SimulationConfig conf, InputStream file) throws IllegalArgumentException {
-		// read these variables from the xml file
-
-		// DOM initialization
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setIgnoringElementContentWhitespace(true);
-		factory.setIgnoringComments(true);
-		// factory.setValidating(true);
-
-		Document document;
-		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			document = builder.parse(file);
-		} catch (SAXException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (ParserConfigurationException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (IOException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		}
-
+		Document document = CobwebXmlHelper.openDocument(file);
 
 		Node root = document.getFirstChild();
 		removeIgnorableWSNodes((Element) root);
@@ -305,15 +281,24 @@ public class SimulationConfigSerializer {
 	}
 
 	public void saveAgents(Collection<ComplexAgent> agents, OutputStream stream) {
+		Element root = CobwebXmlHelper.createDocument("COBWEB2Config", "population");
+		Document d = root.getOwnerDocument();
+		root.setAttribute("population-version", "2015-01-14");
 
+		for (ComplexAgent complexAgent : agents) {
+			Node agentNode = saveAgent(complexAgent, d);
+			root.appendChild(agentNode);
+		}
+
+		CobwebXmlHelper.writeDocument(stream, d);
 	}
 
-	private void saveAgent(ComplexAgent a, Document d) {
+	private Node saveAgent(ComplexAgent a, Document d) {
 
 		Node agent = d.createElement("Agent");
 
 		Element doCheatElement = d.createElement("doCheat");
-		doCheatElement.appendChild(d.createTextNode(a.pdCheater +""));
+		doCheatElement.appendChild(d.createTextNode(a.pdCheater + ""));
 		agent.appendChild(doCheatElement);
 
 		Element paramsElement = d.createElement("params");
@@ -339,5 +324,7 @@ public class SimulationConfigSerializer {
 		}
 
 		// FIXME plugin params: production, disease, etc
+
+		return agent;
 	}
 }
