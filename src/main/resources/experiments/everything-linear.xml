@@ -3,9 +3,9 @@
   <AgentTypeCount>7</AgentTypeCount>
   <FoodTypeCount>7</FoodTypeCount>
   <scheduler>cobweb.TickScheduler</scheduler>
-  <ControllerName>cwcore.GeneticController</ControllerName>
-  <AgentName>cwcore.ComplexAgentLearning</AgentName>
-  <EnvironmentName>cwcore.ComplexEnvironmentLearning</EnvironmentName>
+  <ControllerName>cwcore.LinearWeightsController</ControllerName>
+  <AgentName>cwcore.ComplexAgent</AgentName>
+  <EnvironmentName>cwcore.ComplexEnvironment</EnvironmentName>
   <Width>80</Width>
   <Height>80</Height>
   <wrap>true</wrap>
@@ -803,163 +803,95 @@
       </Agent7>
     </AgentParams>
   </Temperature>
-  <Learning>
-    <AgentParams>
-      <Agent1>
-        <BroadcastPleasure>0.1</BroadcastPleasure>
-        <FoodPleasure>0.5</FoodPleasure>
-        <AteAgentPleasure>0.2</AteAgentPleasure>
-        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
-        <SparedEmotion>0.8</SparedEmotion>
-        <Learns>true</Learns>
-        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
-        <LearnFromOthers>false</LearnFromOthers>
-        <ChildrenLove>0.0</ChildrenLove>
-        <NumMemories>4</NumMemories>
-        <PartnerLove>-0.1</PartnerLove>
-      </Agent1>
-      <Agent2>
-        <BroadcastPleasure>0.1</BroadcastPleasure>
-        <FoodPleasure>0.5</FoodPleasure>
-        <AteAgentPleasure>0.2</AteAgentPleasure>
-        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
-        <SparedEmotion>0.8</SparedEmotion>
-        <Learns>true</Learns>
-        <LearnFromDifferentOthers>true</LearnFromDifferentOthers>
-        <LearnFromOthers>false</LearnFromOthers>
-        <ChildrenLove>0.0</ChildrenLove>
-        <NumMemories>4</NumMemories>
-        <PartnerLove>-0.1</PartnerLove>
-      </Agent2>
-      <Agent3>
-        <BroadcastPleasure>0.1</BroadcastPleasure>
-        <FoodPleasure>0.5</FoodPleasure>
-        <AteAgentPleasure>0.2</AteAgentPleasure>
-        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
-        <SparedEmotion>0.8</SparedEmotion>
-        <Learns>true</Learns>
-        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
-        <LearnFromOthers>true</LearnFromOthers>
-        <ChildrenLove>0.0</ChildrenLove>
-        <NumMemories>4</NumMemories>
-        <PartnerLove>-0.1</PartnerLove>
-      </Agent3>
-      <Agent4>
-        <BroadcastPleasure>0.1</BroadcastPleasure>
-        <FoodPleasure>0.5</FoodPleasure>
-        <AteAgentPleasure>0.2</AteAgentPleasure>
-        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
-        <SparedEmotion>0.8</SparedEmotion>
-        <Learns>true</Learns>
-        <LearnFromDifferentOthers>true</LearnFromDifferentOthers>
-        <LearnFromOthers>true</LearnFromOthers>
-        <ChildrenLove>0.0</ChildrenLove>
-        <NumMemories>4</NumMemories>
-        <PartnerLove>-0.1</PartnerLove>
-      </Agent4>
-      <Agent5>
-        <BroadcastPleasure>0.1</BroadcastPleasure>
-        <FoodPleasure>0.5</FoodPleasure>
-        <AteAgentPleasure>0.2</AteAgentPleasure>
-        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
-        <SparedEmotion>0.8</SparedEmotion>
-        <Learns>false</Learns>
-        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
-        <LearnFromOthers>false</LearnFromOthers>
-        <ChildrenLove>0.0</ChildrenLove>
-        <NumMemories>4</NumMemories>
-        <PartnerLove>-0.1</PartnerLove>
-      </Agent5>
-      <Agent6>
-        <BroadcastPleasure>0.1</BroadcastPleasure>
-        <FoodPleasure>0.5</FoodPleasure>
-        <AteAgentPleasure>0.2</AteAgentPleasure>
-        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
-        <SparedEmotion>0.8</SparedEmotion>
-        <Learns>false</Learns>
-        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
-        <LearnFromOthers>false</LearnFromOthers>
-        <ChildrenLove>0.0</ChildrenLove>
-        <NumMemories>4</NumMemories>
-        <PartnerLove>-0.1</PartnerLove>
-      </Agent6>
-      <Agent7>
-        <BroadcastPleasure>0.1</BroadcastPleasure>
-        <FoodPleasure>0.5</FoodPleasure>
-        <AteAgentPleasure>0.2</AteAgentPleasure>
-        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
-        <SparedEmotion>0.8</SparedEmotion>
-        <Learns>false</Learns>
-        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
-        <LearnFromOthers>true</LearnFromOthers>
-        <ChildrenLove>0.0</ChildrenLove>
-        <NumMemories>4</NumMemories>
-        <PartnerLove>-0.2</PartnerLove>
-      </Agent7>
-    </AgentParams>
-  </Learning>
   <ControllerConfig>
-    <RandomSeed>42</RandomSeed>
-    <PluginParams>
-      <AgentParams>
-        <Agent1>
-          <StateSize>
-            <State>
-              <Name>ProdHunt</Name>
-              <Size>2</Size>
-            </State>
-          </StateSize>
-        </Agent1>
-        <Agent2>
-          <StateSize>
-            <State>
-              <Name>ProdHunt</Name>
-              <Size>2</Size>
-            </State>
-          </StateSize>
-        </Agent2>
-        <Agent3>
-          <StateSize>
-            <State>
-              <Name>ProdHunt</Name>
-              <Size>2</Size>
-            </State>
-          </StateSize>
-        </Agent3>
-        <Agent4>
-          <StateSize>
-            <State>
-              <Name>ProdHunt</Name>
-              <Size>2</Size>
-            </State>
-          </StateSize>
-        </Agent4>
-        <Agent5>
-          <StateSize>
-            <State>
-              <Name>ProdHunt</Name>
-              <Size>2</Size>
-            </State>
-          </StateSize>
-        </Agent5>
-        <Agent6>
-          <StateSize>
-            <State>
-              <Name>ProdHunt</Name>
-              <Size>2</Size>
-            </State>
-          </StateSize>
-        </Agent6>
-        <Agent7>
-          <StateSize>
-            <State>
-              <Name>ProdHunt</Name>
-              <Size>2</Size>
-            </State>
-          </StateSize>
-        </Agent7>
-      </AgentParams>
-    </PluginParams>
+    <inp id="0">
+      <outp id="0">-1.383</outp>
+      <outp id="1">0.61</outp>
+      <outp id="2">-0.907</outp>
+      <outp id="3">0.282</outp>
+      <outp id="4">0.633</outp>
+      <outp id="5">0.03</outp>
+    </inp>
+    <inp id="1">
+      <outp id="0">-0.089</outp>
+      <outp id="1">0.919</outp>
+      <outp id="2">0.609</outp>
+      <outp id="3">0.78</outp>
+      <outp id="4">1.371</outp>
+      <outp id="5">-0.512</outp>
+    </inp>
+    <inp id="2">
+      <outp id="0">-0.278</outp>
+      <outp id="1">-1.107</outp>
+      <outp id="2">-0.475</outp>
+      <outp id="3">-0.192</outp>
+      <outp id="4">-0.286</outp>
+      <outp id="5">0.399</outp>
+    </inp>
+    <inp id="3">
+      <outp id="0">0.341</outp>
+      <outp id="1">0.282</outp>
+      <outp id="2">-0.998</outp>
+      <outp id="3">-1.687</outp>
+      <outp id="4">0.358</outp>
+      <outp id="5">1.887</outp>
+    </inp>
+    <inp id="4">
+      <outp id="0">0.052</outp>
+      <outp id="1">-1.307</outp>
+      <outp id="2">-0.375</outp>
+      <outp id="3">0.335</outp>
+      <outp id="4">-1.401</outp>
+      <outp id="5">-0.34</outp>
+    </inp>
+    <inp id="5">
+      <outp id="0">1.435</outp>
+      <outp id="1">0.232</outp>
+      <outp id="2">-0.0090</outp>
+      <outp id="3">0.582</outp>
+      <outp id="4">0.325</outp>
+      <outp id="5">-0.742</outp>
+    </inp>
+    <inp id="6">
+      <outp id="0">-0.404</outp>
+      <outp id="1">0.359</outp>
+      <outp id="2">-1.222</outp>
+      <outp id="3">-0.489</outp>
+      <outp id="4">0.95</outp>
+      <outp id="5">-2.299</outp>
+    </inp>
+    <inp id="7">
+      <outp id="0">0.16</outp>
+      <outp id="1">0.0070</outp>
+      <outp id="2">0.299</outp>
+      <outp id="3">1.097</outp>
+      <outp id="4">-0.762</outp>
+      <outp id="5">-0.32</outp>
+    </inp>
+    <inp id="8">
+      <outp id="0">0.529</outp>
+      <outp id="1">0.146</outp>
+      <outp id="2">1.633</outp>
+      <outp id="3">0.092</outp>
+      <outp id="4">-0.346</outp>
+      <outp id="5">0.315</outp>
+    </inp>
+    <inp id="9">
+      <outp id="0">0.836</outp>
+      <outp id="1">-0.512</outp>
+      <outp id="2">-0.712</outp>
+      <outp id="3">-0.467</outp>
+      <outp id="4">0.572</outp>
+      <outp id="5">0.742</outp>
+    </inp>
+    <inp id="10">
+      <outp id="0">-0.499</outp>
+      <outp id="1">1.894</outp>
+      <outp id="2">0.606</outp>
+      <outp id="3">0.178</outp>
+      <outp id="4">-0.458</outp>
+      <outp id="5">2.072</outp>
+    </inp>
   </ControllerConfig>
   <!--Generated by COBWEB2 version 2.2014-11-29-pd-1-gb1121b2 2014-11-29-18:39-->
 </inputData>
