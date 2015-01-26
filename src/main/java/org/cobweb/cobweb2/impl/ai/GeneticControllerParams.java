@@ -3,43 +3,28 @@
  */
 package org.cobweb.cobweb2.impl.ai;
 
-import java.util.Arrays;
-
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
 import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.SimulationParams;
-import org.cobweb.io.ConfList;
-import org.cobweb.io.ConfXMLTag;
+import org.cobweb.cobweb2.plugins.PerAgentParams;
 
 /**
  * Parameters for GeneticController
  */
-public class GeneticControllerParams implements ControllerParams {
-
-	private static final long serialVersionUID = -1252142643022378114L;
-
-	@ConfXMLTag("AgentParams")
-	@ConfList(indexName = "Agent", startAtOne = true)
-	public GeneticStateAgentParams[] agentParams = new GeneticStateAgentParams[0];
+public class GeneticControllerParams extends PerAgentParams<GeneticStateAgentParams> implements ControllerParams {
 
 	private final transient SimulationParams simParam;
 
 	public GeneticControllerParams(SimulationParams simParams) {
+		super(GeneticStateAgentParams.class);
 		this.simParam = simParams;
 		resize(simParams.getCounts());
 	}
 
 	@Override
-	public void resize(AgentFoodCountable envParams) {
-		int agentTypes = envParams.getAgentTypes();
-		GeneticStateAgentParams[] n = Arrays.copyOf(agentParams, agentTypes);
-
-		for (int i = agentParams.length; i < agentTypes; i++) {
-			n[i] = new GeneticStateAgentParams(simParam);
-		}
-		agentParams = n;
+	protected GeneticStateAgentParams newAgentParam() {
+		return new GeneticStateAgentParams(simParam);
 	}
 
 	@Override
@@ -47,4 +32,6 @@ public class GeneticControllerParams implements ControllerParams {
 		GeneticController controller = new GeneticController(sim, agentParams[type]);
 		return controller;
 	}
+
+	private static final long serialVersionUID = 2L;
 }

@@ -17,10 +17,22 @@ public abstract class PerAgentParams<T extends ParameterSerializable> implements
 
 	private Class<T> agentParamClass;
 
+	/**
+	 * Creates agent param array of size 0. Call resize() to set required size after.
+	 */
 	@SuppressWarnings("unchecked")
 	public PerAgentParams(Class<T> agentParamClass) {
 		this.agentParamClass = agentParamClass;
 		agentParams = (T[]) Array.newInstance(this.agentParamClass, 0);
+	}
+
+	/**
+	 * Create agent param array and resize to initial size.
+	 * Requires that newAgentParam() does not depend on any new members of the subclass!
+	 */
+	public PerAgentParams(Class<T> agentparClass, AgentFoodCountable initialSize) {
+		this(agentparClass);
+		resize(initialSize);
 	}
 
 	public void resize(AgentFoodCountable envParams) {

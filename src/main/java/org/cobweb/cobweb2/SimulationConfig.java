@@ -140,8 +140,7 @@ public class SimulationConfig implements SimulationParams {
 			prodParams[i].type = i;
 		}
 
-		wasteParams = new WasteParams();
-		wasteParams.resize(envParams);
+		wasteParams = new WasteParams(envParams);
 
 		tempParams = new TemperatureParams(envParams);
 
@@ -305,8 +304,7 @@ public class SimulationConfig implements SimulationParams {
 		for (int i = 0; i < envParams.getAgentTypes(); i++)
 			diseaseParams[i] = new DiseaseParams(envParams);
 
-		wasteParams = new WasteParams();
-		wasteParams.resize(envParams);
+		wasteParams = new WasteParams(envParams);
 
 		tempParams = new TemperatureParams(envParams);
 

@@ -1,27 +1,19 @@
 package org.cobweb.cobweb2.plugins.waste;
 
-import java.util.Arrays;
-
 import org.cobweb.cobweb2.impl.AgentFoodCountable;
-import org.cobweb.io.ConfList;
-import org.cobweb.io.ConfXMLTag;
-import org.cobweb.io.ParameterSerializable;
+import org.cobweb.cobweb2.plugins.PerAgentParams;
 
 
-public class WasteParams implements ParameterSerializable {
+public class WasteParams extends PerAgentParams<WasteAgentParams> {
 
-	@ConfXMLTag("AgentParams")
-	@ConfList(indexName = "Agent", startAtOne = true)
-	public WasteAgentParams[] agentParams = new WasteAgentParams[0];
-
-	public void resize(AgentFoodCountable envParams) {
-		WasteAgentParams[] n = Arrays.copyOf(agentParams, envParams.getAgentTypes());
-
-		for (int i = agentParams.length; i < envParams.getAgentTypes(); i++) {
-			n[i] = new WasteAgentParams();
-		}
-		agentParams = n;
+	public WasteParams(AgentFoodCountable size) {
+		super(WasteAgentParams.class, size);
 	}
 
-	private static final long serialVersionUID = 1L;
+	@Override
+	protected WasteAgentParams newAgentParam() {
+		return new WasteAgentParams();
+	}
+
+	private static final long serialVersionUID = 2L;
 }

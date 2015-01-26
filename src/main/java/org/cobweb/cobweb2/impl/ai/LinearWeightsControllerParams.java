@@ -4,21 +4,13 @@ import java.util.Arrays;
 
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
 import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.SimulationParams;
-import org.cobweb.io.ConfDisplayName;
+import org.cobweb.cobweb2.plugins.PerAgentParams;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
 
-public class LinearWeightsControllerParams implements ControllerParams {
-
-	private static final long serialVersionUID = 8856565519749448009L;
-
-	@ConfDisplayName("Agent Parameters")
-	@ConfXMLTag("AgentParams")
-	@ConfList(indexName = "Agent", startAtOne = true)
-	public LinearWeightAgentParam[] agentParams = new LinearWeightAgentParam[0];
+public class LinearWeightsControllerParams extends PerAgentParams<LinearWeightAgentParam> implements ControllerParams {
 
 	@ConfXMLTag("WeightMatrix")
 	@ConfList(indexName = {"inp", "outp"}, startAtOne = false)
@@ -27,9 +19,9 @@ public class LinearWeightsControllerParams implements ControllerParams {
 	private final transient SimulationParams simParam;
 
 	public LinearWeightsControllerParams(SimulationParams simParam) {
+		super(LinearWeightAgentParam.class, simParam.getCounts());
 		this.simParam = simParam;
 		data = new double[INPUT_COUNT + this.simParam.getPluginParameters().size()][OUTPUT_COUNT];
-		resize(simParam.getCounts());
 	}
 
 	public LinearWeightsControllerParams copy() {
@@ -44,11 +36,8 @@ public class LinearWeightsControllerParams implements ControllerParams {
 	}
 
 	@Override
-	public void resize(AgentFoodCountable envParams) {
-		LinearWeightAgentParam[] r = Arrays.copyOf(agentParams, envParams.getAgentTypes());
-		for (int i = agentParams.length; i < envParams.getAgentTypes(); i++)
-			r[i] = new LinearWeightAgentParam();
-		agentParams = r;
+	protected LinearWeightAgentParam newAgentParam() {
+		return new LinearWeightAgentParam();
 	}
 
 	@Override
@@ -78,4 +67,5 @@ public class LinearWeightsControllerParams implements ControllerParams {
 		return runningOutputMean;
 	}
 
+	private static final long serialVersionUID = 2L;
 }
