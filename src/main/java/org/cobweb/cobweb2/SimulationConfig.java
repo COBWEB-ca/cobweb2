@@ -386,6 +386,11 @@ public class SimulationConfig implements SimulationParams {
 				foodParams[i].type = i;
 			}
 		}
+		// Make sure there are the right number of agentParams even if the file is bad
+		diseaseParams.resize(envParams);
+		tempParams.resize(envParams);
+		wasteParams.resize(envParams);
+		learningParams.resize(envParams);
 
 	}
 
