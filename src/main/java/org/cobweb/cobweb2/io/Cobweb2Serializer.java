@@ -126,7 +126,7 @@ public class Cobweb2Serializer {
 				serializer.load(p, node);
 				if (p.type < 0)
 					p.type = foodIndex++;
-				if (p.type >= conf.envParams.getFoodTypes())
+				if (p.type >= conf.envParams.getAgentTypes())
 					continue;
 				conf.foodParams[p.type] = p;
 
@@ -182,7 +182,7 @@ public class Cobweb2Serializer {
 			root.appendChild(node);
 		}
 
-		for (int i = 0; i < conf.envParams.getFoodTypes(); i++) {
+		for (int i = 0; i < conf.envParams.getAgentTypes(); i++) {
 			Element node = d.createElement("food");
 			serializer.save(conf.foodParams[i], node, d);
 			root.appendChild(node);

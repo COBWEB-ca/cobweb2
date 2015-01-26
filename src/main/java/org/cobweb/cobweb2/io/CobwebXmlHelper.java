@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 
-public class CobwebXmlHelper {
+class CobwebXmlHelper {
 
 	/**
 	 * Creates an XML document with given root name and namespace.

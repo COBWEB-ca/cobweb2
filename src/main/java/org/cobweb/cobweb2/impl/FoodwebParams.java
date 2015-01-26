@@ -41,7 +41,7 @@ public class FoodwebParams implements ParameterSerializable {
 		canEatAgent = Arrays.copyOf(canEatAgent, envParams.getAgentTypes());
 
 		int oldSize = canEatFood.length;
-		canEatFood  = Arrays.copyOf(canEatFood, envParams.getFoodTypes());
+		canEatFood  = Arrays.copyOf(canEatFood, envParams.getAgentTypes());
 		// agents can eat all food by default
 		for (int i = oldSize; i < canEatFood.length; i++) {
 			canEatFood [i] = true;

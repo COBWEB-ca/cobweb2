@@ -12,12 +12,6 @@ public interface AgentFoodCountable {
 	public int getAgentTypes();
 
 	/**
-	 * Number of food types.
-	 * @return number of food types in the simulation.
-	 */
-	public int getFoodTypes();
-
-	/**
 	 * Height of the simulation grid.
 	 * @return height of the simulation grid.
 	 */

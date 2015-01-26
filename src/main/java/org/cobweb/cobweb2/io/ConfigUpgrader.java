@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
 /**
  * Fixes for dealing with difference between older versions of configuration files.
  */
-public class ConfigUpgrader {
+class ConfigUpgrader {
 
 	public static void upgrade(ComplexEnvironmentParams envParams) {
 		envParams.controllerName = updateClassName(

@@ -24,13 +24,6 @@ public class ComplexEnvironmentParams implements AgentFoodCountable, ParameterSe
 	public int agentTypeCount = 4;
 
 	/**
-	 * Number of Food types.
-	 */
-	@ConfDisplayName("Food types")
-	@ConfXMLTag("FoodTypeCount")
-	public int foodTypeCount = 4;
-
-	/**
 	 * Class name of the controller object.
 	 */
 	@ConfDisplayName("Controller type")
@@ -165,14 +158,6 @@ public class ComplexEnvironmentParams implements AgentFoodCountable, ParameterSe
 	@Override
 	public int getAgentTypes() {
 		return agentTypeCount;
-	}
-
-	/**
-	 * @return Number of food types.
-	 */
-	@Override
-	public int getFoodTypes() {
-		return foodTypeCount;
 	}
 
 	/**

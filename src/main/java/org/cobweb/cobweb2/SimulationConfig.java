@@ -59,8 +59,8 @@ public class SimulationConfig implements SimulationParams {
 			agentParams[i] = new ComplexAgentParams(envParams);
 		}
 
-		foodParams = new ComplexFoodParams[envParams.getFoodTypes()];
-		for (int i = 0; i < envParams.getFoodTypes(); i++) {
+		foodParams = new ComplexFoodParams[envParams.getAgentTypes()];
+		for (int i = 0; i < envParams.getAgentTypes(); i++) {
 			foodParams[i] = new ComplexFoodParams();
 			foodParams[i].type = i;
 		}
@@ -90,7 +90,6 @@ public class SimulationConfig implements SimulationParams {
 
 	public void SetAgentTypeCount(int count) {
 		this.envParams.agentTypeCount = count;
-		this.envParams.foodTypeCount = count;
 
 		{
 			ComplexAgentParams[] n = Arrays.copyOf(this.agentParams, count);
