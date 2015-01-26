@@ -7,11 +7,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
 
+import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
+import org.cobweb.cobweb2.impl.AgentFoodCountable;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
 import org.cobweb.cobweb2.impl.ControllerParams;
@@ -217,9 +222,11 @@ public class SimulationConfigSerializer {
 		CobwebXmlHelper.writeDocument(stream, d);
 	}
 
-	public Node serializeAgent(ComplexAgent a, Document d) {
+	private Node saveAgent(Agent simpleAgent, Document d) {
+		ComplexAgent a = (ComplexAgent) simpleAgent;
 
-		Node agent = d.createElement("Agent");
+		Element agent = d.createElement("Agent");
+		agent.setAttribute("type", Integer.toString(a.getType()));
 
 		Element doCheatElement = d.createElement("doCheat");
 		doCheatElement.appendChild(d.createTextNode(a.pdCheater + ""));
@@ -251,4 +258,71 @@ public class SimulationConfigSerializer {
 
 		return agent;
 	}
+
+	public static class AgentSample {
+		public int type;
+		public ComplexAgentParams params;
+		public boolean pdCheater;
+		public LocationDirection position;
+	}
+
+	private AgentSample loadAgent(Element element, AgentFoodCountable size) {
+		AgentSample as = new AgentSample();
+
+		as.type = Integer.parseInt(element.getAttribute("type"));
+
+		Node paramNode = element.getElementsByTagName("params").item(0);
+		ComplexAgentParams params = new ComplexAgentParams(size);
+		serializer.load(params, paramNode);
+		params.resize(size); // Fix up for simulation being different than population
+		as.params = params;
+
+		as.pdCheater = Boolean.parseBoolean(element.getElementsByTagName("doCheat").item(0).getTextContent());
+
+		Element location = (Element)element.getElementsByTagName("location").item(0);
+		Location loc = new Location(
+				Integer.parseInt(location.getAttribute("x")),
+				Integer.parseInt(location.getAttribute("y")));
+
+		Element direction = (Element)element.getElementsByTagName("direction").item(0);
+		Direction facing = new Direction(
+				Integer.parseInt(direction.getAttribute("x")),
+				Integer.parseInt(direction.getAttribute("y")));
+
+		as.position = new LocationDirection(loc, facing);
+
+		// FIXME plugin params: production, disease, etc
+
+		return as;
+	}
+
+	public Collection<AgentSample> loadAgents(InputStream file, AgentFoodCountable size) {
+		Element root = CobwebXmlHelper.openDocument(file);
+		NodeList agents = root.getChildNodes();
+		Collection<AgentSample> result = new ArrayList<>(agents.getLength());
+
+		for (int i = 0 ; i < agents.getLength(); i++){
+			Element agentRoot = (Element) agents.item(i);
+
+			AgentSample as = loadAgent(agentRoot, size);
+
+			result.add(as);
+		}
+		return result;
+	}
+
+
+	public void serializeAgents(Collection<Agent> agents, OutputStream file) {
+		Element root = CobwebXmlHelper.createDocument("PopulationSample", "population");
+		Document d = root.getOwnerDocument();
+		root.setAttribute("population-version", "2015-01-14");
+
+		for (Agent agent : agents) {
+			Node node = saveAgent(agent, d);
+			root.appendChild(node);
+		}
+
+		CobwebXmlHelper.writeDocument(file, d);
+	}
+
 }

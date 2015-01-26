@@ -1,28 +1,20 @@
 package org.cobweb.cobweb2.ui;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfigSerializer;
+import org.cobweb.cobweb2.SimulationConfigSerializer.AgentSample;
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.Direction;
-import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.impl.ComplexAgentParams;
-import org.cobweb.cobweb2.io.CobwebXmlHelper;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 
 public class PopulationSampler {
@@ -33,27 +25,15 @@ public class PopulationSampler {
 
 		SimulationConfigSerializer serializer = new SimulationConfigSerializer();
 
+		List<Agent> allAgents = new ArrayList<>(sim.theEnvironment.getAgents());
+		Collections.shuffle(allAgents);
+		List<Agent> sampleAgents = allAgents.subList(0, totalPop);
 
-		Element root = CobwebXmlHelper.createDocument("PopulationSample", "population");
-		Document d = root.getOwnerDocument();
-		root.setAttribute("population-version", "2015-01-14");
+		try (OutputStream outputStream = new FileOutputStream(popName)) {
+			serializer.serializeAgents(sampleAgents, outputStream);
 
-		int currentPopCount = 1;
-
-		for (Agent agent : sim.theEnvironment.getAgents()) {
-			if (currentPopCount > totalPop)
-				break;
-
-			Node agentNode = serializer.serializeAgent((ComplexAgent) agent, d);
-			root.appendChild(agentNode);
-
-			currentPopCount++;
-		}
-
-		try {
-			CobwebXmlHelper.writeDocument(new FileOutputStream(popName), d);
-		} catch (FileNotFoundException ex) {
-			throw new IllegalArgumentException("Could not write to chosen file!", ex);
+		} catch (IOException ex) {
+			throw new RuntimeException("Could not save population", ex);
 		}
 	}
 
@@ -67,59 +47,18 @@ public class PopulationSampler {
 			sim.theEnvironment.clearAgents();
 		}
 
-		try {
-			FileInputStream file = new FileInputStream(fileName);
+		try (InputStream inFile = new FileInputStream(fileName)) {
+			SimulationConfigSerializer serializer = new SimulationConfigSerializer();
+			Collection<AgentSample> agents = serializer.loadAgents(inFile, sim.simulationConfig.envParams);
 
-			// DOM initialization
-			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-			factory.setIgnoringElementContentWhitespace(true);
-			factory.setIgnoringComments(true);
-
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			Document document = builder.parse(file);
-			file.close();
-
-			NodeList agents = document.getElementsByTagName("Agent");
-
-			for (int i = 0 ; i < agents.getLength(); i++){
-				ComplexAgentParams params = new ComplexAgentParams(sim.simulationConfig.envParams);
-
-				Node agent = agents.item(i);
-				Element element = (Element) agent;
-
-				NodeList paramsElement = element.getElementsByTagName("params");
-				Element paramNode = (Element) paramsElement.item(0);
-
-				NodeList pdCheaterElement = element.getElementsByTagName("doCheat");
-
-				Element location = (Element)element.getElementsByTagName("location").item(0);
-				Location loc = new Location(
-						Integer.parseInt(location.getAttribute("x")),
-						Integer.parseInt(location.getAttribute("y")));
-
-				Element direction = (Element)element.getElementsByTagName("direction").item(0);
-				Direction facing = new Direction(
-						Integer.parseInt(direction.getAttribute("x")),
-						Integer.parseInt(direction.getAttribute("y")));
-
-				LocationDirection locDir = new LocationDirection(loc, facing);
-
-
-				//FIXME!!! serializer.load(params, paramNode);
-
-				// doCheat
-				boolean pdCheater = Boolean.parseBoolean(pdCheaterElement.item(0).getChildNodes().item(0).getNodeValue());
-
-				// FIXME plugin params: production, disease, etc
-
-				//FIXME need to store type
-				ComplexAgent cAgent = (ComplexAgent) sim.newAgent(-1);
-				cAgent.init(sim.theEnvironment, locDir, params);
-				cAgent.pdCheater = pdCheater;
-				sim.theEnvironment.setAgent(loc, cAgent);
+			for (AgentSample agentSample : agents) {
+				ComplexAgent cAgent = (ComplexAgent) sim.newAgent(agentSample.type);
+				cAgent.init(sim.theEnvironment, agentSample.position, agentSample.params);
+				cAgent.pdCheater = agentSample.pdCheater;
 			}
-		} catch (ParserConfigurationException | SAXException | IOException ex) {
-			throw new RuntimeException("Can't open config file", ex);
+
+		} catch (IOException ex) {
+			throw new RuntimeException("Can't open population file", ex);
 		}
 	}
 
