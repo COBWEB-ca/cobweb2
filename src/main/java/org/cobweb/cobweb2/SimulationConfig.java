@@ -16,7 +16,7 @@ import org.cobweb.cobweb2.impl.ai.GeneticControllerParams;
 import org.cobweb.cobweb2.impl.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
-import org.cobweb.cobweb2.plugins.food.ComplexFoodParams;
+import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.waste.WasteParams;
@@ -31,7 +31,7 @@ public class SimulationConfig implements SimulationParams {
 
 	public ComplexAgentParams[] agentParams;
 
-	public ComplexFoodParams[] foodParams;
+	public FoodGrowthParams foodParams;
 
 	public WasteParams wasteParams;
 
@@ -59,11 +59,7 @@ public class SimulationConfig implements SimulationParams {
 			agentParams[i] = new ComplexAgentParams(envParams);
 		}
 
-		foodParams = new ComplexFoodParams[envParams.getAgentTypes()];
-		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			foodParams[i] = new ComplexFoodParams();
-			foodParams[i].type = i;
-		}
+		foodParams = new FoodGrowthParams(envParams);
 
 		wasteParams = new WasteParams(envParams);
 
@@ -102,14 +98,7 @@ public class SimulationConfig implements SimulationParams {
 			this.agentParams = n;
 		}
 
-		{
-			ComplexFoodParams[] n = Arrays.copyOf(this.foodParams, count);
-			for (int i = this.foodParams.length; i < count; i++) {
-				n[i] = new ComplexFoodParams();
-			}
-			this.foodParams = n;
-		}
-
+		this.foodParams.resize(envParams);
 		this.wasteParams.resize(envParams);
 		this.prodParams.resize(envParams);
 		this.tempParams.resize(envParams);

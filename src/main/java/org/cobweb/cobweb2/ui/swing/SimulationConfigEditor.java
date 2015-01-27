@@ -298,7 +298,7 @@ public class SimulationConfigEditor {
 
 		/* Resources panel */
 		removeOldPage(resourcePage);
-		resourcePage = new ResourceConfigPage(p.foodParams, displaySettings.agentColor);
+		resourcePage = new ResourceConfigPage(p.foodParams.foodParams, displaySettings.agentColor);
 		tabbedPane.addTab("Resources", resourcePage.getPanel());
 
 		/* Agents' panel */

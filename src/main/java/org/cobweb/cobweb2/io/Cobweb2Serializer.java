@@ -24,7 +24,6 @@ import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.FieldPhenotype;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
-import org.cobweb.cobweb2.plugins.food.ComplexFoodParams;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
@@ -109,7 +108,6 @@ public class Cobweb2Serializer {
 
 		NodeList nodes = root.getChildNodes();
 		int agentIndex = 0;
-		int foodIndex = 0;
 		for (int j = 0; j < nodes.getLength(); j++) {
 			Node node = nodes.item(j);
 			String nodeName = node.getNodeName();
@@ -121,15 +119,8 @@ public class Cobweb2Serializer {
 					continue;
 				conf.agentParams[agentIndex++] = p;
 
-			} else if (nodeName.equals("food")) {
-				ComplexFoodParams p = new ComplexFoodParams();
-				serializer.load(p, node);
-				if (p.type < 0)
-					p.type = foodIndex++;
-				if (p.type >= conf.envParams.getAgentTypes())
-					continue;
-				conf.foodParams[p.type] = p;
-
+			} else if (nodeName.equals("FoodGrowth")) {
+				serializer.load(conf.foodParams, node);
 			} else if (nodeName.equals("Waste")) {
 				serializer.load(conf.wasteParams, node);
 			} else if (nodeName.equals("Production")) {
@@ -182,11 +173,9 @@ public class Cobweb2Serializer {
 			root.appendChild(node);
 		}
 
-		for (int i = 0; i < conf.envParams.getAgentTypes(); i++) {
-			Element node = d.createElement("food");
-			serializer.save(conf.foodParams[i], node, d);
-			root.appendChild(node);
-		}
+		Element node = d.createElement("FoodGrowth");
+		serializer.save(conf.foodParams, node, d);
+		root.appendChild(node);
 
 		Element waste = d.createElement("Waste");
 		serializer.save(conf.wasteParams, waste, d);
