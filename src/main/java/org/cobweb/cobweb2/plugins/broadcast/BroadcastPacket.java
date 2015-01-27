@@ -23,6 +23,8 @@ public abstract class BroadcastPacket {
 			this.range = getRadius(sender.getEnergy());
 		else
 			this.range = sender.params.broadcastFixedRange;
+
+		dispatcherId.changeEnergy(-dispatcherId.params.broadcastEnergyCost, new PacketConduit.BroadcastCause());
 	}
 
 	private static int getRadius(int energy) {

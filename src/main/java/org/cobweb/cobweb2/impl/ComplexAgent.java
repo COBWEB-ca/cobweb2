@@ -18,7 +18,6 @@ import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
 import org.cobweb.cobweb2.plugins.broadcast.FoodBroadcast;
-import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
 import org.cobweb.util.RandomNoGenerator;
 
 /**
@@ -172,8 +171,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	//TODO move to plugin
 	protected void broadcastCheating(ComplexAgent cheater) {
 		environment.commManager.addPacketToList(new CheaterBroadcast(cheater, this));
-		// new CommPacket sent
-		changeEnergy(-params.broadcastEnergyCost, new PacketConduit.BroadcastCause()); // Deduct broadcasting cost from energy
 	}
 
 	/**
@@ -185,8 +182,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	//TODO move to plugin
 	protected void broadcastFood(Location loc) {
 		environment.commManager.addPacketToList(new FoodBroadcast(loc, this));
-		// new CommPacket sent
-		changeEnergy(-params.broadcastEnergyCost, new PacketConduit.BroadcastCause()); // Deduct broadcasting cost from energy
 	}
 
 	/**
