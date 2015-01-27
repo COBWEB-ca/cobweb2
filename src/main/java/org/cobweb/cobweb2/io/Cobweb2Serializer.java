@@ -118,16 +118,6 @@ public class Cobweb2Serializer {
 		// Load all the @ConfXMLTag params
 		serializer.load(conf, root);
 
-		NodeList nodes = root.getChildNodes();
-		for (int j = 0; j < nodes.getLength(); j++) {
-			Node node = nodes.item(j);
-			String nodeName = node.getNodeName();
-
-			if (nodeName.equals("Learning")) {
-				serializer.load(conf.learningParams, node);
-			}
-		}
-
 		// Correct any missing/extra parameters after the loading
 		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
 
@@ -148,10 +138,9 @@ public class Cobweb2Serializer {
 
 		serializer.save(conf, root, d);
 
-		if (conf.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
-			Element learn = d.createElement("Learning");
-			serializer.save(conf.learningParams, learn, d);
-			root.appendChild(learn);
+		// If learning agents not used, remove the Learning section of config
+		if (!conf.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
+			root.removeChild(root.getElementsByTagName("Learning").item(0));
 		}
 
 		CobwebXmlHelper.writeDocument(stream, d);

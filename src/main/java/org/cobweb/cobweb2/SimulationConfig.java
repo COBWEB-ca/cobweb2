@@ -49,7 +49,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfXMLTag("Temperature")
 	public TemperatureParams tempParams = new TemperatureParams(envParams);
 
-	// Loaded manually because it's optional
+	@ConfXMLTag("Learning")
 	public LearningParams learningParams = new LearningParams(envParams);
 
 	@ConfXMLTag("Disease")
