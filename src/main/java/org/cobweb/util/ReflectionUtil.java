@@ -14,22 +14,36 @@ public class ReflectionUtil {
 	 * @param b offset factor
 	 */
 	public static void modifyFieldLinear(Object object, Field field, float m, float b) {
-		try {
-			Object o;
-			o = field.get(object);
+		float currentValue = getFieldAsFloat(object, field);
+		float newValue = currentValue * m + b;
+		setFieldWithFloat(object, field, newValue);
+	}
 
-			// Modify the value according to the coefficient.
-			if (o instanceof Float) {
-				float value = ((Float) o).floatValue();
-				field.setFloat(object, value * m + b);
-			} else if (o instanceof Integer) {
-				double value = ((Integer) o).doubleValue();
-				field.setInt(object, (int) Math.round(value * m + b));
+	public static float getFieldAsFloat(Object object, Field field) {
+		try {
+			if (field.getType().equals(float.class)) {
+				return field.getFloat(object);
+			} else if (field.getType().equals(int.class)) {
+				return field.getInt(object);
 			} else {
-				throw new IllegalArgumentException("Unknown phenotype field type");
+				throw new IllegalArgumentException("Field is not one of the acceptible types. Field: " + field);
 			}
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException("Cannot access field: " + field.toString(), ex);
+		} catch (IllegalArgumentException | IllegalAccessException ex) {
+			throw new RuntimeException("Could not convert field value to float", ex);
+		}
+	}
+
+	public static void setFieldWithFloat(Object object, Field field, float value) {
+		try {
+			if (field.getType().equals(float.class)) {
+				field.setFloat(object, value);
+			} else if (field.getType().equals(int.class)) {
+				field.setInt(object, Math.round(value));
+			} else {
+				throw new IllegalArgumentException("Field is not one of the acceptible types");
+			}
+		} catch (IllegalArgumentException | IllegalAccessException ex) {
+			throw new RuntimeException("Could not set field value", ex);
 		}
 	}
 

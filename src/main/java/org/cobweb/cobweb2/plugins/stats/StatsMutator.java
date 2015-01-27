@@ -83,6 +83,9 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 
 	@Override
 	public void onStep(Agent agent, Location from, Location to) {
+		if (to == null)
+			return;
+
 		AgentStatistics stats = getAgentState(agent);
 		stats.addPathStep(to);
 	}

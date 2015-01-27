@@ -16,6 +16,10 @@ public abstract class Phenotype implements ParameterChoice {
 	 */
 	public abstract void modifyValue(Agent a, float m, float b);
 
+	public abstract float getValue(Agent a);
+
+	public abstract void setValue(Agent a, float value);
+
 	@Override
 	public String toString() {
 		return getName();

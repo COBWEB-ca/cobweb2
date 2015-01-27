@@ -21,4 +21,14 @@ public class NullPhenotype extends Phenotype {
 	}
 
 	private static final long serialVersionUID = 2L;
+
+	@Override
+	public float getValue(Agent a) {
+		return 0;
+	}
+
+	@Override
+	public void setValue(Agent a, float value) {
+		// nothing
+	}
 }

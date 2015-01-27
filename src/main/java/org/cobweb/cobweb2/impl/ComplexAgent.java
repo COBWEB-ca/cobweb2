@@ -127,10 +127,9 @@ public class ComplexAgent extends Agent implements Serializable {
 			params.pdSimilaritySlope = parent2.params.pdSimilaritySlope;
 		} // else keep parent 1's PD config
 
-		initPosition(pos);
-
 		getAgentListener().onSpawn(this, parent1, parent2);
 
+		initPosition(pos);
 	}
 
 
@@ -145,9 +144,9 @@ public class ComplexAgent extends Agent implements Serializable {
 		copyParams(parent);
 		controller = parent.controller.createChildAsexual();
 
-		initPosition(pos);
-
 		getAgentListener().onSpawn(this, parent);
+
+		initPosition(pos);
 	}
 
 	/**
@@ -159,9 +158,9 @@ public class ComplexAgent extends Agent implements Serializable {
 		environment = (env);
 		setParams(agentData);
 
-		initPosition(pos);
-
 		getAgentListener().onSpawn(this);
+
+		initPosition(pos);
 	}
 
 	public void setController(Controller c) {
@@ -248,9 +247,9 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	@Override
 	public void die() {
-		super.die();
+		move(null);
 
-		environment.setAgent(position, null);
+		super.die();
 
 		getAgentListener().onDeath(this);
 	}
@@ -392,10 +391,17 @@ public class ComplexAgent extends Agent implements Serializable {
 	}
 
 	public void move(LocationDirection newPos) {
-		environment.setAgent(newPos, this);
-		if (position != null)
-			environment.setAgent(position, null);
+		LocationDirection oldPos = getPosition();
+
+		if (oldPos != null)
+			environment.setAgent(oldPos, null);
+
+		if (newPos != null)
+			environment.setAgent(newPos, this);
+
 		position = newPos;
+
+		getAgentListener().onStep(this, oldPos, newPos);
 	}
 
 	/**
@@ -692,8 +698,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		} else if (!pregnant) {
 			tryAsexBreed();
 		}
-
-		getAgentListener().onStep(this, getPosition(), destPos);
 
 		move(destPos);
 

@@ -8,7 +8,7 @@ import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
-import org.cobweb.cobweb2.plugins.SpawnMutator;
+import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.StepMutator;
 
 /**
@@ -16,7 +16,15 @@ import org.cobweb.cobweb2.plugins.StepMutator;
  *
  * @author ???
  */
-public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugin {
+public class TemperatureMutator extends StatefulMutatorBase<TemperatureMutator.TemperatureState> implements StepMutator, StatePlugin {
+
+	public TemperatureMutator() {
+		super(TemperatureState.class);
+	}
+
+	public static class TemperatureState {
+		public float originalParamValue;
+	}
 
 	private TemperatureParams params;
 
@@ -42,37 +50,13 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 	 * @param aPar Agent type specific temperature parameters.
 	 * @return The effect temperature has on the agent.  0 if agent is unaffected.
 	 */
-	private float locToPenalty(Location l, TemperatureAgentParams aPar) {
+	private float effectAtLocation(Location l, TemperatureAgentParams aPar) {
 		float temp = getTemp(l);
 		float ptemp = aPar.preferedTemp;
 		float diff = Math.abs(temp - ptemp);
 		diff = Math.max(diff - aPar.preferedTempRange, 0);
-		float f = diff * aPar.differenceFactor;
-		return f;
-	}
-
-	@Override
-	public void onDeath(Agent agent) {
-		// Nothing
-	}
-
-	@Override
-	public void onSpawn(Agent agent) {
-		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
-
-		float f = locToPenalty(agent.getPosition(), aPar);
-
-		aPar.parameter.modifyValue(agent, 1, f);
-	}
-
-	@Override
-	public void onSpawn(Agent agent, Agent parent) {
-		onSpawn(agent);
-	}
-
-	@Override
-	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
-		onSpawn(agent);
+		float res = diff * aPar.differenceFactor;
+		return res;
 	}
 
 	/**
@@ -85,15 +69,28 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 	@Override
 	public void onStep(Agent agent, Location from, Location to) {
 		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
+		TemperatureState state = getAgentState(agent);
 
-		float toFactor = locToPenalty(to, aPar);
-		float fromFactor = locToPenalty(from, aPar);
-
-		float delta = toFactor - fromFactor;
-
-		if (Math.abs(delta) < 1e-10) {
-			aPar.parameter.modifyValue(agent, 1, delta);
+		if (from == null) {
+			state = new TemperatureState();
+			state.originalParamValue = aPar.parameter.getValue(agent);
+			setAgentState(agent, state);
 		}
+
+		if (to == null) {
+			removeAgentState(agent);
+			return;
+		}
+
+		float effect = effectAtLocation(to, aPar);
+
+		if (from != null && effectAtLocation(from, aPar) == effect)
+			return;
+
+		float multiplier = 1 + effect;
+		float newValue = state.originalParamValue * multiplier;
+
+		aPar.parameter.setValue(agent, newValue);
 	}
 
 	/**
@@ -126,7 +123,8 @@ public class TemperatureMutator implements StepMutator, SpawnMutator, StatePlugi
 
 		@Override
 		public double getValue(Agent agent) {
-			double value = locToPenalty(agent.getPosition(), params.agentParams[agent.getType()]);
+			TemperatureAgentParams aPar = params.agentParams[agent.getType()];
+			double value = Math.abs(effectAtLocation(agent.getPosition(), aPar));
 			return value;
 		}
 

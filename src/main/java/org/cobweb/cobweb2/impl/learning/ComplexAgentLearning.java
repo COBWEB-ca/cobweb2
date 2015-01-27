@@ -187,14 +187,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			}
 
-			queue(new Occurrence(this, getTime(), 0, "stepMutate") {
-				@Override
-				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-					getAgentListener().onStep(concernedAgent, getPosition(), destPos);
-					return null;
-				}
-			});
-
 			// Move the agent to destPos
 			queue(new SmartAction(this, "move-" + destPos.toString()) {
 

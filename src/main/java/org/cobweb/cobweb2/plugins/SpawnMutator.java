@@ -4,6 +4,8 @@ import org.cobweb.cobweb2.core.Agent;
 
 /**
  * Modifies agents when they are born.
+ * Note: the agent's location is initialized AFTER spawn and removed BEFORE death!
+ * Use StepMutator if you want initial and final locations
  */
 public interface SpawnMutator extends AgentMutator {
 

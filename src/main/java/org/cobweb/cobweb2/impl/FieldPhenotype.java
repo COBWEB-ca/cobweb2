@@ -65,6 +65,18 @@ public class FieldPhenotype extends Phenotype {
 		ReflectionUtil.modifyFieldLinear(params, this.field, m, b);
 	}
 
+	@Override
+	public float getValue(Agent a) {
+		ComplexAgentParams params = ((ComplexAgent) a).params;
+		return ReflectionUtil.getFieldAsFloat(params, field);
+	}
+
+	@Override
+	public void setValue(Agent a, float value) {
+		ComplexAgentParams params = ((ComplexAgent) a).params;
+		ReflectionUtil.setFieldWithFloat(params, field, value);
+	}
+
 	public static Set<Phenotype> getPossibleValues() {
 		Set<Phenotype> bindables = new LinkedHashSet<Phenotype>();
 		for (Field f: ComplexAgentParams.class.getFields()) {
@@ -75,4 +87,5 @@ public class FieldPhenotype extends Phenotype {
 	}
 
 	private static final long serialVersionUID = 2L;
+
 }

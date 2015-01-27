@@ -53,7 +53,6 @@ public class AgentStatistics implements Comparable<AgentStatistics> {
 		birthTick = time;
 		parent1id = p1 == null ? -1 : p1.id;
 		parent2id = p2 == null ? -1 : p2.id;
-		addPathStep(agent.getPosition());
 	}
 
 	public AgentStatistics(Agent agent, long birth, AgentStatistics p1) {
