@@ -47,7 +47,7 @@ class AgentDrawInfo {
 
 		agentColor = new Color(rgb[0], rgb[1], rgb[2]);
 
-		type =  colorMap.getColor(agent.params.type, sim.getAgentTypeCount());
+		type =  colorMap.getColor(agent.getType(), sim.getAgentTypeCount());
 
 		position = agent.getPosition();
 

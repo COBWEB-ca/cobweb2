@@ -16,9 +16,27 @@
 	</xsl:template>
 
 	<!-- Fix up header -->
-	<xsl:template match="inputData">
+	<xsl:template match="inputData|inputeData">
 		<COBWEB2Config config-version="2015-01-14" cobweb-version="{$cobweb-version}">
-			<xsl:apply-templates select="*[name() != 'production']" />
+			<xsl:apply-templates select="*[name() != 'production' and name() != 'food' and name() != 'agent']" />
+			<Agents>
+				<AgentParams>
+					<xsl:for-each select="/*/agent">
+						<Agent id="{Index + 1}">
+							<xsl:apply-templates />
+						</Agent>
+					</xsl:for-each>
+				</AgentParams>
+			</Agents>
+			<FoodGrowth>
+				<FoodParams>
+					<xsl:for-each select="/*/food">
+						<Food id="{Index + 1}">
+							<xsl:apply-templates />
+						</Food>
+					</xsl:for-each>
+				</FoodParams>
+			</FoodGrowth>
 			<!-- Move waste properties under own section -->
 			<Waste>
 				<AgentParams>

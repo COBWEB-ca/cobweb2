@@ -42,7 +42,7 @@ public class SimulationRunnerBase implements SimulationRunner {
 
 		System.out.println(String.format(
 				"Running '%1$s' for %2$d steps. Log: %3$s",
-				simulation.simulationConfig.getFilename(),
+				simulation.simulationConfig.fileName,
 				getAutoStopTime(),
 				statsLogger == null ? "No": "Yes"));
 

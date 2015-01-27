@@ -3,7 +3,9 @@
  */
 package org.cobweb.cobweb2.impl;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Mutatable;
+import org.cobweb.cobweb2.plugins.PerTypeParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
@@ -11,15 +13,9 @@ import org.cobweb.io.ParameterSerializable;
 /**
  * Parameters for ComplexAgent.
  */
-public class ComplexAgentParams implements ParameterSerializable {
+public class ComplexAgentParams implements ParameterSerializable, PerTypeParam {
 
 	private static final long serialVersionUID = -7852361484228627541L;
-
-	/**
-	 * Agent type index.
-	 */
-	@ConfXMLTag("Index")
-	public int type = -1;
 
 	/**
 	 * Initial number of agents.
@@ -277,6 +273,7 @@ public class ComplexAgentParams implements ParameterSerializable {
 		}
 	}
 
+	@Override
 	public void resize(AgentFoodCountable envParams) {
 		foodweb.resize(envParams);
 	}

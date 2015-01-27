@@ -26,8 +26,8 @@ import org.cobweb.cobweb2.impl.ComplexEnvironment;
 // FIXME: untangle this mess, split out ComplexAgent's functions this duplicates and override them, use Cause and similar
 public class ComplexAgentLearning extends ComplexAgent {
 
-	public ComplexAgentLearning(SimulationInternals sim) { // NO_UCD (unused code) called through reflection
-		super(sim);
+	public ComplexAgentLearning(SimulationInternals sim, int type) { // NO_UCD (unused code) called through reflection
+		super(sim, type);
 	}
 
 	private static final long serialVersionUID = 6166561879146733801L;
@@ -95,7 +95,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	@Override
 	public void eat(Location destPos) {
-		if (environment.getFoodType(destPos) == params.type) {
+		if (environment.getFoodType(destPos) == getType()) {
 			// Eating food is ideal!!
 			remember(new MemorableEvent(getTime(), lParams.foodPleasure, "food"));
 		} else {
@@ -304,7 +304,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 			// if the agents are of the same type, check if they have enough
 			// resources to breed
-			if (adjacentAgent.params.type == params.type) {
+			if (adjacentAgent.getType() == getType()) {
 
 				double sim = 0.0;
 				boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy) && params.sexualBreedChance != 0.0
@@ -426,13 +426,13 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 	@Override
 	protected ComplexAgentLearning createChildAsexual(LocationDirection location) {
-		ComplexAgentLearning child = new ComplexAgentLearning(simulation);
+		ComplexAgentLearning child = new ComplexAgentLearning(simulation, getType());
 		child.init(environment, location, this);
 		return child;
 	}
 
 	private ComplexAgentLearning createChildSexual(LocationDirection location, ComplexAgentLearning otherParent) {
-		ComplexAgentLearning child = new ComplexAgentLearning(simulation);
+		ComplexAgentLearning child = new ComplexAgentLearning(simulation, getType());
 		child.init(environment, location, this, otherParent);
 		return child;
 	}

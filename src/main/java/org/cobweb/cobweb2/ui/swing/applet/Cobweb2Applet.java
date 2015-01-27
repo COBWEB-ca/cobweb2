@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
+import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 import org.cobweb.cobweb2.ui.swing.LiveStats;
 import org.cobweb.cobweb2.ui.swing.SimulatorUI;
@@ -98,7 +99,8 @@ public class Cobweb2Applet extends JApplet { // NO_UCD. Stop UCDetector from lab
 
 		InputStream datafile = getClass().getResourceAsStream("/experiments/" + experiments.get(expName));
 
-		SimulationConfig parser = new SimulationConfig(datafile);
+		Cobweb2Serializer serializer = new Cobweb2Serializer();
+		SimulationConfig parser = serializer.loadConfig(datafile);
 		try {
 			datafile.close();
 		} catch (IOException ex) {

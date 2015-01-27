@@ -2,6 +2,7 @@ package org.cobweb.cobweb2.impl.ai;
 
 import java.util.Arrays;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.impl.ControllerParams;
@@ -9,19 +10,30 @@ import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.plugins.PerAgentParams;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.util.ArrayUtilities;
 
 public class LinearWeightsControllerParams extends PerAgentParams<LinearWeightAgentParam> implements ControllerParams {
 
 	@ConfXMLTag("WeightMatrix")
 	@ConfList(indexName = {"inp", "outp"}, startAtOne = false)
-	public double[][] data;
+	public double[][] data = new double[0][0];
 
 	private final transient SimulationParams simParam;
 
 	public LinearWeightsControllerParams(SimulationParams simParam) {
-		super(LinearWeightAgentParam.class, simParam.getCounts());
+		super(LinearWeightAgentParam.class);
 		this.simParam = simParam;
-		data = new double[INPUT_COUNT + this.simParam.getPluginParameters().size()][OUTPUT_COUNT];
+		resize(simParam.getCounts());
+	}
+
+	@Override
+	public void resize(AgentFoodCountable envParams) {
+		super.resize(envParams);
+
+		double[][] n = ArrayUtilities.resizeArray(data,
+				INPUT_COUNT + this.simParam.getPluginParameters().size(),
+				OUTPUT_COUNT);
+		data = n;
 	}
 
 	public LinearWeightsControllerParams copy() {

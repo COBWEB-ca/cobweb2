@@ -65,7 +65,7 @@ public class AIPanel extends SettingsPanel {
 		add(aiSwitch);
 		add(inner);
 
-		aiSwitch.setSelectedItem(getSimpleName(p.getEnvParams().controllerName));
+		aiSwitch.setSelectedItem(getSimpleName(p.envParams.controllerName));
 		tabs[aiSwitch.getSelectedIndex()].bindToParser(parser);
 	}
 

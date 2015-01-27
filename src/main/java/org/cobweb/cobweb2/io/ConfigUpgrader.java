@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.ui.compatibility;
+package org.cobweb.cobweb2.io;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -27,12 +24,12 @@ import org.cobweb.cobweb2.impl.ai.LinearWeightsController;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.impl.learning.ComplexEnvironmentLearning;
 import org.cobweb.util.Versionator;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
-
-public class ConfigUpgrader {
+/**
+ * Fixes for dealing with difference between older versions of configuration files.
+ */
+class ConfigUpgrader {
 
 	public static void upgrade(ComplexEnvironmentParams envParams) {
 		envParams.controllerName = updateClassName(
@@ -84,14 +81,13 @@ public class ConfigUpgrader {
 			throw new RuntimeException(ex);
 		}
 
-		Document document = loadDocument(file);
+		Element root = CobwebXmlHelper.openDocument(file);
 		try {
 			file.close();
 		} catch (IOException ex) {
 			throw new RuntimeException(ex);
 		}
 
-		Element root = document.getDocumentElement();
 		String version;
 
 		if (root.getNodeName().equals("COBWEB2Config"))
@@ -158,27 +154,6 @@ public class ConfigUpgrader {
 			try { outStream.close(); } catch (IOException ex2) {}
 			try { if (xsltStream != null) xsltStream.close(); } catch (IOException ex2) {}
 		}
-	}
-
-	private static Document loadDocument(InputStream file) {
-		// DOM initialization
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setIgnoringElementContentWhitespace(true);
-		factory.setIgnoringComments(true);
-		// factory.setValidating(true);
-
-		Document document;
-		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			document = builder.parse(file);
-		} catch (SAXException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (ParserConfigurationException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		} catch (IOException ex) {
-			throw new IllegalArgumentException("Can't open config file", ex);
-		}
-		return document;
 	}
 
 }

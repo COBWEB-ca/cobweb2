@@ -60,7 +60,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	/* return number of TYPES of agents in the environment */
 	@Override
 	public int getAgentTypeCount() {
-		return simulationConfig.getEnvParams().agentTypeCount;
+		return simulationConfig.envParams.agentTypeCount;
 	}
 
 	@Override
@@ -109,12 +109,12 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	 */
 	public void load(SimulationConfig p) {
 		this.simulationConfig = p;
-		agentSpawner = new AgentSpawner(p.getEnvParams().agentName, this);
+		agentSpawner = new AgentSpawner(p.envParams.agentName, this);
 
 		// TODO: this is a hack to make the applet work when we switch grids and
 		// the static information is not cleared, ComplexAgent should really
 		// have a way to track which mutators have been bound
-		if (!p.getEnvParams().keepOldAgents) {
+		if (!p.envParams.keepOldAgents) {
 			mutatorListener.clearMutators();
 			plugins.clear();
 			agents.clear();
@@ -149,28 +149,28 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(wasteMutator);
 		}
 
-		geneticMutator.setParams(this, p.getGeneticParams(), p.getEnvParams().getAgentTypes());
+		geneticMutator.setParams(this, p.geneticParams, p.envParams.getAgentTypes());
 
-		diseaseMutator.setParams(this, p.getDiseaseParams(), p.getEnvParams().getAgentTypes());
+		diseaseMutator.setParams(this, p.diseaseParams, p.envParams.getAgentTypes());
 
-		tempMutator.setParams(p.getTempParams(), p.getEnvParams());
+		tempMutator.setParams(p.tempParams, p.envParams);
 
-		wasteMutator.setParams(p.getWasteParams());
+		wasteMutator.setParams(p.wasteParams);
 
-		prodMapper.setParams(simulationConfig.getProdParams());
+		prodMapper.setParams(simulationConfig.prodParams);
 
 		// 0 = use default seed
-		if (p.getEnvParams().randomSeed == 0)
+		if (p.envParams.randomSeed == 0)
 			random = new RandomNoGenerator();
 		else
-			random = new RandomNoGenerator(p.getEnvParams().randomSeed);
+			random = new RandomNoGenerator(p.envParams.randomSeed);
 
 
-		InitEnvironment(p.getEnvParams().environmentName, p);
+		InitEnvironment(p.envParams.environmentName, p);
 
-		prodMapper.initEnvironment(theEnvironment, p.getEnvParams().keepOldWaste);
+		prodMapper.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
 
-		wasteMutator.initEnvironment(theEnvironment, p.getEnvParams().keepOldWaste);
+		wasteMutator.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
 
 		setupPlugins();
 	}
@@ -211,8 +211,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 	@Override
 	public Agent newAgent(int type) {
-		ComplexAgent agent = (ComplexAgent) agentSpawner.spawn();
-		agent.setController(simulationConfig.getControllerParams().createController(this, type));
+		ComplexAgent agent = (ComplexAgent) agentSpawner.spawn(type);
+		agent.setController(simulationConfig.controllerParams.createController(this, type));
 		return agent;
 	}
 

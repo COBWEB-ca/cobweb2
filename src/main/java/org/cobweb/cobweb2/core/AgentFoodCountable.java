@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.impl;
+package org.cobweb.cobweb2.core;
 
 /**
  * Retrieves basic simulation parameters.
@@ -10,12 +10,6 @@ public interface AgentFoodCountable {
 	 * @return number of agent types in the simulation.
 	 */
 	public int getAgentTypes();
-
-	/**
-	 * Number of food types.
-	 * @return number of food types in the simulation.
-	 */
-	public int getFoodTypes();
 
 	/**
 	 * Height of the simulation grid.

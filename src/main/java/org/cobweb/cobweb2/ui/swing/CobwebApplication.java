@@ -38,6 +38,7 @@ import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.impl.ai.LinearWeightsController;
 import org.cobweb.cobweb2.impl.ai.LinearWeightsControllerParams;
+import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.PopulationSampler;
 import org.cobweb.cobweb2.ui.SimulationInterface;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
@@ -220,8 +221,9 @@ public class CobwebApplication extends JFrame {
 		File cf = new File(currentData);
 		cf.deleteOnExit();
 		try {
+			Cobweb2Serializer serializer = new Cobweb2Serializer();
 			FileOutputStream outStream = new FileOutputStream(cf);
-			simRunner.getSimulation().simulationConfig.write(outStream);
+			serializer.saveConfig(simRunner.getSimulation().simulationConfig, outStream);
 			outStream.close();
 		} catch (IOException ex) {
 			throw new UserInputException("Cannot open config file", ex);
@@ -270,7 +272,7 @@ public class CobwebApplication extends JFrame {
 		}
 
 		simRunner.getSimulation().load(config);
-		File file = new File(config.getFilename());
+		File file = new File(config.fileName);
 
 		if (file.exists()) {
 			currentFile = file.getName();
@@ -516,18 +518,18 @@ public class CobwebApplication extends JFrame {
 		viewers.clear();
 
 		// TODO: ViewerPlugin.isCompatible(simulationConfig)
-		if (simRunner.getSimulation().simulationConfig.getEnvParams().controllerName.equals(LinearWeightsController.class.getName())) {
-			viewers.add(new LinearAIViewer((LinearWeightsControllerParams)simRunner.getSimulation().simulationConfig.getControllerParams()));
+		if (simRunner.getSimulation().simulationConfig.envParams.controllerName.equals(LinearWeightsController.class.getName())) {
+			viewers.add(new LinearAIViewer((LinearWeightsControllerParams)simRunner.getSimulation().simulationConfig.controllerParams));
 		}
 
 		viewers.add(new ProductionViewer(simRunner));
 
 		viewers.add(new LiveStats(simRunner));
 
-		if (simRunner.getSimulation().simulationConfig.getGeneticParams().getGeneCount() != 0) {
+		if (simRunner.getSimulation().simulationConfig.geneticParams.getGeneCount() != 0) {
 			GAChartOutput gaViewer = new GAChartOutput(
 					simRunner.getSimulation().geneticMutator.getTracker(),
-					simRunner.getSimulation().simulationConfig.getGeneticParams(),
+					simRunner.getSimulation().simulationConfig.geneticParams,
 					simRunner,
 					displaySettings);
 			viewers.add(gaViewer);
@@ -813,9 +815,19 @@ public class CobwebApplication extends JFrame {
 					theDialog.setFile("*.xml");
 					theDialog.setVisible(true);
 					if (theDialog.getFile() != null) {
+						int saveNum;
+
+						int agentCount = simRunner.getSimulation().theEnvironment.getAgentCount();
+						if (option.equals("percentage")) {
+							saveNum = agentCount * amount / 100;
+						} else {
+							saveNum = amount;
+						}
+						if (saveNum > agentCount)
+							saveNum = agentCount;
 
 						//Save population in the specified file.
-						PopulationSampler.savePopulation(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile(), option, amount);
+						PopulationSampler.savePopulation(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile(), saveNum);
 					}
 				}
 			}

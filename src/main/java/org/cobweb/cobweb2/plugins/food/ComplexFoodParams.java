@@ -14,12 +14,6 @@ public class ComplexFoodParams implements ParameterSerializable {
 	private static final long serialVersionUID = 4935757387466603476L;
 
 	/**
-	 * Food type index.
-	 */
-	@ConfXMLTag("Index")
-	public int type = -1;
-
-	/**
 	 * Amount of food dropped on the grid initially
 	 */
 	@ConfDisplayName("Initial amount")

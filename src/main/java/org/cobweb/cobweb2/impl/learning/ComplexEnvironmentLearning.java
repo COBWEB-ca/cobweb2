@@ -23,7 +23,7 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 
 	@Override
 	protected void loadNew(SimulationConfig config) {
-		learningData = config.getLearningParams().agentParams;
+		learningData = config.learningParams.agentParams;
 		super.loadNew(config);
 	}
 

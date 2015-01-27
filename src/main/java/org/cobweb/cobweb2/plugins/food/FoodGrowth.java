@@ -27,7 +27,24 @@ public class FoodGrowth implements Updatable {
 		this.simulation = simulation;
 	}
 
-	private void depleteFood(ComplexFoodParams food) {
+	private void depleteFood() {
+		// for each agent type, we test to see if its deplete time step has
+		// come, and if so deplete the food random
+		// by the appropriate percentage
+
+		for (int type = 0; type < foodData.length; type++) {
+			ComplexFoodParams f = foodData[type];
+
+			if (f.depleteRate != 0.0f
+					&& f.growRate > 0
+					&& simulation.getTime() != 0
+					&& (simulation.getTime() % f.depleteTime) == 0) {
+				depleteFood(f, type);
+			}
+		}
+	}
+
+	private void depleteFood(ComplexFoodParams food, int type) {
 		// the algorithm for randomly selecting the food cells to delete
 		// is as follows:
 		// We iterate through all of the cells and the location of each
@@ -40,7 +57,7 @@ public class FoodGrowth implements Updatable {
 		for (int x = 0; x < simulation.getTopology().width; ++x)
 			for (int y = 0; y < simulation.getTopology().height; ++y) {
 				Location currentPos = new Location(x, y);
-				if (env.hasFood(currentPos) && env.getFoodType(currentPos) == food.type)
+				if (env.hasFood(currentPos) && env.getFoodType(currentPos) == type)
 					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
 			}
 
@@ -51,7 +68,7 @@ public class FoodGrowth implements Updatable {
 
 			env.removeFood(loc);
 		}
-		draughtdays[food.type] = food.draughtPeriod;
+		draughtdays[type] = food.draughtPeriod;
 	}
 
 	private void dropFood(int type) {
@@ -168,19 +185,7 @@ public class FoodGrowth implements Updatable {
 
 	@Override
 	public void update() {
-
-		// for each agent type, we test to see if its deplete time step has
-		// come, and if so deplete the food random
-		// by the appropriate percentage
-
-		for (ComplexFoodParams f : foodData) {
-			if (f.depleteRate != 0.0f
-					&& f.growRate > 0
-					&& simulation.getTime() != 0
-					&& (simulation.getTime() % f.depleteTime) == 0) {
-				depleteFood(f);
-			}
-		}
+		depleteFood();
 
 		boolean shouldGrow = false;
 		for (ComplexFoodParams f : foodData) {
@@ -205,8 +210,8 @@ public class FoodGrowth implements Updatable {
 		}
 	}
 
-	public void load(Environment environment, boolean dropNewFood, float likeFoodProb, ComplexFoodParams[] foodParams) {
-		foodData = foodParams;
+	public void load(Environment environment, boolean dropNewFood, float likeFoodProb, FoodGrowthParams foodParams) {
+		foodData = foodParams.foodParams;
 		this.sameFoodProb = likeFoodProb;
 
 		env = environment;
