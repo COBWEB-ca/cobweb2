@@ -160,6 +160,8 @@ public class MutatorListener implements AgentListener {
 	public <T> T getMutatorState(Class<T> stateClass, Agent a) {
 		@SuppressWarnings("unchecked")
 		StatefulMutator<T> mutator = (StatefulMutator<T>) statefulMutators.get(stateClass);
+		if (mutator == null)
+			throw new IllegalArgumentException("No mutator with given state class: " + stateClass.getName());
 		return mutator.getAgentState(a);
 	}
 

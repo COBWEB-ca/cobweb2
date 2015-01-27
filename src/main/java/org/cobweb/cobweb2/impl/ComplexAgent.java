@@ -6,7 +6,6 @@ import java.util.Collection;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentListener;
-import org.cobweb.cobweb2.core.AgentStatistics;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.Drop;
@@ -56,8 +55,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	// FIXME: AI should call asexBreed() instead of setting flag and agent doing so.
 	private boolean shouldReproduceAsex;
 
-	public AgentStatistics stats;
-
 	// pregnancyPeriod is set value while pregPeriod constantly changes
 	protected int pregPeriod;
 
@@ -69,9 +66,12 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	protected transient SimulationInternals simulation;
 
+	long birthTick;
+
 	public ComplexAgent(SimulationInternals sim, int type) {
 		super(type);
 		this.simulation = sim;
+		this.birthTick = getTime();
 	}
 
 	private Controller controller;
@@ -128,8 +128,6 @@ public class ComplexAgent extends Agent implements Serializable {
 			params.pdSimilaritySlope = parent2.params.pdSimilaritySlope;
 		} // else keep parent 1's PD config
 
-		stats = environment.addAgentInfo(getType(), parent1.stats, parent2.stats);
-
 		initPosition(pos);
 
 		getAgentListener().onSpawn(this, parent1, parent2);
@@ -148,8 +146,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		copyParams(parent);
 		controller = parent.controller.createChildAsexual();
 
-		stats = environment.addAgentInfo(getType(), parent.stats);
-
 		initPosition(pos);
 
 		getAgentListener().onSpawn(this, parent);
@@ -163,8 +159,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentParams agentData) {
 		environment = (env);
 		setParams(agentData);
-
-		stats = environment.addAgentInfo(getType());
 
 		initPosition(pos);
 
@@ -244,7 +238,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	}
 
 	protected boolean checkCredibility(ComplexAgent other) {
-		return !badAgentMemory.contains(other.stats.id);
+		return !badAgentMemory.contains(other.id);
 	}
 
 	protected void communicate(ComplexAgent target) {
@@ -264,8 +258,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		environment.setAgent(position, null);
 
 		getAgentListener().onDeath(this);
-
-		stats.setDeath(getTime());
 	}
 
 	/**
@@ -315,10 +307,8 @@ public class ComplexAgent extends Agent implements Serializable {
 		// Gain Energy according to the food type.
 		if (environment.getFoodType(destPos) == getType()) {
 			changeEnergy(+params.foodEnergy, new EatFavoriteFoodCause());
-			stats.addFoodEnergy(params.foodEnergy);
 		} else {
 			changeEnergy(+params.otherFoodEnergy, new EatFoodCause());
-			stats.addOthers(params.otherFoodEnergy);
 		}
 	}
 
@@ -331,7 +321,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	protected void eat(ComplexAgent adjacentAgent) {
 		int gain = (int) (adjacentAgent.getEnergy() * params.agentFoodEnergy);
 		changeEnergy(+gain, new EatAgentCause());
-		stats.addCannibalism(gain);
 		adjacentAgent.die();
 	}
 
@@ -358,7 +347,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	}
 
 	public long getAge() {
-		return getTime() - stats.birthTick;
+		return getTime() - birthTick;
 	}
 
 	public boolean getAgentPDActionCheat() {
@@ -371,10 +360,6 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	public double getCommOutbox() {
 		return commOutbox;
-	}
-
-	public AgentStatistics getInfo() {
-		return stats;
 	}
 
 	public double getMemoryBuffer() {
@@ -404,7 +389,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		if (cheater.equals(this)) // heh
 			return;
 
-		int othersID = cheater.stats.id;
+		int othersID = cheater.id;
 		if (badAgentMemory.contains(othersID))
 			return;
 
@@ -416,8 +401,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		if (position != null)
 			environment.setAgent(position, null);
 		position = newPos;
-
-		stats.addPathStep(newPos);
 	}
 
 	/**
@@ -519,25 +502,21 @@ public class ComplexAgent extends Agent implements Serializable {
 			/* Both cooperate */
 			changeEnergy(+environment.data.pdParams.reward, new PDRewardCause());
 			adjacentAgent.changeEnergy(+environment.data.pdParams.reward, new PDRewardCause());
-			stats.addPDReward();
 
 		} else if (!pdCheater && adjacentAgent.pdCheater) {
 			/* Only other agent cheats */
 			changeEnergy(+environment.data.pdParams.sucker, new PDSuckerCause());
 			adjacentAgent.changeEnergy(+environment.data.pdParams.temptation, new PDTemptationCause());
-			stats.addPDTemptation();
 
 		} else if (pdCheater && !adjacentAgent.pdCheater) {
 			/* Only this agent cheats */
 			changeEnergy(+environment.data.pdParams.temptation, new PDTemptationCause());
 			adjacentAgent.changeEnergy(+environment.data.pdParams.sucker, new PDSuckerCause());
-			stats.addPDSucker();
 
 		} else if (pdCheater && adjacentAgent.pdCheater) {
 			/* Both cheat */
 			changeEnergy(+environment.data.pdParams.punishment, new PDPunishmentCause());
 			adjacentAgent.changeEnergy(+environment.data.pdParams.punishment, new PDPunishmentCause());
-			stats.addPDPunishment();
 
 		}
 
@@ -655,12 +634,12 @@ public class ComplexAgent extends Agent implements Serializable {
 		Agent adjAgent;
 		LocationDirection destPos = environment.topology.getAdjacent(getPosition());
 
+		// FIXME: clean this up, split into step-wall, step-agent, step-food functions
 		if (canStep(destPos)) {
 
 			onstepFreeTile(destPos);
 
-		} else if ((adjAgent = getAdjacentAgent()) != null && adjAgent instanceof ComplexAgent
-				&& ((ComplexAgent) adjAgent).stats != null) {
+		} else if ((adjAgent = getAdjacentAgent()) != null && adjAgent instanceof ComplexAgent) {
 			// two agents meet
 
 			ComplexAgent adjacentAgent = (ComplexAgent) adjAgent;
@@ -672,7 +651,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		else {
 			// Non-free tile (rock/waste/etc) bump
 			changeEnergy(-params.stepRockEnergy, new BumpWallCause());
-			stats.useRockBumpEnergy(params.stepRockEnergy);
 		}
 		applyAgePenalty();
 
@@ -685,7 +663,7 @@ public class ComplexAgent extends Agent implements Serializable {
 			}
 			else {
 				// can't step, treat as obstacle
-				stats.useRockBumpEnergy(params.stepRockEnergy);
+				changeEnergy(-params.stepRockEnergy, new BumpWallCause());
 			}
 		}
 
@@ -735,14 +713,11 @@ public class ComplexAgent extends Agent implements Serializable {
 				cause = new SexualReproductionCause();
 			}
 			changeEnergy(-params.initEnergy, cause);
-			stats.useReproductionEnergy(params.initEnergy);
 			applyAgePenalty();
-			stats.addDirectChild();
 			breedPartner = null;
 			pregnant = false;
 		}
 		changeEnergy(-params.stepEnergy, new StepForwardCause());
-		stats.useStepEnergy(params.stepEnergy);
 	}
 
 	protected void onstepAgentBump(ComplexAgent adjacentAgent) {
@@ -780,7 +755,6 @@ public class ComplexAgent extends Agent implements Serializable {
 			playPDonStep(adjacentAgent);
 		}
 		changeEnergy(-params.stepAgentEnergy, new BumpAgentCause());
-		stats.useAgentBumpEnergy(params.stepAgentEnergy);
 	}
 
 	/**
@@ -831,7 +805,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	public void turnLeft() {
 		position = environment.topology.getTurnLeftPosition(position);
 		changeEnergy(-params.turnLeftEnergy, new TurnLeftCause());
-		stats.addTurn(params.turnLeftEnergy);
 		afterTurnAction();
 	}
 
@@ -843,7 +816,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	public void turnRight() {
 		position = environment.topology.getTurnRightPosition(position);
 		changeEnergy(-params.turnRightEnergy, new TurnRightCause());
-		stats.addTurn(params.turnRightEnergy);
 		afterTurnAction();
 	}
 
@@ -878,12 +850,17 @@ public class ComplexAgent extends Agent implements Serializable {
 		public String getName() { return "Step Forward"; }
 	}
 
-	public static class TurnLeftCause extends MovementCause {
+	public static abstract class TurnCause extends MovementCause {
+		@Override
+		public String getName() { return "Turn"; }
+	}
+
+	public static class TurnLeftCause extends TurnCause {
 		@Override
 		public String getName() { return "Turn Left"; }
 	}
 
-	public static class TurnRightCause extends MovementCause {
+	public static class TurnRightCause extends TurnCause {
 		@Override
 		public String getName() { return "Turn Right"; }
 	}
