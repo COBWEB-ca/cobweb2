@@ -50,6 +50,8 @@ public abstract class Agent implements Updatable {
 		energy += delta;
 	}
 
+	public int id;
+
 	/**
 	 * @return the location this Agent occupies.
 	 */

@@ -2,9 +2,12 @@ package org.cobweb.cobweb2.ui;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.cobweb.cobweb2.Simulation;
-import org.cobweb.cobweb2.core.AgentStatistics;
+import org.cobweb.cobweb2.plugins.stats.AgentStatistics;
 
 
 public class AgentReporter {
@@ -14,7 +17,10 @@ public class AgentReporter {
 
 		printAgentHeaders(pw);
 
-		for (AgentStatistics info : simulation.theEnvironment.agentInfoVector) {
+		List<AgentStatistics> allStats = new ArrayList<>(simulation.statsMutator.getAllStats());
+		Collections.sort(allStats);
+
+		for (AgentStatistics info : allStats) {
 			printInfo(pw, info);
 		}
 		pw.flush();
@@ -28,6 +34,7 @@ public class AgentReporter {
 		pw.print("\tBirth");
 		pw.print("\tParent1\tParent2");
 		pw.print("\tDeath");
+
 		pw.print("\tChildren");
 		pw.print("\tSexual Pregnancies");
 
@@ -60,9 +67,10 @@ public class AgentReporter {
 		pw.print(agentInfo.id);
 		pw.print("\t" + (agentInfo.type + 1));
 		pw.print("\t" + agentInfo.birthTick);
-		pw.print("\t" + agentInfo.parent1);
-		pw.print("\t" + agentInfo.parent2);
+		pw.print("\t" + agentInfo.parent1id);
+		pw.print("\t" + agentInfo.parent2id);
 		pw.print("\t" + agentInfo.deathTick);
+
 		pw.print("\t" + agentInfo.directChildren);
 		pw.print("\t" + agentInfo.sexualPregs);
 

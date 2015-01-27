@@ -9,6 +9,7 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
+import org.cobweb.cobweb2.plugins.stats.AgentStatistics;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.util.Point2D;
 
@@ -78,9 +79,9 @@ class DrawInfo {
 		}
 
 		for (ComplexAgent observedAgent: observedAgents) {
-			List<Location> path = observedAgent.getInfo().getPathHistory();
-			if (path != null)
-				paths.add(new PathDrawInfo(path));
+			AgentStatistics stats = sim.mutatorListener.getMutatorState(AgentStatistics.class, observedAgent);
+			if (stats.path != null)
+				paths.add(new PathDrawInfo(stats.path));
 		}
 
 		for (int y = 0; y < height; ++y) {

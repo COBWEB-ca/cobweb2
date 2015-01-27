@@ -23,6 +23,7 @@ import org.cobweb.cobweb2.plugins.abiotic.TemperatureMutator;
 import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
+import org.cobweb.cobweb2.plugins.stats.StatsMutator;
 import org.cobweb.cobweb2.plugins.waste.WasteMutator;
 import org.cobweb.cobweb2.ui.SimulationInterface;
 import org.cobweb.util.RandomNoGenerator;
@@ -47,6 +48,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	private DiseaseMutator diseaseMutator;
 
 	private WasteMutator wasteMutator;
+
+	public StatsMutator statsMutator;
 
 	// TODO access level?
 	public SimulationConfig simulationConfig;
@@ -115,6 +118,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		// the static information is not cleared, ComplexAgent should really
 		// have a way to track which mutators have been bound
 		if (!p.envParams.keepOldAgents) {
+			nextAgentId = 1;
 			mutatorListener.clearMutators();
 			plugins.clear();
 			agents.clear();
@@ -123,6 +127,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			tempMutator = null;
 			prodMapper = null;
 			wasteMutator = null;
+			statsMutator = null;
 		}
 
 		if (geneticMutator == null) {
@@ -147,6 +152,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		if (wasteMutator == null) {
 			wasteMutator = new WasteMutator(this);
 			mutatorListener.addMutator(wasteMutator);
+		}
+		if (statsMutator == null) {
+			statsMutator = new StatsMutator(this);
+			mutatorListener.addMutator(statsMutator);
 		}
 
 		geneticMutator.setParams(this, p.geneticParams, p.envParams.getAgentTypes());
@@ -199,9 +208,12 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 	private List<Agent> agents = new LinkedList<Agent>();
 
+	private int nextAgentId = 1;
+
 	@Override
 	public void addAgent(Agent agent) {
 		agents.add(agent);
+		agent.id = nextAgentId++;
 	}
 
 	@Override

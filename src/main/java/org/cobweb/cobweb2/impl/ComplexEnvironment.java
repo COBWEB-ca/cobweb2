@@ -1,11 +1,7 @@
 package org.cobweb.cobweb2.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.AgentStatistics;
 import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
@@ -20,8 +16,6 @@ import org.cobweb.cobweb2.plugins.food.FoodGrowth;
 public class ComplexEnvironment extends Environment {
 
 	protected ComplexAgentParams agentData[];
-
-	public final List<AgentStatistics> agentInfoVector = new ArrayList<AgentStatistics>();
 
 	public ComplexEnvironmentParams data = new ComplexEnvironmentParams();
 
@@ -49,33 +43,6 @@ public class ComplexEnvironment extends Environment {
 		ComplexAgentParams params = agentData[agentType];
 		child.init(this, location, params);
 		return child;
-	}
-
-	private AgentStatistics addAgentInfo(AgentStatistics info) {
-		agentInfoVector.add(info);
-		return info;
-	}
-
-	private int makeNextAgentID() {
-		return agentInfoVector.size();
-	}
-
-	AgentStatistics addAgentInfo(int agentT, AgentStatistics p1, AgentStatistics p2) {
-		return addAgentInfo(new AgentStatistics(makeNextAgentID(), agentT, simulation.getTime(), p1, p2));
-	}
-
-	AgentStatistics addAgentInfo(int agentT, AgentStatistics p1) {
-		return addAgentInfo(new AgentStatistics(makeNextAgentID(), agentT, simulation.getTime(), p1));
-	}
-
-	AgentStatistics addAgentInfo(int agentT) {
-		return addAgentInfo(new AgentStatistics(makeNextAgentID(), agentT, simulation.getTime()));
-	}
-
-	@Override
-	public synchronized void clearAgents() {
-		super.clearAgents();
-		agentInfoVector.clear();
 	}
 
 	/**

@@ -12,7 +12,7 @@ import org.cobweb.cobweb2.core.Agent;
  */
 public class StatefulMutatorBase<T> implements AgentMutator, StatefulMutator<T> {
 
-	private Map<Agent, T> agentStates = new HashMap<>();
+	protected Map<Agent, T> agentStates = new HashMap<>();
 	private final Class<T> stateClass;
 
 	protected StatefulMutatorBase(Class<T> stateClass) {
