@@ -3,8 +3,8 @@ package org.cobweb.cobweb2.plugins.production;
 import java.util.Arrays;
 import java.util.List;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.StatePluginSource;
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
 import org.cobweb.cobweb2.plugins.PerAgentParams;
 
 

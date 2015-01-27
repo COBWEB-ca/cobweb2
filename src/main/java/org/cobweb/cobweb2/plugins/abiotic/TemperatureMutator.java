@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.cobweb2.plugins.StepMutator;
 

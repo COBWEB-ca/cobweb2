@@ -3,6 +3,7 @@
  */
 package org.cobweb.cobweb2.impl;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;

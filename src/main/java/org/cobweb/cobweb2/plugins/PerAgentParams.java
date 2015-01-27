@@ -3,13 +3,13 @@ package org.cobweb.cobweb2.plugins;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
 
 
-public abstract class PerAgentParams<T extends ParameterSerializable> implements ParameterSerializable {
+public abstract class PerAgentParams<T extends ParameterSerializable> implements ParameterSerializable, PerTypeParam {
 
 	@ConfXMLTag("AgentParams")
 	@ConfList(indexName = "Agent", startAtOne = true)
@@ -35,6 +35,7 @@ public abstract class PerAgentParams<T extends ParameterSerializable> implements
 		resize(initialSize);
 	}
 
+	@Override
 	public void resize(AgentFoodCountable envParams) {
 		T[] n = Arrays.copyOf(agentParams, envParams.getAgentTypes());
 

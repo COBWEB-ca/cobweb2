@@ -1,6 +1,6 @@
 package org.cobweb.cobweb2.plugins.disease;
 
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.plugins.PerAgentParams;
 
 public class DiseaseParams extends PerAgentParams<DiseaseAgentParams> {

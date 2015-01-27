@@ -5,8 +5,9 @@ package org.cobweb.cobweb2.plugins.genetics;
 
 import java.util.Arrays;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Phenotype;
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
+import org.cobweb.cobweb2.plugins.PerTypeParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfSquishParent;
@@ -14,7 +15,7 @@ import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
 
 
-public class GeneticParams implements ParameterSerializable {
+public class GeneticParams implements ParameterSerializable, PerTypeParam {
 	/**
 	 *
 	 */
@@ -52,6 +53,7 @@ public class GeneticParams implements ParameterSerializable {
 		resize(env);
 	}
 
+	@Override
 	public void resize(AgentFoodCountable envParams) {
 
 		String[][] n = Arrays.copyOf(geneValues, envParams.getAgentTypes());

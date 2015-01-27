@@ -2,9 +2,9 @@ package org.cobweb.cobweb2.impl.ai;
 
 import java.util.Arrays;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
 import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.plugins.PerAgentParams;

@@ -2,16 +2,17 @@ package org.cobweb.cobweb2.plugins.disease;
 
 import java.util.Arrays;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
-import org.cobweb.cobweb2.impl.AgentFoodCountable;
+import org.cobweb.cobweb2.plugins.PerTypeParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
 
 
-public class DiseaseAgentParams implements ParameterSerializable {
+public class DiseaseAgentParams implements ParameterSerializable, PerTypeParam {
 
 	/**
 	 * Fraction of initially infected agents.
@@ -81,6 +82,7 @@ public class DiseaseAgentParams implements ParameterSerializable {
 		transmitTo = new boolean[size.getAgentTypes()];
 	}
 
+	@Override
 	public void resize(AgentFoodCountable size) {
 		boolean[] n = Arrays.copyOf(transmitTo, size.getAgentTypes());
 		this.transmitTo = n;

@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.impl;
+package org.cobweb.cobweb2.core;
 
 /**
  * Retrieves basic simulation parameters.
