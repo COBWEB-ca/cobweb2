@@ -106,27 +106,16 @@ public class Cobweb2Serializer {
 		// Reset all the settings that depend on agent type count
 		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
 
+		// Load all the @ConfXMLTag params
+		serializer.load(conf, root);
+
 		NodeList nodes = root.getChildNodes();
 		for (int j = 0; j < nodes.getLength(); j++) {
 			Node node = nodes.item(j);
 			String nodeName = node.getNodeName();
 
-			if (nodeName.equals("Agents")) {
-				serializer.load(conf.agentParams, node);
-			} else if (nodeName.equals("FoodGrowth")) {
-				serializer.load(conf.foodParams, node);
-			} else if (nodeName.equals("Waste")) {
-				serializer.load(conf.wasteParams, node);
-			} else if (nodeName.equals("Production")) {
-				serializer.load(conf.prodParams, node);
-			} else if (nodeName.equals("Temperature")) {
-				serializer.load(conf.tempParams, node);
-			} else if (nodeName.equals("Learning")) {
+			if (nodeName.equals("Learning")) {
 				serializer.load(conf.learningParams, node);
-			} else if (nodeName.equals("Disease")) {
-				serializer.load(conf.diseaseParams, node);
-			} else if (nodeName.equals("ga")) {
-				serializer.load(conf.geneticParams, node);
 			} else if (nodeName.equals("ControllerConfig")){
 				// FIXME: this is initialized after everything else because
 				// Controllers use SimulationParams.getPluginParameters()
@@ -162,39 +151,13 @@ public class Cobweb2Serializer {
 
 		serializer.save(conf.envParams, root, d);
 
-		Element agents = d.createElement("Agents");
-		serializer.save(conf.agentParams, agents, d);
-		root.appendChild(agents);
-
-		Element food = d.createElement("FoodGrowth");
-		serializer.save(conf.foodParams, food, d);
-		root.appendChild(food);
-
-		Element waste = d.createElement("Waste");
-		serializer.save(conf.wasteParams, waste, d);
-		root.appendChild(waste);
-
-		Element prod = d.createElement("Production");
-		serializer.save(conf.prodParams, prod, d);
-		root.appendChild(prod);
-
-		Element temp = d.createElement("Temperature");
-		serializer.save(conf.tempParams, temp, d);
-		root.appendChild(temp);
+		serializer.save(conf, root, d);
 
 		if (conf.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
 			Element learn = d.createElement("Learning");
 			serializer.save(conf.learningParams, learn, d);
 			root.appendChild(learn);
 		}
-
-		Element disease = d.createElement("Disease");
-		serializer.save(conf.diseaseParams, disease, d);
-		root.appendChild(disease);
-
-		Element ga = d.createElement("ga");
-		serializer.save(conf.geneticParams, ga, d);
-		root.appendChild(ga);
 
 		Element controller = d.createElement("ControllerConfig");
 		serializer.save(conf.controllerParams, controller, d);

@@ -19,31 +19,44 @@ import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.waste.WasteParams;
+import org.cobweb.io.ConfXMLTag;
+import org.cobweb.io.ParameterSerializable;
 
 /**
  * Used to organize, modify, and access simulation parameters.
  */
-public class SimulationConfig implements SimulationParams {
+public class SimulationConfig implements SimulationParams, ParameterSerializable {
+
 	public String fileName = null;
 
+	// Loaded manually first because others depend on it
 	public ComplexEnvironmentParams envParams;
 
+	@ConfXMLTag("Agents")
 	public AgentParams agentParams;
 
+	@ConfXMLTag("FoodGrowth")
 	public FoodGrowthParams foodParams;
 
+	@ConfXMLTag("Waste")
 	public WasteParams wasteParams;
 
+	@ConfXMLTag("Production")
 	public ProductionParams prodParams;
 
+	@ConfXMLTag("Temperature")
 	public TemperatureParams tempParams;
 
+	// Loaded manually because it's optional
 	public LearningParams learningParams;
 
+	@ConfXMLTag("Disease")
 	public DiseaseParams diseaseParams;
 
+	@ConfXMLTag("ga")
 	public GeneticParams geneticParams;
 
+	// Loaded manually because it can be different things
 	public ControllerParams controllerParams;
 
 	/**
@@ -116,4 +129,5 @@ public class SimulationConfig implements SimulationParams {
 		return this.envParams;
 	}
 
+	private static final long serialVersionUID = 2L;
 }
