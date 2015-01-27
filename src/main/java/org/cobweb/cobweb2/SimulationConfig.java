@@ -1,12 +1,11 @@
 package org.cobweb.cobweb2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.impl.AgentParams;
 import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.impl.ComplexAgentParams;
 import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.impl.ControllerParams;
@@ -29,7 +28,7 @@ public class SimulationConfig implements SimulationParams {
 
 	public ComplexEnvironmentParams envParams;
 
-	public ComplexAgentParams[] agentParams;
+	public AgentParams agentParams;
 
 	public FoodGrowthParams foodParams;
 
@@ -54,10 +53,7 @@ public class SimulationConfig implements SimulationParams {
 		envParams = new ComplexEnvironmentParams();
 		setDefaultClassReferences();
 
-		agentParams = new ComplexAgentParams[envParams.getAgentTypes()];
-		for (int i = 0; i < envParams.getAgentTypes(); i++) {
-			agentParams[i] = new ComplexAgentParams(envParams);
-		}
+		agentParams = new AgentParams(envParams);
 
 		foodParams = new FoodGrowthParams(envParams);
 
@@ -87,17 +83,7 @@ public class SimulationConfig implements SimulationParams {
 	public void SetAgentTypeCount(int count) {
 		this.envParams.agentTypeCount = count;
 
-		{
-			ComplexAgentParams[] n = Arrays.copyOf(this.agentParams, count);
-			for (int i = 0; i < this.agentParams.length && i < count; i++) {
-				n[i].resize(envParams);
-			}
-			for (int i = this.agentParams.length; i < count; i++) {
-				n[i] = new ComplexAgentParams(envParams);
-			}
-			this.agentParams = n;
-		}
-
+		this.agentParams.resize(envParams);
 		this.foodParams.resize(envParams);
 		this.wasteParams.resize(envParams);
 		this.prodParams.resize(envParams);

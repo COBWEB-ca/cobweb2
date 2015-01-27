@@ -107,18 +107,12 @@ public class Cobweb2Serializer {
 		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
 
 		NodeList nodes = root.getChildNodes();
-		int agentIndex = 0;
 		for (int j = 0; j < nodes.getLength(); j++) {
 			Node node = nodes.item(j);
 			String nodeName = node.getNodeName();
 
-			if (nodeName.equals("agent")) {
-				ComplexAgentParams p = new ComplexAgentParams(conf.envParams);
-				serializer.load(p, node);
-				if (agentIndex >= conf.envParams.getAgentTypes())
-					continue;
-				conf.agentParams[agentIndex++] = p;
-
+			if (nodeName.equals("Agents")) {
+				serializer.load(conf.agentParams, node);
 			} else if (nodeName.equals("FoodGrowth")) {
 				serializer.load(conf.foodParams, node);
 			} else if (nodeName.equals("Waste")) {
@@ -167,15 +161,14 @@ public class Cobweb2Serializer {
 		root.setAttribute("config-version", "2015-01-14");
 
 		serializer.save(conf.envParams, root, d);
-		for (int i = 0; i < conf.envParams.getAgentTypes(); i++) {
-			Element node = d.createElement("agent");
-			serializer.save(conf.agentParams[i], node, d);
-			root.appendChild(node);
-		}
 
-		Element node = d.createElement("FoodGrowth");
-		serializer.save(conf.foodParams, node, d);
-		root.appendChild(node);
+		Element agents = d.createElement("Agents");
+		serializer.save(conf.agentParams, agents, d);
+		root.appendChild(agents);
+
+		Element food = d.createElement("FoodGrowth");
+		serializer.save(conf.foodParams, food, d);
+		root.appendChild(food);
 
 		Element waste = d.createElement("Waste");
 		serializer.save(conf.wasteParams, waste, d);

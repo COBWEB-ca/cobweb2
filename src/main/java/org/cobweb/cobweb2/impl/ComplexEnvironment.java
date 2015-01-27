@@ -92,7 +92,7 @@ public class ComplexEnvironment extends Environment {
 	 */
 	public synchronized void load(SimulationConfig config) throws IllegalArgumentException {
 		data = config.envParams;
-		agentData = config.agentParams;
+		agentData = config.agentParams.agentParams;
 
 		super.load(data.width, data.height, data.wrapMap, data.keepOldArray);
 

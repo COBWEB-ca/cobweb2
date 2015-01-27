@@ -303,7 +303,7 @@ public class SimulationConfigEditor {
 
 		/* Agents' panel */
 		removeOldPage(agentPage);
-		agentPage = new AgentConfigPage(p.agentParams, displaySettings.agentColor);
+		agentPage = new AgentConfigPage(p.agentParams.agentParams, displaySettings.agentColor);
 		tabbedPane.addTab("Agents", agentPage.getPanel());
 
 		/* Production panel */
@@ -316,9 +316,9 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("Waste", wastePage.getPanel());
 
 		removeOldPage(foodwebPage);
-		FoodwebParams[] foodwebArray = new FoodwebParams[p.agentParams.length];
-		for (int i = 0 ; i < p.agentParams.length; i++)
-			foodwebArray[i] = p.agentParams[i].foodweb;
+		FoodwebParams[] foodwebArray = new FoodwebParams[p.agentParams.agentParams.length];
+		for (int i = 0 ; i < p.agentParams.agentParams.length; i++)
+			foodwebArray[i] = p.agentParams.agentParams[i].foodweb;
 		foodwebPage = new FoodwebConfigPage(foodwebArray, displaySettings.agentColor);
 		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
 
