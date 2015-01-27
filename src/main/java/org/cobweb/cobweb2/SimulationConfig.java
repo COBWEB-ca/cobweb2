@@ -58,8 +58,8 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfXMLTag("ga")
 	public GeneticParams geneticParams = new GeneticParams(envParams);
 
-	// Loaded manually because it can be different things
-	public ControllerParams controllerParams = new GeneticControllerParams(this);
+	@ConfXMLTag("ControllerConfig")
+	public ControllerParams controllerParams;
 
 	/**
 	 * Creates the default Cobweb simulation parameters.
@@ -70,8 +70,12 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 
 	protected void setDefaultClassReferences() {
 		// These are not set in ComplexEnvironmentParams to avoid dependencies
+
 		envParams.controllerName = GeneticController.class.getName();
+		controllerParams = new GeneticControllerParams(this);
+
 		envParams.agentName = ComplexAgent.class.getName();
+
 		envParams.environmentName = ComplexEnvironment.class.getName();
 	}
 

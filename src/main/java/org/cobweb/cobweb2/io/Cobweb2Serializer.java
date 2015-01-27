@@ -103,6 +103,15 @@ public class Cobweb2Serializer {
 		serializer.load(conf.envParams, root);
 		ConfigUpgrader.upgrade(conf.envParams);
 
+		try {
+			conf.controllerParams = (ControllerParams) Class.forName(conf.envParams.controllerName + "Params")
+					.getConstructor(SimulationParams.class)
+					.newInstance((SimulationParams) conf);
+		} catch (InstantiationError | ClassNotFoundException | NoSuchMethodException |
+				InstantiationException | IllegalAccessException | InvocationTargetException ex) {
+			throw new RuntimeException("Could not set up controller", ex);
+		}
+
 		// Reset all the settings that depend on agent type count
 		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
 
@@ -116,20 +125,6 @@ public class Cobweb2Serializer {
 
 			if (nodeName.equals("Learning")) {
 				serializer.load(conf.learningParams, node);
-			} else if (nodeName.equals("ControllerConfig")){
-				// FIXME: this is initialized after everything else because
-				// Controllers use SimulationParams.getPluginParameters()
-				// and things like disease provide are those plugins
-				try {
-					conf.controllerParams = (ControllerParams) Class.forName(conf.envParams.controllerName + "Params")
-							.getConstructor(SimulationParams.class)
-							.newInstance((SimulationParams) conf);
-					conf.controllerParams.resize(conf.envParams);
-				} catch (InstantiationError | ClassNotFoundException | NoSuchMethodException |
-						InstantiationException | IllegalAccessException | InvocationTargetException ex) {
-					throw new RuntimeException("Could not set up controller", ex);
-				}
-				serializer.load(conf.controllerParams, node);
 			}
 		}
 
@@ -158,10 +153,6 @@ public class Cobweb2Serializer {
 			serializer.save(conf.learningParams, learn, d);
 			root.appendChild(learn);
 		}
-
-		Element controller = d.createElement("ControllerConfig");
-		serializer.save(conf.controllerParams, controller, d);
-		root.appendChild(controller);
 
 		CobwebXmlHelper.writeDocument(stream, d);
 	}
