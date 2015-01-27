@@ -1,7 +1,10 @@
 package org.cobweb.cobweb2.plugins.stats;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
@@ -38,6 +41,8 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 	@Override
 	public void onEnergyChange(Agent agent, int delta, Cause cause) {
 		AgentStatistics stats = getAgentState(agent);
+		if (stats == null) // Agent is dead
+			return;
 
 		// movement
 		if (cause instanceof StepForwardCause) {
@@ -98,6 +103,10 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 			return;
 		stats.deathTick = sim.getTime();
 		stats.path = null;
+
+		// Move stats from agent->state map to list of states
+		// Allows agent to be GCd
+		deadStats.add(removeAgentState(agent));
 	}
 
 	@Override
@@ -116,27 +125,32 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 		setAgentState(agent, new AgentStatistics(
 				agent,
 				sim.getTime(),
-				parentStats
+				parent.id
 				));
 	}
 
 	@Override
 	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		AgentStatistics parent1stats = getAgentState(parent1);
-		AgentStatistics parent2stats = getAgentState(parent2);
 		parent1stats.directChildren++;
-		parent2stats.directChildren++;
+
+		AgentStatistics parent2stats = getAgentState(parent2);
+		if (parent2stats != null)
+			parent2stats.directChildren++;
 
 		setAgentState(agent, new AgentStatistics(
 				agent,
 				sim.getTime(),
-				parent1stats,
-				parent2stats
+				parent1.id,
+				parent2.id
 				));
 	}
 
+	List<AgentStatistics> deadStats = new ArrayList<>();
+
 	public Collection<AgentStatistics> getAllStats() {
-		return agentStates.values();
+		Collection<AgentStatistics> res = CollectionUtils.union(agentStates.values(), deadStats);
+		return res;
 	}
 
 }

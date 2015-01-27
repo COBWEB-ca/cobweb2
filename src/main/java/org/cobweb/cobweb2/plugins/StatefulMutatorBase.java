@@ -10,7 +10,7 @@ import org.cobweb.cobweb2.core.Agent;
  * Helper base class for creating StatefulMutators.
  * Handles storage of state.
  */
-public class StatefulMutatorBase<T> implements AgentMutator, StatefulMutator<T> {
+public class StatefulMutatorBase<T> implements StatefulMutator<T> {
 
 	protected Map<Agent, T> agentStates = new HashMap<>();
 	private final Class<T> stateClass;

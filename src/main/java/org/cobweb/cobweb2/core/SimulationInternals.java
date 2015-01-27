@@ -18,6 +18,8 @@ public interface SimulationInternals extends RandomSource, StatePluginSource {
 
 	public StateParameter getStateParameter(String name);
 
+	public <T> T getAgentState(Class<T> stateClass, Agent agent);
+
 	public AgentSimilarityCalculator getSimilarityCalculator();
 
 	public AgentListener getAgentListener();

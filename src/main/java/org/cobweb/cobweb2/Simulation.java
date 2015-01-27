@@ -24,6 +24,7 @@ import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
 import org.cobweb.cobweb2.plugins.stats.StatsMutator;
+import org.cobweb.cobweb2.plugins.vision.VisionMutator;
 import org.cobweb.cobweb2.plugins.waste.WasteMutator;
 import org.cobweb.cobweb2.ui.SimulationInterface;
 import org.cobweb.util.RandomNoGenerator;
@@ -59,6 +60,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	private AgentSpawner agentSpawner;
 
 	private GeneticsMutator similarityCalculator;
+
+	private VisionMutator vision;
 
 	/* return number of TYPES of agents in the environment */
 	@Override
@@ -128,6 +131,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			prodMapper = null;
 			wasteMutator = null;
 			statsMutator = null;
+			vision = null;
 		}
 
 		if (geneticMutator == null) {
@@ -157,6 +161,11 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			statsMutator = new StatsMutator(this);
 			mutatorListener.addMutator(statsMutator);
 		}
+		if (vision == null) {
+			vision = new VisionMutator();
+			mutatorListener.addMutator(vision);
+		}
+
 
 		geneticMutator.setParams(this, p.geneticParams, p.envParams.getAgentTypes());
 
@@ -180,6 +189,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		prodMapper.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
 
 		wasteMutator.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
+
+		vision.initEnvironment(theEnvironment);
 
 		setupPlugins();
 	}
@@ -263,6 +274,11 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	}
 
 	public MutatorListener mutatorListener = new MutatorListener();
+
+	@Override
+	public <T> T getAgentState(Class<T> stateClass, Agent agent) {
+		return mutatorListener.getMutatorState(stateClass, agent);
+	}
 
 	@Override
 	public AgentListener getAgentListener() {

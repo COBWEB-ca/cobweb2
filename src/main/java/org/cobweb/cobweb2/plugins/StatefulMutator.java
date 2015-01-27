@@ -6,7 +6,7 @@ import org.cobweb.cobweb2.core.Agent;
  * Mutator that stores state on a per-agent basis
  * @param <T> Class of state object used
  */
-public interface StatefulMutator<T> {
+public interface StatefulMutator<T> extends AgentMutator {
 
 	/**
 	 * Gets state of agent associated with this mutator.

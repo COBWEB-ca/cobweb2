@@ -4,11 +4,11 @@ import java.util.Map.Entry;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Controller;
-import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.vision.SeeInfo;
 import org.cobweb.util.BitField;
 
 /**
@@ -135,7 +135,8 @@ public class GeneticController implements Controller {
 				.ordinal(), 2);
 
 		//add the viewing info to the array
-		SeeInfo get = theAgent.distanceLook();
+
+		SeeInfo get = simulation.getAgentState(SeeInfo.class, theAgent);
 		inputCode.add(get.getType(), 2);
 		inputCode.add(get.getDist(), 2);
 

@@ -47,20 +47,20 @@ public class AgentStatistics implements Comparable<AgentStatistics> {
 	public int energyLossMovement = 0;
 	public int energyLossReproduction = 0;
 
-	public AgentStatistics(Agent agent, long time, AgentStatistics p1, AgentStatistics p2) {
+	public AgentStatistics(Agent agent, long time, int parent1id, int parent2id) {
 		id = agent.id;
 		type = agent.getType();
 		birthTick = time;
-		parent1id = p1 == null ? -1 : p1.id;
-		parent2id = p2 == null ? -1 : p2.id;
+		this.parent1id = parent1id;
+		this.parent2id = parent2id;
 	}
 
-	public AgentStatistics(Agent agent, long birth, AgentStatistics p1) {
-		this(agent, birth, p1, null);
+	public AgentStatistics(Agent agent, long birth, int parent1id) {
+		this(agent, birth, parent1id, -1);
 	}
 
 	public AgentStatistics(Agent agent, long birth) {
-		this(agent, birth, null);
+		this(agent, birth, -1);
 	}
 
 

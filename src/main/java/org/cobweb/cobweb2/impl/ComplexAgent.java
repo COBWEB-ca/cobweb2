@@ -9,10 +9,8 @@ import org.cobweb.cobweb2.core.AgentListener;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.Drop;
-import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
-import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
@@ -58,8 +56,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	protected int pregPeriod;
 
 	protected boolean pregnant = false;
-
-	public static final int LOOK_DISTANCE = 4;
 
 	public transient ComplexEnvironment environment;
 
@@ -252,40 +248,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		super.die();
 
 		getAgentListener().onDeath(this);
-	}
-
-	/**
-	 * This method allows the agent to see what is in front of it.
-	 *
-	 * @return What the agent sees and at what distance.
-	 */
-	public SeeInfo distanceLook() {
-		LocationDirection destPos = environment.topology.getAdjacent(getPosition());
-
-		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
-
-			// We are looking at the wall
-			if (destPos == null)
-				return new SeeInfo(dist, Environment.FLAG_STONE);
-
-			// Check for stone...
-			if (environment.hasStone(destPos))
-				return new SeeInfo(dist, Environment.FLAG_STONE);
-
-			// If there's another agent there, then return that it's a stone...
-			if (environment.hasAgent(destPos) && environment.getAgent(destPos) != this)
-				return new SeeInfo(dist, Environment.FLAG_AGENT);
-
-			// If there's food there, return the food...
-			if (environment.hasFood(destPos))
-				return new SeeInfo(dist, Environment.FLAG_FOOD);
-
-			if (environment.hasDrop(destPos))
-				return new SeeInfo(dist, Environment.FLAG_DROP);
-
-			destPos = environment.topology.getAdjacent(destPos);
-		}
-		return new SeeInfo(LOOK_DISTANCE, 0);
 	}
 
 	/**

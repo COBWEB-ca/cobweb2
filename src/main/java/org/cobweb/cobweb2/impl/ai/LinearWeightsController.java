@@ -3,11 +3,11 @@ package org.cobweb.cobweb2.impl.ai;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.Environment;
-import org.cobweb.cobweb2.core.SeeInfo;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.vision.SeeInfo;
 
 public class LinearWeightsController implements Controller {
 
@@ -56,7 +56,7 @@ public class LinearWeightsController implements Controller {
 		} else {
 			return;
 		}
-		SeeInfo get = agent.distanceLook();
+		SeeInfo get = simulator.getAgentState(SeeInfo.class, theAgent);
 		int type = get.getType();
 		int dist = get.getDist();
 
@@ -66,9 +66,9 @@ public class LinearWeightsController implements Controller {
 		double variables[] = new double[params.INPUT_COUNT + simulator.getStatePluginKeys().size()];
 		variables[0] = 1.0;
 		variables[1] = ((double) agent.getEnergy() / (ENERGY_THRESHOLD));
-		variables[2] = type == Environment.FLAG_AGENT ?	(ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
-		variables[3] = type == Environment.FLAG_FOOD ? (ComplexAgent.LOOK_DISTANCE - dist) / (double) ComplexAgent.LOOK_DISTANCE : 0;
-		variables[4] = type == Environment.FLAG_STONE || type == Environment.FLAG_DROP ? ((double) ComplexAgent.LOOK_DISTANCE - dist) / 4 : 0;
+		variables[2] = type == Environment.FLAG_AGENT ?	(get.getMaxDistance() - dist) / (double) get.getMaxDistance() : 0;
+		variables[3] = type == Environment.FLAG_FOOD ? (get.getMaxDistance() - dist) / (double) get.getMaxDistance() : 0;
+		variables[4] = type == Environment.FLAG_STONE || type == Environment.FLAG_DROP ? ((double) get.getMaxDistance() - dist) / 4 : 0;
 		variables[5] = simulator.getTopology()
 				.getRotationBetween(Topology.NORTH, agent.getPosition().direction)
 				.ordinal() / 2.0;
