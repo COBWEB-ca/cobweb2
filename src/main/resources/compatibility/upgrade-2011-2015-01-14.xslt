@@ -47,6 +47,18 @@
 					</xsl:for-each>
 				</AgentParams>
 			</Waste>
+			<!-- Move PD params -->
+			<PrisonersDilemma>
+				<enable><xsl:value-of select="PrisDilemma/text()" /></enable>
+				<xsl:apply-templates select="pd/*" />
+				<AgentParams>
+					<xsl:for-each select="/*/agent">
+						<Agent id="{Index + 1}">
+							<xsl:apply-templates select="*[starts-with(name(), 'pd')]" />
+						</Agent>
+					</xsl:for-each>
+				</AgentParams>
+			</PrisonersDilemma>
 			<!-- Move production agent params under Production section -->
 			<Production>
 				<AgentParams>
@@ -63,7 +75,7 @@
 	<!-- Move variables from agent config -->
 	<xsl:template match="/*/agent">
 		<xsl:copy>
-			<xsl:apply-templates select="*[name() != 'MemoryBits' and name() != 'communicationBits' and not(starts-with(name(), 'waste'))]" />
+			<xsl:apply-templates select="*[name() != 'MemoryBits' and name() != 'communicationBits' and not(starts-with(name(), 'waste')) and not(starts-with(name(), 'pd'))]" />
 		</xsl:copy>
 	</xsl:template>
 
