@@ -314,7 +314,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 
 				if (canBreed && sim >= params.breedSimMin
-						&& checkCredibility(adjacentAgent) && adjacentAgent.checkCredibility(this)) {
+						&& isAgentGood(adjacentAgent) && adjacentAgent.isAgentGood(this)) {
 					// Initiate pregnancy
 					queue(new SmartAction(this, "breed") {
 
@@ -329,7 +329,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			}
 
-			if (!pregnant && checkCredibility(adjacentAgent) && adjacentAgent.checkCredibility(this)) {
+			if (!pregnant && isAgentGood(adjacentAgent) && adjacentAgent.isAgentGood(this)) {
 
 				queue(new SmartAction(this) {
 

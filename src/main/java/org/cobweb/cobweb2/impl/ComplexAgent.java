@@ -42,7 +42,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	private double commOutbox;
 
 	/** IDs of bad agents. Cheaters, etc */
-	private Collection<Integer> badAgentMemory;
+	private Collection<Agent> badAgentMemory;
 
 	private double memoryBuffer;
 
@@ -227,8 +227,13 @@ public class ComplexAgent extends Agent implements Serializable {
 		return true;
 	}
 
-	protected boolean checkCredibility(ComplexAgent other) {
-		return !badAgentMemory.contains(other.id);
+	protected boolean isAgentGood(ComplexAgent other) {
+		if (!badAgentMemory.contains(other))
+			return true;
+
+		// Refresh memory
+		rememberCheater(other);
+		return false;
 	}
 
 	protected void communicate(ComplexAgent target) {
@@ -248,6 +253,9 @@ public class ComplexAgent extends Agent implements Serializable {
 		super.die();
 
 		getAgentListener().onDeath(this);
+
+		// Release references to other agents
+		badAgentMemory.clear();
 	}
 
 	/**
@@ -345,11 +353,9 @@ public class ComplexAgent extends Agent implements Serializable {
 		if (cheater.equals(this)) // heh
 			return;
 
-		int othersID = cheater.id;
-		if (badAgentMemory.contains(othersID))
-			return;
-
-		badAgentMemory.add(othersID);
+		// Moves cheater to the more recent end of memory
+		badAgentMemory.remove(cheater);
+		badAgentMemory.add(cheater);
 	}
 
 	public void move(LocationDirection newPos) {
@@ -514,7 +520,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		if (commPacket == null)
 			return;
 
-		if (checkCredibility(commPacket.sender)) {
+		if (isAgentGood(commPacket.sender)) {
 			commPacket.process(this);
 		}
 	}
@@ -546,7 +552,7 @@ public class ComplexAgent extends Agent implements Serializable {
 
 		setEnergy(agentData.initEnergy);
 
-		badAgentMemory = new CircularFifoQueue<Integer>(params.pdMemory);
+		badAgentMemory = new CircularFifoQueue<Agent>(params.pdMemory);
 
 	}
 
@@ -683,10 +689,14 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	protected void onstepAgentBump(ComplexAgent adjacentAgent) {
 		getAgentListener().onContact(this, adjacentAgent);
+		changeEnergy(-params.stepAgentEnergy, new BumpAgentCause());
 
 		if (canEat(adjacentAgent)) {
 			eat(adjacentAgent);
 		}
+
+		if (!adjacentAgent.isAlive())
+			return;
 
 		// if the agents are of the same type, check if they have enough
 		// resources to breed
@@ -704,18 +714,17 @@ public class ComplexAgent extends Agent implements Serializable {
 			}
 
 			if (canBreed && sim >= params.breedSimMin
-					&& checkCredibility(adjacentAgent) && adjacentAgent.checkCredibility(this)) {
+					&& isAgentGood(adjacentAgent) && adjacentAgent.isAgentGood(this)) {
 				pregnant = true;
 				pregPeriod = params.sexualPregnancyPeriod;
 				breedPartner = adjacentAgent;
 			}
 		}
 
-		if (!pregnant && checkCredibility(adjacentAgent) && adjacentAgent.checkCredibility(this)) {
+		if (!pregnant && isAgentGood(adjacentAgent) && adjacentAgent.isAgentGood(this)) {
 
 			playPDonStep(adjacentAgent);
 		}
-		changeEnergy(-params.stepAgentEnergy, new BumpAgentCause());
 	}
 
 	/**
