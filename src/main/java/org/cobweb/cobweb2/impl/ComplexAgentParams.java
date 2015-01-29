@@ -184,31 +184,6 @@ public class ComplexAgentParams implements ParameterSerializable, PerTypeParam {
 	public float agingRate = 10;
 
 	/**
-	 * Use tit-for-tat strategy for prisoner's dilemma.
-	 */
-	@ConfDisplayName("PD:Use Tit-for-tat")
-	@ConfXMLTag("pdTitForTat")
-	public boolean pdTitForTat = false;
-
-	/**
-	 * Percentage of agents that will be cooperators initially, the rest are cheaters.
-	 */
-	@ConfDisplayName("PD Cooperation probability")
-	@ConfXMLTag("pdCoopProb")
-	@Mutatable
-	public int pdCoopProb = 50;
-
-	@ConfDisplayName("PD similarity preference")
-	@ConfXMLTag("pdSimilaritySlope")
-	@Mutatable
-	public float pdSimilaritySlope = 0.0f;
-
-	@ConfDisplayName("PD neutral similarity")
-	@ConfXMLTag("pdSimilarityNeutral")
-	@Mutatable
-	public float pdSimilarityNeutral = 0.9f;
-
-	/**
 	 * How many PD cheaters an agent will remember.
 	 */
 	@ConfDisplayName("PD memory size")

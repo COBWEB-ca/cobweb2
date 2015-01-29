@@ -132,20 +132,6 @@ public class ComplexEnvironmentParams implements AgentFoodCountable, ParameterSe
 	@ConfXMLTag("likeFoodProb")
 	public float likeFoodProb = 0;
 
-
-	/**
-	 * Agents can play prisoner's dilemma game when they meet.
-	 */
-	@ConfDisplayName("Prisoner's dilemma")
-	@ConfXMLTag("PrisDilemma")
-	public boolean prisDilemma = false;
-
-	/**
-	 * Prisoner's dilemma parameters.
-	 */
-	@ConfXMLTag("pd")
-	public PDParams pdParams = new PDParams();
-
 	/**
 	 * Initialises the default parameters
 	 */

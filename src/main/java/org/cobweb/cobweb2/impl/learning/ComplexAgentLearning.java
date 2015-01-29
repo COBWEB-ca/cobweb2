@@ -119,9 +119,9 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	protected void iveBeenCheated(ComplexAgent othersID) {
-		super.iveBeenCheated(othersID);
-		remember(new MemorableEvent(getTime(), -1, "agent-" + othersID.id));
+	public void rememberBadAgent(ComplexAgent cheater) {
+		super.rememberBadAgent(cheater);
+		remember(new MemorableEvent(getTime(), -1, "agent-" + cheater.id));
 	}
 
 	@Override
@@ -331,17 +331,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			}
 
-			if (!pregnant && isAgentGood(adjacentAgent) && adjacentAgent.isAgentGood(this)) {
-
-				queue(new SmartAction(this) {
-
-					@Override
-					public void desiredAction() {
-						agent.playPDonStep(adjacentAgent);
-					}
-				});
-
-			}
 			changeEnergy(-params.stepAgentEnergy, new StepForwardCause());
 
 		} // end of two agents meet

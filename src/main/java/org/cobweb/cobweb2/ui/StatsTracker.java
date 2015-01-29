@@ -7,6 +7,7 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.pd.PDState;
 
 public class StatsTracker  {
 
@@ -48,40 +49,38 @@ public class StatsTracker  {
 		return totalEnergy;
 	}
 
-	public int[] numAgentsStrat() {
-		int stratArray[] = new int[2];
-		int cheaters = 0;
-		int coops = 0;
-		for(Agent a : simulation.theEnvironment.getAgents()) {
-			ComplexAgent agent = (ComplexAgent) a;
-			if (!agent.getAgentPDActionCheat()) {
-				coops++;
-				stratArray[0] = coops;
-			} else if (agent.getAgentPDActionCheat()) {
-				cheaters++;
-				stratArray[1] = cheaters;
-			}
-
-		}
-		return stratArray;
+	public static class CoopCheaterCount {
+		public int cooperators = 0;
+		public int cheaters = 0;
 	}
 
-	public int[] numAgentsStrat(int agentType) {
-		int stratArray[] = new int[2];
-		int cheaters = 0;
-		int coops = 0;
-		for(Agent a : simulation.theEnvironment.getAgents()) {
-			ComplexAgent agent = (ComplexAgent) a;
-			if (agent.getType() == agentType && !agent.getAgentPDActionCheat()) {
-				coops++;
-				stratArray[0] = coops;
-			} else if (agent.getType() == agentType && agent.getAgentPDActionCheat()) {
-				cheaters++;
-				stratArray[1] = cheaters;
-			}
+	protected void tallyPD(CoopCheaterCount coopCheaterCount, Agent a) {
+		PDState pdState = simulation.mutatorListener.getMutatorState(PDState.class, a);
+		if (pdState == null)
+			return;
 
+		if (pdState.pdCheater) {
+			coopCheaterCount.cheaters++;
+		} else {
+			coopCheaterCount.cooperators++;
 		}
-		return stratArray;
+	}
+
+	public CoopCheaterCount numAgentsStrat() {
+		CoopCheaterCount coopCheaterCount= new CoopCheaterCount();
+		for(Agent a : simulation.theEnvironment.getAgents()) {
+			tallyPD(coopCheaterCount, a);
+		}
+		return coopCheaterCount;
+	}
+
+	public CoopCheaterCount numAgentsStrat(int agentType) {
+		CoopCheaterCount coopCheaterCount= new CoopCheaterCount();
+		for(Agent a : simulation.theEnvironment.getAgents()) {
+			if (a.getType() == agentType)
+				tallyPD(coopCheaterCount, a);
+		}
+		return coopCheaterCount;
 	}
 
 	public int getAgentTypeCount() {

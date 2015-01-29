@@ -14,10 +14,6 @@ import org.cobweb.cobweb2.impl.ComplexAgent.BumpWallCause;
 import org.cobweb.cobweb2.impl.ComplexAgent.EatAgentCause;
 import org.cobweb.cobweb2.impl.ComplexAgent.EatFavoriteFoodCause;
 import org.cobweb.cobweb2.impl.ComplexAgent.EatFoodCause;
-import org.cobweb.cobweb2.impl.ComplexAgent.PDPunishmentCause;
-import org.cobweb.cobweb2.impl.ComplexAgent.PDRewardCause;
-import org.cobweb.cobweb2.impl.ComplexAgent.PDSuckerCause;
-import org.cobweb.cobweb2.impl.ComplexAgent.PDTemptationCause;
 import org.cobweb.cobweb2.impl.ComplexAgent.ReproductionCause;
 import org.cobweb.cobweb2.impl.ComplexAgent.SexualReproductionCause;
 import org.cobweb.cobweb2.impl.ComplexAgent.StepForwardCause;
@@ -26,6 +22,10 @@ import org.cobweb.cobweb2.plugins.EnergyMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.StepMutator;
+import org.cobweb.cobweb2.plugins.pd.PDState.PDPunishmentCause;
+import org.cobweb.cobweb2.plugins.pd.PDState.PDRewardCause;
+import org.cobweb.cobweb2.plugins.pd.PDState.PDSuckerCause;
+import org.cobweb.cobweb2.plugins.pd.PDState.PDTemptationCause;
 
 
 public class StatsMutator extends StatefulMutatorBase<AgentStatistics>

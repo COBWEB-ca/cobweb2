@@ -205,9 +205,4 @@ public class ComplexEnvironment extends Environment {
 			}
 		}
 	}
-
-	public boolean isPDenabled() {
-		return data.prisDilemma;
-	}
-
 }

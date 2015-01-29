@@ -14,7 +14,6 @@ import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
-import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
 import org.cobweb.cobweb2.plugins.broadcast.FoodBroadcast;
 import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
 import org.cobweb.util.RandomNoGenerator;
@@ -34,15 +33,13 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	public ComplexAgentParams params;
 
-	/** Prisoner's Dilemma */
-	public boolean pdCheater; // The agent's action; 1 == cheater, else cooperator
-	private boolean lastPDcheated; // Remember the opponent's move in the last game
-
 	private double commInbox;
 
 	private double commOutbox;
 
-	/** IDs of bad agents. Cheaters, etc */
+	/**
+	 * IDs of bad agents. Cheaters, etc
+	 */
 	private Collection<Agent> badAgentMemory;
 
 	private double memoryBuffer;
@@ -114,15 +111,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		controller =
 				parent1.controller.createChildSexual(
 						parent2.controller);
-
-		// child's strategy is determined by its parents, it has a
-		// 50% chance to get either parent's strategy
-		if (getRandom().nextBoolean()) {
-			params.pdCoopProb = parent2.params.pdCoopProb;
-			params.pdTitForTat = parent2.params.pdTitForTat;
-			params.pdSimilarityNeutral = parent2.params.pdSimilarityNeutral;
-			params.pdSimilaritySlope = parent2.params.pdSimilaritySlope;
-		} // else keep parent 1's PD config
 
 		getAgentListener().onSpawn(this, parent1, parent2);
 
@@ -222,12 +210,12 @@ public class ComplexAgent extends Agent implements Serializable {
 		return true;
 	}
 
-	protected boolean isAgentGood(ComplexAgent other) {
+	public boolean isAgentGood(ComplexAgent other) {
 		if (!badAgentMemory.contains(other))
 			return true;
 
 		// Refresh memory
-		rememberCheater(other);
+		rememberBadAgent(other);
 		return false;
 	}
 
@@ -238,7 +226,6 @@ public class ComplexAgent extends Agent implements Serializable {
 	private void copyParams(ComplexAgent p) {
 		// Copies default constants for this agent type, not directly from agent
 		setParams(environment.agentData[p.getType()]);
-		pdCheater = p.pdCheater;
 	}
 
 	@Override
@@ -309,10 +296,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		return getTime() - birthTick;
 	}
 
-	public boolean getAgentPDActionCheat() {
-		return pdCheater;
-	}
-
 	public double getCommInbox() {
 		return commInbox;
 	}
@@ -332,19 +315,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		simulation.addAgent(this);
 	}
 
-	/**
-	 * The agent will remember the last variable number of agents that
-	 * cheated it.  How many cheaters it remembers is determined by its
-	 * PD memory size.
-	 */
-	protected void iveBeenCheated(ComplexAgent cheater) {
-
-		rememberCheater(cheater);
-
-		broadcast(new CheaterBroadcast(cheater, this));
-	}
-
-	public void rememberCheater(ComplexAgent cheater) {
+	public void rememberBadAgent(ComplexAgent cheater) {
 		if (cheater.equals(this)) // heh
 			return;
 
@@ -365,148 +336,6 @@ public class ComplexAgent extends Agent implements Serializable {
 		position = newPos;
 
 		getAgentListener().onStep(this, oldPos, newPos);
-	}
-
-	/**
-	 * This method initializes the agents actions in an iterated prisoner's
-	 * dilemma game.  The agent can use the following strategies described
-	 * by the agentPDStrategy integer:
-	 *
-	 * <p>0. Default
-	 *
-	 * <p>The agents decision to defect or cooperate is chosen randomly.
-	 * The probability of choosing either is determined by the agents
-	 * pdCoopProb parameter.
-	 *
-	 * <p>1. Tit for Tat
-	 *
-	 * <p>The agent will initially begin with a cooperate, but will then choose
-	 * whatever the opposing agent chose last.  For example, the agent begins
-	 * with a cooperate, but if the opposing agent has chosen to defect, then
-	 * the agent will choose to defect next round.
-	 *
-	 */
-	public void playPD(ComplexAgent other) {
-
-		double coopProb = params.pdCoopProb / 100.0d;
-
-		float similarity = calculateSimilarity(other);
-
-		coopProb += (similarity - params.pdSimilarityNeutral) * params.pdSimilaritySlope;
-
-		if (params.pdTitForTat) { // if true then agent is playing TitForTat
-			pdCheater = lastPDcheated;
-		} else {
-			pdCheater = false; // agent is assumed to cooperate
-			float rnd = getRandom().nextFloat();
-			if (rnd > coopProb)
-				pdCheater = true; // agent defects depending on
-			// probability
-		}
-
-		return;
-	}
-
-	/**
-	 *Prisoner's dilemma is played between the two agents using the strategies
-	 *assigned in playPD().  The agent will use its PD memory to remember agents
-	 *that cheat it, which will affect whether an agent will want to meet another,
-	 *and its credibility.
-	 *
-	 *<p>How Prisoner's Dilemma is played:
-	 *
-	 *<p>Prisoner's dilemma is a game between two agents when they come in to
-	 *contact with each other.  The game determines how much energy each agent
-	 *receives after contact.  Each agent has two options: cooperate or defect.
-	 *The agents choice to cooperate or defect is determined by the strategy the
-	 *agent is using (see playPD() method).  The agents choices can lead to
-	 *one of four outcomes:
-	 *
-	 *<p> 1. REWARD for mutual cooperation (Both agents cooperate)
-	 *
-	 *<p> 2. SUCKER's payoff (Opposing agent defects; this agent cooperates)
-	 *
-	 *<p> 3. TEMPTATION to defect (Opposing agent cooperates; this agent defects)
-	 *
-	 *<p> 4. PUNISHMENT for mutual defection (Both agents defect)
-	 *
-	 *<p>The best strategy for both agents is to cooperate.  However, if an agent
-	 *chooses to defect when the other cooperates, the defecting agent will have
-	 *a greater advantage.  For a true game of PD, the energy scores for each
-	 *outcome should follow this rule: TEMPTATION > REWARD > PUNISHMENT > SUCKER
-	 *
-	 *<p>Here is an example of how much energy an agent could receive:
-	 *<br> REWARD     =>     5
-	 *<br> SUCKER     =>     2
-	 *<br> TEMPTATION =>     8
-	 *<br> PUNISHMENT =>     3
-	 *
-	 * @param adjacentAgent Agent playing PD with
-	 * @param othersID ID of the adjacent agent.
-	 * @see ComplexAgent#playPD(ComplexAgent)
-	 * @see <a href="http://en.wikipedia.org/wiki/Prisoner's_dilemma">Prisoner's Dilemma</a>
-	 */
-	@SuppressWarnings("javadoc")
-	public void playPDonStep(ComplexAgent adjacentAgent) {
-		if (!environment.isPDenabled())
-			return;
-
-		playPD(adjacentAgent);
-		adjacentAgent.playPD(this);
-
-		// Save result for future strategy (tit-for-tat, learning, etc.)
-		lastPDcheated = adjacentAgent.pdCheater;
-		adjacentAgent.lastPDcheated = pdCheater;
-
-		/*
-		 * TODO LOW: The ability for the PD game to contend for the Get the food tiles immediately around each agents
-		 */
-
-		if (!pdCheater && !adjacentAgent.pdCheater) {
-			/* Both cooperate */
-			changeEnergy(+environment.data.pdParams.reward, new PDRewardCause());
-			adjacentAgent.changeEnergy(+environment.data.pdParams.reward, new PDRewardCause());
-
-		} else if (!pdCheater && adjacentAgent.pdCheater) {
-			/* Only other agent cheats */
-			changeEnergy(+environment.data.pdParams.sucker, new PDSuckerCause());
-			adjacentAgent.changeEnergy(+environment.data.pdParams.temptation, new PDTemptationCause());
-
-		} else if (pdCheater && !adjacentAgent.pdCheater) {
-			/* Only this agent cheats */
-			changeEnergy(+environment.data.pdParams.temptation, new PDTemptationCause());
-			adjacentAgent.changeEnergy(+environment.data.pdParams.sucker, new PDSuckerCause());
-
-		} else if (pdCheater && adjacentAgent.pdCheater) {
-			/* Both cheat */
-			changeEnergy(+environment.data.pdParams.punishment, new PDPunishmentCause());
-			adjacentAgent.changeEnergy(+environment.data.pdParams.punishment, new PDPunishmentCause());
-
-		}
-
-		if (adjacentAgent.pdCheater)
-			iveBeenCheated(adjacentAgent);
-	}
-
-	public static abstract class PDCause implements Cause {
-		@Override
-		public String getName() { return "PD"; }
-	}
-	public static class PDRewardCause extends PDCause {
-		@Override
-		public String getName() { return "PD Reward"; }
-	}
-	public static class PDTemptationCause extends PDCause {
-		@Override
-		public String getName() { return "PD Temptation"; }
-	}
-	public static class PDSuckerCause extends PDCause {
-		@Override
-		public String getName() { return "PD Sucker"; }
-	}
-	public static class PDPunishmentCause extends PDCause {
-		@Override
-		public String getName() { return "PD Punishment"; }
 	}
 
 	protected void receiveBroadcast() {
@@ -714,11 +543,6 @@ public class ComplexAgent extends Agent implements Serializable {
 				pregPeriod = params.sexualPregnancyPeriod;
 				breedPartner = adjacentAgent;
 			}
-		}
-
-		if (!pregnant && isAgentGood(adjacentAgent) && adjacentAgent.isAgentGood(this)) {
-
-			playPDonStep(adjacentAgent);
 		}
 	}
 

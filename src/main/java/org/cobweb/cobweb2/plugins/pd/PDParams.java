@@ -1,15 +1,18 @@
-package org.cobweb.cobweb2.impl;
+package org.cobweb.cobweb2.plugins.pd;
 
+import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.cobweb2.plugins.PerAgentParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
-import org.cobweb.io.ParameterSerializable;
 
-/**
- * Prisoner's Dilemma parameters
- */
-public class PDParams implements ParameterSerializable {
 
-	private static final long serialVersionUID = 1380425322335531943L;
+public class PDParams extends PerAgentParams<PDAgentParams> {
+	/**
+	 * Agents can play prisoner's dilemma game when they meet.
+	 */
+	@ConfDisplayName("PD Enabled")
+	@ConfXMLTag("enable")
+	public boolean enable = false;
 
 	/**
 	 * Temptation to defect.
@@ -39,7 +42,16 @@ public class PDParams implements ParameterSerializable {
 	@ConfXMLTag("sucker")
 	public int sucker = -5;
 
-	public PDParams() {
-		// public, no parameter constructor for serialization
+
+
+	public PDParams(AgentFoodCountable size) {
+		super(PDAgentParams.class, size);
 	}
+
+	@Override
+	protected PDAgentParams newAgentParam() {
+		return new PDAgentParams();
+	}
+
+	private static final long serialVersionUID = 2L;
 }

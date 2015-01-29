@@ -44,7 +44,6 @@ public class EnvironmentConfigPage implements ConfigPage {
 	private BoundCheckBox dropNewFood;
 	private BoundCheckBox keepOldWaste;
 	private BoundCheckBox keepOldPackets;
-	private BoundCheckBox PrisDilemma;
 	private JCheckBox LearningAgents;
 	private BoundJFormattedTextField randomSeed;
 	private BoundJFormattedTextField initialStones;
@@ -118,21 +117,6 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(new JLabel(AgentNum.getLabelText()));
 		fieldPane.add(AgentNum);
 
-
-
-		PrisDilemma = new BoundCheckBox(params, "prisDilemma");
-		fieldPane.add(new JLabel(PrisDilemma.getLabelText()));
-		fieldPane.add(PrisDilemma);
-		PrisDilemma.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				for (AgentNumChangeListener x : numChangeListeners) {
-					x.AgentNumChanged(oldAgentNum, params.agentTypeCount);
-				}
-			}
-		});
-
 		LearningAgents = new JCheckBox();
 		fieldPane.add(new JLabel("Learning Agents"));
 		fieldPane.add(LearningAgents);
@@ -158,7 +142,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 		panel11.add(fieldPane, BorderLayout.CENTER);
 
-		makeOptionsTable(fieldPane, 6);
+		makeOptionsTable(fieldPane, 5);
 
 		thePanel.add(panel11);
 

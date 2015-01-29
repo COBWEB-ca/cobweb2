@@ -56,7 +56,7 @@ public abstract class StatefulSpawnMutatorBase<T> extends StatefulMutatorBase<T>
 	@Override
 	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
 		// TODO: different probability than 50/50?
-		Agent parent = rand.getRandom().nextBoolean() ? parent2 : parent1;
+		Agent parent = hasAgentState(parent2) && rand.getRandom().nextBoolean() ? parent2 : parent1;
 		T parentState = getAgentState(parent);
 
 		T state = stateFromParent(agent, parentState);

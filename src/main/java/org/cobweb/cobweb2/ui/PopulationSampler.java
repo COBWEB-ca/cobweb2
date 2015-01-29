@@ -54,7 +54,6 @@ public class PopulationSampler {
 			for (AgentSample agentSample : agents) {
 				ComplexAgent cAgent = (ComplexAgent) sim.newAgent(agentSample.type);
 				cAgent.init(sim.theEnvironment, agentSample.position, agentSample.params);
-				cAgent.pdCheater = agentSample.pdCheater;
 			}
 
 		} catch (IOException ex) {
