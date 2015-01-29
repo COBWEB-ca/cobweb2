@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.text.DecimalFormat;
 
 import org.cobweb.cobweb2.Simulation;
+import org.cobweb.cobweb2.ui.StatsTracker.CoopCheaterCount;
 
 
 public class StatsLogger implements UpdatableUI {
@@ -39,8 +40,6 @@ public class StatsLogger implements UpdatableUI {
 			 * .println("************* Near Agent Count *************");
 			 */
 
-			int cheaters = statsTracker.numAgentsStrat(i)[1];
-			int coops = statsTracker.numAgentsStrat(i)[0];
 			logStream.print(statsTracker.getTime());
 			logStream.print('\t');
 			logStream.print(statsTracker.countFoodTiles(i));
@@ -55,9 +54,11 @@ public class StatsLogger implements UpdatableUI {
 			logStream.print('\t');
 			logStream.print(agentEnergy);
 			logStream.print('\t');
-			logStream.print(cheaters);
+
+			CoopCheaterCount pdStats = statsTracker.numAgentsStrat(i);
+			logStream.print(pdStats.cheaters);
 			logStream.print('\t');
-			logStream.print(coops);
+			logStream.print(pdStats.cooperators);
 			logStream.print('\t');
 
 			for (String s : statsTracker.pluginStatsAgent(i)) {
@@ -77,8 +78,6 @@ public class StatsLogger implements UpdatableUI {
 		 * .println("************* After Agent Count Call *************");
 		 */
 		long agentEnergyAll = statsTracker.countAgentEnergy();
-		int total_cheaters = statsTracker.numAgentsStrat()[1];
-		int total_coops = statsTracker.numAgentsStrat()[0];
 		logStream.print(statsTracker.getTime());
 		logStream.print('\t');
 		logStream.print(statsTracker.countFoodTiles());
@@ -89,9 +88,12 @@ public class StatsLogger implements UpdatableUI {
 		logStream.print('\t');
 		logStream.print(agentEnergyAll);
 		logStream.print('\t');
-		logStream.print(total_cheaters);
+
+
+		CoopCheaterCount pdStats = statsTracker.numAgentsStrat();
+		logStream.print(pdStats.cheaters);
 		logStream.print('\t');
-		logStream.print(total_coops);
+		logStream.print(pdStats.cooperators);
 		logStream.print('\t');
 
 		for (String s : statsTracker.pluginStatsTotal()) {

@@ -152,10 +152,6 @@ public class Cobweb2Serializer {
 		Element agent = d.createElement("Agent");
 		agent.setAttribute("type", Integer.toString(a.getType()));
 
-		Element doCheatElement = d.createElement("doCheat");
-		doCheatElement.appendChild(d.createTextNode(a.pdCheater + ""));
-		agent.appendChild(doCheatElement);
-
 		Element paramsElement = d.createElement("params");
 
 		serializer.save(a.params, paramsElement, d);
@@ -178,7 +174,7 @@ public class Cobweb2Serializer {
 			agent.appendChild(directionElement);
 		}
 
-		// FIXME plugin params: production, disease, etc
+		// FIXME plugin params: production, disease, PD, etc
 
 		return agent;
 	}
@@ -186,7 +182,6 @@ public class Cobweb2Serializer {
 	public static class AgentSample {
 		public int type;
 		public ComplexAgentParams params;
-		public boolean pdCheater;
 		public LocationDirection position;
 	}
 
@@ -201,8 +196,6 @@ public class Cobweb2Serializer {
 		params.resize(size); // Fix up for simulation being different than population
 		as.params = params;
 
-		as.pdCheater = Boolean.parseBoolean(element.getElementsByTagName("doCheat").item(0).getTextContent());
-
 		Element location = (Element)element.getElementsByTagName("location").item(0);
 		Location loc = new Location(
 				Integer.parseInt(location.getAttribute("x")),
@@ -215,7 +208,7 @@ public class Cobweb2Serializer {
 
 		as.position = new LocationDirection(loc, facing);
 
-		// FIXME plugin params: production, disease, etc
+		// FIXME plugin params: production, disease, PD, etc
 
 		return as;
 	}

@@ -19,6 +19,7 @@ import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
+import org.cobweb.cobweb2.plugins.pd.PDParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.waste.WasteParams;
 import org.cobweb.io.ConfXMLTag;
@@ -39,6 +40,9 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 
 	@ConfXMLTag("FoodGrowth")
 	public FoodGrowthParams foodParams = new FoodGrowthParams(envParams);
+
+	@ConfXMLTag("PrisonersDilemma")
+	public PDParams pdParams = new PDParams(envParams);
 
 	@ConfXMLTag("Waste")
 	public WasteParams wasteParams = new WasteParams(envParams);
@@ -86,6 +90,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 		List<? extends PerTypeParam> typeCountDependents = Arrays.asList(
 				agentParams,
 				foodParams,
+				pdParams,
 				wasteParams,
 				prodParams,
 				tempParams,

@@ -22,6 +22,7 @@ import org.cobweb.cobweb2.plugins.MutatorListener;
 import org.cobweb.cobweb2.plugins.abiotic.TemperatureMutator;
 import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
+import org.cobweb.cobweb2.plugins.pd.PDMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
 import org.cobweb.cobweb2.plugins.stats.StatsMutator;
 import org.cobweb.cobweb2.plugins.vision.VisionMutator;
@@ -62,6 +63,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	private GeneticsMutator similarityCalculator;
 
 	private VisionMutator vision;
+
+	private PDMutator pdMutator;
 
 	/* return number of TYPES of agents in the environment */
 	@Override
@@ -132,6 +135,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			wasteMutator = null;
 			statsMutator = null;
 			vision = null;
+			pdMutator = null;
 		}
 
 		if (geneticMutator == null) {
@@ -165,6 +169,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			vision = new VisionMutator();
 			mutatorListener.addMutator(vision);
 		}
+		if (pdMutator == null) {
+			pdMutator = new PDMutator(this);
+			mutatorListener.addMutator(pdMutator);
+		}
 
 
 		geneticMutator.setParams(this, p.geneticParams, p.envParams.getAgentTypes());
@@ -176,6 +184,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		wasteMutator.setParams(p.wasteParams);
 
 		prodMapper.setParams(simulationConfig.prodParams);
+
+		pdMutator.setParams(p.pdParams);
 
 		// 0 = use default seed
 		if (p.envParams.randomSeed == 0)

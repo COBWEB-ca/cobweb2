@@ -8,6 +8,7 @@ import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
+import org.cobweb.cobweb2.plugins.pd.PDState;
 import org.cobweb.swingutil.ColorLookup;
 
 /**
@@ -51,7 +52,8 @@ class AgentDrawInfo {
 
 		position = agent.getPosition();
 
-		action = agent.getAgentPDActionCheat() ? Color.RED : Color.BLACK;
+		PDState pd = sim.mutatorListener.getMutatorState(PDState.class, agent);
+		action = (pd != null && pd.pdCheater) ? Color.RED : Color.BLACK;
 	}
 
 	void draw(Graphics g, int tileWidth, int tileHeight) {

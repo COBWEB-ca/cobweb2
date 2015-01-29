@@ -323,10 +323,8 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
 
 		removeOldPage(pdPage);
-		if (p.envParams.prisDilemma) {
-			pdPage = new PDConfigPage(p.envParams.pdParams);
-			tabbedPane.addTab("PD Options", pdPage.getPanel());
-		}
+		pdPage = new PDConfigPage(p.pdParams);
+		tabbedPane.addTab("PD Options", pdPage.getPanel());
 
 		removeOldPage(geneticPage);
 		geneticPage = new GeneticConfigPage(p.geneticParams, p.envParams.getAgentTypes(),

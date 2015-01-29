@@ -14,7 +14,7 @@ public class CheaterBroadcast extends BroadcastPacket {
 
 	@Override
 	public void process(ComplexAgent receiver) {
-		receiver.rememberCheater(cheater);
+		receiver.rememberBadAgent(cheater);
 	}
 
 }
