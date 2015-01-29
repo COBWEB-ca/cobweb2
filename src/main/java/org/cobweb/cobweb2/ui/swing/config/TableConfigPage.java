@@ -16,6 +16,10 @@ public class TableConfigPage<T extends ParameterSerializable> implements ConfigP
 	private final JPanel panel;
 	private final MixedValueJTable paramTable;
 
+	public TableConfigPage(T[] params, String name, String colPrefix) {
+		this(params, name, null, null, colPrefix);
+	}
+
 	public TableConfigPage(T[] params, String name, ColorLookup agentColors) {
 		this(params, name, null, agentColors);
 	}
@@ -31,7 +35,7 @@ public class TableConfigPage<T extends ParameterSerializable> implements ConfigP
 	public TableConfigPage(T[] params, String name, ChoiceCatalog catalog, ColorLookup agentColors, String colPrefix) {
 		panel = new JPanel(new BorderLayout());
 
-		ConfigTableModel model = new ConfigTableModel(params, colPrefix + " ");
+		ConfigTableModel model = new ConfigTableModel(params, colPrefix);
 		model.choiceCatalog = catalog;
 
 		paramTable = new MixedValueJTable(model);
@@ -40,7 +44,8 @@ public class TableConfigPage<T extends ParameterSerializable> implements ConfigP
 		JScrollPane sp = new JScrollPane(paramTable);
 		Util.makeGroupPanel(sp, name);
 
-		Util.colorHeaders(paramTable, true, agentColors);
+		if (agentColors != null)
+			Util.colorHeaders(paramTable, true, agentColors);
 
 		panel.add(sp);
 	}
