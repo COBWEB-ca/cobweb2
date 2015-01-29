@@ -76,6 +76,8 @@ public class ConfigTableModel extends AbstractTableModel {
 					for (Object k : col.keySet()) {
 						fields.add(new MapPropertyAccessor(fieldAccessor, k, displayFormat));
 					}
+				} else if (ParameterSerializable.class.isAssignableFrom(fieldAccessor.getType())) {
+					bindObject((ParameterSerializable) f.get(d), fieldAccessor);
 				} else {
 					fields.add(fieldAccessor);
 				}
