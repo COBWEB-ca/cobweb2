@@ -7,10 +7,11 @@ import javax.swing.JScrollPane;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.io.ChoiceCatalog;
+import org.cobweb.io.ParameterSerializable;
 import org.cobweb.swingutil.ColorLookup;
 
 
-public class TableConfigPage<T> implements ConfigPage {
+public class TableConfigPage<T extends ParameterSerializable> implements ConfigPage {
 
 	private final JPanel panel;
 	private final MixedValueJTable paramTable;

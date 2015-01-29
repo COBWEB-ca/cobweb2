@@ -20,6 +20,7 @@ import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ConfDisplayFormat;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ParameterChoice;
+import org.cobweb.io.ParameterSerializable;
 import org.cobweb.util.ReflectionUtil;
 
 /**
@@ -40,20 +41,20 @@ public class ConfigTableModel extends AbstractTableModel {
 	 * @param data CobwebParam array to display as columns
 	 * @param prefix Prefix for the column names
 	 */
-	public ConfigTableModel(Object[] data, String prefix) {
+	public ConfigTableModel(ParameterSerializable[] data, String prefix) {
 		super();
 		this.data = data;
 		this.prefix = prefix;
 		columns = data.length;
 
-		indexObject(data[0]);
+		bindObject(data[0]);
 	}
 
-	protected void indexObject(Object d) {
+	protected void bindObject(ParameterSerializable d) {
 		bindObject(d, null);
 	}
 
-	protected void bindObject(Object d, FieldPropertyAccessor parent) {
+	protected void bindObject(ParameterSerializable d, FieldPropertyAccessor parent) {
 		Class<?> c = d.getClass();
 		for (Field f : c.getFields()) {
 			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
@@ -80,18 +81,18 @@ public class ConfigTableModel extends AbstractTableModel {
 				}
 
 			} catch (IllegalArgumentException | IllegalAccessException ex) {
-				throw new RuntimeException("Could not bind property " + c + "." + f, ex);
+				throw new RuntimeException("Could not bind field " + c + "." + f, ex);
 			}
 
 		}
 	}
 
-	private Object[] data;
+	private ParameterSerializable[] data;
 
 	private List<PropertyAccessor> fields = new ArrayList<>();
 
-	public ConfigTableModel(Object data, String prefix) {
-		this(new Object[] { data }, prefix);
+	public ConfigTableModel(ParameterSerializable data, String prefix) {
+		this(new ParameterSerializable[] { data }, prefix);
 	}
 
 	public ChoiceCatalog choiceCatalog = null;
