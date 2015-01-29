@@ -30,6 +30,7 @@ public class PacketConduit implements Updatable {
 	public void addPacketToList(BroadcastPacket packet) {
 		if (!broadcastBlocked)
 			currentPackets.add(packet);
+		// TODO: allow more brodcasts?
 		blockBroadcast();
 	}
 
@@ -57,6 +58,8 @@ public class PacketConduit implements Updatable {
 	}
 
 	public BroadcastPacket findPacket(Location position, Agent receiver) {
+		// TODO: return more than 1 packet?
+		// TODO: return closest packet?
 		for (BroadcastPacket commPacket : currentPackets) {
 			double distance = topology.getDistance(position, commPacket.location);
 			if (distance < commPacket.range
