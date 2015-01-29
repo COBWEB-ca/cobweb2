@@ -3,11 +3,12 @@ package org.cobweb.cobweb2.plugins.pd;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
 
 
 
-public class PDState {
+public class PDState implements AgentState {
 	/**
 	 * This agent's last play was cheating
 	 */
@@ -195,6 +196,10 @@ public class PDState {
 		public String getName() { return "PD Punishment"; }
 	}
 
-
+	@Override
+	public boolean isTransient() {
+		return false;
+	}
+	private static final long serialVersionUID = 1L;
 }
 

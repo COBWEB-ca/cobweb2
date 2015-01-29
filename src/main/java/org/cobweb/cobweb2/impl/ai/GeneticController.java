@@ -9,6 +9,7 @@ import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.vision.SeeInfo;
+import org.cobweb.cobweb2.plugins.vision.VisionState;
 import org.cobweb.util.BitField;
 
 /**
@@ -136,7 +137,7 @@ public class GeneticController implements Controller {
 
 		//add the viewing info to the array
 
-		SeeInfo get = simulation.getAgentState(SeeInfo.class, theAgent);
+		SeeInfo get = theAgent.getState(VisionState.class).distanceLook();
 		inputCode.add(get.getType(), 2);
 		inputCode.add(get.getDist(), 2);
 

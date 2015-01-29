@@ -16,14 +16,10 @@ import org.cobweb.cobweb2.plugins.StepMutator;
  *
  * @author ???
  */
-public class TemperatureMutator extends StatefulMutatorBase<TemperatureMutator.TemperatureState> implements StepMutator, StatePlugin {
+public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> implements StepMutator, StatePlugin {
 
 	public TemperatureMutator() {
 		super(TemperatureState.class);
-	}
-
-	public static class TemperatureState {
-		public float originalParamValue;
 	}
 
 	private TemperatureParams params;

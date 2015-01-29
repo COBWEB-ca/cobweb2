@@ -1,70 +1,24 @@
 package org.cobweb.cobweb2.plugins.vision;
 
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.Environment;
-import org.cobweb.cobweb2.core.LocationDirection;
-import org.cobweb.cobweb2.plugins.StatefulMutator;
+import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
+import org.cobweb.cobweb2.plugins.StepMutator;
 
 
-public class VisionMutator implements StatefulMutator<SeeInfo> {
+public class VisionMutator extends StatefulMutatorBase<VisionState> implements StepMutator {
 
-
-	private Environment environment;
-
-	public void initEnvironment(Environment env) {
-		this.environment = env;
+	public VisionMutator() {
+		super(VisionState.class);
 	}
 
-	public static final int LOOK_DISTANCE = 4;
-
-	/**
-	 * This method allows the agent to see what is in front of it.
-	 *
-	 * @return What the agent sees and at what distance.
-	 */
-	public SeeInfo distanceLook(Agent agent) {
-		LocationDirection destPos = environment.topology.getAdjacent(agent.getPosition());
-
-		for (int dist = 1; dist <= LOOK_DISTANCE; ++dist) {
-
-			// We are looking at the wall
-			if (destPos == null)
-				return new SeeInfo(dist, Environment.FLAG_STONE, LOOK_DISTANCE);
-
-			// Check for stone...
-			if (environment.hasStone(destPos))
-				return new SeeInfo(dist, Environment.FLAG_STONE, LOOK_DISTANCE);
-
-			// If there's another agent there, then return that it's a stone...
-			if (environment.hasAgent(destPos) && environment.getAgent(destPos) != agent)
-				return new SeeInfo(dist, Environment.FLAG_AGENT, LOOK_DISTANCE);
-
-			// If there's food there, return the food...
-			if (environment.hasFood(destPos))
-				return new SeeInfo(dist, Environment.FLAG_FOOD, LOOK_DISTANCE);
-
-			if (environment.hasDrop(destPos))
-				return new SeeInfo(dist, Environment.FLAG_DROP, LOOK_DISTANCE);
-
-			destPos = environment.topology.getAdjacent(destPos);
+	@Override
+	public void onStep(Agent agent, Location from, Location to) {
+		if (from == null && to != null) {
+			setAgentState(agent, new VisionState(((ComplexAgent)agent).environment, agent));
 		}
-		return new SeeInfo(LOOK_DISTANCE);
 	}
 
-
-	@Override
-	public SeeInfo getAgentState(Agent agent) {
-		return distanceLook(agent);
-	}
-
-	@Override
-	public boolean hasAgentState(Agent agent) {
-		return true;
-	}
-
-	@Override
-	public Class<SeeInfo> getStateClass() {
-		return SeeInfo.class;
-	}
 
 }

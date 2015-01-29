@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
@@ -103,10 +102,6 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 			return;
 		stats.deathTick = sim.getTime();
 		stats.path = null;
-
-		// Move stats from agent->state map to list of states
-		// Allows agent to be GCd
-		deadStats.add(removeAgentState(agent));
 	}
 
 	@Override
@@ -146,11 +141,16 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 				));
 	}
 
-	List<AgentStatistics> deadStats = new ArrayList<>();
+	@Override
+	protected void setAgentState(Agent agent, AgentStatistics state) {
+		super.setAgentState(agent, state);
+		allStats.add(state);
+	}
+
+	List<AgentStatistics> allStats = new ArrayList<>();
 
 	public Collection<AgentStatistics> getAllStats() {
-		Collection<AgentStatistics> res = CollectionUtils.union(agentStates.values(), deadStats);
-		return res;
+		return allStats;
 	}
 
 }

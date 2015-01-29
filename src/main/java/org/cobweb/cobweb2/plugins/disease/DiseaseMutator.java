@@ -4,23 +4,22 @@
 package org.cobweb.cobweb2.plugins.disease;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.core.Updatable;
 import org.cobweb.cobweb2.plugins.ContactMutator;
 import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
+import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
 /**
  * Simulates various diseases that can affect agents.
  */
-public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> implements ContactMutator, SpawnMutator, LoggingMutator, Updatable {
+public class DiseaseMutator extends StatefulMutatorBase<DiseaseState> implements ContactMutator, SpawnMutator, LoggingMutator, UpdateMutator {
 
 	private DiseaseParams params;
 
@@ -29,27 +28,7 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 	private SimulationInternals simulation;
 
 	public DiseaseMutator() {
-		super(DiseaseMutator.State.class);
-	}
-
-	public class State {
-		public boolean sick = false;
-		public boolean vaccinated = false;
-		public long sickStart = -1;
-		public float vaccineEffectiveness;
-
-		public State(boolean sick, boolean vaccinated, long sickStart) {
-			this.sick = sick;
-			this.vaccinated = vaccinated;
-			this.sickStart = sickStart;
-		}
-
-		public State(boolean sick, boolean vaccinated, float vaccineEffectiveness) {
-			this.sick = sick;
-			this.vaccinated = vaccinated;
-			this.vaccineEffectiveness = vaccineEffectiveness;
-
-		}
+		super(DiseaseState.class);
 	}
 
 	@Override
@@ -95,7 +74,7 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 
 			sickCount[agent.getType()]++;
 
-			setAgentState(agent, new State(true, false, simulation.getTime()));
+			setAgentState(agent, new DiseaseState(true, false, simulation.getTime()));
 		}
 
 	}
@@ -108,8 +87,8 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 
 	@Override
 	public void onDeath(Agent agent) {
-		State state = removeAgentState(agent);
-		if (state != null && state.sick)
+		DiseaseState diseaseState = removeAgentState(agent);
+		if (diseaseState != null && diseaseState.sick)
 			sickCount[agent.getType()]--;
 	}
 
@@ -174,11 +153,6 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 		sickCount[agent.getType()]--;
 	}
 
-	private void unSickIterating(Agent agent, Iterator<Agent> agents) {
-		agents.remove();
-		sickCount[agent.getType()]--;
-	}
-
 	public boolean isSick(Agent agent) {
 		return hasAgentState(agent) && getAgentState(agent).sick;
 	}
@@ -188,24 +162,20 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseMutator.State> im
 	}
 
 	private void vaccinate(Agent bumpee, float effectiveness) {
-		setAgentState(bumpee, new State(false, true, effectiveness));
+		setAgentState(bumpee, new DiseaseState(false, true, effectiveness));
 	}
 
 	@Override
-	public void update() {
+	public void onUpdate(Agent a) {
+		DiseaseState s = getAgentState(a);
 
-		for (Iterator<Agent> agents = getAgentsWithState().iterator(); agents.hasNext();) {
-			Agent a = agents.next();
-			State s = getAgentState(a);
+		if (params.agentParams[a.getType()].recoveryTime == 0)
+			return;
 
-			if (params.agentParams[a.getType()].recoveryTime == 0)
-				continue;
+		long randomRecovery = (long) (params.agentParams[a.getType()].recoveryTime * (simulation.getRandom().nextDouble() * 0.2 + 1.0));
 
-			long randomRecovery = (long) (params.agentParams[a.getType()].recoveryTime * (simulation.getRandom().nextDouble() * 0.2 + 1.0));
-
-			if (s.sick && simulation.getTime() - s.sickStart > randomRecovery) {
-				unSickIterating(a, agents);
-			}
+		if (s.sick && simulation.getTime() - s.sickStart > randomRecovery) {
+			unSick(a);
 		}
 	}
 

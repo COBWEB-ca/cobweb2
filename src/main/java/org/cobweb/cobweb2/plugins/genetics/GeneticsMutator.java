@@ -82,9 +82,9 @@ public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements
 
 	@Override
 	public void onDeath(Agent agent) {
-		GeneticCode removeAgentState = removeAgentState(agent);
-		if (removeAgentState != null)
-			tracker.removeAgent(agent.getType(), removeAgentState);
+		GeneticCode agentState = getAgentState(agent);
+		if (agentState != null)
+			tracker.removeAgent(agent.getType(), agentState);
 
 	}
 

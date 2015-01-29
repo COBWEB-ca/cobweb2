@@ -1,18 +1,14 @@
 package org.cobweb.cobweb2.plugins;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.cobweb.cobweb2.core.Agent;
+import org.cobweb.cobweb2.impl.ComplexAgent;
 
 /**
  * Helper base class for creating StatefulMutators.
  * Handles storage of state.
  */
-public class StatefulMutatorBase<T> implements StatefulMutator<T> {
+public class StatefulMutatorBase<T extends AgentState> implements StatefulMutator<T> {
 
-	protected Map<Agent, T> agentStates = new HashMap<>();
 	private final Class<T> stateClass;
 
 	protected StatefulMutatorBase(Class<T> stateClass) {
@@ -21,29 +17,21 @@ public class StatefulMutatorBase<T> implements StatefulMutator<T> {
 
 	@Override
 	public T getAgentState(Agent agent) {
-		T result = agentStates.get(agent);
+		T result = ((ComplexAgent)agent).getState(getStateClass());
 		return result;
 	}
 
 	@Override
 	public boolean hasAgentState(Agent agent) {
-		return agentStates.containsKey(agent);
-	}
-
-	protected void clearAgentStates() {
-		agentStates.clear();
+		return getAgentState(agent) != null;
 	}
 
 	protected T removeAgentState(Agent agent) {
-		return agentStates.remove(agent);
+		return ((ComplexAgent)agent).removeState(getStateClass());
 	}
 
 	protected void setAgentState(Agent agent, T state) {
-		agentStates.put(agent, state);
-	}
-
-	protected Set<Agent> getAgentsWithState() {
-		return agentStates.keySet();
+		((ComplexAgent)agent).setState(getStateClass(), state);
 	}
 
 	@Override

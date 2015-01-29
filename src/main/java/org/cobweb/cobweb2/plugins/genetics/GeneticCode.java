@@ -3,13 +3,15 @@ package org.cobweb.cobweb2.plugins.genetics;
 import java.util.BitSet;
 import java.util.Random;
 
+import org.cobweb.cobweb2.plugins.AgentState;
+
 /** The class that handles the core functionality of the
  * genetic algorithm. Aside from storing the actual
  * genetic sequence, it harbours a variety of operations
  * that analyses and changes the genetic sequence in
  * specific ways.
  */
-public class GeneticCode {
+public class GeneticCode implements AgentState {
 
 	/**
 	 * Compares two input bit strings of identical length and returns their %
@@ -193,4 +195,10 @@ public class GeneticCode {
 		}
 		return sb.toString();
 	}
+
+	@Override
+	public boolean isTransient() {
+		return false;
+	}
+	private static final long serialVersionUID = 1L;
 }

@@ -2,6 +2,7 @@ package org.cobweb.cobweb2.core;
 
 
 
+
 /**
  * Methods that only simulation components need access to.
  * UI and other external components should only use SimulationInterface!
@@ -17,8 +18,6 @@ public interface SimulationInternals extends RandomSource, StatePluginSource {
 	public void addAgent(Agent agent);
 
 	public StateParameter getStateParameter(String name);
-
-	public <T> T getAgentState(Class<T> stateClass, Agent agent);
 
 	public AgentSimilarityCalculator getSimilarityCalculator();
 

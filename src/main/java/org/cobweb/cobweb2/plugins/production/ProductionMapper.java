@@ -145,7 +145,7 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionAgentPa
 	}
 
 	private boolean shouldProduce(Agent agent) {
-		if (!hasAgentState(agent)) {
+		if (!agent.isAlive() || !hasAgentState(agent)) {
 			return false;
 		}
 
