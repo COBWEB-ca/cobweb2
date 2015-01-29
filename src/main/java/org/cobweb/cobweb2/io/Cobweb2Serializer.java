@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map.Entry;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.Agent;
@@ -24,6 +25,7 @@ import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.FieldPhenotype;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
+import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
@@ -173,6 +175,18 @@ public class Cobweb2Serializer {
 			directionElement.setAttribute("y", direction.y + "");
 			agent.appendChild(directionElement);
 		}
+
+		Element plugins = d.createElement("Plugins");
+		for (Entry<Class<? extends AgentState>, AgentState> e : a.extraState.entrySet()) {
+			AgentState pluginState = e.getValue();
+			if (pluginState.isTransient())
+				continue;
+
+			Element plugin = d.createElement(e.getKey().getName());
+			serializer.save(pluginState, plugin, d);
+			plugins.appendChild(plugin);
+		}
+		agent.appendChild(plugins);
 
 		// FIXME plugin params: production, disease, PD, etc
 

@@ -58,7 +58,7 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	protected boolean pregnant = false;
 
-	private Map<Class<? extends AgentState>, Object> extraState = new HashMap<>();
+	public Map<Class<? extends AgentState>, AgentState> extraState = new HashMap<>();
 
 	public transient ComplexEnvironment environment;
 
