@@ -7,6 +7,7 @@ import java.lang.reflect.Array;
 import javax.swing.JPanel;
 
 import org.cobweb.cobweb2.plugins.PerAgentParams;
+import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializable;
 import org.cobweb.swingutil.ColorLookup;
 
@@ -22,11 +23,15 @@ public class TwoTableConfigPage<Tmain extends PerAgentParams<TperType>, TperType
 	private final JPanel myPanel;
 
 	public TwoTableConfigPage(Class<Tmain> paramClass, Tmain params, String mainName, ColorLookup colors) {
+		this(paramClass, params, mainName, colors, "Value", null);
+	}
+
+	public TwoTableConfigPage(Class<Tmain> paramClass, Tmain params, String mainName, ColorLookup colors, String mainColumn, ChoiceCatalog catalog) {
 		@SuppressWarnings("unchecked")
 		Tmain[] mainArray = (Tmain[]) Array.newInstance(paramClass, 1);
 		mainArray[0] = params;
-		mainPage = new TableConfigPage<>(mainArray, mainName, "Value");
-		perTypePage = new TableConfigPage<>(params.agentParams, "Agent Preferences", colors);
+		mainPage = new TableConfigPage<>(mainArray, mainName, mainColumn);
+		perTypePage = new TableConfigPage<>(params.agentParams, "Agent Preferences", colors, catalog);
 
 		JPanel mainPanel = mainPage.getPanel();
 		mainPanel.setPreferredSize(new Dimension(200, 200));
