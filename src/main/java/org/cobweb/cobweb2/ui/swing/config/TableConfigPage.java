@@ -17,23 +17,26 @@ public class TableConfigPage<T extends ParameterSerializable> implements ConfigP
 	private final MixedValueJTable paramTable;
 
 	public TableConfigPage(T[] params, String name, String colPrefix) {
-		this(params, name, null, null, colPrefix);
+		this(params, name, colPrefix, null, null);
 	}
 
 	public TableConfigPage(T[] params, String name, ColorLookup agentColors) {
-		this(params, name, null, agentColors);
+		this(params, name, null, agentColors, null);
 	}
 
-	public TableConfigPage(T[] params, String name, ColorLookup agentColors, String colPrefix) {
-		this(params, name, null, agentColors, colPrefix);
+	public TableConfigPage(T[] params, String name, String colPrefix, ColorLookup agentColors) {
+		this(params, name, colPrefix, agentColors, null);
 	}
 
-	public TableConfigPage(T[] params, String name, ChoiceCatalog catalog, ColorLookup agentColors) {
-		this(params, name, catalog, agentColors, "Agent");
+	public TableConfigPage(T[] params, String name, ColorLookup agentColors, ChoiceCatalog catalog) {
+		this(params, name, null, agentColors, catalog);
 	}
 
-	public TableConfigPage(T[] params, String name, ChoiceCatalog catalog, ColorLookup agentColors, String colPrefix) {
+	public TableConfigPage(T[] params, String name, String colPrefix, ColorLookup agentColors, ChoiceCatalog catalog) {
 		panel = new JPanel(new BorderLayout());
+
+		if (colPrefix == null)
+			colPrefix = "Agent";
 
 		ConfigTableModel model = new ConfigTableModel(params, colPrefix);
 		model.choiceCatalog = catalog;

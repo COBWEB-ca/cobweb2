@@ -7,6 +7,6 @@ import org.cobweb.swingutil.ColorLookup;
 public class ResourceConfigPage extends TableConfigPage<ComplexFoodParams>{
 
 	public ResourceConfigPage(ComplexFoodParams[] params, ColorLookup agentColors) {
-		super(params, "Resource Parameters", agentColors, "Food");
+		super(params, "Resource Parameters", "Food", agentColors);
 	}
 }

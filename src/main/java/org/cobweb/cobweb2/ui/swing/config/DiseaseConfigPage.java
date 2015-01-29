@@ -11,6 +11,6 @@ import org.cobweb.swingutil.ColorLookup;
 public class DiseaseConfigPage extends TableConfigPage<DiseaseAgentParams> {
 
 	public DiseaseConfigPage(DiseaseParams params, ChoiceCatalog catalog, ColorLookup agentColors) {
-		super(params.agentParams, "Disease Parameters", catalog, agentColors);
+		super(params.agentParams, "Disease Parameters", agentColors, catalog);
 	}
 }
