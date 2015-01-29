@@ -5,6 +5,7 @@ import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
+import org.cobweb.io.ConfXMLTag;
 
 
 
@@ -12,18 +13,21 @@ public class PDState implements AgentState {
 	/**
 	 * This agent's last play was cheating
 	 */
+	@ConfXMLTag("pdCheater")
 	public boolean pdCheater;
 
 	/**
 	 * This agent's opponents last action was cheating
 	 */
+	@ConfXMLTag("lastPDcheated")
 	public boolean lastPDcheated;
 
-	private PDMutator mutator;
+	private transient PDMutator mutator;
 
-	private final ComplexAgent agent;
+	private transient ComplexAgent agent;
 
-	final PDAgentParams agentParams;
+	@ConfXMLTag("AgentParams")
+	public PDAgentParams agentParams;
 
 	public PDState(PDMutator mutator, ComplexAgent agent, PDAgentParams pdAgentParams) {
 		this.mutator = mutator;
