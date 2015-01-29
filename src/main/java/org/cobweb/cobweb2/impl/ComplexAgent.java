@@ -16,6 +16,7 @@ import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
 import org.cobweb.cobweb2.plugins.broadcast.FoodBroadcast;
+import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
 import org.cobweb.util.RandomNoGenerator;
 
 /**
@@ -163,27 +164,21 @@ public class ComplexAgent extends Agent implements Serializable {
 		this.controller = c;
 	}
 
-	//TODO move to plugin
-	protected void broadcastCheating(ComplexAgent cheater) {
-		environment.commManager.addPacketToList(new CheaterBroadcast(cheater, this));
-	}
-
 	/**
-	 * Creates a new communication packet.  The energy to broadcast is
-	 * deducted here.
-	 *
-	 * @param loc The location of food.
+	 * Sends out given broadcast
 	 */
-	//TODO move to plugin
-	protected void broadcastFood(Location loc) {
-		environment.commManager.addPacketToList(new FoodBroadcast(loc, this));
+	public void broadcast(BroadcastPacket packet) {
+		//TODO move to plugin?
+		environment.commManager.addPacketToList(packet);
+
+		changeEnergy(-params.broadcastEnergyCost, new PacketConduit.BroadcastCause());
 	}
 
 	/**
 	 * @return True if agent has enough energy to broadcast
 	 */
 	protected boolean canBroadcast() {
-		return enoughEnergy(params.broadcastEnergyMin);
+		return params.broadcastMode && enoughEnergy(params.broadcastEnergyMin);
 	}
 
 	/**
@@ -346,7 +341,7 @@ public class ComplexAgent extends Agent implements Serializable {
 
 		rememberCheater(cheater);
 
-		broadcastCheating(cheater);
+		broadcast(new CheaterBroadcast(cheater, this));
 	}
 
 	public void rememberCheater(ComplexAgent cheater) {
@@ -652,8 +647,8 @@ public class ComplexAgent extends Agent implements Serializable {
 	protected void onstepFreeTile(LocationDirection destPos) {
 		// Check for food...
 		if (environment.hasFood(destPos)) {
-			if (params.broadcastMode && canBroadcast()) {
-				broadcastFood(destPos);
+			if (canBroadcast()) {
+				broadcast(new FoodBroadcast(destPos, this));
 			}
 			if (canEat(destPos)) {
 				eat(destPos);

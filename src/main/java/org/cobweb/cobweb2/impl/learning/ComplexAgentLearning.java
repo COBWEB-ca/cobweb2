@@ -15,6 +15,8 @@ import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexEnvironment;
+import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
+import org.cobweb.cobweb2.plugins.broadcast.FoodBroadcast;
 
 //Food storage
 //Vaccination/avoid infected agents
@@ -80,8 +82,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 	public LearningAgentParams lParams;
 
 	@Override
-	protected void broadcastFood(Location loc) { // []SK
-		super.broadcastFood(loc);
+	public void broadcast(BroadcastPacket packet) { // []SK
+		super.broadcast(packet);
 
 		// Deduct broadcasting cost from energy
 		if (getEnergy() > 0) {
@@ -145,8 +147,8 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 					@Override
 					public void desiredAction() {
-						if (params.broadcastMode & canBroadcast()) {
-							agent.broadcastFood(destPos);
+						if (canBroadcast()) {
+							agent.broadcast(new FoodBroadcast(destPos, agent));
 
 							// Remember a sense of pleasure from helping out
 							// other agents by broadcasting
