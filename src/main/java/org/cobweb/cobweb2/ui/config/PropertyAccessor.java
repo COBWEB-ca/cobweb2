@@ -1,0 +1,33 @@
+package org.cobweb.cobweb2.ui.config;
+
+/**
+ * Allows a property of an object to be read and written.
+ */
+public interface PropertyAccessor {
+
+	/**
+	 * Name for this property
+	 * @return Name for this property
+	 */
+	public String getName();
+
+	/**
+	 * Gets value of property for given object
+	 * @param object object to get value from
+	 * @return value of property for object
+	 */
+	public Object getValue(Object object);
+
+	/**
+	 * Sets value of property for given object
+	 * @param object object to set value on
+	 * @param value value to set
+	 */
+	public void setValue(Object object, Object value);
+
+	/**
+	 * Class of the property
+	 * @return class of the property
+	 */
+	public Class<?> getType();
+}

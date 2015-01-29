@@ -39,7 +39,7 @@ public class GeneticStateAgentParams implements ParameterSerializable {
 	@ConfXMLTag("CommunicationBits")
 	public int communicationBits = 2;
 
-	@ConfDisplayFormat("%s bits")
+	@ConfDisplayFormat("%2$s bits")
 	@ConfXMLTag("StateSize")
 	@ConfMap(entryName = "State", keyName = "Name", valueClass = Integer.class)
 	public Map<String, Integer> stateSizes = new LinkedHashMap<String, Integer>();

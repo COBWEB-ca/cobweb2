@@ -12,10 +12,13 @@ import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.cobweb.cobweb2.ui.config.ArrayPropertyAccessor;
+import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
+import org.cobweb.cobweb2.ui.config.MapPropertyAccessor;
+import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ConfDisplayFormat;
 import org.cobweb.io.ConfDisplayName;
-import org.cobweb.io.ConfMap;
 import org.cobweb.io.ParameterChoice;
 import org.cobweb.util.ReflectionUtil;
 
@@ -43,7 +46,14 @@ public class ConfigTableModel extends AbstractTableModel {
 		this.prefix = prefix;
 		columns = data.length;
 
-		Object d = data[0];
+		indexObject(data[0]);
+	}
+
+	protected void indexObject(Object d) {
+		bindObject(d, null);
+	}
+
+	protected void bindObject(Object d, FieldPropertyAccessor parent) {
 		Class<?> c = d.getClass();
 		for (Field f : c.getFields()) {
 			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
@@ -51,157 +61,34 @@ public class ConfigTableModel extends AbstractTableModel {
 			if (display == null && displayFormat == null)
 				continue;
 
-			if (f.getType().isArray()) {
-				int len;
-				try {
-					String format = displayFormat == null ? "%s %d" : displayFormat.value();
-					len = Array.getLength(f.get(data[0]));
+			FieldPropertyAccessor fieldAccessor = new FieldPropertyAccessor(parent, f);
+			try {
+
+				if (f.getType().isArray()) {
+					int len = Array.getLength(f.get(d));
 					for (int i = 0; i < len; i++){
-						fields.add(new MyArrayField(f, i));
-						rowNames.add(String.format(format, display.value(), i + 1));
+						fields.add(new ArrayPropertyAccessor(fieldAccessor, i, displayFormat));
 					}
-				} catch (IllegalAccessException ex) {
-					throw new IllegalArgumentException("Unable to access field " + f.getName(), ex);
-				}
-			} else if (Map.class.isAssignableFrom(f.getType())) {
-				try {
-					String format = displayFormat == null ? "%s" : displayFormat.value();
-					Map<?, ?> col = (Map<?, ?>) f.get(data[0]);
+				} else if (Map.class.isAssignableFrom(f.getType())) {
+					Map<?, ?> col;
+					col = (Map<?, ?>) f.get(d);
 					for (Object k : col.keySet()) {
-						fields.add(new MyMapField(f, k));
-						rowNames.add(String.format(format, k));
+						fields.add(new MapPropertyAccessor(fieldAccessor, k, displayFormat));
 					}
-
-				} catch (IllegalArgumentException ex) {
-					throw new RuntimeException(ex);
-				} catch (IllegalAccessException ex) {
-					throw new RuntimeException(ex);
+				} else {
+					fields.add(fieldAccessor);
 				}
-			} else {
-				fields.add(new MyField(f));
-				rowNames.add(display.value());
+
+			} catch (IllegalArgumentException | IllegalAccessException ex) {
+				throw new RuntimeException("Could not bind property " + c + "." + f, ex);
 			}
-		}
-	}
 
-	private class MyMapField extends MyField {
-		private Object key;
-
-		private MyMapField(Field f, Object key) {
-			super(f);
-			this.key = key;
-
-		}
-
-		@Override
-		public Object getValue(Object obj) {
-			Map<Object, Object> map = getMap(obj);
-			return map.get(key);
-		}
-
-		@Override
-		public void setValue(Object cobwebParam, Object value) {
-			Map<Object, Object> map = getMap(cobwebParam);
-			map.put(key, value);
-		}
-
-		protected Map<Object, Object> getMap(Object obj) {
-			@SuppressWarnings("unchecked")
-			Map<Object, Object> map = (Map<Object, Object>) super.getValue(obj);
-			return map;
-		}
-
-		@Override
-		public String toString() {
-			return super.toString() + "[" + key + "]";
-		}
-
-		@Override
-		public Class<?> getDeclaredClass() {
-			return field.getAnnotation(ConfMap.class).valueClass();
-		}
-	}
-
-	private class MyArrayField extends MyField {
-		protected int index;
-
-		private MyArrayField(Field f, int i) {
-			super(f);
-			this.index = i;
-		}
-
-		@Override
-		public String toString() {
-			return super.toString() + "[" + index + "]";
-		}
-
-		@Override
-		public Object getValue(Object param) {
-			Object value = null;
-			value = Array.get(super.getValue(param), index);
-			return value;
-		}
-
-		@Override
-		public void setValue(Object cobwebParam, Object value) {
-			try {
-				Object array = super.getValue(cobwebParam);
-				fromBoxedToElement(array, index, value);
-			} catch (IllegalArgumentException ex) {
-				return;
-				//throw new UserInputException("Invalid Value");
-			}
-		}
-
-		@Override
-		public Class<?> getDeclaredClass() {
-			return super.getDeclaredClass().getComponentType();
-		}
-	}
-
-	private class MyField {
-		private MyField(Field f) {
-			field = f;
-		}
-
-		protected Field field;
-
-		@Override
-		public String toString() {
-			return field.toString();
-		}
-
-		public Object getValue(Object param) {
-			Object value = null;
-			try {
-				value = this.field.get(param);
-			} catch (IllegalAccessException ex) {
-				throw new RuntimeException("This field seems to be broken: " + this.toString() , ex);
-			}
-			return value;
-		}
-		public void setValue(Object cobwebParam, Object value) {
-			Field f = this.field;
-			try {
-				fromBoxedToField(cobwebParam, f, value);
-			} catch (IllegalAccessException ex) {
-				throw new IllegalArgumentException("Tagged field is not public: " + f.getName(), ex);
-			} catch (IllegalArgumentException ex) {
-				return;
-				//throw new UserInputException("Invalid Value");
-			}
-		}
-
-		public Class<?> getDeclaredClass() {
-			return field.getType();
 		}
 	}
 
 	private Object[] data;
 
-	private List<MyField> fields = new ArrayList<MyField>();
-
-	private List<String> rowNames = new ArrayList<String>();
+	private List<PropertyAccessor> fields = new ArrayList<>();
 
 	public ConfigTableModel(Object data, String prefix) {
 		this(new Object[] { data }, prefix);
@@ -228,11 +115,11 @@ public class ConfigTableModel extends AbstractTableModel {
 
 	@Override
 	public Object getValueAt(int row, int col) {
+		PropertyAccessor mf = fields.get(row);
 		if (col == 0)
-			return rowNames.get(row);
-
-		MyField mf = fields.get(row);
-		return mf.getValue(data[col-1]);
+			return mf.getName();
+		else
+			return mf.getValue(data[col-1]);
 	}
 
 	@Override
@@ -240,46 +127,18 @@ public class ConfigTableModel extends AbstractTableModel {
 		if (col == 0)
 			return;
 
-		MyField mf = fields.get(row);
+		PropertyAccessor mf = fields.get(row);
+		Class<?> declaredClass = mf.getType();
 
-		mf.setValue(data[col-1], value);
-	}
-
-	private static final void fromBoxedToElement(Object array, int index, Object value) {
-		if (value instanceof String && !array.getClass().getComponentType().equals(String.class)) {
-			String v = (String) value;
-			try {
-				parseStringToElement(array, index, v);
-			} catch (NumberFormatException ex) {
-				throw new IllegalArgumentException(ex);
-			}
+		Object typedValue;
+		if (value instanceof String && !declaredClass.equals(String.class)) {
+			typedValue = ReflectionUtil.stringToBoxed(declaredClass, (String) value);
 		} else {
-			Array.set(array, index, value);
+			typedValue = value;
+			assert declaredClass.isAssignableFrom(value.getClass());
 		}
-	}
 
-	private static final void fromBoxedToField(Object o, Field f, Object value) throws IllegalAccessException {
-		if (value instanceof String && !f.getType().equals(String.class)) {
-			try {
-				parseStringToField(o, f, (String) value);
-			} catch (NumberFormatException ex) {
-				throw new IllegalArgumentException(ex);
-			}
-		} else {
-			f.set(o, value);
-		}
-	}
-
-	private static final void parseStringToField(Object object, Field field, String value) throws IllegalAccessException {
-		Class<?> t = field.getType();
-		Object val = ReflectionUtil.stringToBoxed(t, value);
-		field.set(object, val);
-	}
-
-	private static final void parseStringToElement(Object array, int index, String value) {
-		Class<?> destType = array.getClass().getComponentType();
-		Object val = ReflectionUtil.stringToBoxed(destType, value);
-		Array.set(array, index, val);
+		mf.setValue(data[col-1], typedValue);
 	}
 
 	@Override
@@ -298,7 +157,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		if (choiceCatalog == null)
 			throw new IllegalArgumentException("ConfigTableModel needs choiceCatalog for this row");
 
-		Class<T> clazz =(Class<T>) fields.get(row).getDeclaredClass();
+		Class<T> clazz =(Class<T>) fields.get(row).getType();
 		Set<T> res = choiceCatalog.getChoices(clazz);
 		return res;
 	}
