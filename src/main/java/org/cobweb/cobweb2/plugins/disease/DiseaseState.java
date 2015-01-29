@@ -1,11 +1,20 @@
 package org.cobweb.cobweb2.plugins.disease;
 
 import org.cobweb.cobweb2.plugins.AgentState;
+import org.cobweb.io.ConfXMLTag;
 
 public class DiseaseState implements AgentState {
+
+	@ConfXMLTag("sick")
 	public boolean sick = false;
+
+	@ConfXMLTag("vaccinated")
 	public boolean vaccinated = false;
+
+	@ConfXMLTag("sickStart")
 	public long sickStart = -1;
+
+	@ConfXMLTag("vaccineEffectiveness")
 	public float vaccineEffectiveness;
 
 	public DiseaseState(boolean sick, boolean vaccinated, long sickStart) {
