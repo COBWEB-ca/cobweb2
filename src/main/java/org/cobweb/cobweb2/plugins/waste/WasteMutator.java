@@ -43,7 +43,7 @@ public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implement
 	@Override
 	public void onUpdate(Agent agent) {
 		WasteState state = getAgentState(agent);
-		if (state == null)
+		if (state == null || !agent.isAlive())
 			return;
 
 		state.update();

@@ -86,7 +86,8 @@ public class GATracker {
 
 	/** Removes an agent. */
 	public void removeAgent(int type, GeneticCode genes) {
-		for (int i = 0; i < geneCount; i++) {
+		// FIXME broken because agents spawned before mutator die and invoke mutator
+		for (int i = 0; i < Math.min(geneCount, genes.getNumGenes()); i++) {
 			total_gene_status[type][i] -= genes.getStatus(i);
 			gene_status_distribution[type][i][geneStatusHash(genes.getValue(i))]--;
 			gene_value_distribution[type][i][genes.getValue(i)]--;
