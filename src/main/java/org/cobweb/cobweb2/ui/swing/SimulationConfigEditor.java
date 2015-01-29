@@ -323,7 +323,7 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("Food Web", foodwebPage.getPanel());
 
 		removeOldPage(pdPage);
-		pdPage = new PDConfigPage(p.pdParams);
+		pdPage = new PDConfigPage(p.pdParams, displaySettings.agentColor);
 		tabbedPane.addTab("PD Options", pdPage.getPanel());
 
 		removeOldPage(geneticPage);

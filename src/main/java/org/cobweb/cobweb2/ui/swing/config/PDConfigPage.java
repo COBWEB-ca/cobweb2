@@ -1,11 +1,13 @@
 package org.cobweb.cobweb2.ui.swing.config;
 
+import org.cobweb.cobweb2.plugins.pd.PDAgentParams;
 import org.cobweb.cobweb2.plugins.pd.PDParams;
+import org.cobweb.swingutil.ColorLookup;
 
 
 
-public class PDConfigPage extends TableConfigPage<PDParams> {
-	public PDConfigPage(PDParams params) {
-		super(new PDParams[] { params}, "Prisoner's Dilemma Parameters", "Value");
+public class PDConfigPage extends TwoTableConfigPage<PDParams, PDAgentParams> {
+	public PDConfigPage(PDParams params, ColorLookup colors) {
+		super(PDParams.class, params, "Prisoner's Dilemma Parameters", colors);
 	}
 }
