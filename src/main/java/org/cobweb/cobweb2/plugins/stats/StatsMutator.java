@@ -21,10 +21,10 @@ import org.cobweb.cobweb2.plugins.EnergyMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.StepMutator;
-import org.cobweb.cobweb2.plugins.pd.PDState.PDPunishmentCause;
-import org.cobweb.cobweb2.plugins.pd.PDState.PDRewardCause;
-import org.cobweb.cobweb2.plugins.pd.PDState.PDSuckerCause;
-import org.cobweb.cobweb2.plugins.pd.PDState.PDTemptationCause;
+import org.cobweb.cobweb2.plugins.pd.PDMutator.PDPunishmentCause;
+import org.cobweb.cobweb2.plugins.pd.PDMutator.PDRewardCause;
+import org.cobweb.cobweb2.plugins.pd.PDMutator.PDSuckerCause;
+import org.cobweb.cobweb2.plugins.pd.PDMutator.PDTemptationCause;
 
 
 public class StatsMutator extends StatefulMutatorBase<AgentStatistics>

@@ -336,7 +336,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		simulation.addAgent(this);
 	}
 
-	public void rememberBadAgent(ComplexAgent cheater) {
+	public void rememberBadAgent(Agent cheater) {
 		if (cheater.equals(this)) // heh
 			return;
 

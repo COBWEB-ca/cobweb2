@@ -119,7 +119,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 	}
 
 	@Override
-	public void rememberBadAgent(ComplexAgent cheater) {
+	public void rememberBadAgent(Agent cheater) {
 		super.rememberBadAgent(cheater);
 		remember(new MemorableEvent(getTime(), -1, "agent-" + cheater.id));
 	}
