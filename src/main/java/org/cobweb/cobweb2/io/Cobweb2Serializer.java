@@ -182,7 +182,8 @@ public class Cobweb2Serializer {
 			if (pluginState.isTransient())
 				continue;
 
-			Element plugin = d.createElement(e.getKey().getName());
+			Element plugin = d.createElement("Plugin");
+			plugin.setAttribute("type", e.getKey().getName());
 			serializer.save(pluginState, plugin, d);
 			plugins.appendChild(plugin);
 		}

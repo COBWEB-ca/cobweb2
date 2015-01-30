@@ -174,15 +174,21 @@
 			<xsl:apply-templates select="*[substring(name(),1,5) != 'agent']" />
 
 			<!-- default gene values -->
-			<xsl:for-each select="key('gene-table-geneId', 1)">
-				<agent id="{substring-before(substring-after(name(), 'agent'), 'gene')}">
-					<xsl:for-each select="key('gene-table-agentId', substring-before(substring-after(name(), 'agent'), 'gene'))">
-					<gene id="{substring-after(name(), 'gene')}">
-						<xsl:apply-templates />
-					</gene>
-					</xsl:for-each>
-				</agent>
-			</xsl:for-each>
+			<AgentParams>
+				<xsl:for-each select="key('gene-table-geneId', 1)">
+					<Agent id="{substring-before(substring-after(name(), 'agent'), 'gene')}">
+						<xsl:for-each select="key('gene-table-agentId', substring-before(substring-after(name(), 'agent'), 'gene'))">
+						<Gene id="{substring-after(name(), 'gene')}">
+							<xsl:call-template name="bin2int">
+								<xsl:with-param name="binaryString">
+									<xsl:apply-templates />
+								</xsl:with-param>
+							</xsl:call-template>
+						</Gene>
+						</xsl:for-each>
+					</Agent>
+				</xsl:for-each>
+			</AgentParams>
 		</xsl:copy>
 	</xsl:template>
 
@@ -194,6 +200,23 @@
 				<xsl:apply-templates select="inp" />
 			</WeightMatrix>
 		</xsl:copy>
+	</xsl:template>
+
+	<xsl:template name="bin2int">
+		<xsl:param name="binaryString"/>
+		<xsl:param name="integer" select="0"/>
+
+		<xsl:choose>
+			<xsl:when test="$binaryString=''">
+				<xsl:value-of select="$integer"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="bin2int">
+				<xsl:with-param name="binaryString" select="substring($binaryString,2)"/>
+				<xsl:with-param name="integer" select="2*$integer + number(substring($binaryString,1,1))"/>
+				</xsl:call-template>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 
 </xsl:stylesheet>

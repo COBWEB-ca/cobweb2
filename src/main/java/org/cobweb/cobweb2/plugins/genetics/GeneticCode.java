@@ -16,6 +16,10 @@ import org.cobweb.io.ConfSquishParent;
  */
 public class GeneticCode implements AgentState {
 
+	@ConfSquishParent
+	@ConfList(indexName="Gene", startAtOne = true)
+	public byte[] genes;
+
 	/**
 	 * Compares two input bit strings of identical length and returns their %
 	 * similarity. The similarity between the two string is determined solely by
@@ -116,10 +120,6 @@ public class GeneticCode implements AgentState {
 		return result;
 	}
 
-	@ConfSquishParent
-	@ConfList(indexName="gene", startAtOne = true)
-	public byte[] genes;
-
 	public GeneticCode(GeneticCode parent) {
 		this(parent.getNumGenes());
 		genes = Arrays.copyOf(parent.genes, parent.getNumGenes());
@@ -187,10 +187,17 @@ public class GeneticCode implements AgentState {
 		return sb.toString();
 	}
 
+	public void setGeneCount(int geneCount) {
+		int oldCount = getNumGenes();
+		genes = Arrays.copyOf(genes, geneCount);
+		for (int i = oldCount; i < geneCount; i++) {
+			genes[i] = 30;
+		}
+	}
+
 	@Override
 	public boolean isTransient() {
 		return false;
 	}
 	private static final long serialVersionUID = 1L;
-
 }

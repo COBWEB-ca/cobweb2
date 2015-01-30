@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -24,6 +25,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.core.Phenotype;
+import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.genetics.MeiosisMode;
 import org.cobweb.cobweb2.ui.UserInputException;
@@ -68,7 +70,7 @@ public class GeneticConfigPage implements ConfigPage {
 	/**
 	 * Default genes. <code>default.get(gene)[agent] = x;</code>
 	 */
-	private List<int[]> defaults = new LinkedList<int[]>();
+	private List<byte[]> defaults = new LinkedList<>();
 
 	private class GenesTableModel extends AbstractTableModel {
 
@@ -89,7 +91,7 @@ public class GeneticConfigPage implements ConfigPage {
 			if ( columnIndex == 0)
 				return phenosUsed.get(rowIndex).toString();
 
-			return Integer.toString(defaults.get(rowIndex)[columnIndex - 1], 2);
+			return String.format("%8s", Integer.toString(defaults.get(rowIndex)[columnIndex - 1], 2)).replace(' ', '0');
 		}
 
 		@Override
@@ -102,7 +104,7 @@ public class GeneticConfigPage implements ConfigPage {
 				if (!geneticStringPatern.matcher(s).matches()) {
 					throw new UserInputException("Please enter a binary string!");
 				}
-				int v = Integer.parseInt(s, 2);
+				byte v = Byte.parseByte(s, 2);
 				defaults.get(rowIndex)[columnIndex - 1] = v;
 			}
 
@@ -208,10 +210,8 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private void addGene(Phenotype p) {
 		phenosUsed.add(phenosAvailable.removeItem(p));
-		int[] temp = new int[agentTypes];
-		for (int i = 0; i < temp.length; i++) {
-			temp[i] = 30;
-		}
+		byte[] temp = new byte[agentTypes];
+		Arrays.fill(temp, (byte) 30);
 		defaults.add(temp);
 	}
 
@@ -231,7 +231,7 @@ public class GeneticConfigPage implements ConfigPage {
 				if (p.equals(p2)) {
 					addGene(p2);
 					for (int i = 0; i < agentTypes; i++) {
-						defaults.get(defaults.size() - 1)[i] = Integer.parseInt(params.geneValues[i][j], 2);
+						defaults.get(defaults.size() - 1)[i] = params.agentParams[i].genes[j];
 					}
 					j++;
 				}
@@ -288,10 +288,13 @@ public class GeneticConfigPage implements ConfigPage {
 		params.phenotype = phenosUsed.toArray(new Phenotype[0]);
 
 		params.geneLength = 8;
-		params.geneValues = new String[agentTypes][params.getGeneCount()];
-		for (int g = 0; g < params.getGeneCount(); g++) {
-			for (int a = 0; a < agentTypes; a++) {
-				params.geneValues[a][g] = Integer.toString(defaults.get(g)[a], 2);
+
+		params.resizeGenes();
+		for (int i = 0; i < params.agentParams.length; i++) {
+			GeneticCode apar = params.agentParams[i];
+
+			for (int g = 0; g < params.phenotype.length; g++) {
+				apar.genes[g] = defaults.get(g)[i];
 			}
 		}
 
