@@ -61,4 +61,12 @@ public class ArrayPropertyAccessor implements PropertyAccessor {
 	public Class<?> getType() {
 		return parent.getType().getComponentType();
 	}
+
+	@Override
+	public String toString() {
+		String res = "[" + index + "]";
+		if (parent != null)
+			res = parent.toString() + res;
+		return res;
+	}
 }

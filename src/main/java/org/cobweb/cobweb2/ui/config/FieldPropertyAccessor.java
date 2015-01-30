@@ -76,4 +76,12 @@ public class FieldPropertyAccessor implements PropertyAccessor {
 	public Class<?> getType() {
 		return field.getType();
 	}
+
+	@Override
+	public String toString() {
+		String res = field.getName();
+		if (parent != null)
+			res = parent.toString() + "." + res;
+		return res;
+	}
 }

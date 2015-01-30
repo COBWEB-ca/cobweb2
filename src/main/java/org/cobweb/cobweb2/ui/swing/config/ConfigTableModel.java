@@ -52,12 +52,11 @@ public class ConfigTableModel extends AbstractTableModel {
 	}
 
 	protected void bindObject(ParameterSerializable d) {
-		bindObject(d, null);
+		bindObject(d, d.getClass(), null);
 	}
 
-	protected void bindObject(ParameterSerializable d, PropertyAccessor parent) {
-		Class<?> c = d.getClass();
-		for (Field f : c.getFields()) {
+	protected void bindObject(ParameterSerializable root, Class<? extends ParameterSerializable> actualClass, PropertyAccessor parent) {
+		for (Field f : actualClass.getFields()) {
 			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
 			ConfDisplayFormat displayFormat = f.getAnnotation(ConfDisplayFormat.class);
 			if (display == null && displayFormat == null)
@@ -67,30 +66,40 @@ public class ConfigTableModel extends AbstractTableModel {
 			try {
 
 				if (f.getType().isArray()) {
-					int len = Array.getLength(f.get(d));
+					int len = Array.getLength(fieldAccessor.getValue(root));
 					for (int i = 0; i < len; i++){
-						fields.add(new ArrayPropertyAccessor(fieldAccessor, i, displayFormat));
+						bindItem(root, new ArrayPropertyAccessor(fieldAccessor, i, displayFormat));
 					}
 				} else if (List.class.isAssignableFrom(f.getType())) {
-					List<?> list = (List<?>) f.get(d);
+					List<?> list = (List<?>) fieldAccessor.getValue(root);
 					for (int i = 0; i < list.size(); i++) {
-						fields.add(new ListPropertyAccessor(fieldAccessor, i, displayFormat));
+						bindItem(root, new ListPropertyAccessor(fieldAccessor, i, displayFormat));
 					}
 				} else if (Map.class.isAssignableFrom(f.getType())) {
-					Map<?, ?> col = (Map<?, ?>) f.get(d);
+					Map<?, ?> col = (Map<?, ?>) fieldAccessor.getValue(root);
 					for (Object k : col.keySet()) {
-						fields.add(new MapPropertyAccessor(fieldAccessor, k, displayFormat));
+						bindItem(root, new MapPropertyAccessor(fieldAccessor, k, displayFormat));
 					}
-				} else if (ParameterSerializable.class.isAssignableFrom(fieldAccessor.getType())) {
-					bindObject((ParameterSerializable) f.get(d), fieldAccessor);
 				} else {
-					fields.add(fieldAccessor);
+					bindItem(root, fieldAccessor);
 				}
 
-			} catch (IllegalArgumentException | IllegalAccessException ex) {
-				throw new RuntimeException("Could not bind field " + c + "." + f, ex);
+			} catch (IllegalArgumentException ex) {
+				throw new RuntimeException("Could not bind field " + actualClass.getName() + "." + fieldAccessor.toString(), ex);
 			}
 
+		}
+	}
+
+	protected void bindItem(ParameterSerializable root, PropertyAccessor itemAccessor) {
+		if (ParameterSerializable.class.isAssignableFrom(itemAccessor.getType())) {
+			//DEBUG System.out.println("Recursing: " + root.getClass().getSimpleName() + "." + itemAccessor.toString());
+
+			ParameterSerializable value = (ParameterSerializable) itemAccessor.getValue(root);
+			Class<? extends ParameterSerializable> valueClass = value.getClass();
+			bindObject(root, valueClass, itemAccessor);
+		} else {
+			fields.add(itemAccessor);
 		}
 	}
 

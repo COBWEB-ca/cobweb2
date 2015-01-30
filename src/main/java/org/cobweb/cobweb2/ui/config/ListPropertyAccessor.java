@@ -64,4 +64,12 @@ public class ListPropertyAccessor implements PropertyAccessor {
 	public Class<?> getType() {
 		return parent.field.getAnnotation(ConfListType.class).value();
 	}
+
+	@Override
+	public String toString() {
+		String res = ".get(" + index + ")";
+		if (parent != null)
+			res = parent.toString() + res;
+		return res;
+	}
 }

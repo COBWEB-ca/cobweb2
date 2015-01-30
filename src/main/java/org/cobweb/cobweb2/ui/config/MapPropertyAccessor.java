@@ -62,4 +62,12 @@ public class MapPropertyAccessor implements PropertyAccessor {
 	public Class<?> getType() {
 		return parent.field.getAnnotation(ConfMap.class).valueClass();
 	}
+
+	@Override
+	public String toString() {
+		String res = ".get(" + key.toString() + ")";
+		if (parent != null)
+			res = parent.toString() + res;
+		return res;
+	}
 }
