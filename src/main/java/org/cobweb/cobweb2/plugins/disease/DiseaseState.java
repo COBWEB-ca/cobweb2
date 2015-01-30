@@ -15,7 +15,11 @@ public class DiseaseState implements AgentState {
 	public long sickStart = -1;
 
 	@ConfXMLTag("vaccineEffectiveness")
-	public float vaccineEffectiveness;
+	public float vaccineEffectiveness = 1;
+
+
+	public DiseaseState() {
+	}
 
 	public DiseaseState(boolean sick, boolean vaccinated, long sickStart) {
 		this.sick = sick;
@@ -27,7 +31,6 @@ public class DiseaseState implements AgentState {
 		this.sick = sick;
 		this.vaccinated = vaccinated;
 		this.vaccineEffectiveness = vaccineEffectiveness;
-
 	}
 
 	@Override

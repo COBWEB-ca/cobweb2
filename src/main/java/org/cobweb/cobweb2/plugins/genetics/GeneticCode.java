@@ -138,6 +138,9 @@ public class GeneticCode implements AgentState {
 		setGeneCount(geneCount);
 	}
 
+	public GeneticCode() {
+	}
+
 	public int getNumGenes() {
 		return genes.length;
 	}
