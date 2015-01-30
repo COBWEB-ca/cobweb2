@@ -14,6 +14,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.cobweb.cobweb2.ui.config.ArrayPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
+import org.cobweb.cobweb2.ui.config.ListPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.MapPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 import org.cobweb.io.ChoiceCatalog;
@@ -54,7 +55,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		bindObject(d, null);
 	}
 
-	protected void bindObject(ParameterSerializable d, FieldPropertyAccessor parent) {
+	protected void bindObject(ParameterSerializable d, PropertyAccessor parent) {
 		Class<?> c = d.getClass();
 		for (Field f : c.getFields()) {
 			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
@@ -70,9 +71,13 @@ public class ConfigTableModel extends AbstractTableModel {
 					for (int i = 0; i < len; i++){
 						fields.add(new ArrayPropertyAccessor(fieldAccessor, i, displayFormat));
 					}
+				} else if (List.class.isAssignableFrom(f.getType())) {
+					List<?> list = (List<?>) f.get(d);
+					for (int i = 0; i < list.size(); i++) {
+						fields.add(new ListPropertyAccessor(fieldAccessor, i, displayFormat));
+					}
 				} else if (Map.class.isAssignableFrom(f.getType())) {
-					Map<?, ?> col;
-					col = (Map<?, ?>) f.get(d);
+					Map<?, ?> col = (Map<?, ?>) f.get(d);
 					for (Object k : col.keySet()) {
 						fields.add(new MapPropertyAccessor(fieldAccessor, k, displayFormat));
 					}
