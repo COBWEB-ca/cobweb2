@@ -69,12 +69,12 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseState> implements
 			isSick = true;
 
 		if (isSick) {
-			DiseaseAgentParams effect = params.agentParams[agent.getType()];
-			effect.param.modifyValue(agent, effect.factor, 0);
+			DiseaseAgentParams agentParams = params.agentParams[agent.getType()];
+			agentParams.param.modifyValue(agent, agentParams.factor, 0);
 
 			sickCount[agent.getType()]++;
 
-			setAgentState(agent, new DiseaseState(true, false, simulation.getTime()));
+			setAgentState(agent, new DiseaseState(agentParams, true, false, simulation.getTime()));
 		}
 
 	}
@@ -162,7 +162,8 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseState> implements
 	}
 
 	private void vaccinate(Agent bumpee, float effectiveness) {
-		setAgentState(bumpee, new DiseaseState(false, true, effectiveness));
+		DiseaseAgentParams agentParams = params.agentParams[bumpee.getType()];
+		setAgentState(bumpee, new DiseaseState(agentParams, false, true, effectiveness));
 	}
 
 	@Override

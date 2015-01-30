@@ -12,7 +12,7 @@ public class WasteState implements AgentState {
 	public int energyGained;
 
 	@ConfXMLTag("AgentParams")
-	public WasteAgentParams agentParams = new WasteAgentParams();
+	public WasteAgentParams agentParams;
 
 	@Deprecated // for reflection use only!
 	public WasteState() {

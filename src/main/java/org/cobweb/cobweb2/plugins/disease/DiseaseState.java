@@ -18,16 +18,22 @@ public class DiseaseState implements AgentState {
 	public float vaccineEffectiveness = 1;
 
 
+	@ConfXMLTag("AgentParams")
+	public DiseaseAgentParams agentParams;
+
+	@Deprecated // for reflection use only!
 	public DiseaseState() {
 	}
 
-	public DiseaseState(boolean sick, boolean vaccinated, long sickStart) {
+	public DiseaseState(DiseaseAgentParams agentParams, boolean sick, boolean vaccinated, long sickStart) {
+		this.agentParams = agentParams;
 		this.sick = sick;
 		this.vaccinated = vaccinated;
 		this.sickStart = sickStart;
 	}
 
-	public DiseaseState(boolean sick, boolean vaccinated, float vaccineEffectiveness) {
+	public DiseaseState(DiseaseAgentParams agentParams, boolean sick, boolean vaccinated, float vaccineEffectiveness) {
+		this.agentParams = agentParams;
 		this.sick = sick;
 		this.vaccinated = vaccinated;
 		this.vaccineEffectiveness = vaccineEffectiveness;

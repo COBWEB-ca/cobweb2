@@ -76,10 +76,14 @@ public class DiseaseAgentParams implements ParameterSerializable, PerTypeParam {
 	@ConfDisplayName("Transmit to")
 	@ConfXMLTag("transmitTo")
 	@ConfList(indexName = "Agent", startAtOne = true)
-	public boolean[] transmitTo;
+	public boolean[] transmitTo = new boolean[0];
+
+	@Deprecated // for reflection use only!
+	public DiseaseAgentParams(){
+	}
 
 	public DiseaseAgentParams(AgentFoodCountable size) {
-		transmitTo = new boolean[size.getAgentTypes()];
+		resize(size);
 	}
 
 	@Override

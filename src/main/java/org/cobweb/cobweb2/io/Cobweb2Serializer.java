@@ -231,6 +231,7 @@ public class Cobweb2Serializer {
 			Element pluginNode = (Element) pluginNodes.item(i);
 			String type = pluginNode.getAttribute("type");
 			try {
+				@SuppressWarnings("unchecked")
 				Class<? extends AgentState> pluginType = (Class<? extends AgentState>) Class.forName(type);
 
 				AgentState state = pluginType.newInstance();

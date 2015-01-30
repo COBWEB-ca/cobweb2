@@ -68,7 +68,7 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> im
 		TemperatureState state = getAgentState(agent);
 
 		if (from == null) {
-			state = new TemperatureState();
+			state = new TemperatureState(aPar);
 			state.originalParamValue = aPar.parameter.getValue(agent);
 			setAgentState(agent, state);
 		}

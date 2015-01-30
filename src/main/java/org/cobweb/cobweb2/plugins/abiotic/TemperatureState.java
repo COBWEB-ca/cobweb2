@@ -8,6 +8,17 @@ public class TemperatureState implements AgentState {
 	@ConfXMLTag("originalParamValue")
 	public float originalParamValue;
 
+	@ConfXMLTag("AgentParams")
+	public TemperatureAgentParams agentParams;
+
+	@Deprecated // for reflection use only!
+	public TemperatureState() {
+	}
+
+	public TemperatureState(TemperatureAgentParams aPar) {
+		agentParams = aPar;
+	}
+
 	@Override
 	public boolean isTransient() {
 		return false;
