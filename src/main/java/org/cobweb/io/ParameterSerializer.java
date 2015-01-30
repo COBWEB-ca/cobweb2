@@ -146,10 +146,10 @@ public class ParameterSerializer {
 		} else if (type.isArray()) {
 			newValue = loadArray(type, annotationSource, currentValue, objectNode);
 
-		} else if (type.isAssignableFrom(List.class)) {
+		} else if (List.class.isAssignableFrom(type)) {
 			newValue = loadList(annotationSource, (List<?>) currentValue, objectNode);
 
-		} else if (type.isAssignableFrom(Map.class)) {
+		} else if (Map.class.isAssignableFrom(type)) {
 			newValue = loadMap(annotationSource, currentValue, objectNode);
 
 		} else {
@@ -173,10 +173,10 @@ public class ParameterSerializer {
 		} else if (type.isArray()) {
 			saveArray(type, annotationSource, value, tag, doc);
 
-		} else if (type.isAssignableFrom(List.class)) {
+		} else if (List.class.isAssignableFrom(type)) {
 			saveList(annotationSource, (List<?>)value, tag, doc);
 
-		} else if (type.isAssignableFrom(Map.class)) {
+		} else if (Map.class.isAssignableFrom(type)) {
 			saveMap(annotationSource, value, tag, doc);
 
 		} else {
