@@ -327,8 +327,8 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("PD Options", pdPage.getPanel());
 
 		removeOldPage(geneticPage);
-		geneticPage = new GeneticConfigPage(p.geneticParams, p.envParams.getAgentTypes(),
-				serializer.choiceCatalog, displaySettings.agentColor);
+		geneticPage = new GeneticConfigPage(p.geneticParams, serializer.choiceCatalog,
+				displaySettings.agentColor);
 		JComponent panelGA = geneticPage.getPanel();
 		tabbedPane.addTab("Genetics", panelGA);
 

@@ -3,14 +3,12 @@ package org.cobweb.cobweb2.ui.swing.config;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
+import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -25,13 +23,13 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.cobweb2.core.Phenotype;
-import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.genetics.MeiosisMode;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.binding.EnumComboBoxModel;
+import org.cobweb.util.ArrayUtilities;
 
 public class GeneticConfigPage implements ConfigPage {
 
@@ -67,31 +65,33 @@ public class GeneticConfigPage implements ConfigPage {
 		}
 	}
 
-	/**
-	 * Default genes. <code>default.get(gene)[agent] = x;</code>
-	 */
-	private List<byte[]> defaults = new LinkedList<>();
+	private static class GenesTableModel extends AbstractTableModel {
 
-	private class GenesTableModel extends AbstractTableModel {
+		private final GeneticParams params;
+
+		public GenesTableModel(GeneticParams params) {
+			this.params = params;
+		}
 
 		private static final long serialVersionUID = 8849213073862759751L;
 
 		@Override
 		public int getColumnCount() {
-			return 1 + agentTypes;
+			return 1 + params.agentParams.length;
 		}
 
 		@Override
 		public int getRowCount() {
-			return phenosUsed.size();
+			return params.phenotype.length;
 		}
 
 		@Override
 		public Object getValueAt(int rowIndex, int columnIndex) {
-			if ( columnIndex == 0)
-				return phenosUsed.get(rowIndex).toString();
+			if (columnIndex == 0)
+				return params.phenotype[rowIndex].getName();
 
-			return String.format("%8s", Integer.toString(defaults.get(rowIndex)[columnIndex - 1], 2)).replace(' ', '0');
+			byte gene = params.agentParams[columnIndex - 1].genes[rowIndex];
+			return String.format("%8s", Integer.toBinaryString(gene)).replace(' ', '0');
 		}
 
 		@Override
@@ -101,11 +101,12 @@ public class GeneticConfigPage implements ConfigPage {
 
 			if (value instanceof String) {
 				String s = (String) value;
-				if (!geneticStringPatern.matcher(s).matches()) {
-					throw new UserInputException("Please enter a binary string!");
+				try {
+					byte v = Byte.parseByte(s, 2);
+					params.agentParams[columnIndex - 1].genes[rowIndex] = v;
+				} catch (NumberFormatException ex) {
+					throw new UserInputException("Please enter a binary string " + params.geneLength + " digits long!", ex);
 				}
-				byte v = Byte.parseByte(s, 2);
-				defaults.get(rowIndex)[columnIndex - 1] = v;
 			}
 
 		}
@@ -128,15 +129,11 @@ public class GeneticConfigPage implements ConfigPage {
 
 	private JPanel myPanel;
 
-	private static final Pattern geneticStringPatern = Pattern.compile("^[01]*$");
-
 	private GeneticParams params;
-
-	private int agentTypes;
 
 	private final ChoiceCatalog choiceCatalog;
 
-	private class AddListener implements ActionListener {
+	private Action addGene = new AbstractAction("Add ^") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			for (Object o : listAvailable.getSelectedValuesList()) {
@@ -145,23 +142,23 @@ public class GeneticConfigPage implements ConfigPage {
 			}
 			modelSelected.fireTableDataChanged();
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	private class RemoveListener implements ActionListener {
+	private Action removeGene = new AbstractAction("Remove <") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			int[] z = listSelected.getSelectedRows();
-			for (int i = z.length - 1; i >= 0; i--) {
-				int o = z[i];
-				removeGene(phenosUsed.get(o));
+			int[] selectedRows = listSelected.getSelectedRows();
+			for (int i = selectedRows.length - 1; i >= 0; i--) {
+				removeGene(selectedRows[i]);
 			}
 			modelSelected.fireTableDataChanged();
 		}
-	}
+		private static final long serialVersionUID = 1L;
+	};
 
-	public GeneticConfigPage(GeneticParams params, int agentTypes, ChoiceCatalog choiceCatalog, ColorLookup agentColors) {
+	public GeneticConfigPage(GeneticParams params, ChoiceCatalog choiceCatalog, ColorLookup agentColors) {
 		this.params = params;
-		this.agentTypes = agentTypes;
 		this.choiceCatalog = choiceCatalog;
 
 		myPanel = new JPanel();
@@ -172,12 +169,8 @@ public class GeneticConfigPage implements ConfigPage {
 
 		JComponent phenoSelectedScroller = setupSelectedList(agentColors);
 
-
-
-		JButton addPheno = new JButton("Add ^");
-		addPheno.addActionListener(new AddListener());
-		JButton remPheno = new JButton("Remove <");
-		remPheno.addActionListener(new RemoveListener());
+		JButton addPheno = new JButton(addGene);
+		JButton remPheno = new JButton(removeGene);
 		JPanel buttons = new JPanel();
 		buttons.add(addPheno);
 		buttons.add(remPheno);
@@ -201,40 +194,29 @@ public class GeneticConfigPage implements ConfigPage {
 		Util.makeGroupPanel(myPanel, "Genetic Algorithm Parameters");
 	}
 
-	private void removeGene(Phenotype phenotype) {
+	private void removeGene(int index) {
+		List<Phenotype> phenos = ArrayUtilities.modifiableList(params.phenotype);
+		Phenotype phenotype = phenos.remove(index);
 		phenosAvailable.addItem(phenotype);
-		int i = phenosUsed.indexOf(phenotype);
-		phenosUsed.remove(phenotype);
-		defaults.remove(i);
+		params.phenotype = phenos.toArray(new Phenotype[0]);
+		params.resizeGenes();
 	}
 
 	private void addGene(Phenotype p) {
-		phenosUsed.add(phenosAvailable.removeItem(p));
-		byte[] temp = new byte[agentTypes];
-		Arrays.fill(temp, (byte) 30);
-		defaults.add(temp);
+		phenosAvailable.removeItem(p);
+		List<Phenotype> phenos = ArrayUtilities.modifiableList(params.phenotype);
+		phenos.add(p);
+
+		params.phenotype = phenos.toArray(new Phenotype[0]);
+		params.resizeGenes();
 	}
 
 	private JTable listSelected;
 
 	private JComponent setupSelectedList(ColorLookup agentColors) {
-		phenosUsed = new LinkedList<Phenotype>();
-
-		modelSelected = new GenesTableModel();
 		listSelected = new JTable();
-
+		modelSelected = new GenesTableModel(params);
 		listSelected.setModel(modelSelected);
-
-		int j = 0;
-		for (Phenotype p : params.phenotype)
-			for (Phenotype p2 : new LinkedList<Phenotype>(phenosAvailable.items))
-				if (p.equals(p2)) {
-					addGene(p2);
-					for (int i = 0; i < agentTypes; i++) {
-						defaults.get(defaults.size() - 1)[i] = params.agentParams[i].genes[j];
-					}
-					j++;
-				}
 
 		JScrollPane phenotypeScroller = new JScrollPane(listSelected);
 
@@ -264,13 +246,16 @@ public class GeneticConfigPage implements ConfigPage {
 	}
 
 	private ListManipulator<Phenotype> phenosAvailable;
-	private List<Phenotype> phenosUsed;
 
 	private GenesTableModel modelSelected;
 
 	private JScrollPane setupPhenotypeList() {
 		phenosAvailable = new ListManipulator<Phenotype>(
 				new ArrayList<Phenotype>(choiceCatalog.getChoices(Phenotype.class)));
+
+		for (Phenotype p : params.phenotype) {
+			phenosAvailable.removeItem(p);
+		}
 
 		listAvailable = new JList<Phenotype>(phenosAvailable);
 		listAvailable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -285,19 +270,7 @@ public class GeneticConfigPage implements ConfigPage {
 
 	@Override
 	public void validateUI() throws IllegalArgumentException {
-		params.phenotype = phenosUsed.toArray(new Phenotype[0]);
-
-		params.geneLength = 8;
-
-		params.resizeGenes();
-		for (int i = 0; i < params.agentParams.length; i++) {
-			GeneticCode apar = params.agentParams[i];
-
-			for (int g = 0; g < params.phenotype.length; g++) {
-				apar.genes[g] = defaults.get(g)[i];
-			}
-		}
-
+		Util.updateTable(listSelected);
 	}
 
 }

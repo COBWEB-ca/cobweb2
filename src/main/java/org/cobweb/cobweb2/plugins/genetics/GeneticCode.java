@@ -18,7 +18,7 @@ public class GeneticCode implements AgentState {
 
 	@ConfSquishParent
 	@ConfList(indexName="Gene", startAtOne = true)
-	public byte[] genes;
+	public byte[] genes = new byte[0];
 
 	/**
 	 * Compares two input bit strings of identical length and returns their %
@@ -135,7 +135,7 @@ public class GeneticCode implements AgentState {
 	}
 
 	public GeneticCode(int geneCount) {
-		genes = new byte[geneCount];
+		setGeneCount(geneCount);
 	}
 
 	public int getNumGenes() {
