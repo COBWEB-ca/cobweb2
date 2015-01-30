@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.cobweb.cobweb2.SimulationConfig;
@@ -198,6 +200,7 @@ public class Cobweb2Serializer {
 		public int type;
 		public ComplexAgentParams params;
 		public LocationDirection position;
+		public Map<Class<? extends AgentState>, AgentState> plugins = new HashMap<>();
 	}
 
 	private AgentSample loadAgent(Element element, AgentFoodCountable size) {
@@ -223,7 +226,22 @@ public class Cobweb2Serializer {
 
 		as.position = new LocationDirection(loc, facing);
 
-		// FIXME plugin params: production, disease, PD, etc
+		NodeList pluginNodes = element.getElementsByTagName("Plugins").item(0).getChildNodes();
+		for (int i = 0; i < pluginNodes.getLength(); i++) {
+			Element pluginNode = (Element) pluginNodes.item(i);
+			String type = pluginNode.getAttribute("type");
+			try {
+				Class<? extends AgentState> pluginType = (Class<? extends AgentState>) Class.forName(type);
+
+				AgentState state = pluginType.newInstance();
+
+				serializer.load(state, pluginNode);
+
+				as.plugins.put(pluginType, state);
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
 
 		return as;
 	}
