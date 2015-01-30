@@ -20,7 +20,7 @@ public class TemperatureParams extends PerAgentParams<TemperatureAgentParams> im
 	@ConfDisplayName("Band")
 	@ConfXMLTag("TempBands")
 	@ConfList(indexName = "Band", startAtOne = true)
-	public float[] tempBands = new float[TEMPERATURE_BANDS];
+	public float[] tempBands = new float[0];
 
 	/**
 	 * Constructor sets the environment parameters, and temperature agent type
@@ -29,12 +29,19 @@ public class TemperatureParams extends PerAgentParams<TemperatureAgentParams> im
 	 * @param size Environment parameters.
 	 */
 	public TemperatureParams(AgentFoodCountable size) {
-		super(TemperatureAgentParams.class, size);
+		super(TemperatureAgentParams.class);
+		resize(size);
 	}
 
 	@Override
 	protected TemperatureAgentParams newAgentParam() {
 		return new TemperatureAgentParams();
+	}
+
+	@Override
+	public void resize(AgentFoodCountable envParams) {
+		super.resize(envParams);
+		tempBands = Arrays.copyOf(tempBands, TEMPERATURE_BANDS);
 	}
 
 
