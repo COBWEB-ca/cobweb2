@@ -10,7 +10,7 @@ import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
 
-public class TemperatureParams extends PerAgentParams<TemperatureAgentParams> implements StatePluginSource {
+public class AbioticParams extends PerAgentParams<AbioticAgentParams> implements StatePluginSource {
 
 	public static final int TEMPERATURE_BANDS = 5;
 
@@ -28,14 +28,14 @@ public class TemperatureParams extends PerAgentParams<TemperatureAgentParams> im
 	 *
 	 * @param size Environment parameters.
 	 */
-	public TemperatureParams(AgentFoodCountable size) {
-		super(TemperatureAgentParams.class);
+	public AbioticParams(AgentFoodCountable size) {
+		super(AbioticAgentParams.class);
 		resize(size);
 	}
 
 	@Override
-	protected TemperatureAgentParams newAgentParam() {
-		return new TemperatureAgentParams();
+	protected AbioticAgentParams newAgentParam() {
+		return new AbioticAgentParams();
 	}
 
 	@Override

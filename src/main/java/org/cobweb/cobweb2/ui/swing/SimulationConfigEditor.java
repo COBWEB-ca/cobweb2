@@ -41,7 +41,7 @@ import org.cobweb.cobweb2.ui.swing.config.PDConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.SettingsPanel;
-import org.cobweb.cobweb2.ui.swing.config.TemperatureConfigPage;
+import org.cobweb.cobweb2.ui.swing.config.AbioticConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
 
 /**
@@ -90,7 +90,7 @@ public class SimulationConfigEditor {
 				pdPage.validateUI();
 			geneticPage.validateUI();
 			diseaseConfigPage.validateUI();
-			tempPage.validateUI();
+			abioticPage.validateUI();
 			prodPage.validateUI();
 			wastePage.validateUI();
 			if (learnPage != null)
@@ -157,7 +157,7 @@ public class SimulationConfigEditor {
 
 	private DiseaseConfigPage diseaseConfigPage;
 
-	private TemperatureConfigPage tempPage;
+	private AbioticConfigPage abioticPage;
 
 	private AgentConfigPage agentPage;
 
@@ -343,9 +343,9 @@ public class SimulationConfigEditor {
 		diseaseConfigPage = new DiseaseConfigPage(p.diseaseParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
-		removeOldPage(tempPage);
-		tempPage = new TemperatureConfigPage(p.tempParams, serializer.choiceCatalog, displaySettings.agentColor);
-		tabbedPane.addTab("Abiotic Factor", tempPage.getPanel());
+		removeOldPage(abioticPage);
+		abioticPage = new AbioticConfigPage(p.abioticParams, serializer.choiceCatalog, displaySettings.agentColor);
+		tabbedPane.addTab("Abiotic Factor", abioticPage.getPanel());
 
 
 		removeOldPage(learnPage);

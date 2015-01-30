@@ -15,7 +15,7 @@ import org.cobweb.cobweb2.impl.ai.GeneticController;
 import org.cobweb.cobweb2.impl.ai.GeneticControllerParams;
 import org.cobweb.cobweb2.impl.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.PerTypeParam;
-import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
+import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
@@ -51,7 +51,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	public ProductionParams prodParams = new ProductionParams(envParams);
 
 	@ConfXMLTag("Temperature")
-	public TemperatureParams tempParams = new TemperatureParams(envParams);
+	public AbioticParams abioticParams = new AbioticParams(envParams);
 
 	@ConfXMLTag("Learning")
 	public LearningParams learningParams = new LearningParams(envParams);
@@ -93,7 +93,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 				pdParams,
 				wasteParams,
 				prodParams,
-				tempParams,
+				abioticParams,
 				learningParams,
 				diseaseParams,
 				geneticParams,
@@ -117,7 +117,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	public List<String> getPluginParameters() {
 		List<String> result = new ArrayList<String>();
 		result.addAll(this.prodParams.getStatePluginKeys());
-		result.addAll(this.tempParams.getStatePluginKeys());
+		result.addAll(this.abioticParams.getStatePluginKeys());
 
 		return result;
 	}

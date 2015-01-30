@@ -12,17 +12,17 @@ import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.StepMutator;
 
 /**
- * TemperatureMutator is an instance of Step and Spawn Mutator
+ * AbioticMutator is an instance of Step and Spawn Mutator
  *
  * @author ???
  */
-public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> implements StepMutator, StatePlugin {
+public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements StepMutator, StatePlugin {
 
-	public TemperatureMutator() {
-		super(TemperatureState.class);
+	public AbioticMutator() {
+		super(AbioticState.class);
 	}
 
-	private TemperatureParams params;
+	private AbioticParams params;
 
 	private int bandNumber;
 
@@ -35,7 +35,7 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> im
 	 * @param loc Scrutinized location.
 	 * @return The temperature of the location within the temperature band.
 	 */
-	private float getTemp(Location loc) {
+	private float getValue(Location loc) {
 		int lat = loc.y * bandNumber / height;
 		assert (lat < params.tempBands.length);
 		return params.tempBands[lat];
@@ -46,11 +46,11 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> im
 	 * @param aPar Agent type specific temperature parameters.
 	 * @return The effect temperature has on the agent.  0 if agent is unaffected.
 	 */
-	private float effectAtLocation(Location l, TemperatureAgentParams aPar) {
-		float temp = getTemp(l);
-		float ptemp = aPar.preferedTemp;
+	private float effectAtLocation(Location l, AbioticAgentParams aPar) {
+		float temp = getValue(l);
+		float ptemp = aPar.preferedValue;
 		float diff = Math.abs(temp - ptemp);
-		diff = Math.max(diff - aPar.preferedTempRange, 0);
+		diff = Math.max(diff - aPar.preferedRange, 0);
 		float res = diff * aPar.differenceFactor;
 		return res;
 	}
@@ -69,11 +69,11 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> im
 			return;
 		}
 
-		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
-		TemperatureState state = getAgentState(agent);
+		AbioticAgentParams aPar = params.agentParams[agent.getType()];
+		AbioticState state = getAgentState(agent);
 
 		if (from == null) {
-			state = new TemperatureState(aPar);
+			state = new AbioticState(aPar);
 			state.originalParamValue = aPar.parameter.getValue(agent);
 			setAgentState(agent, state);
 		}
@@ -95,10 +95,10 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> im
 	 * @param params Temperature parameters from the simulation configuration.
 	 * @param env Environment parameters from the simulation configuration.
 	 */
-	public void setParams(TemperatureParams params, AgentFoodCountable env) {
+	public void setParams(AbioticParams params, AgentFoodCountable env) {
 		this.params = params;
 		height = env.getHeight();
-		bandNumber = Math.min(TemperatureParams.TEMPERATURE_BANDS, height);
+		bandNumber = Math.min(AbioticParams.TEMPERATURE_BANDS, height);
 	}
 
 	@Override
@@ -114,12 +114,12 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> im
 
 		@Override
 		public String getName() {
-			return TemperatureParams.STATE_NAME_ABIOTIC_PENALTY;
+			return AbioticParams.STATE_NAME_ABIOTIC_PENALTY;
 		}
 
 		@Override
 		public double getValue(Agent agent) {
-			TemperatureAgentParams aPar = params.agentParams[agent.getType()];
+			AbioticAgentParams aPar = params.agentParams[agent.getType()];
 			double value = Math.abs(effectAtLocation(agent.getPosition(), aPar));
 			return value;
 		}

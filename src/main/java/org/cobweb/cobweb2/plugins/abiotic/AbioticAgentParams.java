@@ -9,7 +9,7 @@ import org.cobweb.io.ParameterSerializable;
 /**
  * Contains temperature parameters that are agent type specific.
  */
-public class TemperatureAgentParams implements ParameterSerializable {
+public class AbioticAgentParams implements ParameterSerializable {
 
 	private static final long serialVersionUID = -832525422408970835L;
 
@@ -18,14 +18,14 @@ public class TemperatureAgentParams implements ParameterSerializable {
 	 */
 	@ConfXMLTag("PreferedTemp")
 	@ConfDisplayName("Preferred value")
-	public float preferedTemp;
+	public float preferedValue;
 
 	/**
 	 * Temperature range that can be tolerated from the preferred temperature.
 	 */
 	@ConfXMLTag("PreferedTempRange")
 	@ConfDisplayName("Preferred value range")
-	public float preferedTempRange;
+	public float preferedRange;
 
 	/**
 	 * How much of an effect deviation from the preferred temperature range will have.
