@@ -62,20 +62,19 @@ public class ComplexEnvironment extends Environment {
 		agentData = config.agentParams.agentParams;
 
 		super.load(data.width, data.height, data.wrapMap, data.keepOldArray);
+		removeOffgridAgents(config.envParams.keepOldAgents);
 
 		// Remove old components
 		loadExisting();
 
-		loadNew(config);
 	}
 
 	protected void loadExisting() {
-		removeOffgridAgents();
-
 		if (data.keepOldAgents) {
 			loadOldAgents();
 		} else {
-			clearAgents();
+			// do not call clearAgents(), it invokes mutators, etc
+			agentTable.clear();
 		}
 
 		commManager.load(topology);
@@ -85,7 +84,7 @@ public class ComplexEnvironment extends Environment {
 		}
 	}
 
-	protected void loadNew(SimulationConfig config) {
+	public void loadNew(SimulationConfig config) {
 		// add stones in to random locations
 		for (int i = 0; i < data.initialStones; ++i) {
 			Location l;
@@ -166,8 +165,6 @@ public class ComplexEnvironment extends Environment {
 				}
 			}
 		}
-
-		removeOffgridAgents();
 	}
 
 	/**

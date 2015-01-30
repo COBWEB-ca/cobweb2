@@ -22,7 +22,7 @@ public class ComplexEnvironmentLearning extends ComplexEnvironment {
 	public List<Occurrence> allOccurrences = new LinkedList<Occurrence>();
 
 	@Override
-	protected void loadNew(SimulationConfig config) {
+	public void loadNew(SimulationConfig config) {
 		learningData = config.learningParams.agentParams;
 		super.loadNew(config);
 	}

@@ -174,6 +174,13 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(pdMutator);
 		}
 
+		// 0 = use default seed
+		if (p.envParams.randomSeed == 0)
+			random = new RandomNoGenerator();
+		else
+			random = new RandomNoGenerator(p.envParams.randomSeed);
+
+		InitEnvironment(p.envParams.environmentName, p);
 
 		geneticMutator.setParams(this, p.geneticParams, p.envParams.getAgentTypes());
 
@@ -187,20 +194,13 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 		pdMutator.setParams(p.pdParams);
 
-		// 0 = use default seed
-		if (p.envParams.randomSeed == 0)
-			random = new RandomNoGenerator();
-		else
-			random = new RandomNoGenerator(p.envParams.randomSeed);
-
-
-		InitEnvironment(p.envParams.environmentName, p);
-
 		prodMapper.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
 
 		wasteMutator.initEnvironment(theEnvironment);
 
 		setupPlugins();
+
+		theEnvironment.loadNew(p);
 	}
 
 	@Override

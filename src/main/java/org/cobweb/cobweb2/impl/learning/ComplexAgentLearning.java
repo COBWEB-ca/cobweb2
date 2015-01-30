@@ -451,7 +451,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		for (Occurrence oc : getEnvironment().allOccurrences)
 		{
 			ComplexAgentLearning occTarget = oc.target;
-			Location loc2 = occTarget.getPosition();
+			Location loc2 = oc.location;
 			if (environment.topology.getDistance(loc,loc2) <= oc.detectableDistance
 					&& (lParams.learnFromDifferentOthers || occTarget.getType() == getType())) {
 

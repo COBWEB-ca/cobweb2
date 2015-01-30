@@ -64,6 +64,11 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> im
 	 */
 	@Override
 	public void onStep(Agent agent, Location from, Location to) {
+		if (to == null) {
+			removeAgentState(agent);
+			return;
+		}
+
 		TemperatureAgentParams aPar = params.agentParams[agent.getType()];
 		TemperatureState state = getAgentState(agent);
 
@@ -71,11 +76,6 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> im
 			state = new TemperatureState(aPar);
 			state.originalParamValue = aPar.parameter.getValue(agent);
 			setAgentState(agent, state);
-		}
-
-		if (to == null) {
-			removeAgentState(agent);
-			return;
 		}
 
 		float effect = effectAtLocation(to, aPar);

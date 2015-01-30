@@ -1,11 +1,14 @@
 package org.cobweb.cobweb2.impl.learning;
 
+import org.cobweb.cobweb2.core.Location;
+
 
 
 public abstract class Occurrence implements Queueable {
 
 	public final float detectableDistance;
 	public final ComplexAgentLearning target;
+	public final Location location;
 	public final long time;
 	private final String desc;
 
@@ -14,6 +17,7 @@ public abstract class Occurrence implements Queueable {
 
 	public Occurrence(ComplexAgentLearning target, long time, float detectableDistance, String desc) {
 		this.target = target;
+		this.location = target.getPosition();
 		this.time = time;
 		this.detectableDistance = detectableDistance;
 		this.desc = desc;

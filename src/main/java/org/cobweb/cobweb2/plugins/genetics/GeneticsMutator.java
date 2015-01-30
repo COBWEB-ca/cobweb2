@@ -115,6 +115,9 @@ public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements
 			gc2 = gc1;
 		}
 
+		if (gc1.getNumGenes() != gc2.getNumGenes())
+			throw new IllegalArgumentException("Agents must have the same number of genes");
+
 		switch (params.meiosisMode) {
 			case ColourAveraging:
 				genetic_code = GeneticCode.createGeneticCodeMeiosisAverage(gc1, gc2);

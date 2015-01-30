@@ -242,11 +242,14 @@ public class Environment implements Updatable {
 	/**
 	 * Removes old agents that are off the new environment.
 	 */
-	protected void removeOffgridAgents() {
+	protected void removeOffgridAgents(boolean notifyAgents) {
 		for (Agent a : new ArrayList<Agent>(getAgents())) {
 			Location l = a.getPosition();
 			if (l.x >= topology.width || l.y >= topology.height) {
-				a.die();
+				if (notifyAgents)
+					a.die();
+				else
+					agentTable.remove(a); // Don't invoke mutators
 			}
 		}
 
