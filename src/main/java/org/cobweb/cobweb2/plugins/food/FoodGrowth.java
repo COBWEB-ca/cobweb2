@@ -6,10 +6,10 @@ import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.core.Updatable;
+import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 
 
-public class FoodGrowth implements Updatable {
+public class FoodGrowth implements EnvironmentMutator {
 
 	private static final int DROP_ATTEMPTS_MAX = 5;
 

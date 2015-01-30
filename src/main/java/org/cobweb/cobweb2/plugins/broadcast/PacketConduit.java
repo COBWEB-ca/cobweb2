@@ -8,9 +8,9 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.Topology;
-import org.cobweb.cobweb2.core.Updatable;
+import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 
-public class PacketConduit implements Updatable {
+public class PacketConduit implements EnvironmentMutator {
 
 	private boolean broadcastBlocked = false;
 
