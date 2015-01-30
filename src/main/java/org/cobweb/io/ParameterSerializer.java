@@ -146,6 +146,9 @@ public class ParameterSerializer {
 		} else if (type.isArray()) {
 			newValue = loadArray(type, annotationSource, currentValue, objectNode);
 
+		} else if (type.isAssignableFrom(List.class)) {
+			newValue = loadList(annotationSource, (List<?>) currentValue, objectNode);
+
 		} else if (type.isAssignableFrom(Map.class)) {
 			newValue = loadMap(annotationSource, currentValue, objectNode);
 
@@ -169,6 +172,9 @@ public class ParameterSerializer {
 
 		} else if (type.isArray()) {
 			saveArray(type, annotationSource, value, tag, doc);
+
+		} else if (type.isAssignableFrom(List.class)) {
+			saveList(annotationSource, (List<?>)value, tag, doc);
 
 		} else if (type.isAssignableFrom(Map.class)) {
 			saveMap(annotationSource, value, tag, doc);
@@ -275,6 +281,72 @@ public class ParameterSerializer {
 			else if (!ct.isArray())
 				return false;
 		}
+	}
+
+	private List<?> loadList(AnnotatedElement listAnnotations,
+			List<?> currentList, Node listNode)
+					throws IllegalArgumentException, IllegalAccessException {
+		Class<?> componentType = getListComponentType(listAnnotations);
+		ConfList listOptions = listAnnotations.getAnnotation(ConfList.class);
+
+		List<Object> result = new ArrayList<>();
+
+		NodeList children = listNode.getChildNodes();
+		int arrayIndex = 0;
+		for (int i = 0; i < children.getLength(); i++) {
+			Node itemNode = children.item(i);
+
+			if (!itemNode.getNodeName().startsWith(listOptions.indexName()[0]))
+				continue;
+
+			Object currentItem = null;
+			if (arrayIndex < currentList.size())
+				currentItem = currentList.get(arrayIndex);
+
+			Object newItem = currentItem;
+			newItem = loadObject(componentType, listAnnotations, currentItem, itemNode);
+
+			result.add(newItem);
+			arrayIndex++;
+		}
+
+		return result;
+	}
+
+	private void saveList(AnnotatedElement listAnnotations, List<?> list,
+			Element tag, Document doc) {
+		Class<?> componentType = getListComponentType(listAnnotations);
+		ConfList listOptions = listAnnotations.getAnnotation(ConfList.class);
+
+		for (int i = 0; i < list.size(); i++) {
+			int outputIndex = listOptions.startAtOne() ? i + 1 : i;
+			Element itemTag = doc.createElement(listOptions.indexName()[0]);
+			itemTag.setAttribute("id", Integer.toString(outputIndex));
+
+			Object item = list.get(i);
+
+			saveObject(componentType, listAnnotations, item, itemTag, doc);
+
+			tag.appendChild(itemTag);
+		}
+	}
+
+	protected Class<?> getListComponentType(AnnotatedElement listAnnotations)
+			throws IllegalArgumentException {
+
+		ConfListType listTypeAnnotation = listAnnotations.getAnnotation(ConfListType.class);
+		if (listTypeAnnotation == null)
+			throw new IllegalArgumentException("List not tagged with @ConfListType");
+
+		Class<?> componentType = listTypeAnnotation.value();
+
+		if (!canSerializeArray(componentType))
+			throw new IllegalArgumentException("Unknown list component type");
+
+		if (!listAnnotations.isAnnotationPresent(ConfList.class))
+			throw new IllegalArgumentException("Config lists must be tagged @ConfList");
+
+		return componentType;
 	}
 
 	private Object loadMap(AnnotatedElement mapAnnotations, Object currentMap, Node mapNode)
