@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
@@ -22,10 +21,10 @@ import org.cobweb.cobweb2.plugins.EnergyMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.StepMutator;
-import org.cobweb.cobweb2.plugins.pd.PDState.PDPunishmentCause;
-import org.cobweb.cobweb2.plugins.pd.PDState.PDRewardCause;
-import org.cobweb.cobweb2.plugins.pd.PDState.PDSuckerCause;
-import org.cobweb.cobweb2.plugins.pd.PDState.PDTemptationCause;
+import org.cobweb.cobweb2.plugins.pd.PDMutator.PDPunishmentCause;
+import org.cobweb.cobweb2.plugins.pd.PDMutator.PDRewardCause;
+import org.cobweb.cobweb2.plugins.pd.PDMutator.PDSuckerCause;
+import org.cobweb.cobweb2.plugins.pd.PDMutator.PDTemptationCause;
 
 
 public class StatsMutator extends StatefulMutatorBase<AgentStatistics>
@@ -103,10 +102,6 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 			return;
 		stats.deathTick = sim.getTime();
 		stats.path = null;
-
-		// Move stats from agent->state map to list of states
-		// Allows agent to be GCd
-		deadStats.add(removeAgentState(agent));
 	}
 
 	@Override
@@ -146,11 +141,16 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 				));
 	}
 
-	List<AgentStatistics> deadStats = new ArrayList<>();
+	@Override
+	protected void setAgentState(Agent agent, AgentStatistics state) {
+		super.setAgentState(agent, state);
+		allStats.add(state);
+	}
+
+	List<AgentStatistics> allStats = new ArrayList<>();
 
 	public Collection<AgentStatistics> getAllStats() {
-		Collection<AgentStatistics> res = CollectionUtils.union(agentStates.values(), deadStats);
-		return res;
+		return allStats;
 	}
 
 }

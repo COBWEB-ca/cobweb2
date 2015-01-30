@@ -8,7 +8,7 @@ import org.cobweb.cobweb2.core.RandomSource;
  * Copies state from parent agent during asexual reproduction.
  * Picks random parent to copy state from during sexual reproduction.
  */
-public abstract class StatefulSpawnMutatorBase<T> extends StatefulMutatorBase<T> implements SpawnMutator {
+public abstract class StatefulSpawnMutatorBase<T extends AgentState> extends StatefulMutatorBase<T> implements SpawnMutator {
 
 	private RandomSource rand;
 
@@ -66,6 +66,6 @@ public abstract class StatefulSpawnMutatorBase<T> extends StatefulMutatorBase<T>
 
 	@Override
 	public void onDeath(Agent agent) {
-		removeAgentState(agent);
+		// nothing
 	}
 }

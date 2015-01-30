@@ -8,6 +8,7 @@ import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.vision.SeeInfo;
+import org.cobweb.cobweb2.plugins.vision.VisionState;
 
 public class LinearWeightsController implements Controller {
 
@@ -56,7 +57,7 @@ public class LinearWeightsController implements Controller {
 		} else {
 			return;
 		}
-		SeeInfo get = simulator.getAgentState(SeeInfo.class, theAgent);
+		SeeInfo get = agent.getState(VisionState.class).distanceLook();
 		int type = get.getType();
 		int dist = get.getDist();
 

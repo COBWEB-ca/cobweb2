@@ -1,8 +1,8 @@
 package org.cobweb.cobweb2.test.ga;
 
-import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
-
 import junit.framework.TestCase;
+
+import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 
 public class GeneticCodeTest extends TestCase {
 
@@ -46,10 +46,10 @@ public class GeneticCodeTest extends TestCase {
 	}
 
 	public void test5() {
-		gc.setValue(0, 0);
-		gc.setValue(1, 30);
-		gc.setValue(2, 90);
-		gc.setValue(3, 180);
+		gc.setValue(0, (byte)0);
+		gc.setValue(1, (byte)30);
+		gc.setValue(2, (byte)90);
+		gc.setValue(3, (byte)180);
 
 		assertEquals("10110100" + "01011010" + "00011110" + "00000000", gc.stringFromBits(0, 32));
 

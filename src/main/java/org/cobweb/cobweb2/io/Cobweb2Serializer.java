@@ -9,6 +9,9 @@ import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.Agent;
@@ -24,6 +27,7 @@ import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.FieldPhenotype;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
+import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
@@ -174,6 +178,19 @@ public class Cobweb2Serializer {
 			agent.appendChild(directionElement);
 		}
 
+		Element plugins = d.createElement("Plugins");
+		for (Entry<Class<? extends AgentState>, AgentState> e : a.extraState.entrySet()) {
+			AgentState pluginState = e.getValue();
+			if (pluginState.isTransient())
+				continue;
+
+			Element plugin = d.createElement("Plugin");
+			plugin.setAttribute("type", e.getKey().getName());
+			serializer.save(pluginState, plugin, d);
+			plugins.appendChild(plugin);
+		}
+		agent.appendChild(plugins);
+
 		// FIXME plugin params: production, disease, PD, etc
 
 		return agent;
@@ -183,6 +200,7 @@ public class Cobweb2Serializer {
 		public int type;
 		public ComplexAgentParams params;
 		public LocationDirection position;
+		public Map<Class<? extends AgentState>, AgentState> plugins = new HashMap<>();
 	}
 
 	private AgentSample loadAgent(Element element, AgentFoodCountable size) {
@@ -208,7 +226,23 @@ public class Cobweb2Serializer {
 
 		as.position = new LocationDirection(loc, facing);
 
-		// FIXME plugin params: production, disease, PD, etc
+		NodeList pluginNodes = element.getElementsByTagName("Plugins").item(0).getChildNodes();
+		for (int i = 0; i < pluginNodes.getLength(); i++) {
+			Element pluginNode = (Element) pluginNodes.item(i);
+			String type = pluginNode.getAttribute("type");
+			try {
+				@SuppressWarnings("unchecked")
+				Class<? extends AgentState> pluginType = (Class<? extends AgentState>) Class.forName(type);
+
+				AgentState state = pluginType.newInstance();
+
+				serializer.load(state, pluginNode);
+
+				as.plugins.put(pluginType, state);
+			} catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
 
 		return as;
 	}

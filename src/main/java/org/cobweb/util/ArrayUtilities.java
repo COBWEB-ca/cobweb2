@@ -1,6 +1,9 @@
 package org.cobweb.util;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class ArrayUtilities {
 
@@ -67,6 +70,11 @@ public class ArrayUtilities {
 			}
 		}
 		return result;
+	}
+
+	public static <T> List<T> modifiableList(T[] array) {
+		List<T> list = new ArrayList<>(Arrays.asList(array));
+		return list;
 	}
 
 }

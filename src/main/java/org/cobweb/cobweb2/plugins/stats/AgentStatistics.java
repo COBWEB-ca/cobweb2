@@ -5,9 +5,10 @@ import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.plugins.AgentState;
 
 
-public class AgentStatistics implements Comparable<AgentStatistics> {
+public class AgentStatistics implements AgentState, Comparable<AgentStatistics> {
 
 	public final int id;
 	public final int type;
@@ -100,4 +101,9 @@ public class AgentStatistics implements Comparable<AgentStatistics> {
 	}
 
 
+	@Override
+	public boolean isTransient() {
+		return true;
+	}
+	private static final long serialVersionUID = 1L;
 }

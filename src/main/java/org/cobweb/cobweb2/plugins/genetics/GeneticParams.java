@@ -3,31 +3,21 @@
  */
 package org.cobweb.cobweb2.plugins.genetics;
 
-import java.util.Arrays;
-
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Phenotype;
-import org.cobweb.cobweb2.plugins.PerTypeParam;
+import org.cobweb.cobweb2.plugins.PerAgentParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfSquishParent;
 import org.cobweb.io.ConfXMLTag;
-import org.cobweb.io.ParameterSerializable;
 
 
-public class GeneticParams implements ParameterSerializable, PerTypeParam {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 4935757387466603476L;
+public class GeneticParams extends PerAgentParams<GeneticCode> {
 
-	public int getGeneCount() {
-		return phenotype.length;
-	}
-
+	// TODO: implement different lengths?
 	@ConfDisplayName("Gene length")
 	@ConfXMLTag("geneLength")
-	public int geneLength;
+	public int geneLength = 8;
 
 	@ConfDisplayName("Meiosis Mode")
 	@ConfXMLTag("meiosismode")
@@ -39,35 +29,31 @@ public class GeneticParams implements ParameterSerializable, PerTypeParam {
 	public Phenotype[] phenotype = new Phenotype[0];
 
 
-
-	/**
-	 * geneValues[agent][gene]
-	 */
-	@ConfSquishParent
-	@ConfList(indexName = {"agent", "gene"}, startAtOne = true)
-	public String[][] geneValues = new String[0][0];
+	public int getGeneCount() {
+		return phenotype.length;
+	}
 
 	public GeneticParams(AgentFoodCountable env) {
-		geneLength = 8;
-
+		super(GeneticCode.class);
 		resize(env);
 	}
 
 	@Override
 	public void resize(AgentFoodCountable envParams) {
-
-		String[][] n = Arrays.copyOf(geneValues, envParams.getAgentTypes());
-
-		for (int i = geneValues.length; i < envParams.getAgentTypes(); i++) {
-			n[i] = new String[getGeneCount()];
-			for (int j = 0; j < getGeneCount(); j++)
-				n[i][j] = "00011110";
-		}
-		geneValues = n;
-
+		super.resize(envParams);
+		resizeGenes();
 	}
 
+	public void resizeGenes() {
+		for(GeneticCode a : agentParams) {
+			a.setGeneCount(getGeneCount());
+		}
+	}
 
+	@Override
+	protected GeneticCode newAgentParam() {
+		return new GeneticCode(phenotype.length);
+	}
 
-
+	private static final long serialVersionUID = 2L;
 }

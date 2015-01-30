@@ -2,6 +2,8 @@ package org.cobweb.cobweb2.impl;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.cobweb.cobweb2.core.Agent;
@@ -13,6 +15,7 @@ import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.Topology;
+import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.plugins.broadcast.FoodBroadcast;
 import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
@@ -55,6 +58,8 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	protected boolean pregnant = false;
 
+	public Map<Class<? extends AgentState>, AgentState> extraState = new HashMap<>();
+
 	public transient ComplexEnvironment environment;
 
 	protected transient SimulationInternals simulation;
@@ -83,6 +88,22 @@ public class ComplexAgent extends Agent implements Serializable {
 
 	protected float calculateSimilarity(ComplexAgent other) {
 		return simulation.getSimilarityCalculator().similarity(this, other);
+	}
+
+	public <T extends AgentState> void setState(Class<T> type, T value) {
+		extraState.put(type, value);
+	}
+
+	public <T extends AgentState> T getState(Class<T> type) {
+		@SuppressWarnings("unchecked")
+		T storedState = (T) extraState.get(type);
+		return storedState;
+	}
+
+	public <T extends AgentState> T removeState(Class<T> type) {
+		@SuppressWarnings("unchecked")
+		T removed = (T) extraState.remove(type);
+		return removed;
 	}
 
 	@Override
@@ -315,7 +336,7 @@ public class ComplexAgent extends Agent implements Serializable {
 		simulation.addAgent(this);
 	}
 
-	public void rememberBadAgent(ComplexAgent cheater) {
+	public void rememberBadAgent(Agent cheater) {
 		if (cheater.equals(this)) // heh
 			return;
 

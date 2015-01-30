@@ -198,9 +198,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 		prodMapper.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
 
-		wasteMutator.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
-
-		vision.initEnvironment(theEnvironment);
+		wasteMutator.initEnvironment(theEnvironment);
 
 		setupPlugins();
 	}
@@ -220,7 +218,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 				if (!agent.isAlive())
 					agents.remove(agent);
 			}
-			diseaseMutator.update();
 			// TODO update other modules here
 		}
 
@@ -284,11 +281,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	}
 
 	public MutatorListener mutatorListener = new MutatorListener();
-
-	@Override
-	public <T> T getAgentState(Class<T> stateClass, Agent agent) {
-		return mutatorListener.getMutatorState(stateClass, agent);
-	}
 
 	@Override
 	public AgentListener getAgentListener() {

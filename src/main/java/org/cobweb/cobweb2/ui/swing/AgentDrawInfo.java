@@ -6,7 +6,7 @@ import java.awt.Graphics;
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
+import org.cobweb.cobweb2.plugins.disease.DiseaseState;
 import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 import org.cobweb.cobweb2.plugins.pd.PDState;
 import org.cobweb.swingutil.ColorLookup;
@@ -33,14 +33,14 @@ class AgentDrawInfo {
 	AgentDrawInfo(ComplexAgent agent, ColorLookup colorMap, Simulation sim) {
 		int[] rgb = new int[3];
 
-		GeneticCode genes = sim.mutatorListener.getMutatorState(GeneticCode.class, agent);
+		GeneticCode genes = agent.getState(GeneticCode.class);
 		if (genes != null) {
 			for (int i = 0; i < Math.min(3, genes.getNumGenes()); i++) {
 				rgb[i] = genes.getValue(i);
 			}
 		}
 
-		DiseaseMutator.State sick = sim.mutatorListener.getMutatorState(DiseaseMutator.State.class, agent);
+		DiseaseState sick = agent.getState(DiseaseState.class);
 		if (sick != null) {
 			if (sick.sick)
 				rgb[2] = 255;
@@ -52,7 +52,7 @@ class AgentDrawInfo {
 
 		position = agent.getPosition();
 
-		PDState pd = sim.mutatorListener.getMutatorState(PDState.class, agent);
+		PDState pd = agent.getState(PDState.class);
 		action = (pd != null && pd.pdCheater) ? Color.RED : Color.BLACK;
 	}
 

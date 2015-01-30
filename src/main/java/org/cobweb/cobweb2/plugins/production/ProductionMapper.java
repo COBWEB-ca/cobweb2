@@ -16,7 +16,7 @@ import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
-public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionAgentParams> implements StatePlugin, UpdateMutator {
+public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState> implements StatePlugin, UpdateMutator {
 
 	private Environment environment;
 	private float[][] vals;
@@ -25,7 +25,7 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionAgentPa
 	private ProductionAgentParams[] initialParams;
 
 	public ProductionMapper(SimulationInternals sim) {
-		super(ProductionAgentParams.class, sim);
+		super(ProductionState.class, sim);
 		simulation = sim;
 	}
 
@@ -134,7 +134,7 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionAgentPa
 
 		updateValues(prod, true);
 
-		owner.changeEnergy(-getAgentState(owner).productionCost, new ProduceProductCause());
+		owner.changeEnergy(-getAgentState(owner).agentParams.productionCost, new ProduceProductCause());
 
 		environment.addDrop(loc, prod);
 	}
@@ -145,11 +145,11 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionAgentPa
 	}
 
 	private boolean shouldProduce(Agent agent) {
-		if (!hasAgentState(agent)) {
+		if (!agent.isAlive() || !hasAgentState(agent)) {
 			return false;
 		}
 
-		ProductionAgentParams params = getAgentState(agent);
+		ProductionAgentParams params = getAgentState(agent).agentParams;
 		if (!params.productionMode || !roll(params.initProdChance)){
 			return false;
 		}
@@ -250,12 +250,16 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionAgentPa
 
 
 	@Override
-	public ProductionAgentParams stateForNewAgent(Agent agent) {
-		return initialParams[agent.getType()].clone();
+	public ProductionState stateForNewAgent(Agent agent) {
+		ProductionAgentParams params = initialParams[agent.getType()];
+		if (params.productionMode)
+			return new ProductionState(params.clone());
+		else
+			return null;
 	}
 
 	@Override
-	protected ProductionAgentParams stateFromParent(Agent agent, ProductionAgentParams parentState) {
+	protected ProductionState stateFromParent(Agent agent, ProductionState parentState) {
 		if (parentState == null)
 			return null;
 		return parentState.clone();

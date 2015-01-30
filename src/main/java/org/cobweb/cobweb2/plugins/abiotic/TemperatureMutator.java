@@ -16,14 +16,10 @@ import org.cobweb.cobweb2.plugins.StepMutator;
  *
  * @author ???
  */
-public class TemperatureMutator extends StatefulMutatorBase<TemperatureMutator.TemperatureState> implements StepMutator, StatePlugin {
+public class TemperatureMutator extends StatefulMutatorBase<TemperatureState> implements StepMutator, StatePlugin {
 
 	public TemperatureMutator() {
 		super(TemperatureState.class);
-	}
-
-	public static class TemperatureState {
-		public float originalParamValue;
 	}
 
 	private TemperatureParams params;
@@ -72,7 +68,7 @@ public class TemperatureMutator extends StatefulMutatorBase<TemperatureMutator.T
 		TemperatureState state = getAgentState(agent);
 
 		if (from == null) {
-			state = new TemperatureState();
+			state = new TemperatureState(aPar);
 			state.originalParamValue = aPar.parameter.getValue(agent);
 			setAgentState(agent, state);
 		}

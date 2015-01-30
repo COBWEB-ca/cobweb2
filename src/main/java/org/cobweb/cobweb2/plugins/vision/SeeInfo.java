@@ -1,10 +1,12 @@
 package org.cobweb.cobweb2.plugins.vision;
 
+import org.cobweb.cobweb2.plugins.AgentState;
+
 /**
  * This class provides the information of what an agent sees.
  *
  */
-public class SeeInfo {
+public class SeeInfo implements AgentState {
 	private final int dist;
 
 	private final int type;
@@ -52,4 +54,10 @@ public class SeeInfo {
 	public int getMaxDistance() {
 		return maxDistance;
 	}
+
+	@Override
+	public boolean isTransient() {
+		return true;
+	}
+	private static final long serialVersionUID = 1L;
 }

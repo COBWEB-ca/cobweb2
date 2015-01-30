@@ -55,7 +55,7 @@ public class StatsTracker  {
 	}
 
 	protected void tallyPD(CoopCheaterCount coopCheaterCount, Agent a) {
-		PDState pdState = simulation.mutatorListener.getMutatorState(PDState.class, a);
+		PDState pdState = ((ComplexAgent)a).getState(PDState.class);
 		if (pdState == null)
 			return;
 

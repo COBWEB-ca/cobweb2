@@ -79,7 +79,7 @@ class DrawInfo {
 		}
 
 		for (ComplexAgent observedAgent: observedAgents) {
-			AgentStatistics stats = sim.mutatorListener.getMutatorState(AgentStatistics.class, observedAgent);
+			AgentStatistics stats = observedAgent.getState(AgentStatistics.class);
 			if (stats.path != null)
 				paths.add(new PathDrawInfo(stats.path));
 		}

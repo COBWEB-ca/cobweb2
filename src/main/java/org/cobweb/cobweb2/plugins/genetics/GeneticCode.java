@@ -1,7 +1,12 @@
 package org.cobweb.cobweb2.plugins.genetics;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Random;
+
+import org.cobweb.cobweb2.plugins.AgentState;
+import org.cobweb.io.ConfList;
+import org.cobweb.io.ConfSquishParent;
 
 /** The class that handles the core functionality of the
  * genetic algorithm. Aside from storing the actual
@@ -9,7 +14,11 @@ import java.util.Random;
  * that analyses and changes the genetic sequence in
  * specific ways.
  */
-public class GeneticCode {
+public class GeneticCode implements AgentState {
+
+	@ConfSquishParent
+	@ConfList(indexName="Gene", startAtOne = true)
+	public byte[] genes = new byte[0];
 
 	/**
 	 * Compares two input bit strings of identical length and returns their %
@@ -33,22 +42,14 @@ public class GeneticCode {
 		if (gc1 == gc2)
 			return 1;
 
-
-
-		int similarity_number = 0;
-		int length = Math.min(gc1.bytes * 8, gc2.bytes * 8);
-		int maxLen = Math.max(gc1.bytes * 8, gc2.bytes * 8);
-
-		/*
-		 * Go through each digit of the bit strings and add 1 to
-		 * "similarity_number" for every matching digit.
-		 */
-		for (int i = 0; i < length; i++) {
-			if (gc1.genes.get(i) == gc2.genes.get(i))
-				similarity_number++;
-		}
+		int maxLen = Math.max(gc1.getNumGenes() * 8, gc2.getNumGenes() * 8);
 		if (maxLen == 0)
 			return 1;
+
+		BitSet differentBits = gc1.getBitSet();
+		differentBits.xor(gc1.getBitSet());
+
+		int similarity_number = maxLen - differentBits.cardinality();
 
 		return (float) similarity_number / maxLen;
 	}
@@ -63,10 +64,10 @@ public class GeneticCode {
 	 * @return The new bit string.
 	 */
 	public static GeneticCode createGeneticCodeMeiosisAverage(GeneticCode genes1, GeneticCode genes2) {
-		GeneticCode result = new GeneticCode(genes1.bytes);
-		for (int i = 0; i < result.bytes; i++) {
-			int s = genes1.getByte(i * 8) + genes2.getByte(i * 8);
-			result.setByte(i * 8, (byte)(s / 2));
+		GeneticCode result = new GeneticCode(genes1.getNumGenes());
+		for (int i = 0; i < result.getNumGenes(); i++) {
+			int s = genes1.getValue(i) + genes2.getValue(i);
+			result.setValue(i, (byte)(s / 2));
 		}
 		return result;
 	}
@@ -82,15 +83,15 @@ public class GeneticCode {
 	 * @return The new bit string.
 	 */
 	public static GeneticCode createGeneticCodeMeiosisGeneSwap(GeneticCode genes1, GeneticCode genes2, Random random) {
-		GeneticCode result = new GeneticCode(genes1.bytes);
-		for (int i = 0; i < result.bytes; i++) {
-			byte s;
+		GeneticCode result = new GeneticCode(genes1.getNumGenes());
+		for (int i = 0; i < result.getNumGenes(); i++) {
+			int s;
 			if (random.nextBoolean())
-				s = genes1.getByte(i * 8);
+				s = genes1.getValue(i);
 			else
-				s = genes2.getByte(i * 8);
+				s = genes2.getValue(i);
 
-			result.setByte(i * 8, s);
+			result.setValue(i, (byte) s);
 		}
 		return result;
 	}
@@ -105,52 +106,43 @@ public class GeneticCode {
 	 * @return The new bit string.
 	 */
 	public static GeneticCode createGeneticCodeMeiosisRecomb(GeneticCode genes1, GeneticCode genes2, Random random) {
-		assert(genes1.bytes == genes2.bytes);
-		GeneticCode result = new GeneticCode(genes1.bytes);
-		int split = random.nextInt(result.bytes * 8);
+		assert(genes1.getNumGenes() == genes2.getNumGenes());
+		GeneticCode result = new GeneticCode(genes1.getNumGenes());
+		int split = random.nextInt(result.getNumGenes() * 8);
 
-		for (int i = 0; i < split; i++)
-			result.genes.set(i, genes1.genes.get(i));
+		BitSet resultBS = genes1.getBitSet().get(0, split);
+		BitSet rightSide = genes2.getBitSet();
+		rightSide.clear(0, split);
+		resultBS.or(rightSide);
 
-		for (int i = split; i < genes1.bytes * 8; i++)
-			result.genes.set(i, genes2.genes.get(i));
+		result.setBitSet(resultBS);
 
 		return result;
 	}
 
-	private BitSet genes;
-
-	private int bytes;
-
 	public GeneticCode(GeneticCode parent) {
-		this(parent.bytes);
-		genes.or(parent.genes);
-	}
-
-	public GeneticCode(int bytes) {
-		this.bytes = bytes;
-		genes = new BitSet(bytes * 8);
+		this(parent.getNumGenes());
+		genes = Arrays.copyOf(parent.genes, parent.getNumGenes());
 	}
 
 	public void bitsFromString(int start, int length, String string, int stringStart) {
+		BitSet bs = getBitSet();
 		int len = Math.min(length, string.length() - stringStart);
 		for (int i = 0; i < len; i++) {
-			genes.set(start + i, string.charAt(stringStart + (len - i - 1)) == '1');
+			bs.set(start + i, string.charAt(stringStart + (len - i - 1)) == '1');
 		}
+		setBitSet(bs);
 	}
 
-	private byte getByte(int position) {
-		byte res = 0;
-		for (int i = 0; i < 8; i++) {
-			res = (byte)(res << 1);
-			boolean on = genes.get(position + (7 - i));
-			res += on ? 1 : 0;
-		}
-		return res;
+	public GeneticCode(int geneCount) {
+		setGeneCount(geneCount);
+	}
+
+	public GeneticCode() {
 	}
 
 	public int getNumGenes() {
-		return bytes;
+		return genes.length;
 	}
 
 	public float getStatus(int gene) {
@@ -163,7 +155,19 @@ public class GeneticCode {
 	 * @return An int array that stores the rgb colour.
 	 */
 	public int getValue(int gene) {
-		return getByte(gene * 8) & 0xff;
+		return genes[gene] & 0xff;
+	}
+
+	public void setValue(int gene, byte value) {
+		genes[gene] = value;
+	}
+
+	private BitSet getBitSet() {
+		return BitSet.valueOf(genes);
+	}
+
+	private void setBitSet(BitSet bs) {
+		genes = Arrays.copyOf(bs.toByteArray(), getNumGenes());
 	}
 
 	/**
@@ -172,25 +176,31 @@ public class GeneticCode {
 	 * @param position The position of the string to be mutated.
 	 */
 	public void mutate(int position) {
-		genes.flip(position);
-	}
-
-	private void setByte(int position, byte value) {
-		for (int i = 0; i < 8; i++) {
-			boolean on = (value & (1 << i)) > 0;
-			genes.set(position + i, on);
-		}
-	}
-
-	public void setValue(int gene, int value) {
-		setByte(gene * 8, (byte)value);
+		BitSet bs = getBitSet();
+		bs.flip(position);
+		setBitSet(bs);
 	}
 
 	public String stringFromBits(int start, int length) {
+		BitSet bs = getBitSet();
 		StringBuilder sb = new StringBuilder(length);
 		for (int i = length - 1; i >= 0; i--) {
-			sb.append(genes.get(start + i) ? '1' : '0');
+			sb.append(bs.get(start + i) ? '1' : '0');
 		}
 		return sb.toString();
 	}
+
+	public void setGeneCount(int geneCount) {
+		int oldCount = getNumGenes();
+		genes = Arrays.copyOf(genes, geneCount);
+		for (int i = oldCount; i < geneCount; i++) {
+			genes[i] = 30;
+		}
+	}
+
+	@Override
+	public boolean isTransient() {
+		return false;
+	}
+	private static final long serialVersionUID = 1L;
 }

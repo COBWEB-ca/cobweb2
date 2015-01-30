@@ -1,11 +1,11 @@
 package org.cobweb.cobweb2.plugins.production;
 
+import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
-import org.cobweb.io.ParameterSerializable;
 
 
-public class ProductionAgentParams implements ParameterSerializable {
+public class ProductionAgentParams implements AgentState {
 
 	/**
 	 * Enable production
@@ -57,5 +57,9 @@ public class ProductionAgentParams implements ParameterSerializable {
 		}
 	}
 
+	@Override
+	public boolean isTransient() {
+		return false;
+	}
 	private static final long serialVersionUID = 2L;
 }
