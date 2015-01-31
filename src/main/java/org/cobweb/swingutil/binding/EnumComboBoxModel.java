@@ -3,24 +3,20 @@
  */
 package org.cobweb.swingutil.binding;
 
-import java.lang.reflect.Field;
-
 import javax.swing.DefaultComboBoxModel;
+
+import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 
 public class EnumComboBoxModel<T extends Enum<T>> extends DefaultComboBoxModel<T> {
 	private static final long serialVersionUID = -9190442597939410887L;
 
 	private T[] values;
-	private Field field;
+	private PropertyAccessor field;
 	private Object obj;
 
 	@SuppressWarnings("unchecked")
-	public EnumComboBoxModel(Object obj, String fieldName) {
-		try {
-			this.field = obj.getClass().getField(fieldName);
-		} catch (NoSuchFieldException ex) {
-			throw new RuntimeException(ex);
-		}
+	public EnumComboBoxModel(Object obj, PropertyAccessor accessor) {
+		this.field = accessor;
 		Class<?> type = field.getType();
 		if (!type.isEnum())
 			throw new IllegalArgumentException("Field must be an enum");
@@ -31,20 +27,12 @@ public class EnumComboBoxModel<T extends Enum<T>> extends DefaultComboBoxModel<T
 
 	@Override
 	public Object getSelectedItem() {
-		try {
-			return field.get(obj);
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException(ex);
-		}
+		return field.get(obj);
 	}
 
 	@Override
 	public void setSelectedItem(Object arg0) {
-		try {
-			field.set(obj, arg0);
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException(ex);
-		}
+		field.set(obj, arg0);
 	}
 
 	@Override

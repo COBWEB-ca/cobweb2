@@ -1,10 +1,8 @@
 package org.cobweb.swingutil.binding;
 
-import java.lang.reflect.Field;
-
 import javax.swing.JCheckBox;
 
-import org.cobweb.io.ConfDisplayName;
+import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 
 public class BoundCheckBox extends JCheckBox implements FieldBoundComponent {
 
@@ -13,38 +11,29 @@ public class BoundCheckBox extends JCheckBox implements FieldBoundComponent {
 
 		@Override
 		public boolean isSelected() {
-			try {
-				return field.getBoolean(obj);
-			} catch (IllegalAccessException ex) {
-				throw new RuntimeException(ex);
-			}
+			return (boolean) field.get(obj);
 		}
 
 		@Override
 		public void setSelected(boolean b) {
-			try {
-				field.setBoolean(obj, b);
-			} catch (IllegalAccessException ex) {
-				throw new RuntimeException(ex);
-			}
+			field.set(obj, b);
 		}
 	}
 
 	private static final long serialVersionUID = -4621056922233460755L;
 	private final Object obj;
-	private final Field field;
+	private final PropertyAccessor field;
 
 	private final String label;
 
-	public BoundCheckBox(Object obj, String fieldName) {
+	public BoundCheckBox(Object obj, PropertyAccessor accessor) {
 		this.obj = obj;
-		try {
-			this.field = obj.getClass().getField(fieldName);
-		} catch (NoSuchFieldException ex) {
-			throw new RuntimeException(ex);
-		}
+		this.field = accessor;
+		if (!field.getType().equals(boolean.class) && !field.getType().equals(Boolean.class))
+			throw new IllegalArgumentException("Accessor type must be boolean");
+
 		setModel(new BoundButtonModel());
-		this.label = field.getAnnotation(ConfDisplayName.class).value();
+		this.label = accessor.getName();
 	}
 
 	@Override
