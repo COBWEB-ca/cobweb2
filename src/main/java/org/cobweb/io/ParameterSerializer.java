@@ -229,7 +229,7 @@ public class ParameterSerializer {
 				continue;
 
 			Object currentItem = null;
-			if (arrayIndex < Array.getLength(currentArray))
+			if (currentArray != null && arrayIndex < Array.getLength(currentArray))
 				currentItem = Array.get(currentArray, arrayIndex);
 
 			Object newItem = currentItem;

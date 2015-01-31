@@ -261,6 +261,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	private List<StatePlugin> plugins = new LinkedList<StatePlugin>();
 
 	private void setupPlugins() {
+		pluginMap.clear();
 		for (StatePlugin plugin : plugins) {
 			for (StateParameter param : plugin.getParameters()) {
 				pluginMap.put(param.getName(), param);
