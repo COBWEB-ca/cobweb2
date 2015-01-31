@@ -50,7 +50,8 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfXMLTag("Production")
 	public ProductionParams prodParams = new ProductionParams(envParams);
 
-	@ConfXMLTag("Temperature")
+	// FIXME!!! upgrade config xml!
+	@ConfXMLTag("Abiotic")
 	public AbioticParams abioticParams = new AbioticParams(envParams);
 
 	@ConfXMLTag("Learning")

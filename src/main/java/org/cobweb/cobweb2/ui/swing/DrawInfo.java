@@ -8,7 +8,6 @@ import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.stats.AgentStatistics;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.util.Point2D;
@@ -138,11 +137,11 @@ class DrawInfo {
 			path.draw(g, tileWidth, tileHeight);
 		}
 
-		int limit = Math.min(AbioticParams.TEMPERATURE_BANDS, height);
-		// Temperature band labels
+		// FIXME!!! abiotic grid
+		int limit = Math.min(5, height);
 		for (int y = 0; y < height; y++) {
 			int band = y * limit / height;
-			g.setColor(displaySettings.agentColor.getColor(band, AbioticParams.TEMPERATURE_BANDS));
+			g.setColor(displaySettings.agentColor.getColor(band, 5));
 			int offset = (limit / 2 - band) * 3 / -2;
 			for (int i = 0; i <= band; i++) {
 				int x = (i + 2) * -3 + offset;

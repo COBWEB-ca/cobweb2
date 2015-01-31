@@ -186,7 +186,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 		diseaseMutator.setParams(this, p.diseaseParams, p.envParams.getAgentTypes());
 
-		abioticMutator.setParams(p.abioticParams, p.envParams);
+		abioticMutator.setParams(p.abioticParams, theEnvironment.topology);
 
 		wasteMutator.setParams(p.wasteParams);
 

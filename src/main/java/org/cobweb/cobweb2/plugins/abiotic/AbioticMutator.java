@@ -1,13 +1,13 @@
 package org.cobweb.cobweb2.plugins.abiotic;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.StepMutator;
 
@@ -24,34 +24,34 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 
 	private AbioticParams params;
 
-	private int bandNumber;
+	private Topology topology;
 
 	/**
-	 * Height of the simulation grid.
+	 * @param loc location.
+	 * @return The abiotic factor value at location
 	 */
-	private int height = -9000;
+	private float getValue(int factor, Location loc) {
+		float x = (float) loc.x / topology.width;
+		float y = (float) loc.y / topology.height;
 
-	/**
-	 * @param loc Scrutinized location.
-	 * @return The temperature of the location within the temperature band.
-	 */
-	private float getValue(Location loc) {
-		int lat = loc.y * bandNumber / height;
-		assert (lat < params.tempBands.length);
-		return params.tempBands[lat];
+		AbioticFactor abioticFactor = params.factors.get(factor);
+		float value = abioticFactor.getValue(x, y);
+		return value;
 	}
 
 	/**
-	 * @param l Scrutinized location.
-	 * @param aPar Agent type specific temperature parameters.
-	 * @return The effect temperature has on the agent.  0 if agent is unaffected.
+	 * @param l agent location.
+	 * @param aPar Agent type specific parameters.
+	 * @return The effect the abiotic factor has on the agent. 0 if agent is unaffected.
 	 */
-	private float effectAtLocation(Location l, AbioticAgentParams aPar) {
-		float temp = getValue(l);
-		float ptemp = aPar.preferedValue;
+	private float effectAtLocation(int factor, Location l, AbioticAgentParams aPar) {
+		float temp = getValue(factor, l);
+		AgentFactorParams agentFactorParams = aPar.factorParams[factor];
+
+		float ptemp = agentFactorParams.preferedValue;
 		float diff = Math.abs(temp - ptemp);
-		diff = Math.max(diff - aPar.preferedRange, 0);
-		float res = diff * aPar.differenceFactor;
+		diff = Math.max(diff - agentFactorParams.preferedRange, 0);
+		float res = diff * agentFactorParams.differenceFactor;
 		return res;
 	}
 
@@ -74,37 +74,44 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 
 		if (from == null) {
 			state = new AbioticState(aPar);
-			state.originalParamValue = aPar.parameter.getValue(agent);
+			for (int i = 0; i < params.factors.size(); i++) {
+				state.factorStates[i].originalParamValue = aPar.factorParams[i].parameter.getValue(agent);
+			}
 			setAgentState(agent, state);
 		}
 
-		float effect = effectAtLocation(to, aPar);
+		for (int i = 0; i < params.factors.size(); i++) {
+			AbioticFactorState factorState = state.factorStates[i];
+			float effect = effectAtLocation(i, to, aPar);
 
-		if (from != null && effectAtLocation(from, aPar) == effect)
-			return;
+			if (from != null && effectAtLocation(i, from, aPar) == effect)
+				continue;
 
-		float multiplier = 1 + effect;
-		float newValue = state.originalParamValue * multiplier;
+			float multiplier = 1 + effect;
+			float newValue = factorState.originalParamValue * multiplier;
 
-		aPar.parameter.setValue(agent, newValue);
+			factorState.agentParams.parameter.setValue(agent, newValue);
+		}
 	}
 
 	/**
-	 * Sets the temperature parameters according to the simulation configuration.
+	 * Sets the parameters according to the simulation configuration.
 	 *
-	 * @param params Temperature parameters from the simulation configuration.
-	 * @param env Environment parameters from the simulation configuration.
+	 * @param params abiotic parameters from the simulation configuration.
+	 * @param topology simulation topology
 	 */
-	public void setParams(AbioticParams params, AgentFoodCountable env) {
+	public void setParams(AbioticParams params, Topology topology) {
 		this.params = params;
-		height = env.getHeight();
-		bandNumber = Math.min(AbioticParams.TEMPERATURE_BANDS, height);
+		this.topology = topology;
 	}
 
 	@Override
 	public List<StateParameter> getParameters() {
-		return Arrays.asList(
-				(StateParameter)new AbioticStatePenalty());
+		List<StateParameter> res = new ArrayList<>(params.factors.size());
+		for (int i = 0; i < params.factors.size(); i++) {
+			res.add(new AbioticStatePenalty(i));
+		}
+		return res;
 	}
 
 	/**
@@ -112,15 +119,21 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 	 */
 	private class AbioticStatePenalty implements StateParameter {
 
+		private int factor;
+
+		public AbioticStatePenalty(int factor) {
+			this.factor = factor;
+		}
+
 		@Override
 		public String getName() {
-			return AbioticParams.STATE_NAME_ABIOTIC_PENALTY;
+			return String.format(AbioticParams.STATE_NAME_ABIOTIC_PENALTY, factor + 1);
 		}
 
 		@Override
 		public double getValue(Agent agent) {
 			AbioticAgentParams aPar = params.agentParams[agent.getType()];
-			double value = Math.abs(effectAtLocation(agent.getPosition(), aPar));
+			double value = Math.abs(effectAtLocation(factor, agent.getPosition(), aPar));
 			return value;
 		}
 
