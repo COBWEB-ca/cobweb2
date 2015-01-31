@@ -133,7 +133,7 @@ public class BehaviorArray {
 		return newArray;
 	}
 
-	private int get(int index) {
+	int get(int index) {
 
 		/* bitbase is the first bit of the target element */
 		int bitbase = index * outputBits;
@@ -185,7 +185,7 @@ public class BehaviorArray {
 
 	}
 
-	private void set(int index, int value) {
+	void set(int index, int value) {
 
 		/* bitbase is the first bit of the target element */
 		int bitbase = index * outputBits;
