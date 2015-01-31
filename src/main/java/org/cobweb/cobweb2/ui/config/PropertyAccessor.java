@@ -1,5 +1,7 @@
 package org.cobweb.cobweb2.ui.config;
 
+import java.lang.reflect.AnnotatedElement;
+
 /**
  * Allows a property of an object to be read and written.
  */
@@ -30,4 +32,6 @@ public interface PropertyAccessor {
 	 * @return class of the property
 	 */
 	public Class<?> getType();
+
+	public AnnotatedElement getAnnotationSource();
 }

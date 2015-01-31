@@ -52,54 +52,50 @@ public class ConfigTableModel extends AbstractTableModel {
 	}
 
 	protected void bindObject(ParameterSerializable d) {
-		bindObject(d, d.getClass(), null);
+		bindConfigObject(d, d.getClass(), null);
 	}
 
-	protected void bindObject(ParameterSerializable root, Class<? extends ParameterSerializable> actualClass, PropertyAccessor parent) {
+	protected void bindConfigObject(ParameterSerializable root, Class<? extends ParameterSerializable> actualClass, PropertyAccessor parent) {
 		for (Field f : actualClass.getFields()) {
-			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
-			ConfDisplayFormat displayFormat = f.getAnnotation(ConfDisplayFormat.class);
-			if (display == null && displayFormat == null)
+			if (!f.isAnnotationPresent(ConfDisplayName.class) &&
+					!f.isAnnotationPresent(ConfDisplayFormat.class))
 				continue;
 
-			FieldPropertyAccessor fieldAccessor = new FieldPropertyAccessor(parent, f);
-			try {
-
-				if (f.getType().isArray()) {
-					int len = Array.getLength(fieldAccessor.getValue(root));
-					for (int i = 0; i < len; i++){
-						bindItem(root, new ArrayPropertyAccessor(fieldAccessor, i, displayFormat));
-					}
-				} else if (List.class.isAssignableFrom(f.getType())) {
-					List<?> list = (List<?>) fieldAccessor.getValue(root);
-					for (int i = 0; i < list.size(); i++) {
-						bindItem(root, new ListPropertyAccessor(fieldAccessor, i, displayFormat));
-					}
-				} else if (Map.class.isAssignableFrom(f.getType())) {
-					Map<?, ?> col = (Map<?, ?>) fieldAccessor.getValue(root);
-					for (Object k : col.keySet()) {
-						bindItem(root, new MapPropertyAccessor(fieldAccessor, k, displayFormat));
-					}
-				} else {
-					bindItem(root, fieldAccessor);
-				}
-
-			} catch (IllegalArgumentException ex) {
-				throw new RuntimeException("Could not bind field " + actualClass.getName() + "." + fieldAccessor.toString(), ex);
-			}
-
+			PropertyAccessor fieldAccessor = new FieldPropertyAccessor(parent, f);
+			bindItem(root, fieldAccessor);
 		}
 	}
 
-	protected void bindItem(ParameterSerializable root, PropertyAccessor itemAccessor) {
-		if (ParameterSerializable.class.isAssignableFrom(itemAccessor.getType())) {
-			//DEBUG System.out.println("Recursing: " + root.getClass().getSimpleName() + "." + itemAccessor.toString());
-
-			ParameterSerializable value = (ParameterSerializable) itemAccessor.getValue(root);
-			Class<? extends ParameterSerializable> valueClass = value.getClass();
-			bindObject(root, valueClass, itemAccessor);
-		} else {
-			fields.add(itemAccessor);
+	protected void bindItem(ParameterSerializable root, PropertyAccessor fieldAccessor) {
+		{
+			try {
+				if (fieldAccessor.getType().isArray()) {
+					int len = Array.getLength(fieldAccessor.getValue(root));
+					for (int i = 0; i < len; i++){
+						bindItem(root, new ArrayPropertyAccessor(fieldAccessor, i));
+					}
+				} else if (List.class.isAssignableFrom(fieldAccessor.getType())) {
+					List<?> list = (List<?>) fieldAccessor.getValue(root);
+					for (int i = 0; i < list.size(); i++) {
+						bindItem(root, new ListPropertyAccessor(fieldAccessor, i));
+					}
+				} else if (Map.class.isAssignableFrom(fieldAccessor.getType())) {
+					Map<?, ?> col = (Map<?, ?>) fieldAccessor.getValue(root);
+					for (Object k : col.keySet()) {
+						bindItem(root, new MapPropertyAccessor(fieldAccessor, k));
+					}
+				} else if (ParameterSerializable.class.isAssignableFrom(fieldAccessor.getType())) {
+					ParameterSerializable value = (ParameterSerializable) fieldAccessor.getValue(root);
+					Class<? extends ParameterSerializable> valueClass = value.getClass();
+					bindConfigObject(root, valueClass, fieldAccessor);
+				} else {
+					//DEBUG
+					//System.out.println("Binding: " + root.getClass().getSimpleName() + fieldAccessor.toString() + " as \"" + fieldAccessor.getName() +"\"");
+					fields.add(fieldAccessor);
+				}
+			} catch (IllegalArgumentException ex) {
+				throw new RuntimeException("Could not bind property " + root.getClass().getName() + fieldAccessor.toString(), ex);
+			}
 		}
 	}
 

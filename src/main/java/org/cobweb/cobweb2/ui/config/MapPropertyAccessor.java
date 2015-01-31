@@ -8,10 +8,8 @@ import org.cobweb.io.ConfMap;
 /**
  * PropertyAccessor that gets/sets map values.
  */
-public class MapPropertyAccessor implements PropertyAccessor {
+public class MapPropertyAccessor extends PropertyAccessorBase {
 	private final Object key;
-
-	private final FieldPropertyAccessor parent;
 
 	private final String format;
 
@@ -19,38 +17,29 @@ public class MapPropertyAccessor implements PropertyAccessor {
 	 * Creates accessor for value for given key and map returned by parent accessor.
 	 * @param parent parent accessor that returns a map
 	 * @param key key to access
-	 * @param format format for property name. Used as:
-	 * <code>String.format(format, parent.getName(), key)</code>
-	 * defaults to "%2$s" if null
 	 */
-	public MapPropertyAccessor(FieldPropertyAccessor parent, Object key, ConfDisplayFormat format) {
+	public MapPropertyAccessor(PropertyAccessor parent, Object key) {
+		super(parent);
 		if (!Map.class.isAssignableFrom(parent.getType()))
 			throw new IllegalArgumentException("Parent must return a map!");
 
-		this.parent = parent;
 		this.key = key;
-		if (format == null)
-			this.format = "%2$s";
-		else
-			this.format = format.value();
+		ConfDisplayFormat dispFormat = getAnnotationSource().getAnnotation(ConfDisplayFormat.class);
+		this.format = dispFormat != null ? dispFormat.value() : null;
 	}
 
 	@Override
-	public Object getValue(Object obj) {
-		Map<Object, Object> map = getMap(obj);
+	public Object thisGetValue(Object obj) {
+		@SuppressWarnings("unchecked")
+		Map<Object, Object> map = (Map<Object, Object>) obj;
 		return map.get(key);
 	}
 
 	@Override
-	public void setValue(Object cobwebParam, Object value) {
-		Map<Object, Object> map = getMap(cobwebParam);
-		map.put(key, value);
-	}
-
-	protected Map<Object, Object> getMap(Object obj) {
+	public void thisSetValue(Object obj, Object value) {
 		@SuppressWarnings("unchecked")
-		Map<Object, Object> map = (Map<Object, Object>) parent.getValue(obj);
-		return map;
+		Map<Object, Object> map = (Map<Object, Object>) obj;
+		map.put(key, value);
 	}
 
 	@Override
@@ -59,15 +48,17 @@ public class MapPropertyAccessor implements PropertyAccessor {
 	}
 
 	@Override
-	public Class<?> getType() {
-		return parent.field.getAnnotation(ConfMap.class).valueClass();
+	protected String thisGetName() {
+		return key.toString();
 	}
 
 	@Override
-	public String toString() {
-		String res = ".get(" + key.toString() + ")";
-		if (parent != null)
-			res = parent.toString() + res;
-		return res;
+	public Class<?> getType() {
+		return getAnnotationSource().getAnnotation(ConfMap.class).valueClass();
+	}
+
+	@Override
+	public String thisToString() {
+		return ".get(" + key.toString() + ")";
 	}
 }
