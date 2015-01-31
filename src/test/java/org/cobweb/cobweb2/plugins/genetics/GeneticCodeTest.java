@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.test.ga;
+package org.cobweb.cobweb2.plugins.genetics;
 
 import junit.framework.TestCase;
 
