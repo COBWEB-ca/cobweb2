@@ -16,13 +16,6 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.impl.ComplexEnvironment;
-import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
-import org.cobweb.cobweb2.impl.ai.GeneticController;
-import org.cobweb.cobweb2.impl.ai.LinearWeightsController;
-import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
-import org.cobweb.cobweb2.impl.learning.ComplexEnvironmentLearning;
 import org.cobweb.util.Versionator;
 import org.w3c.dom.Element;
 
@@ -30,41 +23,6 @@ import org.w3c.dom.Element;
  * Fixes for dealing with difference between older versions of configuration files.
  */
 class ConfigUpgrader {
-
-	public static void upgrade(ComplexEnvironmentParams envParams) {
-		envParams.controllerName = updateClassName(
-				envParams.controllerName,
-				GeneticController.class,
-				LinearWeightsController.class
-				);
-
-		envParams.agentName = updateClassName(
-				envParams.agentName,
-				ComplexAgent.class,
-				ComplexAgentLearning.class
-				);
-
-		envParams.environmentName = updateClassName(
-				envParams.environmentName,
-				ComplexEnvironment.class,
-				ComplexEnvironmentLearning.class
-				);
-	}
-
-	private static String updateClassName(String oldName, Class<?>... candidates) {
-		try {
-			Class.forName(oldName);
-			return oldName;
-		} catch (ClassNotFoundException ex) {
-			for (Class<?> c : candidates) {
-				if (oldName.endsWith("." + c.getSimpleName())) {
-					return c.getName();
-				}
-			}
-		}
-
-		throw new IllegalArgumentException("Cannot find missing class: " + oldName);
-	}
 
 	private static final String[] VERSIONS = {
 		"2011",

@@ -19,6 +19,12 @@
 	<xsl:template match="inputData|inputeData">
 		<COBWEB2Config config-version="2015-01-14" cobweb-version="{$cobweb-version}">
 			<xsl:apply-templates select="*[name() != 'production' and name() != 'food' and name() != 'agent']" />
+			<Environment>
+				<Width><xsl:value-of select="Width" /></Width>
+				<Height><xsl:value-of select="Height" /></Height>
+				<wrap><xsl:value-of select="wrap" /></wrap>
+				<randomStones><xsl:value-of select="randomStones" /></randomStones>
+			</Environment>
 			<Agents>
 				<AgentParams>
 					<xsl:for-each select="/*/agent">
@@ -249,4 +255,24 @@
 		</xsl:choose>
 	</xsl:template>
 
+	<xsl:template match="ControllerName[contains(text(), 'GeneticController')]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.ai.GeneticController</xsl:text>
+	</xsl:template>
+	<xsl:template match="ControllerName[contains(text(), 'LinearWeightsController')]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.ai.LinearWeightsController</xsl:text>
+	</xsl:template>
+
+	<xsl:template match="AgentName[contains(text(), 'Learning')]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.learning.ComplexAgentLearning</xsl:text>
+	</xsl:template>
+	<xsl:template match="AgentName[not(contains(text(), 'Learning'))]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.ComplexAgent</xsl:text>
+	</xsl:template>
+
+	<xsl:template match="EnvironmentName[contains(text(), 'Learning')]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.learning.ComplexEnvironmentLearning</xsl:text>
+	</xsl:template>
+	<xsl:template match="EnvironmentName[not(contains(text(), 'Learning'))]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.ComplexEnvironment</xsl:text>
+	</xsl:template>
 </xsl:stylesheet>

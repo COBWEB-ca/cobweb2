@@ -150,7 +150,7 @@ public class FoodGrowth implements EnvironmentMutator {
 	 * deplete rates and times will be generated using the environments random number
 	 * generator for each invalid entry.
 	 */
-	private void loadFoodMode() {
+	private void setupDraughtDeplete() {
 		draughtdays = new int[getTypeCount()];
 		for (int i = 0; i < getTypeCount(); ++i) {
 			draughtdays[i] = 0;
@@ -164,7 +164,7 @@ public class FoodGrowth implements EnvironmentMutator {
 	/**
 	 * Randomly places food in the environment.
 	 */
-	private void loadNewFood() {
+	public void loadNewFood() {
 		for (int i = 0; i < getTypeCount(); ++i) {
 			for (int j = 0; j < foodData[i].initial; ++j) {
 				Location l;
@@ -195,7 +195,7 @@ public class FoodGrowth implements EnvironmentMutator {
 			}
 		}
 
-		// if no food is growing (total == 0) this loop is not nessesary
+		// if no food is growing (total == 0) this loop is not necessary
 		if (shouldGrow) {
 			growFood();
 		}
@@ -210,13 +210,13 @@ public class FoodGrowth implements EnvironmentMutator {
 		}
 	}
 
-	public void load(Environment environment, boolean dropNewFood, float likeFoodProb, FoodGrowthParams foodParams) {
+	public void initEnvironment(Environment environment, FoodGrowthParams foodParams, boolean dropNewFood) {
 		foodData = foodParams.foodParams;
-		this.sameFoodProb = likeFoodProb;
+		this.sameFoodProb = foodParams.likeFoodProb;
 
 		env = environment;
 
-		loadFoodMode();
+		setupDraughtDeplete();
 
 		// add food to random locations
 		if (dropNewFood) {

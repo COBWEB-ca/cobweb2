@@ -178,7 +178,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	 */
 	public void broadcast(BroadcastPacket packet) {
 		//TODO move to plugin?
-		environment.commManager.addPacketToList(packet);
+		environment.getPlugin(PacketConduit.class).addPacketToList(packet);
 
 		changeEnergy(-params.broadcastEnergyCost, new PacketConduit.BroadcastCause());
 	}
@@ -360,7 +360,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	}
 
 	protected void receiveBroadcast() {
-		BroadcastPacket commPacket = environment.commManager.findPacket(getPosition(), this);
+		BroadcastPacket commPacket = environment.getPlugin(PacketConduit.class).findPacket(getPosition(), this);
 
 		if (commPacket == null)
 			return;

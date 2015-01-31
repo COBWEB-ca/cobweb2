@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
@@ -13,19 +12,14 @@ import org.cobweb.cobweb2.impl.ComplexEnvironment;
 
 public class ComplexEnvironmentLearning extends ComplexEnvironment {
 
-	public ComplexEnvironmentLearning(SimulationInternals simulation) { // NO_UCD (unused code) called through reflection
+	public ComplexEnvironmentLearning(SimulationInternals simulation, LearningParams lparams) { // NO_UCD (unused code) called through reflection
 		super(simulation);
+		this.learningData = lparams.agentParams;
 	}
 
 	private LearningAgentParams learningData[];
 
 	public List<Occurrence> allOccurrences = new LinkedList<Occurrence>();
-
-	@Override
-	public void loadNew(SimulationConfig config) {
-		learningData = config.learningParams.agentParams;
-		super.loadNew(config);
-	}
 
 	@Override
 	protected Agent spawnAgent(LocationDirection location, int agentType) {

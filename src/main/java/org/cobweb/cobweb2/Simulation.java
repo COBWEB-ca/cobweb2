@@ -2,6 +2,7 @@ package org.cobweb.cobweb2;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,7 +21,9 @@ import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.plugins.MutatorListener;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticMutator;
+import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
 import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
+import org.cobweb.cobweb2.plugins.food.FoodGrowth;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.plugins.pd.PDMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
@@ -53,7 +56,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 	public StatsMutator statsMutator;
 
-	// TODO access level?
 	public SimulationConfig simulationConfig;
 
 	private RandomNoGenerator random;
@@ -69,7 +71,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	/* return number of TYPES of agents in the environment */
 	@Override
 	public int getAgentTypeCount() {
-		return simulationConfig.envParams.agentTypeCount;
+		return simulationConfig.getAgentTypes();
 	}
 
 	@Override
@@ -86,24 +88,43 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	 * environmentName.load method.
 	 *
 	 * @param environmentName Class name of the environment used in this simulation.
-	 * @param p Simulation parameters that can be defined by the simulation data file (xml file).
 	 */
-	private void InitEnvironment(String environmentName, SimulationConfig p) {
+	private void InitEnvironment(String environmentName, boolean continuation) {
 		try {
-			if (theEnvironment == null || !theEnvironment.getClass().equals(Class.forName(environmentName))) {
-				Class<?> environmentClass = Class.forName(environmentName);
+			@SuppressWarnings("unchecked")
+			Class<ComplexEnvironment> environmentClass = (Class<ComplexEnvironment>) Class.forName(environmentName);
 
-				Constructor<?> environmentCtor = environmentClass.getConstructor(SimulationInternals.class);
-				if (environmentCtor == null)
-					throw new InstantiationError("No valid constructor found on environment class.");
-
-				theEnvironment = (ComplexEnvironment) environmentCtor.newInstance(this);
+			if (continuation && theEnvironment != null && !theEnvironment.getClass().equals(environmentClass)) {
+				throw new IllegalArgumentException("Cannot switch to different Environment/Agent type and continue simulation");
 			}
-			theEnvironment.load(p);
-		} catch (InstantiationError | ClassNotFoundException | NoSuchMethodException |
-				InstantiationException | IllegalAccessException | InvocationTargetException ex) {
-			throw new RuntimeException("Can't InitEnvironment", ex);
+
+			if (!continuation || theEnvironment == null) {
+				theEnvironment = instantiateUsingSimconfig(environmentClass);
+			}
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | InvocationTargetException ex) {
+			throw new RuntimeException("Can't create Environment", ex);
 		}
+	}
+
+	private <T> T instantiateUsingSimconfig(Class<T> clazz)
+			throws IllegalAccessException, InstantiationException, InvocationTargetException {
+
+		Constructor<?> ctor = clazz.getConstructors()[0];
+
+		List<Object> args = new ArrayList<>();
+		for (Class<?> pt : ctor.getParameterTypes()) {
+			if (pt.isAssignableFrom(this.getClass())) {
+				args.add(this);
+			} else {
+				Object arg = simulationConfig.getParam(pt);
+				if (arg == null)
+					throw new IllegalArgumentException("Could not bind argument type: " + pt.getName());
+				args.add(arg);
+			}
+		}
+		@SuppressWarnings("unchecked")
+		T instance = (T) ctor.newInstance(args.toArray());
+		return instance;
 	}
 
 	/**
@@ -118,12 +139,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	 */
 	public void load(SimulationConfig p) {
 		this.simulationConfig = p;
-		agentSpawner = new AgentSpawner(p.envParams.agentName, this);
+		agentSpawner = new AgentSpawner(p.agentName, this);
 
-		// TODO: this is a hack to make the applet work when we switch grids and
-		// the static information is not cleared, ComplexAgent should really
-		// have a way to track which mutators have been bound
-		if (!p.envParams.keepOldAgents) {
+		//TODO use reflection to automate this
+		if (!p.keepOldAgents) {
 			nextAgentId = 1;
 			mutatorListener.clearMutators();
 			plugins.clear();
@@ -175,16 +194,25 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		}
 
 		// 0 = use default seed
-		if (p.envParams.randomSeed == 0)
+		if (p.randomSeed == 0)
 			random = new RandomNoGenerator();
 		else
-			random = new RandomNoGenerator(p.envParams.randomSeed);
+			random = new RandomNoGenerator(p.randomSeed);
 
-		InitEnvironment(p.envParams.environmentName, p);
+		InitEnvironment(p.environmentName, p.isContinuation());
+		theEnvironment.load(p, p.keepOldAgents, p.keepOldArray, p.keepOldDrops);
+		if (!p.isContinuation()) {
+			theEnvironment.addPlugin(new FoodGrowth(this));
+			theEnvironment.addPlugin(new PacketConduit());
+		} else {
+			PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
+			if (!p.keepOldPackets)
+				packetConduit.clearPackets();
+		}
 
-		geneticMutator.setParams(this, p.geneticParams, p.envParams.getAgentTypes());
+		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
 
-		diseaseMutator.setParams(this, p.diseaseParams, p.envParams.getAgentTypes());
+		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
 
 		abioticMutator.setParams(p.abioticParams, theEnvironment.topology);
 
@@ -194,13 +222,23 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 		pdMutator.setParams(p.pdParams);
 
-		prodMapper.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
+		prodMapper.initEnvironment(theEnvironment, p.keepOldDrops);
 
 		wasteMutator.initEnvironment(theEnvironment);
 
 		setupPlugins();
 
-		theEnvironment.loadNew(p);
+		theEnvironment.loadNew();
+
+		FoodGrowth foodGrowth = theEnvironment.getPlugin(FoodGrowth.class);
+		foodGrowth.initEnvironment(theEnvironment, p.foodParams, p.dropNewFood);
+
+		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
+		packetConduit.initEnvironment(theEnvironment.topology);
+
+		if (p.spawnNewAgents) {
+			theEnvironment.loadNewAgents();
+		}
 	}
 
 	@Override
@@ -218,7 +256,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 				if (!agent.isAlive())
 					agents.remove(agent);
 			}
-			// TODO update other modules here
 		}
 
 		time++;

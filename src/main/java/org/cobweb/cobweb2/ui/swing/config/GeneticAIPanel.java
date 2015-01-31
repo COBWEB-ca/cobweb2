@@ -27,15 +27,13 @@ final class GeneticAIPanel extends SettingsPanel {
 	@Override
 	public void bindToParser(SimulationConfig p) {
 		if (!(p.controllerParams instanceof GeneticControllerParams)) {
-			p.envParams.controllerName = GeneticController.class.getName();
-			if (params == null)
-				params = new GeneticControllerParams(p);
-
-			p.controllerParams = params;
-
-		} else {
-			params = (GeneticControllerParams) p.controllerParams;
+			p.setControllerName(GeneticController.class.getName());
+			// SimulationConfig sets a blank default, but if the page already has settings, use them
+			if (params != null)
+				p.controllerParams = params;
 		}
+		params = (GeneticControllerParams) p.controllerParams;
+
 		updateBoxes();
 	}
 

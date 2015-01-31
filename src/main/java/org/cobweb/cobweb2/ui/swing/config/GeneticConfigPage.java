@@ -26,6 +26,7 @@ import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.genetics.MeiosisMode;
 import org.cobweb.cobweb2.ui.UserInputException;
+import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.binding.EnumComboBoxModel;
@@ -177,7 +178,12 @@ public class GeneticConfigPage implements ConfigPage {
 
 		JPanel ga_combined_panel = new JPanel(new BorderLayout());
 
-		JPanel meiosis_mode_panel = makeMeiosisConfig();
+		JPanel meiosis_mode_panel;
+		try {
+			meiosis_mode_panel = makeMeiosisConfig();
+		} catch (NoSuchFieldException ex) {
+			throw new RuntimeException(ex);
+		}
 
 		ga_combined_panel.add(meiosis_mode_panel, BorderLayout.NORTH);
 		Util.makeGroupPanel(ga_combined_panel, "Tracking");
@@ -236,9 +242,10 @@ public class GeneticConfigPage implements ConfigPage {
 		return myPanel;
 	}
 
-	private JPanel makeMeiosisConfig() {
+	private JPanel makeMeiosisConfig() throws NoSuchFieldException {
 		JComboBox<MeiosisMode> meiosis_mode = new JComboBox<MeiosisMode>(
-				new EnumComboBoxModel<MeiosisMode>(this.params, "meiosisMode"));
+				new EnumComboBoxModel<MeiosisMode>(this.params,
+						new FieldPropertyAccessor(GeneticParams.class.getField("meiosisMode"))));
 		JPanel meiosis_mode_panel = new JPanel(new BorderLayout());
 		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
 		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);

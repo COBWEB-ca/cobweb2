@@ -18,7 +18,7 @@ public class PacketConduit implements EnvironmentMutator {
 
 	private Topology topology;
 
-	public void load(Topology topo) {
+	public void initEnvironment(Topology topo) {
 		this.topology = topo;
 	}
 

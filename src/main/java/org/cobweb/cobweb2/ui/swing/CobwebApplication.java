@@ -518,7 +518,7 @@ public class CobwebApplication extends JFrame {
 		viewers.clear();
 
 		// TODO: ViewerPlugin.isCompatible(simulationConfig)
-		if (simRunner.getSimulation().simulationConfig.envParams.controllerName.equals(LinearWeightsController.class.getName())) {
+		if (simRunner.getSimulation().simulationConfig.getControllerName().equals(LinearWeightsController.class.getName())) {
 			viewers.add(new LinearAIViewer((LinearWeightsControllerParams)simRunner.getSimulation().simulationConfig.controllerParams));
 		}
 
