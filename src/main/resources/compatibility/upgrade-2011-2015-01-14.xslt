@@ -113,12 +113,42 @@
 
 
 	<!-- Abiotic -->
-	<xsl:template match="Temperature/AgentParams/*">
-		<Agent id="{substring(name(),6)}">
-			<xsl:apply-templates />
-		</Agent>
+	<xsl:template match="Temperature">
+		<Abiotic>
+			<Factors>
+				<Factor id="1">
+					<Bands>
+						<xsl:for-each select="TempBands/*">
+							<Band id="{substring-after(name(),'Band')}">
+								<xsl:apply-templates />
+							</Band>
+						</xsl:for-each>
+					</Bands>
+				</Factor>
+			</Factors>
+			<AgentParams>
+				<xsl:for-each select="AgentParams/*">
+					<Agent id="{substring(name(),6)}">
+						<FactorParams>
+							<Factor id="1">
+								<xsl:apply-templates select="node()|@*" />
+							</Factor>
+						</FactorParams>
+					</Agent>
+				</xsl:for-each>
+			</AgentParams>
+		</Abiotic>
 	</xsl:template>
-
+	<xsl:template match="PreferedTemp">
+		<PreferedValue>
+			<xsl:apply-templates select="node()|@*" />
+		</PreferedValue>
+	</xsl:template>
+	<xsl:template match="PreferedTempRange">
+		<PreferedRange>
+			<xsl:apply-templates select="node()|@*" />
+		</PreferedRange>
+	</xsl:template>
 
 	<!-- Fix up GeneticController StateSize map -->
 	<xsl:template match="ControllerConfig/PluginParams">
