@@ -61,6 +61,11 @@ public class GeneticStateAgentParams implements ParameterSerializable {
 			if (!validParams.contains(k))
 				stateSizes.remove(k);
 		}
+
+		for (String k : validParams) {
+			if (!stateSizes.containsKey(k))
+				stateSizes.put(k, 0);
+		}
 	}
 
 }
