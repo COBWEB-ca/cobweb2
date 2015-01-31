@@ -22,6 +22,16 @@ public class AbioticParams extends PerAgentParams<AbioticAgentParams> implements
 
 	public AbioticParams(AgentFoodCountable size) {
 		super(AbioticAgentParams.class);
+		VerticalBands verticalBands = new VerticalBands();
+		verticalBands.bands.add(0f);
+		verticalBands.bands.add(1f);
+		verticalBands.bands.add(2f);
+		verticalBands.bands.add(0f);
+		factors.add(verticalBands);
+		HorizontalBands hBands = new HorizontalBands();
+		hBands.bands.add(0f);
+		hBands.bands.add(10f);
+		factors.add(hBands);
 		resize(size);
 	}
 
