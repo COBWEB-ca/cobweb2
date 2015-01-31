@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.test;
+package org.cobweb.cobweb2;
 
 import junit.framework.TestCase;
 

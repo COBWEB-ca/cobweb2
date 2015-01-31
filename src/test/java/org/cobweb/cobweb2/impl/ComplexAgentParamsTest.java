@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.test;
+package org.cobweb.cobweb2.impl;
 
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
