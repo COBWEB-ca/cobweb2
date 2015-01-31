@@ -81,22 +81,22 @@ public class ConfigTableModel extends AbstractTableModel {
 		{
 			try {
 				if (fieldAccessor.getType().isArray()) {
-					int len = Array.getLength(fieldAccessor.getValue(root));
+					int len = Array.getLength(fieldAccessor.get(root));
 					for (int i = 0; i < len; i++){
 						bindItem(root, new ArrayPropertyAccessor(fieldAccessor, i));
 					}
 				} else if (List.class.isAssignableFrom(fieldAccessor.getType())) {
-					List<?> list = (List<?>) fieldAccessor.getValue(root);
+					List<?> list = (List<?>) fieldAccessor.get(root);
 					for (int i = 0; i < list.size(); i++) {
 						bindItem(root, new ListPropertyAccessor(fieldAccessor, i));
 					}
 				} else if (Map.class.isAssignableFrom(fieldAccessor.getType())) {
-					Map<?, ?> col = (Map<?, ?>) fieldAccessor.getValue(root);
+					Map<?, ?> col = (Map<?, ?>) fieldAccessor.get(root);
 					for (Object k : col.keySet()) {
 						bindItem(root, new MapPropertyAccessor(fieldAccessor, k));
 					}
 				} else if (ParameterSerializable.class.isAssignableFrom(fieldAccessor.getType())) {
-					ParameterSerializable value = (ParameterSerializable) fieldAccessor.getValue(root);
+					ParameterSerializable value = (ParameterSerializable) fieldAccessor.get(root);
 					Class<? extends ParameterSerializable> valueClass = value.getClass();
 					bindConfigObject(root, valueClass, fieldAccessor);
 				} else {
@@ -143,7 +143,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		if (col == 0)
 			return mf.getName();
 		else
-			return mf.getValue(data[col-1]);
+			return mf.get(data[col-1]);
 	}
 
 	@Override
@@ -162,7 +162,7 @@ public class ConfigTableModel extends AbstractTableModel {
 			assert declaredClass.isAssignableFrom(value.getClass());
 		}
 
-		mf.setValue(data[col-1], typedValue);
+		mf.set(data[col-1], typedValue);
 	}
 
 	@Override

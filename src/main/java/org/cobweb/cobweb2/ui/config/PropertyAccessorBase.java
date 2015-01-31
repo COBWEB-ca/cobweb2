@@ -38,18 +38,18 @@ public abstract class PropertyAccessorBase implements PropertyAccessor {
 	protected abstract String thisToString();
 
 	@Override
-	public Object getValue(Object object) {
+	public Object get(Object object) {
 		if (parent != null)
-			object = parent.getValue(object);
+			object = parent.get(object);
 		return thisGetValue(object);
 	}
 
 	protected abstract Object thisGetValue(Object object);
 
 	@Override
-	public void setValue(Object object, Object value) {
+	public void set(Object object, Object value) {
 		if (parent != null)
-			object = parent.getValue(object);
+			object = parent.get(object);
 		thisSetValue(object, value);
 	}
 
