@@ -116,7 +116,7 @@
 	<xsl:template match="Temperature">
 		<Abiotic>
 			<Factors>
-				<Factor id="1">
+				<Factor class="org.cobweb.cobweb2.plugins.abiotic.HorizontalBands" id="1">
 					<Bands>
 						<xsl:for-each select="TempBands/*">
 							<Band id="{substring-after(name(),'Band')}">
