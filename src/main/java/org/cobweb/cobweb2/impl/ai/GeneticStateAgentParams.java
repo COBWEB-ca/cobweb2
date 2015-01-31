@@ -1,6 +1,8 @@
 package org.cobweb.cobweb2.impl.ai;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.cobweb.cobweb2.impl.SimulationParams;
@@ -47,6 +49,17 @@ public class GeneticStateAgentParams implements ParameterSerializable {
 	public GeneticStateAgentParams(SimulationParams simParam) {
 		for(String p : simParam.getPluginParameters()) {
 			stateSizes.put(p, 0);
+		}
+	}
+
+	public void resize(SimulationParams simParam) {
+		List<String> validParams = simParam.getPluginParameters();
+		List<String> keySet = new ArrayList<>(stateSizes.keySet());
+
+		// Remove invalid states
+		for (String k : keySet) {
+			if (!validParams.contains(k))
+				stateSizes.remove(k);
 		}
 	}
 
