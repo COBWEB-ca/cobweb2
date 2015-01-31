@@ -10,10 +10,12 @@ import org.cobweb.cobweb2.plugins.PerAgentParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfListType;
+import org.cobweb.io.ConfSaveInstanceClass;
 import org.cobweb.io.ConfXMLTag;
 
 public class AbioticParams extends PerAgentParams<AbioticAgentParams> implements StatePluginSource {
 
+	@ConfSaveInstanceClass
 	@ConfDisplayName("Factor")
 	@ConfXMLTag("Factors")
 	@ConfList(indexName = "Factor", startAtOne = true)

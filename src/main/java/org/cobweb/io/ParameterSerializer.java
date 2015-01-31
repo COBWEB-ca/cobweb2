@@ -135,12 +135,18 @@ public class ParameterSerializer {
 
 		} else if (ParameterSerializable.class.isAssignableFrom(type)) {
 			ParameterSerializable inner = (ParameterSerializable) currentValue;
-			if (inner == null)
+			if (inner == null) {
 				try {
-					inner = (ParameterSerializable) type.newInstance();
-				} catch (InstantiationException ex) {
+					Class<?> instanceClass = type;
+					Node instanceClassName = objectNode.getAttributes().getNamedItem("class");
+					if (instanceClassName != null) {
+						instanceClass = Class.forName(instanceClassName.getTextContent());
+					}
+					inner = (ParameterSerializable) instanceClass.newInstance();
+				} catch (InstantiationException | ClassNotFoundException ex) {
 					throw new RuntimeException(ex);
 				}
+			}
 			newValue = load(inner, objectNode);
 
 		} else if (type.isArray()) {
@@ -168,6 +174,8 @@ public class ParameterSerializer {
 
 		} else if (ParameterSerializable.class.isAssignableFrom(type)) {
 			ParameterSerializable inner = (ParameterSerializable) value;
+			if (annotationSource.isAnnotationPresent(ConfSaveInstanceClass.class))
+				tag.setAttribute("class", value.getClass().getName());
 			save(inner, tag, doc);
 
 		} else if (type.isArray()) {

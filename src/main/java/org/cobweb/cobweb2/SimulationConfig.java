@@ -22,6 +22,7 @@ import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.pd.PDParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.waste.WasteParams;
+import org.cobweb.io.ConfSaveInstanceClass;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
 
@@ -62,6 +63,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfXMLTag("ga")
 	public GeneticParams geneticParams = new GeneticParams(envParams);
 
+	@ConfSaveInstanceClass
 	@ConfXMLTag("ControllerConfig")
 	public ControllerParams controllerParams;
 
