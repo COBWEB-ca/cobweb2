@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2.impl.ai;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.cobweb.util.BitField;
@@ -95,6 +96,7 @@ public class BehaviorArray {
 			throw new java.lang.IllegalArgumentException("outputBits exceded 32");
 		}
 
+
 		totalOutMask = (1 << (outputBits)) - 1;
 		totalInMask = (1 << (inputSize)) - 1;
 		size = (1 << (inputSize));
@@ -106,7 +108,18 @@ public class BehaviorArray {
 		}
 
 		array = new int[totalInts];
+	}
 
+	private BehaviorArray(BehaviorArray original) {
+		this.inputSize = original.inputSize;
+		this.outputSize = original.outputSize; // Ok to copy reference, it doesn't change
+		this.outputBits = original.outputBits;
+		this.totalOutMask = original.totalOutMask;
+		this.totalInMask = original.totalInMask;
+		this.size = original.size;
+		this.totalBits = original.totalBits;
+		this.totalInts = original.totalInts;
+		this.array = Arrays.copyOf(original.array, original.array.length);
 	}
 
 	/**
@@ -116,18 +129,18 @@ public class BehaviorArray {
 	 * @return mutated copy of BehaviorArray
 	 */
 	public BehaviorArray copy(float mutationRate, Random rand) {
+		BehaviorArray newArray = new BehaviorArray(this);
 
-		BehaviorArray newArray = new BehaviorArray(inputSize, outputSize);
+		double avgFlips = newArray.totalBits * mutationRate;
+		int wantFlips = (int) (rand.nextGaussian() * 0.1 * avgFlips + avgFlips);
+		if (wantFlips < 0)
+			wantFlips = 0;
 
-		for (int i = 0; i < array.length; i++) {
-			int current = array[i];
-			for (int b = 0; b < 32; b++) {
-				if (rand.nextFloat() < mutationRate) {
-					int bitMask = 1 << b;
-					current ^= bitMask;
-				}
-			}
-			newArray.array[i] = current;
+		for (int i = 0; i < wantFlips; i++) {
+			int target = rand.nextInt(newArray.totalBits);
+			int targetElement = target / 32;
+			int targetBit = target % 32;
+			newArray.array[targetElement] ^= (1 << targetBit);
 		}
 
 		return newArray;
@@ -140,11 +153,12 @@ public class BehaviorArray {
 		/*
 		 * base is the first int value of the array that contains bit(s) of the target element
 		 */
-		int base = bitbase >> 5;
+		int base = bitbase / 32;
+
 		/*
 		 * basemod is the number of the first bit of the target element in the int value
 		 */
-		int basemod = bitbase & 31;
+		int basemod = bitbase % 32;
 
 		/*
 		 * Extracts the element value from the appropriate two array elements.
@@ -192,11 +206,11 @@ public class BehaviorArray {
 		/*
 		 * base is the first int value of the array that contains bit(s) of the target element
 		 */
-		int base = bitbase >> 5;
+		int base = bitbase / 32;
 		/*
 		 * basemod is the number of the first bit of the target element in the int value
 		 */
-		int basemod = bitbase & 31;
+		int basemod = bitbase % 32;
 		/* mask off any excess bits */
 		value &= totalInMask;
 
@@ -243,36 +257,12 @@ public class BehaviorArray {
 	 */
 
 	public static BehaviorArray splice(BehaviorArray first, BehaviorArray BOther, Random random) {
+		// Copy first array
+		BehaviorArray newBArray = new BehaviorArray(first);
 
-		boolean[] boolArray = new boolean[first.size]; // initialized to false by
-		// java
-
-		BehaviorArray newBArray = new BehaviorArray(first.inputSize, first.outputSize);
-
-		/*
-		 * Fills boolArray up in a manner such that a random half of the elements are 'true'
-		 */
-		for (int i = 0;;) {
-
-			int r = random.nextInt(first.size);
-			if (boolArray[r] == false) {
-				boolArray[r] = true;
-				if (++i == first.size >> 1) {
-					break;
-				}
-			}
-		}
-		/*
-		 * Set the values of our new array according the values in boolArray. An element is from 'this' array if the
-		 * corresponding element in boolArray is false and from the 'other' array (supplied as an arguement) if its true
-		 */
+		// Take elements from BOther with 50% probability
 		for (int i = 0; i < first.size; ++i) {
-
-			if (boolArray[i]) {
-				newBArray.set(i, BOther.get(i));
-			} else {
-				newBArray.set(i, first.get(i));
-			}
+			newBArray.set(i, random.nextBoolean() ? BOther.get(i) : newBArray.get(i));
 		}
 
 		return newBArray;
