@@ -23,9 +23,9 @@ public class SetterPropertyAccessor extends PropertyAccessorBase {
 		this.setter = setter;
 		String getterName = setter.getName().replaceFirst("^set", "get");
 		try {
-			this.getter = setter.getClass().getMethod(getterName);
+			this.getter = setter.getDeclaringClass().getMethod(getterName);
 		} catch (NoSuchMethodException | SecurityException ex) {
-			throw new IllegalArgumentException("Could not find matching getter for: " + setter.getName());
+			throw new IllegalArgumentException("Could not find matching getter for: " + setter.getName(), ex);
 		}
 	}
 
