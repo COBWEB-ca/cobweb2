@@ -4,6 +4,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,6 +37,14 @@ public class ParameterSerializer {
 	public ParameterSerializable load(ParameterSerializable obj, Node root) {
 		Class<?> T = obj.getClass();
 
+		Map<String, Method> setters = new LinkedHashMap<>();
+		for (Method m : T.getMethods()) {
+			ConfXMLTag tagname = m.getAnnotation(ConfXMLTag.class);
+			if (tagname != null) {
+				setters.put(tagname.value(), m);
+			}
+		}
+
 		Map<String, Field> fields = new LinkedHashMap<String, Field>();
 		List<Field> squishFields = new ArrayList<Field>();
 		for (Field f : T.getFields()) {
@@ -50,6 +59,17 @@ public class ParameterSerializer {
 		NodeList children = root.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
 			Node n = children.item(i);
+
+			Method setter = setters.get(n.getNodeName());
+			if (setter != null) {
+				try {
+					Object newValue = loadObject(setter.getParameterTypes()[0], setter, null, n);
+					setter.invoke(obj, newValue);
+				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException ex) {
+					throw new RuntimeException("Could not invoke config setter: " + setter.getName(),  ex);
+				}
+			}
+
 			Field f = fields.get(n.getNodeName());
 			if (f == null)
 				continue;
@@ -89,6 +109,26 @@ public class ParameterSerializer {
 	 */
 	public void save(ParameterSerializable obj, Element config, Document doc) {
 		Class<?> T = obj.getClass();
+
+
+		for (Method m : T.getMethods()) {
+			ConfXMLTag tagname = m.getAnnotation(ConfXMLTag.class);
+			if (tagname == null)
+				continue;
+
+			try {
+				Method getter = T.getMethod(m.getName().replaceFirst("^set", "get"));
+				Object value = getter.invoke(obj);
+				Element tag = doc.createElement(tagname.value());
+				saveObject(value.getClass(), m, value, tag, doc);
+				config.appendChild(tag);
+
+			} catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException ex) {
+				throw new RuntimeException("Could not invoke config getter: " + m.getName(), ex);
+			}
+
+
+		}
 
 		for (Field f : T.getFields()) {
 

@@ -5,6 +5,7 @@ package org.cobweb.cobweb2.ui.swing.config;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.ListPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.MapPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;
+import org.cobweb.cobweb2.ui.config.SetterPropertyAccessor;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ConfDisplayFormat;
 import org.cobweb.io.ConfDisplayName;
@@ -56,6 +58,15 @@ public class ConfigTableModel extends AbstractTableModel {
 	}
 
 	protected void bindConfigObject(ParameterSerializable root, Class<? extends ParameterSerializable> actualClass, PropertyAccessor parent) {
+		for (Method m : actualClass.getMethods()) {
+			if (!m.isAnnotationPresent(ConfDisplayName.class) &&
+					!m.isAnnotationPresent(ConfDisplayFormat.class))
+				continue;
+
+			PropertyAccessor fieldAccessor = new SetterPropertyAccessor(parent, m);
+			bindItem(root, fieldAccessor);
+		}
+
 		for (Field f : actualClass.getFields()) {
 			if (!f.isAnnotationPresent(ConfDisplayName.class) &&
 					!f.isAnnotationPresent(ConfDisplayFormat.class))
