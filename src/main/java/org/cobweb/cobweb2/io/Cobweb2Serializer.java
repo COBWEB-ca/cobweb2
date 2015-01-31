@@ -154,7 +154,7 @@ public class Cobweb2Serializer {
 		ComplexAgent a = (ComplexAgent) simpleAgent;
 
 		Element agent = d.createElement("Agent");
-		agent.setAttribute("type", Integer.toString(a.getType()));
+		agent.setAttribute("type", Integer.toString(a.getType() + 1));
 
 		Element paramsElement = d.createElement("params");
 
@@ -206,7 +206,7 @@ public class Cobweb2Serializer {
 	private AgentSample loadAgent(Element element, AgentFoodCountable size) {
 		AgentSample as = new AgentSample();
 
-		as.type = Integer.parseInt(element.getAttribute("type"));
+		as.type = Integer.parseInt(element.getAttribute("type")) - 1;
 
 		Node paramNode = element.getElementsByTagName("params").item(0);
 		ComplexAgentParams params = new ComplexAgentParams(size);
