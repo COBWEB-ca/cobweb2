@@ -34,7 +34,12 @@ public class AbioticParams extends PerAgentParams<AbioticAgentParams> implements
 
 	@Override
 	public void resize(AgentFoodCountable envParams) {
+		while(factors.size() < 2) {
+			factors.add(new NullFactor());
+		}
+
 		super.resize(envParams);
+
 		for (int i = 0; i < agentParams.length; i++) {
 			agentParams[i].resizeFields(factors.size());
 		}
