@@ -165,7 +165,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		if (!p.keepOldAgents) {
 			nextAgentId = 1;
 			mutatorListener.clearMutators();
-			plugins.clear();
+			aiStatePlugins.clear();
 			agents.clear();
 			geneticMutator = null;
 			diseaseMutator = null;
@@ -188,12 +188,12 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		}
 		if (abioticMutator == null) {
 			abioticMutator = new AbioticMutator();
-			plugins.add(abioticMutator);
+			aiStatePlugins.add(abioticMutator);
 			mutatorListener.addMutator(abioticMutator);
 		}
 		if (prodMapper == null) {
 			prodMapper = new ProductionMapper(this);
-			plugins.add(prodMapper);
+			aiStatePlugins.add(prodMapper);
 			mutatorListener.addMutator(prodMapper);
 		}
 		if (wasteMutator == null) {
@@ -240,7 +240,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 		wasteMutator.initEnvironment(theEnvironment);
 
-		setupPlugins();
+		setupAIStatePlugins();
 
 
 		if (p.spawnNewAgents) {
@@ -297,25 +297,25 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 	@Override
 	public StateParameter getStateParameter(String name) {
-		return pluginMap.get(name);
+		return aiStateMap.get(name);
 	}
 
-	private Map<String, StateParameter> pluginMap = new LinkedHashMap<String, StateParameter>();
+	private Map<String, StateParameter> aiStateMap = new LinkedHashMap<String, StateParameter>();
 
-	private List<StatePlugin> plugins = new LinkedList<StatePlugin>();
+	private List<StatePlugin> aiStatePlugins = new LinkedList<StatePlugin>();
 
-	private void setupPlugins() {
-		pluginMap.clear();
-		for (StatePlugin plugin : plugins) {
+	private void setupAIStatePlugins() {
+		aiStateMap.clear();
+		for (StatePlugin plugin : aiStatePlugins) {
 			for (StateParameter param : plugin.getParameters()) {
-				pluginMap.put(param.getName(), param);
+				aiStateMap.put(param.getName(), param);
 			}
 		}
 	}
 
 	@Override
 	public Set<String> getStatePluginKeys() {
-		return pluginMap.keySet();
+		return aiStateMap.keySet();
 	}
 
 	public ProductionMapper prodMapper;
