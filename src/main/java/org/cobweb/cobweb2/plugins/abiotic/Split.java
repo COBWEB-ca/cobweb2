@@ -5,21 +5,17 @@ import java.util.Arrays;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.util.MathUtil;
 
 
 public class Split extends AbioticFactor {
-
-	@ConfXMLTag("sides")
-	@ConfDisplayName("Side")
-	@ConfList(indexName = "id", startAtOne = true)
-	public float[] sides = { 0f, 1f };
 
 	@ConfXMLTag("angle")
 	@ConfDisplayName("Angle")
 	public void setAngle(float value) {
 		while (value > 180)
 			value -= 360;
-		while (value < -180)
+		while (value <= -180)
 			value += 360;
 		angle = value;
 	}
@@ -29,51 +25,28 @@ public class Split extends AbioticFactor {
 	private float angle = 90f;
 
 	@ConfXMLTag("position")
-	@ConfDisplayName("Position")
+	@ConfDisplayName("Split Position")
 	public float position = 0.3f;
+
+	@ConfXMLTag("sides")
+	@ConfDisplayName("Side")
+	@ConfList(indexName = "id", startAtOne = true)
+	public float[] sides = { 0f, 1f };
 
 	@Override
 	public float getValue(float x, float y) {
-		float a = angle;
+		// Mathematical angles go counter-clockwise, java goes clockwise
+		double rangle = Math.toRadians(-angle);
 
-		// center
-		x -= 0.5;
-		y -= 0.5;
+		// x, y are within [0,1], make them [-.5,.5]
+		double dist = MathUtil.getDistanceToLine(x - 0.5, y - 0.5, rangle);
 
-		float p = position - .5f;
-
-		// Make sure tan(90) is not approached
-		float q = a / 45;
-		if (q > 1 && q <= 3) {
-			// +45 to +135
-			float t = x;
-			x = -y;
-			y = -t;
-			a = 90 - a;
-		} else if ( q > 3 && q <= 4 || q < -3 && q >= -4 ) {
-			// +135 to -135
-			x = -x;
-			y = -y;
-			p = -p;
-		} else if ( q > -3 && q <= -1) {
-			// -135 to -45
-			float t = x;
-			x = y;
-			y = t;
-			p = -p;
-			a = 90 - a;
-		}
-
-		double rangle = a / 180 * Math.PI;
-		double slope = Math.tan(rangle);
-		double xZero = -Math.sin(rangle) * p;
-		double yZero = Math.cos(rangle) * p;
-
-		if ((y - yZero) > (x - xZero) * slope)
+		if (dist > position - .5f)
 			return sides[1];
 		else
 			return sides[0];
 	}
+
 
 	@Override
 	public float getMax() {
