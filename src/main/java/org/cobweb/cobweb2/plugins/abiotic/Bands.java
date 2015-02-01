@@ -20,6 +20,7 @@ public abstract class Bands extends AbioticFactor {
 
 	public Bands() {
 		bands.add(0f);
+		bands.add(1f);
 	}
 
 	protected int bandFromPosition(float floatPosition) {

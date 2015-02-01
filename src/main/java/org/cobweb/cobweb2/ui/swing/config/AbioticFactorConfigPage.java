@@ -31,6 +31,7 @@ import org.cobweb.cobweb2.plugins.abiotic.AbioticFactor;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.abiotic.Bands;
 import org.cobweb.cobweb2.plugins.abiotic.HorizontalBands;
+import org.cobweb.cobweb2.plugins.abiotic.Split;
 import org.cobweb.cobweb2.plugins.abiotic.VerticalBands;
 import org.cobweb.cobweb2.ui.swing.ConfigRefresher;
 
@@ -47,8 +48,9 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 
 	private static final List<AbioticFactor> PATTERNS = Arrays.asList(
-			(AbioticFactor) new HorizontalBands(),
-			(AbioticFactor) new VerticalBands()
+			new HorizontalBands(),
+			new VerticalBands(),
+			new Split()
 			);
 
 	private ConfigRefresher refresher;
@@ -155,9 +157,12 @@ public class AbioticFactorConfigPage implements ConfigPage {
 		JPanel editorPanel = null;
 		if (selectedFactor instanceof Bands) {
 			Bands bands = (Bands) selectedFactor;
-			editorPanel = getBandsEditor(editorName, bands);
+			editorPanel = getBandsEditor(bands);
+		} else {
+			editorPanel = getDefaultEditor(selectedFactor);
 		}
 		if (editorPanel != null) {
+			Util.makeGroupPanel(editorPanel, editorName);
 			factorConfigPanel.add(editorPanel);
 		}
 		factorConfigPanel.add(getFactorPreview(selectedFactor), BorderLayout.EAST);
@@ -203,7 +208,7 @@ public class AbioticFactorConfigPage implements ConfigPage {
 		return previewPanel;
 	}
 
-	private JPanel getBandsEditor(String editorName, final Bands factor) {
+	private JPanel getBandsEditor(final Bands factor) {
 		TableConfigPage<Bands> editor = new TableConfigPage<>(
 				new Bands[] { factor },
 				null,
@@ -249,10 +254,26 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 		group.add(buttons, BorderLayout.SOUTH);
 
-		Util.makeGroupPanel(group, editorName);
 		return group;
 	}
 
+
+	private JPanel getDefaultEditor(final AbioticFactor factor) {
+		TableConfigPage<AbioticFactor> editor = new TableConfigPage<>(
+				new AbioticFactor[] { factor },
+				null,
+				"Value");
+		editor.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				refreshEditor();
+			}
+		});
+		JPanel group = new JPanel(new BorderLayout());
+
+		group.add(editor.getPanel());
+		return group;
+	}
 
 	private class FactorNameRenderer extends DefaultListCellRenderer {
 		@Override
