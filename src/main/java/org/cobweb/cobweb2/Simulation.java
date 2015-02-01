@@ -141,6 +141,26 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		this.simulationConfig = p;
 		agentSpawner = new AgentSpawner(p.agentName, this);
 
+		// 0 = use default seed
+		if (p.randomSeed == 0)
+			random = new RandomNoGenerator();
+		else
+			random = new RandomNoGenerator(p.randomSeed);
+
+		InitEnvironment(p.environmentName, p.isContinuation());
+		theEnvironment.load(p, p.keepOldAgents, p.keepOldArray, p.keepOldDrops);
+
+		// Environment plugins
+		if (!p.isContinuation()) {
+			theEnvironment.addPlugin(new FoodGrowth(this));
+			theEnvironment.addPlugin(new PacketConduit());
+		} else {
+			PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
+			if (!p.keepOldPackets)
+				packetConduit.clearPackets();
+		}
+
+		// Agent plugins
 		//TODO use reflection to automate this
 		if (!p.keepOldAgents) {
 			nextAgentId = 1;
@@ -193,23 +213,17 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(pdMutator);
 		}
 
-		// 0 = use default seed
-		if (p.randomSeed == 0)
-			random = new RandomNoGenerator();
-		else
-			random = new RandomNoGenerator(p.randomSeed);
+		theEnvironment.loadNew();
 
-		InitEnvironment(p.environmentName, p.isContinuation());
-		theEnvironment.load(p, p.keepOldAgents, p.keepOldArray, p.keepOldDrops);
-		if (!p.isContinuation()) {
-			theEnvironment.addPlugin(new FoodGrowth(this));
-			theEnvironment.addPlugin(new PacketConduit());
-		} else {
-			PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
-			if (!p.keepOldPackets)
-				packetConduit.clearPackets();
-		}
+		// Environment plugins
+		FoodGrowth foodGrowth = theEnvironment.getPlugin(FoodGrowth.class);
+		foodGrowth.initEnvironment(theEnvironment, p.foodParams);
 
+		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
+		packetConduit.initEnvironment(theEnvironment.topology);
+
+
+		// Agent plugins
 		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
 
 		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
@@ -228,13 +242,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 		setupPlugins();
 
-		theEnvironment.loadNew();
-
-		FoodGrowth foodGrowth = theEnvironment.getPlugin(FoodGrowth.class);
-		foodGrowth.initEnvironment(theEnvironment, p.foodParams);
-
-		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
-		packetConduit.initEnvironment(theEnvironment.topology);
 
 		if (p.spawnNewAgents) {
 			theEnvironment.loadNewAgents();
