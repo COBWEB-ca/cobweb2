@@ -59,7 +59,15 @@ public class ComplexFoodParams implements ParameterSerializable {
 	@ConfXMLTag("DraughtPeriod")
 	public int draughtPeriod = 0;
 
+	@ConfDisplayName("Abiotic")
+	@ConfXMLTag("AbioticParams")
+	public FoodAbioticParams abioticParams = new FoodAbioticParams();
+
 	public ComplexFoodParams() {
 		// public, no parameter constructor for serialization
+	}
+
+	public void resizeAbiotic(int count) {
+		abioticParams.resizeFields(count);
 	}
 }

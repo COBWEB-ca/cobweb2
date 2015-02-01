@@ -134,11 +134,14 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfXMLTag("Environment")
 	public ComplexEnvironmentParams envParams = new ComplexEnvironmentParams();
 
+	@ConfXMLTag("Abiotic")
+	public AbioticParams abioticParams = new AbioticParams(this);
+
 	@ConfXMLTag("Agents")
 	public AgentParams agentParams = new AgentParams(this);
 
 	@ConfXMLTag("FoodGrowth")
-	public FoodGrowthParams foodParams = new FoodGrowthParams(this);
+	public FoodGrowthParams foodParams = new FoodGrowthParams(this, abioticParams);
 
 	@ConfXMLTag("PrisonersDilemma")
 	public PDParams pdParams = new PDParams(this);
@@ -149,8 +152,6 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfXMLTag("Production")
 	public ProductionParams prodParams = new ProductionParams(this);
 
-	@ConfXMLTag("Abiotic")
-	public AbioticParams abioticParams = new AbioticParams(this);
 
 	@ConfXMLTag("Learning")
 	public LearningParams learningParams = new LearningParams(this);

@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.plugins.PerTypeParam;
+import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
@@ -28,7 +29,10 @@ public class FoodGrowthParams implements PerTypeParam<ComplexFoodParams> {
 	@ConfList(indexName = "Food", startAtOne = true)
 	public ComplexFoodParams[] foodParams = new ComplexFoodParams[0];
 
-	public FoodGrowthParams(AgentFoodCountable initialSize) {
+	private AbioticParams abioticParams;
+
+	public FoodGrowthParams(AgentFoodCountable initialSize, AbioticParams abioticParams) {
+		this.abioticParams = abioticParams;
 		resize(initialSize);
 	}
 
@@ -40,6 +44,10 @@ public class FoodGrowthParams implements PerTypeParam<ComplexFoodParams> {
 			n[i] = new ComplexFoodParams();
 		}
 		foodParams = n;
+
+		for (ComplexFoodParams p : foodParams) {
+			p.resizeAbiotic(abioticParams.factors.size());
+		}
 	}
 
 	@Override
