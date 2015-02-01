@@ -30,7 +30,6 @@ import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
 import org.cobweb.cobweb2.ui.swing.config.AbioticConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.AgentConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.AgentNumChangeListener;
 import org.cobweb.cobweb2.ui.swing.config.ConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.DiseaseConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
@@ -50,7 +49,7 @@ import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
  * @author time itself
  *
  */
-public class SimulationConfigEditor {
+public class SimulationConfigEditor implements ConfigRefresher {
 
 	private Cobweb2Serializer serializer = new Cobweb2Serializer();
 
@@ -199,7 +198,7 @@ public class SimulationConfigEditor {
 		}
 
 		try {
-			environmentPage = new EnvironmentConfigPage(p, allowModify);
+			environmentPage = new EnvironmentConfigPage(p, allowModify, this);
 		} catch (NoSuchFieldException | NoSuchMethodException ex) {
 			throw new RuntimeException(ex);
 		}
@@ -207,13 +206,6 @@ public class SimulationConfigEditor {
 		tabbedPane.addTab("Environment", environmentPage.getPanel());
 
 		setupConfigPages();
-
-		environmentPage.addAgentNumChangeListener(new AgentNumChangeListener() {
-			@Override
-			public void AgentNumChanged(int newNum) {
-				setupConfigPages();
-			}
-		});
 
 		JButton okButton = new JButton("OK");
 		okButton.setMaximumSize(new Dimension(80, 20));
@@ -292,6 +284,11 @@ public class SimulationConfigEditor {
 
 	private void setDefault() {
 		p = new SimulationConfig();
+	}
+
+	@Override
+	public void refreshConfig() {
+		setupConfigPages();
 	}
 
 	private void setupConfigPages() {

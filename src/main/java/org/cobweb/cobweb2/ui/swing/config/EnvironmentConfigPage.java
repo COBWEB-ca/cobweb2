@@ -8,8 +8,6 @@ import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
-import java.util.LinkedList;
-import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -27,6 +25,7 @@ import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.impl.learning.ComplexEnvironmentLearning;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.SetterPropertyAccessor;
+import org.cobweb.cobweb2.ui.swing.ConfigRefresher;
 import org.cobweb.swingutil.SpringUtilities;
 import org.cobweb.swingutil.binding.BoundCheckBox;
 import org.cobweb.swingutil.binding.BoundJFormattedTextField;
@@ -39,24 +38,11 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 	private SimulationConfig params;
 
-	private List<AgentNumChangeListener> numChangeListeners = new LinkedList<AgentNumChangeListener>();
+	private ConfigRefresher refresher;
 
-	public void addAgentNumChangeListener(AgentNumChangeListener listener) {
-		numChangeListeners.add(listener);
-	}
-
-	public void removeAgentNumChangeListener(AgentNumChangeListener listener) {
-		numChangeListeners.remove(listener);
-	}
-
-	private void invokeNumChange() {
-		for (AgentNumChangeListener x : numChangeListeners) {
-			x.AgentNumChanged(params.getAgentTypes());
-		}
-	}
-
-	public EnvironmentConfigPage(SimulationConfig theParams, boolean allowKeep) throws NoSuchFieldException, NoSuchMethodException {
+	public EnvironmentConfigPage(SimulationConfig theParams, boolean allowKeep, ConfigRefresher refresher) throws NoSuchFieldException, NoSuchMethodException {
 		this.params = theParams;
+		this.refresher = refresher;
 		thePanel = new JPanel(new SpringLayout());
 
 		JPanel panel11 = makeEnvironmentPanel();
@@ -102,7 +88,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				invokeNumChange();
+				refresher.refreshConfig();
 			}
 		});
 
@@ -124,7 +110,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 					params.environmentName = ComplexEnvironment.class.getName();
 				}
 
-				invokeNumChange();
+				refresher.refreshConfig();
 			}
 		});
 		LearningAgents.setSelected(params.agentName.equals(ComplexAgentLearning.class.getName()));
