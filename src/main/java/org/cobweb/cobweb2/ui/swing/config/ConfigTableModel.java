@@ -163,6 +163,8 @@ public class ConfigTableModel extends AbstractTableModel {
 		}
 
 		mf.set(data[col-1], typedValue);
+
+		fireTableCellUpdated(row, col);
 	}
 
 	@Override

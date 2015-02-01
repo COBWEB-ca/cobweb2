@@ -70,7 +70,7 @@ class MixedValueJTable extends JTable {
 
 	private static final long serialVersionUID = -9106510371599896107L;
 
-	private ConfigTableModel configModel;
+	public ConfigTableModel configModel;
 
 	public MixedValueJTable(ConfigTableModel model) {
 		super();
