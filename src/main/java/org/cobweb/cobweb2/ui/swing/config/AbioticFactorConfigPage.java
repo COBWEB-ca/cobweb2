@@ -32,6 +32,7 @@ import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.abiotic.AngleBands;
 import org.cobweb.cobweb2.plugins.abiotic.Bands;
 import org.cobweb.cobweb2.plugins.abiotic.HorizontalBands;
+import org.cobweb.cobweb2.plugins.abiotic.Island;
 import org.cobweb.cobweb2.plugins.abiotic.Split;
 import org.cobweb.cobweb2.plugins.abiotic.VerticalBands;
 import org.cobweb.cobweb2.ui.swing.ConfigRefresher;
@@ -52,7 +53,8 @@ public class AbioticFactorConfigPage implements ConfigPage {
 			new HorizontalBands(),
 			new VerticalBands(),
 			new Split(),
-			new AngleBands()
+			new AngleBands(),
+			new Island()
 			);
 
 	private ConfigRefresher refresher;
