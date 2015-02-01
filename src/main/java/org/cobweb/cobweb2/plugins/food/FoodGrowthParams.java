@@ -11,6 +11,13 @@ import org.cobweb.io.ConfXMLTag;
 
 public class FoodGrowthParams implements PerTypeParam<ComplexFoodParams> {
 	/**
+	 * Spawns new food on the grid.
+	 */
+	@ConfDisplayName("Drop new food")
+	@ConfXMLTag("dropNewFood")
+	public boolean dropNewFood = true;
+
+	/**
 	 * Probability that food will grow around similar existing food.
 	 */
 	@ConfDisplayName("Like food probability")

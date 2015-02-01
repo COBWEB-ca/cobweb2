@@ -185,8 +185,6 @@ public class SimulationConfigEditor {
 		tabbedPane = new JTabbedPane();
 		modifyExisting = allowModify;
 
-		/* Environment panel - composed of 4 panels */
-
 		File f = new File(datafile);
 
 		if (f.exists()) {

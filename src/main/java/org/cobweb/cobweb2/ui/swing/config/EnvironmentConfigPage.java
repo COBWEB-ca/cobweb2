@@ -25,7 +25,6 @@ import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.impl.learning.ComplexEnvironmentLearning;
-import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.SetterPropertyAccessor;
 import org.cobweb.swingutil.SpringUtilities;
@@ -36,22 +35,6 @@ import org.cobweb.swingutil.binding.BoundJFormattedTextField;
  *
  */
 public class EnvironmentConfigPage implements ConfigPage {
-
-	private BoundJFormattedTextField Width;
-	private BoundJFormattedTextField Height;
-	private BoundCheckBox wrap;
-
-	private BoundCheckBox keepOldAgents;
-	private BoundCheckBox spawnNewAgents;
-	private BoundCheckBox keepOldArray;
-	private BoundCheckBox dropNewFood;
-	private BoundCheckBox keepOldWaste;
-	private BoundCheckBox keepOldPackets;
-	private JCheckBox LearningAgents;
-	private BoundJFormattedTextField randomSeed;
-	private BoundJFormattedTextField initialStones;
-	private BoundJFormattedTextField maxFoodChance;
-
 	private JPanel thePanel;
 
 	private SimulationConfig params;
@@ -76,24 +59,37 @@ public class EnvironmentConfigPage implements ConfigPage {
 		this.params = theParams;
 		thePanel = new JPanel(new SpringLayout());
 
-		/* Environment Settings */
+		JPanel panel11 = makeEnvironmentPanel();
+		thePanel.add(panel11);
+
+		JPanel panel12 = makeTransitionPanel(allowKeep);
+		thePanel.add(panel12);
+
+		JPanel panel14 = makeRandomPanel();
+
+		thePanel.add(panel14);
+
+		SpringUtilities.makeCompactGrid(thePanel, 1, 3, 0, 0, 0, 0, 0, 0);
+	}
+
+	private JPanel makeEnvironmentPanel() throws NoSuchFieldException, NoSuchMethodException {
 		JPanel panel11 = new JPanel();
 		Util.makeGroupPanel(panel11, "Environment Settings");
 		JPanel fieldPane = new JPanel();
 
-		Width = new BoundJFormattedTextField(params.envParams,
+		BoundJFormattedTextField Width = new BoundJFormattedTextField(params.envParams,
 				new FieldPropertyAccessor(ComplexEnvironmentParams.class.getField("width")),
 				NumberFormat.getIntegerInstance());
 		fieldPane.add(new JLabel(Width.getLabelText()));
 		fieldPane.add(Width);
 
-		Height = new BoundJFormattedTextField(params.envParams,
+		BoundJFormattedTextField Height = new BoundJFormattedTextField(params.envParams,
 				new FieldPropertyAccessor(ComplexEnvironmentParams.class.getField("height")),
 				NumberFormat.getIntegerInstance());
 		fieldPane.add(new JLabel(Height.getLabelText()));
 		fieldPane.add(Height);
 
-		wrap = new BoundCheckBox(params.envParams,
+		BoundCheckBox wrap = new BoundCheckBox(params.envParams,
 				new FieldPropertyAccessor(ComplexEnvironmentParams.class.getField("wrapMap")));
 		fieldPane.add(new JLabel(wrap.getLabelText()));
 		fieldPane.add(wrap);
@@ -102,7 +98,6 @@ public class EnvironmentConfigPage implements ConfigPage {
 		BoundJFormattedTextField AgentNum = new BoundJFormattedTextField(params,
 				new SetterPropertyAccessor(SimulationConfig.class.getMethod("setAgentTypes", int.class)),
 				NumberFormat.getIntegerInstance());
-		AgentNum.setValue(new Integer(theParams.getAgentTypes()));
 		AgentNum.addPropertyChangeListener("value", new PropertyChangeListener() {
 
 			@Override
@@ -114,7 +109,7 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(new JLabel(AgentNum.getLabelText()));
 		fieldPane.add(AgentNum);
 
-		LearningAgents = new JCheckBox();
+		final JCheckBox LearningAgents = new JCheckBox();
 		fieldPane.add(new JLabel("Learning Agents"));
 		fieldPane.add(LearningAgents);
 		LearningAgents.addChangeListener(new ChangeListener() {
@@ -138,86 +133,40 @@ public class EnvironmentConfigPage implements ConfigPage {
 		panel11.add(fieldPane, BorderLayout.CENTER);
 
 		makeOptionsTable(fieldPane, 5);
+		return panel11;
+	}
 
-		thePanel.add(panel11);
-
-		/* Colour Settings */
+	private JPanel makeTransitionPanel(boolean allowKeep) throws NoSuchFieldException {
+		JPanel fieldPane;
 		JPanel panel12 = new JPanel();
 		Util.makeGroupPanel(panel12, "Environment Transition Settings");
 
 		fieldPane = new JPanel();
 
 
-		keepOldAgents = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("keepOldAgents")));
+		BoundCheckBox keepOldAgents = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("keepOldAgents")));
 		fieldPane.add(new JLabel(keepOldAgents.getLabelText()));
 		fieldPane.add(keepOldAgents);
 
-		spawnNewAgents = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("spawnNewAgents")));
+		BoundCheckBox spawnNewAgents = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("spawnNewAgents")));
 		fieldPane.add(new JLabel(spawnNewAgents.getLabelText()));
 		fieldPane.add(spawnNewAgents);
 
-		keepOldArray = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("keepOldArray")));
+		BoundCheckBox keepOldArray = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("keepOldArray")));
 		fieldPane.add(new JLabel(keepOldArray.getLabelText()));
 		fieldPane.add(keepOldArray);
 
-		keepOldWaste = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("keepOldDrops")));
+		BoundCheckBox keepOldWaste = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("keepOldDrops")));
 		fieldPane.add(new JLabel(keepOldWaste.getLabelText()));
 		fieldPane.add(keepOldWaste);
 
-		keepOldPackets = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("keepOldPackets")));
+		BoundCheckBox keepOldPackets = new BoundCheckBox(params, new FieldPropertyAccessor(SimulationConfig.class.getField("keepOldPackets")));
 		fieldPane.add(new JLabel(keepOldPackets.getLabelText()));
 		fieldPane.add(keepOldPackets);
 		makeOptionsTable(fieldPane, 5);
 
 		panel12.add(fieldPane);
-		thePanel.add(panel12);
 
-
-		/* Random variables */
-		JPanel panel14 = new JPanel();
-		Util.makeGroupPanel(panel14, "Random Variables");
-		fieldPane = new JPanel(new GridLayout(3, 1));
-
-		initialStones = new BoundJFormattedTextField(params.envParams,
-				new FieldPropertyAccessor(ComplexEnvironmentParams.class.getField("initialStones")),
-				NumberFormat.getIntegerInstance());
-		fieldPane.add(new JLabel(initialStones.getLabelText()));
-		fieldPane.add(initialStones);
-
-		randomSeed = new BoundJFormattedTextField(params, new FieldPropertyAccessor(SimulationConfig.class.getField("randomSeed")), NumberFormat.getIntegerInstance());
-		JButton makeRandom = new JButton("Generate");
-		makeRandom.addActionListener(new SeedRandomListener(randomSeed));
-		fieldPane.add(new JLabel(randomSeed.getLabelText()));
-		fieldPane.add(randomSeed);
-
-		fieldPane.add(new JPanel());
-		fieldPane.add(makeRandom);
-
-		panel14.add(fieldPane, BorderLayout.EAST);
-		makeOptionsTable(fieldPane, 3);
-
-		thePanel.add(panel14);
-
-		JPanel panel16 = new JPanel();
-		Util.makeGroupPanel(panel16, "General Food Variables");
-
-		fieldPane = new JPanel(new GridLayout(2, 1));
-
-		dropNewFood = new BoundCheckBox(params,
-				new FieldPropertyAccessor(SimulationConfig.class.getField("dropNewFood")));
-		fieldPane.add(new JLabel(dropNewFood.getLabelText()));
-		fieldPane.add(dropNewFood);
-
-		maxFoodChance = new BoundJFormattedTextField(params.foodParams,
-				new FieldPropertyAccessor(FoodGrowthParams.class.getField("likeFoodProb")),
-				NumberFormat.getInstance());
-		fieldPane.add(new JLabel(maxFoodChance.getLabelText()));
-		fieldPane.add(maxFoodChance);
-
-		panel16.add(fieldPane, BorderLayout.WEST);
-		makeOptionsTable(fieldPane, 2);
-
-		thePanel.add(panel16);
 
 		if (!allowKeep) {
 			keepOldAgents.setEnabled(false);
@@ -230,7 +179,33 @@ public class EnvironmentConfigPage implements ConfigPage {
 			keepOldWaste.setSelected(false);
 		}
 
-		SpringUtilities.makeCompactGrid(thePanel, 2, 2, 0, 0, 0, 0, 0, 0);
+		return panel12;
+	}
+
+	private JPanel makeRandomPanel() throws NoSuchFieldException {
+		JPanel fieldPane;
+		JPanel panel14 = new JPanel();
+		Util.makeGroupPanel(panel14, "Random Variables");
+		fieldPane = new JPanel(new GridLayout(3, 1));
+
+		BoundJFormattedTextField initialStones = new BoundJFormattedTextField(params.envParams,
+				new FieldPropertyAccessor(ComplexEnvironmentParams.class.getField("initialStones")),
+				NumberFormat.getIntegerInstance());
+		fieldPane.add(new JLabel(initialStones.getLabelText()));
+		fieldPane.add(initialStones);
+
+		BoundJFormattedTextField randomSeed = new BoundJFormattedTextField(params, new FieldPropertyAccessor(SimulationConfig.class.getField("randomSeed")), NumberFormat.getIntegerInstance());
+		JButton makeRandom = new JButton("Generate");
+		makeRandom.addActionListener(new SeedRandomListener(randomSeed));
+		fieldPane.add(new JLabel(randomSeed.getLabelText()));
+		fieldPane.add(randomSeed);
+
+		fieldPane.add(new JPanel());
+		fieldPane.add(makeRandom);
+
+		panel14.add(fieldPane, BorderLayout.EAST);
+		makeOptionsTable(fieldPane, 3);
+		return panel14;
 	}
 
 	/* (non-Javadoc)

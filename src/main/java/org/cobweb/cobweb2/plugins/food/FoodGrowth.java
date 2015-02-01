@@ -210,7 +210,7 @@ public class FoodGrowth implements EnvironmentMutator {
 		}
 	}
 
-	public void initEnvironment(Environment environment, FoodGrowthParams foodParams, boolean dropNewFood) {
+	public void initEnvironment(Environment environment, FoodGrowthParams foodParams) {
 		foodData = foodParams.foodParams;
 		this.sameFoodProb = foodParams.likeFoodProb;
 
@@ -219,7 +219,7 @@ public class FoodGrowth implements EnvironmentMutator {
 		setupDraughtDeplete();
 
 		// add food to random locations
-		if (dropNewFood) {
+		if (foodParams.dropNewFood) {
 			loadNewFood();
 		}
 	}

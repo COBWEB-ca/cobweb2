@@ -231,7 +231,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		theEnvironment.loadNew();
 
 		FoodGrowth foodGrowth = theEnvironment.getPlugin(FoodGrowth.class);
-		foodGrowth.initEnvironment(theEnvironment, p.foodParams, p.dropNewFood);
+		foodGrowth.initEnvironment(theEnvironment, p.foodParams);
 
 		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
 		packetConduit.initEnvironment(theEnvironment.topology);

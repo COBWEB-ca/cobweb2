@@ -103,13 +103,6 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	public boolean keepOldArray = false;
 
 	/**
-	 * Spawns new food on the grid.
-	 */
-	@ConfDisplayName("Drop new food")
-	@ConfXMLTag("dropNewFood")
-	public boolean dropNewFood = true;
-
-	/**
 	 * Keeps existing waste on the grid.
 	 */
 	@ConfDisplayName("Keep old waste")
