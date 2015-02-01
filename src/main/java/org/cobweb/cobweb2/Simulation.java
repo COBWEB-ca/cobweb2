@@ -40,33 +40,32 @@ import org.cobweb.util.RandomNoGenerator;
  */
 public class Simulation implements SimulationInternals, SimulationInterface {
 
+	public SimulationConfig simulationConfig;
+
 	// TODO access level?
 	public ComplexEnvironment theEnvironment;
 
-	private int time = 0;
-
-	private AbioticMutator abioticMutator;
-
-	// TODO access level
-	public GeneticsMutator geneticMutator;
-
-	private DiseaseMutator diseaseMutator;
-
-	private WasteMutator wasteMutator;
-
-	public StatsMutator statsMutator;
-
-	public SimulationConfig simulationConfig;
-
 	private RandomNoGenerator random;
 
+	private int time = 0;
+
 	private AgentSpawner agentSpawner;
+	private List<Agent> agents = new LinkedList<Agent>();
+	private int nextAgentId = 1;
 
-	private GeneticsMutator similarityCalculator;
+	private AgentSimilarityCalculator similarityCalculator;
 
-	private VisionMutator vision;
+	// TODO: all of this should be in a collection
 
 	private PDMutator pdMutator;
+	private WasteMutator wasteMutator;
+	public ProductionMapper prodMapper;
+	private AbioticMutator abioticMutator;
+	private DiseaseMutator diseaseMutator;
+	public GeneticsMutator geneticMutator;
+	public StatsMutator statsMutator;
+	private VisionMutator vision;
+
 
 	/* return number of TYPES of agents in the environment */
 	@Override
@@ -183,67 +182,63 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 
 		// Create agent plugins if start of a new simulation
-		if (geneticMutator == null) {
-			geneticMutator = new GeneticsMutator();
-			mutatorListener.addMutator(geneticMutator);
-			similarityCalculator = geneticMutator;
+		if (pdMutator == null) {
+			pdMutator = new PDMutator(this);
+			mutatorListener.addMutator(pdMutator);
 		}
-		if (diseaseMutator == null) {
-			diseaseMutator = new DiseaseMutator();
-			mutatorListener.addMutator(diseaseMutator);
-		}
-		if (abioticMutator == null) {
-			abioticMutator = new AbioticMutator();
-			aiStatePlugins.add(abioticMutator);
-			mutatorListener.addMutator(abioticMutator);
+		if (wasteMutator == null) {
+			wasteMutator = new WasteMutator(this);
+			mutatorListener.addMutator(wasteMutator);
 		}
 		if (prodMapper == null) {
 			prodMapper = new ProductionMapper(this);
 			aiStatePlugins.add(prodMapper);
 			mutatorListener.addMutator(prodMapper);
 		}
-		if (wasteMutator == null) {
-			wasteMutator = new WasteMutator(this);
-			mutatorListener.addMutator(wasteMutator);
+		if (abioticMutator == null) {
+			abioticMutator = new AbioticMutator();
+			aiStatePlugins.add(abioticMutator);
+			mutatorListener.addMutator(abioticMutator);
 		}
-		if (statsMutator == null) {
-			statsMutator = new StatsMutator(this);
-			mutatorListener.addMutator(statsMutator);
+		if (diseaseMutator == null) {
+			diseaseMutator = new DiseaseMutator();
+			mutatorListener.addMutator(diseaseMutator);
+		}
+		if (geneticMutator == null) {
+			geneticMutator = new GeneticsMutator();
+			mutatorListener.addMutator(geneticMutator);
+			similarityCalculator = geneticMutator;
 		}
 		if (vision == null) {
 			vision = new VisionMutator();
 			mutatorListener.addMutator(vision);
 		}
-		if (pdMutator == null) {
-			pdMutator = new PDMutator(this);
-			mutatorListener.addMutator(pdMutator);
+		if (statsMutator == null) {
+			statsMutator = new StatsMutator(this);
+			mutatorListener.addMutator(statsMutator);
 		}
 
 
 		// Load environment plugin settings
 		FoodGrowth foodGrowth = theEnvironment.getPlugin(FoodGrowth.class);
 		foodGrowth.setParams(theEnvironment, p.foodParams);
-
 		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
 		packetConduit.setParams(theEnvironment.topology);
 
 		// Load agent plugin settings
-		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
-
-		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
-
-		abioticMutator.setParams(p.abioticParams, theEnvironment.topology);
-
-		wasteMutator.setParams(p.wasteParams, theEnvironment);
-
-		prodMapper.setParams(simulationConfig.prodParams, theEnvironment, p.keepOldDrops);
-
 		pdMutator.setParams(p.pdParams);
+		wasteMutator.setParams(p.wasteParams, theEnvironment);
+		prodMapper.setParams(simulationConfig.prodParams, theEnvironment, p.keepOldDrops);
+		abioticMutator.setParams(p.abioticParams, theEnvironment.topology);
+		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
+		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
 
 
 		// Update AI state plugins
 		setupAIStatePlugins();
 
+
+		// This is where the setup ends and simulation begins
 
 		// Create initial environment state, spawn stones, plugins
 		theEnvironment.loadNew();
@@ -274,9 +269,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		time++;
 	}
 
-	private List<Agent> agents = new LinkedList<Agent>();
-
-	private int nextAgentId = 1;
 
 	@Override
 	public void addAgent(Agent agent) {
@@ -323,8 +315,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	public Set<String> getStatePluginKeys() {
 		return aiStateMap.keySet();
 	}
-
-	public ProductionMapper prodMapper;
 
 	@Override
 	public AgentSimilarityCalculator getSimilarityCalculator() {
