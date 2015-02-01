@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticFactor;
@@ -32,6 +34,8 @@ public class AbioticFactorConfigPage implements ConfigPage {
 	private AbioticParams params;
 
 	private JPanel myPanel;
+
+	private JPanel factorConfigPanel;
 
 	private ComplexEnvironmentParams envParams;
 
@@ -70,6 +74,10 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 		myPanel.add(left, BorderLayout.WEST);
 
+		factorConfigPanel = new JPanel(new BorderLayout());
+
+		myPanel.add(factorConfigPanel);
+
 		Util.makeGroupPanel(myPanel, "Abiotic Factors");
 	}
 
@@ -104,6 +112,7 @@ public class AbioticFactorConfigPage implements ConfigPage {
 		listSelected.setLayoutOrientation(JList.VERTICAL);
 		listSelected.setVisibleRowCount(-1);
 		listSelected.setCellRenderer(new ActiveFactorRenderer());
+		listSelected.addListSelectionListener(new EditorSelector());
 		JScrollPane scroller = new JScrollPane(listSelected);
 		scroller.setPreferredSize(new Dimension(240, 500));
 
@@ -111,8 +120,31 @@ public class AbioticFactorConfigPage implements ConfigPage {
 		return scroller;
 	}
 
+	private class EditorSelector implements ListSelectionListener {
 
-	private static class FactorNameRenderer extends DefaultListCellRenderer {
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			int index = listSelected.getSelectedIndex();
+			if (index < 0)
+				return;
+
+			AbioticFactor selectedFactor = listSelected.getSelectedValue();
+
+			TableConfigPage<AbioticFactor> editor = new TableConfigPage<>(
+					new AbioticFactor[] { selectedFactor },
+					describeActiveFactor(selectedFactor, index),
+					"Value");
+
+			factorConfigPanel.removeAll();
+			factorConfigPanel.add(editor.getPanel());
+			factorConfigPanel.validate();
+			factorConfigPanel.repaint();
+		}
+
+	}
+
+
+	private class FactorNameRenderer extends DefaultListCellRenderer {
 		@Override
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -121,17 +153,23 @@ public class AbioticFactorConfigPage implements ConfigPage {
 			}
 			return this;
 		}
+		private static final long serialVersionUID = 1L;
 	}
 
-	private static class ActiveFactorRenderer extends DefaultListCellRenderer {
+	private class ActiveFactorRenderer extends DefaultListCellRenderer {
 		@Override
 		public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			if (value instanceof AbioticFactor) {
-				setText("Factor " + (index + 1) + ": " + ((AbioticFactor)value).getName());
+				setText(describeActiveFactor((AbioticFactor) value, index));
 			}
 			return this;
 		}
+		private static final long serialVersionUID = 1L;
+	}
+
+	private static String describeActiveFactor(AbioticFactor value, int index) {
+		return "Factor " + (index + 1) + ": " + value.getName();
 	}
 
 	private Action addFactor = new AbstractAction("Add") {
