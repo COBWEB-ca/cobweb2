@@ -29,7 +29,7 @@ public class AngleBands extends Bands {
 		double rangle = Math.toRadians(-angle);
 
 		// x, y are within [0,1], make them [-.5,.5]
-		double dist = MathUtil.getDistanceToLine(x - 0.5, y - 0.5, rangle);
+		double dist = MathUtil.pointLineDistInSquare(x - 0.5, y - 0.5, rangle);
 
 		double indexD = (dist + 0.5) * bands.size();
 		int index = (int) indexD;

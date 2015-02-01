@@ -52,8 +52,8 @@ public class AbioticFactorConfigPage implements ConfigPage {
 	private static final List<AbioticFactor> PATTERNS = Arrays.asList(
 			new HorizontalBands(),
 			new VerticalBands(),
-			new Split(),
 			new AngleBands(),
+			new Split(),
 			new Island()
 			);
 

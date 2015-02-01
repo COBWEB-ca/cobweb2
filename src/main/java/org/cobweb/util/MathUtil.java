@@ -3,14 +3,16 @@ package org.cobweb.util;
 
 public class MathUtil {
 
+
 	/**
 	 * Distance from point (x,y) to line going through (0,0) at angle lineAngle
+	 * Distance is adjusted to touch the bounds of a 1 by 1 square centered at (0,0)
 	 * @param x point x
 	 * @param y point y
 	 * @param lineAngle line angle
 	 * @return signed distance to to line
 	 */
-	public static double getDistanceToLine(double x, double y, double lineAngle) {
+	public static double pointLineDistInSquare(double x, double y, double lineAngle) {
 		// Make sure tan(90) is not approached
 		double q = lineAngle / (Math.PI / 4);
 		if (q > 1 && q <= 3 || q > -3 && q <= -1) {
@@ -28,7 +30,7 @@ public class MathUtil {
 		double xZero = -Math.sin(lineAngle);
 		double yZero = Math.cos(lineAngle);
 
-		double dist = (y - x * slope) / (yZero - xZero * slope);
+		double dist = (y - x * slope) / (yZero - xZero * slope) * yZero;
 		return dist;
 	}
 }
