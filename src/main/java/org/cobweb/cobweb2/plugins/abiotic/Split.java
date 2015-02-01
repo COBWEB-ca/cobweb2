@@ -16,7 +16,17 @@ public class Split extends AbioticFactor {
 
 	@ConfXMLTag("angle")
 	@ConfDisplayName("Angle")
-	public float angle = 90f;
+	public void setAngle(float value) {
+		while (value > 180)
+			value -= 360;
+		while (value < -180)
+			value += 360;
+		angle = value;
+	}
+	public float getAngle() {
+		return angle;
+	}
+	private float angle = 90f;
 
 	@ConfXMLTag("position")
 	@ConfDisplayName("Position")
@@ -25,10 +35,6 @@ public class Split extends AbioticFactor {
 	@Override
 	public float getValue(float x, float y) {
 		float a = angle;
-		while (a > 180)
-			a-=360;
-		while (a < -180)
-			a+=360;
 
 		// center
 		x -= 0.5;
