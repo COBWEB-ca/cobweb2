@@ -26,7 +26,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticFactor;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.abiotic.AngleBands;
@@ -47,9 +46,6 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 	private JPanel factorConfigPanel;
 
-	private ComplexEnvironmentParams envParams;
-
-
 	private static final List<AbioticFactor> PATTERNS = Arrays.asList(
 			new HorizontalBands(),
 			new VerticalBands(),
@@ -61,9 +57,8 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 	private ConfigRefresher refresher;
 
-	public AbioticFactorConfigPage(AbioticParams abioticParams, ComplexEnvironmentParams environmentParams, ConfigRefresher simulationConfigEditor) {
+	public AbioticFactorConfigPage(AbioticParams abioticParams, ConfigRefresher simulationConfigEditor) {
 		this.params = abioticParams;
-		this.envParams = environmentParams;
 		this.refresher = simulationConfigEditor;
 
 		myPanel = new JPanel();

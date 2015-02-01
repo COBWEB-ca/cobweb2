@@ -28,8 +28,8 @@ import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
-import org.cobweb.cobweb2.ui.swing.config.AbioticFactorConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.AbioticAgentConfigPage;
+import org.cobweb.cobweb2.ui.swing.config.AbioticFactorConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.AgentConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.DiseaseConfigPage;
@@ -299,7 +299,7 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private void setupConfigPages() {
 
 		removeOldPage(abioticFactorsPage);
-		abioticFactorsPage = new AbioticFactorConfigPage(p.abioticParams, p.envParams, this);
+		abioticFactorsPage = new AbioticFactorConfigPage(p.abioticParams, this);
 		tabbedPane.addTab("Abiotic factors", abioticFactorsPage.getPanel());
 
 		/* Resources panel */
