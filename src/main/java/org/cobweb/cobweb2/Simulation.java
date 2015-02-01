@@ -224,6 +224,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		foodGrowth.setParams(theEnvironment, p.foodParams);
 		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
 		packetConduit.setParams(theEnvironment.topology);
+		theEnvironment.addPlugin(abioticMutator);
 
 		// Load agent plugin settings
 		pdMutator.setParams(p.pdParams);

@@ -47,13 +47,9 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 	 */
 	private float effectAtLocation(int factor, Location l, AbioticAgentParams aPar) {
 		float temp = getValue(factor, l);
-		AgentFactorParams agentFactorParams = aPar.factorParams[factor];
+		AbioticPreferenceParam agentFactorParams = aPar.factorParams[factor].preference;
 
-		float ptemp = agentFactorParams.preferedValue;
-		float diff = Math.abs(temp - ptemp);
-		diff = Math.max(diff - agentFactorParams.preferedRange, 0);
-		float res = diff * agentFactorParams.differenceFactor;
-		return res;
+		return agentFactorParams.score(temp);
 	}
 
 	/**
