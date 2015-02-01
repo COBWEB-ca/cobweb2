@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.AbstractListModel;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -33,38 +32,6 @@ import org.cobweb.swingutil.binding.EnumComboBoxModel;
 import org.cobweb.util.ArrayUtilities;
 
 public class GeneticConfigPage implements ConfigPage {
-
-	private static class ListManipulator<T> extends AbstractListModel<T> {
-		private static final long serialVersionUID = 6521578944695127260L;
-
-		List<T> items;
-
-		public ListManipulator(List<T> list) {
-			items = list;
-		}
-
-		public void addItem(T item) {
-			items.add(item);
-			fireIntervalAdded(this, items.size() - 1, items.size() - 1);
-		}
-
-		@Override
-		public T getElementAt(int index) {
-			return items.get(index);
-		}
-
-		@Override
-		public int getSize() {
-			return items.size();
-		}
-
-		public T removeItem(T item) {
-			int index = items.indexOf(item);
-			fireIntervalRemoved(this, index, index);
-			items.remove(item);
-			return item;
-		}
-	}
 
 	private static class GenesTableModel extends AbstractTableModel {
 
