@@ -292,6 +292,7 @@ public class SimulationConfigEditor implements ConfigRefresher {
 
 	@Override
 	public void refreshConfig() {
+		p.setAgentTypes(p.getAgentTypes());
 		setupConfigPages();
 	}
 
