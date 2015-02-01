@@ -33,4 +33,12 @@ public class MathUtil {
 		double dist = (y - x * slope) / (yZero - xZero * slope) * yZero;
 		return dist;
 	}
+
+	public static float clamp(float f, float g, float h) {
+		if (f > h)
+			f = h;
+		else if (f < g)
+			f = g;
+		return f;
+	}
 }

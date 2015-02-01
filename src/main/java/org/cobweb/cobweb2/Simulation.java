@@ -27,6 +27,7 @@ import org.cobweb.cobweb2.plugins.food.FoodGrowth;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.plugins.pd.PDMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
+import org.cobweb.cobweb2.plugins.stats.EnergyStats;
 import org.cobweb.cobweb2.plugins.stats.StatsMutator;
 import org.cobweb.cobweb2.plugins.vision.VisionMutator;
 import org.cobweb.cobweb2.plugins.waste.WasteMutator;
@@ -178,6 +179,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			statsMutator = null;
 			vision = null;
 			pdMutator = null;
+			energyStats = null;
+			mutatorListener.addMutator(energyStats);
 		}
 
 
@@ -217,6 +220,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			statsMutator = new StatsMutator(this);
 			mutatorListener.addMutator(statsMutator);
 		}
+		if (energyStats == null) {
+			energyStats = new EnergyStats(getTopology());
+			mutatorListener.addMutator(energyStats);
+		}
 
 
 		// Load environment plugin settings
@@ -224,7 +231,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		foodGrowth.setParams(theEnvironment, p.foodParams);
 		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
 		packetConduit.setParams(theEnvironment.topology);
+
+		// plugins are keyed against class, they get replaced
 		theEnvironment.addPlugin(abioticMutator);
+		theEnvironment.addPlugin(energyStats);
 
 		// Load agent plugin settings
 		pdMutator.setParams(p.pdParams);
@@ -323,6 +333,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	}
 
 	public MutatorListener mutatorListener = new MutatorListener();
+
+	private EnergyStats energyStats;
 
 	@Override
 	public AgentListener getAgentListener() {

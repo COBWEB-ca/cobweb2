@@ -310,6 +310,14 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private Map<Class<? extends OverlayGenerator>, OverlayGenerator> overlays = new LinkedHashMap<>();
 
+	public void addOverlay(OverlayGenerator overlay) {
+		overlays.put(overlay.getClass(), overlay);
+	}
+
+	public void removeOverlay(Class<? extends OverlayGenerator> type) {
+		overlays.remove(type);
+	}
+
 	@Override
 	public void componentHidden(ComponentEvent e) {
 		// nothing
