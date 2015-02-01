@@ -9,7 +9,7 @@ import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
 
 
-public abstract class PerAgentParams<T extends ParameterSerializable> implements ParameterSerializable, PerTypeParam {
+public abstract class PerAgentParams<T extends ParameterSerializable> implements PerTypeParam<T> {
 
 	@ConfXMLTag("AgentParams")
 	@ConfList(indexName = "Agent", startAtOne = true)
@@ -46,6 +46,11 @@ public abstract class PerAgentParams<T extends ParameterSerializable> implements
 	}
 
 	protected abstract T newAgentParam();
+
+	@Override
+	public T[] getPerTypeParams() {
+		return agentParams;
+	}
 
 	private static final long serialVersionUID = 1L;
 }

@@ -5,15 +5,14 @@ package org.cobweb.cobweb2.impl;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Mutatable;
-import org.cobweb.cobweb2.plugins.PerTypeParam;
+import org.cobweb.cobweb2.plugins.ResizableParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
-import org.cobweb.io.ParameterSerializable;
 
 /**
  * Parameters for ComplexAgent.
  */
-public class ComplexAgentParams implements ParameterSerializable, PerTypeParam {
+public class ComplexAgentParams implements ResizableParam {
 
 	private static final long serialVersionUID = -7852361484228627541L;
 

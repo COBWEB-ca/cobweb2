@@ -20,7 +20,7 @@ public class GeneticControllerParams extends PerAgentParams<GeneticStateAgentPar
 	public GeneticControllerParams(SimulationParams simParams) {
 		super(GeneticStateAgentParams.class);
 		this.simParam = simParams;
-		resize(simParams.getCounts());
+		resize(simParams);
 	}
 
 	@Override

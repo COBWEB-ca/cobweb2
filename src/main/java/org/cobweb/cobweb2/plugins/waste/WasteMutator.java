@@ -23,11 +23,8 @@ public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implement
 		this.sim = sim;
 	}
 
-	public void setParams(WasteParams wasteParams) {
+	public void setParams(WasteParams wasteParams, Environment env) {
 		this.params = wasteParams;
-	}
-
-	public void initEnvironment(Environment env) {
 		this.environment = env;
 	}
 

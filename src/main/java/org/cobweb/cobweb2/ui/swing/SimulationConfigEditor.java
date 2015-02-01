@@ -28,6 +28,7 @@ import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
+import org.cobweb.cobweb2.ui.swing.config.AbioticConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.AgentConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.AgentNumChangeListener;
 import org.cobweb.cobweb2.ui.swing.config.ConfigPage;
@@ -41,7 +42,6 @@ import org.cobweb.cobweb2.ui.swing.config.PDConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.SettingsPanel;
-import org.cobweb.cobweb2.ui.swing.config.AbioticConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
 
 /**
@@ -185,8 +185,6 @@ public class SimulationConfigEditor {
 		tabbedPane = new JTabbedPane();
 		modifyExisting = allowModify;
 
-		/* Environment panel - composed of 4 panels */
-
 		File f = new File(datafile);
 
 		if (f.exists()) {
@@ -200,17 +198,19 @@ public class SimulationConfigEditor {
 			setDefault();
 		}
 
-		environmentPage = new EnvironmentConfigPage(p.envParams, allowModify);
+		try {
+			environmentPage = new EnvironmentConfigPage(p, allowModify);
+		} catch (NoSuchFieldException | NoSuchMethodException ex) {
+			throw new RuntimeException(ex);
+		}
 
 		tabbedPane.addTab("Environment", environmentPage.getPanel());
 
 		setupConfigPages();
 
 		environmentPage.addAgentNumChangeListener(new AgentNumChangeListener() {
-
 			@Override
-			public void AgentNumChanged(int oldNum, int newNum) {
-				p.SetAgentTypeCount(newNum);
+			public void AgentNumChanged(int newNum) {
 				setupConfigPages();
 			}
 		});
@@ -298,7 +298,7 @@ public class SimulationConfigEditor {
 
 		/* Resources panel */
 		removeOldPage(resourcePage);
-		resourcePage = new ResourceConfigPage(p.foodParams.foodParams, displaySettings.agentColor);
+		resourcePage = new ResourceConfigPage(p.foodParams, displaySettings.agentColor);
 		tabbedPane.addTab("Resources", resourcePage.getPanel());
 
 		/* Agents' panel */
@@ -349,7 +349,7 @@ public class SimulationConfigEditor {
 
 
 		removeOldPage(learnPage);
-		if (p.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
+		if (p.agentName.equals(ComplexAgentLearning.class.getName())) {
 			learnPage = new LearningConfigPage(p.learningParams.agentParams, displaySettings.agentColor);
 			tabbedPane.addTab("Learning", learnPage.getPanel());
 		}

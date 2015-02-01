@@ -18,7 +18,7 @@ public class PacketConduit implements EnvironmentMutator {
 
 	private Topology topology;
 
-	public void load(Topology topo) {
+	public void setParams(Topology topo) {
 		this.topology = topo;
 	}
 
@@ -79,6 +79,11 @@ public class PacketConduit implements EnvironmentMutator {
 	public static class BroadcastCause implements Cause {
 		@Override
 		public String getName() { return "Broadcast"; }
+	}
+
+	@Override
+	public void loadNew() {
+		// nothing
 	}
 
 }

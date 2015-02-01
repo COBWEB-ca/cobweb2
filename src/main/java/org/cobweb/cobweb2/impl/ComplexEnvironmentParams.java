@@ -3,7 +3,6 @@
  */
 package org.cobweb.cobweb2.impl;
 
-import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
@@ -11,39 +10,7 @@ import org.cobweb.io.ParameterSerializable;
 /**
  * Parameters for the ComplexEnvironment
  */
-public class ComplexEnvironmentParams implements AgentFoodCountable, ParameterSerializable {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -3308627358945982393L;
-
-	/**
-	 * Number of Agent types.
-	 */
-	@ConfDisplayName("Agent types")
-	@ConfXMLTag("AgentTypeCount")
-	public int agentTypeCount = 4;
-
-	/**
-	 * Class name of the controller object.
-	 */
-	@ConfDisplayName("Controller type")
-	@ConfXMLTag("ControllerName")
-	public String controllerName;
-
-	/**
-	 * Class name of the agent object
-	 */
-	@ConfDisplayName("Agent type")
-	@ConfXMLTag("AgentName")
-	public String agentName;
-
-	/**
-	 * Class name of environment object
-	 */
-	@ConfDisplayName("Environment type")
-	@ConfXMLTag("EnvironmentName")
-	public String environmentName;
+public class ComplexEnvironmentParams implements ParameterSerializable {
 
 	/**
 	 * Width of the grid.
@@ -66,57 +33,6 @@ public class ComplexEnvironmentParams implements AgentFoodCountable, ParameterSe
 	@ConfXMLTag("wrap")
 	public boolean wrapMap = true;
 
-
-	/**
-	 * Random number generator seed for repeating the simulation exactly.
-	 */
-	@ConfDisplayName("Random seed")
-	@ConfXMLTag("randomSeed")
-	public long randomSeed = 42;
-
-
-	/**
-	 * Keeps the existing food on the grid.
-	 */
-	@ConfDisplayName("Keep old array")
-	@ConfXMLTag("keepOldArray")
-	public boolean keepOldArray = false;
-
-	/**
-	 * Spawns new food on the grid.
-	 */
-	@ConfDisplayName("Drop new food")
-	@ConfXMLTag("dropNewFood")
-	public boolean dropNewFood = true;
-
-	/**
-	 * Keeps existing waste on the grid.
-	 */
-	@ConfDisplayName("Keep old waste")
-	@ConfXMLTag("keepOldWaste")
-	public boolean keepOldWaste = false;
-
-	/**
-	 * Keeps existing agents.
-	 */
-	@ConfDisplayName("Keep old agents")
-	@ConfXMLTag("keepOldAgents")
-	public boolean keepOldAgents = false;
-
-	/**
-	 * Spawns new agents.
-	 */
-	@ConfDisplayName("Spawn new agents")
-	@ConfXMLTag("spawnNewAgents")
-	public boolean spawnNewAgents = true;
-
-	/**
-	 * Keeps old communication packets.
-	 */
-	@ConfDisplayName("Keep old packets")
-	@ConfXMLTag("keepOldPackets")
-	public boolean keepOldPackets = false;
-
 	/**
 	 * Number of stones to randomly place
 	 */
@@ -125,42 +41,5 @@ public class ComplexEnvironmentParams implements AgentFoodCountable, ParameterSe
 	public int initialStones = 10;
 
 
-	/**
-	 * Probability that food will grow around similar existing food.
-	 */
-	@ConfDisplayName("Like food probability")
-	@ConfXMLTag("likeFoodProb")
-	public float likeFoodProb = 0;
-
-	/**
-	 * Initialises the default parameters
-	 */
-	public ComplexEnvironmentParams() {
-		// public, no parameter constructor for serialization
-	}
-
-	/**
-	 * @return Number of agent types.
-	 */
-	@Override
-	public int getAgentTypes() {
-		return agentTypeCount;
-	}
-
-	/**
-	 * @return Height of the grid.
-	 */
-	@Override
-	public int getHeight() {
-		return height;
-	}
-
-	/**
-	 * @return Width of the grid.
-	 */
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
+	private static final long serialVersionUID = 2L;
 }

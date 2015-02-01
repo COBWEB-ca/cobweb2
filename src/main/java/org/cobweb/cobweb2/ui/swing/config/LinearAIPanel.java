@@ -120,13 +120,12 @@ public class LinearAIPanel extends SettingsPanel {
 	@Override
 	public void bindToParser(SimulationConfig p) {
 		if (!(p.controllerParams instanceof LinearWeightsControllerParams)) {
-			p.envParams.controllerName = LinearWeightsController.class.getName();
-			if (params == null)
-				params = new LinearWeightsControllerParams(p);
-			p.controllerParams = params;
-		} else {
-			params = (LinearWeightsControllerParams) p.controllerParams;
+			p.setControllerName(LinearWeightsController.class.getName());
+			// SimulationConfig sets a blank default, but if the page already has settings, use them
+			if (params != null)
+				p.controllerParams = params;
 		}
+		params = (LinearWeightsControllerParams) p.controllerParams;
 
 		removeAll();
 

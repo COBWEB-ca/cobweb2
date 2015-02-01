@@ -23,7 +23,7 @@ public class LinearWeightsControllerParams extends PerAgentParams<LinearWeightAg
 	public LinearWeightsControllerParams(SimulationParams simParam) {
 		super(LinearWeightAgentParam.class);
 		this.simParam = simParam;
-		resize(simParam.getCounts());
+		resize(simParam);
 	}
 
 	@Override

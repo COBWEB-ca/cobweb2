@@ -1,15 +1,11 @@
 package org.cobweb.cobweb2.plugins;
 
-import org.cobweb.cobweb2.core.AgentFoodCountable;
+import org.cobweb.io.ParameterSerializable;
 
 /**
  * Parameter that depends on the number of agent types in the simulation
  */
-public interface PerTypeParam {
+public interface PerTypeParam<T extends ParameterSerializable> extends ResizableParam {
 
-	/**
-	 * Updates configuration for the new number of agent types
-	 * @param envParams used to retrieve agent type count
-	 */
-	public void resize(AgentFoodCountable envParams);
+	public T[] getPerTypeParams();
 }
