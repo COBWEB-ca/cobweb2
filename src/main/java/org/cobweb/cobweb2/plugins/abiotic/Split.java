@@ -14,9 +14,9 @@ public class Split extends AbioticFactor {
 	@ConfList(indexName = "id", startAtOne = true)
 	public float[] sides = { 0f, 1f };
 
-	@ConfXMLTag("vertical")
-	@ConfDisplayName("Vertical")
-	public boolean vertical = false;
+	@ConfXMLTag("angle")
+	@ConfDisplayName("Angle")
+	public float angle = 90f;
 
 	@ConfXMLTag("position")
 	@ConfDisplayName("Position")
@@ -24,8 +24,46 @@ public class Split extends AbioticFactor {
 
 	@Override
 	public float getValue(float x, float y) {
-		float f = vertical ? x : y;
-		if (f >= position)
+		float a = angle;
+		while (a > 180)
+			a-=360;
+		while (a < -180)
+			a+=360;
+
+		// center
+		x -= 0.5;
+		y -= 0.5;
+
+		float p = position - .5f;
+
+		// Make sure tan(90) is not approached
+		float q = a / 45;
+		if (q > 1 && q <= 3) {
+			// +45 to +135
+			float t = x;
+			x = -y;
+			y = -t;
+			a = 90 - a;
+		} else if ( q > 3 && q <= 4 || q < -3 && q >= -4 ) {
+			// +135 to -135
+			x = -x;
+			y = -y;
+			p = -p;
+		} else if ( q > -3 && q <= -1) {
+			// -135 to -45
+			float t = x;
+			x = y;
+			y = t;
+			p = -p;
+			a = 90 - a;
+		}
+
+		double rangle = a / 180 * Math.PI;
+		double slope = Math.tan(rangle);
+		double xZero = -Math.sin(rangle) * p;
+		double yZero = Math.cos(rangle) * p;
+
+		if ((y - yZero) > (x - xZero) * slope)
 			return sides[1];
 		else
 			return sides[0];
@@ -50,7 +88,7 @@ public class Split extends AbioticFactor {
 	public AbioticFactor copy() {
 		Split result = new Split();
 		result.sides = Arrays.copyOf(this.sides, sides.length);
-		result.vertical = this.vertical;
+		result.angle = this.angle;
 		result.position = this.position;
 		return result;
 	}
