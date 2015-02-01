@@ -1,6 +1,7 @@
 package org.cobweb.cobweb2.plugins.abiotic;
 
 
+
 public class HorizontalBands extends Bands {
 
 	@Override

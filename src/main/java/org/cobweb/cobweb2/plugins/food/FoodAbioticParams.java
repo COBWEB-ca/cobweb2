@@ -10,7 +10,7 @@ import org.cobweb.io.ParameterSerializable;
 
 public class FoodAbioticParams implements ParameterSerializable {
 
-	@ConfDisplayName("Factor")
+	@ConfDisplayName("")
 	@ConfXMLTag("FactorParams")
 	@ConfList(indexName = "Factor", startAtOne = true)
 	public FoodFactorParams[] factorParams = new FoodFactorParams[0];

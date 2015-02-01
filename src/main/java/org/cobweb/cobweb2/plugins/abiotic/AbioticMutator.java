@@ -31,7 +31,7 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 	 * @param loc location.
 	 * @return The abiotic factor value at location
 	 */
-	private float getValue(int factor, Location loc) {
+	public float getValue(int factor, Location loc) {
 		float x = (float) loc.x / sim.getTopology().width;
 		float y = (float) loc.y / sim.getTopology().height;
 

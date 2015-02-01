@@ -1,12 +1,16 @@
 package org.cobweb.cobweb2.plugins.food;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.cobweb.cobweb2.core.Direction;
-import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.SimulationTimeSpace;
+import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
+import org.cobweb.cobweb2.plugins.abiotic.AbioticMutator;
+import org.cobweb.cobweb2.plugins.abiotic.AbioticPreferenceParam;
 
 
 public class FoodGrowth implements EnvironmentMutator {
@@ -19,7 +23,7 @@ public class FoodGrowth implements EnvironmentMutator {
 
 	private SimulationTimeSpace simulation;
 
-	private Environment env;
+	private ComplexEnvironment env;
 
 	private float sameFoodProb;
 
@@ -55,18 +59,21 @@ public class FoodGrowth implements EnvironmentMutator {
 		// how many food items we need to destroy, say N,
 		// and we destroy the food at the positions occupying the last N
 		// spots in our vector
-		LinkedList<Location> locations = new LinkedList<Location>();
-		for (int x = 0; x < simulation.getTopology().width; ++x)
+		List<Location> locations = new ArrayList<Location>();
+		for (int x = 0; x < simulation.getTopology().width; ++x) {
 			for (int y = 0; y < simulation.getTopology().height; ++y) {
 				Location currentPos = new Location(x, y);
 				if (env.hasFood(currentPos) && env.getFoodType(currentPos) == type)
-					locations.add(simulation.getRandom().nextInt(locations.size() + 1), currentPos);
+					locations.add(currentPos);
 			}
+		}
+
+		Collections.shuffle(locations, simulation.getRandom());
 
 		int foodToDeplete = (int) (locations.size() * food.depleteRate);
 
 		for (int j = 0; j < foodToDeplete; ++j) {
-			Location loc = locations.removeLast();
+			Location loc = locations.get(j);
 
 			env.removeFood(loc);
 		}
@@ -94,6 +101,9 @@ public class FoodGrowth implements EnvironmentMutator {
 	private void growFood() {
 		// create a new ArrayEnvironment and a new food type array
 		// loop through all positions
+
+		AbioticMutator abiotic = env.getPlugin(AbioticMutator.class);
+
 		for (int y = 0; y < simulation.getTopology().height; ++y) {
 			for (int x = 0; x < simulation.getTopology().width; ++x) {
 				Location currentPos = new Location(x, y);
@@ -137,7 +147,17 @@ public class FoodGrowth implements EnvironmentMutator {
 
 						// finally, we grow food according to a certain
 						// amount of random chance
-						if (foodCount * foodData[growingType].growRate > 100 * simulation.getRandom().nextFloat()) {
+						ComplexFoodParams thisType = foodData[growingType];
+						float growRate = thisType.growRate;
+
+						for (int i = 0; i < thisType.abioticParams.factorParams.length; i++) {
+							AbioticPreferenceParam factorParams = thisType.abioticParams.factorParams[i].preference;
+							float factorValue = abiotic.getValue(i, currentPos);
+							float discomfort = 1 + factorParams.score(factorValue);
+							growRate *= discomfort;
+						}
+
+						if (foodCount * growRate > 100 * simulation.getRandom().nextFloat()) {
 							env.addFood(currentPos, growingType);
 						}
 					}
@@ -212,7 +232,7 @@ public class FoodGrowth implements EnvironmentMutator {
 		}
 	}
 
-	public void setParams(Environment environment, FoodGrowthParams foodParams) {
+	public void setParams(ComplexEnvironment environment, FoodGrowthParams foodParams) {
 		foodData = foodParams.foodParams;
 		this.sameFoodProb = foodParams.likeFoodProb;
 		dropNew = foodParams.dropNewFood;
