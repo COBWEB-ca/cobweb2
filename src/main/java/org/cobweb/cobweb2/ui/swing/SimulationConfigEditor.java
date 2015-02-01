@@ -29,6 +29,7 @@ import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
 import org.cobweb.cobweb2.ui.swing.config.AbioticConfigPage;
+import org.cobweb.cobweb2.ui.swing.config.AbioticFactorConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.AgentConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.DiseaseConfigPage;
@@ -82,6 +83,7 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private void validateSettings() {
 		try {
 			environmentPage.validateUI();
+			abioticFactorsPage.validateUI();
 			resourcePage.validateUI();
 			agentPage.validateUI();
 			foodwebPage.validateUI();
@@ -119,6 +121,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private EnvironmentConfigPage environmentPage;
 
 	private ResourceConfigPage resourcePage;
+
+	private AbioticFactorConfigPage abioticFactorsPage;
 
 	private WasteConfigPage wastePage;
 
@@ -293,6 +297,10 @@ public class SimulationConfigEditor implements ConfigRefresher {
 
 	private void setupConfigPages() {
 
+		removeOldPage(abioticFactorsPage);
+		abioticFactorsPage = new AbioticFactorConfigPage(p.abioticParams, p.envParams, this);
+		tabbedPane.addTab("Abiotic factors", abioticFactorsPage.getPanel());
+
 		/* Resources panel */
 		removeOldPage(resourcePage);
 		resourcePage = new ResourceConfigPage(p.foodParams, displaySettings.agentColor);
@@ -342,7 +350,7 @@ public class SimulationConfigEditor implements ConfigRefresher {
 
 		removeOldPage(abioticPage);
 		abioticPage = new AbioticConfigPage(p.abioticParams, serializer.choiceCatalog, displaySettings.agentColor);
-		tabbedPane.addTab("Abiotic Factor", abioticPage.getPanel());
+		tabbedPane.addTab("Agent Abiotic", abioticPage.getPanel());
 
 
 		removeOldPage(learnPage);
