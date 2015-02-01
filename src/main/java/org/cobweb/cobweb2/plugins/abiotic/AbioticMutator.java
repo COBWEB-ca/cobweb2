@@ -23,7 +23,7 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 		super(AbioticState.class);
 	}
 
-	private AbioticParams params;
+	public AbioticParams params;
 
 	private SimulationTimeSpace sim;
 
