@@ -28,5 +28,25 @@ public abstract class Bands extends AbioticFactor {
 		return band;
 	}
 
+	@Override
+	public float getMax() {
+		float max = Float.NEGATIVE_INFINITY;
+		for (Float b : bands) {
+			if (b.floatValue() > max)
+				max = b;
+		}
+		return max;
+	}
+
+	@Override
+	public float getMin() {
+		float min = Float.POSITIVE_INFINITY;
+		for (Float b : bands) {
+			if (b.floatValue() < min)
+				min = b;
+		}
+		return min;
+	}
+
 	private static final long serialVersionUID = 1L;
 }

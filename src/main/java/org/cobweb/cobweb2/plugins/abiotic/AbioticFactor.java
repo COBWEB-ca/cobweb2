@@ -8,7 +8,8 @@ public abstract class AbioticFactor implements ParameterSerializable {
 
 	public abstract float getValue(float x, float y);
 
-	private static final long serialVersionUID = 1L;
+	public abstract float getMax();
+	public abstract float getMin();
 
 	public abstract String getName();
 
@@ -18,4 +19,6 @@ public abstract class AbioticFactor implements ParameterSerializable {
 	}
 
 	public abstract AbioticFactor copy();
+
+	private static final long serialVersionUID = 1L;
 }

@@ -1,9 +1,12 @@
 package org.cobweb.cobweb2.ui.swing.config;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,6 +23,8 @@ import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticFactor;
@@ -155,8 +160,47 @@ public class AbioticFactorConfigPage implements ConfigPage {
 		if (editorPanel != null) {
 			factorConfigPanel.add(editorPanel);
 		}
+		factorConfigPanel.add(getFactorPreview(selectedFactor), BorderLayout.EAST);
 		factorConfigPanel.validate();
 		factorConfigPanel.repaint();
+	}
+
+	private static Component getFactorPreview(final AbioticFactor selectedFactor) {
+		JComponent preview = new JComponent() {
+
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				float max = selectedFactor.getMax();
+				float min = selectedFactor.getMin();
+				if ( min == max) {
+					g.setColor(Color.GRAY);
+					g.fillRect(0, 0, getWidth(), getHeight());
+				}
+				else {
+					BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+					int w = image.getWidth();
+					int h = image.getHeight();
+					for (int y = 0; y < h; y++) {
+						for (int x = 0; x < w; x++) {
+							float v = selectedFactor.getValue((float) x / w, (float)y / h);
+							float normalV = (1 - (v - min) / (max - min)) * 2 / 3 ;
+							int rgb = Color.HSBtoRGB(normalV, 1f, 1f);
+							image.setRGB(x, y, rgb);
+						}
+					}
+					g.drawImage(image, 0,0, this);
+				}
+			}
+
+			private static final long serialVersionUID = 1L;
+		};
+		preview.setPreferredSize(new Dimension(100, 100));
+		JPanel previewPanel = new JPanel();
+		Util.makeGroupPanel(previewPanel, "Preview");
+		previewPanel.add(preview);
+		return previewPanel;
 	}
 
 	private JPanel getBandsEditor(String editorName, final Bands factor) {
@@ -164,6 +208,13 @@ public class AbioticFactorConfigPage implements ConfigPage {
 				new Bands[] { factor },
 				null,
 				"Value");
+		editor.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				refreshEditor();
+			}
+		});
+
 		final JPanel table = editor.getPanel();
 
 		JPanel group = new JPanel(new BorderLayout());
