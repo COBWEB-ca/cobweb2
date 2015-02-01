@@ -234,7 +234,7 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 		JPanel buttons = new JPanel();
 
-		Action addBand = new AbstractAction("Add Band") {
+		Action addBand = new AbstractAction("Add New Band") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				factor.bands.add(0f);
@@ -242,7 +242,7 @@ public class AbioticFactorConfigPage implements ConfigPage {
 			}
 			private static final long serialVersionUID = 1L;
 		};
-		Action removeBand = new AbstractAction("Remove Band") {
+		Action removeBand = new AbstractAction("Remove Last Band") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (factor.bands.size() <= 1)
