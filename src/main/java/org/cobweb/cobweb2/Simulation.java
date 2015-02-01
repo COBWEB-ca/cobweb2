@@ -137,6 +137,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	 * which will start the simulation.  This is a private helper to the
 	 * LocalUIInterface constructor.
 	 */
+	//TODO use reflection to automate this
 	public void load(SimulationConfig p) {
 		this.simulationConfig = p;
 		agentSpawner = new AgentSpawner(p.agentName, this);
@@ -147,10 +148,13 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		else
 			random = new RandomNoGenerator(p.randomSeed);
 
+		// Create new environment or reuse current if continuing simulation
 		InitEnvironment(p.environmentName, p.isContinuation());
-		theEnvironment.load(p, p.keepOldAgents, p.keepOldArray, p.keepOldDrops);
 
-		// Environment plugins
+		// Update environment settings
+		theEnvironment.setParams(p.envParams, p.agentParams, p.keepOldAgents, p.keepOldArray, p.keepOldDrops);
+
+		// Update environment plugins with new environment settings
 		if (!p.isContinuation()) {
 			theEnvironment.addPlugin(new FoodGrowth(this));
 			theEnvironment.addPlugin(new PacketConduit());
@@ -160,8 +164,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 				packetConduit.clearPackets();
 		}
 
-		// Agent plugins
-		//TODO use reflection to automate this
+
+		// Remove all agent mutators if removing old agents
 		if (!p.keepOldAgents) {
 			nextAgentId = 1;
 			mutatorListener.clearMutators();
@@ -177,6 +181,8 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			pdMutator = null;
 		}
 
+
+		// Create agent plugins if start of a new simulation
 		if (geneticMutator == null) {
 			geneticMutator = new GeneticsMutator();
 			mutatorListener.addMutator(geneticMutator);
@@ -213,36 +219,36 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(pdMutator);
 		}
 
-		theEnvironment.loadNew();
 
-		// Environment plugins
+		// Load environment plugin settings
 		FoodGrowth foodGrowth = theEnvironment.getPlugin(FoodGrowth.class);
-		foodGrowth.initEnvironment(theEnvironment, p.foodParams);
+		foodGrowth.setParams(theEnvironment, p.foodParams);
 
 		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
-		packetConduit.initEnvironment(theEnvironment.topology);
+		packetConduit.setParams(theEnvironment.topology);
 
-
-		// Agent plugins
+		// Load agent plugin settings
 		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
 
 		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
 
 		abioticMutator.setParams(p.abioticParams, theEnvironment.topology);
 
-		wasteMutator.setParams(p.wasteParams);
+		wasteMutator.setParams(p.wasteParams, theEnvironment);
 
-		prodMapper.setParams(simulationConfig.prodParams);
+		prodMapper.setParams(simulationConfig.prodParams, theEnvironment, p.keepOldDrops);
 
 		pdMutator.setParams(p.pdParams);
 
-		prodMapper.initEnvironment(theEnvironment, p.keepOldDrops);
 
-		wasteMutator.initEnvironment(theEnvironment);
-
+		// Update AI state plugins
 		setupAIStatePlugins();
 
 
+		// Create initial environment state, spawn stones, plugins
+		theEnvironment.loadNew();
+
+		// Create initial agent population
 		if (p.spawnNewAgents) {
 			theEnvironment.loadNewAgents();
 		}

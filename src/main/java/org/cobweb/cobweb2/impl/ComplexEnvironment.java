@@ -3,7 +3,6 @@ package org.cobweb.cobweb2.impl;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Environment;
@@ -53,11 +52,10 @@ public class ComplexEnvironment extends Environment {
 	 * <br>4. Keeps or removes old agents.
 	 * <br>5. Adds new stones, food, and agents.
 	 *
-	 * @param config The simulation  settings
 	 */
-	public synchronized void load(SimulationConfig config, boolean keepOldAgents, boolean keepOldArray, boolean keepOldDrops) throws IllegalArgumentException {
-		data = config.envParams;
-		agentData = config.agentParams.agentParams;
+	public synchronized void setParams(ComplexEnvironmentParams envParams, AgentParams agentParams, boolean keepOldAgents, boolean keepOldArray, boolean keepOldDrops) throws IllegalArgumentException {
+		data = envParams;
+		agentData = agentParams.agentParams;
 
 		super.load(data.width, data.height, data.wrapMap, keepOldArray);
 
@@ -87,6 +85,9 @@ public class ComplexEnvironment extends Environment {
 				addStone(l);
 		}
 
+		for (EnvironmentMutator p : plugins.values()) {
+			p.loadNew();
+		}
 	}
 
 	/**

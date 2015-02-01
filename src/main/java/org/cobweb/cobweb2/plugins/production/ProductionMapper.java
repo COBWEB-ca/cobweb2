@@ -265,21 +265,16 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState> 
 		return parentState.clone();
 	}
 
-	public void setParams(ProductionParams productionParams) {
+	public void setParams(ProductionParams productionParams, Environment env, boolean keepOldProducts) {
 		initialParams = productionParams.agentParams;
-	}
-
-	public void initEnvironment(Environment env, boolean keepOldProducts) {
 		environment = env;
 
-		// FIXME: this has to happen after environment is set up, since simulation.getTopology comes from the environment
 		if (vals == null || !keepOldProducts) {
 			vals = new float[simulation.getTopology().width][simulation.getTopology().height];
 		} else {
 			vals = ArrayUtilities.resizeArray(vals, simulation.getTopology().width, simulation.getTopology().height);
 		}
 	}
-
 
 	public static class ProduceProductCause implements Cause {
 		@Override
