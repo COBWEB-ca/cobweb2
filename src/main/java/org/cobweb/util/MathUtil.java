@@ -12,7 +12,7 @@ public class MathUtil {
 	 */
 	public static double getDistanceToLine(double x, double y, double lineAngle) {
 		// Make sure tan(90) is not approached
-		double q = lineAngle / (Math.PI / 2);
+		double q = lineAngle / (Math.PI / 4);
 		if (q > 1 && q <= 3 || q > -3 && q <= -1) {
 			// +45 to +135 or -135 to -45
 			double t = x;
@@ -22,6 +22,9 @@ public class MathUtil {
 		}
 
 		double slope = Math.tan(lineAngle);
+		// make 90 degree angles completely square
+		if (Math.abs(slope) < 1e-5)
+			slope = 0;
 		double xZero = -Math.sin(lineAngle);
 		double yZero = Math.cos(lineAngle);
 
