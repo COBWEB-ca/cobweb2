@@ -196,8 +196,8 @@ public class AbioticFactorConfigPage implements ConfigPage {
 					for (int y = 0; y < h; y++) {
 						for (int x = 0; x < w; x++) {
 							float v = selectedFactor.getValue((float) x / w, (float)y / h);
-							float normalV = (1 - (v - min) / (max - min)) * 2 / 3 ;
-							int rgb = Color.HSBtoRGB(normalV, 1f, 1f);
+							float normalV = (v - min) / (max - min);
+							int rgb = Color.HSBtoRGB((1 - normalV) * 2 / 3, 1f, 1f);
 							image.setRGB(x, y, rgb);
 						}
 					}
