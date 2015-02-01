@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 
 
@@ -17,7 +17,7 @@ public class FoodGrowth implements EnvironmentMutator {
 
 	private int draughtdays[];
 
-	private SimulationInternals simulation;
+	private SimulationTimeSpace simulation;
 
 	private Environment env;
 
@@ -25,7 +25,7 @@ public class FoodGrowth implements EnvironmentMutator {
 
 	private boolean dropNew;
 
-	public FoodGrowth(SimulationInternals simulation) {
+	public FoodGrowth(SimulationTimeSpace simulation) {
 		this.simulation = simulation;
 	}
 

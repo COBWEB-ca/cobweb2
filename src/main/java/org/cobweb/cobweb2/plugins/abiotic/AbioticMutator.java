@@ -5,9 +5,10 @@ import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
-import org.cobweb.cobweb2.core.Topology;
+import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.StepMutator;
 
@@ -16,7 +17,7 @@ import org.cobweb.cobweb2.plugins.StepMutator;
  *
  * @author ???
  */
-public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements StepMutator, StatePlugin {
+public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements StepMutator, StatePlugin, EnvironmentMutator {
 
 	public AbioticMutator() {
 		super(AbioticState.class);
@@ -24,15 +25,15 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 
 	private AbioticParams params;
 
-	private Topology topology;
+	private SimulationTimeSpace sim;
 
 	/**
 	 * @param loc location.
 	 * @return The abiotic factor value at location
 	 */
 	private float getValue(int factor, Location loc) {
-		float x = (float) loc.x / topology.width;
-		float y = (float) loc.y / topology.height;
+		float x = (float) loc.x / sim.getTopology().width;
+		float y = (float) loc.y / sim.getTopology().height;
 
 		AbioticFactor abioticFactor = params.factors.get(factor);
 		float value = abioticFactor.getValue(x, y);
@@ -96,13 +97,12 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 
 	/**
 	 * Sets the parameters according to the simulation configuration.
-	 *
+	 * @param sim simulation sim
 	 * @param params abiotic parameters from the simulation configuration.
-	 * @param topology simulation topology
 	 */
-	public void setParams(AbioticParams params, Topology topology) {
+	public void setParams(SimulationTimeSpace sim, AbioticParams params) {
 		this.params = params;
-		this.topology = topology;
+		this.sim = sim;
 	}
 
 	@Override
@@ -137,6 +137,18 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 			return value;
 		}
 
+	}
+
+	@Override
+	public void update() {
+		for (AbioticFactor f : params.factors) {
+			f.update(sim);
+		}
+	}
+
+	@Override
+	public void loadNew() {
+		// nothing
 	}
 
 }

@@ -3,7 +3,6 @@ package org.cobweb.cobweb2;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.cobweb.cobweb2.impl.AgentParams;

@@ -229,7 +229,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		pdMutator.setParams(p.pdParams);
 		wasteMutator.setParams(p.wasteParams, theEnvironment);
 		prodMapper.setParams(simulationConfig.prodParams, theEnvironment, p.keepOldDrops);
-		abioticMutator.setParams(p.abioticParams, theEnvironment.topology);
+		abioticMutator.setParams(this, p.abioticParams);
 		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
 		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
 

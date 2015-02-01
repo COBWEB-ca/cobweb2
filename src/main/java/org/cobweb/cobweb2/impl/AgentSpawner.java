@@ -4,14 +4,15 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.SimulationTimeSpace;
 
 
 public class AgentSpawner {
 
 	private Class<?> spawnType;
-	private SimulationInternals simulation;
+	private SimulationTimeSpace simulation;
 
-	public AgentSpawner(String classname, SimulationInternals sim) {
+	public AgentSpawner(String classname, SimulationTimeSpace sim) {
 		simulation = sim;
 		try {
 			spawnType = Class.forName(classname);

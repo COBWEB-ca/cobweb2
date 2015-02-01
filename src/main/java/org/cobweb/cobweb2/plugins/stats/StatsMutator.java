@@ -7,7 +7,7 @@ import java.util.List;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.impl.ComplexAgent.BumpAgentCause;
 import org.cobweb.cobweb2.impl.ComplexAgent.BumpWallCause;
 import org.cobweb.cobweb2.impl.ComplexAgent.EatAgentCause;
@@ -30,9 +30,9 @@ import org.cobweb.cobweb2.plugins.pd.PDMutator.PDTemptationCause;
 public class StatsMutator extends StatefulMutatorBase<AgentStatistics>
 implements EnergyMutator, SpawnMutator, StepMutator {
 
-	private SimulationInternals sim;
+	private SimulationTimeSpace sim;
 
-	public StatsMutator(SimulationInternals sim) {
+	public StatsMutator(SimulationTimeSpace sim) {
 		super(AgentStatistics.class);
 		this.sim = sim;
 	}
