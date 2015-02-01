@@ -7,10 +7,9 @@ import org.cobweb.cobweb2.plugins.PerTypeParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
-import org.cobweb.io.ParameterSerializable;
 
 
-public class FoodGrowthParams implements ParameterSerializable, PerTypeParam {
+public class FoodGrowthParams implements PerTypeParam<ComplexFoodParams> {
 	/**
 	 * Probability that food will grow around similar existing food.
 	 */
@@ -34,6 +33,11 @@ public class FoodGrowthParams implements ParameterSerializable, PerTypeParam {
 			n[i] = new ComplexFoodParams();
 		}
 		foodParams = n;
+	}
+
+	@Override
+	public ComplexFoodParams[] getPerTypeParams() {
+		return foodParams;
 	}
 
 	private static final long serialVersionUID = 1L;

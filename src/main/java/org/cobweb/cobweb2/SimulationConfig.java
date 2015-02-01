@@ -15,7 +15,7 @@ import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.ai.GeneticController;
 import org.cobweb.cobweb2.impl.ai.GeneticControllerParams;
 import org.cobweb.cobweb2.impl.learning.LearningParams;
-import org.cobweb.cobweb2.plugins.PerTypeParam;
+import org.cobweb.cobweb2.plugins.ResizableParam;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
@@ -183,7 +183,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 		this.agentTypeCount = count;
 
 		// NOTE: update this when adding new params
-		List<? extends PerTypeParam> typeCountDependents = Arrays.asList(
+		List<? extends ResizableParam> typeCountDependents = Arrays.asList(
 				agentParams,
 				foodParams,
 				pdParams,
@@ -196,7 +196,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 				controllerParams
 				);
 
-		for (PerTypeParam param : typeCountDependents) {
+		for (ResizableParam param : typeCountDependents) {
 			param.resize(this);
 		}
 	}
