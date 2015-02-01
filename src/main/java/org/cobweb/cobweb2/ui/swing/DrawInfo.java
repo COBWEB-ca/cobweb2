@@ -1,6 +1,8 @@
 package org.cobweb.cobweb2.ui.swing;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +11,6 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.stats.AgentStatistics;
-import org.cobweb.cobweb2.ui.swing.AbioticDrawInfo.FactorDrawInfo;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.util.Point2D;
 
@@ -46,17 +47,15 @@ class DrawInfo {
 
 	private DisplaySettings displaySettings;
 
-	private AbioticDrawInfo abioticInfo;
+	private List<DisplayOverlay> overlays = new ArrayList<>();
 
 	/**
 	 * Construct a DrawInfo width specific width, height and tile colors.
 	 * The tiles array is not copied; the caller is assumed to "give" the
 	 * array to the drawing info, and not keep any local references around.
-	 * @param abioticInfo
 	 */
-	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents, DisplaySettings dispSettings, AbioticDrawInfo abioticInfo) {
+	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents, DisplaySettings dispSettings, Collection<OverlayGenerator> gens) {
 		this.displaySettings = dispSettings;
-		this.abioticInfo = abioticInfo;
 		width = sim.theEnvironment.topology.width;
 		height = sim.theEnvironment.topology.height;
 		tileColors = new Color[width * height];
@@ -95,6 +94,10 @@ class DrawInfo {
 					drops.add(new DropDrawInfo(new Point2D(x, y), sim.theEnvironment.getDrop(currentPos)));
 				}
 			}
+		}
+
+		for (OverlayGenerator g : gens) {
+			overlays.add(g.getDrawInfo(sim));
 		}
 	}
 
@@ -142,10 +145,9 @@ class DrawInfo {
 			path.draw(g, tileWidth, tileHeight);
 		}
 
-		if (abioticInfo != null && abioticInfo.factors != null)
-			for (FactorDrawInfo f : abioticInfo.factors) {
-				f.draw(g, tileWidth, tileHeight);
-			}
+		for (DisplayOverlay overlay : overlays) {
+			overlay.draw(g, tileWidth, tileHeight, displaySettings);
+		}
 	}
 
 }

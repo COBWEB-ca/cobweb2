@@ -8,7 +8,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
@@ -306,7 +308,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private List<ComplexAgent> observedAgents = new ArrayList<ComplexAgent>();
 
-	private AbioticDrawInfo abioticInfo;
+	private Map<Class<? extends OverlayGenerator>, OverlayGenerator> overlays = new LinkedHashMap<>();
 
 	@Override
 	public void componentHidden(ComponentEvent e) {
@@ -337,7 +339,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 				if (!a.isAlive())
 					ai.remove();
 			}
-			drawInfo = new DrawInfo(simulation, observedAgents, displaySettings, abioticInfo);
+			drawInfo = new DrawInfo(simulation, observedAgents, displaySettings, overlays.values());
 		}
 		super.refresh(wait);
 	}
@@ -407,9 +409,11 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		borderHeight = (size.height - tileHeight * simulation.theEnvironment.topology.height + PADDING) / 2;
 
 
-		abioticInfo = new AbioticDrawInfo(
-				simulation.theEnvironment.getPlugin(AbioticMutator.class).params,
-				simulation.theEnvironment.topology);
+		overlays.put(AbioticDrawInfo.class,
+				new AbioticDrawInfo(
+						simulation.theEnvironment.getPlugin(AbioticMutator.class).params,
+						simulation.theEnvironment.topology)
+				);
 
 		repaint();
 	}
