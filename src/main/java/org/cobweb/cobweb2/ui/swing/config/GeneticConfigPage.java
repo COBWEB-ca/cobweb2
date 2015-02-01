@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.AbstractListModel;
 import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -26,44 +25,13 @@ import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.genetics.MeiosisMode;
 import org.cobweb.cobweb2.ui.UserInputException;
+import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.swingutil.ColorLookup;
 import org.cobweb.swingutil.binding.EnumComboBoxModel;
 import org.cobweb.util.ArrayUtilities;
 
 public class GeneticConfigPage implements ConfigPage {
-
-	private static class ListManipulator<T> extends AbstractListModel<T> {
-		private static final long serialVersionUID = 6521578944695127260L;
-
-		List<T> items;
-
-		public ListManipulator(List<T> list) {
-			items = list;
-		}
-
-		public void addItem(T item) {
-			items.add(item);
-			fireIntervalAdded(this, items.size() - 1, items.size() - 1);
-		}
-
-		@Override
-		public T getElementAt(int index) {
-			return items.get(index);
-		}
-
-		@Override
-		public int getSize() {
-			return items.size();
-		}
-
-		public T removeItem(T item) {
-			int index = items.indexOf(item);
-			fireIntervalRemoved(this, index, index);
-			items.remove(item);
-			return item;
-		}
-	}
 
 	private static class GenesTableModel extends AbstractTableModel {
 
@@ -177,7 +145,12 @@ public class GeneticConfigPage implements ConfigPage {
 
 		JPanel ga_combined_panel = new JPanel(new BorderLayout());
 
-		JPanel meiosis_mode_panel = makeMeiosisConfig();
+		JPanel meiosis_mode_panel;
+		try {
+			meiosis_mode_panel = makeMeiosisConfig();
+		} catch (NoSuchFieldException ex) {
+			throw new RuntimeException(ex);
+		}
 
 		ga_combined_panel.add(meiosis_mode_panel, BorderLayout.NORTH);
 		Util.makeGroupPanel(ga_combined_panel, "Tracking");
@@ -236,9 +209,10 @@ public class GeneticConfigPage implements ConfigPage {
 		return myPanel;
 	}
 
-	private JPanel makeMeiosisConfig() {
+	private JPanel makeMeiosisConfig() throws NoSuchFieldException {
 		JComboBox<MeiosisMode> meiosis_mode = new JComboBox<MeiosisMode>(
-				new EnumComboBoxModel<MeiosisMode>(this.params, "meiosisMode"));
+				new EnumComboBoxModel<MeiosisMode>(this.params,
+						new FieldPropertyAccessor(GeneticParams.class.getField("meiosisMode"))));
 		JPanel meiosis_mode_panel = new JPanel(new BorderLayout());
 		meiosis_mode_panel.add(new JLabel("Mode of Meiosis"), BorderLayout.NORTH);
 		meiosis_mode_panel.add(meiosis_mode, BorderLayout.CENTER);

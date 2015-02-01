@@ -32,8 +32,6 @@ public class ComplexAgentLearning extends ComplexAgent {
 		super(sim, type);
 	}
 
-	private static final long serialVersionUID = 6166561879146733801L;
-
 	protected ComplexEnvironmentLearning getEnvironment() {
 		return (ComplexEnvironmentLearning) environment;
 	}

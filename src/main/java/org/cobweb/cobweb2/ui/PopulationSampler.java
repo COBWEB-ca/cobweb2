@@ -49,7 +49,7 @@ public class PopulationSampler {
 
 		try (InputStream inFile = new FileInputStream(fileName)) {
 			Cobweb2Serializer serializer = new Cobweb2Serializer();
-			Collection<AgentSample> agents = serializer.loadAgents(inFile, sim.simulationConfig.envParams);
+			Collection<AgentSample> agents = serializer.loadAgents(inFile, sim.simulationConfig);
 
 			for (AgentSample agentSample : agents) {
 				ComplexAgent cAgent = (ComplexAgent) sim.newAgent(agentSample.type);

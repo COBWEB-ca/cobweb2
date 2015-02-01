@@ -2,6 +2,7 @@ package org.cobweb.cobweb2;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,8 +20,10 @@ import org.cobweb.cobweb2.impl.AgentSpawner;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.plugins.MutatorListener;
-import org.cobweb.cobweb2.plugins.abiotic.TemperatureMutator;
+import org.cobweb.cobweb2.plugins.abiotic.AbioticMutator;
+import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
 import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
+import org.cobweb.cobweb2.plugins.food.FoodGrowth;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.plugins.pd.PDMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
@@ -37,39 +40,37 @@ import org.cobweb.util.RandomNoGenerator;
  */
 public class Simulation implements SimulationInternals, SimulationInterface {
 
+	public SimulationConfig simulationConfig;
+
 	// TODO access level?
 	public ComplexEnvironment theEnvironment;
 
-	private int time = 0;
-
-	private TemperatureMutator tempMutator;
-
-	// TODO access level
-	public GeneticsMutator geneticMutator;
-
-	private DiseaseMutator diseaseMutator;
-
-	private WasteMutator wasteMutator;
-
-	public StatsMutator statsMutator;
-
-	// TODO access level?
-	public SimulationConfig simulationConfig;
-
 	private RandomNoGenerator random;
 
+	private int time = 0;
+
 	private AgentSpawner agentSpawner;
+	private List<Agent> agents = new LinkedList<Agent>();
+	private int nextAgentId = 1;
 
-	private GeneticsMutator similarityCalculator;
+	private AgentSimilarityCalculator similarityCalculator;
 
-	private VisionMutator vision;
+	// TODO: all of this should be in a collection
 
 	private PDMutator pdMutator;
+	private WasteMutator wasteMutator;
+	public ProductionMapper prodMapper;
+	private AbioticMutator abioticMutator;
+	private DiseaseMutator diseaseMutator;
+	public GeneticsMutator geneticMutator;
+	public StatsMutator statsMutator;
+	private VisionMutator vision;
+
 
 	/* return number of TYPES of agents in the environment */
 	@Override
 	public int getAgentTypeCount() {
-		return simulationConfig.envParams.agentTypeCount;
+		return simulationConfig.getAgentTypes();
 	}
 
 	@Override
@@ -86,24 +87,43 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	 * environmentName.load method.
 	 *
 	 * @param environmentName Class name of the environment used in this simulation.
-	 * @param p Simulation parameters that can be defined by the simulation data file (xml file).
 	 */
-	private void InitEnvironment(String environmentName, SimulationConfig p) {
+	private void InitEnvironment(String environmentName, boolean continuation) {
 		try {
-			if (theEnvironment == null || !theEnvironment.getClass().equals(Class.forName(environmentName))) {
-				Class<?> environmentClass = Class.forName(environmentName);
+			@SuppressWarnings("unchecked")
+			Class<ComplexEnvironment> environmentClass = (Class<ComplexEnvironment>) Class.forName(environmentName);
 
-				Constructor<?> environmentCtor = environmentClass.getConstructor(SimulationInternals.class);
-				if (environmentCtor == null)
-					throw new InstantiationError("No valid constructor found on environment class.");
-
-				theEnvironment = (ComplexEnvironment) environmentCtor.newInstance(this);
+			if (continuation && theEnvironment != null && !theEnvironment.getClass().equals(environmentClass)) {
+				throw new IllegalArgumentException("Cannot switch to different Environment/Agent type and continue simulation");
 			}
-			theEnvironment.load(p);
-		} catch (InstantiationError | ClassNotFoundException | NoSuchMethodException |
-				InstantiationException | IllegalAccessException | InvocationTargetException ex) {
-			throw new RuntimeException("Can't InitEnvironment", ex);
+
+			if (!continuation || theEnvironment == null) {
+				theEnvironment = instantiateUsingSimconfig(environmentClass);
+			}
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | InvocationTargetException ex) {
+			throw new RuntimeException("Can't create Environment", ex);
 		}
+	}
+
+	private <T> T instantiateUsingSimconfig(Class<T> clazz)
+			throws IllegalAccessException, InstantiationException, InvocationTargetException {
+
+		Constructor<?> ctor = clazz.getConstructors()[0];
+
+		List<Object> args = new ArrayList<>();
+		for (Class<?> pt : ctor.getParameterTypes()) {
+			if (pt.isAssignableFrom(this.getClass())) {
+				args.add(this);
+			} else {
+				Object arg = simulationConfig.getParam(pt);
+				if (arg == null)
+					throw new IllegalArgumentException("Could not bind argument type: " + pt.getName());
+				args.add(arg);
+			}
+		}
+		@SuppressWarnings("unchecked")
+		T instance = (T) ctor.newInstance(args.toArray());
+		return instance;
 	}
 
 	/**
@@ -116,21 +136,43 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	 * which will start the simulation.  This is a private helper to the
 	 * LocalUIInterface constructor.
 	 */
+	//TODO use reflection to automate this
 	public void load(SimulationConfig p) {
 		this.simulationConfig = p;
-		agentSpawner = new AgentSpawner(p.envParams.agentName, this);
+		agentSpawner = new AgentSpawner(p.agentName, this);
 
-		// TODO: this is a hack to make the applet work when we switch grids and
-		// the static information is not cleared, ComplexAgent should really
-		// have a way to track which mutators have been bound
-		if (!p.envParams.keepOldAgents) {
+		// 0 = use default seed
+		if (p.randomSeed == 0)
+			random = new RandomNoGenerator();
+		else
+			random = new RandomNoGenerator(p.randomSeed);
+
+		// Create new environment or reuse current if continuing simulation
+		InitEnvironment(p.environmentName, p.isContinuation());
+
+		// Update environment settings
+		theEnvironment.setParams(p.envParams, p.agentParams, p.keepOldAgents, p.keepOldArray, p.keepOldDrops);
+
+		// Update environment plugins with new environment settings
+		if (!p.isContinuation()) {
+			theEnvironment.addPlugin(new FoodGrowth(this));
+			theEnvironment.addPlugin(new PacketConduit());
+		} else {
+			PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
+			if (!p.keepOldPackets)
+				packetConduit.clearPackets();
+		}
+
+
+		// Remove all agent mutators if removing old agents
+		if (!p.keepOldAgents) {
 			nextAgentId = 1;
 			mutatorListener.clearMutators();
-			plugins.clear();
+			aiStatePlugins.clear();
 			agents.clear();
 			geneticMutator = null;
 			diseaseMutator = null;
-			tempMutator = null;
+			abioticMutator = null;
 			prodMapper = null;
 			wasteMutator = null;
 			statsMutator = null;
@@ -138,69 +180,74 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			pdMutator = null;
 		}
 
-		if (geneticMutator == null) {
-			geneticMutator = new GeneticsMutator();
-			mutatorListener.addMutator(geneticMutator);
-			similarityCalculator = geneticMutator;
-		}
-		if (diseaseMutator == null) {
-			diseaseMutator = new DiseaseMutator();
-			mutatorListener.addMutator(diseaseMutator);
-		}
-		if (tempMutator == null) {
-			tempMutator = new TemperatureMutator();
-			plugins.add(tempMutator);
-			mutatorListener.addMutator(tempMutator);
-		}
-		if (prodMapper == null) {
-			prodMapper = new ProductionMapper(this);
-			plugins.add(prodMapper);
-			mutatorListener.addMutator(prodMapper);
+
+		// Create agent plugins if start of a new simulation
+		if (pdMutator == null) {
+			pdMutator = new PDMutator(this);
+			mutatorListener.addMutator(pdMutator);
 		}
 		if (wasteMutator == null) {
 			wasteMutator = new WasteMutator(this);
 			mutatorListener.addMutator(wasteMutator);
 		}
-		if (statsMutator == null) {
-			statsMutator = new StatsMutator(this);
-			mutatorListener.addMutator(statsMutator);
+		if (prodMapper == null) {
+			prodMapper = new ProductionMapper(this);
+			aiStatePlugins.add(prodMapper);
+			mutatorListener.addMutator(prodMapper);
+		}
+		if (abioticMutator == null) {
+			abioticMutator = new AbioticMutator();
+			aiStatePlugins.add(abioticMutator);
+			mutatorListener.addMutator(abioticMutator);
+		}
+		if (diseaseMutator == null) {
+			diseaseMutator = new DiseaseMutator();
+			mutatorListener.addMutator(diseaseMutator);
+		}
+		if (geneticMutator == null) {
+			geneticMutator = new GeneticsMutator();
+			mutatorListener.addMutator(geneticMutator);
+			similarityCalculator = geneticMutator;
 		}
 		if (vision == null) {
 			vision = new VisionMutator();
 			mutatorListener.addMutator(vision);
 		}
-		if (pdMutator == null) {
-			pdMutator = new PDMutator(this);
-			mutatorListener.addMutator(pdMutator);
+		if (statsMutator == null) {
+			statsMutator = new StatsMutator(this);
+			mutatorListener.addMutator(statsMutator);
 		}
 
-		// 0 = use default seed
-		if (p.envParams.randomSeed == 0)
-			random = new RandomNoGenerator();
-		else
-			random = new RandomNoGenerator(p.envParams.randomSeed);
 
-		InitEnvironment(p.envParams.environmentName, p);
+		// Load environment plugin settings
+		FoodGrowth foodGrowth = theEnvironment.getPlugin(FoodGrowth.class);
+		foodGrowth.setParams(theEnvironment, p.foodParams);
+		PacketConduit packetConduit = theEnvironment.getPlugin(PacketConduit.class);
+		packetConduit.setParams(theEnvironment.topology);
+		theEnvironment.addPlugin(abioticMutator);
 
-		geneticMutator.setParams(this, p.geneticParams, p.envParams.getAgentTypes());
-
-		diseaseMutator.setParams(this, p.diseaseParams, p.envParams.getAgentTypes());
-
-		tempMutator.setParams(p.tempParams, p.envParams);
-
-		wasteMutator.setParams(p.wasteParams);
-
-		prodMapper.setParams(simulationConfig.prodParams);
-
+		// Load agent plugin settings
 		pdMutator.setParams(p.pdParams);
+		wasteMutator.setParams(p.wasteParams, theEnvironment);
+		prodMapper.setParams(simulationConfig.prodParams, theEnvironment, p.keepOldDrops);
+		abioticMutator.setParams(this, p.abioticParams);
+		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
+		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
 
-		prodMapper.initEnvironment(theEnvironment, p.envParams.keepOldWaste);
 
-		wasteMutator.initEnvironment(theEnvironment);
+		// Update AI state plugins
+		setupAIStatePlugins();
 
-		setupPlugins();
 
-		theEnvironment.loadNew(p);
+		// This is where the setup ends and simulation begins
+
+		// Create initial environment state, spawn stones, plugins
+		theEnvironment.loadNew();
+
+		// Create initial agent population
+		if (p.spawnNewAgents) {
+			theEnvironment.loadNewAgents();
+		}
 	}
 
 	@Override
@@ -218,15 +265,11 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 				if (!agent.isAlive())
 					agents.remove(agent);
 			}
-			// TODO update other modules here
 		}
 
 		time++;
 	}
 
-	private List<Agent> agents = new LinkedList<Agent>();
-
-	private int nextAgentId = 1;
 
 	@Override
 	public void addAgent(Agent agent) {
@@ -253,27 +296,26 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 
 	@Override
 	public StateParameter getStateParameter(String name) {
-		return pluginMap.get(name);
+		return aiStateMap.get(name);
 	}
 
-	private Map<String, StateParameter> pluginMap = new LinkedHashMap<String, StateParameter>();
+	private Map<String, StateParameter> aiStateMap = new LinkedHashMap<String, StateParameter>();
 
-	private List<StatePlugin> plugins = new LinkedList<StatePlugin>();
+	private List<StatePlugin> aiStatePlugins = new LinkedList<StatePlugin>();
 
-	private void setupPlugins() {
-		for (StatePlugin plugin : plugins) {
+	private void setupAIStatePlugins() {
+		aiStateMap.clear();
+		for (StatePlugin plugin : aiStatePlugins) {
 			for (StateParameter param : plugin.getParameters()) {
-				pluginMap.put(param.getName(), param);
+				aiStateMap.put(param.getName(), param);
 			}
 		}
 	}
 
 	@Override
 	public Set<String> getStatePluginKeys() {
-		return pluginMap.keySet();
+		return aiStateMap.keySet();
 	}
-
-	public ProductionMapper prodMapper;
 
 	@Override
 	public AgentSimilarityCalculator getSimilarityCalculator() {

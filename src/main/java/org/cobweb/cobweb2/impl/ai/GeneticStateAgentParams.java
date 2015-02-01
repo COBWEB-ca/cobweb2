@@ -47,9 +47,7 @@ public class GeneticStateAgentParams implements ParameterSerializable {
 	public Map<String, Integer> stateSizes = new LinkedHashMap<String, Integer>();
 
 	public GeneticStateAgentParams(SimulationParams simParam) {
-		for(String p : simParam.getPluginParameters()) {
-			stateSizes.put(p, 0);
-		}
+		resize(simParam);
 	}
 
 	public void resize(SimulationParams simParam) {
@@ -60,6 +58,12 @@ public class GeneticStateAgentParams implements ParameterSerializable {
 		for (String k : keySet) {
 			if (!validParams.contains(k))
 				stateSizes.remove(k);
+		}
+
+		// Add new states
+		for (String k : validParams) {
+			if (!stateSizes.containsKey(k))
+				stateSizes.put(k, 0);
 		}
 	}
 

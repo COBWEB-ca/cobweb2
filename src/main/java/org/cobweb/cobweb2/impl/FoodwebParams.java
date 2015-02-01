@@ -6,16 +6,15 @@ package org.cobweb.cobweb2.impl;
 import java.util.Arrays;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
-import org.cobweb.cobweb2.plugins.PerTypeParam;
+import org.cobweb.cobweb2.plugins.ResizableParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfSquishParent;
-import org.cobweb.io.ParameterSerializable;
 
 /**
  * Food web parameters for an agent.
  */
-public class FoodwebParams implements ParameterSerializable, PerTypeParam {
+public class FoodwebParams implements ResizableParam {
 
 	private static final long serialVersionUID = 1380425322335531943L;
 

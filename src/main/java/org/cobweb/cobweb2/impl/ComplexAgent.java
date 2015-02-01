@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.impl;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ import org.cobweb.util.RandomNoGenerator;
  * @see java.io.Serializable
  *
  */
-public class ComplexAgent extends Agent implements Serializable {
+public class ComplexAgent extends Agent {
 
 	public ComplexAgentParams params;
 
@@ -178,7 +177,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	 */
 	public void broadcast(BroadcastPacket packet) {
 		//TODO move to plugin?
-		environment.commManager.addPacketToList(packet);
+		environment.getPlugin(PacketConduit.class).addPacketToList(packet);
 
 		changeEnergy(-params.broadcastEnergyCost, new PacketConduit.BroadcastCause());
 	}
@@ -360,7 +359,7 @@ public class ComplexAgent extends Agent implements Serializable {
 	}
 
 	protected void receiveBroadcast() {
-		BroadcastPacket commPacket = environment.commManager.findPacket(getPosition(), this);
+		BroadcastPacket commPacket = environment.getPlugin(PacketConduit.class).findPacket(getPosition(), this);
 
 		if (commPacket == null)
 			return;
@@ -724,6 +723,4 @@ public class ComplexAgent extends Agent implements Serializable {
 		@Override
 		public String getName() { return "Asexual Reproduction"; }
 	}
-
-	private static final long serialVersionUID = 2L;
 }

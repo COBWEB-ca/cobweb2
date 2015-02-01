@@ -8,7 +8,7 @@ import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
-import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.impl.ComplexAgent;
@@ -21,10 +21,10 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState> 
 	private Environment environment;
 	private float[][] vals;
 	private float maxValue;
-	SimulationInternals simulation;
+	SimulationTimeSpace simulation;
 	private ProductionAgentParams[] initialParams;
 
-	public ProductionMapper(SimulationInternals sim) {
+	public ProductionMapper(SimulationTimeSpace sim) {
 		super(ProductionState.class, sim);
 		simulation = sim;
 	}
@@ -265,21 +265,16 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState> 
 		return parentState.clone();
 	}
 
-	public void setParams(ProductionParams productionParams) {
+	public void setParams(ProductionParams productionParams, Environment env, boolean keepOldProducts) {
 		initialParams = productionParams.agentParams;
-	}
-
-	public void initEnvironment(Environment env, boolean keepOldProducts) {
 		environment = env;
 
-		// FIXME: this has to happen after environment is set up, since simulation.getTopology comes from the environment
 		if (vals == null || !keepOldProducts) {
 			vals = new float[simulation.getTopology().width][simulation.getTopology().height];
 		} else {
 			vals = ArrayUtilities.resizeArray(vals, simulation.getTopology().width, simulation.getTopology().height);
 		}
 	}
-
 
 	public static class ProduceProductCause implements Cause {
 		@Override

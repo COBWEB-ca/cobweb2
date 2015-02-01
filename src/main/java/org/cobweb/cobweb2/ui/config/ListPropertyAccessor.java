@@ -8,10 +8,8 @@ import org.cobweb.io.ConfListType;
 /**
  * PropertyAccessor that gets/sets a list element.
  */
-public class ListPropertyAccessor implements PropertyAccessor {
+public class ListPropertyAccessor extends PropertyAccessorBase {
 	private final int index;
-
-	private final FieldPropertyAccessor parent;
 
 	private final String format;
 
@@ -19,40 +17,43 @@ public class ListPropertyAccessor implements PropertyAccessor {
 	 * Creates accessor for list element i of list returned by parent accessor.
 	 * @param parent parent accessor that returns an list
 	 * @param i list index
-	 * @param format format for property name. Used as:
-	 * <code>String.format(format, parent.getName(), index + 1)</code>
-	 * defaults to "%s %d" if null
 	 */
-	public ListPropertyAccessor(FieldPropertyAccessor parent, int i, ConfDisplayFormat format) {
+	public ListPropertyAccessor(PropertyAccessor parent, int i) {
+		super(parent);
 		if (!List.class.isAssignableFrom(parent.getType()))
 			throw new IllegalArgumentException("Parent must return a List!");
 
-		this.parent = parent;
 		this.index = i;
-		if (format == null)
-			this.format = "%s %d";
-		else
-			this.format = format.value();
+		ConfDisplayFormat dispFormat = getAnnotationSource().getAnnotation(ConfDisplayFormat.class);
+		this.format = dispFormat != null ? dispFormat.value() : null;
 	}
 
 	@Override
 	public String getName() {
-		return String.format(format, parent.getName(), index + 1);
+		if (format != null)
+			return String.format(format, parent.getName(), index + 1);
+		else
+			return super.getName();
 	}
 
 	@Override
-	public Object getValue(Object object) {
+	protected String thisGetName() {
+		return Integer.toString(index + 1);
+	}
+
+	@Override
+	public Object thisGetValue(Object object) {
 		@SuppressWarnings("unchecked")
-		List<Object> list = (List<Object>) parent.getValue(object);
+		List<Object> list = (List<Object>) object;
 		Object value = list.get(index);
 		return value;
 	}
 
 	@Override
-	public void setValue(Object object, Object value) {
+	public void thisSetValue(Object object, Object value) {
 		try {
 			@SuppressWarnings("unchecked")
-			List<Object> list = (List<Object>) parent.getValue(object);
+			List<Object> list = (List<Object>) object;
 			list.set(index, value);
 		} catch (IllegalArgumentException ex) {
 			return;
@@ -62,14 +63,11 @@ public class ListPropertyAccessor implements PropertyAccessor {
 
 	@Override
 	public Class<?> getType() {
-		return parent.field.getAnnotation(ConfListType.class).value();
+		return getAnnotationSource().getAnnotation(ConfListType.class).value();
 	}
 
 	@Override
-	public String toString() {
-		String res = ".get(" + index + ")";
-		if (parent != null)
-			res = parent.toString() + res;
-		return res;
+	public String thisToString() {
+		return ".get(" + index + ")";
 	}
 }

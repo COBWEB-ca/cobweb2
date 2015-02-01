@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2.ui.config;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 
 import org.cobweb.io.ConfDisplayName;
@@ -7,16 +8,13 @@ import org.cobweb.io.ConfDisplayName;
 /**
  * PropertyAccessor that gets/sets object fields.
  */
-public class FieldPropertyAccessor implements PropertyAccessor {
-	private final PropertyAccessor parent;
-
+public class FieldPropertyAccessor extends PropertyAccessorBase {
 	/**
 	 * Creates accessor for object field
 	 * @param f field to use
 	 */
 	public FieldPropertyAccessor(Field f) {
-		this.parent = null;
-		field = f;
+		this(null, f);
 	}
 
 	/**
@@ -26,29 +24,22 @@ public class FieldPropertyAccessor implements PropertyAccessor {
 	 * @param f field to use
 	 */
 	public FieldPropertyAccessor(PropertyAccessor parent, Field f) {
-		this.parent = parent;
+		super(parent);
 		field = f;
 	}
 
 	protected Field field;
 
 	@Override
-	public String getName() {
-		ConfDisplayName nameAnnotation = field.getAnnotation(ConfDisplayName.class);
+	public String thisGetName() {
+		ConfDisplayName nameAnnotation = getAnnotationSource().getAnnotation(ConfDisplayName.class);
 		String name = nameAnnotation != null ? nameAnnotation.value() : field.getName();
-
-		if (parent != null)
-			name = parent.getName() + " " + name;
 		return name;
 	}
 
 	@Override
-	public Object getValue(Object object) {
+	public Object thisGetValue(Object object) {
 		Object value = null;
-
-		if (parent != null)
-			object = parent.getValue(object);
-
 		try {
 			value = this.field.get(object);
 		} catch (IllegalAccessException ex) {
@@ -58,10 +49,7 @@ public class FieldPropertyAccessor implements PropertyAccessor {
 	}
 
 	@Override
-	public void setValue(Object object, Object value) {
-		if (parent != null)
-			object = parent.getValue(object);
-
+	public void thisSetValue(Object object, Object value) {
 		try {
 			field.set(object, value);
 		} catch (IllegalAccessException ex) {
@@ -78,10 +66,12 @@ public class FieldPropertyAccessor implements PropertyAccessor {
 	}
 
 	@Override
-	public String toString() {
-		String res = field.getName();
-		if (parent != null)
-			res = parent.toString() + "." + res;
-		return res;
+	public String thisToString() {
+		return "." + field.getName();
+	}
+
+	@Override
+	public AnnotatedElement getAnnotationSource() {
+		return field;
 	}
 }

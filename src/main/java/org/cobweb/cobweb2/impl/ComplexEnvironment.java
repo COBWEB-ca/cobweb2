@@ -1,14 +1,15 @@
 package org.cobweb.cobweb2.impl;
 
-import org.cobweb.cobweb2.SimulationConfig;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
-import org.cobweb.cobweb2.plugins.food.FoodGrowth;
+import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 
 /**
  * 2D grid where agents and food live
@@ -19,14 +20,10 @@ public class ComplexEnvironment extends Environment {
 
 	public ComplexEnvironmentParams data = new ComplexEnvironmentParams();
 
-	public PacketConduit commManager;
-
-	private FoodGrowth foodManager;
+	private Map<Class<? extends EnvironmentMutator>, EnvironmentMutator> plugins = new LinkedHashMap<>();
 
 	public ComplexEnvironment(SimulationInternals simulation) {
 		super(simulation);
-		commManager = new PacketConduit();
-		foodManager = new FoodGrowth(simulation);
 	}
 
 	public synchronized void addAgent(Location l, int type) {
@@ -55,36 +52,28 @@ public class ComplexEnvironment extends Environment {
 	 * <br>4. Keeps or removes old agents.
 	 * <br>5. Adds new stones, food, and agents.
 	 *
-	 * @param config The simulation  settings
 	 */
-	public synchronized void load(SimulationConfig config) throws IllegalArgumentException {
-		data = config.envParams;
-		agentData = config.agentParams.agentParams;
+	public synchronized void setParams(ComplexEnvironmentParams envParams, AgentParams agentParams, boolean keepOldAgents, boolean keepOldArray, boolean keepOldDrops) throws IllegalArgumentException {
+		data = envParams;
+		agentData = agentParams.agentParams;
 
-		super.load(data.width, data.height, data.wrapMap, data.keepOldArray);
-		removeOffgridAgents(config.envParams.keepOldAgents);
+		super.load(data.width, data.height, data.wrapMap, keepOldArray);
 
 		// Remove old components
-		loadExisting();
-
-	}
-
-	protected void loadExisting() {
-		if (data.keepOldAgents) {
+		if (keepOldAgents) {
+			killOffgridAgents();
 			loadOldAgents();
 		} else {
 			// do not call clearAgents(), it invokes mutators, etc
 			agentTable.clear();
 		}
 
-		commManager.load(topology);
-
-		if (!data.keepOldPackets) {
-			commManager.clearPackets();
+		if (!keepOldDrops) {
+			clearDrops();
 		}
 	}
 
-	public void loadNew(SimulationConfig config) {
+	public void loadNew() {
 		// add stones in to random locations
 		for (int i = 0; i < data.initialStones; ++i) {
 			Location l;
@@ -96,15 +85,8 @@ public class ComplexEnvironment extends Environment {
 				addStone(l);
 		}
 
-		foodManager.load(this, data.dropNewFood, data.likeFoodProb, config.foodParams);
-
-		if (!data.keepOldWaste) {
-			loadNewWaste();
-		}
-
-		// spawn new random agents for each type
-		if (data.spawnNewAgents) {
-			loadNewAgents();
+		for (EnvironmentMutator p : plugins.values()) {
+			p.loadNew();
 		}
 	}
 
@@ -113,8 +95,9 @@ public class ComplexEnvironment extends Environment {
 	 * a number of cheaters that is dependent on the probability of being a cheater
 	 * are randomly assigned to agents.
 	 */
-	private void loadNewAgents() {
-		for (int i = 0; i < data.getAgentTypes(); ++i) {
+	// FIXME: move out to simulation?
+	public void loadNewAgents() {
+		for (int i = 0; i < agentData.length; ++i) {
 
 			for (int j = 0; j < agentData[i].initialAgents; ++j) {
 
@@ -135,7 +118,7 @@ public class ComplexEnvironment extends Environment {
 	 * Creates a new waste array and initializes each location as having
 	 * no waste.
 	 */
-	private void loadNewWaste() {
+	private void clearDrops() {
 		dropArray = new Drop[data.width][data.height];
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
@@ -178,17 +161,27 @@ public class ComplexEnvironment extends Environment {
 	public synchronized void update() {
 		super.update();
 
-		commManager.update();
+		updateDrops();
 
-		updateWaste();
+		for (EnvironmentMutator v : plugins.values()) {
+			v.update();
+		}
+	}
 
-		foodManager.update();
+	public <T extends EnvironmentMutator> void addPlugin(T plugin) {
+		plugins.put(plugin.getClass(), plugin);
+	}
+
+	public <T extends EnvironmentMutator> T getPlugin(Class<T> type) {
+		@SuppressWarnings("unchecked")
+		T plugin = (T) plugins.get(type);
+		return plugin;
 	}
 
 	/**
 	 *
 	 */
-	private void updateWaste() {
+	private void updateDrops() {
 		for (int x = 0; x < topology.width; x++) {
 			for (int y = 0; y < topology.height; y++) {
 				Location l = new Location(x, y);

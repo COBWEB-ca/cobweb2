@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,9 +22,7 @@ import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
-import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.FieldPhenotype;
-import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.io.ChoiceCatalog;
@@ -104,26 +101,11 @@ public class Cobweb2Serializer {
 		Node root = CobwebXmlHelper.openDocument(file);
 		SimulationConfig conf = new SimulationConfig();
 
-		serializer.load(conf.envParams, root);
-		ConfigUpgrader.upgrade(conf.envParams);
-
-		try {
-			conf.controllerParams = (ControllerParams) Class.forName(conf.envParams.controllerName + "Params")
-					.getConstructor(SimulationParams.class)
-					.newInstance((SimulationParams) conf);
-		} catch (InstantiationError | ClassNotFoundException | NoSuchMethodException |
-				InstantiationException | IllegalAccessException | InvocationTargetException ex) {
-			throw new RuntimeException("Could not set up controller", ex);
-		}
-
-		// Reset all the settings that depend on agent type count
-		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
-
 		// Load all the @ConfXMLTag params
 		serializer.load(conf, root);
 
 		// Correct any missing/extra parameters after the loading
-		conf.SetAgentTypeCount(conf.envParams.getAgentTypes());
+		conf.setAgentTypes(conf.getAgentTypes());
 
 		return conf;
 	}
@@ -138,12 +120,10 @@ public class Cobweb2Serializer {
 
 		root.setAttribute("config-version", "2015-01-14");
 
-		serializer.save(conf.envParams, root, d);
-
 		serializer.save(conf, root, d);
 
 		// If learning agents not used, remove the Learning section of config
-		if (!conf.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
+		if (!conf.agentName.equals(ComplexAgentLearning.class.getName())) {
 			root.removeChild(root.getElementsByTagName("Learning").item(0));
 		}
 

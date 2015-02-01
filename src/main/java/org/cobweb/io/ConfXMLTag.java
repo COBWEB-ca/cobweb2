@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Parser-friendly name to use for field when serializing it
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConfXMLTag {
 	String value();

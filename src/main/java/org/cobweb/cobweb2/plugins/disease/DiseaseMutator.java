@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.plugins.ContactMutator;
 import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
@@ -25,7 +25,7 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseState> implements
 
 	private int sickCount[] = new int[0];
 
-	private SimulationInternals simulation;
+	private SimulationTimeSpace simulation;
 
 	public DiseaseMutator() {
 		super(DiseaseState.class);
@@ -113,7 +113,7 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseState> implements
 			makeRandomSick(agent, 0);
 	}
 
-	public void setParams(SimulationInternals sim, DiseaseParams diseaseParams, int agentTypes) {
+	public void setParams(SimulationTimeSpace sim, DiseaseParams diseaseParams, int agentTypes) {
 		this.simulation = sim;
 		this.params = diseaseParams;
 		sickCount = ArrayUtilities.resizeArray(sickCount, agentTypes);

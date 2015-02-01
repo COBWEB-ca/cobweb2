@@ -8,9 +8,9 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.Topology;
-import org.cobweb.cobweb2.core.Updatable;
+import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 
-public class PacketConduit implements Updatable {
+public class PacketConduit implements EnvironmentMutator {
 
 	private boolean broadcastBlocked = false;
 
@@ -18,7 +18,7 @@ public class PacketConduit implements Updatable {
 
 	private Topology topology;
 
-	public void load(Topology topo) {
+	public void setParams(Topology topo) {
 		this.topology = topo;
 	}
 
@@ -79,6 +79,11 @@ public class PacketConduit implements Updatable {
 	public static class BroadcastCause implements Cause {
 		@Override
 		public String getName() { return "Broadcast"; }
+	}
+
+	@Override
+	public void loadNew() {
+		// nothing
 	}
 
 }

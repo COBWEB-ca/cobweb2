@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.TableColumnModel;
 
 import org.cobweb.io.ChoiceCatalog;
@@ -56,6 +57,10 @@ public class TableConfigPage<T extends ParameterSerializable> implements ConfigP
 	@Override
 	public JPanel getPanel() {
 		return panel;
+	}
+
+	public void addTableModelListener(TableModelListener l) {
+		paramTable.configModel.addTableModelListener(l);
 	}
 
 	@Override

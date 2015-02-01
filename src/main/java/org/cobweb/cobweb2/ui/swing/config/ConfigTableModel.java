@@ -5,6 +5,7 @@ package org.cobweb.cobweb2.ui.swing.config;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.ListPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.MapPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;
+import org.cobweb.cobweb2.ui.config.SetterPropertyAccessor;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ConfDisplayFormat;
 import org.cobweb.io.ConfDisplayName;
@@ -52,54 +54,59 @@ public class ConfigTableModel extends AbstractTableModel {
 	}
 
 	protected void bindObject(ParameterSerializable d) {
-		bindObject(d, d.getClass(), null);
+		bindConfigObject(d, d.getClass(), null);
 	}
 
-	protected void bindObject(ParameterSerializable root, Class<? extends ParameterSerializable> actualClass, PropertyAccessor parent) {
-		for (Field f : actualClass.getFields()) {
-			ConfDisplayName display = f.getAnnotation(ConfDisplayName.class);
-			ConfDisplayFormat displayFormat = f.getAnnotation(ConfDisplayFormat.class);
-			if (display == null && displayFormat == null)
+	protected void bindConfigObject(ParameterSerializable root, Class<? extends ParameterSerializable> actualClass, PropertyAccessor parent) {
+		for (Method m : actualClass.getMethods()) {
+			if (!m.isAnnotationPresent(ConfDisplayName.class) &&
+					!m.isAnnotationPresent(ConfDisplayFormat.class))
 				continue;
 
-			FieldPropertyAccessor fieldAccessor = new FieldPropertyAccessor(parent, f);
-			try {
+			PropertyAccessor fieldAccessor = new SetterPropertyAccessor(parent, m);
+			bindItem(root, fieldAccessor);
+		}
 
-				if (f.getType().isArray()) {
-					int len = Array.getLength(fieldAccessor.getValue(root));
-					for (int i = 0; i < len; i++){
-						bindItem(root, new ArrayPropertyAccessor(fieldAccessor, i, displayFormat));
-					}
-				} else if (List.class.isAssignableFrom(f.getType())) {
-					List<?> list = (List<?>) fieldAccessor.getValue(root);
-					for (int i = 0; i < list.size(); i++) {
-						bindItem(root, new ListPropertyAccessor(fieldAccessor, i, displayFormat));
-					}
-				} else if (Map.class.isAssignableFrom(f.getType())) {
-					Map<?, ?> col = (Map<?, ?>) fieldAccessor.getValue(root);
-					for (Object k : col.keySet()) {
-						bindItem(root, new MapPropertyAccessor(fieldAccessor, k, displayFormat));
-					}
-				} else {
-					bindItem(root, fieldAccessor);
-				}
+		for (Field f : actualClass.getFields()) {
+			if (!f.isAnnotationPresent(ConfDisplayName.class) &&
+					!f.isAnnotationPresent(ConfDisplayFormat.class))
+				continue;
 
-			} catch (IllegalArgumentException ex) {
-				throw new RuntimeException("Could not bind field " + actualClass.getName() + "." + fieldAccessor.toString(), ex);
-			}
-
+			PropertyAccessor fieldAccessor = new FieldPropertyAccessor(parent, f);
+			bindItem(root, fieldAccessor);
 		}
 	}
 
-	protected void bindItem(ParameterSerializable root, PropertyAccessor itemAccessor) {
-		if (ParameterSerializable.class.isAssignableFrom(itemAccessor.getType())) {
-			//DEBUG System.out.println("Recursing: " + root.getClass().getSimpleName() + "." + itemAccessor.toString());
-
-			ParameterSerializable value = (ParameterSerializable) itemAccessor.getValue(root);
-			Class<? extends ParameterSerializable> valueClass = value.getClass();
-			bindObject(root, valueClass, itemAccessor);
-		} else {
-			fields.add(itemAccessor);
+	protected void bindItem(ParameterSerializable root, PropertyAccessor fieldAccessor) {
+		{
+			try {
+				if (fieldAccessor.getType().isArray()) {
+					int len = Array.getLength(fieldAccessor.get(root));
+					for (int i = 0; i < len; i++){
+						bindItem(root, new ArrayPropertyAccessor(fieldAccessor, i));
+					}
+				} else if (List.class.isAssignableFrom(fieldAccessor.getType())) {
+					List<?> list = (List<?>) fieldAccessor.get(root);
+					for (int i = 0; i < list.size(); i++) {
+						bindItem(root, new ListPropertyAccessor(fieldAccessor, i));
+					}
+				} else if (Map.class.isAssignableFrom(fieldAccessor.getType())) {
+					Map<?, ?> col = (Map<?, ?>) fieldAccessor.get(root);
+					for (Object k : col.keySet()) {
+						bindItem(root, new MapPropertyAccessor(fieldAccessor, k));
+					}
+				} else if (ParameterSerializable.class.isAssignableFrom(fieldAccessor.getType())) {
+					ParameterSerializable value = (ParameterSerializable) fieldAccessor.get(root);
+					Class<? extends ParameterSerializable> valueClass = value.getClass();
+					bindConfigObject(root, valueClass, fieldAccessor);
+				} else {
+					//DEBUG
+					//System.out.println("Binding: " + root.getClass().getSimpleName() + fieldAccessor.toString() + " as \"" + fieldAccessor.getName() +"\"");
+					fields.add(fieldAccessor);
+				}
+			} catch (IllegalArgumentException ex) {
+				throw new RuntimeException("Could not bind property " + root.getClass().getName() + fieldAccessor.toString(), ex);
+			}
 		}
 	}
 
@@ -136,7 +143,7 @@ public class ConfigTableModel extends AbstractTableModel {
 		if (col == 0)
 			return mf.getName();
 		else
-			return mf.getValue(data[col-1]);
+			return mf.get(data[col-1]);
 	}
 
 	@Override
@@ -155,7 +162,9 @@ public class ConfigTableModel extends AbstractTableModel {
 			assert declaredClass.isAssignableFrom(value.getClass());
 		}
 
-		mf.setValue(data[col-1], typedValue);
+		mf.set(data[col-1], typedValue);
+
+		fireTableCellUpdated(row, col);
 	}
 
 	@Override

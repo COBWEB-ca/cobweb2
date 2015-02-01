@@ -2,13 +2,12 @@ package org.cobweb.cobweb2.impl;
 
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.SimulationInternals;
-import org.cobweb.cobweb2.plugins.PerTypeParam;
-import org.cobweb.io.ParameterSerializable;
+import org.cobweb.cobweb2.plugins.ResizableParam;
 
 /**
  * Configuration for a Controller
  */
-public interface ControllerParams extends ParameterSerializable, PerTypeParam {
+public interface ControllerParams extends ResizableParam {
 
 	/**
 	 * Creates Controller for given agent type

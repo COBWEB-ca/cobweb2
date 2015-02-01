@@ -19,6 +19,12 @@
 	<xsl:template match="inputData|inputeData">
 		<COBWEB2Config config-version="2015-01-14" cobweb-version="{$cobweb-version}">
 			<xsl:apply-templates select="*[name() != 'production' and name() != 'food' and name() != 'agent']" />
+			<Environment>
+				<Width><xsl:value-of select="Width" /></Width>
+				<Height><xsl:value-of select="Height" /></Height>
+				<wrap><xsl:value-of select="wrap" /></wrap>
+				<randomStones><xsl:value-of select="randomStones" /></randomStones>
+			</Environment>
 			<Agents>
 				<AgentParams>
 					<xsl:for-each select="/*/agent">
@@ -113,12 +119,42 @@
 
 
 	<!-- Abiotic -->
-	<xsl:template match="Temperature/AgentParams/*">
-		<Agent id="{substring(name(),6)}">
-			<xsl:apply-templates />
-		</Agent>
+	<xsl:template match="Temperature">
+		<Abiotic>
+			<Factors>
+				<Factor class="org.cobweb.cobweb2.plugins.abiotic.HorizontalBands" id="1">
+					<Bands>
+						<xsl:for-each select="TempBands/*">
+							<Band id="{substring-after(name(),'Band')}">
+								<xsl:apply-templates />
+							</Band>
+						</xsl:for-each>
+					</Bands>
+				</Factor>
+			</Factors>
+			<AgentParams>
+				<xsl:for-each select="AgentParams/*">
+					<Agent id="{substring(name(),6)}">
+						<FactorParams>
+							<Factor id="1">
+								<xsl:apply-templates select="node()|@*" />
+							</Factor>
+						</FactorParams>
+					</Agent>
+				</xsl:for-each>
+			</AgentParams>
+		</Abiotic>
 	</xsl:template>
-
+	<xsl:template match="PreferedTemp">
+		<PreferedValue>
+			<xsl:apply-templates select="node()|@*" />
+		</PreferedValue>
+	</xsl:template>
+	<xsl:template match="PreferedTempRange">
+		<PreferedRange>
+			<xsl:apply-templates select="node()|@*" />
+		</PreferedRange>
+	</xsl:template>
 
 	<!-- Fix up GeneticController StateSize map -->
 	<xsl:template match="ControllerConfig/PluginParams">
@@ -219,4 +255,24 @@
 		</xsl:choose>
 	</xsl:template>
 
+	<xsl:template match="ControllerName[contains(text(), 'GeneticController')]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.ai.GeneticController</xsl:text>
+	</xsl:template>
+	<xsl:template match="ControllerName[contains(text(), 'LinearWeightsController')]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.ai.LinearWeightsController</xsl:text>
+	</xsl:template>
+
+	<xsl:template match="AgentName[contains(text(), 'Learning')]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.learning.ComplexAgentLearning</xsl:text>
+	</xsl:template>
+	<xsl:template match="AgentName[not(contains(text(), 'Learning'))]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.ComplexAgent</xsl:text>
+	</xsl:template>
+
+	<xsl:template match="EnvironmentName[contains(text(), 'Learning')]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.learning.ComplexEnvironmentLearning</xsl:text>
+	</xsl:template>
+	<xsl:template match="EnvironmentName[not(contains(text(), 'Learning'))]/text()">
+		<xsl:text>org.cobweb.cobweb2.impl.ComplexEnvironment</xsl:text>
+	</xsl:template>
 </xsl:stylesheet>

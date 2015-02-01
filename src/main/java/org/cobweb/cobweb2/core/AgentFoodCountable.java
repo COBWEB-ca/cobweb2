@@ -11,16 +11,4 @@ public interface AgentFoodCountable {
 	 */
 	public int getAgentTypes();
 
-	/**
-	 * Height of the simulation grid.
-	 * @return height of the simulation grid.
-	 */
-	public int getHeight();
-
-	/**
-	 * Width of the simulation grid.
-	 * @return width of the simulation grid.
-	 */
-	public int getWidth();
-
 }

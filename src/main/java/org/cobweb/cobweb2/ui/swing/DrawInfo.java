@@ -8,8 +8,8 @@ import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.plugins.abiotic.TemperatureParams;
 import org.cobweb.cobweb2.plugins.stats.AgentStatistics;
+import org.cobweb.cobweb2.ui.swing.AbioticDrawInfo.FactorDrawInfo;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.util.Point2D;
 
@@ -46,13 +46,17 @@ class DrawInfo {
 
 	private DisplaySettings displaySettings;
 
+	private AbioticDrawInfo abioticInfo;
+
 	/**
 	 * Construct a DrawInfo width specific width, height and tile colors.
 	 * The tiles array is not copied; the caller is assumed to "give" the
 	 * array to the drawing info, and not keep any local references around.
+	 * @param abioticInfo
 	 */
-	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents, DisplaySettings dispSettings) {
+	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents, DisplaySettings dispSettings, AbioticDrawInfo abioticInfo) {
 		this.displaySettings = dispSettings;
+		this.abioticInfo = abioticInfo;
 		width = sim.theEnvironment.topology.width;
 		height = sim.theEnvironment.topology.height;
 		tileColors = new Color[width * height];
@@ -138,17 +142,10 @@ class DrawInfo {
 			path.draw(g, tileWidth, tileHeight);
 		}
 
-		int limit = Math.min(TemperatureParams.TEMPERATURE_BANDS, height);
-		// Temperature band labels
-		for (int y = 0; y < height; y++) {
-			int band = y * limit / height;
-			g.setColor(displaySettings.agentColor.getColor(band, TemperatureParams.TEMPERATURE_BANDS));
-			int offset = (limit / 2 - band) * 3 / -2;
-			for (int i = 0; i <= band; i++) {
-				int x = (i + 2) * -3 + offset;
-				g.drawLine(x - 1, y * tileHeight, x, (y + 1) * tileHeight);
+		if (abioticInfo != null && abioticInfo.factors != null)
+			for (FactorDrawInfo f : abioticInfo.factors) {
+				f.draw(g, tileWidth, tileHeight);
 			}
-		}
 	}
 
 }

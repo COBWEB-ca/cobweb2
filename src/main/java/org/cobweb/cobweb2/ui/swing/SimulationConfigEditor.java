@@ -28,8 +28,9 @@ import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
+import org.cobweb.cobweb2.ui.swing.config.AbioticAgentConfigPage;
+import org.cobweb.cobweb2.ui.swing.config.AbioticFactorConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.AgentConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.AgentNumChangeListener;
 import org.cobweb.cobweb2.ui.swing.config.ConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.DiseaseConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
@@ -41,7 +42,6 @@ import org.cobweb.cobweb2.ui.swing.config.PDConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.SettingsPanel;
-import org.cobweb.cobweb2.ui.swing.config.TemperatureConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
 
 /**
@@ -50,7 +50,7 @@ import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
  * @author time itself
  *
  */
-public class SimulationConfigEditor {
+public class SimulationConfigEditor implements ConfigRefresher {
 
 	private Cobweb2Serializer serializer = new Cobweb2Serializer();
 
@@ -83,6 +83,7 @@ public class SimulationConfigEditor {
 	private void validateSettings() {
 		try {
 			environmentPage.validateUI();
+			abioticFactorsPage.validateUI();
 			resourcePage.validateUI();
 			agentPage.validateUI();
 			foodwebPage.validateUI();
@@ -90,7 +91,7 @@ public class SimulationConfigEditor {
 				pdPage.validateUI();
 			geneticPage.validateUI();
 			diseaseConfigPage.validateUI();
-			tempPage.validateUI();
+			abioticPage.validateUI();
 			prodPage.validateUI();
 			wastePage.validateUI();
 			if (learnPage != null)
@@ -120,6 +121,8 @@ public class SimulationConfigEditor {
 	private EnvironmentConfigPage environmentPage;
 
 	private ResourceConfigPage resourcePage;
+
+	private AbioticFactorConfigPage abioticFactorsPage;
 
 	private WasteConfigPage wastePage;
 
@@ -157,7 +160,7 @@ public class SimulationConfigEditor {
 
 	private DiseaseConfigPage diseaseConfigPage;
 
-	private TemperatureConfigPage tempPage;
+	private AbioticAgentConfigPage abioticPage;
 
 	private AgentConfigPage agentPage;
 
@@ -185,8 +188,6 @@ public class SimulationConfigEditor {
 		tabbedPane = new JTabbedPane();
 		modifyExisting = allowModify;
 
-		/* Environment panel - composed of 4 panels */
-
 		File f = new File(datafile);
 
 		if (f.exists()) {
@@ -200,20 +201,15 @@ public class SimulationConfigEditor {
 			setDefault();
 		}
 
-		environmentPage = new EnvironmentConfigPage(p.envParams, allowModify);
+		try {
+			environmentPage = new EnvironmentConfigPage(p, allowModify, this);
+		} catch (NoSuchFieldException | NoSuchMethodException ex) {
+			throw new RuntimeException(ex);
+		}
 
 		tabbedPane.addTab("Environment", environmentPage.getPanel());
 
 		setupConfigPages();
-
-		environmentPage.addAgentNumChangeListener(new AgentNumChangeListener() {
-
-			@Override
-			public void AgentNumChanged(int oldNum, int newNum) {
-				p.SetAgentTypeCount(newNum);
-				setupConfigPages();
-			}
-		});
 
 		JButton okButton = new JButton("OK");
 		okButton.setMaximumSize(new Dimension(80, 20));
@@ -294,11 +290,21 @@ public class SimulationConfigEditor {
 		p = new SimulationConfig();
 	}
 
+	@Override
+	public void refreshConfig() {
+		p.setAgentTypes(p.getAgentTypes());
+		setupConfigPages();
+	}
+
 	private void setupConfigPages() {
+
+		removeOldPage(abioticFactorsPage);
+		abioticFactorsPage = new AbioticFactorConfigPage(p.abioticParams, this);
+		tabbedPane.addTab("Abiotic factors", abioticFactorsPage.getPanel());
 
 		/* Resources panel */
 		removeOldPage(resourcePage);
-		resourcePage = new ResourceConfigPage(p.foodParams.foodParams, displaySettings.agentColor);
+		resourcePage = new ResourceConfigPage(p.foodParams, displaySettings.agentColor);
 		tabbedPane.addTab("Resources", resourcePage.getPanel());
 
 		/* Agents' panel */
@@ -343,13 +349,13 @@ public class SimulationConfigEditor {
 		diseaseConfigPage = new DiseaseConfigPage(p.diseaseParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
-		removeOldPage(tempPage);
-		tempPage = new TemperatureConfigPage(p.tempParams, serializer.choiceCatalog, displaySettings.agentColor);
-		tabbedPane.addTab("Abiotic Factor", tempPage.getPanel());
+		removeOldPage(abioticPage);
+		abioticPage = new AbioticAgentConfigPage(p.abioticParams.agentParams, serializer.choiceCatalog, displaySettings.agentColor);
+		tabbedPane.addTab("Agent Abiotic", abioticPage.getPanel());
 
 
 		removeOldPage(learnPage);
-		if (p.envParams.agentName.equals(ComplexAgentLearning.class.getName())) {
+		if (p.agentName.equals(ComplexAgentLearning.class.getName())) {
 			learnPage = new LearningConfigPage(p.learningParams.agentParams, displaySettings.agentColor);
 			tabbedPane.addTab("Learning", learnPage.getPanel());
 		}

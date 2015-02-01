@@ -6,7 +6,7 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.core.SimulationInternals;
+import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.plugins.EnergyMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
@@ -16,18 +16,15 @@ public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implement
 
 	private WasteParams params;
 	Environment environment;
-	SimulationInternals sim;
+	SimulationTimeSpace sim;
 
-	public WasteMutator(SimulationInternals sim) {
+	public WasteMutator(SimulationTimeSpace sim) {
 		super(WasteState.class, sim);
 		this.sim = sim;
 	}
 
-	public void setParams(WasteParams wasteParams) {
+	public void setParams(WasteParams wasteParams, Environment env) {
 		this.params = wasteParams;
-	}
-
-	public void initEnvironment(Environment env) {
 		this.environment = env;
 	}
 

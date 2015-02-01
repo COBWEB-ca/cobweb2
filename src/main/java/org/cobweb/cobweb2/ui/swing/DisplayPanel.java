@@ -14,6 +14,7 @@ import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.abiotic.AbioticMutator;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.swingutil.WaitableJComponent;
 
@@ -305,6 +306,8 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private List<ComplexAgent> observedAgents = new ArrayList<ComplexAgent>();
 
+	private AbioticDrawInfo abioticInfo;
+
 	@Override
 	public void componentHidden(ComponentEvent e) {
 		// nothing
@@ -334,7 +337,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 				if (!a.isAlive())
 					ai.remove();
 			}
-			drawInfo = new DrawInfo(simulation, observedAgents, displaySettings);
+			drawInfo = new DrawInfo(simulation, observedAgents, displaySettings, abioticInfo);
 		}
 		super.refresh(wait);
 	}
@@ -402,6 +405,11 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		int borderWidth = (size.width - tileWidth * simulation.theEnvironment.topology.width + PADDING) / 2;
 		borderLeft = borderWidth + THERMAL_MARKER_WIDTH;
 		borderHeight = (size.height - tileHeight * simulation.theEnvironment.topology.height + PADDING) / 2;
+
+
+		abioticInfo = new AbioticDrawInfo(
+				simulation.theEnvironment.getPlugin(AbioticMutator.class).params,
+				simulation.theEnvironment.topology);
 
 		repaint();
 	}

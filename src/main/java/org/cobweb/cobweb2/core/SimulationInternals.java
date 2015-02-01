@@ -7,11 +7,7 @@ package org.cobweb.cobweb2.core;
  * Methods that only simulation components need access to.
  * UI and other external components should only use SimulationInterface!
  */
-public interface SimulationInternals extends RandomSource, StatePluginSource {
-
-	public long getTime();
-
-	public Topology getTopology();
+public interface SimulationInternals extends StatePluginSource, SimulationTimeSpace {
 
 	public Agent newAgent(int type);
 
