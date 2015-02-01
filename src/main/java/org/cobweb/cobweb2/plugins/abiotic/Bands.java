@@ -18,6 +18,11 @@ public abstract class Bands extends AbioticFactor {
 	@ConfListType(float.class)
 	public List<Float> bands = new ArrayList<Float>();
 
+	public Bands() {
+		bands.add(0f);
+		bands.add(0f);
+	}
+
 	protected int bandFromPosition(float floatPosition) {
 		int size = bands.size();
 		int band = (int)(size * floatPosition);

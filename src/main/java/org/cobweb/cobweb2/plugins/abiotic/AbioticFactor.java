@@ -10,8 +10,12 @@ public abstract class AbioticFactor implements ParameterSerializable {
 
 	private static final long serialVersionUID = 1L;
 
+	public abstract String getName();
+
 	public void update(SimulationTimeSpace sim) {
 		sim.getTime();
 		// TODO seasonal abiotic factors
 	}
+
+	public abstract AbioticFactor copy();
 }
