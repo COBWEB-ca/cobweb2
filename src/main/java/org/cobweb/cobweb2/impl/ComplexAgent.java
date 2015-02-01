@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.impl;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ import org.cobweb.util.RandomNoGenerator;
  * @see java.io.Serializable
  *
  */
-public class ComplexAgent extends Agent implements Serializable {
+public class ComplexAgent extends Agent {
 
 	public ComplexAgentParams params;
 
@@ -724,6 +723,4 @@ public class ComplexAgent extends Agent implements Serializable {
 		@Override
 		public String getName() { return "Asexual Reproduction"; }
 	}
-
-	private static final long serialVersionUID = 2L;
 }
