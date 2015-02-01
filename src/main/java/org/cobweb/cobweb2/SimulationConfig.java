@@ -48,7 +48,8 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfDisplayName("Agent types")
 	@ConfXMLTag("AgentTypeCount")
 	public void setAgentTypes(int count) {
-		SetAgentTypeCount(count);
+		this.agentTypeCount = count;
+		agentCountChanged();
 	}
 
 	@Override
@@ -172,25 +173,17 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	}
 
 
-	private void SetAgentTypeCount(int count) {
-		this.agentTypeCount = count;
-
-		// NOTE: update this when adding new params
-		List<? extends ResizableParam> typeCountDependents = Arrays.asList(
-				agentParams,
-				foodParams,
-				pdParams,
-				wasteParams,
-				prodParams,
-				abioticParams,
-				learningParams,
-				diseaseParams,
-				geneticParams,
-				controllerParams
-				);
-
-		for (ResizableParam param : typeCountDependents) {
-			param.resize(this);
+	private void agentCountChanged() {
+		for (Field f : this.getClass().getFields()) {
+			if (ResizableParam.class.isAssignableFrom(f.getType())) {
+				ResizableParam param;
+				try {
+					param = (ResizableParam) f.get(this);
+					param.resize(this);
+				} catch (IllegalAccessException ex) {
+					throw new RuntimeException("Something broke in agentCountChanged()", ex);
+				}
+			}
 		}
 	}
 
