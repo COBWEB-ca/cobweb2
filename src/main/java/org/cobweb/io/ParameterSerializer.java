@@ -175,17 +175,17 @@ public class ParameterSerializer {
 
 		} else if (ParameterSerializable.class.isAssignableFrom(type)) {
 			ParameterSerializable inner = (ParameterSerializable) currentValue;
-			if (inner == null) {
-				try {
-					Class<?> instanceClass = type;
-					Node instanceClassName = objectNode.getAttributes().getNamedItem("class");
-					if (instanceClassName != null) {
-						instanceClass = Class.forName(instanceClassName.getTextContent());
-					}
-					inner = (ParameterSerializable) instanceClass.newInstance();
-				} catch (InstantiationException | ClassNotFoundException ex) {
-					throw new RuntimeException(ex);
+			try {
+				Class<?> instanceClass = type;
+				Node instanceClassName = objectNode.getAttributes().getNamedItem("class");
+				if (instanceClassName != null) {
+					instanceClass = Class.forName(instanceClassName.getTextContent());
 				}
+				if (inner == null || !instanceClass.isAssignableFrom(inner.getClass())) {
+					inner = (ParameterSerializable) instanceClass.newInstance();
+				}
+			} catch (InstantiationException | ClassNotFoundException ex) {
+				throw new RuntimeException(ex);
 			}
 			newValue = load(inner, objectNode);
 
