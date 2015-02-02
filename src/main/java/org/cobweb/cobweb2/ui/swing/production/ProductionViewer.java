@@ -1,74 +1,33 @@
 package org.cobweb.cobweb2.ui.swing.production;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
-import org.cobweb.cobweb2.ui.SimulationRunner;
-import org.cobweb.cobweb2.ui.ViewerClosedCallback;
-import org.cobweb.cobweb2.ui.ViewerPlugin;
+import org.cobweb.cobweb2.ui.swing.DisplayOverlay;
+import org.cobweb.cobweb2.ui.swing.DisplayPanel;
+import org.cobweb.cobweb2.ui.swing.OverlayGenerator;
+import org.cobweb.cobweb2.ui.swing.OverlayPluginViewer;
 
-public class ProductionViewer implements ViewerPlugin {
-
-	private Disp productionDisplay;
-	private ViewerClosedCallback onClosed;
-
-	private SimulationRunner theScheduler;
+public class ProductionViewer extends OverlayPluginViewer<ProductionViewer> implements OverlayGenerator {
 
 
-	public ProductionViewer(SimulationRunner theScheduler) {
-		super();
-		this.theScheduler = theScheduler;
-	}
-
-	@Override
-	public void on() {
-
-		if (productionDisplay != null) {
-			theScheduler.removeUIComponent(productionDisplay);
-			productionDisplay.setVisible(false);
-			productionDisplay.setEnabled(false);
-			productionDisplay.dispose();
-		}
-
-		ProductionMapper newMapper = ((Simulation)theScheduler.getSimulation()).prodMapper;
-		productionDisplay = new Disp(newMapper);
-
-		productionDisplay.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				onClosed.viewerClosed();
-			}
-		});
-
-		theScheduler.addUIComponent(productionDisplay);
-	}
-
-	@Override
-	public void off() {
-		if (productionDisplay != null) {
-			theScheduler.removeUIComponent(productionDisplay);
-			productionDisplay.setVisible(false);
-			productionDisplay.setEnabled(false);
-			productionDisplay.dispose();
-		}
-		productionDisplay = null;
+	public ProductionViewer(DisplayPanel panel) {
+		super(panel);
 	}
 
 	@Override
 	public String getName() {
-		return "Production map";
+		return "Production Value";
 	}
 
 	@Override
-	public void setClosedCallback(ViewerClosedCallback onClosed) {
-		this.onClosed = onClosed;
-
+	public DisplayOverlay getDrawInfo(Simulation sim) {
+		return new Disp(sim.theEnvironment.getPlugin(ProductionMapper.class));
 	}
 
 	@Override
-	public void dispose() {
-		off();
+	protected ProductionViewer createOverlay() {
+		return this;
 	}
+
+
 }

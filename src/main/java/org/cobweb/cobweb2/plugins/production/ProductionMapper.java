@@ -12,11 +12,13 @@ import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
-public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState> implements StatePlugin, UpdateMutator {
+public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState>
+implements StatePlugin, UpdateMutator, EnvironmentMutator {
 
 	private Environment environment;
 	private float[][] vals;
@@ -276,9 +278,24 @@ public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState> 
 		}
 	}
 
-	public static class ProduceProductCause implements Cause {
+	public static class ProductionCause implements Cause {
+		@Override
+		public String getName() { return "Production"; }
+	}
+
+	public static class ProduceProductCause extends ProductionCause {
 		@Override
 		public String getName() { return "Produce Product"; }
+	}
+
+	@Override
+	public void update() {
+		// nothing
+	}
+
+	@Override
+	public void loadNew() {
+		// nothing
 	}
 
 }

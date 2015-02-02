@@ -5,14 +5,14 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticFactor;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
+import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 
 
-public class AbioticDrawInfo {
-
-
+public class AbioticDrawInfo implements OverlayGenerator, DisplayOverlay {
 
 	public List<FactorDrawInfo> factors = new ArrayList<>();
 
@@ -99,6 +99,18 @@ public class AbioticDrawInfo {
 
 	private static Color colorFromFloat(float y) {
 		return new Color(Color.HSBtoRGB((1 - y) * 2 / 3, 1f, 1f));
+	}
+
+	@Override
+	public void draw(Graphics g, int tileWidth, int tileHeight, Topology topology, DisplaySettings settings) {
+		for (FactorDrawInfo f : factors) {
+			f.draw(g, tileWidth, tileHeight);
+		}
+	}
+
+	@Override
+	public DisplayOverlay getDrawInfo(Simulation sim) {
+		return this;
 	}
 
 }

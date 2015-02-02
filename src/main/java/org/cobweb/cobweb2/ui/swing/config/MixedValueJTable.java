@@ -17,7 +17,7 @@ import javax.swing.table.TableColumn;
 
 import org.cobweb.io.ParameterChoice;
 
-class MixedValueJTable extends JTable {
+public class MixedValueJTable extends JTable {
 
 	private static class CobwebSelectionEditor extends DefaultCellEditor {
 

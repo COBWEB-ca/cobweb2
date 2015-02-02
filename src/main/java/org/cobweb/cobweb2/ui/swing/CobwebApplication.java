@@ -47,6 +47,7 @@ import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.cobweb.cobweb2.ui.swing.ai.LinearAIViewer;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
+import org.cobweb.cobweb2.ui.swing.energy.EnergyEventViewer;
 import org.cobweb.cobweb2.ui.swing.genetics.GAChartOutput;
 import org.cobweb.cobweb2.ui.swing.production.ProductionViewer;
 import org.cobweb.util.FileUtils;
@@ -522,7 +523,6 @@ public class CobwebApplication extends JFrame {
 			viewers.add(new LinearAIViewer((LinearWeightsControllerParams)simRunner.getSimulation().simulationConfig.controllerParams));
 		}
 
-		viewers.add(new ProductionViewer(simRunner));
 
 		viewers.add(new LiveStats(simRunner));
 
@@ -533,6 +533,11 @@ public class CobwebApplication extends JFrame {
 					simRunner,
 					displaySettings);
 			viewers.add(gaViewer);
+		}
+
+		if (simulatorUI != null) {
+			viewers.add(new ProductionViewer(simulatorUI.displayPanel));
+			viewers.add(new EnergyEventViewer(simulatorUI.displayPanel, simRunner.getSimulation()));
 		}
 	}
 

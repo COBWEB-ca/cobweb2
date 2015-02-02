@@ -1,15 +1,17 @@
 package org.cobweb.cobweb2.ui.swing;
 
 import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.stats.AgentStatistics;
-import org.cobweb.cobweb2.ui.swing.AbioticDrawInfo.FactorDrawInfo;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.util.Point2D;
 
@@ -23,11 +25,7 @@ import org.cobweb.util.Point2D;
  */
 class DrawInfo {
 
-	/** Width of the frame info, in tiles */
-	private int width;
-
-	/** Height of the frame info, in tiles */
-	private int height;
+	private Topology topology;
 
 	/**
 	 * width * height array of colors for the tiles; The color for a
@@ -46,24 +44,21 @@ class DrawInfo {
 
 	private DisplaySettings displaySettings;
 
-	private AbioticDrawInfo abioticInfo;
+	private List<DisplayOverlay> overlays = new ArrayList<>();
 
 	/**
 	 * Construct a DrawInfo width specific width, height and tile colors.
 	 * The tiles array is not copied; the caller is assumed to "give" the
 	 * array to the drawing info, and not keep any local references around.
-	 * @param abioticInfo
 	 */
-	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents, DisplaySettings dispSettings, AbioticDrawInfo abioticInfo) {
+	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents, DisplaySettings dispSettings, Collection<OverlayGenerator> gens) {
 		this.displaySettings = dispSettings;
-		this.abioticInfo = abioticInfo;
-		width = sim.theEnvironment.topology.width;
-		height = sim.theEnvironment.topology.height;
-		tileColors = new Color[width * height];
+		this.topology = sim.theEnvironment.topology;
+		tileColors = new Color[topology.width * topology.height];
 
 		int tileIndex = 0;
-		for (int y = 0; y < height; ++y) {
-			for (int x = 0; x < width; ++x) {
+		for (int y = 0; y < topology.height; ++y) {
+			for (int x = 0; x < topology.width; ++x) {
 				Location currentPos = new Location(x, y);
 
 				if (sim.theEnvironment.hasStone(currentPos))
@@ -88,13 +83,17 @@ class DrawInfo {
 				paths.add(new PathDrawInfo(stats.path));
 		}
 
-		for (int y = 0; y < height; ++y) {
-			for (int x = 0; x < width; ++x) {
+		for (int y = 0; y < topology.height; ++y) {
+			for (int x = 0; x < topology.width; ++x) {
 				Location currentPos = new Location(x, y);
 				if (sim.theEnvironment.hasDrop(currentPos)){
 					drops.add(new DropDrawInfo(new Point2D(x, y), sim.theEnvironment.getDrop(currentPos)));
 				}
 			}
+		}
+
+		for (OverlayGenerator g : gens) {
+			overlays.add(g.getDrawInfo(sim));
 		}
 	}
 
@@ -104,8 +103,8 @@ class DrawInfo {
 	void draw(java.awt.Graphics g, int tileWidth, int tileHeight) {
 		// Tiles
 		int tileIndex = 0;
-		for (int y = 0; y < height; ++y) {
-			for (int x = 0; x < width; ++x) {
+		for (int y = 0; y < topology.height; ++y) {
+			for (int x = 0; x < topology.width; ++x) {
 				g.setColor(tileColors[tileIndex++]);
 				g.fillRect(x * tileWidth + 1, y * tileHeight + 1, tileWidth - 1, tileHeight - 1);
 			}
@@ -123,12 +122,12 @@ class DrawInfo {
 
 		// Grid lines
 		g.setColor(DrawInfo.COLOR_GRIDLINES);
-		int totalWidth = tileWidth * width;
-		for (int y = 0; y <= height; y++) {
+		int totalWidth = tileWidth * topology.width;
+		for (int y = 0; y <= topology.height; y++) {
 			g.drawLine(0, y * tileHeight, totalWidth, y * tileHeight);
 		}
-		int totalHeight = tileHeight * height;
-		for (int x = 0; x <= width; x++) {
+		int totalHeight = tileHeight * topology.height;
+		for (int x = 0; x <= topology.width; x++) {
 			g.drawLine(x * tileWidth, 0, x * tileWidth, totalHeight);
 		}
 
@@ -142,10 +141,9 @@ class DrawInfo {
 			path.draw(g, tileWidth, tileHeight);
 		}
 
-		if (abioticInfo != null && abioticInfo.factors != null)
-			for (FactorDrawInfo f : abioticInfo.factors) {
-				f.draw(g, tileWidth, tileHeight);
-			}
+		for (DisplayOverlay overlay : overlays) {
+			overlay.draw(g, tileWidth, tileHeight, topology, displaySettings);
+		}
 	}
 
 }

@@ -7,6 +7,7 @@ import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.ContactMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
+import org.cobweb.cobweb2.plugins.broadcast.PacketConduit.BroadcastCause;
 
 
 public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements ContactMutator {
@@ -182,10 +183,10 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 	 */
 	private static void iveBeenCheated(ComplexAgent me, Agent cheater) {
 		me.rememberBadAgent(cheater);
-		me.broadcast(new CheaterBroadcast(cheater, me));
+		me.broadcast(new CheaterBroadcast(cheater, me), new BroadcastCheaterCause());
 	}
 
-	public static abstract class PDCause implements Cause {
+	public static class PDCause implements Cause {
 		@Override
 		public String getName() { return "PD"; }
 	}
@@ -204,5 +205,10 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 	public static class PDPunishmentCause extends PDCause {
 		@Override
 		public String getName() { return "PD Punishment"; }
+	}
+
+	public static class BroadcastCheaterCause extends BroadcastCause {
+		@Override
+		public String getName() { return "Broadcast Cheating"; }
 	}
 }

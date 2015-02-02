@@ -8,7 +8,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
@@ -306,7 +308,15 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 	private List<ComplexAgent> observedAgents = new ArrayList<ComplexAgent>();
 
-	private AbioticDrawInfo abioticInfo;
+	private Map<Class<? extends OverlayGenerator>, OverlayGenerator> overlays = new LinkedHashMap<>();
+
+	public void addOverlay(OverlayGenerator overlay) {
+		overlays.put(overlay.getClass(), overlay);
+	}
+
+	public void removeOverlay(Class<? extends OverlayGenerator> type) {
+		overlays.remove(type);
+	}
 
 	@Override
 	public void componentHidden(ComponentEvent e) {
@@ -337,7 +347,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 				if (!a.isAlive())
 					ai.remove();
 			}
-			drawInfo = new DrawInfo(simulation, observedAgents, displaySettings, abioticInfo);
+			drawInfo = new DrawInfo(simulation, observedAgents, displaySettings, overlays.values());
 		}
 		super.refresh(wait);
 	}
@@ -406,10 +416,17 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		borderLeft = borderWidth + THERMAL_MARKER_WIDTH;
 		borderHeight = (size.height - tileHeight * simulation.theEnvironment.topology.height + PADDING) / 2;
 
+		try {
 
-		abioticInfo = new AbioticDrawInfo(
-				simulation.theEnvironment.getPlugin(AbioticMutator.class).params,
-				simulation.theEnvironment.topology);
+			overlays.put(AbioticDrawInfo.class,
+					new AbioticDrawInfo(
+							simulation.theEnvironment.getPlugin(AbioticMutator.class).params,
+							simulation.theEnvironment.topology)
+					);
+		} catch (NullPointerException ex) {
+			// FIXME find out what crashes here sometimes
+			// Crash is OK for now, updateScale gets invoked agian and fixes everything
+		}
 
 		repaint();
 	}
