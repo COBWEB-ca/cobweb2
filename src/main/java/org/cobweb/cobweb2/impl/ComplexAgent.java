@@ -137,6 +137,8 @@ public class ComplexAgent extends Agent {
 		getAgentListener().onSpawn(this, parent1, parent2);
 
 		initPosition(pos);
+
+		changeEnergy(params.initEnergy, new SexualBirthCause());
 	}
 
 
@@ -154,6 +156,8 @@ public class ComplexAgent extends Agent {
 		getAgentListener().onSpawn(this, parent);
 
 		initPosition(pos);
+
+		changeEnergy(params.initEnergy, new AsexualBirthCause());
 	}
 
 	/**
@@ -168,6 +172,8 @@ public class ComplexAgent extends Agent {
 		getAgentListener().onSpawn(this);
 
 		initPosition(pos);
+
+		changeEnergy(params.initEnergy, new CreationBirthCause());
 	}
 
 	public void setController(Controller c) {
@@ -252,11 +258,13 @@ public class ComplexAgent extends Agent {
 
 	@Override
 	public void die() {
-		move(null);
-
 		super.die();
 
+		changeEnergy(Math.min(0, -getEnergy()), new DeathCause());
+
 		getAgentListener().onDeath(this);
+
+		move(null);
 
 		// Release references to other agents
 		badAgentMemory.clear();
@@ -355,9 +363,8 @@ public class ComplexAgent extends Agent {
 		if (newPos != null)
 			environment.setAgent(newPos, this);
 
-		position = newPos;
-
 		getAgentListener().onStep(this, oldPos, newPos);
+		position = newPos;
 	}
 
 	protected void receiveBroadcast() {
@@ -395,8 +402,6 @@ public class ComplexAgent extends Agent {
 	public void setParams(ComplexAgentParams agentData) {
 
 		this.params = agentData.clone();
-
-		setEnergy(agentData.initEnergy);
 
 		badAgentMemory = new CircularFifoQueue<Agent>(params.pdMemory);
 
@@ -724,5 +729,35 @@ public class ComplexAgent extends Agent {
 	public static class AsexualReproductionCause extends ReproductionCause {
 		@Override
 		public String getName() { return "Asexual Reproduction"; }
+	}
+
+	public static class PopulationCause implements Cause {
+		@Override
+		public String getName() { return "Agent Population"; }
+	}
+
+	public static class DeathCause extends PopulationCause {
+		@Override
+		public String getName() { return "Death"; }
+	}
+
+	public static class BirthCause extends PopulationCause {
+		@Override
+		public String getName() { return "Birth"; }
+	}
+
+	public static class SexualBirthCause extends BirthCause {
+		@Override
+		public String getName() { return "Sexual Birth"; }
+	}
+
+	public static class AsexualBirthCause extends BirthCause {
+		@Override
+		public String getName() { return "Asexual Birth"; }
+	}
+
+	public static class CreationBirthCause extends BirthCause {
+		@Override
+		public String getName() { return "Creation"; }
 	}
 }

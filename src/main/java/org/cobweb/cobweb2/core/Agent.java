@@ -29,10 +29,6 @@ public abstract class Agent implements Updatable {
 		alive = false;
 	}
 
-	protected void setEnergy(int value) {
-		energy = value;
-	}
-
 	public int getEnergy() {
 		return energy;
 	}
