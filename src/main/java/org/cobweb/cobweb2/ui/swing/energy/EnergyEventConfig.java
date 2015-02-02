@@ -107,6 +107,7 @@ public class EnergyEventConfig {
 			CauseTreeNode node = (CauseTreeNode) path.getLastPathComponent();
 			action(node);
 			((CauseStatsTreeTableModel) tree.getTreeTableModel()).fireNodeChanged(path);
+			tree.repaint();
 		}
 		protected abstract void action(CauseTreeNode node);
 
