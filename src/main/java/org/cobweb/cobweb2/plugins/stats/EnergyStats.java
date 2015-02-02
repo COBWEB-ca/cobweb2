@@ -34,6 +34,11 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 		public String toString() {
 			return node.getName() + " count: " + count + " total: " + totalDelta;
 		}
+
+		public void reset() {
+			count = 0;
+			totalDelta = 0;
+		}
 	}
 
 	public Map<Class<? extends Cause>, CauseStats> causeStats = new HashMap<>();
@@ -50,8 +55,6 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 			causeStats.put(node.type, stats);
 		}
 	}
-
-	public boolean collect = false;
 
 	@Override
 	public void onEnergyChange(Agent agent, int delta, Cause cause) {
@@ -95,6 +98,11 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 			stats.totalDelta += delta;
 			stats = causeStats.get(stats.node.parent.type);
 		} while (stats != null);
+	}
+
+	public void resetStats() {
+		for (CauseStats v : causeStats.values())
+			v.reset();
 	}
 
 	@Override
