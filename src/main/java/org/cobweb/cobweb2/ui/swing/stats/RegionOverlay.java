@@ -41,8 +41,9 @@ public class RegionOverlay implements DisplayOverlay {
 		int lineHeight = g.getFontMetrics().getHeight();
 		int ascent = g.getFontMetrics().getAscent();
 
-		int leftColW = (int) g.getFontMetrics().getStringBounds((stats.types + 1) + "  ", g).getWidth();
-		int rightColStart = (int) (leftColW + (wantWidth - leftColW) / 2);
+		int leftColW = (int) g.getFontMetrics().getStringBounds((stats.types + 1) + "   ", g).getWidth();
+		float numColW = (wantWidth - leftColW) / 2;
+		int rightColStart = (int) (leftColW + numColW);
 
 		for (CellStats[] cols : stats.cellStats) {
 			for (CellStats cell : cols) {
@@ -53,6 +54,13 @@ public class RegionOverlay implements DisplayOverlay {
 
 				for (int i = 0; i < stats.types; i++) {
 					int y = ascent + i * lineHeight;
+					g.setColor(settings.agentColor.getColor(i, stats.types));
+					if (cell.totalAgents() > 0)
+						g.fillRect(leftColW, y - lineHeight / 2, (int)(numColW * 0.8 * cell.agentCount[i] / cell.totalAgents()) , lineHeight / 2);
+					if (cell.totalFood() > 0)
+						g.fillRect(rightColStart, y - lineHeight / 2, (int)(numColW * 0.8 * cell.foodCount[i] / cell.totalFood()), lineHeight / 2);
+
+					g.setColor(Color.BLACK);
 					g.drawString((i + 1) + " ", 4, y);
 					g.drawString("A:" + cell.agentCount[i], leftColW, y);
 					g.drawString("F:" + cell.foodCount[i], rightColStart, y);
