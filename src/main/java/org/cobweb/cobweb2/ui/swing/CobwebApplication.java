@@ -523,7 +523,6 @@ public class CobwebApplication extends JFrame {
 			viewers.add(new LinearAIViewer((LinearWeightsControllerParams)simRunner.getSimulation().simulationConfig.controllerParams));
 		}
 
-		viewers.add(new ProductionViewer(simRunner));
 
 		viewers.add(new LiveStats(simRunner));
 
@@ -536,8 +535,10 @@ public class CobwebApplication extends JFrame {
 			viewers.add(gaViewer);
 		}
 
-		if (simulatorUI != null)
+		if (simulatorUI != null) {
+			viewers.add(new ProductionViewer(simulatorUI.displayPanel));
 			viewers.add(new EnergyEventViewer(simulatorUI.displayPanel));
+		}
 	}
 
 

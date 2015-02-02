@@ -235,6 +235,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		// plugins are keyed against class, they get replaced
 		theEnvironment.addPlugin(abioticMutator);
 		theEnvironment.addPlugin(energyStats);
+		theEnvironment.addPlugin(prodMapper);
 
 		// Load agent plugin settings
 		pdMutator.setParams(p.pdParams);
