@@ -537,7 +537,7 @@ public class CobwebApplication extends JFrame {
 
 		if (simulatorUI != null) {
 			viewers.add(new ProductionViewer(simulatorUI.displayPanel));
-			viewers.add(new EnergyEventViewer(simulatorUI.displayPanel));
+			viewers.add(new EnergyEventViewer(simulatorUI.displayPanel, simRunner.getSimulation()));
 		}
 	}
 
