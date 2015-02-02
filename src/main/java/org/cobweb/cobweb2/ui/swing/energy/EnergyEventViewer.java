@@ -1,17 +1,14 @@
 package org.cobweb.cobweb2.ui.swing.energy;
 
-import org.cobweb.cobweb2.ui.ViewerClosedCallback;
-import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.cobweb.cobweb2.ui.swing.DisplayPanel;
+import org.cobweb.cobweb2.ui.swing.OverlayPluginViewer;
 
 
-public class EnergyEventViewer implements ViewerPlugin {
+public class EnergyEventViewer extends OverlayPluginViewer<EnergyOverlay> {
 
-	private DisplayPanel panel;
-	private EnergyOverlay overlay;
 
 	public EnergyEventViewer(DisplayPanel panel) {
-		this.panel = panel;
+		super(panel);
 	}
 
 	@Override
@@ -20,35 +17,7 @@ public class EnergyEventViewer implements ViewerPlugin {
 	}
 
 	@Override
-	public void on() {
-		if (overlay != null)
-			return;
-
-		overlay = new EnergyOverlay();
-		panel.addOverlay(overlay);
-		panel.refresh(true);
+	protected EnergyOverlay createOverlay() {
+		return new EnergyOverlay();
 	}
-
-	@Override
-	public void off() {
-		if (overlay == null)
-			return;
-
-		panel.removeOverlay(EnergyOverlay.class);
-		overlay = null;
-		panel.refresh(true);
-	}
-
-	@Override
-	public void dispose() {
-		off();
-	}
-
-	@Override
-	public void setClosedCallback(ViewerClosedCallback onClosed) {
-		// TODO Auto-generated method stub
-
-	}
-
-
 }
