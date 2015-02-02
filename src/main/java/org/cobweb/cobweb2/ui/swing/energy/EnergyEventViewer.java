@@ -50,6 +50,8 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 	@Override
 	public DisplayOverlay getDrawInfo(Simulation sim) {
 		EnergyDrawInfo res = new EnergyDrawInfo(sim.theEnvironment.getPlugin(EnergyStats.class), energyStatsConfig);
+		if (filterDialog != null)
+			filterDialog.repaint();
 		return res;
 	}
 

@@ -13,19 +13,26 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import org.cobweb.cobweb2.plugins.stats.CauseTree.CauseTreeNode;
 import org.cobweb.cobweb2.plugins.stats.EnergyStats;
 import org.cobweb.cobweb2.ui.swing.config.Util;
+import org.jdesktop.swingx.JXTreeTable;
 
 
 public class EnergyEventConfig {
 
 	public static JComponent createFilterConfigPanel(final EnergyStats energyStats) {
 
-		final JTree tree = new JTree(new CauseTreeModel(energyStats.causeTree));
+		final JXTreeTable tree = new JXTreeTable(new CauseStatsTreeTableModel(energyStats.causeTree, energyStats));
+		tree.getColumn(0).setPreferredWidth(200);
+		tree.getColumn(1).setPreferredWidth(100);
+		tree.getColumn(2).setPreferredWidth(100);
+		tree.setRootVisible(true);
+		tree.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-		tree.setCellRenderer(new CauseCellRenderer(energyStats, tree));
+		tree.setTreeCellRenderer(new CauseCellRenderer(energyStats));
 
 		for (int i = 0; i < tree.getRowCount(); i++) {
 			tree.expandRow(i);
@@ -57,39 +64,49 @@ public class EnergyEventConfig {
 			private static final long serialVersionUID = 1L;
 		});
 
+		JButton clearStats = new JButton(new AbstractAction("Clear Stats") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				energyStats.resetStats();
+				tree.repaint();
+			}
+			private static final long serialVersionUID = 1L;
+		});
+
 		JPanel buttons = new JPanel();
 		buttons.add(whiteList);
 		buttons.add(blackList);
 		buttons.add(remove);
+		buttons.add(clearStats);
 
 
 		JPanel result = new JPanel(new BorderLayout());
 		result.add(treePane);
 		result.add(buttons, BorderLayout.SOUTH);
 
-		Util.makeGroupPanel(result, "Energy Cause Filter");
+		Util.makeGroupPanel(result, "Energy Event Filter");
 		return result;
 	}
 
 
 	private static abstract class TreeNodeAction extends AbstractAction {
 
-		private final JTree tree;
+		private final JXTreeTable tree;
 
-		private TreeNodeAction(String name, JTree tree) {
+		private TreeNodeAction(String name, JXTreeTable tree) {
 			super(name);
 			this.tree = tree;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			TreePath path = tree.getSelectionPath();
+			TreePath path = tree.getPathForRow(tree.getSelectedRow());
 			if (path == null)
 				return;
 
 			CauseTreeNode node = (CauseTreeNode) path.getLastPathComponent();
 			action(node);
-			((CauseTreeModel) tree.getModel()).fireNodeChanged(path);
+			((CauseStatsTreeTableModel) tree.getTreeTableModel()).fireNodeChanged(path);
 		}
 		protected abstract void action(CauseTreeNode node);
 
@@ -99,18 +116,16 @@ public class EnergyEventConfig {
 	private static final class CauseCellRenderer extends DefaultTreeCellRenderer {
 
 		private final EnergyStats energyStats;
-		private final JTree tree;
 
-		private CauseCellRenderer(EnergyStats energyStats, JTree tree) {
+		private CauseCellRenderer(EnergyStats energyStats) {
 			this.energyStats = energyStats;
-			this.tree = tree;
 		}
 
 		@Override
 		public Component getTreeCellRendererComponent(JTree t, Object value, boolean sel, boolean expanded,
 				boolean leaf, int row, boolean focus) {
 
-			Component res = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+			Component res = super.getTreeCellRendererComponent(t, value, sel, expanded, leaf, row, hasFocus);
 			CauseTreeNode node = (CauseTreeNode)value;
 			setText(node.getName());
 

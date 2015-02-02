@@ -11,7 +11,7 @@ import javax.swing.tree.TreePath;
 import org.cobweb.cobweb2.plugins.stats.CauseTree;
 import org.cobweb.cobweb2.plugins.stats.CauseTree.CauseTreeNode;
 
-final class CauseTreeModel implements TreeModel {
+public class CauseTreeModel implements TreeModel {
 
 	CauseTreeNode root;
 
