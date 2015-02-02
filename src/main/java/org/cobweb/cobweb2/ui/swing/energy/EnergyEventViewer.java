@@ -17,6 +17,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
@@ -114,7 +116,7 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 
 
 		JComponent sp = createDisplayConfigPanel();
-		sp.setPreferredSize(new Dimension(200,200));
+		sp.setPreferredSize(new Dimension(10, 130));
 		mainPanel.add(sp);
 
 		JComponent filter = createFilterConfigPanel(energyStats);
@@ -127,7 +129,12 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 
 	private JComponent createDisplayConfigPanel() {
 		ConfigTableModel model = new ConfigTableModel(new ParameterSerializable[] { energyStatsConfig }, "Value");
-
+		model.addTableModelListener(new TableModelListener() {
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				panel.refresh(true);
+			}
+		});
 		MixedValueJTable paramTable = new MixedValueJTable(model);
 		JScrollPane sp = new JScrollPane(paramTable);
 		Util.makeGroupPanel(sp, "Display Options");
@@ -165,7 +172,6 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 		}
 
 		JScrollPane treePane = new JScrollPane(tree);
-		Util.makeGroupPanel(treePane, "Energy Change Causes");
 
 		JButton whiteList = new JButton(new AbstractAction("Whitelist") {
 			@Override
@@ -218,6 +224,8 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 		JPanel result = new JPanel(new BorderLayout());
 		result.add(treePane);
 		result.add(buttons, BorderLayout.SOUTH);
+
+		Util.makeGroupPanel(result, "Energy Cause Filter");
 		return result;
 	}
 
