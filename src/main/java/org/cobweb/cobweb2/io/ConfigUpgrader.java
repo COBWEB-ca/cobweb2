@@ -31,13 +31,8 @@ class ConfigUpgrader {
 
 	private static final String VERSION_LATEST = VERSIONS[VERSIONS.length - 1];
 
-	public static void upgradeConfigFile(File filename) {
-		FileInputStream file;
-		try {
-			file = new FileInputStream(filename);
-		} catch (FileNotFoundException ex) {
-			throw new RuntimeException(ex);
-		}
+	public static void upgradeConfigFile(File filename) throws FileNotFoundException {
+		FileInputStream file = new FileInputStream(filename);
 
 		Element root = CobwebXmlHelper.openDocument(file);
 		try {
