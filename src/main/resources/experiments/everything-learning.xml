@@ -8,7 +8,7 @@
   <EnvironmentName>cwcore.ComplexEnvironmentLearning</EnvironmentName>
   <Width>80</Width>
   <Height>80</Height>
-  <wrap>false</wrap>
+  <wrap>true</wrap>
   <randomSeed>42</randomSeed>
   <keepOldArray>false</keepOldArray>
   <dropNewFood>true</dropNewFood>
@@ -58,6 +58,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -114,6 +116,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -123,8 +127,8 @@
     <foodweb>
       <agent1>false</agent1>
       <agent2>false</agent2>
-      <agent3>false</agent3>
-      <agent4>false</agent4>
+      <agent3>true</agent3>
+      <agent4>true</agent4>
       <agent5>false</agent5>
       <agent6>false</agent6>
       <agent7>false</agent7>
@@ -170,6 +174,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -180,8 +186,8 @@
       <agent1>false</agent1>
       <agent2>false</agent2>
       <agent3>false</agent3>
-      <agent4>false</agent4>
-      <agent5>false</agent5>
+      <agent4>true</agent4>
+      <agent5>true</agent5>
       <agent6>false</agent6>
       <agent7>false</agent7>
       <food1>true</food1>
@@ -218,7 +224,7 @@
     <agingMode>false</agingMode>
     <agingLimit>300</agingLimit>
     <agingRate>10.0</agingRate>
-    <wasteMode>false</wasteMode>
+    <wasteMode>true</wasteMode>
     <wastePen>2</wastePen>
     <wasteGain>100</wasteGain>
     <wasteLoss>0</wasteLoss>
@@ -226,6 +232,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -271,7 +279,7 @@
     <asexualBreedChance>0.0</asexualBreedChance>
     <breedSimMin>0.0</breedSimMin>
     <sexualPregnancyPeriod>5</sexualPregnancyPeriod>
-    <agingMode>false</agingMode>
+    <agingMode>true</agingMode>
     <agingLimit>300</agingLimit>
     <agingRate>10.0</agingRate>
     <wasteMode>false</wasteMode>
@@ -282,6 +290,8 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
     <broadcastMode>false</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
@@ -338,8 +348,10 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
-    <broadcastMode>false</broadcastMode>
+    <broadcastMode>true</broadcastMode>
     <broadcastEnergyBased>false</broadcastEnergyBased>
     <broadcastFixedRange>20</broadcastFixedRange>
     <broadcastEnergyMin>20</broadcastEnergyMin>
@@ -394,14 +406,16 @@
     <wasteInit>100</wasteInit>
     <pdTitForTat>false</pdTitForTat>
     <pdCoopProb>50</pdCoopProb>
+    <pdSimilaritySlope>0.0</pdSimilaritySlope>
+    <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
     <pdMemorySize>10</pdMemorySize>
-    <broadcastMode>false</broadcastMode>
-    <broadcastEnergyBased>false</broadcastEnergyBased>
+    <broadcastMode>true</broadcastMode>
+    <broadcastEnergyBased>true</broadcastEnergyBased>
     <broadcastFixedRange>20</broadcastFixedRange>
     <broadcastEnergyMin>20</broadcastEnergyMin>
     <broadcastEnergyCost>5</broadcastEnergyCost>
     <foodweb>
-      <agent1>false</agent1>
+      <agent1>true</agent1>
       <agent2>false</agent2>
       <agent3>false</agent3>
       <agent4>false</agent4>
@@ -417,332 +431,153 @@
       <food7>true</food7>
     </foodweb>
   </agent>
+  <food>
+    <Index>0</Index>
+    <Food>20</Food>
+    <FoodRate>0.0</FoodRate>
+    <FoodGrow>4</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>0</DraughtPeriod>
+  </food>
+  <food>
+    <Index>1</Index>
+    <Food>20</Food>
+    <FoodRate>0.0</FoodRate>
+    <FoodGrow>4</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>0</DraughtPeriod>
+  </food>
+  <food>
+    <Index>2</Index>
+    <Food>20</Food>
+    <FoodRate>0.0</FoodRate>
+    <FoodGrow>4</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>0</DraughtPeriod>
+  </food>
+  <food>
+    <Index>3</Index>
+    <Food>20</Food>
+    <FoodRate>0.0</FoodRate>
+    <FoodGrow>4</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>0</DraughtPeriod>
+  </food>
+  <food>
+    <Index>4</Index>
+    <Food>20</Food>
+    <FoodRate>0.0</FoodRate>
+    <FoodGrow>4</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>0</DraughtPeriod>
+  </food>
+  <food>
+    <Index>5</Index>
+    <Food>20</Food>
+    <FoodRate>0.0</FoodRate>
+    <FoodGrow>4</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>10</DraughtPeriod>
+  </food>
+  <food>
+    <Index>6</Index>
+    <Food>20</Food>
+    <FoodRate>0.0</FoodRate>
+    <FoodGrow>4</FoodGrow>
+    <FoodDeplete>0.9</FoodDeplete>
+    <DepleteTimeSteps>40</DepleteTimeSteps>
+    <DraughtPeriod>0</DraughtPeriod>
+  </food>
   <production>
     <Index>0</Index>
     <productionMode>false</productionMode>
     <InitProdChance>0.8</InitProdChance>
     <LowDemThresh>5.0</LowDemThresh>
-    <LowDemProdChance>0.001</LowDemProdChance>
+    <LowDemProdChance>0.0010</LowDemProdChance>
     <SweetDemThresh>6.0</SweetDemThresh>
-    <SweetDemStartChance>0.001</SweetDemStartChance>
+    <SweetDemStartChance>0.0010</SweetDemStartChance>
     <HiDemCutoff>20.0</HiDemCutoff>
-    <HiDemProdChance>0.001</HiDemProdChance>
+    <HiDemProdChance>0.0010</HiDemProdChance>
   </production>
   <production>
     <Index>1</Index>
     <productionMode>false</productionMode>
     <InitProdChance>0.8</InitProdChance>
     <LowDemThresh>5.0</LowDemThresh>
-    <LowDemProdChance>0.001</LowDemProdChance>
+    <LowDemProdChance>0.0010</LowDemProdChance>
     <SweetDemThresh>6.0</SweetDemThresh>
-    <SweetDemStartChance>0.001</SweetDemStartChance>
+    <SweetDemStartChance>0.0010</SweetDemStartChance>
     <HiDemCutoff>20.0</HiDemCutoff>
-    <HiDemProdChance>0.001</HiDemProdChance>
+    <HiDemProdChance>0.0010</HiDemProdChance>
   </production>
   <production>
     <Index>2</Index>
     <productionMode>false</productionMode>
     <InitProdChance>0.8</InitProdChance>
     <LowDemThresh>5.0</LowDemThresh>
-    <LowDemProdChance>0.001</LowDemProdChance>
+    <LowDemProdChance>0.0010</LowDemProdChance>
     <SweetDemThresh>6.0</SweetDemThresh>
-    <SweetDemStartChance>0.001</SweetDemStartChance>
+    <SweetDemStartChance>0.0010</SweetDemStartChance>
     <HiDemCutoff>20.0</HiDemCutoff>
-    <HiDemProdChance>0.001</HiDemProdChance>
+    <HiDemProdChance>0.0010</HiDemProdChance>
   </production>
   <production>
     <Index>3</Index>
     <productionMode>false</productionMode>
     <InitProdChance>0.8</InitProdChance>
     <LowDemThresh>5.0</LowDemThresh>
-    <LowDemProdChance>0.001</LowDemProdChance>
+    <LowDemProdChance>0.0010</LowDemProdChance>
     <SweetDemThresh>6.0</SweetDemThresh>
-    <SweetDemStartChance>0.001</SweetDemStartChance>
+    <SweetDemStartChance>0.0010</SweetDemStartChance>
     <HiDemCutoff>20.0</HiDemCutoff>
-    <HiDemProdChance>0.001</HiDemProdChance>
+    <HiDemProdChance>0.0010</HiDemProdChance>
   </production>
   <production>
     <Index>4</Index>
     <productionMode>true</productionMode>
     <InitProdChance>0.8</InitProdChance>
     <LowDemThresh>5.0</LowDemThresh>
-    <LowDemProdChance>0.001</LowDemProdChance>
+    <LowDemProdChance>0.0010</LowDemProdChance>
     <SweetDemThresh>6.0</SweetDemThresh>
-    <SweetDemStartChance>0.001</SweetDemStartChance>
+    <SweetDemStartChance>0.0010</SweetDemStartChance>
     <HiDemCutoff>20.0</HiDemCutoff>
-    <HiDemProdChance>0.001</HiDemProdChance>
+    <HiDemProdChance>0.0010</HiDemProdChance>
   </production>
   <production>
     <Index>5</Index>
     <productionMode>false</productionMode>
     <InitProdChance>0.8</InitProdChance>
     <LowDemThresh>5.0</LowDemThresh>
-    <LowDemProdChance>0.001</LowDemProdChance>
+    <LowDemProdChance>0.0010</LowDemProdChance>
     <SweetDemThresh>6.0</SweetDemThresh>
-    <SweetDemStartChance>0.001</SweetDemStartChance>
+    <SweetDemStartChance>0.0010</SweetDemStartChance>
     <HiDemCutoff>20.0</HiDemCutoff>
-    <HiDemProdChance>0.001</HiDemProdChance>
+    <HiDemProdChance>0.0010</HiDemProdChance>
   </production>
   <production>
     <Index>6</Index>
     <productionMode>false</productionMode>
     <InitProdChance>0.8</InitProdChance>
     <LowDemThresh>5.0</LowDemThresh>
-    <LowDemProdChance>0.001</LowDemProdChance>
+    <LowDemProdChance>0.0010</LowDemProdChance>
     <SweetDemThresh>6.0</SweetDemThresh>
-    <SweetDemStartChance>0.001</SweetDemStartChance>
+    <SweetDemStartChance>0.0010</SweetDemStartChance>
     <HiDemCutoff>20.0</HiDemCutoff>
-    <HiDemProdChance>0.001</HiDemProdChance>
+    <HiDemProdChance>0.0010</HiDemProdChance>
   </production>
-  <food>
-    <Index>0</Index>
-    <Food>20</Food>
-    <FoodRate>0.0</FoodRate>
-    <FoodGrow>4</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>0</DraughtPeriod>
-  </food>
-  <food>
-    <Index>1</Index>
-    <Food>20</Food>
-    <FoodRate>0.0</FoodRate>
-    <FoodGrow>4</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>0</DraughtPeriod>
-  </food>
-  <food>
-    <Index>2</Index>
-    <Food>20</Food>
-    <FoodRate>0.0</FoodRate>
-    <FoodGrow>4</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>0</DraughtPeriod>
-  </food>
-  <food>
-    <Index>3</Index>
-    <Food>20</Food>
-    <FoodRate>0.0</FoodRate>
-    <FoodGrow>4</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>0</DraughtPeriod>
-  </food>
-  <food>
-    <Index>4</Index>
-    <Food>20</Food>
-    <FoodRate>0.0</FoodRate>
-    <FoodGrow>4</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>0</DraughtPeriod>
-  </food>
-  <food>
-    <Index>5</Index>
-    <Food>20</Food>
-    <FoodRate>0.0</FoodRate>
-    <FoodGrow>4</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>0</DraughtPeriod>
-  </food>
-  <food>
-    <Index>6</Index>
-    <Food>20</Food>
-    <FoodRate>0.0</FoodRate>
-    <FoodGrow>4</FoodGrow>
-    <FoodDeplete>0.9</FoodDeplete>
-    <DepleteTimeSteps>40</DepleteTimeSteps>
-    <DraughtPeriod>0</DraughtPeriod>
-  </food>
-  <ga>
-    <geneCount>2</geneCount>
-    <geneLength>8</geneLength>
-    <meiosismode>Colour Averaging</meiosismode>
-    <trackgenevaluedistribution>false</trackgenevaluedistribution>
-    <chartupdatefrequency>10</chartupdatefrequency>
-    <linkedphenotype1>FoodEnergy</linkedphenotype1>
-    <linkedphenotype2>OtherFoodEnergy</linkedphenotype2>
-    <agent1gene1>11110</agent1gene1>
-    <agent1gene2>11110</agent1gene2>
-    <agent2gene1>11110</agent2gene1>
-    <agent2gene2>11110</agent2gene2>
-    <agent3gene1>11110</agent3gene1>
-    <agent3gene2>11110</agent3gene2>
-    <agent4gene1>11110</agent4gene1>
-    <agent4gene2>11110</agent4gene2>
-    <agent5gene1>11110</agent5gene1>
-    <agent5gene2>11110</agent5gene2>
-    <agent6gene1>11110</agent6gene1>
-    <agent6gene2>11110</agent6gene2>
-    <agent7gene1>11110</agent7gene1>
-    <agent7gene2>11110</agent7gene2>
-  </ga>
-  <disease>
-    <agent>
-      <Index>0</Index>
-      <initialInfection>0.05</initialInfection>
-      <contactTransmitRate>0.5</contactTransmitRate>
-      <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
-      <factor>2.0</factor>
-      <vaccinator>false</vaccinator>
-      <vaccineEffectiveness>1.0</vaccineEffectiveness>
-      <healer>false</healer>
-      <healerEffectiveness>1.0</healerEffectiveness>
-      <recoveryTime>0</recoveryTime>
-      <transmitTo>
-        <agent1>true</agent1>
-        <agent2>true</agent2>
-        <agent3>true</agent3>
-        <agent4>true</agent4>
-        <agent5>true</agent5>
-        <agent6>true</agent6>
-        <agent7>true</agent7>
-      </transmitTo>
-    </agent>
-    <agent>
-      <Index>1</Index>
-      <initialInfection>0.0</initialInfection>
-      <contactTransmitRate>0.5</contactTransmitRate>
-      <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
-      <factor>2.0</factor>
-      <vaccinator>true</vaccinator>
-      <vaccineEffectiveness>1.0</vaccineEffectiveness>
-      <healer>false</healer>
-      <healerEffectiveness>1.0</healerEffectiveness>
-      <recoveryTime>0</recoveryTime>
-      <transmitTo>
-        <agent1>false</agent1>
-        <agent2>false</agent2>
-        <agent3>false</agent3>
-        <agent4>false</agent4>
-        <agent5>false</agent5>
-        <agent6>false</agent6>
-        <agent7>false</agent7>
-      </transmitTo>
-    </agent>
-    <agent>
-      <Index>2</Index>
-      <initialInfection>0.0</initialInfection>
-      <contactTransmitRate>0.5</contactTransmitRate>
-      <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
-      <factor>2.0</factor>
-      <vaccinator>false</vaccinator>
-      <vaccineEffectiveness>1.0</vaccineEffectiveness>
-      <healer>true</healer>
-      <healerEffectiveness>1.0</healerEffectiveness>
-      <recoveryTime>0</recoveryTime>
-      <transmitTo>
-        <agent1>false</agent1>
-        <agent2>false</agent2>
-        <agent3>false</agent3>
-        <agent4>false</agent4>
-        <agent5>false</agent5>
-        <agent6>false</agent6>
-        <agent7>false</agent7>
-      </transmitTo>
-    </agent>
-    <agent>
-      <Index>3</Index>
-      <initialInfection>0.0</initialInfection>
-      <contactTransmitRate>0.5</contactTransmitRate>
-      <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
-      <factor>2.0</factor>
-      <vaccinator>false</vaccinator>
-      <vaccineEffectiveness>1.0</vaccineEffectiveness>
-      <healer>false</healer>
-      <healerEffectiveness>1.0</healerEffectiveness>
-      <recoveryTime>0</recoveryTime>
-      <transmitTo>
-        <agent1>false</agent1>
-        <agent2>false</agent2>
-        <agent3>false</agent3>
-        <agent4>false</agent4>
-        <agent5>false</agent5>
-        <agent6>false</agent6>
-        <agent7>false</agent7>
-      </transmitTo>
-    </agent>
-    <agent>
-      <Index>0</Index>
-      <initialInfection>0.0</initialInfection>
-      <contactTransmitRate>0.5</contactTransmitRate>
-      <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
-      <factor>2.0</factor>
-      <vaccinator>false</vaccinator>
-      <vaccineEffectiveness>1.0</vaccineEffectiveness>
-      <healer>false</healer>
-      <healerEffectiveness>1.0</healerEffectiveness>
-      <recoveryTime>0</recoveryTime>
-      <transmitTo>
-        <agent1>false</agent1>
-        <agent2>false</agent2>
-        <agent3>false</agent3>
-        <agent4>false</agent4>
-        <agent5>false</agent5>
-        <agent6>false</agent6>
-        <agent7>false</agent7>
-      </transmitTo>
-    </agent>
-    <agent>
-      <Index>0</Index>
-      <initialInfection>0.0</initialInfection>
-      <contactTransmitRate>0.5</contactTransmitRate>
-      <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
-      <factor>2.0</factor>
-      <vaccinator>false</vaccinator>
-      <vaccineEffectiveness>1.0</vaccineEffectiveness>
-      <healer>false</healer>
-      <healerEffectiveness>1.0</healerEffectiveness>
-      <recoveryTime>0</recoveryTime>
-      <transmitTo>
-        <agent1>false</agent1>
-        <agent2>false</agent2>
-        <agent3>false</agent3>
-        <agent4>false</agent4>
-        <agent5>false</agent5>
-        <agent6>false</agent6>
-        <agent7>false</agent7>
-      </transmitTo>
-    </agent>
-    <agent>
-      <Index>0</Index>
-      <initialInfection>0.0</initialInfection>
-      <contactTransmitRate>0.5</contactTransmitRate>
-      <childTransmitRate>0.9</childTransmitRate>
-      <parameter>None</parameter>
-      <factor>2.0</factor>
-      <vaccinator>false</vaccinator>
-      <vaccineEffectiveness>1.0</vaccineEffectiveness>
-      <healer>false</healer>
-      <healerEffectiveness>1.0</healerEffectiveness>
-      <recoveryTime>0</recoveryTime>
-      <transmitTo>
-        <agent1>false</agent1>
-        <agent2>false</agent2>
-        <agent3>false</agent3>
-        <agent4>false</agent4>
-        <agent5>false</agent5>
-        <agent6>false</agent6>
-        <agent7>false</agent7>
-      </transmitTo>
-    </agent>
-  </disease>
   <Temperature>
     <TempBands>
       <Band1>0.0</Band1>
       <Band2>1.0</Band2>
       <Band3>2.0</Band3>
       <Band4>2.0</Band4>
-      <Band5>0.0</Band5>
+      <Band5>-1.0</Band5>
     </TempBands>
     <AgentParams>
       <Agent1>
@@ -824,7 +659,7 @@
         <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
         <SparedEmotion>0.8</SparedEmotion>
         <Learns>true</Learns>
-        <LearnFromDifferentOthers>true</LearnFromDifferentOthers>
+        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
         <LearnFromOthers>true</LearnFromOthers>
         <ChildrenLove>0.0</ChildrenLove>
         <NumMemories>4</NumMemories>
@@ -837,14 +672,232 @@
         <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
         <SparedEmotion>0.8</SparedEmotion>
         <Learns>true</Learns>
-        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
+        <LearnFromDifferentOthers>true</LearnFromDifferentOthers>
         <LearnFromOthers>true</LearnFromOthers>
         <ChildrenLove>0.0</ChildrenLove>
         <NumMemories>4</NumMemories>
         <PartnerLove>-0.1</PartnerLove>
       </Agent4>
+      <Agent5>
+        <BroadcastPleasure>0.1</BroadcastPleasure>
+        <FoodPleasure>0.5</FoodPleasure>
+        <AteAgentPleasure>0.2</AteAgentPleasure>
+        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
+        <SparedEmotion>0.8</SparedEmotion>
+        <Learns>false</Learns>
+        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
+        <LearnFromOthers>false</LearnFromOthers>
+        <ChildrenLove>0.0</ChildrenLove>
+        <NumMemories>4</NumMemories>
+        <PartnerLove>-0.1</PartnerLove>
+      </Agent5>
+      <Agent6>
+        <BroadcastPleasure>0.1</BroadcastPleasure>
+        <FoodPleasure>0.5</FoodPleasure>
+        <AteAgentPleasure>0.2</AteAgentPleasure>
+        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
+        <SparedEmotion>0.8</SparedEmotion>
+        <Learns>false</Learns>
+        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
+        <LearnFromOthers>false</LearnFromOthers>
+        <ChildrenLove>0.0</ChildrenLove>
+        <NumMemories>4</NumMemories>
+        <PartnerLove>-0.1</PartnerLove>
+      </Agent6>
+      <Agent7>
+        <BroadcastPleasure>0.1</BroadcastPleasure>
+        <FoodPleasure>0.5</FoodPleasure>
+        <AteAgentPleasure>0.2</AteAgentPleasure>
+        <EatAgentEmotionalThreshold>0.1</EatAgentEmotionalThreshold>
+        <SparedEmotion>0.8</SparedEmotion>
+        <Learns>false</Learns>
+        <LearnFromDifferentOthers>false</LearnFromDifferentOthers>
+        <LearnFromOthers>true</LearnFromOthers>
+        <ChildrenLove>0.0</ChildrenLove>
+        <NumMemories>4</NumMemories>
+        <PartnerLove>-0.2</PartnerLove>
+      </Agent7>
     </AgentParams>
   </Learning>
+  <disease>
+    <agent>
+      <Index>0</Index>
+      <initialInfection>1.0</initialInfection>
+      <contactTransmitRate>0.5</contactTransmitRate>
+      <childTransmitRate>0.9</childTransmitRate>
+      <parameter>None</parameter>
+      <factor>2.0</factor>
+      <vaccinator>false</vaccinator>
+      <vaccineEffectiveness>1.0</vaccineEffectiveness>
+      <healer>false</healer>
+      <healerEffectiveness>1.0</healerEffectiveness>
+      <recoveryTime>0</recoveryTime>
+      <transmitTo>
+        <agent1>true</agent1>
+        <agent2>true</agent2>
+        <agent3>true</agent3>
+        <agent4>true</agent4>
+        <agent5>true</agent5>
+        <agent6>true</agent6>
+        <agent7>true</agent7>
+      </transmitTo>
+    </agent>
+    <agent>
+      <Index>1</Index>
+      <initialInfection>0.0</initialInfection>
+      <contactTransmitRate>0.5</contactTransmitRate>
+      <childTransmitRate>0.9</childTransmitRate>
+      <parameter>StepEnergy</parameter>
+      <factor>2.0</factor>
+      <vaccinator>true</vaccinator>
+      <vaccineEffectiveness>1.0</vaccineEffectiveness>
+      <healer>false</healer>
+      <healerEffectiveness>1.0</healerEffectiveness>
+      <recoveryTime>0</recoveryTime>
+      <transmitTo>
+        <agent1>false</agent1>
+        <agent2>false</agent2>
+        <agent3>false</agent3>
+        <agent4>false</agent4>
+        <agent5>false</agent5>
+        <agent6>false</agent6>
+        <agent7>false</agent7>
+      </transmitTo>
+    </agent>
+    <agent>
+      <Index>2</Index>
+      <initialInfection>0.0</initialInfection>
+      <contactTransmitRate>0.5</contactTransmitRate>
+      <childTransmitRate>0.9</childTransmitRate>
+      <parameter>None</parameter>
+      <factor>2.0</factor>
+      <vaccinator>false</vaccinator>
+      <vaccineEffectiveness>1.0</vaccineEffectiveness>
+      <healer>true</healer>
+      <healerEffectiveness>1.0</healerEffectiveness>
+      <recoveryTime>0</recoveryTime>
+      <transmitTo>
+        <agent1>false</agent1>
+        <agent2>false</agent2>
+        <agent3>false</agent3>
+        <agent4>false</agent4>
+        <agent5>false</agent5>
+        <agent6>false</agent6>
+        <agent7>false</agent7>
+      </transmitTo>
+    </agent>
+    <agent>
+      <Index>3</Index>
+      <initialInfection>0.0</initialInfection>
+      <contactTransmitRate>0.5</contactTransmitRate>
+      <childTransmitRate>0.9</childTransmitRate>
+      <parameter>StepRockEnergy</parameter>
+      <factor>2.0</factor>
+      <vaccinator>false</vaccinator>
+      <vaccineEffectiveness>1.0</vaccineEffectiveness>
+      <healer>false</healer>
+      <healerEffectiveness>1.0</healerEffectiveness>
+      <recoveryTime>0</recoveryTime>
+      <transmitTo>
+        <agent1>false</agent1>
+        <agent2>false</agent2>
+        <agent3>false</agent3>
+        <agent4>false</agent4>
+        <agent5>false</agent5>
+        <agent6>false</agent6>
+        <agent7>false</agent7>
+      </transmitTo>
+    </agent>
+    <agent>
+      <Index>0</Index>
+      <initialInfection>0.0</initialInfection>
+      <contactTransmitRate>0.5</contactTransmitRate>
+      <childTransmitRate>0.9</childTransmitRate>
+      <parameter>None</parameter>
+      <factor>2.0</factor>
+      <vaccinator>false</vaccinator>
+      <vaccineEffectiveness>1.0</vaccineEffectiveness>
+      <healer>false</healer>
+      <healerEffectiveness>1.0</healerEffectiveness>
+      <recoveryTime>0</recoveryTime>
+      <transmitTo>
+        <agent1>false</agent1>
+        <agent2>false</agent2>
+        <agent3>false</agent3>
+        <agent4>false</agent4>
+        <agent5>false</agent5>
+        <agent6>false</agent6>
+        <agent7>false</agent7>
+      </transmitTo>
+    </agent>
+    <agent>
+      <Index>0</Index>
+      <initialInfection>0.0</initialInfection>
+      <contactTransmitRate>0.5</contactTransmitRate>
+      <childTransmitRate>0.9</childTransmitRate>
+      <parameter>None</parameter>
+      <factor>2.0</factor>
+      <vaccinator>false</vaccinator>
+      <vaccineEffectiveness>1.0</vaccineEffectiveness>
+      <healer>false</healer>
+      <healerEffectiveness>1.0</healerEffectiveness>
+      <recoveryTime>0</recoveryTime>
+      <transmitTo>
+        <agent1>false</agent1>
+        <agent2>false</agent2>
+        <agent3>false</agent3>
+        <agent4>false</agent4>
+        <agent5>false</agent5>
+        <agent6>false</agent6>
+        <agent7>false</agent7>
+      </transmitTo>
+    </agent>
+    <agent>
+      <Index>0</Index>
+      <initialInfection>0.0</initialInfection>
+      <contactTransmitRate>0.5</contactTransmitRate>
+      <childTransmitRate>0.9</childTransmitRate>
+      <parameter>None</parameter>
+      <factor>2.0</factor>
+      <vaccinator>false</vaccinator>
+      <vaccineEffectiveness>1.0</vaccineEffectiveness>
+      <healer>false</healer>
+      <healerEffectiveness>1.0</healerEffectiveness>
+      <recoveryTime>0</recoveryTime>
+      <transmitTo>
+        <agent1>true</agent1>
+        <agent2>false</agent2>
+        <agent3>false</agent3>
+        <agent4>false</agent4>
+        <agent5>false</agent5>
+        <agent6>false</agent6>
+        <agent7>false</agent7>
+      </transmitTo>
+    </agent>
+  </disease>
+  <ga>
+    <geneCount>2</geneCount>
+    <geneLength>8</geneLength>
+    <meiosismode>Colour Averaging</meiosismode>
+    <trackgenevaluedistribution>false</trackgenevaluedistribution>
+    <chartupdatefrequency>10</chartupdatefrequency>
+    <linkedphenotype1>FoodEnergy</linkedphenotype1>
+    <linkedphenotype2>OtherFoodEnergy</linkedphenotype2>
+    <agent1gene1>11110</agent1gene1>
+    <agent1gene2>11110</agent1gene2>
+    <agent2gene1>11110</agent2gene1>
+    <agent2gene2>11110</agent2gene2>
+    <agent3gene1>11110</agent3gene1>
+    <agent3gene2>11110</agent3gene2>
+    <agent4gene1>11110</agent4gene1>
+    <agent4gene2>11110</agent4gene2>
+    <agent5gene1>11110</agent5gene1>
+    <agent5gene2>11110</agent5gene2>
+    <agent6gene1>11110</agent6gene1>
+    <agent6gene2>11110</agent6gene2>
+    <agent7gene1>11110</agent7gene1>
+    <agent7gene2>11110</agent7gene2>
+  </ga>
   <ControllerConfig>
     <RandomSeed>42</RandomSeed>
     <PluginParams>
@@ -853,7 +906,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent1>
@@ -861,7 +914,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent2>
@@ -877,7 +930,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent4>
@@ -885,7 +938,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent5>
@@ -893,7 +946,7 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent6>
@@ -901,12 +954,12 @@
           <StateSize>
             <State>
               <Name>ProdHunt</Name>
-              <Size>0</Size>
+              <Size>2</Size>
             </State>
           </StateSize>
         </Agent7>
       </AgentParams>
     </PluginParams>
   </ControllerConfig>
-  <!--Generated by COBWEB2 version 2.2011-10-12-prodhunt-32-g21dae8f-modified (bugfixes) 2014-11-06-21:31-->
+  <!--Generated by COBWEB2 version 2.2014-11-29-pd-1-gb1121b2-modified (master) 2015-01-26-14:41-->
 </inputData>

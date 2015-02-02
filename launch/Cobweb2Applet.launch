@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.javaApplet">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/cobweb2/src/main/java/driver/applet/Cobweb2Applet.java"/>
+<listEntry value="/cobweb2/src/main/java/org/cobweb/cobweb2/ui/swing/applet/Cobweb2Applet.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -13,7 +13,6 @@
 <stringAttribute key="org.eclipse.jdt.launching.APPLET_NAME" value=""/>
 <mapAttribute key="org.eclipse.jdt.launching.APPLET_PARAMETERS"/>
 <intAttribute key="org.eclipse.jdt.launching.APPLET_WIDTH" value="580"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="driver.applet.Cobweb2Applet"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.cobweb.cobweb2.ui.swing.applet.Cobweb2Applet"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="cobweb2"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xmx64m"/>
 </launchConfiguration>
