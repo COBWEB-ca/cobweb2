@@ -649,7 +649,7 @@ public class ComplexAgent extends Agent {
 		getAgentListener().onEnergyChange(this, delta, cause);
 	}
 
-	public static abstract class MovementCause implements Cause {
+	public static class MovementCause implements Cause {
 		@Override
 		public String getName() { return "Movement"; }
 	}
@@ -659,7 +659,7 @@ public class ComplexAgent extends Agent {
 		public String getName() { return "Step Forward"; }
 	}
 
-	public static abstract class TurnCause extends MovementCause {
+	public static class TurnCause extends MovementCause {
 		@Override
 		public String getName() { return "Turn"; }
 	}
@@ -674,7 +674,7 @@ public class ComplexAgent extends Agent {
 		public String getName() { return "Turn Right"; }
 	}
 
-	public static abstract class EatCause implements Cause {
+	public static class EatCause implements Cause {
 		@Override
 		public String getName() { return "Eat"; }
 	}
@@ -694,7 +694,7 @@ public class ComplexAgent extends Agent {
 		public String getName() { return "Eat Agent"; }
 	}
 
-	public static abstract class BumpCause implements Cause {
+	public static class BumpCause implements Cause {
 		@Override
 		public String getName() { return "Bump"; }
 	}
@@ -709,7 +709,7 @@ public class ComplexAgent extends Agent {
 		public String getName() { return "Bump Agent"; }
 	}
 
-	public static abstract class ReproductionCause implements Cause {
+	public static class ReproductionCause implements Cause {
 		@Override
 		public String getName() { return "Reproduction"; }
 	}

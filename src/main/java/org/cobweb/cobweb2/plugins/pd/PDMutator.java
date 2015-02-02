@@ -185,7 +185,7 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 		me.broadcast(new CheaterBroadcast(cheater, me));
 	}
 
-	public static abstract class PDCause implements Cause {
+	public static class PDCause implements Cause {
 		@Override
 		public String getName() { return "PD"; }
 	}
