@@ -42,7 +42,7 @@ public class CauseTree implements Iterable<CauseTreeNode> {
 			Queue<CauseTreeNode> todo = new LinkedList<>();
 
 			{
-				todo.addAll(root.children);
+				todo.add(root);
 			}
 
 			@Override
@@ -102,7 +102,7 @@ public class CauseTree implements Iterable<CauseTreeNode> {
 
 		public String getName() {
 			if (cause == null)
-				return "Causes";
+				return "Everything";
 			else
 				return cause.getName();
 		}

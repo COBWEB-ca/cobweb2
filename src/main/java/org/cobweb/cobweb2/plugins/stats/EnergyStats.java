@@ -67,8 +67,12 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 		if (!isWatching(causeClass))
 			return;
 
-		updateStats(delta, causeClass);
+		updateCauseStats(delta, causeClass);
 
+		updateLocationStats(delta, loc);
+	}
+
+	private void updateLocationStats(int delta, LocationDirection loc) {
 		LocationStats stats = locationStats.get(loc);
 		if (stats == null) {
 			stats = new LocationStats();
@@ -79,11 +83,13 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 		stats.total += delta;
 	}
 
-	private void updateStats(int delta, Class<? extends Cause> causeClass) {
+	private void updateCauseStats(int delta, Class<? extends Cause> causeClass) {
 		CauseStats stats = causeStats.get(causeClass);
 		do {
 			stats.count++;
 			stats.totalDelta += delta;
+			if (stats.node.parent == null)
+				break;
 			stats = causeStats.get(stats.node.parent.type);
 		} while (stats != null);
 	}
