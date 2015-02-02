@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 import org.cobweb.cobweb2.Simulation;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.stats.EnergyStats;
 import org.cobweb.cobweb2.ui.swing.DisplayOverlay;
 import org.cobweb.cobweb2.ui.swing.OverlayGenerator;
@@ -28,7 +29,7 @@ public class EnergyOverlay implements OverlayGenerator {
 		}
 
 		@Override
-		public void draw(Graphics g, int tileWidth, int tileHeight, DisplaySettings settings) {
+		public void draw(Graphics g, int tileWidth, int tileHeight, Topology topology, DisplaySettings settings) {
 			g.setColor(new Color(1f,1f,1f,0.9f));
 			g.fillRect(0,0, map.length * tileWidth, map[0].length * tileHeight);
 

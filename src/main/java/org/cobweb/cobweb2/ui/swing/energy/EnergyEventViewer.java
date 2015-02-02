@@ -1,6 +1,5 @@
 package org.cobweb.cobweb2.ui.swing.energy;
 
-import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
 import org.cobweb.cobweb2.ui.ViewerPlugin;
 import org.cobweb.cobweb2.ui.swing.DisplayPanel;
@@ -9,11 +8,9 @@ import org.cobweb.cobweb2.ui.swing.DisplayPanel;
 public class EnergyEventViewer implements ViewerPlugin {
 
 	private DisplayPanel panel;
-	private Simulation sim;
 	private EnergyOverlay overlay;
 
-	public EnergyEventViewer(Simulation sim, DisplayPanel panel) {
-		this.sim = sim;
+	public EnergyEventViewer(DisplayPanel panel) {
 		this.panel = panel;
 	}
 
@@ -29,6 +26,7 @@ public class EnergyEventViewer implements ViewerPlugin {
 
 		overlay = new EnergyOverlay();
 		panel.addOverlay(overlay);
+		panel.refresh(true);
 	}
 
 	@Override
@@ -38,6 +36,7 @@ public class EnergyEventViewer implements ViewerPlugin {
 
 		panel.removeOverlay(EnergyOverlay.class);
 		overlay = null;
+		panel.refresh(true);
 	}
 
 	@Override

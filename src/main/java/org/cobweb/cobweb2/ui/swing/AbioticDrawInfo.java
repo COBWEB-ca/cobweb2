@@ -102,7 +102,7 @@ public class AbioticDrawInfo implements OverlayGenerator, DisplayOverlay {
 	}
 
 	@Override
-	public void draw(Graphics g, int tileWidth, int tileHeight, DisplaySettings settings) {
+	public void draw(Graphics g, int tileWidth, int tileHeight, Topology topology, DisplaySettings settings) {
 		for (FactorDrawInfo f : factors) {
 			f.draw(g, tileWidth, tileHeight);
 		}
