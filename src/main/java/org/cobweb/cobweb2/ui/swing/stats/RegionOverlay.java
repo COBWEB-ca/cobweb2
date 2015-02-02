@@ -10,20 +10,23 @@ import org.cobweb.cobweb2.ui.GridStats.CellStats;
 import org.cobweb.cobweb2.ui.swing.DisplayOverlay;
 import org.cobweb.cobweb2.ui.swing.OverlayUtils;
 import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
+import org.cobweb.cobweb2.ui.swing.stats.RegionViewer.RegionViewerOptions;
 
 
 public class RegionOverlay implements DisplayOverlay {
 
 	private GridStats stats;
+	private RegionViewerOptions viewerOptions;
 
-	public RegionOverlay(GridStats stats) {
+	public RegionOverlay(GridStats stats, RegionViewerOptions viewerOptions) {
 		this.stats = stats;
+		this.viewerOptions = viewerOptions;
 
 	}
 
 	@Override
 	public void draw(Graphics g, int tileWidth, int tileHeight, Topology topology, DisplaySettings settings) {
-		OverlayUtils.fadeDisplay(g, tileWidth, tileHeight, topology, 0.75f);
+		OverlayUtils.fadeDisplay(g, tileWidth, tileHeight, topology, viewerOptions.fade);
 
 		Font originalFont = g.getFont();
 
@@ -54,11 +57,14 @@ public class RegionOverlay implements DisplayOverlay {
 
 				for (int i = 0; i < stats.types; i++) {
 					int y = ascent + i * lineHeight;
-					g.setColor(settings.agentColor.getColor(i, stats.types));
-					if (cell.totalAgents() > 0)
-						g.fillRect(leftColW, y - lineHeight / 2, (int)(numColW * 0.8 * cell.agentCount[i] / cell.totalAgents()) , lineHeight / 2);
-					if (cell.totalFood() > 0)
-						g.fillRect(rightColStart, y - lineHeight / 2, (int)(numColW * 0.8 * cell.foodCount[i] / cell.totalFood()), lineHeight / 2);
+
+					if (viewerOptions.graphs) {
+						g.setColor(settings.agentColor.getColor(i, stats.types));
+						if (cell.totalAgents() > 0)
+							g.fillRect(leftColW, y - lineHeight / 2, (int)(numColW * 0.8 * cell.agentCount[i] / cell.totalAgents()) , lineHeight / 2);
+						if (cell.totalFood() > 0)
+							g.fillRect(rightColStart, y - lineHeight / 2, (int)(numColW * 0.8 * cell.foodCount[i] / cell.totalFood()), lineHeight / 2);
+					}
 
 					g.setColor(Color.BLACK);
 					g.drawString((i + 1) + " ", 4, y);
