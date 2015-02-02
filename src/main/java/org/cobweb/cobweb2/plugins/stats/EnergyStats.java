@@ -1,5 +1,8 @@
 package org.cobweb.cobweb2.plugins.stats;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.LocationDirection;
@@ -27,6 +30,22 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 		if (loc == null)
 			return;
 
+		if (!whiteList.isEmpty()) {
+			boolean found = false;
+			for (Class<? extends Cause> c : whiteList)
+				if (c.isAssignableFrom(cause.getClass())) {
+					found = true;
+					break;
+				}
+			if (!found)
+				return;
+		}
+
+		for (Class<? extends Cause> c : blackList) {
+			if (c.isAssignableFrom(cause.getClass()))
+				return;
+		}
+
 		float newValue = map[loc.x][loc.y] + delta;
 		map[loc.x][loc.y] = newValue;
 
@@ -47,5 +66,9 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 	public void loadNew() {
 		update();
 	}
+
+	public List<Class<? extends Cause>> whiteList = new ArrayList<>();
+
+	public List<Class<? extends Cause>> blackList = new ArrayList<>();
 
 }
