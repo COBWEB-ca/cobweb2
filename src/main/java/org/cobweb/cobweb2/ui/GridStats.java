@@ -88,10 +88,10 @@ public class GridStats {
 
 	public static class RegionOptions implements ParameterSerializable {
 		@ConfDisplayName("Horizontal Divisions")
-		public int hDivisions = 5;
+		public int hDivisions = 6;
 
 		@ConfDisplayName("Vertical Divisions")
-		public int vDivisions = 5;
+		public int vDivisions = 6;
 
 		private static final long serialVersionUID = 1L;
 	}

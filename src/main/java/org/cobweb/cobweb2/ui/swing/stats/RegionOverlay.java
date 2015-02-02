@@ -28,10 +28,10 @@ public class RegionOverlay implements DisplayOverlay {
 		Font originalFont = g.getFont();
 
 		float haveHeight = g.getFontMetrics().getHeight();
-		float wantHeight = (float) tileHeight * topology.height / stats.opts.vDivisions / (stats.types + 1);
+		float wantHeight = (float) tileHeight * topology.height / stats.opts.vDivisions / (stats.types + 2.2f);
 		float hScale = wantHeight / haveHeight;
 
-		float haveWidth = (float) g.getFontMetrics().getStringBounds("T A:20 F:20", g).getWidth();
+		float haveWidth = (float) g.getFontMetrics().getStringBounds("22 A:20 F:20", g).getWidth();
 		float wantWidth = tileWidth * topology.width / stats.opts.vDivisions;
 		float vScale = wantWidth / haveWidth;
 
@@ -41,6 +41,9 @@ public class RegionOverlay implements DisplayOverlay {
 		int lineHeight = g.getFontMetrics().getHeight();
 		int ascent = g.getFontMetrics().getAscent();
 
+		int leftColW = (int) g.getFontMetrics().getStringBounds((stats.types + 1) + "  ", g).getWidth();
+		int rightColStart = (int) (leftColW + (wantWidth - leftColW) / 2);
+
 		for (CellStats[] cols : stats.cellStats) {
 			for (CellStats cell : cols) {
 				g.translate(cell.xb * tileWidth, cell.yb * tileHeight);
@@ -49,11 +52,19 @@ public class RegionOverlay implements DisplayOverlay {
 				g.drawRect(0, 0, cell.w * tileWidth, cell.h * tileHeight);
 
 				for (int i = 0; i < stats.types; i++) {
-					g.drawString(i + " A:" + cell.agentCount[i] + " F:" + cell.foodCount[i],
-							2, ascent + i * lineHeight);
+					int y = ascent + i * lineHeight;
+					g.drawString((i + 1) + " ", 4, y);
+					g.drawString("A:" + cell.agentCount[i], leftColW, y);
+					g.drawString("F:" + cell.foodCount[i], rightColStart, y);
 				}
-				g.drawString("T A:" + cell.totalAgents() + " F:" + cell.totalFood(),
-						2, ascent + stats.types * lineHeight);
+				{
+					int y = ascent + stats.types * lineHeight;
+					g.drawString("T ", 4, y);
+					g.drawString("A:" + cell.totalAgents(), leftColW, y);
+					g.drawString("F:" + cell.totalFood(), rightColStart, y);
+
+					g.drawString("Area: " + cell.area(), 4, ascent + (stats.types + 1) * lineHeight);
+				}
 
 				g.translate(-cell.xb * tileWidth, -cell.yb * tileHeight);
 			}
