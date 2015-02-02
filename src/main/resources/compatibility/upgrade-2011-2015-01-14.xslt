@@ -35,6 +35,8 @@
 				</AgentParams>
 			</Agents>
 			<FoodGrowth>
+				<dropNewFood><xsl:value-of select="dropNewFood" /></dropNewFood>
+				<likeFoodProb><xsl:value-of select="likeFoodProb" /></likeFoodProb>
 				<FoodParams>
 					<xsl:for-each select="/*/food">
 						<Food id="{Index + 1}">
