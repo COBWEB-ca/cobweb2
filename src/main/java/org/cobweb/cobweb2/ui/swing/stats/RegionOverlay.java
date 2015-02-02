@@ -35,7 +35,7 @@ public class RegionOverlay implements DisplayOverlay {
 		float hScale = wantHeight / haveHeight;
 
 		float haveWidth = (float) g.getFontMetrics().getStringBounds("22 A:20 F:20", g).getWidth();
-		float wantWidth = tileWidth * topology.width / stats.opts.vDivisions;
+		float wantWidth = tileWidth * topology.width / stats.opts.hDivisions;
 		float vScale = wantWidth / haveWidth;
 
 		float wantScale = Math.min(vScale, hScale);
