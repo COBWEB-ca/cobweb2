@@ -238,7 +238,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		boolean canSetOff(Location loc) {
-			return simulation.theEnvironment.hasFood(loc) && simulation.theEnvironment.getFood(loc) == mytype;
+			return simulation.theEnvironment.hasFood(loc) && simulation.theEnvironment.getFoodType(loc) == mytype;
 		}
 
 		@Override

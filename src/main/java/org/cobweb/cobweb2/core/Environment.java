@@ -163,10 +163,6 @@ public class Environment implements Updatable {
 		return testFlag(l, Environment.FLAG_FOOD);
 	}
 
-	public int getFood(Location l) {
-		return foodTypeArray[l.x][l.y];
-	}
-
 	protected void clearFlag(int flag) {
 		for (int x = 0; x < topology.width; ++x) {
 			for (int y = 0; y < topology.height; ++y) {
