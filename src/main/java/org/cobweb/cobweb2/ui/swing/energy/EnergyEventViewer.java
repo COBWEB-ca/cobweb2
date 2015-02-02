@@ -92,8 +92,11 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 	private EnergyStatsConfig energyStatsConfig = new EnergyStatsConfig();
 
 	public static class EnergyStatsConfig implements ParameterSerializable {
-		@ConfDisplayName("Scale")
+		@ConfDisplayName("Marker energy scale")
 		public float scale = 1f;
+
+		@ConfDisplayName("Marker minimum size")
+		public int minSize = 5;
 
 		@ConfDisplayName("Fade background")
 		public float fade = 0.8f;

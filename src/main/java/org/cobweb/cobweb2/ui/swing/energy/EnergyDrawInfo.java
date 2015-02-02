@@ -39,12 +39,13 @@ public class EnergyDrawInfo implements DisplayOverlay {
 	}
 
 	public void drawTile(Graphics g, int tileWidth, int tileHeight, LocationStats stats ) {
-		float scaledValue = stats.total;
-		float value = MathUtil.clamp(scaledValue / 2 + 0.5f, 0f, 1f);
+		float scaledValue = stats.total * config.scale;
 
-		float size = Math.abs(scaledValue);
+		float absSq = (float) Math.sqrt(Math.abs(scaledValue));
 
-		int blockSize = (int) Math.sqrt(size * tileHeight * config.scale) + 4;
+		float value = MathUtil.clamp(absSq * Math.signum(scaledValue) / 2 + 0.5f, 0f, 1f);
+
+		int blockSize = (int) (absSq * Math.sqrt(tileHeight) + config.minSize);
 
 		Color c = GradientUtil.colorFromFloat(value, config.opacity);
 		g.setColor(c);
