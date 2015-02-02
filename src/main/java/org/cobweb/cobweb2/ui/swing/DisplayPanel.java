@@ -416,12 +416,17 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		borderLeft = borderWidth + THERMAL_MARKER_WIDTH;
 		borderHeight = (size.height - tileHeight * simulation.theEnvironment.topology.height + PADDING) / 2;
 
+		try {
 
-		overlays.put(AbioticDrawInfo.class,
-				new AbioticDrawInfo(
-						simulation.theEnvironment.getPlugin(AbioticMutator.class).params,
-						simulation.theEnvironment.topology)
-				);
+			overlays.put(AbioticDrawInfo.class,
+					new AbioticDrawInfo(
+							simulation.theEnvironment.getPlugin(AbioticMutator.class).params,
+							simulation.theEnvironment.topology)
+					);
+		} catch (NullPointerException ex) {
+			// FIXME find out what crashes here sometimes
+			// Crash is OK for now, updateScale gets invoked agian and fixes everything
+		}
 
 		repaint();
 	}
