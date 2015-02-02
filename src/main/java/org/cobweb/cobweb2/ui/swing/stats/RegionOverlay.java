@@ -28,10 +28,10 @@ public class RegionOverlay implements DisplayOverlay {
 		Font originalFont = g.getFont();
 
 		float haveHeight = g.getFontMetrics().getHeight();
-		float wantHeight = (float) tileHeight * topology.height / stats.opts.vDivisions / 5;
+		float wantHeight = (float) tileHeight * topology.height / stats.opts.vDivisions / (stats.types + 1);
 		float hScale = wantHeight / haveHeight;
 
-		float haveWidth = (float) g.getFontMetrics().getStringBounds("Agent 8: 20", g).getWidth();
+		float haveWidth = (float) g.getFontMetrics().getStringBounds("T A:20 F:20", g).getWidth();
 		float wantWidth = tileWidth * topology.width / stats.opts.vDivisions;
 		float vScale = wantWidth / haveWidth;
 
@@ -39,6 +39,7 @@ public class RegionOverlay implements DisplayOverlay {
 
 		g.setFont(originalFont.deriveFont(originalFont.getSize2D() * wantScale));
 		int lineHeight = g.getFontMetrics().getHeight();
+		int ascent = g.getFontMetrics().getAscent();
 
 		for (CellStats[] cols : stats.cellStats) {
 			for (CellStats cell : cols) {
@@ -47,10 +48,13 @@ public class RegionOverlay implements DisplayOverlay {
 				g.setColor(Color.BLACK);
 				g.drawRect(0, 0, cell.w * tileWidth, cell.h * tileHeight);
 
-
-				for (int i = 0; i < 4; i++) {
-					g.drawString("Blah blah", 2, (i + 1) * lineHeight);
+				for (int i = 0; i < stats.types; i++) {
+					g.drawString(i + " A:" + cell.agentCount[i] + " F:" + cell.foodCount[i],
+							2, ascent + i * lineHeight);
 				}
+				g.drawString("T A:" + cell.totalAgents() + " F:" + cell.totalFood(),
+						2, ascent + stats.types * lineHeight);
+
 				g.translate(-cell.xb * tileWidth, -cell.yb * tileHeight);
 			}
 		}

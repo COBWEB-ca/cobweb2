@@ -12,7 +12,7 @@ public class GridStats {
 
 	public CellStats[][] cellStats;
 
-	private int types;
+	public int types;
 
 	public RegionOptions opts;
 
@@ -54,11 +54,11 @@ public class GridStats {
 				for (int y = 0; y < h; y++) {
 					Location l = new Location(xb + x, yb + y);
 
-					if (environment.hasFood(l)) {
+					if (environment.hasFood(l))
 						foodCount[environment.getFoodType(l)]++;
-						if (environment.hasAgent(l))
-							agentCount[environment.getAgent(l).getType()]++;
-					}
+
+					if (environment.hasAgent(l))
+						agentCount[environment.getAgent(l).getType()]++;
 				}
 			}
 		}
@@ -88,10 +88,10 @@ public class GridStats {
 
 	public static class RegionOptions implements ParameterSerializable {
 		@ConfDisplayName("Horizontal Divisions")
-		public int hDivisions = 12;
+		public int hDivisions = 5;
 
 		@ConfDisplayName("Vertical Divisions")
-		public int vDivisions = 12;
+		public int vDivisions = 5;
 
 		private static final long serialVersionUID = 1L;
 	}
