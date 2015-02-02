@@ -192,7 +192,7 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 			private static final long serialVersionUID = 1L;
 		});
 
-		JButton remove = new JButton(new AbstractAction("Remove") {
+		JButton remove = new JButton(new AbstractAction("Unlist") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				TreePath path = tree.getSelectionPath();
