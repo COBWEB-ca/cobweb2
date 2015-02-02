@@ -22,7 +22,7 @@ public class Disp extends TileOverlay {
 
 	@Override
 	public void draw(Graphics g, int tileWidth, int tileHeight, Topology topology, DisplaySettings settings) {
-		OverlayUtils.fadeDisplay(g, tileWidth, tileHeight, topology);
+		OverlayUtils.fadeDisplay(g, tileWidth, tileHeight, topology, 0.9f);
 		super.draw(g, tileWidth, tileHeight, topology, settings);
 	}
 

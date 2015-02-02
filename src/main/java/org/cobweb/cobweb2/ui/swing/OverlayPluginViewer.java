@@ -9,6 +9,8 @@ public abstract class OverlayPluginViewer<T extends OverlayGenerator> implements
 
 	protected T overlay;
 
+	protected ViewerClosedCallback onClosed;
+
 	public OverlayPluginViewer(DisplayPanel panel) {
 		this.panel = panel;
 	}
@@ -42,7 +44,7 @@ public abstract class OverlayPluginViewer<T extends OverlayGenerator> implements
 
 	@Override
 	public void setClosedCallback(ViewerClosedCallback onClosed) {
-		// nothing here
+		this.onClosed = onClosed;
 	}
 
 }

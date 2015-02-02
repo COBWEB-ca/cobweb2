@@ -13,7 +13,7 @@ import org.cobweb.swingutil.ColorLookup;
 
 public class Util {
 
-	static void colorHeaders(JTable ft, boolean skipFirst, ColorLookup colorMap) {
+	public static void colorHeaders(JTable ft, boolean skipFirst, ColorLookup colorMap) {
 		int firstCol = skipFirst ? 1 : 0;
 
 		int count = ft.getColumnCount() - firstCol;
@@ -25,11 +25,11 @@ public class Util {
 		}
 	}
 
-	static void makeGroupPanel(JComponent target, String title) {
+	public static void makeGroupPanel(JComponent target, String title) {
 		target.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.blue), title));
 	}
 
-	static void updateTable(JTable table) {
+	public	static void updateTable(JTable table) {
 		int row = table.getEditingRow();
 		int col = table.getEditingColumn();
 		if (table.isEditing()) {
