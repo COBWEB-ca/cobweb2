@@ -14,22 +14,26 @@ public class GridStats {
 
 	private int types;
 
-	public GridStats(Simulation sim, Options options) {
+	public RegionOptions opts;
+
+	public GridStats(Simulation sim, RegionOptions opts) {
+		this.opts = opts;
 		this.types = sim.getAgentTypeCount();
 		Topology topo = sim.getTopology();
 
-		cellStats = new CellStats[topo.width / options.cellSize][topo.height / options.cellSize];
+		cellStats = new CellStats[opts.hDivisions][opts.vDivisions];
 
-		for (int xb = 0; xb < topo.width; xb+= options.cellSize) {
-			int w = Math.min(options.cellSize, topo.width - xb);
-			int column = xb / options.cellSize;
-			for (int yb = 0; yb < topo.height; yb += options.cellSize) {
-				int h = Math.min(options.cellSize, topo.height - yb);
-				int row = yb / options.cellSize;
+		for (int xi = 0; xi < opts.hDivisions; xi++) {
+			int xb = topo.width * xi / opts.hDivisions;
+			int w = topo.width * (xi + 1) / opts.hDivisions - xb;
+
+			for (int yi = 0; yi < opts.vDivisions; yi++) {
+				int yb = topo.height * yi / opts.vDivisions;
+				int h = topo.height * (yi + 1) / opts.vDivisions - yb;
 
 				CellStats stats = new CellStats(xb, yb, w, h, sim.theEnvironment);
 
-				cellStats[column][row] = stats;
+				cellStats[xi][yi] = stats;
 			}
 		}
 	}
@@ -82,9 +86,12 @@ public class GridStats {
 	}
 
 
-	public static class Options implements ParameterSerializable {
-		@ConfDisplayName("Cell size")
-		public int cellSize;
+	public static class RegionOptions implements ParameterSerializable {
+		@ConfDisplayName("Horizontal Divisions")
+		public int hDivisions = 12;
+
+		@ConfDisplayName("Vertical Divisions")
+		public int vDivisions = 12;
 
 		private static final long serialVersionUID = 1L;
 	}

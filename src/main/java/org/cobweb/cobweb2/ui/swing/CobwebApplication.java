@@ -50,6 +50,7 @@ import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.cobweb2.ui.swing.energy.EnergyEventViewer;
 import org.cobweb.cobweb2.ui.swing.genetics.GAChartOutput;
 import org.cobweb.cobweb2.ui.swing.production.ProductionViewer;
+import org.cobweb.cobweb2.ui.swing.stats.RegionViewer;
 import org.cobweb.util.FileUtils;
 
 /**
@@ -538,6 +539,7 @@ public class CobwebApplication extends JFrame {
 		if (simulatorUI != null) {
 			viewers.add(new ProductionViewer(simulatorUI.displayPanel));
 			viewers.add(new EnergyEventViewer(simulatorUI.displayPanel, simRunner.getSimulation()));
+			viewers.add(new RegionViewer(simulatorUI.displayPanel));
 		}
 	}
 
