@@ -18,6 +18,8 @@ import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.broadcast.BroadcastPacket;
 import org.cobweb.cobweb2.plugins.broadcast.FoodBroadcast;
 import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
+import org.cobweb.cobweb2.plugins.broadcast.PacketConduit.BroadcastCause;
+import org.cobweb.cobweb2.plugins.broadcast.PacketConduit.BroadcastFoodCause;
 import org.cobweb.util.RandomNoGenerator;
 
 /**
@@ -175,11 +177,11 @@ public class ComplexAgent extends Agent {
 	/**
 	 * Sends out given broadcast
 	 */
-	public void broadcast(BroadcastPacket packet) {
+	public void broadcast(BroadcastPacket packet, BroadcastCause cause) {
 		//TODO move to plugin?
 		environment.getPlugin(PacketConduit.class).addPacketToList(packet);
 
-		changeEnergy(-params.broadcastEnergyCost, new PacketConduit.BroadcastCause());
+		changeEnergy(-params.broadcastEnergyCost, cause);
 	}
 
 	/**
@@ -497,7 +499,7 @@ public class ComplexAgent extends Agent {
 		// Check for food...
 		if (environment.hasFood(destPos)) {
 			if (canBroadcast()) {
-				broadcast(new FoodBroadcast(destPos, this));
+				broadcast(new FoodBroadcast(destPos, this), new BroadcastFoodCause());
 			}
 			if (canEat(destPos)) {
 				eat(destPos);
@@ -694,7 +696,7 @@ public class ComplexAgent extends Agent {
 		public String getName() { return "Eat Agent"; }
 	}
 
-	public static class BumpCause implements Cause {
+	public static class BumpCause extends MovementCause {
 		@Override
 		public String getName() { return "Bump"; }
 	}

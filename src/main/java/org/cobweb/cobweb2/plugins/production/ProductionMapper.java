@@ -278,7 +278,12 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator {
 		}
 	}
 
-	public static class ProduceProductCause implements Cause {
+	public static class ProductionCause implements Cause {
+		@Override
+		public String getName() { return "Production"; }
+	}
+
+	public static class ProduceProductCause extends ProductionCause {
 		@Override
 		public String getName() { return "Produce Product"; }
 	}

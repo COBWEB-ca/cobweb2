@@ -1,9 +1,9 @@
 package org.cobweb.cobweb2.plugins.production;
 
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.plugins.production.ProductionMapper.ProductionCause;
 
 public class Product implements Drop {
 	private final ProductionMapper productionMapper;
@@ -63,12 +63,12 @@ public class Product implements Drop {
 		}
 	}
 
-	public static class ProductSoldCause implements Cause {
+	public static class ProductSoldCause extends ProductionCause {
 		@Override
 		public String getName() { return "Product Sold"; }
 	}
 
-	public static class ProductBoughtCause implements Cause {
+	public static class ProductBoughtCause extends ProductionCause {
 		@Override
 		public String getName() { return "Product Bought"; }
 	}

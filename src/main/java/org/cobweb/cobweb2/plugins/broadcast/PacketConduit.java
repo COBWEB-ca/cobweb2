@@ -81,6 +81,11 @@ public class PacketConduit implements EnvironmentMutator {
 		public String getName() { return "Broadcast"; }
 	}
 
+	public static class BroadcastFoodCause extends BroadcastCause {
+		@Override
+		public String getName() { return "Broadcast Food"; }
+	}
+
 	@Override
 	public void loadNew() {
 		// nothing
