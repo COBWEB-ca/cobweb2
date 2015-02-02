@@ -8,8 +8,8 @@ import java.util.Set;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
+import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
-import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.EnergyMutator;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 import org.cobweb.cobweb2.plugins.stats.CauseTree.CauseTreeNode;
@@ -17,10 +17,12 @@ import org.cobweb.cobweb2.plugins.stats.CauseTree.CauseTreeNode;
 
 public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 
-	public float[][] map;
-	public float max;
-	public float min;
-	private Topology topo;
+	public Map<Location, LocationStats> locationStats = new HashMap<>();
+
+	public static class LocationStats {
+		public int count;
+		public float total;
+	}
 
 	public static class CauseStats {
 		public CauseStats(CauseTreeNode node) {
@@ -45,9 +47,7 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 
 	public CauseTree causeTree = new CauseTree();
 
-	public EnergyStats(Topology topo) {
-		this.topo = topo;
-
+	public EnergyStats() {
 		Iterator<CauseTreeNode> iterator = causeTree.iterator();
 		while (iterator.hasNext()) {
 			CauseTreeNode node = iterator.next();
@@ -69,13 +69,14 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 
 		updateStats(delta, causeClass);
 
-		float newValue = map[loc.x][loc.y] + delta;
-		map[loc.x][loc.y] = newValue;
+		LocationStats stats = locationStats.get(loc);
+		if (stats == null) {
+			stats = new LocationStats();
+			locationStats.put(loc, stats);
+		}
 
-		if (newValue > max)
-			max = newValue;
-		if (newValue < min)
-			min = newValue;
+		stats.count++;
+		stats.total += delta;
 	}
 
 	private void updateStats(int delta, Class<? extends Cause> causeClass) {
@@ -94,9 +95,7 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 
 	@Override
 	public void update() {
-		map = new float[topo.width][topo.height];
-		max = 0;
-		min = 0;
+		locationStats = new HashMap<>();
 	}
 
 	@Override

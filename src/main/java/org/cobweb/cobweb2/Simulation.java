@@ -221,7 +221,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(statsMutator);
 		}
 		if (energyStats == null) {
-			energyStats = new EnergyStats(getTopology());
+			energyStats = new EnergyStats();
 			mutatorListener.addMutator(energyStats);
 		}
 
