@@ -29,7 +29,7 @@ public class EnergyOverlay implements OverlayGenerator {
 
 		@Override
 		public void draw(Graphics g, int tileWidth, int tileHeight, DisplaySettings settings) {
-			g.setColor(new Color(1f,1f,1f,0.8f));
+			g.setColor(new Color(1f,1f,1f,0.9f));
 			g.fillRect(0,0, map.length * tileWidth, map[0].length * tileHeight);
 
 			float absMax = Math.max(max, -min) / 10;
