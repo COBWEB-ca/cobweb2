@@ -1,11 +1,13 @@
 package org.cobweb.cobweb2.plugins.stats;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.plugins.stats.CauseTree.CauseTreeNode;
@@ -67,7 +69,7 @@ public class CauseTree implements Iterable<CauseTreeNode> {
 		public Class<? extends Cause> type;
 		public Cause cause;
 		public CauseTreeNode parent;
-		public Set<CauseTreeNode> children = new TreeSet<>();
+		public List<CauseTreeNode> children = new ArrayList<>();
 
 		public CauseTreeNode(Cause cause, Class<? extends Cause> type) {
 			this.cause = cause;
@@ -94,12 +96,13 @@ public class CauseTree implements Iterable<CauseTreeNode> {
 				}
 			}
 			children.add(n);
+			Collections.sort(children);
 			n.parent = this;
 		}
 
 		public String getName() {
 			if (cause == null)
-				return "Cause";
+				return "Causes";
 			else
 				return cause.getName();
 		}
