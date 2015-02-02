@@ -1,10 +1,10 @@
 package org.cobweb.cobweb2.plugins.stats;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
@@ -64,21 +64,8 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 
 		Class<? extends Cause> causeClass = cause.getClass();
 
-		if (!whiteList.isEmpty()) {
-			boolean found = false;
-			for (Class<? extends Cause> c : whiteList)
-				if (c.isAssignableFrom(causeClass)) {
-					found = true;
-					break;
-				}
-			if (!found)
-				return;
-		}
-
-		for (Class<? extends Cause> c : blackList) {
-			if (c.isAssignableFrom(causeClass))
-				return;
-		}
+		if (!isWatching(causeClass))
+			return;
 
 		updateStats(delta, causeClass);
 
@@ -117,8 +104,42 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 		update();
 	}
 
-	public List<Class<? extends Cause>> whiteList = new ArrayList<>();
+	public void whitelist(Class<? extends Cause> type) {
+		blackList.remove(type);
+		whiteList.add(type);
+	}
 
-	public List<Class<? extends Cause>> blackList = new ArrayList<>();
+	public void blacklist(Class<? extends Cause> type) {
+		whiteList.remove(type);
+		blackList.add(type);
+	}
+
+	public void unlist(Class<? extends Cause> type) {
+		whiteList.remove(type);
+		blackList.remove(type);
+	}
+
+	public Set<Class<? extends Cause>> whiteList = new HashSet<>();
+
+	public Set<Class<? extends Cause>> blackList = new HashSet<>();
+
+	public boolean isWatching(Class<? extends Cause> type) {
+		if (!whiteList.isEmpty()) {
+			boolean found = false;
+			for (Class<? extends Cause> c : whiteList)
+				if (c.isAssignableFrom(type)) {
+					found = true;
+					break;
+				}
+			if (!found)
+				return false;
+		}
+
+		for (Class<? extends Cause> c : blackList) {
+			if (c.isAssignableFrom(type))
+				return false;
+		}
+		return true;
+	}
 
 }

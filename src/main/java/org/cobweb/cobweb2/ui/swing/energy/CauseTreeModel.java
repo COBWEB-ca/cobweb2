@@ -1,25 +1,35 @@
 package org.cobweb.cobweb2.ui.swing.energy;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+import org.cobweb.cobweb2.plugins.stats.CauseTree;
 import org.cobweb.cobweb2.plugins.stats.CauseTree.CauseTreeNode;
-import org.cobweb.cobweb2.plugins.stats.EnergyStats;
 
 final class CauseTreeModel implements TreeModel {
 
 	CauseTreeNode root;
-	private EnergyStats energyStats;
 
-	CauseTreeModel(EnergyStats energyStats) {
-		this.energyStats = energyStats;
-		root = energyStats.causeTree.root;
+	CauseTreeModel(CauseTree tree) {
+		root = tree.root;
+	}
+
+	List<TreeModelListener> listeners = new ArrayList<>();
+
+	public void fireNodeChanged(TreePath path) {
+		for (TreeModelListener l : listeners) {
+			l.treeNodesChanged(new TreeModelEvent(this, path));
+		}
 	}
 
 	@Override
 	public void addTreeModelListener(TreeModelListener arg0) {
-		// TODO Auto-generated method stub
+		listeners.add(arg0);
 	}
 
 	@Override
@@ -54,7 +64,7 @@ final class CauseTreeModel implements TreeModel {
 
 	@Override
 	public void removeTreeModelListener(TreeModelListener l) {
-		// TODO Auto-generated method stub
+		listeners.remove(l);
 	}
 
 	@Override

@@ -1,17 +1,24 @@
 package org.cobweb.cobweb2.ui.swing.energy;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.plugins.stats.CauseTree.CauseTreeNode;
@@ -126,15 +133,25 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 
 	private static JComponent createFilterConfigPanel(final EnergyStats energyStats) {
 
-		JTree tree = new JTree(new CauseTreeModel(energyStats));
+		final CauseTreeModel treeModel = new CauseTreeModel(energyStats.causeTree);
+		final JTree tree = new JTree(treeModel);
 
 		tree.setCellRenderer(new DefaultTreeCellRenderer() {
 			@Override
-			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
-					boolean leaf, int row, boolean hasFocus) {
+			public Component getTreeCellRendererComponent(JTree t, Object value, boolean sel, boolean expanded,
+					boolean leaf, int row, boolean focus) {
 
 				Component res = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-				setText(((CauseTreeNode)value).getName());
+				CauseTreeNode node = (CauseTreeNode)value;
+				setText(node.getName());
+
+				if (energyStats.whiteList.contains(node.type)) {
+					setForeground(Color.GREEN);
+				} else if (energyStats.blackList.contains(node.type)) {
+					setForeground(Color.RED);
+				} else if (!energyStats.isWatching(node.type)) {
+					setForeground(Color.LIGHT_GRAY);
+				}
 				return res;
 			}
 			private static final long serialVersionUID = 1L;
@@ -144,9 +161,60 @@ public class EnergyEventViewer extends OverlayPluginViewer<EnergyEventViewer> im
 			tree.expandRow(i);
 		}
 
-		JScrollPane result = new JScrollPane(tree);
-		Util.makeGroupPanel(result, "Energy Change Causes");
+		JScrollPane treePane = new JScrollPane(tree);
+		Util.makeGroupPanel(treePane, "Energy Change Causes");
 
+		JButton whiteList = new JButton(new AbstractAction("Whitelist") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TreePath path = tree.getSelectionPath();
+				if (path == null)
+					return;
+
+				CauseTreeNode node = (CauseTreeNode) path.getLastPathComponent();
+				energyStats.whitelist(node.type);
+				treeModel.fireNodeChanged(path);
+			}
+			private static final long serialVersionUID = 1L;
+		});
+
+		JButton blackList = new JButton(new AbstractAction("Blacklist") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TreePath path = tree.getSelectionPath();
+				if (path == null)
+					return;
+
+				CauseTreeNode node = (CauseTreeNode) path.getLastPathComponent();
+				energyStats.blacklist(node.type);
+				treeModel.fireNodeChanged(path);
+			}
+			private static final long serialVersionUID = 1L;
+		});
+
+		JButton remove = new JButton(new AbstractAction("Remove") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TreePath path = tree.getSelectionPath();
+				if (path == null)
+					return;
+
+				CauseTreeNode node = (CauseTreeNode) path.getLastPathComponent();
+				energyStats.unlist(node.type);
+				treeModel.fireNodeChanged(path);
+			}
+			private static final long serialVersionUID = 1L;
+		});
+
+		JPanel buttons = new JPanel();
+		buttons.add(whiteList);
+		buttons.add(blackList);
+		buttons.add(remove);
+
+
+		JPanel result = new JPanel(new BorderLayout());
+		result.add(treePane);
+		result.add(buttons, BorderLayout.SOUTH);
 		return result;
 	}
 
