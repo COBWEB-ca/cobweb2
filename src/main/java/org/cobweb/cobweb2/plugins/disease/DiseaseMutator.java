@@ -168,6 +168,9 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseState> implements
 
 	@Override
 	public void onUpdate(Agent a) {
+		if (!hasAgentState(a))
+			return;
+
 		DiseaseState s = getAgentState(a);
 
 		if (params.agentParams[a.getType()].recoveryTime == 0)
