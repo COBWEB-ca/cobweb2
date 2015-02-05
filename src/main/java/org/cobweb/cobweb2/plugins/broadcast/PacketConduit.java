@@ -4,10 +4,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.Topology;
+import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 
 public class PacketConduit implements EnvironmentMutator {
@@ -57,13 +57,17 @@ public class PacketConduit implements EnvironmentMutator {
 		currentPackets.clear();
 	}
 
-	public BroadcastPacket findPacket(Location position, Agent receiver) {
+	public BroadcastPacket findPacket(Location position, ComplexAgent receiver) {
 		// TODO: return more than 1 packet?
 		// TODO: return closest packet?
 		for (BroadcastPacket commPacket : currentPackets) {
 			double distance = topology.getDistance(position, commPacket.location);
+			ComplexAgent s = commPacket.sender;
 			if (distance < commPacket.range
-					&& !commPacket.sender.equals(receiver)) {
+					&& !s.equals(receiver)
+					&& (!s.params.broadcastSameTypeOnly || receiver.getType() == s.getType())
+					&& (s.params.broadcastMinSimilarity == 0f || s.calculateSimilarity(receiver) >= s.params.broadcastMinSimilarity)
+					) {
 				return commPacket;
 			}
 		}

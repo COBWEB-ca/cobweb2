@@ -228,6 +228,15 @@ public class ComplexAgentParams implements ResizableParam {
 	@Mutatable
 	public int broadcastEnergyCost = 5;
 
+	@ConfDisplayName("Broadcast heard only by same type")
+	@ConfXMLTag("broadcastSameTypeOnly")
+	public boolean broadcastSameTypeOnly = false;
+
+	@ConfDisplayName("Broadcast listener minimum similarity")
+	@ConfXMLTag("broadcastMinSimilarity")
+	@Mutatable
+	public float broadcastMinSimilarity = 0f;
+
 	/**
 	 * Agent's food web parameters.
 	 */

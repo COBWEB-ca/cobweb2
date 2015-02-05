@@ -171,8 +171,6 @@ public class Cobweb2Serializer {
 		}
 		agent.appendChild(plugins);
 
-		// FIXME plugin params: production, disease, PD, etc
-
 		return agent;
 	}
 
