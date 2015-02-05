@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.impl;
+package org.cobweb.cobweb2.plugins.genetics;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -8,6 +8,7 @@ import java.util.Set;
 import org.cobweb.cobweb2.core.Mutatable;
 import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
+import org.cobweb.cobweb2.impl.ComplexAgentParams;
 import org.cobweb.cobweb2.plugins.pd.PDAgentParams;
 import org.cobweb.cobweb2.plugins.pd.PDState;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;

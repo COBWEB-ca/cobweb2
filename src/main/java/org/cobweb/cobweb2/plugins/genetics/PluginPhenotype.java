@@ -1,7 +1,8 @@
-package org.cobweb.cobweb2.impl;
+package org.cobweb.cobweb2.plugins.genetics;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Phenotype;
+import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;

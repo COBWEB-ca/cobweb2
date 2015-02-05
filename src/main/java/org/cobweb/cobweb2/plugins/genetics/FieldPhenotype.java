@@ -1,10 +1,11 @@
-package org.cobweb.cobweb2.impl;
+package org.cobweb.cobweb2.plugins.genetics;
 
 import java.lang.reflect.Field;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Mutatable;
 import org.cobweb.cobweb2.core.Phenotype;
+import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.util.ReflectionUtil;
