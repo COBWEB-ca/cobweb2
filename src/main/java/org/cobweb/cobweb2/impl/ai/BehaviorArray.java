@@ -39,9 +39,9 @@ import org.cobweb.util.RandomNoGenerator;
 
 public class BehaviorArray {
 
-	private final int[] outputSize;
+	public final int[] outputSize;
 
-	private final int inputSize;
+	public final int inputSize;
 	/**
 	 * Mask for all output bits in the form 0, 1, 2.., inputSize - 1
 	 */

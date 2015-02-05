@@ -26,7 +26,7 @@ public class GeneticController implements Controller {
 	private final static int MOVE_STRAIGHT = 2;
 	private final static int NONE = 3;
 
-	private BehaviorArray ga;
+	public BehaviorArray ga;
 
 	private static final int INPUT_BITS = 8;
 
