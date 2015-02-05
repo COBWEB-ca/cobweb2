@@ -87,7 +87,7 @@ public class ComplexAgent extends Agent {
 		return simulation.getRandom();
 	}
 
-	protected float calculateSimilarity(ComplexAgent other) {
+	public float calculateSimilarity(ComplexAgent other) {
 		return simulation.getSimilarityCalculator().similarity(this, other);
 	}
 
