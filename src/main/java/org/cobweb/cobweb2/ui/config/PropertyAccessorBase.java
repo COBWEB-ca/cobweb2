@@ -2,6 +2,8 @@ package org.cobweb.cobweb2.ui.config;
 
 import java.lang.reflect.AnnotatedElement;
 
+import org.cobweb.io.ConfXMLTag;
+
 
 
 public abstract class PropertyAccessorBase implements PropertyAccessor {
@@ -26,6 +28,11 @@ public abstract class PropertyAccessorBase implements PropertyAccessor {
 	}
 
 	protected abstract String thisGetName();
+
+	@Override
+	public String getXmlName() {
+		return getAnnotationSource().getAnnotation(ConfXMLTag.class).value();
+	}
 
 	@Override
 	public String toString() {

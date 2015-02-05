@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -405,18 +406,20 @@ public class CobwebApplication extends JFrame {
 	 * @see CobwebApplication#saveFileDialog()
 	 */
 	private void saveFile(String savingFile) {
-		try {
-			File sf = new File(savingFile);
-			if (sf.isHidden() || (sf.exists() && !sf.canWrite())) {
-				JOptionPane.showMessageDialog(
-						this,
-						"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.", "Warning",
-						JOptionPane.WARNING_MESSAGE);
-			} else {
-				FileUtils.copyFile(currentFile, savingFile);
+		File sf = new File(savingFile);
+		if (sf.isHidden() || (sf.exists() && !sf.canWrite())) {
+			JOptionPane.showMessageDialog(
+					this,
+					"Caution:  File \"" + savingFile + "\" is NOT allowed to be written to.", "Warning",
+					JOptionPane.WARNING_MESSAGE);
+		} else {
+			try (OutputStream file = new FileOutputStream(sf)) {
+				Cobweb2Serializer serializer = new Cobweb2Serializer();
+				serializer.saveConfig(simRunner.getSimulation().simulationConfig, file);
+
+			} catch (IOException ex) {
+				throw new UserInputException("Save failed", ex);
 			}
-		} catch (IOException ex) {
-			throw new UserInputException("Save failed", ex);
 		}
 	}
 

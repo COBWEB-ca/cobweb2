@@ -13,6 +13,8 @@ public interface PropertyAccessor {
 	 */
 	public String getName();
 
+	public String getXmlName();
+
 	/**
 	 * Gets value of property for given object
 	 * @param object object to get value from
