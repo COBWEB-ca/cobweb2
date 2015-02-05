@@ -22,7 +22,7 @@ import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
-import org.cobweb.cobweb2.impl.FieldPhenotype;
+import org.cobweb.cobweb2.impl.PhenotypeIndex;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.io.ChoiceCatalog;
@@ -43,7 +43,7 @@ public class Cobweb2Serializer {
 	public Cobweb2Serializer() {
 		choiceCatalog = new ChoiceCatalog();
 		choiceCatalog.addChoice(Phenotype.class, new NullPhenotype());
-		for(Phenotype x : FieldPhenotype.getPossibleValues()) {
+		for(Phenotype x : PhenotypeIndex.getPossibleValues()) {
 			choiceCatalog.addChoice(Phenotype.class, x);
 		}
 		serializer = new ParameterSerializer(choiceCatalog);

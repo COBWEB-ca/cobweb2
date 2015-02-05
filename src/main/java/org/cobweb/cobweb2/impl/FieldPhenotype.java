@@ -1,9 +1,6 @@
 package org.cobweb.cobweb2.impl;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Mutatable;
@@ -39,7 +36,7 @@ public class FieldPhenotype extends Phenotype {
 	 *
 	 * @param f field to modify
 	 */
-	private FieldPhenotype(Field f) {
+	FieldPhenotype(Field f) {
 		if (f != null &&
 				(f.getAnnotation(Mutatable.class) == null || f.getAnnotation(ConfDisplayName.class) == null))
 			throw new IllegalArgumentException("Field must be labeled as @Mutatable and have a @ConfDisplayName");
@@ -61,29 +58,24 @@ public class FieldPhenotype extends Phenotype {
 		if (field == null)
 			return;
 
-		ComplexAgentParams params = ((ComplexAgent) a).params;
+		Object params = getParamObject(a);
 		ReflectionUtil.modifyFieldLinear(params, this.field, m, b);
+	}
+
+	protected Object getParamObject(Agent a) {
+		return ((ComplexAgent) a).params;
 	}
 
 	@Override
 	public float getValue(Agent a) {
-		ComplexAgentParams params = ((ComplexAgent) a).params;
+		Object params = getParamObject(a);
 		return ReflectionUtil.getFieldAsFloat(params, field);
 	}
 
 	@Override
 	public void setValue(Agent a, float value) {
-		ComplexAgentParams params = ((ComplexAgent) a).params;
+		Object params = getParamObject(a);
 		ReflectionUtil.setFieldWithFloat(params, field, value);
-	}
-
-	public static Set<Phenotype> getPossibleValues() {
-		Set<Phenotype> bindables = new LinkedHashSet<Phenotype>();
-		for (Field f: ComplexAgentParams.class.getFields()) {
-			if (f.getAnnotation(Mutatable.class) != null)
-				bindables.add(new FieldPhenotype(f));
-		}
-		return Collections.unmodifiableSet(bindables);
 	}
 
 	private static final long serialVersionUID = 2L;
