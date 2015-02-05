@@ -4,6 +4,7 @@
 package org.cobweb.cobweb2.ui.swing.config;
 
 import java.awt.CardLayout;
+import java.awt.Dialog;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -31,8 +32,11 @@ public class AIPanel extends SettingsPanel {
 
 	private ColorLookup agentColors;
 
-	public AIPanel(ColorLookup agentColors) {
+	private Dialog parentWindow;
+
+	public AIPanel(ColorLookup agentColors, Dialog parentWindow) {
 		this.agentColors = agentColors;
+		this.parentWindow = parentWindow;
 
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		inner.setLayout(cardSwitch);
@@ -44,7 +48,7 @@ public class AIPanel extends SettingsPanel {
 	public void bindToParser(SimulationConfig p) {
 		parser = p;
 
-		SettingsPanel genPanel = new GeneticAIPanel(agentColors);
+		SettingsPanel genPanel = new GeneticAIPanel(agentColors, parentWindow);
 		inner.add(genPanel, AI_LIST[0]);
 		tabs[0] = genPanel;
 

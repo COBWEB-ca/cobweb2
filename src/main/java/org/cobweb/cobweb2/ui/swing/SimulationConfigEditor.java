@@ -341,7 +341,7 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		if (controllerPanel != null) {
 			tabbedPane.remove(controllerPanel);
 		}
-		controllerPanel = new AIPanel(displaySettings.agentColor);
+		controllerPanel = new AIPanel(displaySettings.agentColor, dialog);
 		controllerPanel.bindToParser(p);
 		tabbedPane.addTab("AI", controllerPanel);
 
