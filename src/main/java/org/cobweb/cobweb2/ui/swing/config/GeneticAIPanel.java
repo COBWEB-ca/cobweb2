@@ -45,7 +45,7 @@ final class GeneticAIPanel extends SettingsPanel {
 		agentPanel.setLayout(new BoxLayout(agentPanel, BoxLayout.X_AXIS));
 		Util.makeGroupPanel(agentPanel, "Agent Parameters");
 
-		MixedValueJTable agentParamTable = new MixedValueJTable(
+		final MixedValueJTable agentParamTable = new MixedValueJTable(
 				new ConfigTableModel(params.agentParams, "Agent "));
 
 		TableColumnModel agParamColModel = agentParamTable.getColumnModel();
@@ -59,6 +59,35 @@ final class GeneticAIPanel extends SettingsPanel {
 
 		this.add(agentPanel, BorderLayout.CENTER);
 
+		JPanel buttons = new JPanel(new GridLayout(1, params.agentParams.length));
+
+		for (int i = 0; i < params.agentParams.length; i++) {
+			JButton randomizeSeed = new JButton(new NewSeedAction(i, agentParamTable));
+			buttons.add(randomizeSeed);
+		}
+
+		this.add(buttons, BorderLayout.SOUTH);
+	}
+
+	private final class NewSeedAction extends AbstractAction {
+
+		private final int type;
+		private final MixedValueJTable agentParamTable;
+		private static final long serialVersionUID = 1L;
+
+		private NewSeedAction(int type, MixedValueJTable agentParamTable) {
+			super("New Seed");
+			this.type = type;
+			this.agentParamTable = agentParamTable;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Random r = new Random();
+			params.agentParams[type].randomSeed = Math.abs(r.nextLong() % 100000l);
+			agentParamTable.repaint();
+		}
+	}
 
 	}
 }
