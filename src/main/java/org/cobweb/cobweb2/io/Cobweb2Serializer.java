@@ -18,7 +18,6 @@ import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
-import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
@@ -42,7 +41,6 @@ public class Cobweb2Serializer {
 
 	public Cobweb2Serializer() {
 		choiceCatalog = new ChoiceCatalog();
-		choiceCatalog.addChoice(Phenotype.class, new NullPhenotype());
 		for(Phenotype x : PhenotypeIndex.getPossibleValues()) {
 			choiceCatalog.addChoice(Phenotype.class, x);
 		}
