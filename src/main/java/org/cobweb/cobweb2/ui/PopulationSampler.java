@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.io.Cobweb2Serializer.AgentSample;
+import org.cobweb.cobweb2.plugins.AgentState;
 
 
 public class PopulationSampler {
@@ -54,6 +56,9 @@ public class PopulationSampler {
 			for (AgentSample agentSample : agents) {
 				ComplexAgent cAgent = (ComplexAgent) sim.newAgent(agentSample.type);
 				cAgent.init(sim.theEnvironment, agentSample.position, agentSample.params);
+				for (Entry<Class<? extends AgentState>, AgentState> pluginState : agentSample.plugins.entrySet()) {
+					cAgent.extraState.put(pluginState.getKey(), pluginState.getValue());
+				}
 			}
 
 		} catch (IOException ex) {
