@@ -43,11 +43,12 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 	@Override
 	public void onContact(Agent bumper, Agent bumpee) {
 		ComplexAgent me = (ComplexAgent) bumper;
-		PDState thisPD = getAgentState(me);
-		if (thisPD == null)
+		if (!hasAgentState(me))
 			return;
 
 		ComplexAgent other = (ComplexAgent) bumpee;
+		if (!hasAgentState(other))
+			return;
 
 		if (me.isAgentGood(other) && other.isAgentGood(me)) {
 			playPDonStep(me, other);
@@ -210,5 +211,10 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 	public static class BroadcastCheaterCause extends BroadcastCause {
 		@Override
 		public String getName() { return "Broadcast Cheating"; }
+	}
+
+	@Override
+	protected boolean validState(PDState value) {
+		return value != null;
 	}
 }

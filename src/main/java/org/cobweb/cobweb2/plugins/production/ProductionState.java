@@ -7,7 +7,7 @@ import org.cobweb.io.ConfXMLTag;
 public class ProductionState implements AgentState {
 
 	@ConfXMLTag("AgentParams")
-	ProductionAgentParams agentParams;
+	public ProductionAgentParams agentParams;
 
 
 	@Deprecated // for reflection use only!

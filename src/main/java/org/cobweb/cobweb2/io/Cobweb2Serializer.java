@@ -18,13 +18,13 @@ import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Direction;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
-import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
 import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.genetics.PhenotypeIndex;
+import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
 import org.w3c.dom.Document;
@@ -42,7 +42,6 @@ public class Cobweb2Serializer {
 
 	public Cobweb2Serializer() {
 		choiceCatalog = new ChoiceCatalog();
-		choiceCatalog.addChoice(Phenotype.class, new NullPhenotype());
 		for(Phenotype x : PhenotypeIndex.getPossibleValues()) {
 			choiceCatalog.addChoice(Phenotype.class, x);
 		}
@@ -178,7 +177,7 @@ public class Cobweb2Serializer {
 		public int type;
 		public ComplexAgentParams params;
 		public LocationDirection position;
-		public Map<Class<? extends AgentState>, AgentState> plugins = new HashMap<>();
+		public Map<Class<AgentState>, AgentState> plugins = new HashMap<>();
 	}
 
 	private AgentSample loadAgent(Element element, AgentFoodCountable size) {
@@ -210,7 +209,7 @@ public class Cobweb2Serializer {
 			String type = pluginNode.getAttribute("type");
 			try {
 				@SuppressWarnings("unchecked")
-				Class<? extends AgentState> pluginType = (Class<? extends AgentState>) Class.forName(type);
+				Class<AgentState> pluginType = (Class<AgentState>) Class.forName(type);
 
 				AgentState state = pluginType.newInstance();
 
@@ -227,6 +226,9 @@ public class Cobweb2Serializer {
 
 	public Collection<AgentSample> loadAgents(InputStream file, AgentFoodCountable size) {
 		Element root = CobwebXmlHelper.openDocument(file);
+		if (!root.getNodeName().equals("PopulationSample"))
+			throw new UserInputException("File does not appear to be a populaton sample");
+
 		NodeList agents = root.getChildNodes();
 		Collection<AgentSample> result = new ArrayList<>(agents.getLength());
 

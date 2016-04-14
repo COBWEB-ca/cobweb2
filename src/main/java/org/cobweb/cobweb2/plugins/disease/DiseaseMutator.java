@@ -183,4 +183,9 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseState> implements
 		}
 	}
 
+	@Override
+	protected boolean validState(DiseaseState value) {
+		return value != null;
+	}
+
 }

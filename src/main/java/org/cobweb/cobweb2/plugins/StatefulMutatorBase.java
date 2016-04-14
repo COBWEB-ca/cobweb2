@@ -7,7 +7,7 @@ import org.cobweb.cobweb2.impl.ComplexAgent;
  * Helper base class for creating StatefulMutators.
  * Handles storage of state.
  */
-public class StatefulMutatorBase<T extends AgentState> implements StatefulMutator<T> {
+public abstract class StatefulMutatorBase<T extends AgentState> implements StatefulMutator<T> {
 
 	private final Class<T> stateClass;
 
@@ -39,4 +39,17 @@ public class StatefulMutatorBase<T extends AgentState> implements StatefulMutato
 		return stateClass;
 	}
 
+	/**
+	 * Checks whether the given AgentState is valid for this mutator in the current simulation configuration
+	 */
+	protected abstract boolean validState(T value);
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <U extends AgentState> boolean acceptsState(Class<U> type, U value) {
+		if (stateClass.equals(type)) {
+			return validState((T) value);
+		}
+		return false;
+	}
 }

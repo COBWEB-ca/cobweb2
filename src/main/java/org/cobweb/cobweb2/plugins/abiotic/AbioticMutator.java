@@ -147,4 +147,9 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 		// nothing
 	}
 
+	@Override
+	protected boolean validState(AbioticState value) {
+		return value.factorStates.length == this.params.factors.size();
+	}
+
 }

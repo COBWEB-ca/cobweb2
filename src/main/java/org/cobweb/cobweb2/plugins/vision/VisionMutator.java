@@ -20,5 +20,9 @@ public class VisionMutator extends StatefulMutatorBase<VisionState> implements S
 		}
 	}
 
+	@Override
+	protected boolean validState(VisionState value) {
+		return false;
+	}
 
 }

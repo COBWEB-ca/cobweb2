@@ -10,6 +10,7 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
+import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.EnergyMutator;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 import org.cobweb.cobweb2.plugins.stats.CauseTree.CauseTreeNode;
@@ -145,6 +146,11 @@ public class EnergyStats implements EnergyMutator, EnvironmentMutator {
 				return false;
 		}
 		return true;
+	}
+
+	@Override
+	public <T extends AgentState> boolean acceptsState(Class<T> type, T value) {
+		return false;
 	}
 
 }
