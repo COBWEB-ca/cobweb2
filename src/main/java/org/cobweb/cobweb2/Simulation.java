@@ -180,7 +180,6 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			vision = null;
 			pdMutator = null;
 			energyStats = null;
-			mutatorListener.addMutator(energyStats);
 		}
 
 
