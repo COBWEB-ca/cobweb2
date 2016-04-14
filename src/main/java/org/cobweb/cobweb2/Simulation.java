@@ -19,6 +19,7 @@ import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.AgentSpawner;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexEnvironment;
+import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.MutatorListener;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticMutator;
 import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
@@ -339,6 +340,16 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	@Override
 	public AgentListener getAgentListener() {
 		return mutatorListener;
+	}
+
+	/**
+	 * Checks whether given AgentState can be used in the current simulation configuration
+	 * @param type specific Class of AgentState
+	 * @param value value of AgentState
+	 * @return true if AgentState supported in current configuration
+	 */
+	public <T extends AgentState> boolean supportsState(Class<T> type, T value) {
+		return mutatorListener.supportsState(type, value);
 	}
 
 }

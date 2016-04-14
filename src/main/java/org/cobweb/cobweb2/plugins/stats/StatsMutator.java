@@ -153,4 +153,9 @@ implements EnergyMutator, SpawnMutator, StepMutator {
 		return allStats;
 	}
 
+	@Override
+	protected boolean validState(AgentStatistics value) {
+		return false;
+	}
+
 }

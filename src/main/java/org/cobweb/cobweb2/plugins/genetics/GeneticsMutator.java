@@ -165,4 +165,9 @@ public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements
 		return GeneticCode.compareGeneticSimilarity(getAgentState(a1), getAgentState(a2));
 	}
 
+	@Override
+	protected boolean validState(GeneticCode value) {
+		return value.genes.length == this.params.getGeneCount();
+	}
+
 }

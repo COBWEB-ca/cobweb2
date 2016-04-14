@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2.plugins;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class MutatorListener implements AgentListener {
 	private Set<EnergyMutator> energyMutators = new LinkedHashSet<>();
 	private Set<UpdateMutator> updateMutators = new LinkedHashSet<>();
 	private Set<LoggingMutator> loggingMutators = new LinkedHashSet<>();
+	private Set<AgentMutator> allMutators = new HashSet<>();
 
 	public void addMutator(AgentMutator mutator) {
 		if (mutator instanceof SpawnMutator)
@@ -39,6 +41,7 @@ public class MutatorListener implements AgentListener {
 		if (mutator instanceof LoggingMutator)
 			loggingMutators.add((LoggingMutator) mutator);
 
+		allMutators.add(mutator);
 	}
 
 
@@ -49,6 +52,8 @@ public class MutatorListener implements AgentListener {
 		energyMutators.remove(mutator);
 		updateMutators.remove(mutator);
 		loggingMutators.remove(mutator);
+
+		allMutators.remove(mutator);
 	}
 
 	public void clearMutators() {
@@ -58,6 +63,17 @@ public class MutatorListener implements AgentListener {
 		energyMutators.clear();
 		updateMutators.clear();
 		loggingMutators.clear();
+
+		allMutators.clear();
+	}
+
+	public <T extends AgentState> boolean supportsState(Class<T> type, T value) {
+		for (AgentMutator mutator : allMutators) {
+			if (mutator.acceptsState(type, value))
+				return true;
+		}
+
+		return false;
 	}
 
 	@Override

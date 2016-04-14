@@ -212,4 +212,9 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 		@Override
 		public String getName() { return "Broadcast Cheating"; }
 	}
+
+	@Override
+	protected boolean validState(PDState value) {
+		return value != null;
+	}
 }

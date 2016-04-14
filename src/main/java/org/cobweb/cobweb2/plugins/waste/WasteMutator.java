@@ -107,5 +107,8 @@ public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implement
 		return true;
 	}
 
-
+	@Override
+	protected boolean validState(WasteState value) {
+		return value != null;
+	}
 }

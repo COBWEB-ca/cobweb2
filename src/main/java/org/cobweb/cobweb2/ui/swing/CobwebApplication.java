@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -681,8 +682,15 @@ public class CobwebApplication extends JFrame {
 				theDialog.setFile("*.xml");
 				theDialog.setVisible(true);
 				if (theDialog.getFile() != null) {
+					String fileName = theDialog.getDirectory() + theDialog.getFile();
 					//Load the XML file
-					PopulationSampler.insertPopulation(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile(), option == ReplaceMergeCancel.REPLACE);
+					Set<String> incompatibilities = PopulationSampler.checkPopulationCompatible(simRunner.getSimulation(), fileName);
+					if (!incompatibilities.isEmpty()) {
+						if (!askIgnoreIncompatibleDialog(incompatibilities))
+							return;
+					}
+
+					PopulationSampler.insertPopulation(simRunner.getSimulation(), fileName, option == ReplaceMergeCancel.REPLACE);
 					simulatorUI.update(true);
 				}
 			}
@@ -882,7 +890,7 @@ public class CobwebApplication extends JFrame {
 				b2
 		};
 
-		int res = JOptionPane.showConfirmDialog(null, array, "Select",
+		int res = JOptionPane.showConfirmDialog(null, array, "Insertion Option",
 				JOptionPane.OK_CANCEL_OPTION);
 
 		if (res == JOptionPane.CANCEL_OPTION || res == JOptionPane.CLOSED_OPTION)
@@ -894,6 +902,25 @@ public class CobwebApplication extends JFrame {
 		else {
 			return ReplaceMergeCancel.MERGE;
 		}
+	}
+
+	private static boolean askIgnoreIncompatibleDialog(Set<String> incompatibilities) {
+
+		int res = JOptionPane.showOptionDialog(
+				null,
+				new Object[] {
+						"Sample population has the following settings which are not compatible with current simulation:",
+						incompatibilities,
+						"Examples: Wrong number of agent types, wrong number of genes, wrong number of abiotic factors"
+				},
+				"Incompatible Population",
+				JOptionPane.OK_CANCEL_OPTION,
+				JOptionPane.WARNING_MESSAGE,
+				null,
+				new String[] { "Continue insert, but ignore incompatible settings", "Cancel insert"},
+				JOptionPane.CANCEL_OPTION);
+
+		return res == JOptionPane.OK_OPTION;
 	}
 
 	/**

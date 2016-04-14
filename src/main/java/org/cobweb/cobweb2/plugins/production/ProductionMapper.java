@@ -298,4 +298,9 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator {
 		// nothing
 	}
 
+	@Override
+	protected boolean validState(ProductionState value) {
+		return value != null;
+	}
+
 }
