@@ -747,7 +747,7 @@ public class CobwebApplication extends JFrame {
 			simRunner.getSimulation().theEnvironment.clearStones();
 			simRunner.getSimulation().theEnvironment.clearFood();
 			simRunner.getSimulation().theEnvironment.clearAgents();
-			simRunner.getSimulation().theEnvironment.clearWaste();
+			simRunner.getSimulation().theEnvironment.clearDrops();
 			simulatorUI.update(true);
 		}
 		private static final long serialVersionUID = 1L;
@@ -783,7 +783,7 @@ public class CobwebApplication extends JFrame {
 	private Action removeAllWaste = new AbstractAction("Remove All Waste") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			simRunner.getSimulation().theEnvironment.clearWaste();
+			simRunner.getSimulation().theEnvironment.clearDrops();
 			simulatorUI.update(true);
 		}
 		private static final long serialVersionUID = 1L;

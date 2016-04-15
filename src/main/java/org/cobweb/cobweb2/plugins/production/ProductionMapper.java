@@ -12,13 +12,14 @@ import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.DropManager;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
 public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState>
-implements StatePlugin, UpdateMutator, EnvironmentMutator {
+implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> {
 
 	private Environment environment;
 	private float[][] vals;
@@ -31,14 +32,7 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator {
 		simulation = sim;
 	}
 
-	void remProduct(Product p) {
-		Location loc = p.loc;
-		environment.removeDrop(loc);
-
-		updateValues(p, false);
-	}
-
-	private void updateValues(Product p, boolean addition) {
+	public void updateValues(Product p, boolean addition) {
 		float newMax = 0;
 		for (int x = 0; x < vals.length; x++) {
 			for (int y = 0; y < vals[x].length; y++) {
@@ -139,6 +133,10 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator {
 		environment.addDrop(loc, prod);
 	}
 
+	@Override
+	public void remove(Product p) {
+		environment.removeDrop(p.loc);
+	}
 
 	private boolean roll(float chance) {
 		return chance > simulation.getRandom().nextFloat();

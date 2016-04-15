@@ -169,7 +169,11 @@ public class Environment implements Updatable {
 				Location currentPos = new Location(x, y);
 
 				if (testFlag(currentPos, flag)) {
-					setFlag(currentPos, flag, false);
+					if (flag == FLAG_DROP) {
+						removeDrop(currentPos);
+					} else {
+						setFlag(currentPos, flag, false);
+					}
 				}
 			}
 		}
@@ -211,8 +215,13 @@ public class Environment implements Updatable {
 	}
 
 	public void removeDrop(Location loc) {
-		setFlag(loc, FLAG_DROP, false);
-		dropArray[loc.x][loc.y] = null;
+		// Drop.prepareRemove should not end up recursing into this again!
+		if (hasDrop(loc)) {
+			Drop drop = dropArray[loc.x][loc.y];
+			drop.prepareRemove();
+			setFlag(loc, FLAG_DROP, false);
+			dropArray[loc.x][loc.y] = null;
+		}
 	}
 
 	public Drop getDrop(Location loc) {
@@ -231,7 +240,7 @@ public class Environment implements Updatable {
 		return getAgent(l) != null;
 	}
 
-	public synchronized void clearWaste() {
+	public synchronized void clearDrops() {
 		clearFlag(Environment.FLAG_DROP);
 	}
 

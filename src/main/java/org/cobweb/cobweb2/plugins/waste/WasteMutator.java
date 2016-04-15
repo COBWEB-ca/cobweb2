@@ -7,15 +7,17 @@ import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.SimulationTimeSpace;
+import org.cobweb.cobweb2.plugins.DropManager;
 import org.cobweb.cobweb2.plugins.EnergyMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 
 
-public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implements EnergyMutator, UpdateMutator {
+public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implements EnergyMutator, UpdateMutator,
+DropManager<Waste>{
 
 	private WasteParams params;
-	Environment environment;
+	private Environment environment;
 	SimulationTimeSpace sim;
 
 	public WasteMutator(SimulationTimeSpace sim) {
@@ -102,7 +104,7 @@ public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implement
 		if (replaceFood)
 			environment.removeFood(loc);
 
-		Waste waste = new Waste(sim.getTime(), agentParams.wasteInit, agentParams.wasteDecay);
+		Waste waste = new Waste(loc, agentParams.wasteInit, agentParams.wasteDecay, this);
 		environment.addDrop(loc, waste);
 		return true;
 	}
@@ -110,5 +112,10 @@ public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implement
 	@Override
 	protected boolean validState(WasteState value) {
 		return value != null;
+	}
+
+	@Override
+	public void remove(Waste waste) {
+		environment.removeDrop(waste.location);
 	}
 }

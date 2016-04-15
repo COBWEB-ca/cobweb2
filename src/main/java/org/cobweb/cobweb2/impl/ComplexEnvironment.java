@@ -115,21 +115,6 @@ public class ComplexEnvironment extends Environment {
 	}
 
 	/**
-	 * Creates a new waste array and initializes each location as having
-	 * no waste.
-	 */
-	private void clearDrops() {
-		dropArray = new Drop[data.width][data.height];
-		for (int x = 0; x < topology.width; ++x) {
-			for (int y = 0; y < topology.height; ++y) {
-				Location loc = new Location(x, y);
-				if (hasDrop(loc))
-					removeDrop(loc);
-			}
-		}
-	}
-
-	/**
 	 * Searches through each location to find every old agent.  Each agent that is found
 	 * is added to the scheduler if the scheduler is new.  Agents that are off the new
 	 * environment are removed from the environment.
@@ -188,10 +173,7 @@ public class ComplexEnvironment extends Environment {
 				if (!hasDrop(l))
 					continue;
 				Drop d = getDrop(l);
-				if (!d.isActive(simulation.getTime())) {
-					d.expire();
-					removeDrop(l);
-				}
+				d.update();
 			}
 		}
 	}

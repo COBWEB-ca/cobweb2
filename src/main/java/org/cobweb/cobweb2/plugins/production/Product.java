@@ -14,6 +14,7 @@ public class Product implements Drop {
 		this.owner = owner;
 		this.loc = loc;
 		this.productionMapper = productionMapper;
+		productionMapper.updateValues(this, true);
 	}
 
 	private Agent owner;
@@ -24,8 +25,8 @@ public class Product implements Drop {
 	}
 
 	@Override
-	public boolean isActive(long val) {
-		return true;
+	public void update() {
+		// Nothing, maybe de-value?
 	}
 
 	public float getValue() {
@@ -38,8 +39,9 @@ public class Product implements Drop {
 	}
 
 	@Override
-	public void expire() {
-		productionMapper.remProduct(this);
+	public void prepareRemove() {
+		productionMapper.updateValues(this, false);
+		this.value = 0;
 	}
 
 	public Location getLocation() {
@@ -49,7 +51,7 @@ public class Product implements Drop {
 	@Override
 	public void onStep(Agent agent) {
 		if (owner != agent && productionMapper.simulation.getRandom().nextFloat() <= 0.3f) {
-			productionMapper.remProduct(this);
+			productionMapper.remove(this);
 
 			// TODO: Reward p.owner for selling his product!
 			// Reward this agent for buying a product! (and punish it
