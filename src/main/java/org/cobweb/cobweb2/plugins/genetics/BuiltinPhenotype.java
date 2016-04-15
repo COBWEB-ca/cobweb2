@@ -1,28 +1,26 @@
 package org.cobweb.cobweb2.plugins.genetics;
 
-import java.lang.reflect.Field;
-
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
+import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 
 /**
  * Phenotype that uses Reflection to modify fields of ComplexAgentParams
  */
-public class FieldPhenotype extends PropertyPhenotype {
+public class BuiltinPhenotype extends PropertyPhenotype {
 
 	/**
 	 *
-	 * @param f field to modify
+	 * @param x field to modify
 	 */
-	FieldPhenotype(Field f) {
-		super(new FieldPropertyAccessor(f));
+	BuiltinPhenotype(PropertyAccessor x) {
+		super(x);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof FieldPhenotype) {
-			FieldPhenotype o = (FieldPhenotype) obj;
+		if (obj instanceof BuiltinPhenotype) {
+			BuiltinPhenotype o = (BuiltinPhenotype) obj;
 			return super.equals(o);
 		}
 		return false;
