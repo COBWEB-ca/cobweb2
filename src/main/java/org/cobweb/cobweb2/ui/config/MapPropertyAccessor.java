@@ -29,6 +29,20 @@ public class MapPropertyAccessor extends PropertyAccessorBase {
 	}
 
 	@Override
+	protected int thisHashCode() {
+		return key.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof MapPropertyAccessor) {
+			MapPropertyAccessor o = (MapPropertyAccessor) obj;
+			return super.equals(o) && key.equals(o.key);
+		}
+		return false;
+	}
+
+	@Override
 	public Object thisGetValue(Object obj) {
 		@SuppressWarnings("unchecked")
 		Map<Object, Object> map = (Map<Object, Object>) obj;

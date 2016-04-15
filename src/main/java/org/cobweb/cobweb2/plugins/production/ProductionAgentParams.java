@@ -1,5 +1,6 @@
 package org.cobweb.cobweb2.plugins.production;
 
+import org.cobweb.cobweb2.core.Mutatable;
 import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
@@ -17,6 +18,7 @@ public class ProductionAgentParams implements AgentState {
 
 	@ConfXMLTag("productionCost")
 	@ConfDisplayName("Production Cost")
+	@Mutatable
 	public int productionCost = 0;
 
 

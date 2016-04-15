@@ -30,6 +30,20 @@ public class SetterPropertyAccessor extends PropertyAccessorBase {
 	}
 
 	@Override
+	protected int thisHashCode() {
+		return setter.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SetterPropertyAccessor) {
+			SetterPropertyAccessor o = (SetterPropertyAccessor) obj;
+			return super.equals(o) && setter.equals(o.setter);
+		}
+		return false;
+	}
+
+	@Override
 	public Class<?> getType() {
 		return setter.getParameterTypes()[0];
 	}
