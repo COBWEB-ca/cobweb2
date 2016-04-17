@@ -1,6 +1,7 @@
 package org.cobweb.cobweb2.plugins.production;
 
 import org.cobweb.cobweb2.plugins.AgentState;
+import org.cobweb.cobweb2.plugins.TempEffectParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.util.CloneHelper;
@@ -21,6 +22,21 @@ public class ProductionAgentParams implements AgentState {
 	@ConfDisplayName("Production Cost")
 	public MutatableInt productionCost = new MutatableInt(0);
 
+	@ConfXMLTag("sellPrice")
+	@ConfDisplayName("Product selling price")
+	public MutatableInt price = new MutatableInt(0);
+
+	@ConfXMLTag("maxUnsold")
+	@ConfDisplayName("Max unsold products")
+	public MutatableInt maxUnsold = new MutatableInt(100);
+
+	@ConfXMLTag("expiryPeriod")
+	@ConfDisplayName("Product expiry period")
+	public MutatableInt expiryPeriod= new MutatableInt(1000);
+
+	@ConfXMLTag("effect")
+	@ConfDisplayName("Product effect")
+	public TempEffectParam effect = new TempEffectParam();
 
 	@ConfXMLTag("InitProdChance")
 	@ConfDisplayName("Initial production percentage roll")
@@ -50,10 +66,12 @@ public class ProductionAgentParams implements AgentState {
 	@ConfDisplayName("Maximum roll percentage in high zone")
 	public float highDemandProdChance = 0.001f;
 
+
 	@Override
 	public ProductionAgentParams clone() {
 		try {
 			ProductionAgentParams copy = (ProductionAgentParams) super.clone();
+			copy.effect = this.effect.clone();
 			CloneHelper.resetMutatable(copy);
 			return copy;
 		} catch (CloneNotSupportedException ex) {

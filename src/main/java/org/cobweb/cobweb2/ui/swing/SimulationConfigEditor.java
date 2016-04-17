@@ -314,7 +314,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 
 		/* Production panel */
 		removeOldPage(prodPage);
-		prodPage = new ProductionConfigPage(p.prodParams.agentParams, displaySettings.agentColor);
+		prodPage = new ProductionConfigPage(p.prodParams.agentParams, serializer.choiceCatalog,
+				displaySettings.agentColor);
 		tabbedPane.addTab("Production", prodPage.getPanel());
 
 		removeOldPage(wastePage);
