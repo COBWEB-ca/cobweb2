@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.cobweb.cobweb2.core.Mutatable;
 import org.cobweb.cobweb2.core.NullPhenotype;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
@@ -20,6 +19,8 @@ import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 import org.cobweb.cobweb2.ui.config.SetterPropertyAccessor;
+import org.cobweb.util.MutatableFloat;
+import org.cobweb.util.MutatableInt;
 import org.reflections.Reflections;
 
 
@@ -66,11 +67,13 @@ public class PhenotypeIndex {
 	private static Collection<PropertyAccessor> classGetProperties(Class<?> clazz) {
 		List<PropertyAccessor> res = new ArrayList<>();
 		for (Method p: clazz.getMethods()) {
-			if (p.getAnnotation(Mutatable.class) != null)
+			if (MutatableFloat.class.isAssignableFrom(p.getReturnType()) ||
+					MutatableInt.class.isAssignableFrom(p.getReturnType()))
 				res.add(new SetterPropertyAccessor(p));
 		}
 		for (Field p: clazz.getFields()) {
-			if (p.getAnnotation(Mutatable.class) != null)
+			if (MutatableFloat.class.isAssignableFrom(p.getType()) ||
+					MutatableInt.class.isAssignableFrom(p.getType()))
 				res.add(new FieldPropertyAccessor(p));
 		}
 		return res;

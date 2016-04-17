@@ -66,7 +66,7 @@ public class PacketConduit implements EnvironmentMutator {
 			if (distance < commPacket.range
 					&& !s.equals(receiver)
 					&& (!s.params.broadcastSameTypeOnly || receiver.getType() == s.getType())
-					&& (s.params.broadcastMinSimilarity == 0f || s.calculateSimilarity(receiver) >= s.params.broadcastMinSimilarity)
+					&& (s.params.broadcastMinSimilarity.getValue() == 0f || s.calculateSimilarity(receiver) >= s.params.broadcastMinSimilarity.getValue())
 					) {
 				return commPacket;
 			}

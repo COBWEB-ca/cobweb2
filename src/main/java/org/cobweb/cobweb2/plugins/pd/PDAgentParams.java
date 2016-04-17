@@ -1,9 +1,10 @@
 package org.cobweb.cobweb2.plugins.pd;
 
-import org.cobweb.cobweb2.core.Mutatable;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
+import org.cobweb.util.MutatableFloat;
+import org.cobweb.util.MutatableInt;
 
 
 public class PDAgentParams implements ParameterSerializable {
@@ -20,18 +21,15 @@ public class PDAgentParams implements ParameterSerializable {
 	 */
 	@ConfDisplayName("PD Cooperation probability")
 	@ConfXMLTag("pdCoopProb")
-	@Mutatable
-	public int pdCoopProb = 50;
+	public MutatableInt pdCoopProb = new MutatableInt(50);
 
 	@ConfDisplayName("PD similarity preference")
 	@ConfXMLTag("pdSimilaritySlope")
-	@Mutatable
-	public float pdSimilaritySlope = 0.0f;
+	public MutatableFloat pdSimilaritySlope = new MutatableFloat(0.0f);
 
 	@ConfDisplayName("PD neutral similarity")
 	@ConfXMLTag("pdSimilarityNeutral")
-	@Mutatable
-	public float pdSimilarityNeutral = 0.9f;
+	public MutatableFloat pdSimilarityNeutral = new MutatableFloat(0.9f);
 
 
 	@Override

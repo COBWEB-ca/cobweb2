@@ -1,7 +1,6 @@
 package org.cobweb.cobweb2.plugins.genetics;
 
 import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.Mutatable;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 import org.cobweb.io.ConfDisplayName;
@@ -13,9 +12,8 @@ public abstract class PropertyPhenotype extends Phenotype {
 	public PropertyPhenotype(PropertyAccessor propertyAccessor) {
 		super();
 		if (propertyAccessor != null &&(
-				propertyAccessor.getAnnotationSource().getAnnotation(Mutatable.class) == null ||
 				propertyAccessor.getAnnotationSource().getAnnotation(ConfDisplayName.class) == null)) {
-			throw new IllegalArgumentException("Property must be labeled as @Mutatable and have a @ConfDisplayName");
+			throw new IllegalArgumentException("Property must be have a @ConfDisplayName");
 		}
 
 		this.propertyAccessor = propertyAccessor;

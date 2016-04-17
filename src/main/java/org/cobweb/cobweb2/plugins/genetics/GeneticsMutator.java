@@ -99,7 +99,7 @@ public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements
 	public void onSpawn(Agent agent, Agent parent) {
 		GeneticCode genetic_code = new GeneticCode(getAgentState(parent));
 
-		mutateAndSave(agent, ((ComplexAgent)parent).params.mutationRate, genetic_code);
+		mutateAndSave(agent, ((ComplexAgent)parent).params.mutationRate.getValue(), genetic_code);
 	}
 
 	@Override
@@ -131,7 +131,7 @@ public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements
 				break;
 		}
 
-		mutateAndSave(agent, ((ComplexAgent)parent1).params.mutationRate, genetic_code);
+		mutateAndSave(agent, ((ComplexAgent)parent1).params.mutationRate.getValue(), genetic_code);
 	}
 
 	protected void mutateAndSave(Agent agent, float mutationRate, GeneticCode genetic_code) {

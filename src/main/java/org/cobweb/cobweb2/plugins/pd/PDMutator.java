@@ -78,11 +78,11 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 	 */
 	public boolean playPD(Agent me, PDState meState, Agent other) {
 
-		double coopProb = meState.agentParams.pdCoopProb / 100.0d;
+		double coopProb = meState.agentParams.pdCoopProb.getValue() / 100.0d;
 
 		float similarity = sim.getSimilarityCalculator().similarity(me, other);
 
-		coopProb += (similarity - meState.agentParams.pdSimilarityNeutral) * meState.agentParams.pdSimilaritySlope;
+		coopProb += (similarity - meState.agentParams.pdSimilarityNeutral.getValue()) * meState.agentParams.pdSimilaritySlope.getValue();
 
 		if (meState.agentParams.pdTitForTat) { // if true then agent is playing TitForTat
 			meState.pdCheater = meState.lastPDcheated;

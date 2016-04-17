@@ -134,9 +134,7 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator {
 		Location loc = owner.getPosition();
 		Product prod = new Product(value, owner, loc, this);
 
-		updateValues(prod, true);
-
-		owner.changeEnergy(-getAgentState(owner).agentParams.productionCost, new ProduceProductCause());
+		owner.changeEnergy(-getAgentState(owner).agentParams.productionCost.getValue(), new ProduceProductCause());
 
 		environment.addDrop(loc, prod);
 	}
@@ -246,7 +244,7 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator {
 		if (shouldProduce(agent)) {
 			// TODO: find a more clean way to create and assign product
 			// Healthy agents produce high-value products, and vice-versa
-			addProduct(agent.getEnergy() / (float) ((ComplexAgent)agent).params.initEnergy, agent);
+			addProduct(agent.getEnergy() / (float) ((ComplexAgent)agent).params.initEnergy.getValue(), agent);
 		}
 	}
 

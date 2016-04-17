@@ -22,7 +22,7 @@ public abstract class BroadcastPacket {
 		if (sender.params.broadcastEnergyBased)
 			this.range = getRadius(sender.getEnergy());
 		else
-			this.range = sender.params.broadcastFixedRange;
+			this.range = sender.params.broadcastFixedRange.getValue();
 	}
 
 	private static int getRadius(int energy) {
