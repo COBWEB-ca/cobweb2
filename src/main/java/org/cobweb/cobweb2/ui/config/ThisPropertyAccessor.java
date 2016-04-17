@@ -4,7 +4,7 @@ package org.cobweb.cobweb2.ui.config;
 public class ThisPropertyAccessor extends PropertyAccessorBase {
 
 	@Override
-	public String getXmlName() {
+	public String getIdentifier() {
 		throw new UnsupportedOperationException();
 	}
 

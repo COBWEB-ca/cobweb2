@@ -36,7 +36,7 @@ public abstract class PropertyPhenotype extends Phenotype {
 
 	@Override
 	public String getIdentifier() {
-		return propertyAccessor.getXmlName();
+		return propertyAccessor.getIdentifier();
 	}
 
 	@Override

@@ -54,7 +54,7 @@ public class Product implements Drop {
 	public void onStep(Agent buyer) {
 		if (producer != buyer && productionMapper.simulation.getRandom().nextFloat() <= 0.3f) {
 			ProductionAgentParams agentParams = productionMapper.getAgentState(producer).agentParams;
-			int price = agentParams.price.getValue();
+			int price = agentParams.productPrice.getValue();
 
 			if (!buyer.enoughEnergy(price))
 				return;
@@ -64,7 +64,7 @@ public class Product implements Drop {
 
 			TemporaryEffect effect = new TemporaryEffect(
 					buyer,
-					agentParams.effect,
+					agentParams.productEffect,
 					new ProductEffectSource(producer));
 
 			productionMapper.applyEffect(effect);

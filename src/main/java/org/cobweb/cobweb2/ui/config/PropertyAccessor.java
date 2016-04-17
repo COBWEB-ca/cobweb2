@@ -13,7 +13,7 @@ public interface PropertyAccessor {
 	 */
 	public String getName();
 
-	public String getXmlName();
+	public String getIdentifier();
 
 	/**
 	 * Gets value of property for given object

@@ -54,8 +54,12 @@ public abstract class PropertyAccessorBase implements PropertyAccessor {
 	protected abstract String thisGetName();
 
 	@Override
-	public String getXmlName() {
-		return getAnnotationSource().getAnnotation(ConfXMLTag.class).value();
+	public String getIdentifier() {
+		String identifier = getAnnotationSource().getAnnotation(ConfXMLTag.class).value();
+		if (parent != null)
+			identifier = parent.getIdentifier() + "." + identifier;
+
+		return identifier;
 	}
 
 	@Override

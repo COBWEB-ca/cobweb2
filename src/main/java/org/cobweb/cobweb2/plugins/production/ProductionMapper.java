@@ -129,7 +129,7 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 
 	private void addProduct(float value, Agent owner) {
 		ProductionState agentState = getAgentState(owner);
-		Product prod = new Product(value, owner, this, agentState.agentParams.expiryPeriod.getValue());
+		Product prod = new Product(value, owner, this, agentState.agentParams.productExpiry.getValue());
 
 		owner.changeEnergy(-agentState.agentParams.productionCost.getValue(), new ProduceProductCause());
 

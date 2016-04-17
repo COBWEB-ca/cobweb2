@@ -20,6 +20,12 @@ public class PluginPhenotype extends PropertyPhenotype {
 		this.stateParamAccessor = stateParamAccessor;
 	}
 
+	// TODO: Possible breaking change that would make name collisions less likely
+	//@Override
+	//public String getIdentifier() {
+	//	return type.getSimpleName() + "." + super.getIdentifier();
+	//}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof PluginPhenotype) {

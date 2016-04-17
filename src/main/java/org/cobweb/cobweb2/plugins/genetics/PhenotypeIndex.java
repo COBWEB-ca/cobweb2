@@ -32,11 +32,11 @@ public class PhenotypeIndex {
 		Set<Phenotype> bindables = new LinkedHashSet<Phenotype>();
 
 		// Null phenotype
-		bindables.add(new NullPhenotype());
+		addCheckExisting(bindables, new NullPhenotype());
 
 		// ComplexAgentParams phenotypes
 		for (PropertyAccessor p : classGetProperties(ComplexAgentParams.class)) {
-			bindables.add(new BuiltinPhenotype(p));
+			addCheckExisting(bindables, new BuiltinPhenotype(p));
 		}
 
 		// Plugin phenotypes
@@ -52,7 +52,7 @@ public class PhenotypeIndex {
 				Class<?> agentParamType = stateAccessor.getType();
 
 				for (PropertyAccessor p : classGetProperties(agentParamType)) {
-					bindables.add(new PluginPhenotype(stateClass, stateAccessor, p));
+					addCheckExisting(bindables, new PluginPhenotype(stateClass, stateAccessor, p));
 				}
 
 			} catch (NoSuchFieldException ex) {
@@ -64,6 +64,15 @@ public class PhenotypeIndex {
 		}
 
 		return Collections.unmodifiableSet(bindables);
+	}
+
+	private static void addCheckExisting(Set<Phenotype> set, Phenotype value) {
+		for (Phenotype existing : set) {
+			if (existing.getIdentifier().equals(value.getIdentifier()))
+				throw new IllegalArgumentException("Phenotype " + value + " has the same identifier as " + existing);
+		}
+		if (!set.add(value))
+			throw new IllegalArgumentException("Found duplicate phenotype: " + value.getIdentifier());
 	}
 
 	private static Collection<PropertyAccessor> classGetProperties(Class<?> clazz) {

@@ -22,21 +22,21 @@ public class ProductionAgentParams implements AgentState {
 	@ConfDisplayName("Production Cost")
 	public MutatableInt productionCost = new MutatableInt(0);
 
-	@ConfXMLTag("sellPrice")
+	@ConfXMLTag("productPrice")
 	@ConfDisplayName("Product selling price")
-	public MutatableInt price = new MutatableInt(0);
+	public MutatableInt productPrice = new MutatableInt(0);
 
 	@ConfXMLTag("maxUnsold")
 	@ConfDisplayName("Max unsold products")
 	public MutatableInt maxUnsold = new MutatableInt(100);
 
-	@ConfXMLTag("expiryPeriod")
+	@ConfXMLTag("productExpiry")
 	@ConfDisplayName("Product expiry period")
-	public MutatableInt expiryPeriod= new MutatableInt(1000);
+	public MutatableInt productExpiry = new MutatableInt(1000);
 
-	@ConfXMLTag("effect")
+	@ConfXMLTag("productEffect")
 	@ConfDisplayName("Product effect")
-	public TempEffectParam effect = new TempEffectParam();
+	public TempEffectParam productEffect = new TempEffectParam();
 
 	@ConfXMLTag("InitProdChance")
 	@ConfDisplayName("Initial production percentage roll")
@@ -71,7 +71,7 @@ public class ProductionAgentParams implements AgentState {
 	public ProductionAgentParams clone() {
 		try {
 			ProductionAgentParams copy = (ProductionAgentParams) super.clone();
-			copy.effect = this.effect.clone();
+			copy.productEffect = this.productEffect.clone();
 			CloneHelper.resetMutatable(copy);
 			return copy;
 		} catch (CloneNotSupportedException ex) {
