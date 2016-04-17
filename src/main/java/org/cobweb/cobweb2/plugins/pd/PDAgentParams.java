@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.plugins.pd;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
+import org.cobweb.util.CloneHelper;
 import org.cobweb.util.MutatableFloat;
 import org.cobweb.util.MutatableInt;
 
@@ -35,7 +36,9 @@ public class PDAgentParams implements ParameterSerializable {
 	@Override
 	protected PDAgentParams clone() {
 		try {
-			return (PDAgentParams)super.clone();
+			PDAgentParams copy = (PDAgentParams)super.clone();
+			CloneHelper.resetMutatable(copy);
+			return copy;
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}

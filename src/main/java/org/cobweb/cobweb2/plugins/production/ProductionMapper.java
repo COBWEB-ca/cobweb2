@@ -262,7 +262,7 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator {
 	protected ProductionState stateFromParent(Agent agent, ProductionState parentState) {
 		if (parentState == null)
 			return null;
-		return parentState.clone();
+		return new ProductionState(parentState.agentParams.clone());
 	}
 
 	public void setParams(ProductionParams productionParams, Environment env, boolean keepOldProducts) {

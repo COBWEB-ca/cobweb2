@@ -7,6 +7,7 @@ import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.plugins.ResizableParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.util.CloneHelper;
 import org.cobweb.util.MutatableFloat;
 import org.cobweb.util.MutatableInt;
 
@@ -229,7 +230,9 @@ public class ComplexAgentParams implements ResizableParam {
 	@Override
 	public ComplexAgentParams clone() {
 		try {
-			return (ComplexAgentParams) super.clone();
+			ComplexAgentParams copy = (ComplexAgentParams) super.clone();
+			CloneHelper.resetMutatable(copy);
+			return copy;
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}
