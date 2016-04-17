@@ -6,7 +6,7 @@ package org.cobweb.cobweb2.core;
 public class NullPhenotype extends Phenotype {
 
 	@Override
-	public void modifyValue(Agent a, float m, float b) {
+	public void modifyValue(Object cause, Agent a, float m) {
 		// nothing
 	}
 
@@ -22,13 +22,4 @@ public class NullPhenotype extends Phenotype {
 
 	private static final long serialVersionUID = 2L;
 
-	@Override
-	public float getValue(Agent a) {
-		return 0;
-	}
-
-	@Override
-	public void setValue(Agent a, float value) {
-		// nothing
-	}
 }

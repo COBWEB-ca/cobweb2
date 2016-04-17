@@ -29,6 +29,20 @@ public class ListPropertyAccessor extends PropertyAccessorBase {
 	}
 
 	@Override
+	protected int thisHashCode() {
+		return index;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ListPropertyAccessor) {
+			ListPropertyAccessor o = (ListPropertyAccessor) obj;
+			return super.equals(o) && index == o.index;
+		}
+		return false;
+	}
+
+	@Override
 	public String getName() {
 		if (format != null)
 			return String.format(format, parent.getName(), index + 1);

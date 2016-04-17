@@ -9,6 +9,7 @@ import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
+import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
 import org.cobweb.cobweb2.plugins.StepMutator;
 
@@ -17,7 +18,7 @@ import org.cobweb.cobweb2.plugins.StepMutator;
  *
  * @author ???
  */
-public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements StepMutator, StatePlugin, EnvironmentMutator {
+public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements StepMutator, StatePlugin, EnvironmentMutator, SpawnMutator {
 
 	public AbioticMutator() {
 		super(AbioticState.class);
@@ -42,12 +43,12 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 
 	/**
 	 * @param l agent location.
-	 * @param aPar Agent type specific parameters.
+	 * @param state Agent type specific parameters.
 	 * @return The effect the abiotic factor has on the agent. 0 if agent is unaffected.
 	 */
-	private float effectAtLocation(int factor, Location l, AbioticAgentParams aPar) {
+	private float effectAtLocation(int factor, Location l, AbioticState state) {
 		float temp = getValue(factor, l);
-		AbioticPreferenceParam agentFactorParams = aPar.factorParams[factor].preference;
+		AbioticPreferenceParam agentFactorParams = state.factorStates[factor].agentParams.preference;
 
 		return agentFactorParams.score(temp);
 	}
@@ -62,33 +63,38 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 	@Override
 	public void onStep(Agent agent, Location from, Location to) {
 		if (to == null) {
-			removeAgentState(agent);
 			return;
 		}
 
-		AbioticAgentParams aPar = params.agentParams[agent.getType()];
 		AbioticState state = getAgentState(agent);
-
-		if (from == null) {
-			state = new AbioticState(aPar);
-			for (int i = 0; i < params.factors.size(); i++) {
-				state.factorStates[i].originalParamValue = aPar.factorParams[i].parameter.getValue(agent);
-			}
-			setAgentState(agent, state);
-		}
-
 		for (int i = 0; i < params.factors.size(); i++) {
 			AbioticFactorState factorState = state.factorStates[i];
-			float effect = effectAtLocation(i, to, aPar);
-
-			if (from != null && effectAtLocation(i, from, aPar) == effect)
-				continue;
-
+			float effect = effectAtLocation(i, to, state);
 			float multiplier = 1 + effect;
-			float newValue = factorState.originalParamValue * multiplier;
 
-			factorState.agentParams.parameter.setValue(agent, newValue);
+			factorState.agentParams.parameter.modifyValue(causeKeys[i], agent, multiplier);
 		}
+	}
+
+	@Override
+	public void onSpawn(Agent agent) {
+		AbioticAgentParams aPar = params.agentParams[agent.getType()].clone();
+		setAgentState(agent, new AbioticState(aPar));
+	}
+
+	@Override
+	public void onSpawn(Agent agent, Agent parent) {
+		onSpawn(agent);
+	}
+
+	@Override
+	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
+		onSpawn(agent);
+	}
+
+	@Override
+	public void onDeath(Agent agent) {
+		// nothing
 	}
 
 	/**
@@ -99,7 +105,27 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 	public void setParams(SimulationTimeSpace sim, AbioticParams params) {
 		this.params = params;
 		this.sim = sim;
+
+		causeKeys = new CauseKey[params.factors.size()];
+		for (int i = 0 ; i < causeKeys.length; i++) {
+			causeKeys[i] = new CauseKey(i);
+		}
 	}
+
+	private CauseKey[] causeKeys;
+
+	private class CauseKey {
+		private int index;
+		public CauseKey(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public String toString() {
+			return AbioticMutator.this.toString() + ".factor[" + index + "]";
+		}
+	}
+
 
 	@Override
 	public List<StateParameter> getParameters() {
@@ -128,8 +154,7 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 
 		@Override
 		public double getValue(Agent agent) {
-			AbioticAgentParams aPar = params.agentParams[agent.getType()];
-			double value = Math.abs(effectAtLocation(factor, agent.getPosition(), aPar));
+			double value = Math.abs(effectAtLocation(factor, agent.getPosition(), getAgentState(agent)));
 			return value;
 		}
 

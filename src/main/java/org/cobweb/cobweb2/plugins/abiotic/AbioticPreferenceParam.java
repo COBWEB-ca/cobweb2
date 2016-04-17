@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.plugins.abiotic;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
+import org.cobweb.util.CloneHelper;
 
 public class AbioticPreferenceParam implements ParameterSerializable {
 
@@ -42,6 +43,16 @@ public class AbioticPreferenceParam implements ParameterSerializable {
 		return res;
 	}
 
+	@Override
+	protected AbioticPreferenceParam clone() {
+		try {
+			AbioticPreferenceParam copy = (AbioticPreferenceParam) super.clone();
+			CloneHelper.resetMutatable(copy);
+			return copy;
+		} catch (CloneNotSupportedException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
 	private static final long serialVersionUID = 1L;
 
 }

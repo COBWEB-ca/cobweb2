@@ -17,6 +17,7 @@ import org.cobweb.cobweb2.ui.config.ArrayPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.ListPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.MapPropertyAccessor;
+import org.cobweb.cobweb2.ui.config.MutatablePropertyAccessor;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 import org.cobweb.cobweb2.ui.config.SetterPropertyAccessor;
 import org.cobweb.io.ChoiceCatalog;
@@ -24,6 +25,8 @@ import org.cobweb.io.ConfDisplayFormat;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ParameterChoice;
 import org.cobweb.io.ParameterSerializable;
+import org.cobweb.util.MutatableFloat;
+import org.cobweb.util.MutatableInt;
 import org.cobweb.util.ReflectionUtil;
 
 /**
@@ -99,6 +102,9 @@ public class ConfigTableModel extends AbstractTableModel {
 					ParameterSerializable value = (ParameterSerializable) fieldAccessor.get(root);
 					Class<? extends ParameterSerializable> valueClass = value.getClass();
 					bindConfigObject(root, valueClass, fieldAccessor);
+				} else if (MutatableFloat.class.isAssignableFrom(fieldAccessor.getType()) ||
+						MutatableInt.class.isAssignableFrom(fieldAccessor.getType())) {
+					fields.add(new MutatablePropertyAccessor(fieldAccessor));
 				} else {
 					//DEBUG
 					//System.out.println("Binding: " + root.getClass().getSimpleName() + fieldAccessor.toString() + " as \"" + fieldAccessor.getName() +"\"");

@@ -4,10 +4,12 @@
 package org.cobweb.cobweb2.impl;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
-import org.cobweb.cobweb2.core.Mutatable;
 import org.cobweb.cobweb2.plugins.ResizableParam;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
+import org.cobweb.util.CloneHelper;
+import org.cobweb.util.MutatableFloat;
+import org.cobweb.util.MutatableInt;
 
 /**
  * Parameters for ComplexAgent.
@@ -28,135 +30,119 @@ public class ComplexAgentParams implements ResizableParam {
 	 */
 	@ConfDisplayName("Favourite food energy")
 	@ConfXMLTag("FoodEnergy")
-	@Mutatable
-	public int foodEnergy = 100;
+	public MutatableInt foodEnergy = new MutatableInt(100);
 
 	/**
 	 * Energy gained from other food.
 	 */
 	@ConfDisplayName("Other food energy")
 	@ConfXMLTag("OtherFoodEnergy")
-	@Mutatable
-	public int otherFoodEnergy = 25;
+	public MutatableInt otherFoodEnergy = new MutatableInt(25);
 
 	/**
 	 * Fraction of energy gained from eating another agent.
 	 */
 	@ConfDisplayName("Agent eating efficiency")
 	@ConfXMLTag("AgentFoodEnergyFraction")
-	@Mutatable
-	public float agentFoodEnergy = 1;
+	public MutatableFloat agentFoodEnergy = new MutatableFloat(1);
 
 	/**
 	 * Amount of energy used to breed.
 	 */
 	@ConfDisplayName("Breed energy")
 	@ConfXMLTag("BreedEnergy")
-	@Mutatable
-	public int breedEnergy = 60;
+	public MutatableInt breedEnergy = new MutatableInt(60);
 
 	/**
 	 * Time between asexual breeding and producing child agent.
 	 */
 	@ConfDisplayName("Asexual pregnancy period")
 	@ConfXMLTag("pregnancyPeriod")
-	@Mutatable
-	public int asexPregnancyPeriod = 0;
+	public MutatableInt asexPregnancyPeriod = new MutatableInt(0);
 
 	/**
 	 * Initial energy amount.
 	 */
 	@ConfDisplayName("Initial energy")
 	@ConfXMLTag("InitEnergy")
-	public int initEnergy = 100;
+	public MutatableInt initEnergy = new MutatableInt(100);
 
 	/**
 	 * Energy used to step forward.
 	 */
 	@ConfDisplayName("Step energy")
 	@ConfXMLTag("StepEnergy")
-	@Mutatable
-	public int stepEnergy = 1;
+	public MutatableInt stepEnergy = new MutatableInt(1);
 
 	/**
 	 * Energy lost bumping into a rock/wall.
 	 */
 	@ConfDisplayName("Rock bump energy")
 	@ConfXMLTag("StepRockEnergy")
-	@Mutatable
-	public int stepRockEnergy = 2;
+	public MutatableInt stepRockEnergy = new MutatableInt(2);
 
 	/**
 	 * Energy lost bumping into another agent.
 	 */
 	@ConfDisplayName("Agent bump energy")
 	@ConfXMLTag("StepAgentEnergy")
-	@Mutatable
-	public int stepAgentEnergy = 2;
+	public MutatableInt stepAgentEnergy = new MutatableInt(2);
 
 	/**
 	 * Energy used to turn right.
 	 */
 	@ConfDisplayName("Turn right energy")
 	@ConfXMLTag("TurnRightEnergy")
-	@Mutatable
-	public int turnRightEnergy = 1;
+	public MutatableInt turnRightEnergy = new MutatableInt(1);
 
 	/**
 	 * Energy used to turn left.
 	 */
 	@ConfDisplayName("Turn left energy")
 	@ConfXMLTag("TurnLeftEnergy")
-	@Mutatable
-	public int turnLeftEnergy = 1;
+	public MutatableInt turnLeftEnergy = new MutatableInt(1);
 
 	/**
 	 * Rate at which the agent's child mutates from the parent.
 	 */
 	@ConfDisplayName("Mutation rate")
 	@ConfXMLTag("MutationRate")
-	@Mutatable
-	public float mutationRate = 0.05f;
+	public MutatableFloat mutationRate = new MutatableFloat(0.05f);
 
 	/**
 	 * Minimum agent similarity for communication to work.
 	 */
 	@ConfDisplayName("Communication minimum similarity")
 	@ConfXMLTag("commSimMin")
-	@Mutatable
-	public int commSimMin = 0;
+	public MutatableInt commSimMin = new MutatableInt(0);
 
 	/**
 	 * Chance that bumping into another agent will result in sexual breeding.
 	 */
 	@ConfDisplayName("Sexual breed chance")
 	@ConfXMLTag("sexualBreedChance")
-	@Mutatable
-	public float sexualBreedChance = 1;
+	public MutatableFloat sexualBreedChance = new MutatableFloat(1);
 
 	/**
 	 * Chance an agent breeds asexually at a time step.
 	 */
 	@ConfDisplayName("Asexual breed chance")
 	@ConfXMLTag("asexualBreedChance")
-	@Mutatable
-	public float asexualBreedChance = 0;
+	public MutatableFloat asexualBreedChance = new MutatableFloat(0);
 
 	/**
 	 * Minimum agent similarity to be able to breed sexually.
 	 */
 	@ConfDisplayName("Breeding minimum similarity")
 	@ConfXMLTag("breedSimMin")
-	@Mutatable
-	public float breedSimMin = 0;
+	public MutatableFloat breedSimMin = new MutatableFloat(0);
 
 	/**
 	 * Time between sexual breeding and producing child agent.
 	 */
 	@ConfDisplayName("Sexual pregnancy period")
 	@ConfXMLTag("sexualPregnancyPeriod")
-	@Mutatable
-	public int sexualPregnancyPeriod = 5;
+	public MutatableInt sexualPregnancyPeriod = new MutatableInt(5);
 
 	/**
 	 * Enable aging mode.
@@ -170,8 +156,7 @@ public class ComplexAgentParams implements ResizableParam {
 	 */
 	@ConfDisplayName("Age limit")
 	@ConfXMLTag("agingLimit")
-	@Mutatable
-	public int agingLimit = 300;
+	public MutatableInt agingLimit = new MutatableInt(300);
 
 	/**
 	 * Age-based energy penalty factor.
@@ -179,8 +164,7 @@ public class ComplexAgentParams implements ResizableParam {
 	 */
 	@ConfDisplayName("Aging rate")
 	@ConfXMLTag("agingRate")
-	@Mutatable
-	public float agingRate = 10;
+	public MutatableFloat agingRate = new MutatableFloat(10);
 
 	/**
 	 * How many PD cheaters an agent will remember.
@@ -209,24 +193,21 @@ public class ComplexAgentParams implements ResizableParam {
 	 */
 	@ConfDisplayName("Broadcast fixed range")
 	@ConfXMLTag("broadcastFixedRange")
-	@Mutatable
-	public int broadcastFixedRange = 20;
+	public MutatableInt broadcastFixedRange = new MutatableInt(20);
 
 	/**
 	 * Minimum agent energy to broadcast.
 	 */
 	@ConfDisplayName("Broadcast minimum energy")
 	@ConfXMLTag("broadcastEnergyMin")
-	@Mutatable
-	public int broadcastEnergyMin = 20;
+	public MutatableInt broadcastEnergyMin = new MutatableInt(20);
 
 	/**
 	 * Energy used up by broadcasting.
 	 */
 	@ConfDisplayName("Broadcast cost")
 	@ConfXMLTag("broadcastEnergyCost")
-	@Mutatable
-	public int broadcastEnergyCost = 5;
+	public MutatableInt broadcastEnergyCost = new MutatableInt(5);
 
 	@ConfDisplayName("Broadcast heard only by same type")
 	@ConfXMLTag("broadcastSameTypeOnly")
@@ -234,8 +215,7 @@ public class ComplexAgentParams implements ResizableParam {
 
 	@ConfDisplayName("Broadcast listener minimum similarity")
 	@ConfXMLTag("broadcastMinSimilarity")
-	@Mutatable
-	public float broadcastMinSimilarity = 0f;
+	public MutatableFloat broadcastMinSimilarity = new MutatableFloat(0f);
 
 	/**
 	 * Agent's food web parameters.
@@ -250,7 +230,9 @@ public class ComplexAgentParams implements ResizableParam {
 	@Override
 	public ComplexAgentParams clone() {
 		try {
-			return (ComplexAgentParams) super.clone();
+			ComplexAgentParams copy = (ComplexAgentParams) super.clone();
+			CloneHelper.resetMutatable(copy);
+			return copy;
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}

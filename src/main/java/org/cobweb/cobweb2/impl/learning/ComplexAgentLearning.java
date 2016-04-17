@@ -90,7 +90,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			// If still alive, the agent remembers that it is displeasing to
 			// lose energy
 			// due to broadcasting
-			float howSadThisMakesMe = Math.max(Math.min(-params.broadcastEnergyCost / (float) getEnergy(), 1), -1);
+			float howSadThisMakesMe = Math.max(Math.min(-params.broadcastEnergyCost.getValue() / (float) getEnergy(), 1), -1);
 			remember(new MemorableEvent(getTime(), howSadThisMakesMe, "broadcast"));
 		}
 	}
@@ -103,7 +103,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		} else {
 			// Eating other food has a ratio of goodness compared to eating
 			// normal food.
-			float howHappyThisMakesMe = (float) params.otherFoodEnergy / (float) params.foodEnergy
+			float howHappyThisMakesMe = (float) params.otherFoodEnergy.getValue() / (float) params.foodEnergy.getValue()
 					* lParams.foodPleasure;
 			remember(new MemorableEvent(getTime(), howHappyThisMakesMe, "food"));
 		}
@@ -170,7 +170,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					});
 				}
 
-				if (pregnant && enoughEnergy(params.breedEnergy) && pregPeriod <= 0) {
+				if (pregnant && enoughEnergy(params.breedEnergy.getValue()) && pregPeriod <= 0) {
 
 					queue(new BreedInitiationOccurrence(this, getTime(), 0, breedPartner == null ? new AsexualReproductionCause() : new SexualReproductionCause() , breedPartner));
 
@@ -222,7 +222,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 							concernedAgent.remember(new MemorableEvent(getTime(), lParams.loveForPartner, "agent-" + breedPartner.id));
 
 						}
-						concernedAgent.changeEnergy(-params.initEnergy, cause);
+						concernedAgent.changeEnergy(-params.initEnergy.getValue(), cause);
 
 						// Retain an undying feeling of love for our
 						// child
@@ -243,7 +243,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 			});
 
 			// Lose energy from stepping
-			queue(new EnergyChangeOccurrence(this, getTime(), -params.stepEnergy, new StepForwardCause()) {
+			queue(new EnergyChangeOccurrence(this, getTime(), -params.stepEnergy.getValue(), new StepForwardCause()) {
 
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
@@ -298,14 +298,14 @@ public class ComplexAgentLearning extends ComplexAgent {
 			if (adjacentAgent.getType() == getType()) {
 
 				double sim = 0.0;
-				boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy) && params.sexualBreedChance != 0.0
-						&& getRandom().nextFloat() < params.sexualBreedChance;
+				boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy.getValue()) && params.sexualBreedChance.getValue() != 0.0
+						&& getRandom().nextFloat() < params.sexualBreedChance.getValue();
 
 				// Generate genetic similarity number
 				sim = calculateSimilarity(adjacentAgent);
 
-				if (sim >= params.commSimMin) {
-					// Communicate with the smiliar agent
+				if (sim >= params.commSimMin.getValue()) {
+					// Communicate with the similar agent
 					queue(new SmartAction(this, "communicate") {
 
 						@Override
@@ -315,7 +315,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 					});
 				}
 
-				if (canBreed && sim >= params.breedSimMin
+				if (canBreed && sim >= params.breedSimMin.getValue()
 						&& isAgentGood(adjacentAgent) && adjacentAgent.isAgentGood(this)) {
 					// Initiate pregnancy
 					queue(new SmartAction(this, "breed") {
@@ -323,7 +323,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 						@Override
 						public void desiredAction() {
 							agent.pregnant = true;
-							agent.pregPeriod = agent.params.sexualPregnancyPeriod;
+							agent.pregPeriod = agent.params.sexualPregnancyPeriod.getValue();
 							agent.breedPartner = adjacentAgent;
 						}
 					});
@@ -331,7 +331,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			}
 
-			changeEnergy(-params.stepAgentEnergy, new StepForwardCause());
+			changeEnergy(-params.stepAgentEnergy.getValue(), new StepForwardCause());
 
 		} // end of two agents meet
 		else if (destPos != null && environment.hasDrop(destPos)) {
@@ -345,7 +345,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 
 					@Override
 					public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
-						concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, new BumpWallCause()));
+						concernedAgent.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy.getValue(), new BumpWallCause()));
 						return null;
 					}
 				});
@@ -358,7 +358,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				@Override
 				public MemorableEvent effect(ComplexAgentLearning concernedAgent) {
 					concernedAgent
-					.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy, new BumpWallCause()));
+					.queue(new EnergyChangeOccurrence(concernedAgent, time, -params.stepRockEnergy.getValue(), new BumpWallCause()));
 					return null;
 				}
 			});
@@ -377,7 +377,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 				}
 			});
 
-		if (getEnergy() < params.breedEnergy) {
+		if (getEnergy() < params.breedEnergy.getValue()) {
 			queue(new SmartAction(this) {
 
 				@Override

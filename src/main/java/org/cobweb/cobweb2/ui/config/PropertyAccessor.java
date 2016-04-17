@@ -22,12 +22,17 @@ public interface PropertyAccessor {
 	 */
 	public Object get(Object object);
 
+
+	public float getAsFloat(Object object);
+
 	/**
 	 * Sets value of property for given object
 	 * @param object object to set value on
 	 * @param value value to set
 	 */
 	public void set(Object object, Object value);
+
+	public void setAsFloat(Object object, float value);
 
 	/**
 	 * Class of the property

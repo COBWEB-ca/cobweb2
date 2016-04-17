@@ -70,7 +70,7 @@ public class DiseaseMutator extends StatefulMutatorBase<DiseaseState> implements
 
 		if (isSick) {
 			DiseaseAgentParams agentParams = params.agentParams[agent.getType()];
-			agentParams.param.modifyValue(agent, agentParams.factor, 0);
+			agentParams.param.modifyValue(this, agent, agentParams.factor);
 
 			sickCount[agent.getType()]++;
 

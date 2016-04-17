@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.cobweb.util.MutatableFloat;
+import org.cobweb.util.MutatableInt;
 import org.cobweb.util.ReflectionUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -165,6 +167,16 @@ public class ParameterSerializer {
 			String strVal = objectNode.getFirstChild().getNodeValue();
 			newValue = ReflectionUtil.stringToBoxed(type, strVal);
 
+		} else if (MutatableFloat.class.isAssignableFrom(type)) {
+			String strVal = objectNode.getFirstChild().getNodeValue();
+			float value =(float) ReflectionUtil.stringToBoxed(float.class, strVal);
+			newValue = new MutatableFloat(value);
+
+		} else if (MutatableInt.class.isAssignableFrom(type)){
+			String strVal = objectNode.getFirstChild().getNodeValue();
+			int value =(int) ReflectionUtil.stringToBoxed(int.class, strVal);
+			newValue = new MutatableInt(value);
+
 		} else if (type.isEnum()) {
 			newValue = loadEnum(type, objectNode.getFirstChild().getNodeValue());
 
@@ -207,6 +219,12 @@ public class ParameterSerializer {
 	private void saveObject(Class<?> type, AnnotatedElement annotationSource, Object value, Element tag, Document doc) {
 		if (ReflectionUtil.isPrimitive(type) || type.isEnum()) {
 			tag.setTextContent(value.toString());
+
+		} else if (MutatableFloat.class.isAssignableFrom(type)) {
+			tag.setTextContent(Float.toString(((MutatableFloat)value).getRawValue()));
+
+		} else if (MutatableInt.class.isAssignableFrom(type)) {
+			tag.setTextContent(Integer.toString(((MutatableInt)value).getRawValue()));
 
 		} else if (ParameterChoice.class.isAssignableFrom(type)) {
 			ParameterChoice inner = (ParameterChoice) value;

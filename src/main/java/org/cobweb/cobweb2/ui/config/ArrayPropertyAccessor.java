@@ -28,6 +28,20 @@ public class ArrayPropertyAccessor extends PropertyAccessorBase {
 	}
 
 	@Override
+	protected int thisHashCode() {
+		return index;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ArrayPropertyAccessor) {
+			ArrayPropertyAccessor o = (ArrayPropertyAccessor) obj;
+			return super.equals(o) && index == o.index;
+		}
+		return false;
+	}
+
+	@Override
 	public String getName() {
 		if (format != null)
 			return String.format(format, parent.getName(), index + 1);

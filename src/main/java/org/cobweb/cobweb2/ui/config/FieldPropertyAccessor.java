@@ -17,6 +17,20 @@ public class FieldPropertyAccessor extends PropertyAccessorBase {
 		this(null, f);
 	}
 
+	@Override
+	protected int thisHashCode() {
+		return field.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof FieldPropertyAccessor) {
+			FieldPropertyAccessor o = (FieldPropertyAccessor) obj;
+			return super.equals(o) && field.equals(o.field);
+		}
+		return false;
+	}
+
 	/**
 	 * Creates a nested accessor, for example obj.a.b can be accessed with
 	 * new FieldPropertyAccessor(new FieldPropertyAccessor(aField), bField);
@@ -74,4 +88,5 @@ public class FieldPropertyAccessor extends PropertyAccessorBase {
 	public AnnotatedElement getAnnotationSource() {
 		return field;
 	}
+
 }

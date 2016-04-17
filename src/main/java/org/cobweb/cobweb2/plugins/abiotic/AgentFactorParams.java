@@ -17,5 +17,16 @@ public class AgentFactorParams implements ParameterSerializable {
 	@ConfXMLTag("Parameter")
 	public Phenotype parameter = new NullPhenotype();
 
+	@Override
+	protected AgentFactorParams clone() {
+		try {
+			AgentFactorParams copy = (AgentFactorParams) super.clone();
+			copy.preference = this.preference.clone();
+			return copy;
+		} catch (CloneNotSupportedException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
 }

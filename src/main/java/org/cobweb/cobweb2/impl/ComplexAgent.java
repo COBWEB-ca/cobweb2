@@ -138,7 +138,7 @@ public class ComplexAgent extends Agent {
 
 		initPosition(pos);
 
-		changeEnergy(params.initEnergy, new SexualBirthCause());
+		changeEnergy(params.initEnergy.getValue(), new SexualBirthCause());
 	}
 
 
@@ -157,7 +157,7 @@ public class ComplexAgent extends Agent {
 
 		initPosition(pos);
 
-		changeEnergy(params.initEnergy, new AsexualBirthCause());
+		changeEnergy(params.initEnergy.getValue(), new AsexualBirthCause());
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class ComplexAgent extends Agent {
 
 		initPosition(pos);
 
-		changeEnergy(params.initEnergy, new CreationBirthCause());
+		changeEnergy(params.initEnergy.getValue(), new CreationBirthCause());
 	}
 
 	public void setController(Controller c) {
@@ -187,14 +187,14 @@ public class ComplexAgent extends Agent {
 		//TODO move to plugin?
 		environment.getPlugin(PacketConduit.class).addPacketToList(packet);
 
-		changeEnergy(-params.broadcastEnergyCost, cause);
+		changeEnergy(-params.broadcastEnergyCost.getValue(), cause);
 	}
 
 	/**
 	 * @return True if agent has enough energy to broadcast
 	 */
 	protected boolean canBroadcast() {
-		return params.broadcastMode && enoughEnergy(params.broadcastEnergyMin);
+		return params.broadcastMode && enoughEnergy(params.broadcastEnergyMin.getValue());
 	}
 
 	/**
@@ -212,7 +212,7 @@ public class ComplexAgent extends Agent {
 	protected boolean canEat(ComplexAgent adjacentAgent) {
 		boolean caneat = false;
 		caneat = params.foodweb.canEatAgent[adjacentAgent.getType()];
-		if (enoughEnergy(params.breedEnergy))
+		if (enoughEnergy(params.breedEnergy.getValue()))
 			caneat = false;
 
 		return caneat;
@@ -282,9 +282,9 @@ public class ComplexAgent extends Agent {
 		environment.removeFood(destPos);
 		// Gain Energy according to the food type.
 		if (environment.getFoodType(destPos) == getType()) {
-			changeEnergy(+params.foodEnergy, new EatFavoriteFoodCause());
+			changeEnergy(+params.foodEnergy.getValue(), new EatFavoriteFoodCause());
 		} else {
-			changeEnergy(+params.otherFoodEnergy, new EatFoodCause());
+			changeEnergy(+params.otherFoodEnergy.getValue(), new EatFoodCause());
 		}
 	}
 
@@ -295,7 +295,7 @@ public class ComplexAgent extends Agent {
 	 * @param adjacentAgent The agent being eaten.
 	 */
 	protected void eat(ComplexAgent adjacentAgent) {
-		int gain = (int) (adjacentAgent.getEnergy() * params.agentFoodEnergy);
+		int gain = (int) (adjacentAgent.getEnergy() * params.agentFoodEnergy.getValue());
 		changeEnergy(+gain, new EatAgentCause());
 		adjacentAgent.die();
 	}
@@ -304,8 +304,8 @@ public class ComplexAgent extends Agent {
 		if (!params.agingMode)
 			return 0;
 		double tempAge = getAge();
-		int penaltyValue = Math.min(Math.max(0, getEnergy()), (int)(params.agingRate
-				* (Math.tan(((tempAge / params.agingLimit) * 89.99) * Math.PI / 180))));
+		int penaltyValue = Math.min(Math.max(0, getEnergy()), (int)(params.agingRate.getValue()
+				* (Math.tan(((tempAge / params.agingLimit.getValue()) * 89.99) * Math.PI / 180))));
 
 		return penaltyValue;
 	}
@@ -470,7 +470,7 @@ public class ComplexAgent extends Agent {
 		} // end of two agents meet
 		else {
 			// Non-free tile (rock/waste/etc) bump
-			changeEnergy(-params.stepRockEnergy, new BumpWallCause());
+			changeEnergy(-params.stepRockEnergy.getValue(), new BumpWallCause());
 		}
 		applyAgePenalty();
 
@@ -483,14 +483,14 @@ public class ComplexAgent extends Agent {
 			}
 			else {
 				// can't step, treat as obstacle
-				changeEnergy(-params.stepRockEnergy, new BumpWallCause());
+				changeEnergy(-params.stepRockEnergy.getValue(), new BumpWallCause());
 			}
 		}
 
 		if (getEnergy() <= 0)
 			die();
 
-		if (!enoughEnergy(params.breedEnergy)) {
+		if (!enoughEnergy(params.breedEnergy.getValue())) {
 			pregnant = false;
 			breedPartner = null;
 		}
@@ -512,7 +512,7 @@ public class ComplexAgent extends Agent {
 		}
 
 		LocationDirection breedPos = null;
-		if (pregnant && enoughEnergy(params.breedEnergy) && pregPeriod <= 0) {
+		if (pregnant && enoughEnergy(params.breedEnergy.getValue()) && pregPeriod <= 0) {
 			breedPos = new LocationDirection(getPosition());
 		} else if (!pregnant) {
 			tryAsexBreed();
@@ -530,17 +530,17 @@ public class ComplexAgent extends Agent {
 				createChildSexual(breedPos, breedPartner);
 				cause = new SexualReproductionCause();
 			}
-			changeEnergy(-params.initEnergy, cause);
+			changeEnergy(-params.initEnergy.getValue(), cause);
 			applyAgePenalty();
 			breedPartner = null;
 			pregnant = false;
 		}
-		changeEnergy(-params.stepEnergy, new StepForwardCause());
+		changeEnergy(-params.stepEnergy.getValue(), new StepForwardCause());
 	}
 
 	protected void onstepAgentBump(ComplexAgent adjacentAgent) {
 		getAgentListener().onContact(this, adjacentAgent);
-		changeEnergy(-params.stepAgentEnergy, new BumpAgentCause());
+		changeEnergy(-params.stepAgentEnergy.getValue(), new BumpAgentCause());
 
 		if (canEat(adjacentAgent)) {
 			eat(adjacentAgent);
@@ -554,20 +554,20 @@ public class ComplexAgent extends Agent {
 		if (adjacentAgent.getType() == getType()) {
 
 			double sim = 0.0;
-			boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy) && params.sexualBreedChance != 0.0
-					&& getRandom().nextFloat() < params.sexualBreedChance;
+			boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy.getValue()) && params.sexualBreedChance.getValue() != 0.0
+					&& getRandom().nextFloat() < params.sexualBreedChance.getValue();
 
 			// Generate genetic similarity number
 			sim = calculateSimilarity(adjacentAgent);
 
-			if (sim >= params.commSimMin) {
+			if (sim >= params.commSimMin.getValue()) {
 				communicate(adjacentAgent);
 			}
 
-			if (canBreed && sim >= params.breedSimMin
+			if (canBreed && sim >= params.breedSimMin.getValue()
 					&& isAgentGood(adjacentAgent) && adjacentAgent.isAgentGood(this)) {
 				pregnant = true;
-				pregPeriod = params.sexualPregnancyPeriod;
+				pregPeriod = params.sexualPregnancyPeriod.getValue();
 				breedPartner = adjacentAgent;
 			}
 		}
@@ -585,7 +585,7 @@ public class ComplexAgent extends Agent {
 
 		/* Time to die, Agent (mister) Bond */
 		if (params.agingMode) {
-			if ((getAge()) >= params.agingLimit) {
+			if ((getAge()) >= params.agingLimit.getValue()) {
 				die();
 				return;
 			}
@@ -606,9 +606,9 @@ public class ComplexAgent extends Agent {
 	 * produce a child agent after the agent's asexPregnancyPeriod is up.
 	 */
 	protected void tryAsexBreed() {
-		if (shouldReproduceAsex && enoughEnergy(params.breedEnergy) && params.asexualBreedChance != 0.0
-				&& getRandom().nextFloat() < params.asexualBreedChance) {
-			pregPeriod = params.asexPregnancyPeriod;
+		if (shouldReproduceAsex && enoughEnergy(params.breedEnergy.getValue()) && params.asexualBreedChance.getValue() != 0.0
+				&& getRandom().nextFloat() < params.asexualBreedChance.getValue()) {
+			pregPeriod = params.asexPregnancyPeriod.getValue();
 			pregnant = true;
 		}
 	}
@@ -620,7 +620,7 @@ public class ComplexAgent extends Agent {
 	 */
 	public void turnLeft() {
 		position = environment.topology.getTurnLeftPosition(position);
-		changeEnergy(-params.turnLeftEnergy, new TurnLeftCause());
+		changeEnergy(-params.turnLeftEnergy.getValue(), new TurnLeftCause());
 		afterTurnAction();
 	}
 
@@ -631,7 +631,7 @@ public class ComplexAgent extends Agent {
 	 */
 	public void turnRight() {
 		position = environment.topology.getTurnRightPosition(position);
-		changeEnergy(-params.turnRightEnergy, new TurnRightCause());
+		changeEnergy(-params.turnRightEnergy.getValue(), new TurnRightCause());
 		afterTurnAction();
 	}
 

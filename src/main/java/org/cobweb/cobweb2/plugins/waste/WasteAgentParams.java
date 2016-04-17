@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.plugins.waste;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
+import org.cobweb.util.CloneHelper;
 
 public class WasteAgentParams implements ParameterSerializable {
 
@@ -52,7 +53,9 @@ public class WasteAgentParams implements ParameterSerializable {
 	@Override
 	protected WasteAgentParams clone() {
 		try {
-			return (WasteAgentParams) super.clone();
+			WasteAgentParams copy = (WasteAgentParams) super.clone();
+			CloneHelper.resetMutatable(copy);
+			return copy;
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}

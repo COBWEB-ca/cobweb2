@@ -23,14 +23,5 @@ public class ProductionState implements AgentState {
 		return false;
 	}
 
-	@Override
-	protected ProductionState clone() {
-		try {
-			return (ProductionState) super.clone();
-		} catch (CloneNotSupportedException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
 	private static final long serialVersionUID = 1L;
 }
