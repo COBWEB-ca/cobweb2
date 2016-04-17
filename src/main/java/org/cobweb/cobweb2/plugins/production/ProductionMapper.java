@@ -128,12 +128,12 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 	}
 
 	private void addProduct(float value, Agent owner) {
-		Location loc = owner.getPosition();
-		Product prod = new Product(value, owner, loc, this);
+		ProductionState agentState = getAgentState(owner);
+		Product prod = new Product(value, owner, this, agentState.agentParams.expiryPeriod.getValue());
 
-		owner.changeEnergy(-getAgentState(owner).agentParams.productionCost.getValue(), new ProduceProductCause());
+		owner.changeEnergy(-agentState.agentParams.productionCost.getValue(), new ProduceProductCause());
 
-		environment.addDrop(loc, prod);
+		environment.addDrop(prod.loc, prod);
 	}
 
 	@Override
@@ -150,10 +150,14 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 			return false;
 		}
 
-		ProductionAgentParams params = getAgentState(agent).agentParams;
+		final ProductionState agentState = getAgentState(agent);
+		ProductionAgentParams params = agentState.agentParams;
 		if (!params.productionMode || !roll(params.initProdChance)){
 			return false;
 		}
+
+		if (agentState.unsoldProducts >= params.maxUnsold.getValue())
+			return false;
 
 		LocationDirection loc = agent.getPosition();
 		if (environment.hasDrop(loc))

@@ -23,8 +23,16 @@ public class ProductionAgentParams implements AgentState {
 	public MutatableInt productionCost = new MutatableInt(0);
 
 	@ConfXMLTag("sellPrice")
-	@ConfDisplayName("Product Selling Price")
+	@ConfDisplayName("Product selling price")
 	public MutatableInt price = new MutatableInt(0);
+
+	@ConfXMLTag("maxUnsold")
+	@ConfDisplayName("Max unsold products")
+	public MutatableInt maxUnsold = new MutatableInt(100);
+
+	@ConfXMLTag("expiryPeriod")
+	@ConfDisplayName("Product expiry period")
+	public MutatableInt expiryPeriod= new MutatableInt(1000);
 
 	@ConfXMLTag("effect")
 	@ConfDisplayName("Product effect")

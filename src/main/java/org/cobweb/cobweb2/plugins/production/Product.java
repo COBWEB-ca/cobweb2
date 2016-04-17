@@ -9,13 +9,16 @@ import org.cobweb.cobweb2.plugins.production.ProductionMapper.ProductionCause;
 public class Product implements Drop {
 	private final ProductionMapper productionMapper;
 	final Location loc;
+	private long expiryTime;
 
-	Product(float value, Agent producer, Location loc, ProductionMapper productionMapper) {
+	Product(float value, Agent producer, ProductionMapper productionMapper, long expiryPeriod) {
 		this.value = value;
 		this.producer = producer;
-		this.loc = loc;
+		this.loc = producer.getPosition();
 		this.productionMapper = productionMapper;
+		this.expiryTime = productionMapper.simulation.getTime() + expiryPeriod;
 		productionMapper.updateValues(this, true);
+		productionMapper.getAgentState(producer).unsoldProducts++;
 	}
 
 	private Agent producer;
@@ -23,7 +26,8 @@ public class Product implements Drop {
 
 	@Override
 	public void update() {
-		// Nothing, maybe de-value?
+		if (productionMapper.simulation.getTime() >= expiryTime)
+			productionMapper.remove(this);
 	}
 
 	public float getValue() {
@@ -38,6 +42,7 @@ public class Product implements Drop {
 	@Override
 	public void prepareRemove() {
 		productionMapper.updateValues(this, false);
+		productionMapper.getAgentState(producer).unsoldProducts--;
 		this.value = 0;
 	}
 
