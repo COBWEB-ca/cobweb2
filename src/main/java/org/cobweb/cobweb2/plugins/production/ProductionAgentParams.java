@@ -21,6 +21,10 @@ public class ProductionAgentParams implements AgentState {
 	@ConfDisplayName("Production Cost")
 	public MutatableInt productionCost = new MutatableInt(0);
 
+	@ConfXMLTag("sellPrice")
+	@ConfDisplayName("Product Selling Price")
+	public MutatableInt price = new MutatableInt(0);
+
 
 	@ConfXMLTag("InitProdChance")
 	@ConfDisplayName("Initial production percentage roll")
@@ -49,6 +53,7 @@ public class ProductionAgentParams implements AgentState {
 	@ConfXMLTag("HiDemProdChance")
 	@ConfDisplayName("Maximum roll percentage in high zone")
 	public float highDemandProdChance = 0.001f;
+
 
 	@Override
 	public ProductionAgentParams clone() {

@@ -49,19 +49,17 @@ public class Product implements Drop {
 	}
 
 	@Override
-	public void onStep(Agent agent) {
-		if (owner != agent && productionMapper.simulation.getRandom().nextFloat() <= 0.3f) {
+	public void onStep(Agent buyer) {
+		if (owner != buyer && productionMapper.simulation.getRandom().nextFloat() <= 0.3f) {
+			int price = productionMapper.getAgentState(owner).agentParams.price.getValue();
+
+			if (!buyer.enoughEnergy(price))
+				return;
+
+			owner.changeEnergy(+price, new ProductSoldCause());
+			buyer.changeEnergy(-price, new ProductBoughtCause());
+
 			productionMapper.remove(this);
-
-			// TODO: Reward p.owner for selling his product!
-			// Reward this agent for buying a product! (and punish it
-			// for paying for it?)
-			// Should agents have currency to use for buying products?
-			//
-			// FIXME: set up product cost/benefit
-			owner.changeEnergy(0, new ProductSoldCause());
-			agent.changeEnergy(0, new ProductBoughtCause());
-
 		}
 	}
 
