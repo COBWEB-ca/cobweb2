@@ -9,7 +9,6 @@ public class ProductionState implements AgentState {
 	@ConfXMLTag("AgentParams")
 	public ProductionAgentParams agentParams;
 
-
 	@Deprecated // for reflection use only!
 	public ProductionState() {
 	}

@@ -1,6 +1,8 @@
 package org.cobweb.cobweb2.plugins.production;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
@@ -15,6 +17,7 @@ import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.DropManager;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
+import org.cobweb.cobweb2.plugins.TemporaryEffect;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
@@ -286,7 +289,13 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 
 	@Override
 	public void update() {
-		// nothing
+		Iterator<TemporaryEffect> iterator = effects.iterator();
+		while(iterator.hasNext()) {
+			TemporaryEffect effect = iterator.next();
+			if (!effect.updateIsAlive(simulation.getTime())) {
+				iterator.remove();
+			}
+		}
 	}
 
 	@Override
@@ -297,6 +306,14 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 	@Override
 	protected boolean validState(ProductionState value) {
 		return value != null;
+	}
+
+	private List<TemporaryEffect> effects = new LinkedList<>();
+
+	public void applyEffect(TemporaryEffect effect) {
+		effect.startTime = simulation.getTime();
+		effect.apply();
+		effects.add(effect);
 	}
 
 }

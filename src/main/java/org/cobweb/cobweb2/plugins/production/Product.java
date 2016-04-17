@@ -3,26 +3,23 @@ package org.cobweb.cobweb2.plugins.production;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Location;
+import org.cobweb.cobweb2.plugins.TemporaryEffect;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper.ProductionCause;
 
 public class Product implements Drop {
 	private final ProductionMapper productionMapper;
 	final Location loc;
 
-	Product(float value, Agent owner, Location loc, ProductionMapper productionMapper) {
+	Product(float value, Agent producer, Location loc, ProductionMapper productionMapper) {
 		this.value = value;
-		this.owner = owner;
+		this.producer = producer;
 		this.loc = loc;
 		this.productionMapper = productionMapper;
 		productionMapper.updateValues(this, true);
 	}
 
-	private Agent owner;
+	private Agent producer;
 	private float value;
-
-	public Agent getOwner() {
-		return owner;
-	}
 
 	@Override
 	public void update() {
@@ -50,16 +47,46 @@ public class Product implements Drop {
 
 	@Override
 	public void onStep(Agent buyer) {
-		if (owner != buyer && productionMapper.simulation.getRandom().nextFloat() <= 0.3f) {
-			int price = productionMapper.getAgentState(owner).agentParams.price.getValue();
+		if (producer != buyer && productionMapper.simulation.getRandom().nextFloat() <= 0.3f) {
+			ProductionAgentParams agentParams = productionMapper.getAgentState(producer).agentParams;
+			int price = agentParams.price.getValue();
 
 			if (!buyer.enoughEnergy(price))
 				return;
 
-			owner.changeEnergy(+price, new ProductSoldCause());
+			producer.changeEnergy(+price, new ProductSoldCause());
 			buyer.changeEnergy(-price, new ProductBoughtCause());
 
+			TemporaryEffect effect = new TemporaryEffect(
+					buyer,
+					agentParams.effect,
+					new ProductEffectSource(producer));
+
+			productionMapper.applyEffect(effect);
+
 			productionMapper.remove(this);
+		}
+	}
+
+	private static class ProductEffectSource {
+		private Agent producer;
+
+		public ProductEffectSource(Agent producer) {
+			this.producer = producer;
+		}
+
+		@Override
+		public int hashCode() {
+			return producer.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof ProductEffectSource) {
+				ProductEffectSource other = (ProductEffectSource) obj;
+				return this.producer.equals(other.producer);
+			}
+			return false;
 		}
 	}
 
