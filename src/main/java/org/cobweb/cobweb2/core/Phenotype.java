@@ -12,13 +12,9 @@ public abstract class Phenotype implements ParameterChoice {
 	 * <code> p' = p * m + b</code>
 	 * @param a Agent to modify
 	 * @param m scale factor
-	 * @param b offset factor
+	 * @param cause Cause/source of modification. Used to keep track of multiple multipliers on the same phenotype
 	 */
-	public abstract void modifyValue(Agent a, float m, float b);
-
-	public abstract float getValue(Agent a);
-
-	public abstract void setValue(Agent a, float value);
+	public abstract void modifyValue(Object cause, Agent a, float m);
 
 	@Override
 	public String toString() {

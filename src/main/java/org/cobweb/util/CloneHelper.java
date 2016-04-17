@@ -10,7 +10,6 @@ public class CloneHelper {
 	/**
 	 * Finds MutatableFloat/Int fields in given ParameterSerializable and replaces them with new
 	 * instances with the same raw value and no multipliers applied.
-	 * @param obj
 	 */
 	public static void resetMutatable(ParameterSerializable obj) {
 		Class<? extends ParameterSerializable> clazz = obj.getClass();

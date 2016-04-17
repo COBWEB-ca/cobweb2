@@ -26,7 +26,6 @@ public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements
 
 	private RandomSource simulation;
 
-
 	public GeneticsMutator() {
 		super(GeneticCode.class);
 	}
@@ -75,7 +74,7 @@ public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements
 			float coefficient = gc.getStatus(i);
 
 			// Get instance variable linked to attribute in agent
-			pheno.modifyValue(agent, coefficient, 0);
+			pheno.modifyValue(causeKeys[i], agent, coefficient);
 		}
 		tracker.addAgent(agent.getType(), getAgentState(agent));
 	}
@@ -158,6 +157,25 @@ public class GeneticsMutator extends StatefulMutatorBase<GeneticCode> implements
 			this.tracker = new GATracker();
 
 		tracker.setParams(agentCount, params.getGeneCount());
+
+		causeKeys = new CauseKey[params.getGeneCount()];
+		for (int i = 0 ; i < causeKeys.length; i++) {
+			causeKeys[i] = new CauseKey(i);
+		}
+	}
+
+	private CauseKey[] causeKeys;
+
+	private class CauseKey {
+		private int index;
+		public CauseKey(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public String toString() {
+			return GeneticsMutator.this.toString() + ".phenotype[" + index + "]";
+		}
 	}
 
 	@Override

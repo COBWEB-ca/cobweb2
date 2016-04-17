@@ -6,9 +6,6 @@ import org.cobweb.io.ParameterSerializable;
 
 public class AbioticFactorState implements ParameterSerializable {
 
-	@ConfXMLTag("originalParamValue")
-	public float originalParamValue;
-
 	@ConfXMLTag("AgentParams")
 	public AgentFactorParams agentParams;
 

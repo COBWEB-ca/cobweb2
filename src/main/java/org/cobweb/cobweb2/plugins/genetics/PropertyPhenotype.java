@@ -4,6 +4,7 @@ import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 import org.cobweb.io.ConfDisplayName;
+import org.cobweb.util.MutatableField;
 
 public abstract class PropertyPhenotype extends Phenotype {
 
@@ -44,23 +45,12 @@ public abstract class PropertyPhenotype extends Phenotype {
 	}
 
 	@Override
-	public void modifyValue(Agent a, float m, float b) {
+	public void modifyValue(Object cause, Agent a, float m) {
 		if (rootAccessor(a) == null)
 			return;
 
-		float value = getValue(a);
-		float newValue = value * m + b;
-		setValue(a, newValue);
-	}
-
-	@Override
-	public float getValue(Agent a) {
-		return propertyAccessor.getAsFloat(rootAccessor(a));
-	}
-
-	@Override
-	public void setValue(Agent a, float value) {
-		propertyAccessor.setAsFloat(rootAccessor(a), value);
+		MutatableField field = (MutatableField) propertyAccessor.get(rootAccessor(a));
+		field.setMultiplier(cause, m);
 	}
 
 	protected abstract Object rootAccessor(Agent a);
