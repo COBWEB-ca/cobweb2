@@ -19,6 +19,8 @@ import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.PropertyAccessor;
 import org.cobweb.cobweb2.ui.config.SetterPropertyAccessor;
+import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ParameterSerializable;
 import org.cobweb.util.MutatableFloat;
 import org.cobweb.util.MutatableInt;
 import org.reflections.Reflections;
@@ -65,18 +67,36 @@ public class PhenotypeIndex {
 	}
 
 	private static Collection<PropertyAccessor> classGetProperties(Class<?> clazz) {
+		return classGetProperties(clazz, null);
+	}
+
+	private static Collection<PropertyAccessor> classGetProperties(Class<?> clazz, PropertyAccessor parent) {
 		List<PropertyAccessor> res = new ArrayList<>();
 		for (Method p: clazz.getMethods()) {
-			if (MutatableFloat.class.isAssignableFrom(p.getReturnType()) ||
-					MutatableInt.class.isAssignableFrom(p.getReturnType()))
-				res.add(new SetterPropertyAccessor(p));
+			// setters only
+			if (!p.getName().startsWith("set"))
+				continue;
+
+			final SetterPropertyAccessor accessor = new SetterPropertyAccessor(parent, p);
+			processAccessor(res, accessor);
 		}
 		for (Field p: clazz.getFields()) {
-			if (MutatableFloat.class.isAssignableFrom(p.getType()) ||
-					MutatableInt.class.isAssignableFrom(p.getType()))
-				res.add(new FieldPropertyAccessor(p));
+			final FieldPropertyAccessor accessor = new FieldPropertyAccessor(parent, p);
+			processAccessor(res, accessor);
 		}
 		return res;
+	}
+
+	private static void processAccessor(List<PropertyAccessor> accumulator, final PropertyAccessor accessor) {
+
+		if (MutatableFloat.class.isAssignableFrom(accessor.getType()) ||
+				MutatableInt.class.isAssignableFrom(accessor.getType())) {
+			accumulator.add(accessor);
+		}
+		else if (ParameterSerializable.class.isAssignableFrom(accessor.getType()) &&
+				accessor.getAnnotationSource().getAnnotation(ConfDisplayName.class) != null) {
+			accumulator.addAll(classGetProperties(accessor.getType(), accessor));
+		}
 	}
 
 	private static class PluginOrderComparator implements Comparator<Class<?>> {
