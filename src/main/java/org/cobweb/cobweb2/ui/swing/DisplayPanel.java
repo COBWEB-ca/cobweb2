@@ -12,6 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Location;
@@ -34,7 +36,6 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 	 */
 	private abstract class Mouse extends MouseAdapter {
 
-
 		private Location convertCoords(int x, int y) {
 			x -= borderLeft;
 			y -= borderHeight;
@@ -48,31 +49,31 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 				return null;
 		}
 
+		private DragMode dragMode = DragMode.Disable;
+
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			dragMode = DragMode.Click;
+			dragMode = DragMode.Disable;
 			Location loc = convertCoords(e.getX(), e.getY());
 			if (loc != null) {
 				click(loc);
 			}
 		}
 
-
-
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			dragMode = DragMode.Click;
-			super.mouseReleased(e);
+			dragMode = DragMode.Disable;
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			if (dragMode == DragMode.Click) {
+			if (dragMode == DragMode.Disable) {
 				dragMode = DragMode.DragStart;
 			}
 			Location loc = convertCoords(e.getX(), e.getY());
 			if (loc != null) {
-				dragMode = drag(loc, dragMode);
+				// Right mouse button = don't interpolate
+				drag(loc, !SwingUtilities.isRightMouseButton(e));
 			}
 		}
 
@@ -90,25 +91,54 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 			refresh(false);
 		}
 
-		private DragMode drag(Location loc, DragMode dragmode) {
+		private Location dragStart = null;
+
+		private void drag(Location loc, boolean interpolate) {
 			if (!canClick(loc))
-				return dragmode;
-			if (dragmode == DragMode.DragStart) {
+				return;
+			if (dragMode == DragMode.DragStart) {
 				if (canSetOn(loc)) {
-					dragmode = DragMode.DragOn;
+					dragMode = DragMode.DragOn;
+					dragStart = loc;
 				} else if (canSetOff(loc)) {
-					dragmode = DragMode.DragOff;
+					dragMode = DragMode.DragOff;
+					dragStart = loc;
+				} else {
+					return;
 				}
 			}
 
-			if (dragmode == DragMode.DragOn && canSetOn(loc)) {
+			// Interpolate between previous drag location and current
+			int dx = loc.x - dragStart.x;
+			int dy = loc.y - dragStart.y;
+			if (!interpolate || dx == 0 && dy == 0) {
+				dragAcross(loc);
+			}
+			else if (Math.abs(dx) >= Math.abs(dy)) {
+				// Drag vector longer in X, use it as base, calculate Y from it
+				for (int x = 0; x != dx; x += Integer.signum(dx)) {
+					int y = dy * x / dx;
+					dragAcross(new Location(dragStart.x + x, dragStart.y + y));
+				}
+			} else {
+				// Drag vector longer in Y, transposition of other case
+				for (int y = 0; y != dy; y += Integer.signum(dy)) {
+					int x = dx * y / dy;
+					dragAcross(new Location(dragStart.x + x, dragStart.y + y));
+				}
+			}
+			dragStart = loc;
+			refresh(false);
+		}
+
+		private void dragAcross(Location loc) {
+			if (dragMode == DragMode.DragOn && canSetOn(loc)) {
 				setOn(loc);
-			} else if (dragmode == DragMode.DragOff && canSetOff(loc)) {
+			} else if (dragMode == DragMode.DragOff && canSetOff(loc)) {
 				setOff(loc);
 			}
-			refresh(false);
-			return dragmode;
 		}
+
 		abstract boolean canClick(Location loc);
 
 		abstract boolean canSetOn(Location loc);
@@ -117,6 +147,12 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		abstract void setOff(Location loc);
 	} // Mouse
 
+	private enum DragMode {
+		Disable,
+		DragStart,
+		DragOn,
+		DragOff
+	}
 
 	private class ObserveMouseListener extends Mouse {
 
@@ -233,7 +269,7 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		boolean canSetOn(Location loc) {
-			return !simulation.theEnvironment.hasFood(loc) || simulation.theEnvironment.hasStone(loc);
+			return !simulation.theEnvironment.hasFood(loc) && !simulation.theEnvironment.hasStone(loc);
 		}
 
 		@Override
@@ -294,15 +330,6 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		addMouseListener(myMouse);
 		addMouseMotionListener(myMouse);
 	}
-
-	private enum DragMode {
-		Click,
-		DragStart,
-		DragOn,
-		DragOff
-	}
-
-	private DragMode dragMode = DragMode.Click;
 
 	private DrawInfo drawInfo;
 
