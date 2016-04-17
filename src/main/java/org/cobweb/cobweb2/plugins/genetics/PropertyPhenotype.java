@@ -53,6 +53,15 @@ public abstract class PropertyPhenotype extends Phenotype {
 		field.setMultiplier(cause, m);
 	}
 
+	@Override
+	public void unmodifyValue(Object cause, Agent a) {
+		if (rootAccessor(a) == null)
+			return;
+
+		MutatableField field = (MutatableField) propertyAccessor.get(rootAccessor(a));
+		field.removeMultiplier(cause);
+	}
+
 	protected abstract Object rootAccessor(Agent a);
 
 	private static final long serialVersionUID = 1L;

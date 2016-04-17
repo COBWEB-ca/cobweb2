@@ -11,6 +11,11 @@ public class NullPhenotype extends Phenotype {
 	}
 
 	@Override
+	public void unmodifyValue(Object cause, Agent a) {
+		// nothing
+	}
+
+	@Override
 	public String getIdentifier() {
 		return "None";
 	}
