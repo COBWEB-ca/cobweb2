@@ -1,7 +1,5 @@
 package org.cobweb.util;
 
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -10,7 +8,7 @@ import java.util.Map;
  *
  * @see MutatableInt
  */
-public class MutatableFloat {
+public class MutatableFloat extends MutatableField {
 
 	private float originalValue;
 
@@ -25,13 +23,11 @@ public class MutatableFloat {
 		this.originalValue = value;
 	}
 
-	private final Map<Object, Float> multipliers = new HashMap<>();
-
 	/**
 	 * Gets value with all the factors applied to it
 	 */
 	public float getValue() {
-		return originalValue * multiplierCache;
+		return originalValue * multiplier;
 	}
 
 	/**
@@ -40,32 +36,4 @@ public class MutatableFloat {
 	public float getRawValue() {
 		return originalValue;
 	}
-
-	/**
-	 * Adds/updates a multiplier identified by cause
-	 * @param cause The source/cause of factor being applied
-	 * @param factor multiplication factor
-	 */
-	public void setMultiplier(Object cause, float factor) {
-		multipliers.put(cause, factor);
-		updateCache();
-	}
-
-	/**
-	 * Removes a multiplier identified by cause
-	 * @param cause The source/cause of factor being removed
-	 */
-	public void removeMultiplier(Object cause) {
-		multipliers.remove(cause);
-		updateCache();
-	}
-
-	private float multiplierCache = 1;
-
-	private void updateCache() {
-		multiplierCache = 1;
-		for (Float m : multipliers.values())
-			multiplierCache *= m;
-	}
-
 }
