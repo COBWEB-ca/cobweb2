@@ -279,7 +279,11 @@ public class CobwebApplication extends JFrame {
 		File file = new File(config.fileName);
 
 		if (file.exists()) {
-			currentFile = file.getName();
+			try {
+				currentFile = file.getCanonicalPath();
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
+			}
 
 			if (file.isHidden() || !file.canWrite()) {
 				JOptionPane.showMessageDialog(this,
