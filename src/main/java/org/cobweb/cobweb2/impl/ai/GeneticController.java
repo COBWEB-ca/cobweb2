@@ -4,6 +4,8 @@ import java.util.Map.Entry;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Controller;
+import org.cobweb.cobweb2.core.ControllerInput;
+import org.cobweb.cobweb2.core.ControllerListener;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
@@ -81,6 +83,12 @@ public class GeneticController implements Controller {
 		}
 	}
 
+	public static class GCInput implements ControllerInput {
+		public GCInput(BitField inputCode) {
+			this.inputCode = inputCode;
+		}
+		public BitField inputCode;
+	}
 
 	/**
 	 * Converts the parameters of the agent into a behavior (turn left or right,
@@ -92,10 +100,12 @@ public class GeneticController implements Controller {
 	 * @see ComplexAgent#step()
 	 */
 	@Override
-	public void controlAgent(Agent baseAgent) {
+	public void controlAgent(Agent baseAgent, ControllerListener inputCallback) {
 		ComplexAgent theAgent = (ComplexAgent) baseAgent;
 
 		BitField inputCode = getInputArray(theAgent);
+
+		inputCallback.beforeControl(theAgent, new GCInput(inputCode));
 
 		int[] outputArray = ga.getOutput(inputCode.intValue());
 

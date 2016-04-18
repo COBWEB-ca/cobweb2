@@ -1,6 +1,7 @@
 package org.cobweb.cobweb2.core;
 
-public interface AgentListener {
+
+public interface AgentListener extends ControllerListener {
 
 	public abstract void onContact(Agent bumper, Agent bumpee);
 
