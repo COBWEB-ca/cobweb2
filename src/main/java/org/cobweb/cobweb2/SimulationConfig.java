@@ -6,14 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cobweb.cobweb2.impl.AgentParams;
-import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.ai.GeneticController;
 import org.cobweb.cobweb2.impl.ai.GeneticControllerParams;
-import org.cobweb.cobweb2.impl.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.ResizableParam;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
@@ -83,13 +81,6 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	}
 
 	/**
-	 * Class name of the agent object
-	 */
-	@ConfDisplayName("Agent type")
-	@ConfXMLTag("AgentName")
-	public String agentName = ComplexAgent.class.getName();
-
-	/**
 	 * Class name of environment object
 	 */
 	@ConfDisplayName("Environment type")
@@ -152,10 +143,6 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 
 	@ConfXMLTag("Production")
 	public ProductionParams prodParams = new ProductionParams(this);
-
-
-	@ConfXMLTag("Learning")
-	public LearningParams learningParams = new LearningParams(this);
 
 	@ConfXMLTag("Disease")
 	public DiseaseParams diseaseParams = new DiseaseParams(this);

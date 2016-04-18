@@ -24,7 +24,6 @@ import javax.swing.JTabbedPane;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.impl.FoodwebParams;
-import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
@@ -37,7 +36,6 @@ import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.cobweb2.ui.swing.config.EnvironmentConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.FoodwebConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.GeneticConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.LearningConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.PDConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
@@ -96,8 +94,6 @@ public class SimulationConfigEditor implements ConfigRefresher {
 			abioticPage.validateUI();
 			prodPage.validateUI();
 			wastePage.validateUI();
-			if (learnPage != null)
-				learnPage.validateUI();
 		} catch (IllegalArgumentException ex) {
 			throw new UserInputException("Parameter error: " + ex.getMessage(), ex);
 		}
@@ -173,10 +169,6 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private FoodwebConfigPage foodwebPage;
 
 	private PDConfigPage pdPage;
-
-	private LearningConfigPage learnPage;
-
-
 
 	private DisplaySettings displaySettings;
 
@@ -361,13 +353,6 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		removeOldPage(abioticPage);
 		abioticPage = new AbioticAgentConfigPage(p.abioticParams.agentParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Agent Abiotic", abioticPage.getPanel());
-
-
-		removeOldPage(learnPage);
-		if (p.agentName.equals(ComplexAgentLearning.class.getName())) {
-			learnPage = new LearningConfigPage(p.learningParams.agentParams, displaySettings.agentColor);
-			tabbedPane.addTab("Learning", learnPage.getPanel());
-		}
 	}
 
 	private void removeOldPage(ConfigPage r) {

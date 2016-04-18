@@ -143,7 +143,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	//TODO use reflection to automate this
 	public void load(SimulationConfig p) {
 		this.simulationConfig = p;
-		agentSpawner = new AgentSpawner(p.agentName, this);
+		agentSpawner = new AgentSpawner(ComplexAgent.class.getName(), this);
 
 		// 0 = use default seed
 		if (p.randomSeed == 0)

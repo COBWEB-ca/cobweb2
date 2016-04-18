@@ -10,19 +10,12 @@ import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.cobweb.cobweb2.SimulationConfig;
-import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
-import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
-import org.cobweb.cobweb2.impl.learning.ComplexEnvironmentLearning;
 import org.cobweb.cobweb2.ui.config.FieldPropertyAccessor;
 import org.cobweb.cobweb2.ui.config.SetterPropertyAccessor;
 import org.cobweb.cobweb2.ui.swing.ConfigRefresher;
@@ -95,30 +88,9 @@ public class EnvironmentConfigPage implements ConfigPage {
 		fieldPane.add(new JLabel(AgentNum.getLabelText()));
 		fieldPane.add(AgentNum);
 
-		final JCheckBox LearningAgents = new JCheckBox();
-		fieldPane.add(new JLabel("Learning Agents"));
-		fieldPane.add(LearningAgents);
-		LearningAgents.addChangeListener(new ChangeListener() {
-
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (LearningAgents.isSelected()) {
-					params.agentName = ComplexAgentLearning.class.getName();
-					params.environmentName = ComplexEnvironmentLearning.class.getName();
-				} else {
-					params.agentName = ComplexAgent.class.getName();
-					params.environmentName = ComplexEnvironment.class.getName();
-				}
-
-				refresher.refreshConfig();
-			}
-		});
-		LearningAgents.setSelected(params.agentName.equals(ComplexAgentLearning.class.getName()));
-
-
 		panel11.add(fieldPane, BorderLayout.CENTER);
 
-		makeOptionsTable(fieldPane, 5);
+		makeOptionsTable(fieldPane, 4);
 		return panel11;
 	}
 
