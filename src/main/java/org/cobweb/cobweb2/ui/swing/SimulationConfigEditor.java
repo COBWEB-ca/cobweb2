@@ -42,6 +42,7 @@ import org.cobweb.cobweb2.ui.swing.config.PDConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.SettingsPanel;
+import org.cobweb.cobweb2.ui.swing.config.ToxinConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
 
 /**
@@ -91,6 +92,7 @@ public class SimulationConfigEditor implements ConfigRefresher {
 				pdPage.validateUI();
 			geneticPage.validateUI();
 			diseaseConfigPage.validateUI();
+			toxinConfigPage.validateUI();
 			abioticPage.validateUI();
 			prodPage.validateUI();
 			wastePage.validateUI();
@@ -159,6 +161,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private Logger myLogger = Logger.getLogger("COBWEB2");
 
 	private DiseaseConfigPage diseaseConfigPage;
+
+	private ToxinConfigPage toxinConfigPage;
 
 	private AbioticAgentConfigPage abioticPage;
 
@@ -349,6 +353,10 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		removeOldPage(diseaseConfigPage);
 		diseaseConfigPage = new DiseaseConfigPage(p.diseaseParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
+
+		removeOldPage(toxinConfigPage);
+		toxinConfigPage = new ToxinConfigPage(p.toxinParams, serializer.choiceCatalog, displaySettings.agentColor);
+		tabbedPane.addTab("Toxin", toxinConfigPage.getPanel());
 
 		removeOldPage(abioticPage);
 		abioticPage = new AbioticAgentConfigPage(p.abioticParams.agentParams, serializer.choiceCatalog, displaySettings.agentColor);

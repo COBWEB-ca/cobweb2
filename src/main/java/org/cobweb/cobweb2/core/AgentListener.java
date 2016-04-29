@@ -14,6 +14,10 @@ public interface AgentListener {
 
 	public abstract void onDeath(Agent agent);
 
+	public abstract void onConsumeFood(Agent agent, int foodType);
+
+	public abstract void onConsumeAgent(Agent agent, Agent food);
+
 	public abstract void onEnergyChange(Agent agent, int delta, Cause cause);
 
 	public abstract void onUpdate(Agent agent);

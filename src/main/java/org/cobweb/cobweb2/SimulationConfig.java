@@ -21,6 +21,7 @@ import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.pd.PDParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
+import org.cobweb.cobweb2.plugins.toxin.ToxinParams;
 import org.cobweb.cobweb2.plugins.waste.WasteParams;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfSaveInstanceClass;
@@ -158,6 +159,9 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 
 	@ConfXMLTag("Disease")
 	public DiseaseParams diseaseParams = new DiseaseParams(this);
+
+	@ConfXMLTag("Toxin")
+	public ToxinParams toxinParams = new ToxinParams(this);
 
 	@ConfXMLTag("ga")
 	public GeneticParams geneticParams = new GeneticParams(this);

@@ -30,6 +30,7 @@ import org.cobweb.cobweb2.plugins.pd.PDMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
 import org.cobweb.cobweb2.plugins.stats.EnergyStats;
 import org.cobweb.cobweb2.plugins.stats.StatsMutator;
+import org.cobweb.cobweb2.plugins.toxin.ToxinMutator;
 import org.cobweb.cobweb2.plugins.vision.VisionMutator;
 import org.cobweb.cobweb2.plugins.waste.WasteMutator;
 import org.cobweb.cobweb2.ui.SimulationInterface;
@@ -64,6 +65,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	public ProductionMapper prodMapper;
 	private AbioticMutator abioticMutator;
 	private DiseaseMutator diseaseMutator;
+	private ToxinMutator toxinMutator;
 	public GeneticsMutator geneticMutator;
 	public StatsMutator statsMutator;
 	private VisionMutator vision;
@@ -174,6 +176,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			agents.clear();
 			geneticMutator = null;
 			diseaseMutator = null;
+			toxinMutator = null;
 			abioticMutator = null;
 			prodMapper = null;
 			wasteMutator = null;
@@ -207,6 +210,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			diseaseMutator = new DiseaseMutator();
 			mutatorListener.addMutator(diseaseMutator);
 		}
+		if (toxinMutator == null) {
+			toxinMutator = new ToxinMutator(this);
+			mutatorListener.addMutator(toxinMutator);
+		}
 		if (geneticMutator == null) {
 			geneticMutator = new GeneticsMutator();
 			mutatorListener.addMutator(geneticMutator);
@@ -236,6 +243,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		theEnvironment.addPlugin(abioticMutator);
 		theEnvironment.addPlugin(energyStats);
 		theEnvironment.addPlugin(prodMapper);
+		theEnvironment.addPlugin(toxinMutator);
 
 		// Load agent plugin settings
 		pdMutator.setParams(p.pdParams);
@@ -243,6 +251,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		prodMapper.setParams(simulationConfig.prodParams, theEnvironment, p.keepOldDrops);
 		abioticMutator.setParams(this, p.abioticParams);
 		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
+		toxinMutator.setParams(p.toxinParams, p.getAgentTypes());
 		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
 
 

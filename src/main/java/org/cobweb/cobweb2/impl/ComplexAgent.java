@@ -279,13 +279,15 @@ public class ComplexAgent extends Agent {
 	public void eat(Location destPos) {
 		// TODO: CHECK if setting flag before determining type is ok
 		// Eat first before we can produce waste, of course.
+		final int foodType = environment.getFoodType(destPos);
 		environment.removeFood(destPos);
 		// Gain Energy according to the food type.
-		if (environment.getFoodType(destPos) == getType()) {
+		if (foodType == getType()) {
 			changeEnergy(+params.foodEnergy.getValue(), new EatFavoriteFoodCause());
 		} else {
 			changeEnergy(+params.otherFoodEnergy.getValue(), new EatFoodCause());
 		}
+		getAgentListener().onConsumeFood(this, foodType);
 	}
 
 	/**
@@ -297,6 +299,7 @@ public class ComplexAgent extends Agent {
 	protected void eat(ComplexAgent adjacentAgent) {
 		int gain = (int) (adjacentAgent.getEnergy() * params.agentFoodEnergy.getValue());
 		changeEnergy(+gain, new EatAgentCause());
+		getAgentListener().onConsumeAgent(this, adjacentAgent);
 		adjacentAgent.die();
 	}
 
