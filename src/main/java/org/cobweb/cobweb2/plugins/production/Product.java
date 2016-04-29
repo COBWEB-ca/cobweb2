@@ -35,7 +35,7 @@ public class Product implements Drop {
 	}
 
 	@Override
-	public boolean canStep() {
+	public boolean canStep(Agent agent) {
 		return true;
 	}
 

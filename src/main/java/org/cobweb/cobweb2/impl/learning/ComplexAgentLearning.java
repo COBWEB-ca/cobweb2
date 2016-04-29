@@ -337,7 +337,7 @@ public class ComplexAgentLearning extends ComplexAgent {
 		else if (destPos != null && environment.hasDrop(destPos)) {
 
 			Drop d = environment.getDrop(destPos);
-			if (!d.canStep()) {
+			if (!d.canStep(this)) {
 
 				// Allow agents up to a distance of 5 to see this agent hit the
 				// waste

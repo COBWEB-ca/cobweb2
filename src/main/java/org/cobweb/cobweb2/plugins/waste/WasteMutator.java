@@ -64,8 +64,6 @@ DropManager<Waste>{
 	@Override
 	public WasteState stateForNewAgent(Agent agent) {
 		WasteAgentParams agentParams = params.agentParams[agent.getType()];
-		if (!agentParams.wasteMode)
-			return null; // Don't need state when waste disabled
 
 		return new WasteState(agentParams.clone());
 	}
@@ -104,7 +102,7 @@ DropManager<Waste>{
 		if (replaceFood)
 			environment.removeFood(loc);
 
-		Waste waste = new Waste(loc, agentParams.wasteInit, agentParams.wasteDecay, this);
+		Waste waste = new Waste(loc, agentParams.wasteInit, agentParams.wasteDecay, this, agent.getType());
 		environment.addDrop(loc, waste);
 		return true;
 	}
