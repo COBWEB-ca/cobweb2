@@ -43,7 +43,7 @@ public class LearningState implements AgentState, Updatable {
 			// Find decision that caused the worst energy loss
 			for (int t = inputMemory.size() - 1; t >= 0; t--) {
 				ControllerInput input = inputMemory.get(t);
-				for (int dt = t; dt >=0; t-- ) {
+				for (int dt = t; dt >=0; dt-- ) {
 					ConsequenceGroup c = consequesnces.get(dt);
 					score += c.score() * weight;
 				}
