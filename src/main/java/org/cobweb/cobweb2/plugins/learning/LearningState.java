@@ -16,18 +16,26 @@ public class LearningState implements AgentState, Updatable {
 	@ConfXMLTag("AgentParams")
 	public LearningAgentParams agentParams;
 
+	final int memorySteps;
 	final int cycleLength;
 	int cycleCounter;
 
 	CircularFifoQueue<ControllerInput> inputMemory;
-	CircularFifoQueue<ConsequenceGroup> consequesnces;
+	CircularFifoQueue<ConsequenceGroup> consequences;
 	ConsequenceGroup currentConsequence = new ConsequenceGroup();
+
 
 	public LearningState(LearningAgentParams agentParams) {
 		this.agentParams = agentParams;
-		inputMemory = new CircularFifoQueue<>(agentParams.memorySteps.getValue());
-		consequesnces = new CircularFifoQueue<>(agentParams.memorySteps.getValue());
+
+		// Number of steps in learning cycle
 		cycleLength = agentParams.learningCycle.getValue();
+		// Remember input for every learning step
+		inputMemory = new CircularFifoQueue<>(cycleLength);
+
+		// Remember output for memorySteps steps after input step
+		memorySteps = agentParams.memorySteps.getValue();
+		consequences = new CircularFifoQueue<>(memorySteps + cycleLength);
 		cycleCounter = cycleLength;
 	}
 
@@ -39,18 +47,22 @@ public class LearningState implements AgentState, Updatable {
 		if (--cycleCounter < 0) {
 			cycleCounter = cycleLength;
 
-			float weight = 1;
-			float score = 0;
-
 			ControllerInput worstDecision = null;
 			float worstScore = Float.MAX_VALUE;
 
 			// Find decision that caused the worst energy loss
-			for (int t = inputMemory.size() - 1; t >= 0; t--) {
+			for (int t = 0; t < inputMemory.size(); t++) {
 				ControllerInput input = inputMemory.get(t);
-				for (int dt = t; dt >=0; dt-- ) {
-					ConsequenceGroup c = consequesnces.get(dt);
+				float weight = 1;
+				float score = 0;
+
+				// Don't go past end of array before memory is filled
+				int newestConsequence = Math.min(t + memorySteps, consequences.size() - 1);
+
+				for (int ct = newestConsequence; ct >= t; ct--) {
+					ConsequenceGroup c = consequences.get(ct);
 					score += c.score() * weight;
+					weight *= (1 - agentParams.weighting.getValue());
 				}
 
 				if (score < worstScore || worstDecision == null) {
@@ -58,7 +70,6 @@ public class LearningState implements AgentState, Updatable {
 					worstScore = score;
 				}
 
-				weight *= (1 - agentParams.weighting.getValue());
 			}
 
 			// Randomly modify controller output for worst input
@@ -73,7 +84,7 @@ public class LearningState implements AgentState, Updatable {
 
 		inputMemory.add(cInput);
 		currentConsequence = new ConsequenceGroup();
-		consequesnces.add(currentConsequence);
+		consequences.add(currentConsequence);
 	}
 
 	public void recordChange(int delta, Cause cause) {
