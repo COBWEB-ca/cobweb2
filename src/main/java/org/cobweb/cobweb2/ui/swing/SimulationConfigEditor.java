@@ -36,6 +36,7 @@ import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
 import org.cobweb.cobweb2.ui.swing.config.EnvironmentConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.FoodwebConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.GeneticConfigPage;
+import org.cobweb.cobweb2.ui.swing.config.LearningConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.PDConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
@@ -89,6 +90,7 @@ public class SimulationConfigEditor implements ConfigRefresher {
 			if (pdPage != null)
 				pdPage.validateUI();
 			geneticPage.validateUI();
+			learningPage.validateUI();
 			diseaseConfigPage.validateUI();
 			toxinConfigPage.validateUI();
 			abioticPage.validateUI();
@@ -125,6 +127,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private WasteConfigPage wastePage;
 
 	private GeneticConfigPage geneticPage;
+
+	private LearningConfigPage learningPage;
 
 	private final JTabbedPane tabbedPane;
 
@@ -341,6 +345,11 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		controllerPanel = new AIPanel(displaySettings.agentColor, dialog);
 		controllerPanel.bindToParser(p);
 		tabbedPane.addTab("AI", controllerPanel);
+
+		removeOldPage(learningPage);
+		learningPage = new LearningConfigPage(p.learningParams, serializer.choiceCatalog, displaySettings.agentColor);
+		JComponent panelLearning = learningPage.getPanel();
+		tabbedPane.addTab("Learning", panelLearning);
 
 		removeOldPage(diseaseConfigPage);
 		diseaseConfigPage = new DiseaseConfigPage(p.diseaseParams, serializer.choiceCatalog, displaySettings.agentColor);
