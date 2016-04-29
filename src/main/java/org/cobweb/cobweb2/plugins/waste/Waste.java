@@ -59,6 +59,7 @@ public class Waste implements Drop {
 	public void onStep(Agent agent) {
 		WasteAgentParams agentParams = wasteManager.getAgentState(agent).agentParams;
 		agent.changeEnergy(agentParams.consumeEnergy.getValue(), new WasteConsumptionCause());
+		wasteManager.remove(this);
 	}
 
 	public static class WasteConsumptionCause implements Cause {
