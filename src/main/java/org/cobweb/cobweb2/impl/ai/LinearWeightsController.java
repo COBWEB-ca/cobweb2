@@ -2,6 +2,8 @@ package org.cobweb.cobweb2.impl.ai;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Controller;
+import org.cobweb.cobweb2.core.ControllerInput;
+import org.cobweb.cobweb2.core.ControllerListener;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
@@ -49,14 +51,29 @@ public class LinearWeightsController implements Controller {
 
 	private static int ENERGY_THRESHOLD = 160;
 
-	@Override
-	public void controlAgent(Agent theAgent) {
-		ComplexAgent agent;
-		if (theAgent instanceof ComplexAgent) {
-			agent = (ComplexAgent) theAgent;
-		} else {
-			return;
+	public class LWInput implements ControllerInput {
+		public double[] inputs;
+
+		public LWInput(double[] inputs) {
+			this.inputs = inputs;
 		}
+
+		@Override
+		public void mutate(float adjustmentStrength) {
+			for (int eq = 0; eq < params.OUTPUT_COUNT; eq++) {
+				for (int v = 0; v < inputs.length; v++) {
+					// variables with stronger inputs are adjusted more
+					double strength = adjustmentStrength * Math.abs(inputs[v]);
+					params.data[v][eq] += simulator.getRandom().nextGaussian() * strength;
+				}
+			}
+		}
+	}
+
+
+	@Override
+	public void controlAgent(Agent theAgent, ControllerListener inputCallback) {
+		ComplexAgent agent = (ComplexAgent) theAgent;
 		SeeInfo get = agent.getState(VisionState.class).distanceLook();
 		int type = get.getType();
 		int dist = get.getDist();
@@ -86,6 +103,7 @@ public class LinearWeightsController implements Controller {
 			}
 		}
 
+		inputCallback.beforeControl(agent, new LWInput(variables));
 
 		double memout = 0.0;
 		double commout = 0.0;
@@ -95,7 +113,6 @@ public class LinearWeightsController implements Controller {
 		double asexflag = 0.0;
 		for (int eq = 0; eq < params.OUTPUT_COUNT; eq++) {
 			double res = 0.0;
-			variables[9] = simulator.getRandom().nextGaussian();
 			for (int v = 0; v < variables.length; v++) {
 				res += params.data[v][eq] * variables[v];
 			}

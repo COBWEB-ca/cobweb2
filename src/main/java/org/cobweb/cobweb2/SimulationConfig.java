@@ -6,19 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cobweb.cobweb2.impl.AgentParams;
-import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.impl.ComplexEnvironmentParams;
 import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.impl.ai.GeneticController;
 import org.cobweb.cobweb2.impl.ai.GeneticControllerParams;
-import org.cobweb.cobweb2.impl.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.ResizableParam;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
+import org.cobweb.cobweb2.plugins.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.pd.PDParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.toxin.ToxinParams;
@@ -81,13 +80,6 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	public String getControllerName() {
 		return controllerName;
 	}
-
-	/**
-	 * Class name of the agent object
-	 */
-	@ConfDisplayName("Agent type")
-	@ConfXMLTag("AgentName")
-	public String agentName = ComplexAgent.class.getName();
 
 	/**
 	 * Class name of environment object
@@ -153,10 +145,6 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfXMLTag("Production")
 	public ProductionParams prodParams = new ProductionParams(this);
 
-
-	@ConfXMLTag("Learning")
-	public LearningParams learningParams = new LearningParams(this);
-
 	@ConfXMLTag("Disease")
 	public DiseaseParams diseaseParams = new DiseaseParams(this);
 
@@ -169,6 +157,9 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfSaveInstanceClass
 	@ConfXMLTag("ControllerConfig")
 	public ControllerParams controllerParams = new GeneticControllerParams(this);
+
+	@ConfXMLTag("Learning")
+	public LearningParams learningParams = new LearningParams(this);
 
 	/**
 	 * Creates the default Cobweb simulation parameters.

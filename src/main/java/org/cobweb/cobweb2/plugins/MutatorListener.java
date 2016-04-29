@@ -9,6 +9,7 @@ import java.util.Set;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.AgentListener;
 import org.cobweb.cobweb2.core.Cause;
+import org.cobweb.cobweb2.core.ControllerInput;
 import org.cobweb.cobweb2.core.LocationDirection;
 
 
@@ -21,6 +22,7 @@ public class MutatorListener implements AgentListener {
 	private Set<UpdateMutator> updateMutators = new LinkedHashSet<>();
 	private Set<LoggingMutator> loggingMutators = new LinkedHashSet<>();
 	private Set<ConsumptionMutator> consumptionMutators = new LinkedHashSet<>();
+	private Set<ControllerInputMutator> controllerMutators = new LinkedHashSet<>();
 	private Set<AgentMutator> allMutators = new HashSet<>();
 
 	public void addMutator(AgentMutator mutator) {
@@ -45,6 +47,9 @@ public class MutatorListener implements AgentListener {
 		if (mutator instanceof LoggingMutator)
 			loggingMutators.add((LoggingMutator) mutator);
 
+		if (mutator instanceof ControllerInputMutator)
+			controllerMutators.add((ControllerInputMutator) mutator);
+
 		allMutators.add(mutator);
 	}
 
@@ -57,6 +62,7 @@ public class MutatorListener implements AgentListener {
 		updateMutators.remove(mutator);
 		loggingMutators.remove(mutator);
 		consumptionMutators.remove(mutator);
+		controllerMutators.remove(mutator);
 
 		allMutators.remove(mutator);
 	}
@@ -69,6 +75,7 @@ public class MutatorListener implements AgentListener {
 		updateMutators.clear();
 		loggingMutators.clear();
 		consumptionMutators.clear();
+		controllerMutators.clear();
 
 		allMutators.clear();
 	}
@@ -149,6 +156,13 @@ public class MutatorListener implements AgentListener {
 	public void onUpdate(Agent agent) {
 		for(UpdateMutator mutator : updateMutators) {
 			mutator.onUpdate(agent);
+		}
+	}
+
+	@Override
+	public void beforeControl(Agent agent, ControllerInput cInput) {
+		for(ControllerInputMutator mutator : controllerMutators) {
+			mutator.onControl(agent, cInput);
 		}
 	}
 

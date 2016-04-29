@@ -1,4 +1,4 @@
-package org.cobweb.cobweb2.impl.learning;
+package org.cobweb.cobweb2.plugins.learning;
 
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.plugins.PerAgentParams;
@@ -6,8 +6,8 @@ import org.cobweb.cobweb2.plugins.PerAgentParams;
 
 public class LearningParams extends PerAgentParams<LearningAgentParams> {
 
-	public LearningParams(AgentFoodCountable envParams) {
-		super(LearningAgentParams.class, envParams);
+	public LearningParams(AgentFoodCountable initialSize) {
+		super(LearningAgentParams.class, initialSize);
 	}
 
 	@Override
@@ -15,5 +15,5 @@ public class LearningParams extends PerAgentParams<LearningAgentParams> {
 		return new LearningAgentParams();
 	}
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 1L;
 }

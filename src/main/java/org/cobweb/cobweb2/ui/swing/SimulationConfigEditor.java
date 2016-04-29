@@ -24,7 +24,6 @@ import javax.swing.JTabbedPane;
 
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.impl.FoodwebParams;
-import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.swing.config.AIPanel;
@@ -91,13 +90,12 @@ public class SimulationConfigEditor implements ConfigRefresher {
 			if (pdPage != null)
 				pdPage.validateUI();
 			geneticPage.validateUI();
+			learningPage.validateUI();
 			diseaseConfigPage.validateUI();
 			toxinConfigPage.validateUI();
 			abioticPage.validateUI();
 			prodPage.validateUI();
 			wastePage.validateUI();
-			if (learnPage != null)
-				learnPage.validateUI();
 		} catch (IllegalArgumentException ex) {
 			throw new UserInputException("Parameter error: " + ex.getMessage(), ex);
 		}
@@ -129,6 +127,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private WasteConfigPage wastePage;
 
 	private GeneticConfigPage geneticPage;
+
+	private LearningConfigPage learningPage;
 
 	private final JTabbedPane tabbedPane;
 
@@ -173,10 +173,6 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private FoodwebConfigPage foodwebPage;
 
 	private PDConfigPage pdPage;
-
-	private LearningConfigPage learnPage;
-
-
 
 	private DisplaySettings displaySettings;
 
@@ -350,6 +346,11 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		controllerPanel.bindToParser(p);
 		tabbedPane.addTab("AI", controllerPanel);
 
+		removeOldPage(learningPage);
+		learningPage = new LearningConfigPage(p.learningParams, serializer.choiceCatalog, displaySettings.agentColor);
+		JComponent panelLearning = learningPage.getPanel();
+		tabbedPane.addTab("Learning", panelLearning);
+
 		removeOldPage(diseaseConfigPage);
 		diseaseConfigPage = new DiseaseConfigPage(p.diseaseParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
@@ -361,13 +362,6 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		removeOldPage(abioticPage);
 		abioticPage = new AbioticAgentConfigPage(p.abioticParams.agentParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Agent Abiotic", abioticPage.getPanel());
-
-
-		removeOldPage(learnPage);
-		if (p.agentName.equals(ComplexAgentLearning.class.getName())) {
-			learnPage = new LearningConfigPage(p.learningParams.agentParams, displaySettings.agentColor);
-			tabbedPane.addTab("Learning", learnPage.getPanel());
-		}
 	}
 
 	private void removeOldPage(ConfigPage r) {

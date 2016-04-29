@@ -21,7 +21,6 @@ import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.Phenotype;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.impl.ComplexAgentParams;
-import org.cobweb.cobweb2.impl.learning.ComplexAgentLearning;
 import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.genetics.PhenotypeIndex;
 import org.cobweb.cobweb2.ui.UserInputException;
@@ -120,11 +119,6 @@ public class Cobweb2Serializer {
 		root.setAttribute("config-version", "2015-01-14");
 
 		serializer.save(conf, root, d);
-
-		// If learning agents not used, remove the Learning section of config
-		if (!conf.agentName.equals(ComplexAgentLearning.class.getName())) {
-			root.removeChild(root.getElementsByTagName("Learning").item(0));
-		}
 
 		CobwebXmlHelper.writeDocument(stream, d);
 	}

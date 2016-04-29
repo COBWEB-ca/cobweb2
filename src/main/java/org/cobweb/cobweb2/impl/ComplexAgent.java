@@ -598,7 +598,7 @@ public class ComplexAgent extends Agent {
 		if (params.broadcastMode)
 			receiveBroadcast();
 
-		controller.controlAgent(this);
+		controller.controlAgent(this, getAgentListener());
 
 		clearCommInbox();
 	}

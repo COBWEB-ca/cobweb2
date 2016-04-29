@@ -13,7 +13,7 @@ public interface Controller {
 	 *
 	 * @param theAgent agent to control
 	 */
-	public void controlAgent(Agent theAgent);
+	public void controlAgent(Agent theAgent, ControllerListener inputCallback);
 
 	/**
 	 * Creates controller for child based on parameters of the asexual breeding parent

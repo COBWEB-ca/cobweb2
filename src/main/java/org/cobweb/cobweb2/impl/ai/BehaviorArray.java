@@ -168,6 +168,19 @@ public class BehaviorArray {
 		return (int) ((buff >>> basemod) & totalOutMask);
 	}
 
+	void mutateOutput(int index, float strength, Random rand) {
+		int value = get(index);
+		int newValue = value;
+
+		for (int i = 0; i < outputBits; i++) {
+			int b = 1 << i;
+			if (rand.nextFloat() < strength)
+				newValue ^= b;
+		}
+
+		set(index, newValue);
+	}
+
 	/**
 	 * @return an array filled with the different outputs associated with the element number given as a parameter
 	 */
