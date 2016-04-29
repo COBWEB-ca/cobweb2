@@ -20,6 +20,7 @@ public class MutatorListener implements AgentListener {
 	private Set<EnergyMutator> energyMutators = new LinkedHashSet<>();
 	private Set<UpdateMutator> updateMutators = new LinkedHashSet<>();
 	private Set<LoggingMutator> loggingMutators = new LinkedHashSet<>();
+	private Set<ConsumptionMutator> consumptionMutators = new LinkedHashSet<>();
 	private Set<AgentMutator> allMutators = new HashSet<>();
 
 	public void addMutator(AgentMutator mutator) {
@@ -38,6 +39,9 @@ public class MutatorListener implements AgentListener {
 		if (mutator instanceof UpdateMutator)
 			updateMutators.add((UpdateMutator) mutator);
 
+		if (mutator instanceof ConsumptionMutator)
+			consumptionMutators.add((ConsumptionMutator) mutator);
+
 		if (mutator instanceof LoggingMutator)
 			loggingMutators.add((LoggingMutator) mutator);
 
@@ -52,6 +56,7 @@ public class MutatorListener implements AgentListener {
 		energyMutators.remove(mutator);
 		updateMutators.remove(mutator);
 		loggingMutators.remove(mutator);
+		consumptionMutators.remove(mutator);
 
 		allMutators.remove(mutator);
 	}
@@ -63,6 +68,7 @@ public class MutatorListener implements AgentListener {
 		energyMutators.clear();
 		updateMutators.clear();
 		loggingMutators.clear();
+		consumptionMutators.clear();
 
 		allMutators.clear();
 	}
@@ -115,6 +121,20 @@ public class MutatorListener implements AgentListener {
 	public void onDeath(Agent agent) {
 		for (SpawnMutator mutator : spawnMutators) {
 			mutator.onDeath(agent);
+		}
+	}
+
+	@Override
+	public void onConsumeAgent(Agent agent, Agent food) {
+		for(ConsumptionMutator mutator : consumptionMutators) {
+			mutator.onConsumeAgent(agent, food);
+		}
+	}
+
+	@Override
+	public void onConsumeFood(Agent agent, int foodType) {
+		for(ConsumptionMutator mutator : consumptionMutators) {
+			mutator.onConsumeFood(agent, foodType);
 		}
 	}
 

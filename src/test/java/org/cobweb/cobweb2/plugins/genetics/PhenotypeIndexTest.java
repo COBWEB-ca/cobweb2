@@ -52,7 +52,10 @@ public class PhenotypeIndexTest extends TestCase{
 				"wasteGain",
 				"wasteLoss",
 				"wasteRate",
-				"wasteInit"
+				"wasteInit",
+				"toxicityThreshold",
+				"toxicityEffect",
+				"toxicityPurgeRate"
 		}));
 
 		for (Phenotype phenotype : actual) {
