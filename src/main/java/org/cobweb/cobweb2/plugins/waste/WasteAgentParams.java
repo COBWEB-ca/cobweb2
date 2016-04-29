@@ -8,6 +8,7 @@ import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.util.CloneHelper;
+import org.cobweb.util.MutatableFloat;
 import org.cobweb.util.MutatableInt;
 
 public class WasteAgentParams implements ResizableParam {
@@ -47,14 +48,14 @@ public class WasteAgentParams implements ResizableParam {
 	 */
 	@ConfXMLTag("wasteGain")
 	@ConfDisplayName("Waste gain limit")
-	public int wasteLimitGain = 100;
+	public MutatableInt wasteLimitGain = new MutatableInt(100);
 
 	/**
 	 * Waste is produced when this amount of energy is lost.
 	 */
 	@ConfXMLTag("wasteLoss")
 	@ConfDisplayName("Waste loss limit")
-	public int wasteLimitLoss = 0;
+	public MutatableInt wasteLimitLoss = new MutatableInt(0);
 
 	/**
 	 * Waste decay rate.
@@ -62,13 +63,13 @@ public class WasteAgentParams implements ResizableParam {
 	 */
 	@ConfXMLTag("wasteRate")
 	@ConfDisplayName("Waste decay")
-	public float wasteDecay = 0.5f;
+	public MutatableFloat wasteDecay = new MutatableFloat(0.5f);
 	/**
 	 * Initial waste amount.
 	 */
 	@ConfXMLTag("wasteInit")
 	@ConfDisplayName("Waste initial amount")
-	public int wasteInit = 100;
+	public MutatableInt  wasteInit = new MutatableInt(100);
 
 	public WasteAgentParams(AgentFoodCountable envParams) {
 		resize(envParams);

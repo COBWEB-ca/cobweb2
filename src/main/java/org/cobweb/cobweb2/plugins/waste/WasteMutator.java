@@ -50,13 +50,13 @@ DropManager<Waste>{
 
 		WasteAgentParams agentParams = state.agentParams;
 
-		if (agentParams.wasteLimitGain > 0 && state.energyGained >= agentParams.wasteLimitGain) {
+		if (agentParams.wasteLimitGain.getValue() > 0 && state.energyGained >= agentParams.wasteLimitGain.getValue()) {
 			if (tryPoop(agent, agentParams)) {
-				state.energyGained -= agentParams.wasteLimitGain;
+				state.energyGained -= agentParams.wasteLimitGain.getValue();
 			}
-		} else if (agentParams.wasteLimitLoss > 0 && state.energyLost >= agentParams.wasteLimitLoss) {
+		} else if (agentParams.wasteLimitLoss.getValue() > 0 && state.energyLost >= agentParams.wasteLimitLoss.getValue()) {
 			if (tryPoop(agent, agentParams)) {
-				state.energyLost -= agentParams.wasteLimitLoss;
+				state.energyLost -= agentParams.wasteLimitLoss.getValue();
 			}
 		}
 	}
@@ -102,7 +102,7 @@ DropManager<Waste>{
 		if (replaceFood)
 			environment.removeFood(loc);
 
-		Waste waste = new Waste(loc, agentParams.wasteInit, agentParams.wasteDecay, this, agent.getType());
+		Waste waste = new Waste(loc, agentParams.wasteInit.getValue(), agentParams.wasteDecay.getValue(), this, agent.getType());
 		environment.addDrop(loc, waste);
 		return true;
 	}
