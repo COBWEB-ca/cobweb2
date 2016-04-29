@@ -8,6 +8,11 @@ import org.cobweb.util.CloneHelper;
 
 public class LearningAgentParams implements ParameterSerializable {
 
+
+	@ConfXMLTag("enabled")
+	@ConfDisplayName("Enable learning")
+	public boolean learningEnabled = false;
+
 	@ConfXMLTag("memorySteps")
 	@ConfDisplayName("Memory duration")
 	public int memorySteps = 20;
@@ -22,7 +27,7 @@ public class LearningAgentParams implements ParameterSerializable {
 
 	@ConfXMLTag("learningAdjustmentStrength")
 	@ConfDisplayName("Learning adjustment strength")
-	public float adjustmentStrength = 0.1f;
+	public float adjustmentStrength = 0.3f;
 
 	public LearningAgentParams() {
 	}

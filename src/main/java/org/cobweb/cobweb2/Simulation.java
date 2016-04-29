@@ -26,6 +26,7 @@ import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
 import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.food.FoodGrowth;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
+import org.cobweb.cobweb2.plugins.learning.LearningMutator;
 import org.cobweb.cobweb2.plugins.pd.PDMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
 import org.cobweb.cobweb2.plugins.stats.EnergyStats;
@@ -67,6 +68,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	private DiseaseMutator diseaseMutator;
 	private ToxinMutator toxinMutator;
 	public GeneticsMutator geneticMutator;
+	public LearningMutator learningMutator;
 	public StatsMutator statsMutator;
 	private VisionMutator vision;
 
@@ -175,6 +177,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			aiStatePlugins.clear();
 			agents.clear();
 			geneticMutator = null;
+			learningMutator = null;
 			diseaseMutator = null;
 			toxinMutator = null;
 			abioticMutator = null;
@@ -219,6 +222,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(geneticMutator);
 			similarityCalculator = geneticMutator;
 		}
+		if (learningMutator == null) {
+			learningMutator = new LearningMutator(this);
+			mutatorListener.addMutator(learningMutator);
+		}
 		if (vision == null) {
 			vision = new VisionMutator();
 			mutatorListener.addMutator(vision);
@@ -253,6 +260,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
 		toxinMutator.setParams(p.toxinParams, p.getAgentTypes());
 		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
+		learningMutator.setParams(p.learningParams);
 
 
 		// Update AI state plugins

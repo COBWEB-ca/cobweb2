@@ -31,6 +31,9 @@ public class LearningState implements AgentState, Updatable {
 
 	@Override
 	public void update() {
+		if (!agentParams.learningEnabled)
+			return;
+
 		if (--cycleCounter < 0) {
 			cycleCounter = agentParams.learningCycle;
 
@@ -63,12 +66,18 @@ public class LearningState implements AgentState, Updatable {
 	}
 
 	public void recordInput(ControllerInput cInput) {
+		if (!agentParams.learningEnabled)
+			return;
+
 		inputMemory.add(cInput);
 		currentConsequence = new ConsequenceGroup();
 		consequesnces.add(currentConsequence);
 	}
 
 	public void recordChange(int delta, Cause cause) {
+		if (!agentParams.learningEnabled)
+			return;
+
 		Consequence consequence = new Consequence(delta, cause);
 		currentConsequence.addConsequence(consequence);
 	}

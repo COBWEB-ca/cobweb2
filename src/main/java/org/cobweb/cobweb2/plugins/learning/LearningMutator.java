@@ -15,8 +15,11 @@ implements EnergyMutator, ControllerInputMutator, UpdateMutator {
 
 	private LearningParams params;
 
-	protected LearningMutator(RandomSource rand, LearningParams params) {
+	public LearningMutator(RandomSource rand) {
 		super(LearningState.class, rand);
+	}
+
+	public void setParams(LearningParams params) {
 		this.params = params;
 	}
 

@@ -17,6 +17,7 @@ import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
+import org.cobweb.cobweb2.plugins.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.pd.PDParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.toxin.ToxinParams;
@@ -156,6 +157,9 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfSaveInstanceClass
 	@ConfXMLTag("ControllerConfig")
 	public ControllerParams controllerParams = new GeneticControllerParams(this);
+
+	@ConfXMLTag("Learning")
+	public LearningParams learningParams = new LearningParams(this);
 
 	/**
 	 * Creates the default Cobweb simulation parameters.
