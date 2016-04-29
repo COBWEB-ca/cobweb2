@@ -57,7 +57,7 @@ public class ToxinAgentParams implements ResizableParam {
 	@ConfXMLTag("agentToxicityTransfer")
 	@ConfDisplayName("Toxicity transfer from Agent")
 	@ConfList(indexName = "agent", startAtOne = true)
-	public float[] agentToxicityTransfer = new float[0]; // default set in resize()
+	public float[] agentToxicityTransfer = new float[0]; // default zero
 
 	/**
 	 * Fraction of toxin transfered to children
@@ -80,12 +80,7 @@ public class ToxinAgentParams implements ResizableParam {
 	@Override
 	public void resize(AgentFoodCountable envParams) {
 		foodToxicity = Arrays.copyOf(foodToxicity, envParams.getAgentTypes());
-
-		int oldSize = agentToxicityTransfer.length;
 		agentToxicityTransfer = Arrays.copyOf(agentToxicityTransfer, envParams.getAgentTypes());
-		// default transfer rate is 10%
-		for (int i = oldSize; i < agentToxicityTransfer.length; i++)
-			agentToxicityTransfer[i] = 0.2f;
 	}
 
 	@Override
