@@ -10,6 +10,7 @@ import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.util.CloneHelper;
+import org.cobweb.util.MutatableFloat;
 
 
 public class ToxinAgentParams implements ResizableParam {
@@ -25,16 +26,16 @@ public class ToxinAgentParams implements ResizableParam {
 	 * Threshold at which toxin starts having an effect
 	 */
 	@ConfXMLTag("toxicityThreshold")
-	@ConfDisplayName("Effect threshold")
-	public float toxicityThreshold = 1.0f;
+	@ConfDisplayName("Toxin effect threshold")
+	public MutatableFloat toxicityThreshold = new MutatableFloat(1.0f);
 
 	/**
 	 * Scale factor for toxicity effect.
 	 * Effect = max(0, toxicity - toxicityThreshold) * toxicityEffect
 	 */
 	@ConfXMLTag("toxicityEffect")
-	@ConfDisplayName("Effect factor")
-	public float toxicityEffect = -1.0f;
+	@ConfDisplayName("Toxin effect factor")
+	public MutatableFloat toxicityEffect = new MutatableFloat(-1.0f);
 
 	/**
 	 * Which parameter is affected by the toxin.
@@ -71,7 +72,7 @@ public class ToxinAgentParams implements ResizableParam {
 	 */
 	@ConfXMLTag("toxicityPurgeRate")
 	@ConfDisplayName("Toxin purge rate")
-	public float purgeRate = 0f;
+	public MutatableFloat purgeRate = new MutatableFloat(0f);
 
 	public ToxinAgentParams(AgentFoodCountable size) {
 		resize(size);

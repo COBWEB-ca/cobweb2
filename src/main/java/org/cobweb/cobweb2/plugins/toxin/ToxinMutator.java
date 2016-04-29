@@ -31,14 +31,14 @@ public class ToxinMutator extends StatefulSpawnMutatorBase<ToxinState> implement
 	@Override
 	public void onUpdate(Agent agent) {
 		ToxinState state = getAgentState(agent);
-		state.toxicity *= (1.0f - state.agentParams.purgeRate);
+		state.toxicity *= (1.0f - state.agentParams.purgeRate.getValue());
 
 		agentCount[agent.getType()]++;
 		agentTypeToxin[agent.getType()] += state.toxicity;
 
 		float effect = 1
-				+ Math.max(0, state.toxicity - state.agentParams.toxicityThreshold)
-				* state.agentParams.toxicityEffect;
+				+ Math.max(0, state.toxicity - state.agentParams.toxicityThreshold.getValue())
+				* state.agentParams.toxicityEffect.getValue();
 
 		state.agentParams.param.modifyValue(this, agent, effect);
 	}
