@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<COBWEB2Config cobweb-version="2.2014-11-29-pd-377-ga9fbd01-modified (master) 2015-02-02-14:46" config-version="2015-01-14" xmlns="http://cobweb.ca/schema/cobweb2/config">
+<COBWEB2Config cobweb-version="2.2015-02-04-52-ge5f7e92-modified (learning) 2016-04-29-13:31" config-version="2015-01-14" xmlns="http://cobweb.ca/schema/cobweb2/config">
   <AgentTypeCount>7</AgentTypeCount>
   <ControllerName>org.cobweb.cobweb2.impl.ai.GeneticController</ControllerName>
   <randomSeed>42</randomSeed>
-  <AgentName>org.cobweb.cobweb2.impl.ComplexAgent</AgentName>
   <EnvironmentName>org.cobweb.cobweb2.impl.ComplexEnvironment</EnvironmentName>
   <keepOldArray>false</keepOldArray>
   <keepOldDrops>false</keepOldDrops>
@@ -131,6 +130,8 @@
         <broadcastFixedRange>20</broadcastFixedRange>
         <broadcastEnergyMin>20</broadcastEnergyMin>
         <broadcastEnergyCost>5</broadcastEnergyCost>
+        <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+        <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
         <foodweb>
           <agent id="1">false</agent>
           <agent id="2">false</agent>
@@ -176,6 +177,8 @@
         <broadcastFixedRange>20</broadcastFixedRange>
         <broadcastEnergyMin>20</broadcastEnergyMin>
         <broadcastEnergyCost>5</broadcastEnergyCost>
+        <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+        <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
         <foodweb>
           <agent id="1">false</agent>
           <agent id="2">false</agent>
@@ -221,6 +224,8 @@
         <broadcastFixedRange>20</broadcastFixedRange>
         <broadcastEnergyMin>20</broadcastEnergyMin>
         <broadcastEnergyCost>5</broadcastEnergyCost>
+        <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+        <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
         <foodweb>
           <agent id="1">false</agent>
           <agent id="2">false</agent>
@@ -266,6 +271,8 @@
         <broadcastFixedRange>20</broadcastFixedRange>
         <broadcastEnergyMin>20</broadcastEnergyMin>
         <broadcastEnergyCost>5</broadcastEnergyCost>
+        <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+        <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
         <foodweb>
           <agent id="1">false</agent>
           <agent id="2">false</agent>
@@ -311,6 +318,8 @@
         <broadcastFixedRange>20</broadcastFixedRange>
         <broadcastEnergyMin>20</broadcastEnergyMin>
         <broadcastEnergyCost>5</broadcastEnergyCost>
+        <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+        <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
         <foodweb>
           <agent id="1">false</agent>
           <agent id="2">false</agent>
@@ -356,6 +365,8 @@
         <broadcastFixedRange>20</broadcastFixedRange>
         <broadcastEnergyMin>20</broadcastEnergyMin>
         <broadcastEnergyCost>5</broadcastEnergyCost>
+        <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+        <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
         <foodweb>
           <agent id="1">false</agent>
           <agent id="2">false</agent>
@@ -401,6 +412,8 @@
         <broadcastFixedRange>20</broadcastFixedRange>
         <broadcastEnergyMin>20</broadcastEnergyMin>
         <broadcastEnergyCost>5</broadcastEnergyCost>
+        <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+        <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
         <foodweb>
           <agent id="1">true</agent>
           <agent id="2">false</agent>
@@ -571,7 +584,7 @@
         <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
       </Agent>
       <Agent id="4">
-        <pdTitForTat>false</pdTitForTat>
+        <pdTitForTat>true</pdTitForTat>
         <pdCoopProb>50</pdCoopProb>
         <pdSimilaritySlope>0.0</pdSimilaritySlope>
         <pdSimilarityNeutral>0.9</pdSimilarityNeutral>
@@ -600,6 +613,16 @@
     <AgentParams>
       <Agent id="1">
         <wasteMode>false</wasteMode>
+        <canConsume>
+          <waste id="1">false</waste>
+          <waste id="2">false</waste>
+          <waste id="3">false</waste>
+          <waste id="4">false</waste>
+          <waste id="5">false</waste>
+          <waste id="6">false</waste>
+          <waste id="7">false</waste>
+        </canConsume>
+        <wasteConsumptionEnergy>0</wasteConsumptionEnergy>
         <wastePen>2</wastePen>
         <wasteGain>100</wasteGain>
         <wasteLoss>0</wasteLoss>
@@ -608,6 +631,16 @@
       </Agent>
       <Agent id="2">
         <wasteMode>false</wasteMode>
+        <canConsume>
+          <waste id="1">false</waste>
+          <waste id="2">false</waste>
+          <waste id="3">false</waste>
+          <waste id="4">true</waste>
+          <waste id="5">true</waste>
+          <waste id="6">false</waste>
+          <waste id="7">false</waste>
+        </canConsume>
+        <wasteConsumptionEnergy>5</wasteConsumptionEnergy>
         <wastePen>2</wastePen>
         <wasteGain>100</wasteGain>
         <wasteLoss>0</wasteLoss>
@@ -616,6 +649,16 @@
       </Agent>
       <Agent id="3">
         <wasteMode>false</wasteMode>
+        <canConsume>
+          <waste id="1">false</waste>
+          <waste id="2">false</waste>
+          <waste id="3">false</waste>
+          <waste id="4">false</waste>
+          <waste id="5">true</waste>
+          <waste id="6">false</waste>
+          <waste id="7">false</waste>
+        </canConsume>
+        <wasteConsumptionEnergy>10</wasteConsumptionEnergy>
         <wastePen>2</wastePen>
         <wasteGain>100</wasteGain>
         <wasteLoss>0</wasteLoss>
@@ -624,6 +667,16 @@
       </Agent>
       <Agent id="4">
         <wasteMode>true</wasteMode>
+        <canConsume>
+          <waste id="1">false</waste>
+          <waste id="2">false</waste>
+          <waste id="3">false</waste>
+          <waste id="4">false</waste>
+          <waste id="5">false</waste>
+          <waste id="6">false</waste>
+          <waste id="7">false</waste>
+        </canConsume>
+        <wasteConsumptionEnergy>0</wasteConsumptionEnergy>
         <wastePen>2</wastePen>
         <wasteGain>100</wasteGain>
         <wasteLoss>0</wasteLoss>
@@ -631,7 +684,17 @@
         <wasteInit>100</wasteInit>
       </Agent>
       <Agent id="5">
-        <wasteMode>false</wasteMode>
+        <wasteMode>true</wasteMode>
+        <canConsume>
+          <waste id="1">false</waste>
+          <waste id="2">false</waste>
+          <waste id="3">false</waste>
+          <waste id="4">false</waste>
+          <waste id="5">false</waste>
+          <waste id="6">false</waste>
+          <waste id="7">false</waste>
+        </canConsume>
+        <wasteConsumptionEnergy>0</wasteConsumptionEnergy>
         <wastePen>2</wastePen>
         <wasteGain>100</wasteGain>
         <wasteLoss>0</wasteLoss>
@@ -640,6 +703,16 @@
       </Agent>
       <Agent id="6">
         <wasteMode>false</wasteMode>
+        <canConsume>
+          <waste id="1">false</waste>
+          <waste id="2">false</waste>
+          <waste id="3">false</waste>
+          <waste id="4">false</waste>
+          <waste id="5">false</waste>
+          <waste id="6">false</waste>
+          <waste id="7">false</waste>
+        </canConsume>
+        <wasteConsumptionEnergy>0</wasteConsumptionEnergy>
         <wastePen>2</wastePen>
         <wasteGain>100</wasteGain>
         <wasteLoss>0</wasteLoss>
@@ -648,6 +721,16 @@
       </Agent>
       <Agent id="7">
         <wasteMode>false</wasteMode>
+        <canConsume>
+          <waste id="1">false</waste>
+          <waste id="2">false</waste>
+          <waste id="3">false</waste>
+          <waste id="4">false</waste>
+          <waste id="5">false</waste>
+          <waste id="6">false</waste>
+          <waste id="7">false</waste>
+        </canConsume>
+        <wasteConsumptionEnergy>0</wasteConsumptionEnergy>
         <wastePen>2</wastePen>
         <wasteGain>100</wasteGain>
         <wasteLoss>0</wasteLoss>
@@ -661,6 +744,14 @@
       <Agent id="1">
         <productionMode>false</productionMode>
         <productionCost>0</productionCost>
+        <productPrice>0</productPrice>
+        <maxUnsold>100</maxUnsold>
+        <productExpiry>1000</productExpiry>
+        <productEffect>
+          <parameter>None</parameter>
+          <factor>1.1</factor>
+          <duration>100</duration>
+        </productEffect>
         <InitProdChance>0.8</InitProdChance>
         <LowDemThresh>5.0</LowDemThresh>
         <LowDemProdChance>0.001</LowDemProdChance>
@@ -672,6 +763,14 @@
       <Agent id="2">
         <productionMode>false</productionMode>
         <productionCost>0</productionCost>
+        <productPrice>0</productPrice>
+        <maxUnsold>100</maxUnsold>
+        <productExpiry>1000</productExpiry>
+        <productEffect>
+          <parameter>None</parameter>
+          <factor>1.1</factor>
+          <duration>100</duration>
+        </productEffect>
         <InitProdChance>0.8</InitProdChance>
         <LowDemThresh>5.0</LowDemThresh>
         <LowDemProdChance>0.001</LowDemProdChance>
@@ -683,6 +782,14 @@
       <Agent id="3">
         <productionMode>false</productionMode>
         <productionCost>0</productionCost>
+        <productPrice>0</productPrice>
+        <maxUnsold>100</maxUnsold>
+        <productExpiry>1000</productExpiry>
+        <productEffect>
+          <parameter>None</parameter>
+          <factor>1.1</factor>
+          <duration>100</duration>
+        </productEffect>
         <InitProdChance>0.8</InitProdChance>
         <LowDemThresh>5.0</LowDemThresh>
         <LowDemProdChance>0.001</LowDemProdChance>
@@ -694,6 +801,14 @@
       <Agent id="4">
         <productionMode>false</productionMode>
         <productionCost>0</productionCost>
+        <productPrice>0</productPrice>
+        <maxUnsold>100</maxUnsold>
+        <productExpiry>1000</productExpiry>
+        <productEffect>
+          <parameter>None</parameter>
+          <factor>1.1</factor>
+          <duration>100</duration>
+        </productEffect>
         <InitProdChance>0.8</InitProdChance>
         <LowDemThresh>5.0</LowDemThresh>
         <LowDemProdChance>0.001</LowDemProdChance>
@@ -705,6 +820,14 @@
       <Agent id="5">
         <productionMode>true</productionMode>
         <productionCost>0</productionCost>
+        <productPrice>0</productPrice>
+        <maxUnsold>100</maxUnsold>
+        <productExpiry>1000</productExpiry>
+        <productEffect>
+          <parameter>OtherFoodEnergy</parameter>
+          <factor>1.1</factor>
+          <duration>100</duration>
+        </productEffect>
         <InitProdChance>0.8</InitProdChance>
         <LowDemThresh>5.0</LowDemThresh>
         <LowDemProdChance>0.001</LowDemProdChance>
@@ -716,6 +839,14 @@
       <Agent id="6">
         <productionMode>false</productionMode>
         <productionCost>0</productionCost>
+        <productPrice>0</productPrice>
+        <maxUnsold>100</maxUnsold>
+        <productExpiry>1000</productExpiry>
+        <productEffect>
+          <parameter>None</parameter>
+          <factor>1.1</factor>
+          <duration>100</duration>
+        </productEffect>
         <InitProdChance>0.8</InitProdChance>
         <LowDemThresh>5.0</LowDemThresh>
         <LowDemProdChance>0.001</LowDemProdChance>
@@ -727,6 +858,14 @@
       <Agent id="7">
         <productionMode>false</productionMode>
         <productionCost>0</productionCost>
+        <productPrice>0</productPrice>
+        <maxUnsold>100</maxUnsold>
+        <productExpiry>1000</productExpiry>
+        <productEffect>
+          <parameter>None</parameter>
+          <factor>1.1</factor>
+          <duration>100</duration>
+        </productEffect>
         <InitProdChance>0.8</InitProdChance>
         <LowDemThresh>5.0</LowDemThresh>
         <LowDemProdChance>0.001</LowDemProdChance>
@@ -888,39 +1027,233 @@
       </Agent>
     </AgentParams>
   </Disease>
+  <Toxin>
+    <AgentParams>
+      <Agent id="1">
+        <initialToxicity>0.0</initialToxicity>
+        <toxicityThreshold>1.0</toxicityThreshold>
+        <toxicityEffect>-1.0</toxicityEffect>
+        <parameter>OtherFoodEnergy</parameter>
+        <foodToxicity>
+          <food id="1">0.01</food>
+          <food id="2">0.0</food>
+          <food id="3">0.0</food>
+          <food id="4">0.0</food>
+          <food id="5">0.0</food>
+          <food id="6">0.0</food>
+          <food id="7">0.0</food>
+        </foodToxicity>
+        <agentToxicityTransfer>
+          <agent id="1">0.05</agent>
+          <agent id="2">0.0</agent>
+          <agent id="3">0.0</agent>
+          <agent id="4">0.0</agent>
+          <agent id="5">0.0</agent>
+          <agent id="6">0.0</agent>
+          <agent id="7">0.0</agent>
+        </agentToxicityTransfer>
+        <childToxicityTransfer>0.1</childToxicityTransfer>
+        <toxicityPurgeRate>0.0</toxicityPurgeRate>
+      </Agent>
+      <Agent id="2">
+        <initialToxicity>0.0</initialToxicity>
+        <toxicityThreshold>1.0</toxicityThreshold>
+        <toxicityEffect>-1.0</toxicityEffect>
+        <parameter>learningAdjustmentStrength</parameter>
+        <foodToxicity>
+          <food id="1">0.01</food>
+          <food id="2">0.0</food>
+          <food id="3">0.0</food>
+          <food id="4">0.0</food>
+          <food id="5">0.0</food>
+          <food id="6">0.0</food>
+          <food id="7">0.0</food>
+        </foodToxicity>
+        <agentToxicityTransfer>
+          <agent id="1">0.05</agent>
+          <agent id="2">0.0</agent>
+          <agent id="3">0.05</agent>
+          <agent id="4">0.05</agent>
+          <agent id="5">0.0</agent>
+          <agent id="6">0.0</agent>
+          <agent id="7">0.0</agent>
+        </agentToxicityTransfer>
+        <childToxicityTransfer>0.1</childToxicityTransfer>
+        <toxicityPurgeRate>0.0</toxicityPurgeRate>
+      </Agent>
+      <Agent id="3">
+        <initialToxicity>0.0</initialToxicity>
+        <toxicityThreshold>1.0</toxicityThreshold>
+        <toxicityEffect>-1.0</toxicityEffect>
+        <parameter>None</parameter>
+        <foodToxicity>
+          <food id="1">0.01</food>
+          <food id="2">0.0</food>
+          <food id="3">0.0</food>
+          <food id="4">0.0</food>
+          <food id="5">0.0</food>
+          <food id="6">0.0</food>
+          <food id="7">0.0</food>
+        </foodToxicity>
+        <agentToxicityTransfer>
+          <agent id="1">0.05</agent>
+          <agent id="2">0.0</agent>
+          <agent id="3">0.0</agent>
+          <agent id="4">0.0</agent>
+          <agent id="5">0.0</agent>
+          <agent id="6">0.0</agent>
+          <agent id="7">0.0</agent>
+        </agentToxicityTransfer>
+        <childToxicityTransfer>0.1</childToxicityTransfer>
+        <toxicityPurgeRate>0.01</toxicityPurgeRate>
+      </Agent>
+      <Agent id="4">
+        <initialToxicity>0.0</initialToxicity>
+        <toxicityThreshold>1.0</toxicityThreshold>
+        <toxicityEffect>-1.0</toxicityEffect>
+        <parameter>None</parameter>
+        <foodToxicity>
+          <food id="1">0.01</food>
+          <food id="2">0.0</food>
+          <food id="3">0.0</food>
+          <food id="4">0.0</food>
+          <food id="5">0.0</food>
+          <food id="6">0.0</food>
+          <food id="7">0.0</food>
+        </foodToxicity>
+        <agentToxicityTransfer>
+          <agent id="1">0.05</agent>
+          <agent id="2">0.0</agent>
+          <agent id="3">0.0</agent>
+          <agent id="4">0.0</agent>
+          <agent id="5">0.0</agent>
+          <agent id="6">0.0</agent>
+          <agent id="7">0.0</agent>
+        </agentToxicityTransfer>
+        <childToxicityTransfer>0.1</childToxicityTransfer>
+        <toxicityPurgeRate>0.0</toxicityPurgeRate>
+      </Agent>
+      <Agent id="5">
+        <initialToxicity>0.0</initialToxicity>
+        <toxicityThreshold>1.0</toxicityThreshold>
+        <toxicityEffect>-1.0</toxicityEffect>
+        <parameter>None</parameter>
+        <foodToxicity>
+          <food id="1">0.01</food>
+          <food id="2">0.0</food>
+          <food id="3">0.0</food>
+          <food id="4">0.0</food>
+          <food id="5">0.0</food>
+          <food id="6">0.0</food>
+          <food id="7">0.0</food>
+        </foodToxicity>
+        <agentToxicityTransfer>
+          <agent id="1">0.0</agent>
+          <agent id="2">0.0</agent>
+          <agent id="3">0.0</agent>
+          <agent id="4">0.0</agent>
+          <agent id="5">0.0</agent>
+          <agent id="6">0.0</agent>
+          <agent id="7">0.0</agent>
+        </agentToxicityTransfer>
+        <childToxicityTransfer>0.1</childToxicityTransfer>
+        <toxicityPurgeRate>0.0</toxicityPurgeRate>
+      </Agent>
+      <Agent id="6">
+        <initialToxicity>0.0</initialToxicity>
+        <toxicityThreshold>1.0</toxicityThreshold>
+        <toxicityEffect>-1.0</toxicityEffect>
+        <parameter>None</parameter>
+        <foodToxicity>
+          <food id="1">0.01</food>
+          <food id="2">0.0</food>
+          <food id="3">0.0</food>
+          <food id="4">0.0</food>
+          <food id="5">0.0</food>
+          <food id="6">0.0</food>
+          <food id="7">0.0</food>
+        </foodToxicity>
+        <agentToxicityTransfer>
+          <agent id="1">0.0</agent>
+          <agent id="2">0.0</agent>
+          <agent id="3">0.0</agent>
+          <agent id="4">0.0</agent>
+          <agent id="5">0.0</agent>
+          <agent id="6">0.0</agent>
+          <agent id="7">0.0</agent>
+        </agentToxicityTransfer>
+        <childToxicityTransfer>0.1</childToxicityTransfer>
+        <toxicityPurgeRate>0.0</toxicityPurgeRate>
+      </Agent>
+      <Agent id="7">
+        <initialToxicity>0.0</initialToxicity>
+        <toxicityThreshold>1.0</toxicityThreshold>
+        <toxicityEffect>-1.0</toxicityEffect>
+        <parameter>None</parameter>
+        <foodToxicity>
+          <food id="1">0.01</food>
+          <food id="2">0.0</food>
+          <food id="3">0.0</food>
+          <food id="4">0.0</food>
+          <food id="5">0.0</food>
+          <food id="6">0.0</food>
+          <food id="7">0.0</food>
+        </foodToxicity>
+        <agentToxicityTransfer>
+          <agent id="1">0.0</agent>
+          <agent id="2">0.0</agent>
+          <agent id="3">0.0</agent>
+          <agent id="4">0.0</agent>
+          <agent id="5">0.0</agent>
+          <agent id="6">0.0</agent>
+          <agent id="7">0.0</agent>
+        </agentToxicityTransfer>
+        <childToxicityTransfer>0.1</childToxicityTransfer>
+        <toxicityPurgeRate>0.0</toxicityPurgeRate>
+      </Agent>
+    </AgentParams>
+  </Toxin>
   <ga>
     <geneLength>8</geneLength>
     <meiosismode>Colour Averaging</meiosismode>
     <linkedphenotype id="1">FoodEnergy</linkedphenotype>
     <linkedphenotype id="2">OtherFoodEnergy</linkedphenotype>
+    <linkedphenotype id="3">learningCycle</linkedphenotype>
     <AgentParams>
       <Agent id="1">
         <Gene id="1">30</Gene>
         <Gene id="2">30</Gene>
+        <Gene id="3">30</Gene>
       </Agent>
       <Agent id="2">
         <Gene id="1">30</Gene>
         <Gene id="2">30</Gene>
+        <Gene id="3">30</Gene>
       </Agent>
       <Agent id="3">
         <Gene id="1">30</Gene>
         <Gene id="2">30</Gene>
+        <Gene id="3">30</Gene>
       </Agent>
       <Agent id="4">
         <Gene id="1">30</Gene>
         <Gene id="2">30</Gene>
+        <Gene id="3">30</Gene>
       </Agent>
       <Agent id="5">
         <Gene id="1">30</Gene>
         <Gene id="2">30</Gene>
+        <Gene id="3">30</Gene>
       </Agent>
       <Agent id="6">
         <Gene id="1">30</Gene>
         <Gene id="2">30</Gene>
+        <Gene id="3">30</Gene>
       </Agent>
       <Agent id="7">
         <Gene id="1">30</Gene>
         <Gene id="2">30</Gene>
+        <Gene id="3">30</Gene>
       </Agent>
     </AgentParams>
   </ga>
@@ -998,4 +1331,57 @@
       </Agent>
     </AgentParams>
   </ControllerConfig>
+  <Learning>
+    <AgentParams>
+      <Agent id="1">
+        <enabled>true</enabled>
+        <learningMemoryDuration>50</learningMemoryDuration>
+        <learningCycle>40</learningCycle>
+        <learningWeighting>0.1</learningWeighting>
+        <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+      </Agent>
+      <Agent id="2">
+        <enabled>false</enabled>
+        <learningMemoryDuration>20</learningMemoryDuration>
+        <learningCycle>10</learningCycle>
+        <learningWeighting>0.1</learningWeighting>
+        <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+      </Agent>
+      <Agent id="3">
+        <enabled>true</enabled>
+        <learningMemoryDuration>2</learningMemoryDuration>
+        <learningCycle>2</learningCycle>
+        <learningWeighting>0.1</learningWeighting>
+        <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+      </Agent>
+      <Agent id="4">
+        <enabled>false</enabled>
+        <learningMemoryDuration>20</learningMemoryDuration>
+        <learningCycle>10</learningCycle>
+        <learningWeighting>0.1</learningWeighting>
+        <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+      </Agent>
+      <Agent id="5">
+        <enabled>true</enabled>
+        <learningMemoryDuration>20</learningMemoryDuration>
+        <learningCycle>1</learningCycle>
+        <learningWeighting>0.1</learningWeighting>
+        <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+      </Agent>
+      <Agent id="6">
+        <enabled>false</enabled>
+        <learningMemoryDuration>20</learningMemoryDuration>
+        <learningCycle>10</learningCycle>
+        <learningWeighting>0.1</learningWeighting>
+        <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+      </Agent>
+      <Agent id="7">
+        <enabled>true</enabled>
+        <learningMemoryDuration>20</learningMemoryDuration>
+        <learningCycle>10</learningCycle>
+        <learningWeighting>0.1</learningWeighting>
+        <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+      </Agent>
+    </AgentParams>
+  </Learning>
 </COBWEB2Config>
