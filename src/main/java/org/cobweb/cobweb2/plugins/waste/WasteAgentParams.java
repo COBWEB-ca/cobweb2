@@ -77,14 +77,7 @@ public class WasteAgentParams implements ResizableParam {
 
 	@Override
 	public void resize(AgentFoodCountable envParams) {
-		canConsume = Arrays.copyOf(canConsume, envParams.getAgentTypes());
-
-		int oldSize = canConsume.length;
 		canConsume  = Arrays.copyOf(canConsume, envParams.getAgentTypes());
-		// agents can eat all food by default
-		for (int i = oldSize; i < canConsume.length; i++) {
-			canConsume[i] = false;
-		}
 	}
 
 	@Override
