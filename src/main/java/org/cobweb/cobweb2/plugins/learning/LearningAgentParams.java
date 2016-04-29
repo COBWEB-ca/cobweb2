@@ -4,6 +4,8 @@ import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
 import org.cobweb.util.CloneHelper;
+import org.cobweb.util.MutatableFloat;
+import org.cobweb.util.MutatableInt;
 
 
 public class LearningAgentParams implements ParameterSerializable {
@@ -13,21 +15,21 @@ public class LearningAgentParams implements ParameterSerializable {
 	@ConfDisplayName("Enable learning")
 	public boolean learningEnabled = false;
 
-	@ConfXMLTag("memorySteps")
+	@ConfXMLTag("learningMemoryDuration")
 	@ConfDisplayName("Memory duration")
-	public int memorySteps = 20;
+	public MutatableInt memorySteps = new MutatableInt(20);
 
 	@ConfXMLTag("learningCycle")
 	@ConfDisplayName("Learning cycle")
-	public int learningCycle = 10;
+	public MutatableInt learningCycle = new MutatableInt(10);
 
 	@ConfXMLTag("learningWeighting")
 	@ConfDisplayName("Recent event bias")
-	public float weighting = 0.1f;
+	public MutatableFloat weighting = new MutatableFloat(0.1f);
 
 	@ConfXMLTag("learningAdjustmentStrength")
 	@ConfDisplayName("Learning adjustment strength")
-	public float adjustmentStrength = 0.3f;
+	public MutatableFloat adjustmentStrength = new MutatableFloat(0.3f);
 
 	public LearningAgentParams() {
 	}

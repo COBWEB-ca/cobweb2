@@ -14,8 +14,9 @@ import org.cobweb.io.ConfXMLTag;
 public class LearningState implements AgentState, Updatable {
 
 	@ConfXMLTag("AgentParams")
-	LearningAgentParams agentParams;
+	public LearningAgentParams agentParams;
 
+	final int cycleLength;
 	int cycleCounter;
 
 	CircularFifoQueue<ControllerInput> inputMemory;
@@ -24,9 +25,10 @@ public class LearningState implements AgentState, Updatable {
 
 	public LearningState(LearningAgentParams agentParams) {
 		this.agentParams = agentParams;
-		inputMemory = new CircularFifoQueue<>(agentParams.memorySteps);
-		consequesnces = new CircularFifoQueue<>(agentParams.memorySteps);
-		cycleCounter = agentParams.learningCycle;
+		inputMemory = new CircularFifoQueue<>(agentParams.memorySteps.getValue());
+		consequesnces = new CircularFifoQueue<>(agentParams.memorySteps.getValue());
+		cycleLength = agentParams.learningCycle.getValue();
+		cycleCounter = cycleLength;
 	}
 
 	@Override
@@ -35,7 +37,7 @@ public class LearningState implements AgentState, Updatable {
 			return;
 
 		if (--cycleCounter < 0) {
-			cycleCounter = agentParams.learningCycle;
+			cycleCounter = cycleLength;
 
 			float weight = 1;
 			float score = 0;
@@ -56,11 +58,11 @@ public class LearningState implements AgentState, Updatable {
 					worstScore = score;
 				}
 
-				weight *= (1 - agentParams.weighting);
+				weight *= (1 - agentParams.weighting.getValue());
 			}
 
 			// Randomly modify controller output for worst input
-			worstDecision.mutate(agentParams.adjustmentStrength);
+			worstDecision.mutate(agentParams.adjustmentStrength.getValue());
 
 		}
 	}
