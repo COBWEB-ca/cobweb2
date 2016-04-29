@@ -47,7 +47,12 @@ public class PhenotypeIndexTest extends TestCase{
 				"maxUnsold",
 				"productExpiry",
 				"productEffect.factor",
-				"productEffect.duration"
+				"productEffect.duration",
+				"wasteConsumptionEnergy",
+				"wasteGain",
+				"wasteLoss",
+				"wasteRate",
+				"wasteInit"
 		}));
 
 		for (Phenotype phenotype : actual) {

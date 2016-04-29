@@ -33,7 +33,7 @@ DropManager<Waste>{
 	@Override
 	public void onEnergyChange(Agent agent, int delta, Cause cause) {
 		WasteState state = getAgentState(agent);
-		if (state == null)
+		if (!state.agentParams.wasteMode)
 			return;
 
 		if (delta > 0)
@@ -45,18 +45,18 @@ DropManager<Waste>{
 	@Override
 	public void onUpdate(Agent agent) {
 		WasteState state = getAgentState(agent);
-		if (state == null || !agent.isAlive())
+		if (!agent.isAlive() || !state.agentParams.wasteMode)
 			return;
 
 		WasteAgentParams agentParams = state.agentParams;
 
-		if (agentParams.wasteLimitGain > 0 && state.energyGained >= agentParams.wasteLimitGain) {
+		if (agentParams.wasteLimitGain.getValue() > 0 && state.energyGained >= agentParams.wasteLimitGain.getValue()) {
 			if (tryPoop(agent, agentParams)) {
-				state.energyGained -= agentParams.wasteLimitGain;
+				state.energyGained -= agentParams.wasteLimitGain.getValue();
 			}
-		} else if (agentParams.wasteLimitLoss > 0 && state.energyLost >= agentParams.wasteLimitLoss) {
+		} else if (agentParams.wasteLimitLoss.getValue() > 0 && state.energyLost >= agentParams.wasteLimitLoss.getValue()) {
 			if (tryPoop(agent, agentParams)) {
-				state.energyLost -= agentParams.wasteLimitLoss;
+				state.energyLost -= agentParams.wasteLimitLoss.getValue();
 			}
 		}
 	}
@@ -64,16 +64,12 @@ DropManager<Waste>{
 	@Override
 	public WasteState stateForNewAgent(Agent agent) {
 		WasteAgentParams agentParams = params.agentParams[agent.getType()];
-		if (!agentParams.wasteMode)
-			return null; // Don't need state when waste disabled
 
 		return new WasteState(agentParams.clone());
 	}
 
 	@Override
 	protected WasteState stateFromParent(Agent agent, WasteState parentState) {
-		if (parentState == null)
-			return null;
 		return new WasteState(parentState.agentParams.clone());
 	}
 
@@ -104,7 +100,7 @@ DropManager<Waste>{
 		if (replaceFood)
 			environment.removeFood(loc);
 
-		Waste waste = new Waste(loc, agentParams.wasteInit, agentParams.wasteDecay, this);
+		Waste waste = new Waste(loc, agentParams.wasteInit.getValue(), agentParams.wasteDecay.getValue(), this, agent.getType());
 		environment.addDrop(loc, waste);
 		return true;
 	}

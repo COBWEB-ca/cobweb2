@@ -6,7 +6,7 @@ package org.cobweb.cobweb2.core;
  *
  */
 public interface Drop extends Updatable {
-	public boolean canStep();
+	public boolean canStep(Agent agent);
 
 	public void onStep(Agent agent);
 

@@ -231,7 +231,7 @@ public class ComplexAgent extends Agent {
 			return false;
 		// and clear of wastes
 		if (environment.hasDrop(destPos))
-			return environment.getDrop(destPos).canStep();
+			return environment.getDrop(destPos).canStep(this);
 		// as well as other agents...
 		if (environment.hasAgent(destPos))
 			return false;
@@ -478,7 +478,7 @@ public class ComplexAgent extends Agent {
 			// Bumps into drop
 			Drop d = environment.getDrop(destPos);
 
-			if (d.canStep()) {
+			if (d.canStep(this)) {
 				d.onStep(this);
 			}
 			else {
