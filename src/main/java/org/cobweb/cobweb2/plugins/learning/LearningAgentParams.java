@@ -1,13 +1,30 @@
 package org.cobweb.cobweb2.plugins.learning;
 
+import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
 import org.cobweb.util.CloneHelper;
 
 
 public class LearningAgentParams implements ParameterSerializable {
 
+	@ConfXMLTag("memorySteps")
+	@ConfDisplayName("Memory duration")
+	public int memorySteps = 20;
+
+	@ConfXMLTag("learningCycle")
+	@ConfDisplayName("Learning cycle")
+	public int learningCycle = 10;
+
+	@ConfXMLTag("learningWeighting")
+	@ConfDisplayName("Recent event bias")
+	public float weighting = 0.1f;
+
+	@ConfXMLTag("learningAdjustmentStrength")
+	@ConfDisplayName("Learning adjustment strength")
+	public float adjustmentStrength = 0.1f;
+
 	public LearningAgentParams() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

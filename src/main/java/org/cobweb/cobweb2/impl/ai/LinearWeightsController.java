@@ -51,11 +51,22 @@ public class LinearWeightsController implements Controller {
 
 	private static int ENERGY_THRESHOLD = 160;
 
-	public static class LWInput implements ControllerInput {
+	public class LWInput implements ControllerInput {
 		public double[] inputs;
 
 		public LWInput(double[] inputs) {
 			this.inputs = inputs;
+		}
+
+		@Override
+		public void mutate(float adjustmentStrength) {
+			for (int eq = 0; eq < params.OUTPUT_COUNT; eq++) {
+				for (int v = 0; v < inputs.length; v++) {
+					// variables with stronger inputs are adjusted more
+					double strength = adjustmentStrength * Math.abs(inputs[v]);
+					params.data[v][eq] += simulator.getRandom().nextGaussian() * strength;
+				}
+			}
 		}
 	}
 
@@ -102,7 +113,6 @@ public class LinearWeightsController implements Controller {
 		double asexflag = 0.0;
 		for (int eq = 0; eq < params.OUTPUT_COUNT; eq++) {
 			double res = 0.0;
-			variables[9] = simulator.getRandom().nextGaussian();
 			for (int v = 0; v < variables.length; v++) {
 				res += params.data[v][eq] * variables[v];
 			}

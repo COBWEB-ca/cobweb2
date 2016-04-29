@@ -83,11 +83,16 @@ public class GeneticController implements Controller {
 		}
 	}
 
-	public static class GCInput implements ControllerInput {
+	public class GCInput implements ControllerInput {
 		public GCInput(BitField inputCode) {
 			this.inputCode = inputCode;
 		}
 		public BitField inputCode;
+
+		@Override
+		public void mutate(float adjustmentStrength) {
+			ga.mutateOutput(inputCode.intValue(), adjustmentStrength, simulation.getRandom());
+		}
 	}
 
 	/**
