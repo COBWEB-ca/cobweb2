@@ -33,7 +33,7 @@ DropManager<Waste>{
 	@Override
 	public void onEnergyChange(Agent agent, int delta, Cause cause) {
 		WasteState state = getAgentState(agent);
-		if (state == null)
+		if (!state.agentParams.wasteMode)
 			return;
 
 		if (delta > 0)
@@ -45,7 +45,7 @@ DropManager<Waste>{
 	@Override
 	public void onUpdate(Agent agent) {
 		WasteState state = getAgentState(agent);
-		if (state == null || !agent.isAlive())
+		if (!agent.isAlive() || !state.agentParams.wasteMode)
 			return;
 
 		WasteAgentParams agentParams = state.agentParams;
@@ -70,8 +70,6 @@ DropManager<Waste>{
 
 	@Override
 	protected WasteState stateFromParent(Agent agent, WasteState parentState) {
-		if (parentState == null)
-			return null;
 		return new WasteState(parentState.agentParams.clone());
 	}
 
