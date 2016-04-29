@@ -13,6 +13,8 @@ public class GridStats {
 	public CellStats[][] cellStats;
 
 	public int types;
+	public int totalAgents;
+	public int totalFood;
 
 	public RegionOptions opts;
 
@@ -34,6 +36,8 @@ public class GridStats {
 				CellStats stats = new CellStats(xb, yb, w, h, sim.theEnvironment);
 
 				cellStats[xi][yi] = stats;
+				totalAgents += stats.totalAgents();
+				totalFood += stats.totalFood();
 			}
 		}
 	}
@@ -95,5 +99,4 @@ public class GridStats {
 
 		private static final long serialVersionUID = 1L;
 	}
-
 }

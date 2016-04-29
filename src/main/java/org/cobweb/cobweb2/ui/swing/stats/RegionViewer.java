@@ -56,6 +56,9 @@ public class RegionViewer extends OverlayPluginViewer<RegionViewer> implements O
 		@ConfDisplayName("Bar graphs")
 		public boolean graphs = false;
 
+		@ConfDisplayName("Graph max per-cell")
+		public boolean graphMaxCell = true;
+
 		private static final long serialVersionUID = 1L;
 	}
 

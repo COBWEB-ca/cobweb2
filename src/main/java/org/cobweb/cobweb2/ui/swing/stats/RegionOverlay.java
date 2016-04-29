@@ -60,10 +60,18 @@ public class RegionOverlay implements DisplayOverlay {
 
 					if (viewerOptions.graphs) {
 						g.setColor(settings.agentColor.getColor(i, stats.types));
-						if (cell.totalAgents() > 0)
-							g.fillRect(leftColW, y - lineHeight / 2, (int)(numColW * 0.8 * cell.agentCount[i] / cell.totalAgents()) , lineHeight / 2);
-						if (cell.totalFood() > 0)
-							g.fillRect(rightColStart, y - lineHeight / 2, (int)(numColW * 0.8 * cell.foodCount[i] / cell.totalFood()), lineHeight / 2);
+						int aTotal, fTotal;
+						if (viewerOptions.graphMaxCell) {
+							aTotal = cell.totalAgents();
+							fTotal = cell.totalFood();
+						} else {
+							aTotal = stats.totalAgents;
+							fTotal = stats.totalFood;
+						}
+						if (aTotal > 0)
+							g.fillRect(leftColW, y - lineHeight / 2, (int)(numColW * 1 * cell.agentCount[i] / aTotal) , lineHeight / 2);
+						if (fTotal > 0)
+							g.fillRect(rightColStart, y - lineHeight / 2, (int)(numColW * 1 * cell.foodCount[i] / fTotal), lineHeight / 2);
 					}
 
 					g.setColor(Color.BLACK);
