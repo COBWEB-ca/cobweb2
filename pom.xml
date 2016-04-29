@@ -4,7 +4,7 @@
 
 	<groupId>org.cobweb</groupId>
 	<artifactId>cobweb2</artifactId>
-	<version>2016-03-15-SNAPSHOT</version>
+	<version>2016-04-29</version>
 	<name>COBWEB2</name>
 	<description>COBWEB (Complexity &amp; Organized Behaviour Within Environmental Bounds) is a computer simulation model which can be used for research in a variety of fields such as ecology, health, psychology, economic geography, climate change impacts and ethics.</description>
 	<url>https://cobweb-ca.github.io/</url>
