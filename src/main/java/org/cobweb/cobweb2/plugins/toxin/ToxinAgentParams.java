@@ -74,6 +74,10 @@ public class ToxinAgentParams implements ResizableParam {
 	@ConfDisplayName("Toxin purge rate")
 	public MutatableFloat purgeRate = new MutatableFloat(0f);
 
+	@Deprecated // for reflection use only!
+	public ToxinAgentParams() {
+	}
+
 	public ToxinAgentParams(AgentFoodCountable size) {
 		resize(size);
 	}

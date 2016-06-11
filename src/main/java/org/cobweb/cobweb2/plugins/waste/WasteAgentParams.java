@@ -71,6 +71,10 @@ public class WasteAgentParams implements ResizableParam {
 	@ConfDisplayName("Waste initial amount")
 	public MutatableInt  wasteInit = new MutatableInt(100);
 
+	@Deprecated // for reflection use only!
+	public WasteAgentParams() {
+	}
+
 	public WasteAgentParams(AgentFoodCountable envParams) {
 		resize(envParams);
 	}
