@@ -31,7 +31,7 @@ implements EnergyMutator, ControllerInputMutator, UpdateMutator {
 
 	@Override
 	protected LearningState stateFromParent(Agent agent, LearningState parentState) {
-		return new LearningState(parentState.agentParams.clone());
+		return new LearningState(parentState.getAgentParams().clone());
 	}
 
 	@Override

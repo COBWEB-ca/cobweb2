@@ -13,19 +13,15 @@ import org.cobweb.io.ConfXMLTag;
 
 public class LearningState implements AgentState, Updatable {
 
+	private LearningAgentParams agentParams;
+
+	public LearningAgentParams getAgentParams() {
+		return agentParams;
+	}
+
+
 	@ConfXMLTag("AgentParams")
-	public LearningAgentParams agentParams;
-
-	final int memorySteps;
-	final int cycleLength;
-	int cycleCounter;
-
-	CircularFifoQueue<ControllerInput> inputMemory;
-	CircularFifoQueue<ConsequenceGroup> consequences;
-	ConsequenceGroup currentConsequence = new ConsequenceGroup();
-
-
-	public LearningState(LearningAgentParams agentParams) {
+	public void setAgentParams(LearningAgentParams agentParams) {
 		this.agentParams = agentParams;
 
 		// Number of steps in learning cycle
@@ -37,6 +33,23 @@ public class LearningState implements AgentState, Updatable {
 		memorySteps = agentParams.memorySteps.getValue();
 		consequences = new CircularFifoQueue<>(memorySteps + cycleLength);
 		cycleCounter = cycleLength;
+	}
+
+	int memorySteps;
+	int cycleLength;
+	int cycleCounter;
+
+	CircularFifoQueue<ControllerInput> inputMemory;
+	CircularFifoQueue<ConsequenceGroup> consequences;
+	ConsequenceGroup currentConsequence = new ConsequenceGroup();
+
+	@Deprecated // for reflection use only!
+	public LearningState() {
+
+	}
+
+	public LearningState(LearningAgentParams agentParams) {
+		setAgentParams(agentParams);
 	}
 
 	@Override

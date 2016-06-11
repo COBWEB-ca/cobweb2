@@ -47,23 +47,41 @@ public class PhenotypeIndex {
 		for (Class<? extends AgentState> stateClass : orderedClasses)
 		{
 			try {
-				Field agentParamField = stateClass.getField("agentParams");
-				FieldPropertyAccessor stateAccessor = new FieldPropertyAccessor(agentParamField);
+				PropertyAccessor stateAccessor = getAgentParamsAccessor(stateClass);
+				if (stateAccessor == null)
+					continue;
+
 				Class<?> agentParamType = stateAccessor.getType();
 
 				for (PropertyAccessor p : classGetProperties(agentParamType)) {
 					addCheckExisting(bindables, new PluginPhenotype(stateClass, stateAccessor, p));
 				}
 
-			} catch (NoSuchFieldException ex) {
-				// This AgentState doesn't have an agentParams
-				continue;
 			} catch (SecurityException ex) {
 				throw new RuntimeException("Unable to configure phenotypes for " + stateClass.getSimpleName(), ex);
 			}
 		}
 
 		return Collections.unmodifiableSet(bindables);
+	}
+
+	private static PropertyAccessor getAgentParamsAccessor(Class<? extends AgentState> stateClass) {
+		try {
+			Field agentParamField = stateClass.getField("agentParams");
+			FieldPropertyAccessor stateAccessor = new FieldPropertyAccessor(agentParamField);
+			return stateAccessor;
+		} catch (NoSuchFieldException ex) {
+			// not a field, try property
+		}
+
+		for (Method m : stateClass.getMethods()) {
+			if (m.getName().equals("setAgentParams")) {
+				SetterPropertyAccessor stateAccessor = new SetterPropertyAccessor(m);
+				return stateAccessor;
+			}
+		}
+
+		return null;
 	}
 
 	private static void addCheckExisting(Set<Phenotype> set, Phenotype value) {
