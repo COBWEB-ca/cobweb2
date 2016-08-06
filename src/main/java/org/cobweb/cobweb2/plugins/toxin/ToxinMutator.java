@@ -48,7 +48,7 @@ public class ToxinMutator extends StatefulSpawnMutatorBase<ToxinState> implement
 		float average = agentTypeToxin[agentType] / agentCount[agentType];
 		if (Float.isNaN(average))
 			average = 0;
-		return Arrays.asList(Float.toString(average) + " / " + agentTypePoisoned[agentType]);
+		return Arrays.asList(Float.toString(average), Integer.toString(agentTypePoisoned[agentType]));
 	}
 
 	@Override
@@ -69,17 +69,17 @@ public class ToxinMutator extends StatefulSpawnMutatorBase<ToxinState> implement
 		for (int i =0; i < agentTypePoisoned.length; i++)
 			totalPoisoned += agentTypePoisoned[i];
 
-		return Arrays.asList(Float.toString(average) + " / " + totalPoisoned);
+		return Arrays.asList(Float.toString(average), Integer.toString(totalPoisoned));
 	}
 
 	@Override
 	public Collection<String> logHeadersAgent() {
-		return Arrays.asList("Toxicity / Poisoned");
+		return Arrays.asList("Toxicity", "Poisoned");
 	}
 
 	@Override
 	public Collection<String> logHeaderTotal() {
-		return Arrays.asList("Toxicity / Poisoned");
+		return Arrays.asList("Toxicity", "Poisoned");
 	}
 
 	@Override
