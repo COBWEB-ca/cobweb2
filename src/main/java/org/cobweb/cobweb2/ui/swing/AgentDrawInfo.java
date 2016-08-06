@@ -49,7 +49,7 @@ class AgentDrawInfo {
 
 		ToxinState poisoned = agent.getState(ToxinState.class);
 		if (poisoned != null) {
-			if (poisoned.poisoned)
+			if (poisoned.isPoisoned())
 				rgb[1] = 215;
 		}
 

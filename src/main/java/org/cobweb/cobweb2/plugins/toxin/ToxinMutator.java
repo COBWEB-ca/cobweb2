@@ -37,12 +37,9 @@ public class ToxinMutator extends StatefulSpawnMutatorBase<ToxinState> implement
 		agentCount[agent.getType()]++;
 		agentTypeToxin[agent.getType()] += state.toxicity;
 
-		if (state.toxicity > state.agentParams.toxicityThreshold.getValue()) {
-			state.poisoned = true;
+		if (state.isPoisoned()) {
 			agentTypePoisoned[agent.getType()]++;
 		}
-		else
-			state.poisoned = false;
 
 		float effect = 1
 				+ Math.max(0, state.toxicity - state.agentParams.toxicityThreshold.getValue())
