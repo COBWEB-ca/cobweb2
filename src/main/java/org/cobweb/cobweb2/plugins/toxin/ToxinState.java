@@ -9,6 +9,8 @@ public class ToxinState implements AgentState {
 	@ConfXMLTag("toxicity")
 	public float toxicity = 0;
 
+	@ConfXMLTag("poisoned")
+	public boolean poisoned = false;
 
 	@ConfXMLTag("AgentParams")
 	public ToxinAgentParams agentParams;
@@ -20,6 +22,8 @@ public class ToxinState implements AgentState {
 	public ToxinState(ToxinAgentParams agentParams, float initialToxicity) {
 		this.agentParams = agentParams;
 		this.toxicity = initialToxicity;
+		if (toxicity > agentParams.toxicityThreshold.getValue())
+			poisoned = true;
 	}
 
 	@Override

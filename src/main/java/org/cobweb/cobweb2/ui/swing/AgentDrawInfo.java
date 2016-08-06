@@ -9,6 +9,7 @@ import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.disease.DiseaseState;
 import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 import org.cobweb.cobweb2.plugins.pd.PDState;
+import org.cobweb.cobweb2.plugins.toxin.ToxinState;
 import org.cobweb.swingutil.ColorLookup;
 
 /**
@@ -44,6 +45,12 @@ class AgentDrawInfo {
 		if (sick != null) {
 			if (sick.sick)
 				rgb[2] = 255;
+		}
+
+		ToxinState poisoned = agent.getState(ToxinState.class);
+		if (poisoned != null) {
+			if (poisoned.poisoned)
+				rgb[1] = 215;
 		}
 
 		agentColor = new Color(rgb[0], rgb[1], rgb[2]);
