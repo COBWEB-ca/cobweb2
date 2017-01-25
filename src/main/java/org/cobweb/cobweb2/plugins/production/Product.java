@@ -59,6 +59,14 @@ public class Product implements Drop {
 			if (!buyer.enoughEnergy(price))
 				return;
 
+			float consumptionRate = buyer.getEnergy() * agentParams.agentConsumptionFactor[buyer.getType()];
+			float maxCons = agentParams.agentMaxConsFactor[buyer.getType()];
+			if (consumptionRate > maxCons)
+				consumptionRate = maxCons;
+
+			if (productionMapper.simulation.getRandom().nextFloat() > consumptionRate)
+				return;
+
 			producer.changeEnergy(+price, new ProductSoldCause());
 			buyer.changeEnergy(-price, new ProductBoughtCause());
 

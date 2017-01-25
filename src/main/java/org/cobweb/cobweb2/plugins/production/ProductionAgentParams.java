@@ -1,8 +1,12 @@
 package org.cobweb.cobweb2.plugins.production;
 
+import java.util.Arrays;
+
+import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.plugins.AgentState;
 import org.cobweb.cobweb2.plugins.TempEffectParam;
 import org.cobweb.io.ConfDisplayName;
+import org.cobweb.io.ConfList;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.util.CloneHelper;
 import org.cobweb.util.MutatableInt;
@@ -66,6 +70,25 @@ public class ProductionAgentParams implements AgentState {
 	@ConfDisplayName("Maximum roll percentage in high zone")
 	public float highDemandProdChance = 0.001f;
 
+	@ConfXMLTag("agentConsumptionFactor")
+	@ConfDisplayName("Consumption factor from Agent")
+	@ConfList(indexName = "Agent", startAtOne = true)
+	public float[] agentConsumptionFactor = new float[0]; // default zero
+
+	@ConfXMLTag("agentMaxConsFactor")
+	@ConfDisplayName("Maximum consumption factor from Agent")
+	@ConfList(indexName = "Agent", startAtOne = true)
+	public float[] agentMaxConsFactor = new float[0]; // default zero
+
+	public ProductionAgentParams(AgentFoodCountable size) {
+		resize(size);
+	}
+
+	public void resize(AgentFoodCountable envParams) {
+		agentConsumptionFactor = Arrays.copyOf(agentConsumptionFactor, envParams.getAgentTypes());
+		agentMaxConsFactor = Arrays.copyOf(agentMaxConsFactor, envParams.getAgentTypes());
+		Arrays.fill(agentMaxConsFactor, 1);
+	}
 
 	@Override
 	public ProductionAgentParams clone() {
