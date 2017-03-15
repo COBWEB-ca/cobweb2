@@ -1,22 +1,13 @@
 package org.cobweb.cobweb2.impl.ai;
 
-import java.util.Arrays;
-
 import org.cobweb.cobweb2.core.AgentFoodCountable;
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.impl.ControllerParams;
 import org.cobweb.cobweb2.impl.SimulationParams;
 import org.cobweb.cobweb2.plugins.PerAgentParams;
-import org.cobweb.io.ConfList;
-import org.cobweb.io.ConfXMLTag;
-import org.cobweb.util.ArrayUtilities;
 
 public class LinearWeightsControllerParams extends PerAgentParams<LinearWeightAgentParam> implements ControllerParams {
-
-	@ConfXMLTag("WeightMatrix")
-	@ConfList(indexName = {"inp", "outp"}, startAtOne = false)
-	public double[][] data = new double[0][0];
 
 	private final transient SimulationParams simParam;
 
@@ -30,26 +21,14 @@ public class LinearWeightsControllerParams extends PerAgentParams<LinearWeightAg
 	public void resize(AgentFoodCountable envParams) {
 		super.resize(envParams);
 
-		double[][] n = ArrayUtilities.resizeArray(data,
-				INPUT_COUNT + this.simParam.getPluginParameters().size(),
-				OUTPUT_COUNT);
-		data = n;
-	}
-
-	public LinearWeightsControllerParams copy() {
-		LinearWeightsControllerParams p = new LinearWeightsControllerParams(simParam);
-		p.data = new double[data.length][data[0].length];
-		for (int i = 0; i < p.data.length; i++)
-			for (int j = 0; j < p.data[i].length; j++)
-				p.data[i][j] = data[i][j];
-
-		p.agentParams = Arrays.copyOf(agentParams, agentParams.length);
-		return p;
+		for (LinearWeightAgentParam a : agentParams) {
+			a.resize(this.simParam);
+		}
 	}
 
 	@Override
 	protected LinearWeightAgentParam newAgentParam() {
-		return new LinearWeightAgentParam();
+		return new LinearWeightAgentParam(simParam);
 	}
 
 	@Override
@@ -58,13 +37,13 @@ public class LinearWeightsControllerParams extends PerAgentParams<LinearWeightAg
 		return controller;
 	}
 
-	public final int INPUT_COUNT = 10;
-	public final int OUTPUT_COUNT = 6;
+	public static final int INPUT_COUNT = 10;
+	public static final int OUTPUT_COUNT = 6;
 
-	public final String[] inputNames = { "Constant", "Energy", "Distance to agent", "Distance to food",
-			"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random" };
+	public static final String[] inputNames = { "Constant", "Energy", "Distance to agent", "Distance to food",
+		"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random" };
 
-	public final String[] outputNames = { "Memory", "Communication", "Left", "Right", "Forward", "Asexual Breed" };
+	public static final String[] outputNames = { "Memory", "Communication", "Left", "Right", "Forward", "Asexual Breed" };
 
 	private final double UPDATE_RATE = 0.001;
 

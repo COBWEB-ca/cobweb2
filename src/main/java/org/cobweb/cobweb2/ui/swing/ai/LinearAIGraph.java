@@ -35,7 +35,7 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 		super("AI output distribution");
 		this.params = controllerParams;
 
-		for (String x : params.outputNames) {
+		for (String x : LinearWeightsControllerParams.outputNames) {
 			catd.addValue(0, x, "");
 		}
 		chart = ChartFactory.createBarChart("AI output distribution", "Output", "Value", catd, PlotOrientation.VERTICAL, true, false, false);
@@ -89,8 +89,8 @@ public class LinearAIGraph extends JFrame implements WindowListener, ActionListe
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		double data[] = params.getRunningOutputMean();
-		for (int i = 0; i < params.OUTPUT_COUNT; i++) {
-			catd.setValue(data[i], params.outputNames[i], "");
+		for (int i = 0; i < LinearWeightsControllerParams.OUTPUT_COUNT; i++) {
+			catd.setValue(data[i], LinearWeightsControllerParams.outputNames[i], "");
 		}
 	}
 
