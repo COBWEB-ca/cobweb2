@@ -116,7 +116,7 @@ public class Cobweb2Serializer {
 		Element root = CobwebXmlHelper.createDocument("COBWEB2Config", "config");
 		Document d = root.getOwnerDocument();
 
-		root.setAttribute("config-version", "2015-01-14");
+		root.setAttribute("config-version", "2017-03-15");
 
 		serializer.save(conf, root, d);
 

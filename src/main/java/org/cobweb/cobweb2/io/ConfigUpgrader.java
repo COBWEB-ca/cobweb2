@@ -26,7 +26,8 @@ class ConfigUpgrader {
 
 	private static final String[] VERSIONS = {
 		"2011",
-		"2015-01-14"
+		"2015-01-14",
+		"2017-03-15"
 	};
 
 	private static final String VERSION_LATEST = VERSIONS[VERSIONS.length - 1];
@@ -62,6 +63,12 @@ class ConfigUpgrader {
 		if (version.equals(VERSIONS[0])) {
 			// Upgrade from 2011
 			upgradeUsingXSLT(filename, "upgrade-2011-2015-01-14.xslt");
+			version = VERSIONS[1];
+		}
+
+		if (version.equals(VERSIONS[1])) {
+			upgradeUsingXSLT(filename, "upgrade-2015-01-14-2017-03-15.xslt");
+			version = VERSIONS[2];
 		}
 
 	}
