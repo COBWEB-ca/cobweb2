@@ -37,11 +37,11 @@ public class LinearWeightsControllerParams extends PerAgentParams<LinearWeightAg
 		return controller;
 	}
 
-	public static final int INPUT_COUNT = 10;
+	public static final int INPUT_COUNT = 14;
 	public static final int OUTPUT_COUNT = 6;
 
 	public static final String[] inputNames = { "Constant", "Energy", "Distance to agent", "Distance to food",
-		"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random" };
+		"Distance to obstacle", "Direction", "Memory", "Communication", "Age", "Random", "Facing North", "Facing East", "Facing South", "Facing West" };
 
 	public static final String[] outputNames = { "Memory", "Communication", "Left", "Right", "Forward", "Asexual Breed" };
 

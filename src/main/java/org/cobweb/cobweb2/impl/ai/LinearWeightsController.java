@@ -115,8 +115,14 @@ public class LinearWeightsController implements Controller {
 		variables[7] = agent.getCommInbox();
 		variables[8] = Math.max(agent.getAge() / 100.0, 2);
 		variables[9] = simulator.getRandom().nextGaussian();
+
+		variables[10] = agent.getPosition().direction.equals(Topology.NORTH) ? 1 : 0;
+		variables[11] = agent.getPosition().direction.equals(Topology.EAST) ? 1 : 0;
+		variables[12] = agent.getPosition().direction.equals(Topology.SOUTH) ? 1 : 0;
+		variables[13] = agent.getPosition().direction.equals(Topology.WEST) ? 1 : 0;
+
 		{
-			int i = 10;
+			int i = 14;
 			for (String plugin : simulator.getStatePluginKeys()) {
 				StateParameter sp = simulator.getStateParameter(plugin);
 				variables[i] = sp.getValue(agent);
