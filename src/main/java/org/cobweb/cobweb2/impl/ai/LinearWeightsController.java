@@ -76,10 +76,19 @@ public class LinearWeightsController implements Controller {
 				for (int v = 0; v < inputs.length; v++) {
 					// variables with stronger inputs are adjusted more
 					double strength = adjustmentStrength * Math.abs(inputs[v]);
-					data[v][eq] += simulator.getRandom().nextGaussian() * strength;
+					double x = data[v][eq] + simulator.getRandom().nextGaussian() * strength;
+					data[v][eq] = limitOutput(x);
 				}
 			}
 		}
+	}
+
+	// Do not allow values to reach infinity.
+	// The limit is arbitrary, probably big enough for any values users would have used in the past
+	private static double OUTPUT_VALUE_MAX = 100000;
+	private static final double limitOutput(double value) {
+		value = Math.max(-OUTPUT_VALUE_MAX, Math.min(OUTPUT_VALUE_MAX, value));
+		return value;
 	}
 
 
@@ -128,6 +137,7 @@ public class LinearWeightsController implements Controller {
 			for (int v = 0; v < variables.length; v++) {
 				res += data[v][eq] * variables[v];
 			}
+			res = limitOutput(res);
 
 			if (eq == 0)
 				memout = res;
