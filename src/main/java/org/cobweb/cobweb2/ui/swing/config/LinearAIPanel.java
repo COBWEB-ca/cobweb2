@@ -6,15 +6,17 @@ package org.cobweb.cobweb2.ui.swing.config;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.LookAndFeel;
@@ -46,28 +48,76 @@ public class LinearAIPanel extends SettingsPanel {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 
-	private JTable matrix;
-
 	private LinearWeightsControllerParams params;
 
-	private JScrollPane scrollpane;
+	private JTabbedPane matrixTabPane;
 
-	private DoubleMatrixModel matrixModel;
+	private List<DoubleMatrixModel> weightTables = new ArrayList<>();
 
 	private List<String> pluginNames;
 
-	private final class RandomButtonListener implements ActionListener {
+	private final class RandomizeAction extends AbstractAction {
+		private DoubleMatrixModel model;
+		public RandomizeAction(DoubleMatrixModel model) {
+			super("Randomize");
+			this.model = model;
+		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			Random r = new Random();
-			for (int i = 0; i < matrixModel.data.length; i++) {
-				for (int j = 0; j < matrixModel.data[i].length; j++) {
-					matrixModel.data[i][j] = (double)Math.round(r.nextGaussian() * 1000) / 1000;
+			for (int i = 0; i < model.data.length; i++) {
+				for (int j = 0; j < model.data[i].length; j++) {
+					model.data[i][j] = (double)Math.round(r.nextGaussian() * 1000) / 1000;
 				}
 			}
-			matrixModel.reloadData();
+			model.reloadData();
 		}
+		private static final long serialVersionUID = 1L;
+	}
+
+
+	private final class ClearAction extends AbstractAction {
+		private DoubleMatrixModel model;
+		public ClearAction(DoubleMatrixModel model) {
+			super("Clear");
+			this.model = model;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Random r = new Random();
+			for (int i = 0; i < model.data.length; i++) {
+				for (int j = 0; j < model.data[i].length; j++) {
+					model.data[i][j] = 0;
+				}
+			}
+			model.reloadData();
+		}
+		private static final long serialVersionUID = 1L;
+	}
+
+	private final class CopyAction extends AbstractAction {
+		private DoubleMatrixModel model;
+		public CopyAction(DoubleMatrixModel model) {
+			super("Copy to other types");
+			this.model = model;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			for (DoubleMatrixModel target : weightTables) {
+				if (target.equals(model))
+					continue;
+				for (int i = 0; i < model.data.length; i++) {
+					for (int j = 0; j < model.data[i].length; j++) {
+						target.data[i][j] = model.data[i][j];
+					}
+				}
+				target.reloadData();
+			}
+		}
+		private static final long serialVersionUID = 1L;
 	}
 
 
@@ -130,26 +180,38 @@ public class LinearAIPanel extends SettingsPanel {
 		removeAll();
 
 		pluginNames = p.getPluginParameters();
-		String[] fullInputNames = new String[params.inputNames.length + pluginNames.size()];
-		System.arraycopy(params.inputNames, 0, fullInputNames, 0, params.inputNames.length);
+		String[] fullInputNames = new String[LinearWeightsControllerParams.inputNames.length + pluginNames.size()];
+		System.arraycopy(LinearWeightsControllerParams.inputNames, 0, fullInputNames, 0, LinearWeightsControllerParams.inputNames.length);
 		for (int i = 0; i < pluginNames.size(); i++) {
-			fullInputNames[params.inputNames.length + i] = pluginNames.get(i);
+			fullInputNames[LinearWeightsControllerParams.inputNames.length + i] = pluginNames.get(i);
 		}
 
-		matrixModel = new DoubleMatrixModel(fullInputNames, params.outputNames, params.data);
-		matrix = new JTable(matrixModel);
-		scrollpane = new JScrollPane(matrix);
+		weightTables.clear();
+		matrixTabPane = new JTabbedPane();
 
-		JPanel weightsPanel = new JPanel(new BorderLayout());
-		{
+		for (int i = 0; i < p.getAgentTypes(); i++) {
+			DoubleMatrixModel matrixModel = new DoubleMatrixModel(fullInputNames, LinearWeightsControllerParams.outputNames, params.agentParams[i].dataInitial);
+			weightTables.add(matrixModel);
+			JTable matrix = new JTable(matrixModel);
+			JScrollPane scrollpane = new JScrollPane(matrix);
+
+			JPanel weightsPanel = new JPanel(new BorderLayout());
 			Util.makeGroupPanel(weightsPanel, "Weights");
-			JButton randomButton = new JButton("Randomize");
-			randomButton.addActionListener(new RandomButtonListener());
-			JPanel randomPanel = new JPanel();
-			randomPanel.add(randomButton);
+
+			JButton randomButton = new JButton(new RandomizeAction(matrixModel));
+			JButton clearButton = new JButton(new ClearAction(matrixModel));
+			JButton copyButton = new JButton(new CopyAction(matrixModel));
+			JPanel buttonPanel = new JPanel();
+			buttonPanel.add(randomButton);
+			buttonPanel.add(clearButton);
+			buttonPanel.add(copyButton);
 
 			weightsPanel.add(scrollpane, BorderLayout.CENTER);
-			weightsPanel.add(randomPanel, BorderLayout.SOUTH);
+			weightsPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+			prettyTable(matrix, scrollpane);
+
+			matrixTabPane.addTab("Agent " + (i + 1), weightsPanel);
 		}
 
 		JTable paramTable = new MixedValueJTable(new ConfigTableModel(params.agentParams, "Agent "));
@@ -160,9 +222,7 @@ public class LinearAIPanel extends SettingsPanel {
 
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(paramScroll, BorderLayout.NORTH);
-		panel.add(weightsPanel, BorderLayout.CENTER);
-
-		prettyTable();
+		panel.add(matrixTabPane, BorderLayout.CENTER);
 
 		this.add(panel);
 	}
@@ -170,13 +230,13 @@ public class LinearAIPanel extends SettingsPanel {
 
 
 
-	private void prettyTable() {
-		JTable rowHead = new JTable(params.INPUT_COUNT + pluginNames.size(), 1);
-		for (int i = 0; i < params.INPUT_COUNT; i++) {
-			rowHead.setValueAt(params.inputNames[i], i, 0);
+	private void prettyTable(JTable matrix, JScrollPane scrollpane) {
+		JTable rowHead = new JTable(LinearWeightsControllerParams.INPUT_COUNT + pluginNames.size(), 1);
+		for (int i = 0; i < LinearWeightsControllerParams.INPUT_COUNT; i++) {
+			rowHead.setValueAt(LinearWeightsControllerParams.inputNames[i], i, 0);
 		}
 		for (int i = 0; i < pluginNames.size(); i++) {
-			rowHead.setValueAt(pluginNames.get(i), i + params.INPUT_COUNT, 0);
+			rowHead.setValueAt(pluginNames.get(i), i + LinearWeightsControllerParams.INPUT_COUNT, 0);
 		}
 		scrollpane.setRowHeaderView(rowHead);
 		LookAndFeel.installColorsAndFont(rowHead, "TableHeader.background","TableHeader.foreground", "TableHeader.font");

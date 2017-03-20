@@ -11,42 +11,54 @@ import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.vision.SeeInfo;
 import org.cobweb.cobweb2.plugins.vision.VisionState;
+import org.cobweb.util.ArrayUtilities;
 
 public class LinearWeightsController implements Controller {
 
-	private final LinearWeightsControllerParams params;
+	private final LinearWeightAgentParam params;
+
+	private final LinearWeightsControllerParams stats;
 
 	private final SimulationInternals simulator;
 
 	private final int agentType;
 
+	public double[][] data = new double[0][0];
+
 	public LinearWeightsController(SimulationInternals sim, LinearWeightsControllerParams params, int agentType) {
 		this.simulator = sim;
-		this.params = params;
+		this.stats = params;
+		this.params = params.agentParams[agentType];
 		this.agentType = agentType;
+
+		this.data = ArrayUtilities.clone(this.params.dataInitial);
 	}
 
 	protected LinearWeightsController(LinearWeightsController parent) {
 		this.simulator = parent.simulator;
-		this.params = parent.params.copy();
+		this.stats = parent.stats;
+		this.params = parent.params;
 		this.agentType = parent.agentType;
-		mutate(params.agentParams[agentType].mutationRate);
+
+		this.data = ArrayUtilities.clone(parent.data);
+		mutate(params.mutationRate);
 	}
 
 	protected LinearWeightsController(LinearWeightsController parent1, LinearWeightsController parent2) {
 		this.simulator = parent1.simulator;
-		this.params = parent1.params.copy();
+		this.stats = parent1.stats;
+		this.params = parent1.params;
 		this.agentType = parent1.agentType;
 
-		for (int i = 0; i < params.data.length; i++) {
-			for (int j = 0; j < params.data[i].length; j++) {
+		this.data = ArrayUtilities.clone(parent1.data);
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[i].length; j++) {
 				if (simulator.getRandom().nextBoolean()) {
-					this.params.data[i][j] = parent2.params.data[i][j];
+					data[i][j] = parent2.data[i][j];
 				}
 			}
 		}
-
-		mutate(params.agentParams[agentType].mutationRate);
+		mutate(params.mutationRate);
 	}
 
 	private static int ENERGY_THRESHOLD = 160;
@@ -60,14 +72,23 @@ public class LinearWeightsController implements Controller {
 
 		@Override
 		public void mutate(float adjustmentStrength) {
-			for (int eq = 0; eq < params.OUTPUT_COUNT; eq++) {
+			for (int eq = 0; eq < data[0].length; eq++) {
 				for (int v = 0; v < inputs.length; v++) {
 					// variables with stronger inputs are adjusted more
 					double strength = adjustmentStrength * Math.abs(inputs[v]);
-					params.data[v][eq] += simulator.getRandom().nextGaussian() * strength;
+					double x = data[v][eq] + simulator.getRandom().nextGaussian() * strength;
+					data[v][eq] = limitOutput(x);
 				}
 			}
 		}
+	}
+
+	// Do not allow values to reach infinity.
+	// The limit is arbitrary, probably big enough for any values users would have used in the past
+	private static double OUTPUT_VALUE_MAX = 100000;
+	private static final double limitOutput(double value) {
+		value = Math.max(-OUTPUT_VALUE_MAX, Math.min(OUTPUT_VALUE_MAX, value));
+		return value;
 	}
 
 
@@ -81,7 +102,7 @@ public class LinearWeightsController implements Controller {
 		/* careful with this block, eclipse likes to screw up the tabs!
 		 * if it breaks upon saving, undo and save again, this should save it without breaking
 		 */
-		double variables[] = new double[params.INPUT_COUNT + simulator.getStatePluginKeys().size()];
+		double variables[] = new double[LinearWeightsControllerParams.INPUT_COUNT + simulator.getStatePluginKeys().size()];
 		variables[0] = 1.0;
 		variables[1] = ((double) agent.getEnergy() / (ENERGY_THRESHOLD));
 		variables[2] = type == Environment.FLAG_AGENT ?	(get.getMaxDistance() - dist) / (double) get.getMaxDistance() : 0;
@@ -94,8 +115,14 @@ public class LinearWeightsController implements Controller {
 		variables[7] = agent.getCommInbox();
 		variables[8] = Math.max(agent.getAge() / 100.0, 2);
 		variables[9] = simulator.getRandom().nextGaussian();
+
+		variables[10] = agent.getPosition().direction.equals(Topology.NORTH) ? 1 : 0;
+		variables[11] = agent.getPosition().direction.equals(Topology.EAST) ? 1 : 0;
+		variables[12] = agent.getPosition().direction.equals(Topology.SOUTH) ? 1 : 0;
+		variables[13] = agent.getPosition().direction.equals(Topology.WEST) ? 1 : 0;
+
 		{
-			int i = 10;
+			int i = 14;
 			for (String plugin : simulator.getStatePluginKeys()) {
 				StateParameter sp = simulator.getStateParameter(plugin);
 				variables[i] = sp.getValue(agent);
@@ -111,11 +138,12 @@ public class LinearWeightsController implements Controller {
 		double right = 0.0;
 		double step = 0.0;
 		double asexflag = 0.0;
-		for (int eq = 0; eq < params.OUTPUT_COUNT; eq++) {
+		for (int eq = 0; eq < LinearWeightsControllerParams.OUTPUT_COUNT; eq++) {
 			double res = 0.0;
 			for (int v = 0; v < variables.length; v++) {
-				res += params.data[v][eq] * variables[v];
+				res += data[v][eq] * variables[v];
 			}
+			res = limitOutput(res);
 
 			if (eq == 0)
 				memout = res;
@@ -130,7 +158,7 @@ public class LinearWeightsController implements Controller {
 			else if (eq == 5)
 				asexflag = res;
 
-			params.updateStats(eq, res);
+			stats.updateStats(eq, res);
 		}
 
 		agent.setMemoryBuffer(memout);
@@ -146,11 +174,11 @@ public class LinearWeightsController implements Controller {
 	}
 
 	private void mutate(float mutation) {
-		double mutationCounter = params.data.length * params.data[0].length * mutation;
+		double mutationCounter = data.length * data[0].length * mutation;
 		while (mutationCounter > 1) {
-			int i = simulator.getRandom().nextInt(params.data.length);
-			int j = simulator.getRandom().nextInt(params.data[i].length);
-			params.data[i][j] += simulator.getRandom().nextGaussian() * 0.5;
+			int i = simulator.getRandom().nextInt(data.length);
+			int j = simulator.getRandom().nextInt(data[i].length);
+			data[i][j] += simulator.getRandom().nextGaussian() * 0.5;
 			mutationCounter -= 1;
 		}
 	}
@@ -174,10 +202,10 @@ public class LinearWeightsController implements Controller {
 
 	public double similarity(LinearWeightsController other) {
 		int diff = 0;
-		for (int i = 0; i < params.data.length; i++) {
-			for (int j = 0; j < params.data[i].length; j++) {
-				diff += Math.abs(this.params.data[i][j] * this.params.data[i][j] - other.params.data[i][j]
-						* other.params.data[i][j]);
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[i].length; j++) {
+				diff += Math.abs(data[i][j] * data[i][j] - other.data[i][j]
+						* other.data[i][j]);
 			}
 		}
 		return Math.max(0, (100.0 - diff) / 100.0);
