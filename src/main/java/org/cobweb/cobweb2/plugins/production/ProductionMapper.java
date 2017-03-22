@@ -1,10 +1,12 @@
 package org.cobweb.cobweb2.plugins.production;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
 import org.cobweb.cobweb2.core.Environment;
@@ -16,13 +18,15 @@ import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.DropManager;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
+import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.TemporaryEffect;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
+import org.cobweb.cobweb2.ui.StatsTracker;
 import org.cobweb.util.ArrayUtilities;
 
 public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState>
-implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> {
+implements LoggingMutator, StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> {
 
 	private Environment environment;
 	private float[][] vals;
@@ -30,9 +34,16 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 	SimulationTimeSpace simulation;
 	private ProductionAgentParams[] initialParams;
 
+	private StatsTracker tracker;
+	private long currentEnergy;
+	private long prevEnergy;
+	private int[] delays;
+
 	public ProductionMapper(SimulationTimeSpace sim) {
 		super(ProductionState.class, sim);
 		simulation = sim;
+		Simulation baseSim = (Simulation) simulation;
+		tracker = new StatsTracker(baseSim);
 	}
 
 	public void updateValues(Product p, boolean addition) {
@@ -274,10 +285,16 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 		initialParams = productionParams.agentParams;
 		environment = env;
 
+
 		if (vals == null || !keepOldProducts) {
 			vals = new float[simulation.getTopology().width][simulation.getTopology().height];
 		} else {
 			vals = ArrayUtilities.resizeArray(vals, simulation.getTopology().width, simulation.getTopology().height);
+		}
+
+		delays = new int[initialParams.length];
+		for (int i = 0; i < delays.length; i++) {
+			delays[i] = initialParams[i].agentPriceChangeTime;
 		}
 	}
 
@@ -291,6 +308,11 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 		public String getName() { return "Produce Product"; }
 	}
 
+	public static class PriceChangeCause implements Cause {
+		@Override
+		public String getName() { return "Chance Price"; }
+	}
+
 	@Override
 	public void update() {
 		Iterator<TemporaryEffect> iterator = effects.iterator();
@@ -298,6 +320,28 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 			TemporaryEffect effect = iterator.next();
 			if (!effect.updateIsAlive(simulation.getTime())) {
 				iterator.remove();
+			}
+		}
+
+		prevEnergy = currentEnergy;
+		currentEnergy = tracker.countAgentEnergy();
+		if (prevEnergy == 0) {
+			return;
+		}
+		double difference = Math.abs((prevEnergy - currentEnergy) / (double)prevEnergy);
+		for (int i = 0; i < initialParams.length; i++) {
+			ProductionAgentParams param = initialParams[i];
+			float threshold = param.agentPriceThreshhold;
+			if (delays[i] > 0) {
+				delays[i]--;
+			}
+			if (delays[i] == 0) {
+				if (threshold >= 0 && difference > threshold) {
+					float factor = (float) (1 - (prevEnergy - currentEnergy) /
+							(double)(prevEnergy * param.productElasticity));
+					param.productPrice.setMultiplier(new PriceChangeCause(), factor);
+				}
+				delays[i] = param.agentPriceChangeTime;
 			}
 		}
 	}
@@ -318,6 +362,36 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 		effect.startTime = simulation.getTime();
 		effect.apply();
 		effects.add(effect);
+	}
+
+	@Override
+	public Collection<String> logDataAgent(int agentType) {
+		int price = initialParams[agentType].productPrice.getValue();
+		return Arrays.asList(Integer.toString(price));
+	}
+
+	@Override
+	public Collection<String> logDataTotal() {
+		float averagePrice = 0;
+		int totalProducers = 0;
+		for (int i = 0; i < initialParams.length; i++) {
+			if (initialParams[i].productionMode) {
+				totalProducers++;
+				averagePrice += initialParams[i].productPrice.getValue();
+			}
+		}
+		averagePrice = averagePrice / totalProducers;
+		return Arrays.asList(Float.toString(averagePrice));
+	}
+
+	@Override
+	public Collection<String> logHeadersAgent() {
+		return Arrays.asList("ProductPrice");
+	}
+
+	@Override
+	public Collection<String> logHeaderTotal() {
+		return Arrays.asList("AveragePrice");
 	}
 
 }

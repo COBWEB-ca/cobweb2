@@ -80,6 +80,20 @@ public class ProductionAgentParams implements AgentState {
 	@ConfList(indexName = "Agent", startAtOne = true)
 	public float[] agentMaxConsFactor = new float[0]; // default zero
 
+	@ConfXMLTag("productElasticity")
+	@ConfDisplayName("Price elasticity of the product")
+	public float productElasticity = 0;
+
+	@ConfXMLTag("agentPriceThreshhold")
+	@ConfDisplayName("Threshold for agent to change product price")
+	@ConfList(indexName = "Agent", startAtOne = true)
+	public float agentPriceThreshhold = -1f;
+
+	@ConfXMLTag("agentPriceChangeTime")
+	@ConfDisplayName("Time delay for agent to change product price")
+	@ConfList(indexName = "Agent", startAtOne = true)
+	public int agentPriceChangeTime =  0;
+
 	public ProductionAgentParams(AgentFoodCountable size) {
 		resize(size);
 	}
