@@ -41,6 +41,7 @@ import org.cobweb.cobweb2.ui.swing.config.PDConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.SettingsPanel;
+import org.cobweb.cobweb2.ui.swing.config.SwarmConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.ToxinConfigPage;
 import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
 
@@ -84,6 +85,7 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		try {
 			environmentPage.validateUI();
 			abioticFactorsPage.validateUI();
+			swarmPage.validateUI();
 			resourcePage.validateUI();
 			agentPage.validateUI();
 			foodwebPage.validateUI();
@@ -123,6 +125,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private ResourceConfigPage resourcePage;
 
 	private AbioticFactorConfigPage abioticFactorsPage;
+
+	private SwarmConfigPage swarmPage;
 
 	private WasteConfigPage wastePage;
 
@@ -311,6 +315,10 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		removeOldPage(agentPage);
 		agentPage = new AgentConfigPage(p.agentParams.agentParams, displaySettings.agentColor);
 		tabbedPane.addTab("Agents", agentPage.getPanel());
+
+		removeOldPage(swarmPage);
+		swarmPage = new SwarmConfigPage(p.swarmParams, displaySettings.agentColor, serializer.choiceCatalog);
+		tabbedPane.addTab("Swarm", swarmPage.getPanel());
 
 		/* Production panel */
 		removeOldPage(prodPage);

@@ -41,4 +41,9 @@ public class MathUtil {
 			f = g;
 		return f;
 	}
+
+	public static float linearInterpolation(float x, float x0, float x1, float y0, float y1) {
+		float t = (x - x0) / (x1 - x0);
+		return y1 * t + y0 * (1-t);
+	}
 }

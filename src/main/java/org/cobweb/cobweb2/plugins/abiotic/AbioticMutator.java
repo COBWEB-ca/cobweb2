@@ -84,12 +84,13 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 
 	@Override
 	public void onSpawn(Agent agent, Agent parent) {
-		onSpawn(agent);
+		setAgentState(agent, getAgentState(parent).clone());
 	}
 
 	@Override
 	public void onSpawn(Agent agent, Agent parent1, Agent parent2) {
-		onSpawn(agent);
+		Agent parent = sim.getRandom().nextBoolean() ? parent1 : parent2;
+		onSpawn(agent, parent);
 	}
 
 	@Override

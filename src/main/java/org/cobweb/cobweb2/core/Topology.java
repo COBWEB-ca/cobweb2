@@ -1,7 +1,9 @@
 package org.cobweb.cobweb2.core;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class Topology {
@@ -116,6 +118,39 @@ public class Topology {
 			}
 		}
 		return best;
+	}
+
+	public Set<Location> getArea(Location zero, float radius) {
+		Set<Location> result = new HashSet<Location>();
+
+		result.add(zero);
+		LocationDirection l = new LocationDirection(zero, NORTH);
+
+		// walk around the zero point in increasingly larger rectangles
+		for (int r = 1; r <= radius; r++) {
+			// North-center point
+			l = getAdjacent(l);
+			result.add(l);
+
+			// length of walks along each side of the rectangle
+			// North-center to NE to SE to SW to NW, back to North-center
+			int[] sides = {r, r*2, r*2, r*2, r-1};
+
+			for (int side : sides) {
+				l = getTurnRightPosition(l);
+				for (int i = 0; i < side; i++) {
+					l = getAdjacent(l);
+					if (getDistance(zero, l) <= radius)
+						result.add(l);
+				}
+			}
+
+			// finish back at top-center, facing up
+			l = getAdjacent(l);
+			l = getTurnLeftPosition(l);
+		}
+
+		return result;
 	}
 
 	public LocationDirection getTurnRightPosition(LocationDirection location) {
