@@ -44,7 +44,7 @@ public class AbioticPreferenceParam implements ParameterSerializable {
 	}
 
 	@Override
-	protected AbioticPreferenceParam clone() {
+	public AbioticPreferenceParam clone() {
 		try {
 			AbioticPreferenceParam copy = (AbioticPreferenceParam) super.clone();
 			CloneHelper.resetMutatable(copy);

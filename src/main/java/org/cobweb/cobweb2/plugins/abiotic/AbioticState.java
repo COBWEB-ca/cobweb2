@@ -22,6 +22,20 @@ public class AbioticState implements AgentState {
 	}
 
 	@Override
+	protected AbioticState clone()  {
+		try {
+			AbioticState copy = (AbioticState) super.clone();
+			copy.factorStates = new AbioticFactorState[this.factorStates.length];
+			for (int i =0; i < factorStates.length; i++) {
+				copy.factorStates[i] = this.factorStates[i].clone();
+			}
+			return copy;
+		} catch (CloneNotSupportedException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	@Override
 	public boolean isTransient() {
 		return false;
 	}

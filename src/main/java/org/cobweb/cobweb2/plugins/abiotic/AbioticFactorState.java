@@ -17,5 +17,16 @@ public class AbioticFactorState implements ParameterSerializable {
 		this.agentParams = agentParams;
 	}
 
+	@Override
+	protected AbioticFactorState clone() {
+		try {
+			AbioticFactorState copy = (AbioticFactorState) super.clone();
+			copy.agentParams = this.agentParams.clone();
+			return copy;
+		} catch (CloneNotSupportedException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
 }
