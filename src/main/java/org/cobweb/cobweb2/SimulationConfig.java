@@ -20,6 +20,7 @@ import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.pd.PDParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
+import org.cobweb.cobweb2.plugins.swarm.SwarmParams;
 import org.cobweb.cobweb2.plugins.toxin.ToxinParams;
 import org.cobweb.cobweb2.plugins.waste.WasteParams;
 import org.cobweb.io.ConfDisplayName;
@@ -130,6 +131,9 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 	@ConfXMLTag("Abiotic")
 	public AbioticParams abioticParams = new AbioticParams(this);
 
+	@ConfXMLTag("Swarm")
+	public SwarmParams swarmParams = new SwarmParams(this);
+
 	@ConfXMLTag("Agents")
 	public AgentParams agentParams = new AgentParams(this);
 
@@ -195,6 +199,7 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 		List<String> result = new ArrayList<String>();
 		result.addAll(this.prodParams.getStatePluginKeys());
 		result.addAll(this.abioticParams.getStatePluginKeys());
+		result.addAll(this.swarmParams.getStatePluginKeys());
 
 		return result;
 	}

@@ -31,6 +31,7 @@ import org.cobweb.cobweb2.plugins.pd.PDMutator;
 import org.cobweb.cobweb2.plugins.production.ProductionMapper;
 import org.cobweb.cobweb2.plugins.stats.EnergyStats;
 import org.cobweb.cobweb2.plugins.stats.StatsMutator;
+import org.cobweb.cobweb2.plugins.swarm.SwarmMutator;
 import org.cobweb.cobweb2.plugins.toxin.ToxinMutator;
 import org.cobweb.cobweb2.plugins.vision.VisionMutator;
 import org.cobweb.cobweb2.plugins.waste.WasteMutator;
@@ -65,6 +66,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	private WasteMutator wasteMutator;
 	public ProductionMapper prodMapper;
 	private AbioticMutator abioticMutator;
+	private SwarmMutator swarmMutator;
 	private DiseaseMutator diseaseMutator;
 	private ToxinMutator toxinMutator;
 	public GeneticsMutator geneticMutator;
@@ -181,6 +183,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			diseaseMutator = null;
 			toxinMutator = null;
 			abioticMutator = null;
+			swarmMutator = null;
 			prodMapper = null;
 			wasteMutator = null;
 			statsMutator = null;
@@ -208,6 +211,11 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			abioticMutator = new AbioticMutator();
 			aiStatePlugins.add(abioticMutator);
 			mutatorListener.addMutator(abioticMutator);
+		}
+		if (swarmMutator == null) {
+			swarmMutator = new SwarmMutator();
+			aiStatePlugins.add(swarmMutator);
+			mutatorListener.addMutator(swarmMutator);
 		}
 		if (diseaseMutator == null) {
 			diseaseMutator = new DiseaseMutator();
@@ -257,6 +265,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		wasteMutator.setParams(p.wasteParams, theEnvironment);
 		prodMapper.setParams(simulationConfig.prodParams, theEnvironment, p.keepOldDrops);
 		abioticMutator.setParams(this, p.abioticParams);
+		swarmMutator.setParams(this, simulationConfig.swarmParams, theEnvironment);
 		diseaseMutator.setParams(this, p.diseaseParams, p.getAgentTypes());
 		toxinMutator.setParams(p.toxinParams, p.getAgentTypes());
 		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
