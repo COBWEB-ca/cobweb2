@@ -49,6 +49,34 @@ public class MixedValueJTable extends JTable {
 
 	}
 
+	private static class EnumSelectionEditor extends DefaultCellEditor {
+
+		private EnumSelectionEditor(Class<?> type) {
+			super(new JComboBox<>(type.getEnumConstants()));
+		}
+
+		@Override
+		public void cancelCellEditing() {
+			super.cancelCellEditing();
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return super.getCellEditorValue();
+		}
+
+		@Override
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			return super.getTableCellEditorComponent(table, value, isSelected, row, column);
+		}
+
+		@Override
+		public boolean stopCellEditing() {
+			return super.stopCellEditing();
+		}
+
+	}
+
 	private final class PerciseDecimalTableCellRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = -1919381757017436295L;
@@ -85,6 +113,9 @@ public class MixedValueJTable extends JTable {
 		TableCellEditor editor = tableColumn.getCellEditor();
 		if (getValueAt(row, column) instanceof ParameterChoice) {
 			editor = new CobwebSelectionEditor(configModel.getRowOptions(row));
+		}
+		if (getValueAt(row, column).getClass().isEnum()) {
+			editor = new EnumSelectionEditor(getValueAt(row, column).getClass());
 		}
 		if (editor == null && getValueAt(row, column) != null) {
 			editor = getDefaultEditor(getValueAt(row, column).getClass());
