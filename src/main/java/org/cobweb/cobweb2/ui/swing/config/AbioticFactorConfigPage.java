@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -21,11 +22,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.Timer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import org.cobweb.cobweb2.core.SimulationTimeSpace;
+import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticFactor;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.abiotic.AngleBands;
@@ -33,9 +37,11 @@ import org.cobweb.cobweb2.plugins.abiotic.AngleGradient;
 import org.cobweb.cobweb2.plugins.abiotic.Bands;
 import org.cobweb.cobweb2.plugins.abiotic.HorizontalBands;
 import org.cobweb.cobweb2.plugins.abiotic.Island;
+import org.cobweb.cobweb2.plugins.abiotic.MovingBandFactor;
 import org.cobweb.cobweb2.plugins.abiotic.Split;
 import org.cobweb.cobweb2.plugins.abiotic.VerticalBands;
 import org.cobweb.cobweb2.ui.swing.ConfigRefresher;
+import org.cobweb.util.RandomNoGenerator;
 
 
 public class AbioticFactorConfigPage implements ConfigPage {
@@ -52,7 +58,8 @@ public class AbioticFactorConfigPage implements ConfigPage {
 			new AngleBands(),
 			new Split(),
 			new Island(),
-			new AngleGradient()
+			new AngleGradient(),
+			new MovingBandFactor()
 			);
 
 	private ConfigRefresher refresher;
@@ -133,6 +140,8 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
+			if (e.getValueIsAdjusting())
+				return;
 			int index = listSelected.getSelectedIndex();
 			editFactor(index);
 		}
@@ -172,7 +181,7 @@ public class AbioticFactorConfigPage implements ConfigPage {
 	}
 
 	private static Component getFactorPreview(final AbioticFactor selectedFactor) {
-		JComponent preview = new JComponent() {
+		final JComponent preview = new JComponent() {
 
 			@Override
 			protected void paintComponent(Graphics g) {
@@ -202,11 +211,53 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 			private static final long serialVersionUID = 1L;
 		};
+
+
+		final SimulationTimerStub timerSimStub = new SimulationTimerStub();
+
+		final Timer refreshTimer = new Timer(10, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				timerSimStub.time++;
+				selectedFactor.update(timerSimStub);
+				if (!preview.isShowing()) {
+					((Timer)e.getSource()).stop();
+					System.err.println(e.getSource() + " exit");
+					return;
+				}
+
+				System.err.println(e.getSource() + " draw");
+				preview.repaint();
+			}
+		});
+		refreshTimer.start();
+
 		preview.setPreferredSize(new Dimension(100, 100));
 		JPanel previewPanel = new JPanel();
 		Util.makeGroupPanel(previewPanel, "Preview");
 		previewPanel.add(preview);
+
 		return previewPanel;
+	}
+
+	private static class SimulationTimerStub implements SimulationTimeSpace {
+
+		@Override
+		public RandomNoGenerator getRandom() {
+			return null;
+		}
+
+		@Override
+		public Topology getTopology() {
+			return null;
+		}
+
+		public long time = 0;
+
+		@Override
+		public long getTime() {
+			return time;
+		}
 	}
 
 	private JPanel getBandsEditor(final Bands factor) {
