@@ -39,6 +39,7 @@ import org.cobweb.cobweb2.plugins.abiotic.Bands;
 import org.cobweb.cobweb2.plugins.abiotic.HorizontalBands;
 import org.cobweb.cobweb2.plugins.abiotic.Island;
 import org.cobweb.cobweb2.plugins.abiotic.MovingBandFactor;
+import org.cobweb.cobweb2.plugins.abiotic.SingleDynamicFactor;
 import org.cobweb.cobweb2.plugins.abiotic.Split;
 import org.cobweb.cobweb2.plugins.abiotic.VerticalBands;
 import org.cobweb.cobweb2.ui.swing.ConfigRefresher;
@@ -60,6 +61,7 @@ public class AbioticFactorConfigPage implements ConfigPage {
 			new Split(),
 			new Island(),
 			new AngleGradient(),
+			new SingleDynamicFactor(),
 			new MovingBandFactor()
 			);
 
