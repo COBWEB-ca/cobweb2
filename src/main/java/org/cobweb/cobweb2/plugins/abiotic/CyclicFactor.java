@@ -10,6 +10,10 @@ public abstract class CyclicFactor extends AbioticFactor {
 	@ConfDisplayName("Cycle period")
 	public int cyclePeriod = 200;
 
+	@ConfXMLTag("cycleOffset")
+	@ConfDisplayName("Cycle offset")
+	public int cycleOffset = 0;
+
 	@ConfXMLTag("cycleMode")
 	@ConfDisplayName("Cycle mode")
 	public CycleMode cycleMode = CycleMode.PingPong;
@@ -34,7 +38,9 @@ public abstract class CyclicFactor extends AbioticFactor {
 	@Override
 	public void update(SimulationTimeSpace sim) {
 		super.update(sim);
-		time = (sim.getTime() % cyclePeriod) / (float) cyclePeriod;
+		time = ((sim.getTime() + cycleOffset) % cyclePeriod) / (float) cyclePeriod;
+		while (time < 0)
+			time += 1;
 
 		if (cycleMode == CycleMode.PingPong) {
 			if (time > .5)
