@@ -1,12 +1,11 @@
 package org.cobweb.cobweb2.plugins.abiotic;
 
-import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.util.MathUtil;
 
 
-public class MovingBandFactor extends AbioticFactor {
+public class MovingBandFactor extends CyclicFactor {
 
 
 	@ConfXMLTag("bgValue")
@@ -52,58 +51,6 @@ public class MovingBandFactor extends AbioticFactor {
 	private float angle = 90f;
 
 
-	@ConfXMLTag("cyclePeriod")
-	@ConfDisplayName("Cycle period")
-	public int cyclePeriod = 200;
-
-	@ConfXMLTag("cycleMode")
-	@ConfDisplayName("Cycle mode")
-	public CycleMode cycleMode = CycleMode.PingPong;
-
-	private float time;
-
-	public static enum CycleMode {
-		Loop("Loop"),
-		PingPong("Ping-Pong");
-
-		private final String value;
-
-		private CycleMode(String s) {
-			value = s;
-		}
-
-		/**
-		 * Gets CycleMode from friendly name
-		 * @param s friendly name
-		 * @return MeiosisMode with given name
-		 * @throws IllegalArgumentException when no CycleMode has given friendly name
-		 */
-		public static CycleMode fromString(String s) { // NO_UCD called through reflection
-			for (CycleMode m : CycleMode.values()) {
-				if (m.value.equals(s))
-					return m;
-			}
-			throw new IllegalArgumentException("Invalid value");
-		}
-
-		@Override
-		public String toString() {
-			return value;
-		}
-	}
-
-	@Override
-	public void update(SimulationTimeSpace sim) {
-		super.update(sim);
-		time = (sim.getTime() % cyclePeriod) / (float) cyclePeriod;
-
-		if (cycleMode == CycleMode.PingPong) {
-			if (time > .5)
-				time = 1 - time;
-			time *= 2;
-		}
-	}
-
 	@Override
 	public float getValue(float x, float y) {
 		float z = (float) MathUtil.pointLineDistInSquare(x - .5, y - .5, Math.toRadians(-angle)) + .5f;
@@ -147,4 +94,6 @@ public class MovingBandFactor extends AbioticFactor {
 		}
 	}
 
+
+	private static final long serialVersionUID = 1L;
 }
