@@ -14,7 +14,22 @@ public abstract class CyclicFactor extends AbioticFactor {
 	@ConfDisplayName("Cycle mode")
 	public CycleMode cycleMode = CycleMode.PingPong;
 
-	protected float time;
+	private float timeExponent = 1;
+
+	@ConfXMLTag("timeExponent")
+	@ConfDisplayName("Time exponent")
+	public void setExponent(float exponent) {
+		this.timeExponent = exponent;
+		midpointScale =  1 / (float) (Math.pow(.5, exponent) * 2);
+	}
+
+	public float getExponent() {
+		return timeExponent;
+	}
+
+	private float midpointScale = 1;
+
+	protected float time = 0;
 
 	@Override
 	public void update(SimulationTimeSpace sim) {
@@ -26,6 +41,11 @@ public abstract class CyclicFactor extends AbioticFactor {
 				time = 1 - time;
 			time *= 2;
 		}
+
+		time = (float)(
+				time < 0.5
+				? Math.pow(time, timeExponent) * midpointScale
+						: 1 - Math.pow(1 - time, timeExponent) * midpointScale);
 	}
 
 	public enum CycleMode {
