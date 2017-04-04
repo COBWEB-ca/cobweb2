@@ -8,6 +8,8 @@ import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -220,12 +222,14 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 		final JLabel stepCounter = new JLabel();
 
+
 		final Timer refreshTimer = new Timer(25, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				timerSimStub.time++;
 				selectedFactor.update(timerSimStub);
-				stepCounter.setText("Tick: " + timerSimStub.time);
+				stepCounter.setText("<html>Tick: " + timerSimStub.time + "<br>"
+						+ "Center Value: " + valueFormat.format(selectedFactor.getValue(.5f, .5f)) + "</html>");
 				if (!preview.isShowing()) {
 					((Timer)e.getSource()).stop();
 					return;
@@ -236,7 +240,7 @@ public class AbioticFactorConfigPage implements ConfigPage {
 		});
 		refreshTimer.start();
 
-		preview.setPreferredSize(new Dimension(100, 100));
+		preview.setPreferredSize(new Dimension(150, 150));
 		JPanel previewPanel = new JPanel();
 		previewPanel.setLayout(new BorderLayout());
 		Util.makeGroupPanel(previewPanel, "Preview");
@@ -245,6 +249,9 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 		return previewPanel;
 	}
+
+
+	private static NumberFormat valueFormat = new DecimalFormat("#0.###");
 
 	private static class SimulationTimerStub implements SimulationTimeSpace {
 
