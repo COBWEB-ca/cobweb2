@@ -228,11 +228,9 @@ public class AbioticFactorConfigPage implements ConfigPage {
 				stepCounter.setText("Tick: " + timerSimStub.time);
 				if (!preview.isShowing()) {
 					((Timer)e.getSource()).stop();
-					System.err.println(e.getSource() + " exit");
 					return;
 				}
 
-				System.err.println(e.getSource() + " draw");
 				preview.repaint();
 			}
 		});
