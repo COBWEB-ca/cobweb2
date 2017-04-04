@@ -17,6 +17,7 @@ import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -215,11 +216,14 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 		final SimulationTimerStub timerSimStub = new SimulationTimerStub();
 
-		final Timer refreshTimer = new Timer(10, new ActionListener() {
+		final JLabel stepCounter = new JLabel();
+
+		final Timer refreshTimer = new Timer(25, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				timerSimStub.time++;
 				selectedFactor.update(timerSimStub);
+				stepCounter.setText("Tick: " + timerSimStub.time);
 				if (!preview.isShowing()) {
 					((Timer)e.getSource()).stop();
 					System.err.println(e.getSource() + " exit");
@@ -234,8 +238,10 @@ public class AbioticFactorConfigPage implements ConfigPage {
 
 		preview.setPreferredSize(new Dimension(100, 100));
 		JPanel previewPanel = new JPanel();
+		previewPanel.setLayout(new BorderLayout());
 		Util.makeGroupPanel(previewPanel, "Preview");
-		previewPanel.add(preview);
+		previewPanel.add(preview, BorderLayout.NORTH);
+		previewPanel.add(stepCounter);
 
 		return previewPanel;
 	}
