@@ -15,6 +15,12 @@ public class SingleDynamicFactor extends CyclicFactor {
 	@ConfDisplayName("Max value")
 	public float valueMax = 1;
 
+
+	public SingleDynamicFactor() {
+		cyclePeriod = 500;
+		cycleMode = CycleMode.Loop;
+	}
+
 	@Override
 	public float getValue(float x, float y) {
 		return MathUtil.linearInterpolation(time, 0, 1, valueMin, valueMax);
