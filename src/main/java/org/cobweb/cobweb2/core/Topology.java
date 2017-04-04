@@ -39,7 +39,8 @@ public class Topology {
 	}
 
 	public boolean isValidLocation(Location l) {
-		return l.x >= 0 && l.x < width
+		return l != null
+				&& l.x >= 0 && l.x < width
 				&& l.y >= 0 && l.y < height;
 	}
 
@@ -123,31 +124,51 @@ public class Topology {
 	public Set<Location> getArea(Location zero, float radius) {
 		Set<Location> result = new HashSet<Location>();
 
-		result.add(zero);
-		LocationDirection l = new LocationDirection(zero, NORTH);
+		if (!wrap) {
+			int x0 = Math.min(zero.x - (int)Math.ceil(radius), 0);
+			int x1 = Math.max(zero.x + (int)Math.ceil(radius), width - 1);
+			int y0 = Math.min(zero.y - (int)Math.ceil(radius), 0);
+			int y1 = Math.max(zero.y + (int)Math.ceil(radius), height - 1);
 
-		// walk around the zero point in increasingly larger rectangles
-		for (int r = 1; r <= radius; r++) {
-			// North-center point
-			l = getAdjacent(l);
-			result.add(l);
-
-			// length of walks along each side of the rectangle
-			// North-center to NE to SE to SW to NW, back to North-center
-			int[] sides = {r, r*2, r*2, r*2, r-1};
-
-			for (int side : sides) {
-				l = getTurnRightPosition(l);
-				for (int i = 0; i < side; i++) {
-					l = getAdjacent(l);
-					if (getDistance(zero, l) <= radius)
+			for (int x = x0; x < x1; x++) {
+				for (int y = y0; y < y1; y++) {
+					Location l = new Location(x, y);
+					if (getDistance(zero, l) <= radius) {
 						result.add(l);
+					}
 				}
 			}
 
-			// finish back at top-center, facing up
-			l = getAdjacent(l);
-			l = getTurnLeftPosition(l);
+		} else {
+			if (radius > Math.max(width, height))
+				radius = Math.max(width, height);
+
+			result.add(zero);
+			LocationDirection l = new LocationDirection(zero, NORTH);
+
+			// walk around the zero point in increasingly larger rectangles
+			for (int r = 1; r <= radius; r++) {
+				// North-center point
+				l = getAdjacent(l);
+				result.add(l);
+
+				// length of walks along each side of the rectangle
+				// North-center to NE to SE to SW to NW, back to North-center
+				int[] sides = {r, r*2, r*2, r*2, r-1};
+
+				for (int side : sides) {
+					l = getTurnRightPosition(l);
+					for (int i = 0; i < side; i++) {
+						l = getAdjacent(l);
+						if (getDistance(zero, l) <= radius)
+							result.add(l);
+					}
+				}
+
+				// finish back at top-center, facing up
+				l = getAdjacent(l);
+				l = getTurnLeftPosition(l);
+			}
 		}
 
 		return result;
