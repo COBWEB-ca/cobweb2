@@ -13,9 +13,11 @@ public abstract class AbioticFactor implements ParameterSerializable {
 
 	public abstract String getName();
 
+	/**
+	 * @param sim simulation time and space info
+	 */
 	public void update(SimulationTimeSpace sim) {
-		sim.getTime();
-		// TODO seasonal abiotic factors
+		// nothing
 	}
 
 	public abstract AbioticFactor copy();

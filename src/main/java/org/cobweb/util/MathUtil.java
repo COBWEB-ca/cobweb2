@@ -34,12 +34,12 @@ public class MathUtil {
 		return dist;
 	}
 
-	public static float clamp(float f, float g, float h) {
-		if (f > h)
-			f = h;
-		else if (f < g)
-			f = g;
-		return f;
+	public static float clamp(float v, float min, float max) {
+		if (v > max)
+			v = max;
+		else if (v < min)
+			v = min;
+		return v;
 	}
 
 	public static float linearInterpolation(float x, float x0, float x1, float y0, float y1) {
