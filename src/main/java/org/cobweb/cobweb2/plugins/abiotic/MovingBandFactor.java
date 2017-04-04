@@ -61,7 +61,7 @@ public class MovingBandFactor extends CyclicFactor {
 		if (wrap && distance > 0.5f)
 			distance = 1f - distance;
 
-		distance -= bandWidth;
+		distance -= bandWidth / 2;
 
 		float t =  1.0f / (float) (1 + Math.exp(-distance * 10 * transition));
 		t = MathUtil.clamp(t, 0, 1);
