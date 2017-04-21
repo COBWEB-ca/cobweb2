@@ -123,6 +123,7 @@ public class Topology {
 
 	public Set<Location> getArea(Location zero, float radius) {
 		Set<Location> result = new HashSet<Location>();
+		float rSquared = radius * radius;
 
 		if (!wrap) {
 			int x0 = Math.min(zero.x - (int)Math.ceil(radius), 0);
@@ -133,7 +134,7 @@ public class Topology {
 			for (int x = x0; x < x1; x++) {
 				for (int y = y0; y < y1; y++) {
 					Location l = new Location(x, y);
-					if (getDistance(zero, l) <= radius) {
+					if (getDistanceSquared(zero, l) <= rSquared) {
 						result.add(l);
 					}
 				}
@@ -160,7 +161,7 @@ public class Topology {
 					l = getTurnRightPosition(l);
 					for (int i = 0; i < side; i++) {
 						l = getAdjacent(l);
-						if (getDistance(zero, l) <= radius)
+						if (getDistanceSquared(zero, l) <= rSquared)
 							result.add(l);
 					}
 				}
