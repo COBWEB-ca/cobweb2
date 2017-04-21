@@ -430,6 +430,13 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 		}
 	}
 
+	public void simulationChanged(boolean continuation) {
+		if (!continuation)
+			this.observedAgents.clear();
+
+		updateScale();
+	}
+
 	public void updateScale() {
 		java.awt.Dimension size = getSize();
 		if (size.width <= 0 || size.height <= 0) {

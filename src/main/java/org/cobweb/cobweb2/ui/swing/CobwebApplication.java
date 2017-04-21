@@ -293,7 +293,7 @@ public class CobwebApplication extends JFrame {
 			}
 		}
 
-		updateDynamicUI();
+		updateDynamicUI(continuation);
 
 		setTitle(WINDOW_TITLE + "  - " + file.getName());
 
@@ -505,22 +505,22 @@ public class CobwebApplication extends JFrame {
 		}
 	}
 
-	private void updateDynamicUI() {
-		setupViewers();
+	private void updateDynamicUI(boolean continuation) {
+		setupViewers(continuation);
 
 		makeAgentFoodSelectMenu();
 
 		makeViewMenu();
 
 		if (simulatorUI != null)
-			simulatorUI.simulationChanged();
+			simulatorUI.simulationChanged(continuation);
 
 		validate();
 	}
 
 	private List<ViewerPlugin> viewers = new LinkedList<ViewerPlugin>();
 
-	private void setupViewers() {
+	private void setupViewers(boolean continuation) {
 		// TODO: don't kill viewers when modifying simulation
 		for (ViewerPlugin viewer : viewers) {
 			viewer.dispose();

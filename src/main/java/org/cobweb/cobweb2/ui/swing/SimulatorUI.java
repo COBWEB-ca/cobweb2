@@ -163,7 +163,7 @@ public class SimulatorUI extends JPanel implements UpdatableUI {
 
 	private static final long serialVersionUID = 1L;
 
-	public void simulationChanged() {
-		displayPanel.updateScale();
+	public void simulationChanged(boolean continuation) {
+		displayPanel.simulationChanged(continuation);
 	}
 }
