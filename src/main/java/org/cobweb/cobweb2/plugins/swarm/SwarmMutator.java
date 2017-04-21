@@ -103,7 +103,8 @@ public class SwarmMutator extends StatefulMutatorBase<SwarmState> implements Upd
 			SwarmState state = getAgentState(agent);
 			PairwiseEffect effect = state.agentParams.effects[type];
 			float score = calculateScore(effect, type, agent);
-			return score - 1.0f;
+			float relScore = effect.relativeScore(score);
+			return relScore;
 		}
 	}
 

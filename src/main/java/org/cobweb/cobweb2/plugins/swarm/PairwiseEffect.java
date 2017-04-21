@@ -66,6 +66,11 @@ public class PairwiseEffect implements ParameterSerializable {
 	@ConfXMLTag("parameter")
 	public Phenotype parameter = new NullPhenotype();
 
+	/**
+	 * Calculates effect factor for given group size
+	 * @param groupSize number of nearby agents
+	 * @return effect scale factor
+	 */
 	public float score(int groupSize) {
 		if (groupSize < countMin || groupSize > countMax) {
 			return 1.0f;
@@ -76,6 +81,17 @@ public class PairwiseEffect implements ParameterSerializable {
 		} else {
 			return MathUtil.linearInterpolation(groupSize, countPeak2, countMax, factorPeak2, 1.0f);
 		}
+	}
+
+	/**
+	 * Scales effect score to the range [0, 1] for use in quantizing functions
+	 * @param score score from score() function
+	 * @return value of score relative to min/max of this effect
+	 */
+	public float relativeScore(float score) {
+		float min = Math.min(1, Math.min(factorPeak1, factorPeak2));
+		float max = Math.max(1, Math.max(factorPeak1, factorPeak2));
+		return (score - min) / (max - min);
 	}
 
 	public void validate() throws IllegalArgumentException {
