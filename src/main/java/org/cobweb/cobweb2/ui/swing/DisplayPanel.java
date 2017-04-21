@@ -173,16 +173,20 @@ public class DisplayPanel extends WaitableJComponent implements ComponentListene
 
 		@Override
 		void setOn(Location loc) {
-			ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(loc);
-			if (agent != null)
-				observedAgents.add(agent);
+			synchronized(simulation.theEnvironment) {
+				ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(loc);
+				if (agent != null)
+					observedAgents.add(agent);
+			}
 		}
 
 		@Override
 		void setOff(Location loc) {
-			ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(loc);
-			if (agent != null)
-				observedAgents.remove(agent);
+			synchronized(simulation.theEnvironment) {
+				ComplexAgent agent = (ComplexAgent)simulation.theEnvironment.getAgent(loc);
+				if (agent != null)
+					observedAgents.remove(agent);
+			}
 		}
 
 	}
