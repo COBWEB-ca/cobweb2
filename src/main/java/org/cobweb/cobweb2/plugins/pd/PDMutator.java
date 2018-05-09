@@ -26,7 +26,7 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 
 	@Override
 	public PDState stateForNewAgent(Agent agent) {
-		if (!params.enable)
+		if (!params.enable || !params.agentParams[agent.getType()].pdEnabled)
 			return null;
 
 		return new PDState(params.agentParams[agent.getType()].clone());
@@ -34,7 +34,7 @@ public class PDMutator extends StatefulSpawnMutatorBase<PDState> implements Cont
 
 	@Override
 	protected PDState stateFromParent(Agent agent, PDState parentState) {
-		if (!params.enable)
+		if (!params.enable || !params.agentParams[agent.getType()].pdEnabled)
 			return null;
 
 		return new PDState(parentState.agentParams.clone());

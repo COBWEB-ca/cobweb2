@@ -10,6 +10,10 @@ import org.cobweb.util.MutatableInt;
 
 public class PDAgentParams implements ParameterSerializable {
 
+	@ConfDisplayName("PD Enabled")
+	@ConfXMLTag("pdEnabled")
+	public boolean pdEnabled = true;
+
 	/**
 	 * Use tit-for-tat strategy for prisoner's dilemma.
 	 */
