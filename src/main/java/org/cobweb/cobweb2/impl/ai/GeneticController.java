@@ -2,6 +2,7 @@ package org.cobweb.cobweb2.impl.ai;
 
 import java.util.Map.Entry;
 
+import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Controller;
 import org.cobweb.cobweb2.core.ControllerInput;
@@ -10,6 +11,8 @@ import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.core.StateParameter;
 import org.cobweb.cobweb2.core.Topology;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.plugins.personalities.PersonalityMutator;
+import org.cobweb.cobweb2.plugins.personalities.PersonalityParams;
 import org.cobweb.cobweb2.plugins.vision.SeeInfo;
 import org.cobweb.cobweb2.plugins.vision.VisionState;
 import org.cobweb.util.BitField;
@@ -119,6 +122,10 @@ public class GeneticController implements Controller {
 		theAgent.setCommOutbox(dequantize(outputArray[2], params.communicationBits));
 		//whether to breed
 		theAgent.setShouldReproduceAsex(outputArray[3] != 0);
+
+		if (PersonalityMutator.overrideMove((Simulation) simulation, theAgent)) {
+		    return;
+        }
 
 		switch (actionCode) {
 			case TURN_LEFT:

@@ -19,6 +19,7 @@ import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.pd.PDParams;
+import org.cobweb.cobweb2.plugins.personalities.PersonalityParams;
 import org.cobweb.cobweb2.plugins.production.ProductionParams;
 import org.cobweb.cobweb2.plugins.swarm.SwarmParams;
 import org.cobweb.cobweb2.plugins.toxin.ToxinParams;
@@ -164,6 +165,9 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 
 	@ConfXMLTag("Learning")
 	public LearningParams learningParams = new LearningParams(this);
+
+	@ConfXMLTag("Personalities")
+	public PersonalityParams personalityParams = new PersonalityParams(this);
 
 	/**
 	 * Creates the default Cobweb simulation parameters.
