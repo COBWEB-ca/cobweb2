@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.plugins.personalities;
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.*;
 import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.impl.ai.GeneticController;
 import org.cobweb.cobweb2.plugins.ContactMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.broadcast.CheaterBroadcast;
@@ -28,10 +29,10 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
     PersonalityParams params;
 
     // Return whether something was actually overridden or not
-    public static boolean overrideMove(Simulation simulation, ComplexAgent agent) {
+    public static int overrideMove(Simulation simulation, ComplexAgent agent) {
         PersonalityState state = agent.getState(PersonalityState.class);
         if (state == null) {
-            return false;
+            return -1;
         }
         // Shouldn't use this if the agents don't have personalities or their openness or neuroticism
         // isn't high enough to warrant any special moves
@@ -46,7 +47,7 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
         if (!state.agentParams.personalitiesEnabled ||
                 (simulation.getRandom().nextFloat() > state.agentParams.openness &&
                         simulation.getRandom().nextFloat() > state.agentParams.neuroticism)) {
-            return false;
+            return -1;
         }
 
         // Now find the closest agent
@@ -54,7 +55,7 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
         LocationDirection l2 = closest.getPosition();
         LocationDirection l1 = agent.getPosition();
         if (simulation.getTopology().getDistance(l1, l2) < 2) {
-            return false;
+            return 3;
         } else  {
             // If the direction of the agent is not facing the closest agent, make it turn
             Direction agentToClosest = simulation.getTopology().getDirectionBetween4way(l1, l2);
@@ -62,7 +63,7 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
 
             // If the agent is already heading in the right direction, then keep on going
             if (agentToClosest.equals(agent.getPosition().direction)) {
-                agent.step();
+                return 3;
             }
 
             // Otherwise turn the agent towards the direction to the other agent
@@ -74,9 +75,9 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
                     (agentToClosest.equals(Topology.WEST) && agentDirection.equals(Topology.NORTH))) {
                 if (simulation.getRandom().nextFloat() < state.agentParams.extroversion * 1.25 ||
                         simulation.getRandom().nextFloat() < state.agentParams.openness * 1.25) {
-                    agent.turnLeft();
+                    return 0;
                 } else {
-                    agent.turnRight();
+                    return 1;
                 }
             } else if ((agentToClosest.equals(Topology.NORTH) && agentToClosest.equals(Topology.WEST)) ||
                     (agentToClosest.equals(Topology.EAST) && agentToClosest.equals(Topology.NORTH)) ||
@@ -86,13 +87,13 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
                     (agentToClosest.equals(Topology.WEST) && agentToClosest.equals(Topology.EAST))) {
                 if (simulation.getRandom().nextFloat() < state.agentParams.extroversion * 1.25 ||
                         simulation.getRandom().nextFloat() < state.agentParams.openness * 1.25) {
-                    agent.turnRight();
+                    return 1;
                 } else {
-                    agent.turnLeft();
+                    return 0;
                 }
             }
         }
-        return true;
+        return -1;
     }
 
     public PersonalityMutator(SimulationInternals sim) {
