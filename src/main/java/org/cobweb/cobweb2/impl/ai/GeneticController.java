@@ -117,10 +117,6 @@ public class GeneticController implements Controller {
 		int[] outputArray = ga.getOutput(inputCode.intValue());
 
 		int actionCode = outputArray[0];
-		int overrideCode;
-		if ((overrideCode = PersonalityMutator.overrideMove((Simulation) simulation, theAgent)) != -1) {
-		    actionCode = overrideCode;
-        }
 		theAgent.setMemoryBuffer(dequantize(outputArray[1], params.memoryBits));
 		theAgent.setCommOutbox(dequantize(outputArray[2], params.communicationBits));
 		//whether to breed
