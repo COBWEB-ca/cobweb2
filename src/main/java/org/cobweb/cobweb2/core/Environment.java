@@ -97,6 +97,17 @@ public class Environment implements Updatable {
 
 	}
 
+	public Agent getClosestAgent(Agent agent) {
+	    Location l1 = agent.getPosition();
+        Agent closest = null;
+        double closestDistance = Math.sqrt(topology.width * topology.width + topology.height * topology.height); // Can't be farther than this
+        for (Map.Entry<Location, Agent> pair : agentTable.entrySet()) {
+            if (topology.getDistance(pair.getKey(), l1) < closestDistance)
+                closest = pair.getValue();
+        }
+        return closest;
+    }
+
 	public final void setAgent(Location l, Agent a) {
 		if (a != null)
 			agentTable.put(l, a);

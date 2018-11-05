@@ -12,7 +12,7 @@ public class PDParams extends PerAgentParams<PDAgentParams> {
 	 */
 	@ConfDisplayName("PD Enabled")
 	@ConfXMLTag("enable")
-	public boolean enable = false;
+	public boolean enable = true;
 
 	/**
 	 * Temptation to defect.

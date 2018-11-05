@@ -12,7 +12,7 @@ public class PDAgentParams implements ParameterSerializable {
 
 	@ConfDisplayName("PD Enabled")
 	@ConfXMLTag("pdEnabled")
-	public boolean pdEnabled = true;
+	public boolean pdEnabled = false;
 
 	/**
 	 * Use tit-for-tat strategy for prisoner's dilemma.

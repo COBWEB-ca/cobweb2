@@ -26,24 +26,7 @@ import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.impl.FoodwebParams;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.UserInputException;
-import org.cobweb.cobweb2.ui.swing.config.AIPanel;
-import org.cobweb.cobweb2.ui.swing.config.AbioticAgentConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.AbioticFactorConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.AgentConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.ConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.DiseaseConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.DisplaySettings;
-import org.cobweb.cobweb2.ui.swing.config.EnvironmentConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.FoodwebConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.GeneticConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.LearningConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.PDConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.ProductionConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.ResourceConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.SettingsPanel;
-import org.cobweb.cobweb2.ui.swing.config.SwarmConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.ToxinConfigPage;
-import org.cobweb.cobweb2.ui.swing.config.WasteConfigPage;
+import org.cobweb.cobweb2.ui.swing.config.*;
 
 /**
  * Simulation configuration dialog
@@ -134,6 +117,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 
 	private LearningConfigPage learningPage;
 
+	private PersonalityConfigPage personalityPage;
+
 	private final JTabbedPane tabbedPane;
 
 	private final JDialog dialog;
@@ -177,6 +162,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private FoodwebConfigPage foodwebPage;
 
 	private PDConfigPage pdPage;
+
+	private FusionConfigPage fusionPage;
 
 	private DisplaySettings displaySettings;
 
@@ -363,6 +350,10 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		diseaseConfigPage = new DiseaseConfigPage(p.diseaseParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
 
+		removeOldPage(fusionPage);
+		fusionPage = new FusionConfigPage(p.fusionParams, serializer.choiceCatalog, displaySettings.agentColor);
+		tabbedPane.addTab("Fusion", fusionPage.getPanel());
+
 		removeOldPage(toxinConfigPage);
 		toxinConfigPage = new ToxinConfigPage(p.toxinParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Toxin", toxinConfigPage.getPanel());
@@ -370,6 +361,10 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		removeOldPage(abioticPage);
 		abioticPage = new AbioticAgentConfigPage(p.abioticParams.agentParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Agent Abiotic", abioticPage.getPanel());
+
+		removeOldPage(personalityPage);
+		personalityPage = new PersonalityConfigPage(p.personalityParams, displaySettings.agentColor);
+		tabbedPane.addTab("Personalities", personalityPage.getPanel());
 	}
 
 	private void removeOldPage(ConfigPage r) {
