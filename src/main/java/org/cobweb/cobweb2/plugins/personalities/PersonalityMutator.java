@@ -3,7 +3,6 @@ package org.cobweb.cobweb2.plugins.personalities;
 import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.core.*;
 import org.cobweb.cobweb2.impl.ComplexAgent;
-import org.cobweb.cobweb2.impl.ai.GeneticController;
 import org.cobweb.cobweb2.plugins.ContactMutator;
 import org.cobweb.cobweb2.plugins.MoveMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
@@ -13,11 +12,6 @@ import org.cobweb.cobweb2.plugins.pd.PDMutator.PDPunishmentCause;
 import org.cobweb.cobweb2.plugins.pd.PDMutator.PDRewardCause;
 import org.cobweb.cobweb2.plugins.pd.PDMutator.PDSuckerCause;
 import org.cobweb.cobweb2.plugins.pd.PDMutator.PDTemptationCause;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /*
  * So the mutator only controls the PD portion.
