@@ -163,6 +163,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 
 	private PDConfigPage pdPage;
 
+	private FusionConfigPage fusionPage;
+
 	private DisplaySettings displaySettings;
 
 	// SimulationConfigEditor Special Constructor
@@ -347,6 +349,10 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		removeOldPage(diseaseConfigPage);
 		diseaseConfigPage = new DiseaseConfigPage(p.diseaseParams, serializer.choiceCatalog, displaySettings.agentColor);
 		tabbedPane.addTab("Disease", diseaseConfigPage.getPanel());
+
+		removeOldPage(fusionPage);
+		fusionPage = new FusionConfigPage(p.fusionParams, serializer.choiceCatalog, displaySettings.agentColor);
+		tabbedPane.addTab("Fusion", fusionPage.getPanel());
 
 		removeOldPage(toxinConfigPage);
 		toxinConfigPage = new ToxinConfigPage(p.toxinParams, serializer.choiceCatalog, displaySettings.agentColor);

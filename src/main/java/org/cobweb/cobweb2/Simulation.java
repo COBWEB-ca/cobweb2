@@ -25,6 +25,7 @@ import org.cobweb.cobweb2.plugins.abiotic.AbioticMutator;
 import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
 import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.food.FoodGrowth;
+import org.cobweb.cobweb2.plugins.fusion.FusionMutator;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
 import org.cobweb.cobweb2.plugins.learning.LearningMutator;
 import org.cobweb.cobweb2.plugins.pd.PDMutator;
@@ -69,6 +70,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	private AbioticMutator abioticMutator;
 	private SwarmMutator swarmMutator;
 	private DiseaseMutator diseaseMutator;
+	private FusionMutator fusionMutator;
 	private ToxinMutator toxinMutator;
 	public GeneticsMutator geneticMutator;
 	public LearningMutator learningMutator;
@@ -193,6 +195,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			pdMutator = null;
 			energyStats = null;
 			personalityMutator = null;
+			fusionMutator = null;
 		}
 
 
@@ -253,6 +256,10 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			personalityMutator = new PersonalityMutator(this);
 			mutatorListener.addMutator(personalityMutator);
 		}
+		if (fusionMutator == null) {
+			fusionMutator = new FusionMutator();
+			mutatorListener.addMutator(fusionMutator);
+		}
 
 
 		// Load environment plugin settings
@@ -278,6 +285,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		geneticMutator.setParams(this, p.geneticParams, p.getAgentTypes());
 		learningMutator.setParams(p.learningParams);
 		personalityMutator.setParams(p.personalityParams);
+		fusionMutator.setParams(this, p.fusionParams);
 
 
 		// Update AI state plugins

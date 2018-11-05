@@ -16,6 +16,7 @@ import org.cobweb.cobweb2.plugins.ResizableParam;
 import org.cobweb.cobweb2.plugins.abiotic.AbioticParams;
 import org.cobweb.cobweb2.plugins.disease.DiseaseParams;
 import org.cobweb.cobweb2.plugins.food.FoodGrowthParams;
+import org.cobweb.cobweb2.plugins.fusion.FusionParams;
 import org.cobweb.cobweb2.plugins.genetics.GeneticParams;
 import org.cobweb.cobweb2.plugins.learning.LearningParams;
 import org.cobweb.cobweb2.plugins.pd.PDParams;
@@ -168,6 +169,9 @@ public class SimulationConfig implements SimulationParams, ParameterSerializable
 
 	@ConfXMLTag("Personalities")
 	public PersonalityParams personalityParams = new PersonalityParams(this);
+
+	@ConfXMLTag("Fusion")
+	public FusionParams fusionParams = new FusionParams(this);
 
 	/**
 	 * Creates the default Cobweb simulation parameters.
