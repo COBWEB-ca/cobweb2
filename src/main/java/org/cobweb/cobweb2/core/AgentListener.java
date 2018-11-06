@@ -23,4 +23,6 @@ public interface AgentListener extends ControllerListener {
 
 	public abstract void onUpdate(Agent agent);
 
+	public abstract boolean onNextMove(Agent agent);
+
 }
