@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.plugins.gravity;
 import org.cobweb.io.ConfDisplayName;
 import org.cobweb.io.ConfXMLTag;
 import org.cobweb.io.ParameterSerializable;
+import org.cobweb.util.MutatableInt;
 
 public class GravityTypeParams implements ParameterSerializable {
 
@@ -13,7 +14,7 @@ public class GravityTypeParams implements ParameterSerializable {
      */
     @ConfDisplayName("Agent mass")
     @ConfXMLTag("mass")
-    public int mass = 1;
+    public MutatableInt mass = new MutatableInt(1);
 
     public GravityTypeParams() {
     }

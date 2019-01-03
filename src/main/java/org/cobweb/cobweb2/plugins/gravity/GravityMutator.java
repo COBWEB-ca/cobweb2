@@ -25,8 +25,8 @@ public class GravityMutator implements MoveMutator, EnvironmentMutator {
         this.sim = sim;
         this.params = params;
 
-        int w = ((Simulation) sim).theEnvironment.data.width;
-        int h = ((Simulation) sim).theEnvironment.data.height;
+        int w = sim.getTopology().width;
+        int h = sim.getTopology().height;
 
         massArray = new int[w][h];
 
@@ -35,7 +35,7 @@ public class GravityMutator implements MoveMutator, EnvironmentMutator {
     private int calculateContiguousArea(int a, int b, boolean[][] checked, ComplexEnvironment env, ArrayList<Location> result) {
         Location thisLoc = new Location(a, b);
         if (!checked[a][b] && env.hasAgent(thisLoc)) {
-            int total = params.gravityParams[env.getAgent(thisLoc).getType()].mass;
+            int total = params.gravityParams[env.getAgent(thisLoc).getType()].mass.getValue();
             checked[a][b] = true;
             for (int i = 0; i < total; i++) {
                 result.add(thisLoc);
@@ -105,12 +105,12 @@ public class GravityMutator implements MoveMutator, EnvironmentMutator {
         double forceY = 0; // + down, - up
 
         Location agentLoc = agent.getPosition();
-        for (int a = 0; a < ((Simulation) sim).theEnvironment.data.width; a++) {
-            for (int b = 0; b < ((Simulation) sim).theEnvironment.data.height; b++) {
+        for (int a = 0; a < sim.getTopology().width; a++) {
+            for (int b = 0; b < sim.getTopology().height; b++) {
                 Location ab = new Location(a, b);
                 double dis = sim.getTopology().getDistanceSquared(agentLoc, ab);
                 if (!agentLoc.equals(ab)) {
-                    double force = (params.gravitationalConstant * massArray[a][b] * params.gravityParams[agent.getType()].mass) / dis;
+                    double force = (params.gravitationalConstant * massArray[a][b] * params.gravityParams[agent.getType()].mass.getValue()) / dis;
                     Direction toPoint = sim.getTopology().getDirectionBetween8way(agentLoc, ab);
                     forceX += (toPoint.x / Math.sqrt(toPoint.x * toPoint.x + toPoint.y * toPoint.y)) * force;
                     forceY += (toPoint.y / Math.sqrt(toPoint.x * toPoint.x + toPoint.y * toPoint.y)) * force;
