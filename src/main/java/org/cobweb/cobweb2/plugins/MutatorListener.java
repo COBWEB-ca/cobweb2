@@ -81,6 +81,7 @@ public class MutatorListener implements AgentListener {
 		loggingMutators.clear();
 		consumptionMutators.clear();
 		controllerMutators.clear();
+		moveMutators.clear();
 
 		allMutators.clear();
 	}

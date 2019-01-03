@@ -18,3 +18,7 @@ initial_or_new_input_(reserved).xml
 current_data_(reserved).cwtemp
 /target/
 dependency-reduced-pom.xml
+/out
+/.idea
+todo.md
+src/main/java/META-INF/

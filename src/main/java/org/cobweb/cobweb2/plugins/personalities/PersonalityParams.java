@@ -9,7 +9,7 @@ public class PersonalityParams extends PerAgentParams<PersonalityAgentParams> {
 
     @ConfDisplayName("Personality enabled")
     @ConfXMLTag("enable")
-    public boolean personalitiesEnabled = true;
+    public boolean personalitiesEnabled = false;
 
     // PD will be enabled so long as personalities are enabled
 

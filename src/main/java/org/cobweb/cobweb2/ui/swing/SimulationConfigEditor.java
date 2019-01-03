@@ -81,6 +81,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 			abioticPage.validateUI();
 			prodPage.validateUI();
 			wastePage.validateUI();
+			personalityPage.validateUI();
+			gravityConfigPage.validateUI();
 		} catch (IllegalArgumentException ex) {
 			throw new UserInputException("Parameter error: " + ex.getMessage(), ex);
 		}
@@ -118,6 +120,8 @@ public class SimulationConfigEditor implements ConfigRefresher {
 	private LearningConfigPage learningPage;
 
 	private PersonalityConfigPage personalityPage;
+
+	private GravityConfigPage gravityConfigPage;
 
 	private final JTabbedPane tabbedPane;
 
@@ -365,6 +369,10 @@ public class SimulationConfigEditor implements ConfigRefresher {
 		removeOldPage(personalityPage);
 		personalityPage = new PersonalityConfigPage(p.personalityParams, displaySettings.agentColor);
 		tabbedPane.addTab("Personalities", personalityPage.getPanel());
+
+		removeOldPage(gravityConfigPage);
+		gravityConfigPage = new GravityConfigPage(p.gravityParams, displaySettings.agentColor);
+		tabbedPane.addTab("Gravity", gravityConfigPage.getPanel());
 	}
 
 	private void removeOldPage(ConfigPage r) {
