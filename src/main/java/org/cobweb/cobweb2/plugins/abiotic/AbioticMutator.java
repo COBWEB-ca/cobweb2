@@ -3,11 +3,10 @@ package org.cobweb.cobweb2.plugins.abiotic;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.Location;
-import org.cobweb.cobweb2.core.SimulationTimeSpace;
-import org.cobweb.cobweb2.core.StateParameter;
-import org.cobweb.cobweb2.core.StatePlugin;
+import org.cobweb.cobweb2.Simulation;
+import org.cobweb.cobweb2.core.*;
+import org.cobweb.cobweb2.impl.ComplexAgent;
+import org.cobweb.cobweb2.impl.ComplexEnvironment;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
 import org.cobweb.cobweb2.plugins.SpawnMutator;
 import org.cobweb.cobweb2.plugins.StatefulMutatorBase;
@@ -53,6 +52,44 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 		return agentFactorParams.score(temp);
 	}
 
+	private void handleBarrierFactor(int factor, Location from, Location to, Agent agent) {
+	    if (from == null || to == null) return;
+
+        ComplexEnvironment env = ((Simulation) sim).theEnvironment;
+
+        float toValue = getValue(factor, to);
+        float fromValue = getValue(factor, from);
+        if (toValue > agent.getEnergy() && fromValue < agent.getEnergy()) {
+            // Case where the agent just stepped into an area of too high energy
+//            ((ComplexAgent) agent).move(new LocationDirection(from, sim.getTopology().getRandomDirection()));
+            Location newLoc = new LocationDirection(from, sim.getTopology().getRandomDirection());
+            env.setAgent(to, null);
+            env.setAgent(newLoc, agent);
+            to.x = newLoc.x;
+            to.y = newLoc.y;
+        } else if (toValue > agent.getEnergy() && fromValue > agent.getEnergy()) {
+            // Case where agent in both locations are too high energy
+            if (params.factors.get(factor).getMin() > agent.getEnergy()) {
+                agent.changeEnergy(-agent.getEnergy() - 1, new BarrierCause()); // If there is no place that can support an agent of such energy
+            } else {
+//                boolean flag = true;
+                for (int k = 0; k < Math.max(sim.getTopology().width, sim.getTopology().height); k++) {
+                    Location newLoc = sim.getTopology().getRandomLocation();
+                    if (getValue(factor, newLoc) < agent.getEnergy() && !env.hasAgent(newLoc)) {
+                        env.setAgent(to, null);
+                        env.setAgent(newLoc, agent);
+//                        ((ComplexAgent) agent).move(new LocationDirection(loc, sim.getTopology().getRandomDirection()));
+                        to.x = newLoc.x;
+                        to.y = newLoc.y;
+//                        flag = false;
+                        break;
+                    }
+                }
+//                if (flag) agent.die();
+            }
+        }
+    }
+
 	/**
 	 * During a step
 	 *
@@ -68,11 +105,15 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 
 		AbioticState state = getAgentState(agent);
 		for (int i = 0; i < params.factors.size(); i++) {
-			AbioticFactorState factorState = state.factorStates[i];
-			float effect = effectAtLocation(i, to, state);
-			float multiplier = 1 + effect;
+		    if (!params.factors.get(i).punishment) {
+		        handleBarrierFactor(i, from, to, agent);
+		    } else {
+                AbioticFactorState factorState = state.factorStates[i];
+                float effect = effectAtLocation(i, to, state);
+                float multiplier = 1 + effect;
 
-			factorState.agentParams.parameter.modifyValue(causeKeys[i], agent, multiplier);
+                factorState.agentParams.parameter.modifyValue(causeKeys[i], agent, multiplier);
+            }
 		}
 	}
 
@@ -177,5 +218,12 @@ public class AbioticMutator extends StatefulMutatorBase<AbioticState> implements
 	protected boolean validState(AbioticState value) {
 		return value.factorStates.length == this.params.factors.size();
 	}
+
+	public static class BarrierCause implements Cause {
+	    @Override
+        public String getName() {
+	        return "No compatible region";
+        }
+    }
 
 }
