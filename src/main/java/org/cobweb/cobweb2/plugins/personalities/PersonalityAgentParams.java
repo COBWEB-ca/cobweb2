@@ -9,7 +9,7 @@ public class PersonalityAgentParams implements ParameterSerializable {
 
     @ConfDisplayName("Personalities Enabled")
     @ConfXMLTag("PersonalitiesEnabled")
-    public boolean personalitiesEnabled = true;
+    public boolean personalitiesEnabled = false;
 
     /**
      * Agreeableness : individuals who are agreeable are empathetic, understanding, and unconfrontational.

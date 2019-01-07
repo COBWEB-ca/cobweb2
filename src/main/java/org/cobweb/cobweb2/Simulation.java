@@ -27,6 +27,7 @@ import org.cobweb.cobweb2.plugins.disease.DiseaseMutator;
 import org.cobweb.cobweb2.plugins.food.FoodGrowth;
 import org.cobweb.cobweb2.plugins.fusion.FusionMutator;
 import org.cobweb.cobweb2.plugins.genetics.GeneticsMutator;
+import org.cobweb.cobweb2.plugins.gravity.GravityMutator;
 import org.cobweb.cobweb2.plugins.learning.LearningMutator;
 import org.cobweb.cobweb2.plugins.pd.PDMutator;
 import org.cobweb.cobweb2.plugins.personalities.PersonalityMutator;
@@ -76,6 +77,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 	public LearningMutator learningMutator;
 	public StatsMutator statsMutator;
 	private PersonalityMutator personalityMutator;
+	private GravityMutator gravityMutator;
 	private VisionMutator vision;
 
 
@@ -196,6 +198,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			energyStats = null;
 			personalityMutator = null;
 			fusionMutator = null;
+			gravityMutator = null;
 		}
 
 
@@ -261,6 +264,11 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 			mutatorListener.addMutator(fusionMutator);
 		}
 
+		if (gravityMutator == null) {
+			gravityMutator = new GravityMutator();
+			mutatorListener.addMutator(gravityMutator);
+		}
+
 
 		// Load environment plugin settings
 		FoodGrowth foodGrowth = theEnvironment.getPlugin(FoodGrowth.class);
@@ -273,6 +281,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		theEnvironment.addPlugin(energyStats);
 		theEnvironment.addPlugin(prodMapper);
 		theEnvironment.addPlugin(toxinMutator);
+		theEnvironment.addPlugin(gravityMutator);
 
 		// Load agent plugin settings
 		pdMutator.setParams(p.pdParams);
@@ -286,6 +295,7 @@ public class Simulation implements SimulationInternals, SimulationInterface {
 		learningMutator.setParams(p.learningParams);
 		personalityMutator.setParams(p.personalityParams);
 		fusionMutator.setParams(this, p.fusionParams);
+		gravityMutator.setParams(this, p.gravityParams);
 
 
 		// Update AI state plugins
