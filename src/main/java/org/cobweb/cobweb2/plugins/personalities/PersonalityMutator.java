@@ -162,8 +162,7 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
 
         // Otherwise we are going to play normal PD
         // Calculate cooperation probability based on how close they are to agreeable/conscientious
-        double coopProb = meState.agentParams.consciousness - meState.agentParams.agreeableness + 0.5;
-
+        double coopProb = (meState.agentParams.agreeableness - meState.agentParams.consciousness + 0.75) / 1.5;
         if (sim.getRandom().nextFloat() >  coopProb) {
             meState.pdCheater = true;
         } else {

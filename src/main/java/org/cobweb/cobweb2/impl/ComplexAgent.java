@@ -366,6 +366,8 @@ public class ComplexAgent extends Agent {
 		if (newPos != null)
 			environment.setAgent(newPos, this);
 
+//		getAgentListener().beforeStep(this, oldPos, newPos);
+
 		getAgentListener().onStep(this, oldPos, newPos);
 		position = newPos;
 	}
