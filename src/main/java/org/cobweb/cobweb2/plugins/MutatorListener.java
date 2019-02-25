@@ -1,16 +1,8 @@
 package org.cobweb.cobweb2.plugins;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import org.cobweb.cobweb2.core.Agent;
-import org.cobweb.cobweb2.core.AgentListener;
-import org.cobweb.cobweb2.core.Cause;
-import org.cobweb.cobweb2.core.ControllerInput;
-import org.cobweb.cobweb2.core.LocationDirection;
+import org.cobweb.cobweb2.core.*;
 
 
 public class MutatorListener implements AgentListener {
@@ -24,6 +16,7 @@ public class MutatorListener implements AgentListener {
 	private Set<ConsumptionMutator> consumptionMutators = new LinkedHashSet<>();
 	private Set<ControllerInputMutator> controllerMutators = new LinkedHashSet<>();
 	private Set<MoveMutator> moveMutators = new LinkedHashSet<>();
+	private Set<LocationMutator> locationMutators = new LinkedHashSet<>();
 	private Set<AgentMutator> allMutators = new HashSet<>();
 
 	public void addMutator(AgentMutator mutator) {
@@ -54,6 +47,10 @@ public class MutatorListener implements AgentListener {
 		if (mutator instanceof MoveMutator)
 			moveMutators.add((MoveMutator) mutator);
 
+		if (mutator instanceof LocationMutator) {
+			locationMutators.add((LocationMutator) mutator);
+		}
+
 		allMutators.add(mutator);
 	}
 
@@ -68,6 +65,7 @@ public class MutatorListener implements AgentListener {
 		consumptionMutators.remove(mutator);
 		controllerMutators.remove(mutator);
 		moveMutators.remove(mutator);
+		locationMutators.remove(mutator);
 
 		allMutators.remove(mutator);
 	}
@@ -82,6 +80,7 @@ public class MutatorListener implements AgentListener {
 		consumptionMutators.clear();
 		controllerMutators.clear();
 		moveMutators.clear();
+		locationMutators.clear();
 
 		allMutators.clear();
 	}
@@ -180,6 +179,22 @@ public class MutatorListener implements AgentListener {
 		for(ControllerInputMutator mutator : controllerMutators) {
 			mutator.onControl(agent, cInput);
 		}
+	}
+
+	@Override
+	public LocationDirection onTryStep(Agent agent, LocationDirection from, LocationDirection originalTo) {
+	    List<LocationDirection> possibles = new LinkedList<>();
+		for(LocationMutator mutator : locationMutators) {
+            LocationDirection newLoc = mutator.getNewLocation(agent, from, originalTo);
+            if (!newLoc.equals(originalTo)) {
+                possibles.add(newLoc);
+            }
+		}
+		if (possibles.isEmpty()) {
+		    return originalTo;
+        } else {
+		    return possibles.get(new Random().nextInt(possibles.size()));
+        }
 	}
 
 	public List<String> logDataAgent(int type) {

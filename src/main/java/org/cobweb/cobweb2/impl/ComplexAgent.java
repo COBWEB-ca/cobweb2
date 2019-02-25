@@ -360,13 +360,14 @@ public class ComplexAgent extends Agent {
 	public void move(LocationDirection newPos) {
 		LocationDirection oldPos = getPosition();
 
+		if (oldPos != null && newPos != null)
+			newPos = getAgentListener().onTryStep(this, oldPos, newPos);
+
 		if (oldPos != null)
 			environment.setAgent(oldPos, null);
 
 		if (newPos != null)
 			environment.setAgent(newPos, this);
-
-//		getAgentListener().beforeStep(this, oldPos, newPos);
 
 		getAgentListener().onStep(this, oldPos, newPos);
 		position = newPos;
