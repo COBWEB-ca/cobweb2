@@ -10,6 +10,7 @@ import org.cobweb.cobweb2.Simulation;
 import org.cobweb.cobweb2.SimulationConfig;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.LoggingExceptionHandler;
+import org.cobweb.cobweb2.ui.PopulationSampler;
 import org.cobweb.cobweb2.ui.SimulationRunnerBase;
 import org.cobweb.cobweb2.ui.UserInputException;
 
@@ -49,9 +50,12 @@ public class CobwebApplicationRunner {
 	 * <p> -log [must specify]
 	 * <br>Specify the name of the log file.
 	 *
-	 * <p> -pop
+	 * <p> --save-pop
 	 * <br>Specify the file in which the sample population will be saved.
 	 *
+     * <p> --load-pop
+     * <br>Specify the file in which a population of agents will be loaded.
+     *
 	 * <p> -autorun [specify integer >= -1]
 	 *
 	 * @param args command line arguments
@@ -69,6 +73,7 @@ public class CobwebApplicationRunner {
 		int finalstep = 0;
 		boolean visible = true;
 		String populationFileName = "";
+		String loadPopulationFile = "";
 
 		if (args.length > 0) {
 			for (int arg_pos = 0; arg_pos < args.length; ++arg_pos){
@@ -113,7 +118,15 @@ public class CobwebApplicationRunner {
 					} else {
 						populationFileName = args[++arg_pos];
 					}
-				} else {
+				} else if (args[arg_pos].equalsIgnoreCase("--load-pop")) {
+				    if (args.length - arg_pos == 1) {
+				        System.out.println("No value attached to '--load-pop' argument\n" +
+                        "Correct syntax is: " + CobwebApplicationRunner.Syntax);
+				        System.exit(1);
+                    } else {
+				        loadPopulationFile = args[++arg_pos];
+                    }
+                } else {
 					inputFileName = args[arg_pos];
 				}
 			}
@@ -124,10 +137,10 @@ public class CobwebApplicationRunner {
 			System.exit(1);
 		}
 
-		main(inputFileName, logFileName, populationFileName, autostart, finalstep, visible);
+		main(inputFileName, logFileName, populationFileName, loadPopulationFile, autostart, finalstep, visible);
 	}
 
-	public static void main(String inputFileName, String logFileName, String populationFileName,
+	public static void main(String inputFileName, String logFileName, String populationFileName, String loadPopulationFile,
 							boolean autostart, int finalstep, boolean visible) {
 		if (!logFileName.isEmpty() && new File(logFileName).exists()){
 			System.out.println("WARNING: log '" + logFileName + "' already exists, overwriting it!" );
@@ -209,6 +222,10 @@ public class CobwebApplicationRunner {
 				throw new UserInputException("Can't create log file!", ex);
 			}
 		}
+
+		if (!loadPopulationFile.isEmpty()) {
+		    PopulationSampler.insertPopulation(simRunner.getSimulation(), loadPopulationFile, true);
+        }
 
 		if (!populationFileName.isEmpty()) {
 			simRunner.setPopulationLog(populationFileName);

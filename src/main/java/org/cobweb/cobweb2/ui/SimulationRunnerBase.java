@@ -80,7 +80,7 @@ public class SimulationRunnerBase implements SimulationRunner {
 				int saveNum = getSimulation().theEnvironment.getAgentCount();
 
 				if (populationFile != null)
-					PopulationSampler.savePopulation(getSimulation(), "samplepop.xml", saveNum);
+					PopulationSampler.savePopulation(getSimulation(), populationFile, saveNum);
 				stop();
 			}
 		}
