@@ -135,6 +135,12 @@ public class Cobweb2Serializer {
 
 		agent.appendChild(paramsElement);
 
+        {
+            Element energyElement = d.createElement("Energy");
+            energyElement.setTextContent(a.getEnergy() + "");
+            agent.appendChild(energyElement);
+        }
+
 		{
 			Element locationElement = d.createElement("location");
 			Location location = a.getPosition();

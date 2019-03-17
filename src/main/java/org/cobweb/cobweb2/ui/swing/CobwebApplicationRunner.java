@@ -49,6 +49,9 @@ public class CobwebApplicationRunner {
 	 * <p> -log [must specify]
 	 * <br>Specify the name of the log file.
 	 *
+	 * <p> -pop
+	 * <br>Specify the file in which the sample population will be saved.
+	 *
 	 * <p> -autorun [specify integer >= -1]
 	 *
 	 * @param args command line arguments
@@ -65,6 +68,7 @@ public class CobwebApplicationRunner {
 		boolean autostart = false;
 		int finalstep = 0;
 		boolean visible = true;
+		String populationFileName = "";
 
 		if (args.length > 0) {
 			for (int arg_pos = 0; arg_pos < args.length; ++arg_pos){
@@ -101,6 +105,14 @@ public class CobwebApplicationRunner {
 					} else {
 						logFileName = args[++arg_pos];
 					}
+				} else if (args[arg_pos].equalsIgnoreCase("--save-pop")) {
+					if (args.length - arg_pos == 1) {
+						System.out.println("No value attached to '--save-pop' argument,\n" +
+						"Correct Syntax is: " +CobwebApplicationRunner.Syntax);
+						System.exit(1);
+					} else {
+						populationFileName = args[++arg_pos];
+					}
 				} else {
 					inputFileName = args[arg_pos];
 				}
@@ -112,10 +124,11 @@ public class CobwebApplicationRunner {
 			System.exit(1);
 		}
 
-		main(inputFileName, logFileName, autostart, finalstep, visible);
+		main(inputFileName, logFileName, populationFileName, autostart, finalstep, visible);
 	}
 
-	public static void main(String inputFileName, String logFileName, boolean autostart, int finalstep, boolean visible) {
+	public static void main(String inputFileName, String logFileName, String populationFileName,
+							boolean autostart, int finalstep, boolean visible) {
 		if (!logFileName.isEmpty() && new File(logFileName).exists()){
 			System.out.println("WARNING: log '" + logFileName + "' already exists, overwriting it!" );
 		}
@@ -197,12 +210,17 @@ public class CobwebApplicationRunner {
 			}
 		}
 
+		if (!populationFileName.isEmpty()) {
+			simRunner.setPopulationLog(populationFileName);
+		}
+
 		if (autostart) {
 			simRunner.run();
 		}
 	}
 
-	public static final String Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] [[-open] SettingsFile.xml]";
+	public static final String Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] " +
+            "[--save-pop PopulationFile.xml] [--load-pop PopulationFile.xml] [[[-open] SettingsFile.xml]";
 
 
 
