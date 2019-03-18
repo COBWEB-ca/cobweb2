@@ -10,11 +10,11 @@ class subReactor:
         self.typeNumberA = typeNumberA
         self.typeNumberB = typeNumberB
         self.xmlA = xmlA
-        self.xmlATemp = 'temp_' + xmlA
-        copyfile(self.xmlA, self.xmlATemp)
+        self.xmlAtemp = 'temp_' + xmlA
+        copyfile(self.xmlA, self.xmlAtemp)
         self.xmlB = xmlB
-        self.xmlBTemp = 'temp_' + xmlB
-        copyfile(self.xmlB, self.xmlBTemp)
+        self.xmlBtemp = 'temp_' + xmlB
+        copyfile(self.xmlB, self.xmlBtemp)
         self.reactRule = reactRule
         # Key: (Type a, Type b) Value: react factor
 
@@ -48,14 +48,17 @@ class subReactor:
         Executed after we run the program using xmlA, and saved new data to xmlATemp
         """
         previousTotalEnergy = self.getAgentsEnergy(self.xmlA)
-        currentTotalEnergy = self.getAgentsEnergy(self.xmlATemp)
+        currentTotalEnergy = self.getAgentsEnergy(self.xmlAtemp)
         return self.compare(previousTotalEnergy, currentTotalEnergy)
 
     def react(self, comparisonDifference):
         reactResult = {}
+        print("comparison diff", comparisonDifference)
         for i in range(1, self.typeNumberA+1):
             for j in range(1, self.typeNumberB+1):
+                print("react rule", i, j, self.reactRule[(i, j)])
                 reactResult[j] = reactResult.get(j, 0) + comparisonDifference[i] * self.reactRule[(i, j)]
+        print("reactresult", reactResult)
         return reactResult
         
     def apply(self, reactResult):
@@ -65,14 +68,16 @@ class subReactor:
             agentType = int(child.attrib["type"])
             energy = int(child[1].text) # gives the content of energy
             newEnergy = energy + reactResult[agentType]
+            print("old energy:", energy, "  new energy:", newEnergy)
             child[1].text = str(newEnergy)
         tree.write(self.xmlB)
+        copyfile(self.xmlB, self.xmlBtemp)
 
     def wrappedApply(self, comparisonDifference):
         reactResult = self.react(comparisonDifference)
         self.apply(reactResult)
     
-if __name__ == "__main__":
-    a = subReactor(2, 2, "2d.1.xml", "2d.xml", {})
-    reactResult = {2: 5, 4: -1}
-    a.apply(reactResult)
+# if __name__ == "__main__":
+#     a = subReactor(2, 2, "2d.1.xml", "2d.xml", {})
+#     reactResult = {2: 5, 4: -1}
+#     a.apply(reactResult)

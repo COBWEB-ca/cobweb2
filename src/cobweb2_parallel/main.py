@@ -1,15 +1,20 @@
-import os
-def main(xml_configs):
-    pass
-    # numOfCobweb = len(xml_configs)
-    # for i in range(numOfCobweb):
-    #     cur_xml = xml_configs[i]
-    #     # -save {temp_xml} means the name of the xml after one tick of execution
-    #     temp_xml = "temp" + cur_xml
-    #     os.system(f"java -jar {jarfile} -autorun 1 -open {cur_xml} -hide -save {temp_xml}")
+from subReactor import subReactor
+from subProcess import subProcess
+from masterReactor import masterReactor
 
+def main():
+    reactRule1 = {(1,  1): -1, (2, 1): -2}
+    reactRule2 = {(1, 1): 4, (1, 2): 3}
+    subReactor1 = subReactor(2, 1, "first.xml", "second.xml", reactRule1)
+    subReactor2 = subReactor(1, 2, "second.xml", "first.xml", reactRule2)
+
+    subProcess1 = subProcess("firstEnvironment.xml", [subReactor1])
+    subProcess2 = subProcess("secondEnvironment.xml", [subReactor2])
+
+    master = masterReactor([subProcess1, subProcess2])
+    master.run(3, 1)
 
 
 
 if __name__ == "__main__":
-    pass
+    main()

@@ -7,5 +7,5 @@ class subProcess:
         self.xmlA = subReactors[0].xmlA
         self.xmlAtemp = subReactors[0].xmlAtemp
 
-    def run(self):
-        os.system(f"java -jar {JARFILE} -autorun 1 -hide --save-pop {self.xmlAtemp} --load-pop {self.xmlA} -open {self.environmentXML}")
+    def run(self, timeInterval):
+        os.system(f"java -jar {JARFILE} -autorun {timeInterval} -hide --save-pop {self.xmlAtemp} --load-pop {self.xmlA} -open {self.environmentXML}")
