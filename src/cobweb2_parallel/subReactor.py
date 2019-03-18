@@ -43,13 +43,13 @@ class subReactor:
             difference[i] = currentTotalEnergy[i] - previousTotalEnergy[i]
         return difference
 
-    def foo(self):
+    def getEnergyChange(self):
         """
         Executed after we run the program using xmlA, and saved new data to xmlATemp
         """
         previousTotalEnergy = self.getAgentsEnergy(self.xmlA)
         currentTotalEnergy = self.getAgentsEnergy(self.xmlATemp)
-        return self.react(self.compare(previousTotalEnergy, currentTotalEnergy))
+        return self.compare(previousTotalEnergy, currentTotalEnergy)
 
     def react(self, comparisonDifference):
         reactResult = {}
@@ -67,6 +67,10 @@ class subReactor:
             newEnergy = energy + reactResult[agentType]
             child[1].text = str(newEnergy)
         tree.write(self.xmlB)
+
+    def wrappedApply(self, comparisonDifference):
+        reactResult = self.react(comparisonDifference)
+        self.apply(reactResult)
     
 if __name__ == "__main__":
     a = subReactor(2, 2, "2d.1.xml", "2d.xml", {})

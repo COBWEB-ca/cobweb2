@@ -1,9 +1,10 @@
 import os
 import xml.etree.ElementTree as et
+import subProcess
 
 class masterReactor:
-    def __init__(self, subReactors):
-        self.subReactors = subReactors
+    def __init__(self, subProcesses):
+        self.subProcesses = subProcesses
 
     def parse(self, xmlPath):
         """
@@ -31,7 +32,15 @@ class masterReactor:
         return difference
 
     def run(self):
-        pass
+        energyChange = []
+        for process in self.subProcesses:
+            process.run()
+            for subreactor in process.subReactors:
+                energyChange.append(subreactor.getEnergyChange())
+        for i in range(len(self.subProcesses)):
+            for subreactor in self.subProcesses[i].subReactors:
+                subreactor.wrappedApply(energyChange[i])
+
 
 
 def main(xml_configs):
@@ -41,4 +50,4 @@ def main(xml_configs):
     #     cur_xml = xml_configs[i]
     #     # -save {temp_xml} means the name of the xml after one tick of execution
     #     temp_xml = "temp" + cur_xml
-    #     os.system(f"java -jar {jarfile} -autorun 1 -open {cur_xml} -hide -save {temp_xml}")
+    #     os.system(f"java -jar {jarfile} -autorun 1 -hide --save-pop {temp_xml} --load-pop {temp_xml2} -open {cur_xml}")
