@@ -18,39 +18,6 @@ class subReactor:
         self.reactRule = reactRule
         # Key: (Type a, Type b) Value: react factor
 
-    def getAgentsEnergy(self, xmlPath):
-        """
-        Input: the path of the xml file
-        Output: a dictionary whose key is the agent type, value is the total energy of the corresponding agent type.
-        """
-        totalEnergy = {}
-        tree = et.parse(xmlPath)
-        root = tree.getroot()
-        for child in root:
-            agentType = int(child.attrib["type"])
-            energy = int(child[1].text) # gives the content of energy
-            totalEnergy[agentType] = totalEnergy.get(agentType, 0) + energy
-        return totalEnergy
-
-    def compare(self, previousTotalEnergy, currentTotalEnergy):
-        """
-        Return the energy change between previous state and current state
-        """
-        difference = {}
-        agentTypes = len(currentTotalEnergy)
-        assert agentTypes == len(previousTotalEnergy)
-        for i in range(1, agentTypes+1):
-            difference[i] = currentTotalEnergy[i] - previousTotalEnergy[i]
-        return difference
-
-    def getEnergyChange(self):
-        """
-        Executed after we run the program using xmlA, and saved new data to xmlATemp
-        """
-        previousTotalEnergy = self.getAgentsEnergy(self.xmlA)
-        currentTotalEnergy = self.getAgentsEnergy(self.xmlAtemp)
-        return self.compare(previousTotalEnergy, currentTotalEnergy)
-
     def react(self, comparisonDifference):
         reactResult = {}
         print("comparison diff", comparisonDifference)
@@ -67,11 +34,10 @@ class subReactor:
         for child in root:
             agentType = int(child.attrib["type"])
             energy = int(child[1].text) # gives the content of energy
-            newEnergy = energy + reactResult[agentType]
+            newEnergy = int(round(energy + reactResult[agentType]))
             print("old energy:", energy, "  new energy:", newEnergy)
             child[1].text = str(newEnergy)
         tree.write(self.xmlB)
-        copyfile(self.xmlB, self.xmlBtemp)
 
     def wrappedApply(self, comparisonDifference):
         reactResult = self.react(comparisonDifference)
