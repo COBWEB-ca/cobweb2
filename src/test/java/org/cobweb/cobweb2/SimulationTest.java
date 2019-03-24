@@ -14,6 +14,6 @@ public class SimulationTest extends TestCase {
 	 * Runs everything.xml
 	 */
 	public void testExperimentEverythingXml() {
-		CobwebApplicationRunner.main("src/main/resources/experiments/everything.xml", "testlog.tsv", true, 2000, false);
+		CobwebApplicationRunner.main("src/main/resources/experiments/everything.xml", "testlog.tsv", "testpop.xml", "loadpop.xml", true, 2000, false);
 	}
 }

@@ -23,6 +23,8 @@ public interface AgentListener extends ControllerListener {
 
 	public abstract void onUpdate(Agent agent);
 
+	public abstract LocationDirection onTryStep(Agent agent, LocationDirection from, LocationDirection originalTo);
+
 	public abstract boolean onNextMove(Agent agent);
 
 }

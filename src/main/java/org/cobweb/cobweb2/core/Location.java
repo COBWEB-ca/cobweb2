@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 public class Location implements Serializable {
 
-	public int x, y;
+	public final int x, y;
 
 	public Location(int x, int y) {
 		this.x = x;

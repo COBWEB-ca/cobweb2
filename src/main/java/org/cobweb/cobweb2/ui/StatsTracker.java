@@ -8,6 +8,7 @@ import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.pd.PDState;
+import org.cobweb.cobweb2.plugins.personalities.PersonalityState;
 
 public class StatsTracker  {
 
@@ -56,13 +57,19 @@ public class StatsTracker  {
 
 	protected void tallyPD(CoopCheaterCount coopCheaterCount, Agent a) {
 		PDState pdState = ((ComplexAgent)a).getState(PDState.class);
-		if (pdState == null)
-			return;
-
-		if (pdState.pdCheater) {
-			coopCheaterCount.cheaters++;
-		} else {
-			coopCheaterCount.cooperators++;
+		PersonalityState pState = ((ComplexAgent)a).getState(PersonalityState.class);
+		if (pdState != null) {
+			if (pdState.pdCheater) {
+				coopCheaterCount.cheaters++;
+			} else {
+				coopCheaterCount.cooperators++;
+			}
+		} else if (pState != null) {
+			if (pState.pdCheater) {
+				coopCheaterCount.cheaters++;
+			} else {
+				coopCheaterCount.cooperators++;
+			}
 		}
 	}
 

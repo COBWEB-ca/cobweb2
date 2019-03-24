@@ -18,6 +18,8 @@ public class SimulationRunnerBase implements SimulationRunner {
 
 	private StatsLogger statsLogger = null;
 
+	private String populationFile = null;
+
 	public SimulationRunnerBase(Simulation simulation) {
 		this.simulation = simulation;
 	}
@@ -75,6 +77,10 @@ public class SimulationRunnerBase implements SimulationRunner {
 
 			// Stop at target time
 			if (getAutoStopTime() != 0 && simulation.getTime() >= getAutoStopTime()) {
+				int saveNum = getSimulation().theEnvironment.getAgentCount();
+
+				if (populationFile != null)
+					PopulationSampler.savePopulation(getSimulation(), populationFile, saveNum);
 				stop();
 			}
 		}
@@ -121,6 +127,10 @@ public class SimulationRunnerBase implements SimulationRunner {
 			statsLogger = new StatsLogger(writer, simulation);
 			addUIComponent(statsLogger);
 		}
+	}
+
+	public void setPopulationLog(String fileName) {
+		this.populationFile = fileName;
 	}
 
 	/**

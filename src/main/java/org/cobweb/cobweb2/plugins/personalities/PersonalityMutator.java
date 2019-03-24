@@ -63,21 +63,25 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
 
             // If the agent is already heading in the right direction, then keep on going
             if (agentToClosest.equals(agent.getPosition().direction)) {
-                agent.step();
-            }
-
-            // Otherwise turn the agent towards the direction to the other agent
-            if ((agentToClosest.equals(Topology.NORTH) && agentDirection.equals(Topology.EAST)) ||
+                if (simulation.getRandom().nextFloat() < state.agentParams.extroversion * 1.25 ||
+                        simulation.getRandom().nextFloat() < state.agentParams.neuroticism * 1.25) {
+                    agent.step();
+                } else {
+                    return false;
+                }
+            }            // Otherwise turn the agent towards the direction to the other agent
+            else if ((agentToClosest.equals(Topology.NORTH) && agentDirection.equals(Topology.EAST)) ||
                     (agentToClosest.equals(Topology.NORTH) && agentDirection.equals(Topology.SOUTH)) ||
                     (agentToClosest.equals(Topology.EAST) && agentDirection.equals(Topology.SOUTH)) ||
                     (agentToClosest.equals(Topology.SOUTH) && agentDirection.equals(Topology.WEST)) ||
                     (agentToClosest.equals(Topology.SOUTH) && agentDirection.equals(Topology.NORTH)) ||
                     (agentToClosest.equals(Topology.WEST) && agentDirection.equals(Topology.NORTH))) {
                 if (simulation.getRandom().nextFloat() < state.agentParams.extroversion * 1.25 ||
-                        simulation.getRandom().nextFloat() < state.agentParams.openness * 1.25) {
+                        simulation.getRandom().nextFloat() < state.agentParams.neuroticism * 1.25) {
                     agent.turnLeft();
                 } else {
-                    agent.turnRight();
+//                    agent.turnRight();
+                    return false;
                 }
             } else if ((agentToClosest.equals(Topology.NORTH) && agentToClosest.equals(Topology.WEST)) ||
                     (agentToClosest.equals(Topology.EAST) && agentToClosest.equals(Topology.NORTH)) ||
@@ -86,10 +90,11 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
                     (agentToClosest.equals(Topology.WEST) && agentToClosest.equals(Topology.SOUTH)) ||
                     (agentToClosest.equals(Topology.WEST) && agentToClosest.equals(Topology.EAST))) {
                 if (simulation.getRandom().nextFloat() < state.agentParams.extroversion * 1.25 ||
-                        simulation.getRandom().nextFloat() < state.agentParams.openness * 1.25) {
+                        simulation.getRandom().nextFloat() < state.agentParams.neuroticism * 1.25) {
                     agent.turnRight();
                 } else {
-                    agent.turnLeft();
+//                    agent.turnLeft();
+                    return false;
                 }
             }
         }
@@ -162,8 +167,7 @@ public class PersonalityMutator extends StatefulSpawnMutatorBase<PersonalityStat
 
         // Otherwise we are going to play normal PD
         // Calculate cooperation probability based on how close they are to agreeable/conscientious
-        double coopProb = meState.agentParams.consciousness - meState.agentParams.agreeableness + 0.5;
-
+        double coopProb = (meState.agentParams.agreeableness - meState.agentParams.consciousness + 0.75) / 1.5;
         if (sim.getRandom().nextFloat() >  coopProb) {
             meState.pdCheater = true;
         } else {

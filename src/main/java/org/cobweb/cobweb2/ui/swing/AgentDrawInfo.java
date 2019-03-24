@@ -9,6 +9,7 @@ import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.disease.DiseaseState;
 import org.cobweb.cobweb2.plugins.genetics.GeneticCode;
 import org.cobweb.cobweb2.plugins.pd.PDState;
+import org.cobweb.cobweb2.plugins.personalities.PersonalityState;
 import org.cobweb.cobweb2.plugins.toxin.ToxinState;
 import org.cobweb.swingutil.ColorLookup;
 
@@ -60,7 +61,8 @@ class AgentDrawInfo {
 		position = agent.getPosition();
 
 		PDState pd = agent.getState(PDState.class);
-		action = (pd != null && pd.pdCheater) ? Color.RED : Color.BLACK;
+		PersonalityState pState = agent.getState(PersonalityState.class);
+		action = ((pd != null && pd.pdCheater) || (pState != null && pState.pdCheater)) ? Color.RED : Color.BLACK;
 	}
 
 	void draw(Graphics g, int tileWidth, int tileHeight) {
