@@ -1,0 +1,314 @@
+<PopulationSample xmlns="http://cobweb.ca/schema/cobweb2/population" cobweb-version="2.2017-04-21-1-gbc73f8b-modified (master) 2018-09-11-21:51" population-version="2015-01-14">
+  <Agent type="1">
+    <params>
+      <Agents>3</Agents>
+      <FoodEnergy>100</FoodEnergy>
+      <OtherFoodEnergy>25</OtherFoodEnergy>
+      <AgentFoodEnergyFraction>1.0</AgentFoodEnergyFraction>
+      <BreedEnergy>60</BreedEnergy>
+      <pregnancyPeriod>0</pregnancyPeriod>
+      <InitEnergy>100</InitEnergy>
+      <StepEnergy>1</StepEnergy>
+      <StepRockEnergy>2</StepRockEnergy>
+      <StepAgentEnergy>2</StepAgentEnergy>
+      <TurnRightEnergy>1</TurnRightEnergy>
+      <TurnLeftEnergy>1</TurnLeftEnergy>
+      <MutationRate>0.05</MutationRate>
+      <commSimMin>0</commSimMin>
+      <sexualBreedChance>1.0</sexualBreedChance>
+      <asexualBreedChance>0.0</asexualBreedChance>
+      <breedSimMin>0.0</breedSimMin>
+      <sexualPregnancyPeriod>5</sexualPregnancyPeriod>
+      <agingMode>false</agingMode>
+      <agingLimit>300</agingLimit>
+      <agingRate>10.0</agingRate>
+      <pdMemorySize>10</pdMemorySize>
+      <broadcastMode>false</broadcastMode>
+      <broadcastEnergyBased>false</broadcastEnergyBased>
+      <broadcastFixedRange>20</broadcastFixedRange>
+      <broadcastEnergyMin>20</broadcastEnergyMin>
+      <broadcastEnergyCost>5</broadcastEnergyCost>
+      <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+      <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
+      <foodweb>
+        <agent id="1">false</agent>
+        <food id="1">true</food>
+      </foodweb>
+    </params>
+    <Energy>100</Energy>
+    <location x="57" y="19" />
+    <direction x="0" y="-1" />
+    <Plugins>
+      <Plugin type="org.cobweb.cobweb2.plugins.swarm.SwarmState">
+        <AgentParams>
+          <Effects>
+            <Agent id="1">
+              <radius>0.0</radius>
+              <countMin>1</countMin>
+              <countPeak1>3</countPeak1>
+              <factorPeak1>1.1</factorPeak1>
+              <countPeak2>10</countPeak2>
+              <factorPeak2>1.2</factorPeak2>
+              <countMax>15</countMax>
+              <parameter>None</parameter>
+            </Agent>
+          </Effects>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.waste.WasteState">
+        <energyLost>0</energyLost>
+        <energyGained>0</energyGained>
+        <AgentParams>
+          <wasteMode>false</wasteMode>
+          <canConsume>
+            <waste id="1">false</waste>
+          </canConsume>
+          <wasteConsumptionEnergy>0</wasteConsumptionEnergy>
+          <wastePen>2</wastePen>
+          <wasteGain>100</wasteGain>
+          <wasteLoss>0</wasteLoss>
+          <wasteRate>0.5</wasteRate>
+          <wasteInit>100</wasteInit>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.toxin.ToxinState">
+        <toxicity>0.0</toxicity>
+        <AgentParams>
+          <initialToxicity>0.0</initialToxicity>
+          <toxicityThreshold>1.0</toxicityThreshold>
+          <toxicityEffect>-1.0</toxicityEffect>
+          <parameter>None</parameter>
+          <foodToxicity>
+            <food id="1">0.0</food>
+          </foodToxicity>
+          <agentToxicityTransfer>
+            <agent id="1">0.0</agent>
+          </agentToxicityTransfer>
+          <childToxicityTransfer>0.1</childToxicityTransfer>
+          <toxicityPurgeRate>0.0</toxicityPurgeRate>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.genetics.GeneticCode" />
+      <Plugin type="org.cobweb.cobweb2.plugins.abiotic.AbioticState">
+        <FactorStates />
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.learning.LearningState">
+        <AgentParams>
+          <enabled>false</enabled>
+          <learningMemoryDuration>20</learningMemoryDuration>
+          <learningCycle>10</learningCycle>
+          <learningWeighting>0.1</learningWeighting>
+          <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+        </AgentParams>
+      </Plugin>
+    </Plugins>
+  </Agent>
+  <Agent type="1">
+    <params>
+      <Agents>3</Agents>
+      <FoodEnergy>100</FoodEnergy>
+      <OtherFoodEnergy>25</OtherFoodEnergy>
+      <AgentFoodEnergyFraction>1.0</AgentFoodEnergyFraction>
+      <BreedEnergy>60</BreedEnergy>
+      <pregnancyPeriod>0</pregnancyPeriod>
+      <InitEnergy>100</InitEnergy>
+      <StepEnergy>1</StepEnergy>
+      <StepRockEnergy>2</StepRockEnergy>
+      <StepAgentEnergy>2</StepAgentEnergy>
+      <TurnRightEnergy>1</TurnRightEnergy>
+      <TurnLeftEnergy>1</TurnLeftEnergy>
+      <MutationRate>0.05</MutationRate>
+      <commSimMin>0</commSimMin>
+      <sexualBreedChance>1.0</sexualBreedChance>
+      <asexualBreedChance>0.0</asexualBreedChance>
+      <breedSimMin>0.0</breedSimMin>
+      <sexualPregnancyPeriod>5</sexualPregnancyPeriod>
+      <agingMode>false</agingMode>
+      <agingLimit>300</agingLimit>
+      <agingRate>10.0</agingRate>
+      <pdMemorySize>10</pdMemorySize>
+      <broadcastMode>false</broadcastMode>
+      <broadcastEnergyBased>false</broadcastEnergyBased>
+      <broadcastFixedRange>20</broadcastFixedRange>
+      <broadcastEnergyMin>20</broadcastEnergyMin>
+      <broadcastEnergyCost>5</broadcastEnergyCost>
+      <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+      <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
+      <foodweb>
+        <agent id="1">false</agent>
+        <food id="1">true</food>
+      </foodweb>
+    </params>
+    <Energy>100</Energy>
+    <location x="15" y="59" />
+    <direction x="0" y="-1" />
+    <Plugins>
+      <Plugin type="org.cobweb.cobweb2.plugins.swarm.SwarmState">
+        <AgentParams>
+          <Effects>
+            <Agent id="1">
+              <radius>0.0</radius>
+              <countMin>1</countMin>
+              <countPeak1>3</countPeak1>
+              <factorPeak1>1.1</factorPeak1>
+              <countPeak2>10</countPeak2>
+              <factorPeak2>1.2</factorPeak2>
+              <countMax>15</countMax>
+              <parameter>None</parameter>
+            </Agent>
+          </Effects>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.waste.WasteState">
+        <energyLost>0</energyLost>
+        <energyGained>0</energyGained>
+        <AgentParams>
+          <wasteMode>false</wasteMode>
+          <canConsume>
+            <waste id="1">false</waste>
+          </canConsume>
+          <wasteConsumptionEnergy>0</wasteConsumptionEnergy>
+          <wastePen>2</wastePen>
+          <wasteGain>100</wasteGain>
+          <wasteLoss>0</wasteLoss>
+          <wasteRate>0.5</wasteRate>
+          <wasteInit>100</wasteInit>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.toxin.ToxinState">
+        <toxicity>0.0</toxicity>
+        <AgentParams>
+          <initialToxicity>0.0</initialToxicity>
+          <toxicityThreshold>1.0</toxicityThreshold>
+          <toxicityEffect>-1.0</toxicityEffect>
+          <parameter>None</parameter>
+          <foodToxicity>
+            <food id="1">0.0</food>
+          </foodToxicity>
+          <agentToxicityTransfer>
+            <agent id="1">0.0</agent>
+          </agentToxicityTransfer>
+          <childToxicityTransfer>0.1</childToxicityTransfer>
+          <toxicityPurgeRate>0.0</toxicityPurgeRate>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.genetics.GeneticCode" />
+      <Plugin type="org.cobweb.cobweb2.plugins.abiotic.AbioticState">
+        <FactorStates />
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.learning.LearningState">
+        <AgentParams>
+          <enabled>false</enabled>
+          <learningMemoryDuration>20</learningMemoryDuration>
+          <learningCycle>10</learningCycle>
+          <learningWeighting>0.1</learningWeighting>
+          <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+        </AgentParams>
+      </Plugin>
+    </Plugins>
+  </Agent>
+  <Agent type="1">
+    <params>
+      <Agents>3</Agents>
+      <FoodEnergy>100</FoodEnergy>
+      <OtherFoodEnergy>25</OtherFoodEnergy>
+      <AgentFoodEnergyFraction>1.0</AgentFoodEnergyFraction>
+      <BreedEnergy>60</BreedEnergy>
+      <pregnancyPeriod>0</pregnancyPeriod>
+      <InitEnergy>100</InitEnergy>
+      <StepEnergy>1</StepEnergy>
+      <StepRockEnergy>2</StepRockEnergy>
+      <StepAgentEnergy>2</StepAgentEnergy>
+      <TurnRightEnergy>1</TurnRightEnergy>
+      <TurnLeftEnergy>1</TurnLeftEnergy>
+      <MutationRate>0.05</MutationRate>
+      <commSimMin>0</commSimMin>
+      <sexualBreedChance>1.0</sexualBreedChance>
+      <asexualBreedChance>0.0</asexualBreedChance>
+      <breedSimMin>0.0</breedSimMin>
+      <sexualPregnancyPeriod>5</sexualPregnancyPeriod>
+      <agingMode>false</agingMode>
+      <agingLimit>300</agingLimit>
+      <agingRate>10.0</agingRate>
+      <pdMemorySize>10</pdMemorySize>
+      <broadcastMode>false</broadcastMode>
+      <broadcastEnergyBased>false</broadcastEnergyBased>
+      <broadcastFixedRange>20</broadcastFixedRange>
+      <broadcastEnergyMin>20</broadcastEnergyMin>
+      <broadcastEnergyCost>5</broadcastEnergyCost>
+      <broadcastSameTypeOnly>false</broadcastSameTypeOnly>
+      <broadcastMinSimilarity>0.0</broadcastMinSimilarity>
+      <foodweb>
+        <agent id="1">false</agent>
+        <food id="1">true</food>
+      </foodweb>
+    </params>
+    <Energy>100</Energy>
+    <location x="54" y="74" />
+    <direction x="0" y="-1" />
+    <Plugins>
+      <Plugin type="org.cobweb.cobweb2.plugins.swarm.SwarmState">
+        <AgentParams>
+          <Effects>
+            <Agent id="1">
+              <radius>0.0</radius>
+              <countMin>1</countMin>
+              <countPeak1>3</countPeak1>
+              <factorPeak1>1.1</factorPeak1>
+              <countPeak2>10</countPeak2>
+              <factorPeak2>1.2</factorPeak2>
+              <countMax>15</countMax>
+              <parameter>None</parameter>
+            </Agent>
+          </Effects>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.waste.WasteState">
+        <energyLost>0</energyLost>
+        <energyGained>0</energyGained>
+        <AgentParams>
+          <wasteMode>false</wasteMode>
+          <canConsume>
+            <waste id="1">false</waste>
+          </canConsume>
+          <wasteConsumptionEnergy>0</wasteConsumptionEnergy>
+          <wastePen>2</wastePen>
+          <wasteGain>100</wasteGain>
+          <wasteLoss>0</wasteLoss>
+          <wasteRate>0.5</wasteRate>
+          <wasteInit>100</wasteInit>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.toxin.ToxinState">
+        <toxicity>0.0</toxicity>
+        <AgentParams>
+          <initialToxicity>0.0</initialToxicity>
+          <toxicityThreshold>1.0</toxicityThreshold>
+          <toxicityEffect>-1.0</toxicityEffect>
+          <parameter>None</parameter>
+          <foodToxicity>
+            <food id="1">0.0</food>
+          </foodToxicity>
+          <agentToxicityTransfer>
+            <agent id="1">0.0</agent>
+          </agentToxicityTransfer>
+          <childToxicityTransfer>0.1</childToxicityTransfer>
+          <toxicityPurgeRate>0.0</toxicityPurgeRate>
+        </AgentParams>
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.genetics.GeneticCode" />
+      <Plugin type="org.cobweb.cobweb2.plugins.abiotic.AbioticState">
+        <FactorStates />
+      </Plugin>
+      <Plugin type="org.cobweb.cobweb2.plugins.learning.LearningState">
+        <AgentParams>
+          <enabled>false</enabled>
+          <learningMemoryDuration>20</learningMemoryDuration>
+          <learningCycle>10</learningCycle>
+          <learningWeighting>0.1</learningWeighting>
+          <learningAdjustmentStrength>0.3</learningAdjustmentStrength>
+        </AgentParams>
+      </Plugin>
+    </Plugins>
+  </Agent>
+</PopulationSample>

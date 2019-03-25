@@ -30,9 +30,8 @@ class subProcess:
         """
         difference = {}
         agentTypes = len(currentTotalEnergy)
-        assert agentTypes == len(previousTotalEnergy)
-        for i in range(1, agentTypes+1):
-            difference[i] = currentTotalEnergy[i] - previousTotalEnergy[i]
+        for agentType in previousTotalEnergy:
+            difference[agentType] = currentTotalEnergy.get(agentType, 0) - previousTotalEnergy[agentType]
         return difference
 
     def getEnergyChange(self):
@@ -41,7 +40,6 @@ class subProcess:
         """
         previousTotalEnergy = self.getAgentsEnergy(self.xmlA)
         currentTotalEnergy = self.getAgentsEnergy(self.xmlAtemp)
-        print("prev", previousTotalEnergy, "current", currentTotalEnergy)
         return self.compare(previousTotalEnergy, currentTotalEnergy)
 
     def run(self, timeInterval):
