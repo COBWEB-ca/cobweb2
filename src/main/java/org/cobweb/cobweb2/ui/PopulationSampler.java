@@ -91,7 +91,7 @@ public class PopulationSampler {
 					continue;
 
 				ComplexAgent cAgent = (ComplexAgent) sim.newAgent(agentSample.type);
-				cAgent.init(sim.theEnvironment, agentSample.position, agentSample.params);
+				cAgent.init(sim.theEnvironment, agentSample.position, agentSample.params, agentSample.energy);
 				for (Entry<Class<AgentState>, AgentState> pluginState : agentSample.plugins.entrySet()) {
 					if (sim.supportsState(pluginState.getKey(), pluginState.getValue())) {
 						cAgent.setState(pluginState.getKey(), pluginState.getValue());

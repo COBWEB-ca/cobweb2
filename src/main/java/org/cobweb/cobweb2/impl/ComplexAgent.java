@@ -165,7 +165,7 @@ public class ComplexAgent extends Agent {
 	 * @param pos spawn position
 	 * @param agentData agent parameters
 	 */
-	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentParams agentData) {
+	public void init(ComplexEnvironment env, LocationDirection pos, ComplexAgentParams agentData, int energy) {
 		environment = (env);
 		setParams(agentData);
 
@@ -173,7 +173,7 @@ public class ComplexAgent extends Agent {
 
 		initPosition(pos);
 
-		changeEnergy(params.initEnergy.getValue(), new CreationBirthCause());
+		changeEnergy(energy, new CreationBirthCause());
 	}
 
 	public void setController(Controller c) {
