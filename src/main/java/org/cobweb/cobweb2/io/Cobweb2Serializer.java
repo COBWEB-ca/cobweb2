@@ -26,10 +26,7 @@ import org.cobweb.cobweb2.plugins.genetics.PhenotypeIndex;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.io.ChoiceCatalog;
 import org.cobweb.io.ParameterSerializer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 
 public class Cobweb2Serializer {
@@ -175,6 +172,7 @@ public class Cobweb2Serializer {
 
 	public static class AgentSample {
 		public int type;
+		public int energy;
 		public ComplexAgentParams params;
 		public LocationDirection position;
 		public Map<Class<AgentState>, AgentState> plugins = new HashMap<>();
@@ -190,6 +188,9 @@ public class Cobweb2Serializer {
 		serializer.load(params, paramNode);
 		params.resize(size); // Fix up for simulation being different than population
 		as.params = params;
+
+//		as.energy = Integer.parseInt(element.getElementsByTagName("Energy").item(0).getNodeValue());
+		as.energy = Integer.parseInt(element.getFirstChild().getNextSibling().getFirstChild().getNodeValue());
 
 		Element location = (Element)element.getElementsByTagName("location").item(0);
 		Location loc = new Location(

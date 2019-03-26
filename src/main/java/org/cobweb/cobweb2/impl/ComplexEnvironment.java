@@ -38,7 +38,7 @@ public class ComplexEnvironment extends Environment {
 	protected Agent spawnAgent(LocationDirection location, int agentType) {
 		ComplexAgent child = (ComplexAgent) simulation.newAgent(agentType);
 		ComplexAgentParams params = agentData[agentType];
-		child.init(this, location, params);
+		child.init(this, location, params, params.initEnergy.getValue());
 		return child;
 	}
 
