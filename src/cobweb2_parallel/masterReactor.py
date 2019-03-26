@@ -7,10 +7,10 @@ class masterReactor:
         self.subProcesses = subProcesses
 
     def run(self, stopAfter, timeInterval):
-        for _ in range(stopAfter):
+        for i in range(stopAfter):
             energyChange = []
             for process in self.subProcesses:
-                process.run(timeInterval)
+                process.run(timeInterval, i)
                 energyChange.append(process.getEnergyChange())
             for i in range(len(self.subProcesses)):
                 for subreactor in self.subProcesses[i].subReactors:

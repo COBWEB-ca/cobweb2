@@ -12,7 +12,7 @@ def main():
     subProcess2 = subProcess("secondEnvironment.xml", [subReactor2])
 
     master = masterReactor([subProcess1, subProcess2])
-    master.run(3, 1)
+    master.run(3, 2)
 
 if __name__ == "__main__":
     main()

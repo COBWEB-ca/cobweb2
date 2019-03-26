@@ -42,5 +42,6 @@ class subProcess:
         currentTotalEnergy = self.getAgentsEnergy(self.xmlAtemp)
         return self.compare(previousTotalEnergy, currentTotalEnergy)
 
-    def run(self, timeInterval):
-        os.system(f"java -jar {JARFILE} -autorun {timeInterval} -hide --save-pop {self.xmlAtemp} --load-pop {self.xmlA} -open {self.environmentXML}")
+    def run(self, timeInterval, logIndex):
+        logFileName = self.xmlA + str(logIndex) + ".xls"
+        os.system(f"java -jar {JARFILE} -autorun {timeInterval} -hide --save-pop {self.xmlAtemp} --load-pop {self.xmlA} -open {self.environmentXML} -log {logFileName}")
