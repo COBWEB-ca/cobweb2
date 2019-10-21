@@ -11,4 +11,6 @@ public interface Drop extends Updatable {
 	public void onStep(Agent agent);
 
 	public void prepareRemove();
+
+	public int getProducerType();
 }

@@ -1,19 +1,22 @@
 package org.cobweb.cobweb2.plugins.waste;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
+import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.SimulationTimeSpace;
 import org.cobweb.cobweb2.plugins.DropManager;
 import org.cobweb.cobweb2.plugins.EnergyMutator;
+import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 
 
-public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implements EnergyMutator, UpdateMutator,
+public class WasteMutator extends StatefulSpawnMutatorBase<WasteState> implements EnergyMutator, UpdateMutator, LoggingMutator,
 DropManager<Waste>{
 
 	private WasteParams params;
@@ -113,5 +116,75 @@ DropManager<Waste>{
 	@Override
 	public void remove(Waste waste) {
 		environment.removeDrop(waste.location);
+	}
+
+	public int countTotalWaste()
+	{
+		int count = 0;
+		int map_width = environment.topology.width;
+		int map_height = environment.topology.height;
+
+		for(int x = 0; x < map_width; x++)
+		{
+			for(int y = 0; y < map_width; y++)
+			{
+				Location loc = new Location(x, y);
+
+				if(environment.hasDrop(loc))
+				{
+					Drop drop = environment.getDrop(loc);
+
+					if(drop instanceof Waste)
+						count++;
+				}
+			}
+		}
+
+		return count;
+	}
+
+	public int countAgentWaste(int agentType)
+	{
+		int count = 0;
+		int map_width = environment.topology.width;
+		int map_height = environment.topology.height;
+
+		for(int x = 0; x < map_width; x++)
+		{
+			for(int y = 0; y < map_width; y++)
+			{
+				Location loc = new Location(x, y);
+
+				if(environment.hasDrop(loc))
+				{
+					Drop drop = environment.getDrop(loc);
+
+					if(drop instanceof Waste && drop.getProducerType() == agentType)
+						count++;
+				}
+			}
+		}
+
+		return count;
+	}
+
+	@Override
+	public Collection<String> logDataAgent(int agentType) {
+		return Arrays.asList(Integer.toString(countAgentWaste(agentType)));
+	}
+
+	@Override
+	public Collection<String> logDataTotal() {
+		return Arrays.asList(Integer.toString(countTotalWaste()));
+	}
+
+	@Override
+	public Collection<String> logHeadersAgent() {
+		return Arrays.asList("Waste");
+	}
+
+	@Override
+	public Collection<String> logHeaderTotal() {
+		return Arrays.asList("Waste");
 	}
 }

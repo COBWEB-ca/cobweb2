@@ -53,9 +53,9 @@ public class CobwebApplicationRunner {
 	 * <p> --save-pop
 	 * <br>Specify the file in which the sample population will be saved.
 	 *
-     * <p> --load-pop
-     * <br>Specify the file in which a population of agents will be loaded.
-     *
+	 * <p> --load-pop
+	 * <br>Specify the file in which a population of agents will be loaded.
+	 *
 	 * <p> -autorun [specify integer >= -1]
 	 *
 	 * @param args command line arguments
@@ -113,20 +113,20 @@ public class CobwebApplicationRunner {
 				} else if (args[arg_pos].equalsIgnoreCase("--save-pop")) {
 					if (args.length - arg_pos == 1) {
 						System.out.println("No value attached to '--save-pop' argument,\n" +
-						"Correct Syntax is: " +CobwebApplicationRunner.Syntax);
+								"Correct Syntax is: " +CobwebApplicationRunner.Syntax);
 						System.exit(1);
 					} else {
 						populationFileName = args[++arg_pos];
 					}
 				} else if (args[arg_pos].equalsIgnoreCase("--load-pop")) {
-				    if (args.length - arg_pos == 1) {
-				        System.out.println("No value attached to '--load-pop' argument\n" +
-                        "Correct syntax is: " + CobwebApplicationRunner.Syntax);
-				        System.exit(1);
-                    } else {
-				        loadPopulationFile = args[++arg_pos];
-                    }
-                } else {
+					if (args.length - arg_pos == 1) {
+						System.out.println("No value attached to '--load-pop' argument\n" +
+								"Correct syntax is: " + CobwebApplicationRunner.Syntax);
+						System.exit(1);
+					} else {
+						loadPopulationFile = args[++arg_pos];
+					}
+				} else {
 					inputFileName = args[arg_pos];
 				}
 			}
@@ -141,7 +141,7 @@ public class CobwebApplicationRunner {
 	}
 
 	public static void main(String inputFileName, String logFileName, String populationFileName, String loadPopulationFile,
-							boolean autostart, int finalstep, boolean visible) {
+			boolean autostart, int finalstep, boolean visible) {
 		if (!logFileName.isEmpty() && new File(logFileName).exists()){
 			System.out.println("WARNING: log '" + logFileName + "' already exists, overwriting it!" );
 		}
@@ -175,6 +175,8 @@ public class CobwebApplicationRunner {
 				inputFileName = tempdir + CobwebApplication.INITIAL_OR_NEW_INPUT_FILE_NAME;
 
 		}
+
+		//System.err.println("inputFileName: " + inputFileName + ", java.io.tmpdir: " + System.getProperty("java.io.tmpdir") + ", file.separator: " + System.getProperty("file.separator"));
 
 		Cobweb2Serializer serializer = new Cobweb2Serializer();
 		SimulationConfig defaultconf = null;
@@ -224,8 +226,8 @@ public class CobwebApplicationRunner {
 		}
 
 		if (!loadPopulationFile.isEmpty()) {
-		    PopulationSampler.insertPopulation(simRunner.getSimulation(), loadPopulationFile, true);
-        }
+			PopulationSampler.insertPopulation(simRunner.getSimulation(), loadPopulationFile, true);
+		}
 
 		if (!populationFileName.isEmpty()) {
 			simRunner.setPopulationLog(populationFileName);
@@ -237,7 +239,7 @@ public class CobwebApplicationRunner {
 	}
 
 	public static final String Syntax = "cobweb2 [--help] [-hide] [-autorun finalstep] [-log LogFile.tsv] " +
-            "[--save-pop PopulationFile.xml] [--load-pop PopulationFile.xml] [[[-open] SettingsFile.xml]";
+			"[--save-pop PopulationFile.xml] [--load-pop PopulationFile.xml] [[[-open] SettingsFile.xml]";
 
 
 

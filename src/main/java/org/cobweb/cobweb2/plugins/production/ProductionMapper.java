@@ -1,12 +1,14 @@
 package org.cobweb.cobweb2.plugins.production;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.cobweb.cobweb2.core.Agent;
 import org.cobweb.cobweb2.core.Cause;
+import org.cobweb.cobweb2.core.Drop;
 import org.cobweb.cobweb2.core.Environment;
 import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
@@ -16,13 +18,14 @@ import org.cobweb.cobweb2.core.StatePlugin;
 import org.cobweb.cobweb2.impl.ComplexAgent;
 import org.cobweb.cobweb2.plugins.DropManager;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
+import org.cobweb.cobweb2.plugins.LoggingMutator;
 import org.cobweb.cobweb2.plugins.StatefulSpawnMutatorBase;
 import org.cobweb.cobweb2.plugins.TemporaryEffect;
 import org.cobweb.cobweb2.plugins.UpdateMutator;
 import org.cobweb.util.ArrayUtilities;
 
 public class ProductionMapper extends StatefulSpawnMutatorBase<ProductionState>
-implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> {
+implements StatePlugin, UpdateMutator, EnvironmentMutator, LoggingMutator, DropManager<Product> {
 
 	private Environment environment;
 	private float[][] vals;
@@ -318,6 +321,76 @@ implements StatePlugin, UpdateMutator, EnvironmentMutator, DropManager<Product> 
 		effect.startTime = simulation.getTime();
 		effect.apply();
 		effects.add(effect);
+	}
+
+	public int countTotalProducts()
+	{
+		int count = 0;
+		int map_width = environment.topology.width;
+		int map_height = environment.topology.height;
+
+		for(int x = 0; x < map_width; x++)
+		{
+			for(int y = 0; y < map_width; y++)
+			{
+				Location loc = new Location(x, y);
+
+				if(environment.hasDrop(loc))
+				{
+					Drop drop = environment.getDrop(loc);
+
+					if(drop instanceof Product)
+						count++;
+				}
+			}
+		}
+
+		return count;
+	}
+
+	public int countAgentProducts(int agentType)
+	{
+		int count = 0;
+		int map_width = environment.topology.width;
+		int map_height = environment.topology.height;
+
+		for(int x = 0; x < map_width; x++)
+		{
+			for(int y = 0; y < map_width; y++)
+			{
+				Location loc = new Location(x, y);
+
+				if(environment.hasDrop(loc))
+				{
+					Drop drop = environment.getDrop(loc);
+
+					if(drop instanceof Product && drop.getProducerType() == agentType)
+						count++;
+				}
+			}
+		}
+
+		return count;
+	}
+
+	@Override
+	public Collection<String> logDataAgent(int agentType) {
+		return Arrays.asList(Integer.toString(countAgentProducts(agentType)));
+	}
+
+	@Override
+	public Collection<String> logDataTotal() {
+		return Arrays.asList(Integer.toString(countTotalProducts()));
+	}
+
+	@Override
+	public Collection<String> logHeadersAgent() {
+		return Arrays.asList("Products");
+	}
+
+	@Override
+	public Collection<String> logHeaderTotal() {
+		return Arrays.asList("Products");
 	}
 
 }

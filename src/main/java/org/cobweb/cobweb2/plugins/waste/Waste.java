@@ -70,4 +70,9 @@ public class Waste implements Drop {
 		}
 
 	}
+
+	@Override
+	public int getProducerType() {
+		return type;
+	}
 }

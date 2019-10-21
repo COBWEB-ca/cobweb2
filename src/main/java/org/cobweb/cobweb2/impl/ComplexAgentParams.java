@@ -218,6 +218,34 @@ public class ComplexAgentParams implements ResizableParam {
 	public MutatableFloat broadcastMinSimilarity = new MutatableFloat(0f);
 
 	/**
+	 * Agent speed.
+	 */
+	@ConfDisplayName("Agent Movement Speed")
+	@ConfXMLTag("agentMovementSpeed")
+	public MutatableFloat agentMovementSpeed = new MutatableFloat(1f);
+
+	/**
+	 * Chance an agent breeds asexually at a time step.
+	 */
+	@ConfDisplayName("Split chance")
+	@ConfXMLTag("splitChance")
+	public MutatableFloat splitChance = new MutatableFloat(0);
+
+	/**
+	 * Energy threshold at which splitting occurs.
+	 */
+	@ConfDisplayName("Split energy threshold")
+	@ConfXMLTag("SplitEnergyThreshold")
+	public MutatableInt splitEnergyThreshold = new MutatableInt(60);
+
+	/**
+	 * Energy split ratio.
+	 */
+	@ConfDisplayName("Split energy ratio")
+	@ConfXMLTag("SplitEnergyRatio")
+	public String splitEnergyRatio = "[0.5, 0.5]";
+
+	/**
 	 * Agent's food web parameters.
 	 */
 	@ConfXMLTag("foodweb")

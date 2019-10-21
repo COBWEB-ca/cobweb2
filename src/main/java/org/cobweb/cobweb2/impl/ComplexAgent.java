@@ -21,6 +21,8 @@ import org.cobweb.cobweb2.plugins.broadcast.PacketConduit;
 import org.cobweb.cobweb2.plugins.broadcast.PacketConduit.BroadcastCause;
 import org.cobweb.cobweb2.plugins.broadcast.PacketConduit.BroadcastFoodCause;
 import org.cobweb.util.RandomNoGenerator;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
 
 /**
  * TODO better comments
@@ -66,6 +68,8 @@ public class ComplexAgent extends Agent {
 	protected transient SimulationInternals simulation;
 
 	long birthTick;
+
+	protected float currentActionPoints = 0f;
 
 	public ComplexAgent(SimulationInternals sim, int type) {
 		super(type);
@@ -117,6 +121,12 @@ public class ComplexAgent extends Agent {
 	private ComplexAgent createChildSexual(LocationDirection location, ComplexAgent otherParent) {
 		ComplexAgent child = new ComplexAgent(simulation, getType());
 		child.init(environment, location, this, otherParent);
+		return child;
+	}
+
+	protected ComplexAgent createChildSplit(LocationDirection location) {
+		ComplexAgent child = new ComplexAgent(simulation, getType());
+		child.init(environment, location, this);
 		return child;
 	}
 
@@ -528,20 +538,71 @@ public class ComplexAgent extends Agent {
 
 		if (breedPos != null) {
 
+			ComplexAgent child = null;
 			ReproductionCause cause = null;
 			if (breedPartner == null) {
-				createChildAsexual(breedPos);
+				child = createChildAsexual(breedPos);
 				cause = new AsexualReproductionCause();
 			} else {
-				createChildSexual(breedPos, breedPartner);
+				child = createChildSexual(breedPos, breedPartner);
 				cause = new SexualReproductionCause();
 			}
 			changeEnergy(-params.initEnergy.getValue(), cause);
 			applyAgePenalty();
 			breedPartner = null;
 			pregnant = false;
+
 		}
 		changeEnergy(-params.stepEnergy.getValue(), new StepForwardCause());
+
+		// splitting functionality
+		boolean canSplit = enoughEnergy(params.splitEnergyThreshold.getValue()) && params.splitChance.getValue() != 0.0
+				&& getRandom().nextFloat() < params.splitChance.getValue();
+		if(canSplit)
+		{
+			String splitRatioStr = params.splitEnergyRatio;
+
+			JSONParser jsonParser = new JSONParser();
+			JSONArray jsonArray = null;
+			JSONArray ratioArray = null;
+
+			try {
+				jsonArray = (JSONArray) jsonParser.parse(splitRatioStr);
+
+				if(jsonArray.get(0) instanceof JSONArray) // We have a 2D array
+				{
+					ratioArray = (JSONArray) jsonArray.get(getRandom().nextIntRange(0, jsonArray.size()));
+				}
+				else
+					ratioArray = jsonArray;
+
+				LocationDirection currLocation = destPos;
+				int curr_energy = getEnergy();
+
+				for(int i = 0; i < ratioArray.size(); i++)
+				{
+					double ratio = (Double) ratioArray.get(i);
+					int delta = 0;
+
+					if(i == 0) // the original agent
+					{
+						delta = curr_energy - (int) Math.round(curr_energy * ratio);
+						changeEnergy(-delta, new SplitReproductionCause());
+					}
+					else // the split child
+					{
+						currLocation = environment.topology.getAdjacent(currLocation);
+						ComplexAgent child = createChildSplit(currLocation);
+						delta = child.getEnergy() - (int) Math.round(curr_energy * ratio);
+						child.changeEnergy(-delta, new SplitBirthCause());
+					}
+				}
+
+			} catch (Exception ex) {
+				//new RuntimeException(ex);
+				ex.printStackTrace();
+			}
+		}
 	}
 
 	protected void onstepAgentBump(ComplexAgent adjacentAgent) {
@@ -601,11 +662,28 @@ public class ComplexAgent extends Agent {
 		if (params.broadcastMode)
 			receiveBroadcast();
 
-        if (!getAgentListener().onNextMove(this)) {
-            controller.controlAgent(this, getAgentListener());
-        }
+		if(params.agentMovementSpeed.getValue() == 1f)
+			makeAMove(); // just perform the original movement.
+		else
+		{
+			currentActionPoints += params.agentMovementSpeed.getValue();
+
+			while(isAlive() && currentActionPoints >= 1f)
+			{
+				currentActionPoints -= 1f;
+				makeAMove();
+			}
+		}
+
 
 		clearCommInbox();
+	}
+
+	protected void makeAMove()
+	{
+		if (!getAgentListener().onNextMove(this)) {
+			controller.controlAgent(this, getAgentListener());
+		}
 	}
 
 	/**
@@ -767,5 +845,15 @@ public class ComplexAgent extends Agent {
 	public static class CreationBirthCause extends BirthCause {
 		@Override
 		public String getName() { return "Creation"; }
+	}
+
+	public static class SplitReproductionCause extends ReproductionCause {
+		@Override
+		public String getName() { return "Split Reproduction"; }
+	}
+
+	public static class SplitBirthCause extends BirthCause {
+		@Override
+		public String getName() { return "Split Birth"; }
 	}
 }

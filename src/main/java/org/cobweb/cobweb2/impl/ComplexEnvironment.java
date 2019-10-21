@@ -10,6 +10,7 @@ import org.cobweb.cobweb2.core.Location;
 import org.cobweb.cobweb2.core.LocationDirection;
 import org.cobweb.cobweb2.core.SimulationInternals;
 import org.cobweb.cobweb2.plugins.EnvironmentMutator;
+import org.cobweb.cobweb2.ui.StoneSampler;
 
 /**
  * 2D grid where agents and food live
@@ -74,6 +75,12 @@ public class ComplexEnvironment extends Environment {
 	}
 
 	public void loadNew() {
+
+		if(StoneSampler.hasStoneMap())
+		{
+			StoneSampler.loadStoneMap(this);
+		}
+
 		// add stones in to random locations
 		for (int i = 0; i < data.initialStones; ++i) {
 			Location l;

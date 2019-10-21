@@ -105,4 +105,9 @@ public class Product implements Drop {
 		public String getName() { return "Product Bought"; }
 	}
 
+	@Override
+	public int getProducerType() {
+		return producer.getType();
+	}
+
 }

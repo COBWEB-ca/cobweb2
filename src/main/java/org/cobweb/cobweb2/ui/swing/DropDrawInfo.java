@@ -10,9 +10,12 @@ import org.cobweb.util.Point2D;
 class DropDrawInfo {
 	public Point2D pos;
 	public Color col = Color.PINK;
+	public int producer_type = 0;
 
 	public DropDrawInfo(Point2D pos, Drop drop) {
 		this.pos = pos;
+
+		producer_type = drop.getProducerType();
 
 		if (drop instanceof Waste) {
 			col = new Color(204, 102, 0);

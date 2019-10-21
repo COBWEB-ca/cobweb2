@@ -46,12 +46,16 @@ class DrawInfo {
 
 	private List<DisplayOverlay> overlays = new ArrayList<>();
 
+	// ADDED: 20190813 - fchoong
+	Simulation sim;
+
 	/**
 	 * Construct a DrawInfo width specific width, height and tile colors.
 	 * The tiles array is not copied; the caller is assumed to "give" the
 	 * array to the drawing info, and not keep any local references around.
 	 */
 	DrawInfo(Simulation sim, List<ComplexAgent> observedAgents, DisplaySettings dispSettings, Collection<OverlayGenerator> gens) {
+		this.sim = sim;
 		this.displaySettings = dispSettings;
 		this.topology = sim.theEnvironment.topology;
 		tileColors = new Color[topology.width * topology.height];
@@ -115,6 +119,11 @@ class DrawInfo {
 		for (DropDrawInfo drop : drops) {
 			int x = drop.pos.x;
 			int y = drop.pos.y;
+
+			// draw agent color as bgcolor
+			g.setColor(AgentDrawInfo.getColorForType(drop.producer_type, displaySettings.agentColor, sim));
+			g.fillRect(x * tileWidth + 0, y * tileHeight + 0, tileWidth, tileHeight);
+
 			g.setColor(drop.col);
 			g.fillRect(x * tileWidth + 0, y * tileHeight + 0, half, half);
 			g.fillRect(x * tileWidth + half, y * tileHeight + half, half, half);

@@ -65,6 +65,11 @@ class AgentDrawInfo {
 		action = ((pd != null && pd.pdCheater) || (pState != null && pState.pdCheater)) ? Color.RED : Color.BLACK;
 	}
 
+	public static Color getColorForType(int agent_type, ColorLookup colorMap, Simulation sim)
+	{
+		return colorMap.getColor(agent_type, sim.getAgentTypeCount());
+	}
+
 	void draw(Graphics g, int tileWidth, int tileHeight) {
 		g.setColor(agentColor);
 		int topLeftX = position.x * tileWidth;

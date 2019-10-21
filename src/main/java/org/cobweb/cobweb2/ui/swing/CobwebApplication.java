@@ -43,6 +43,7 @@ import org.cobweb.cobweb2.impl.ai.LinearWeightsControllerParams;
 import org.cobweb.cobweb2.io.Cobweb2Serializer;
 import org.cobweb.cobweb2.ui.PopulationSampler;
 import org.cobweb.cobweb2.ui.SimulationInterface;
+import org.cobweb.cobweb2.ui.StoneSampler;
 import org.cobweb.cobweb2.ui.ThreadSimulationRunner;
 import org.cobweb.cobweb2.ui.UserInputException;
 import org.cobweb.cobweb2.ui.ViewerClosedCallback;
@@ -146,6 +147,7 @@ public class CobwebApplication extends JFrame {
 	private void logFileDialog() {
 		FileDialog theDialog = new FileDialog(this,
 				"Choose a file to save log to", FileDialog.SAVE);
+		theDialog.setFile("*.xls");
 		theDialog.setVisible(true);
 		if (theDialog.getFile() != null) {
 			try {
@@ -178,6 +180,11 @@ public class CobwebApplication extends JFrame {
 		fileMenu.add(new JSeparator());
 		fileMenu.add(new JMenuItem(savePopulation));
 		fileMenu.add(new JMenuItem(loadPopulation));
+
+		fileMenu.add(new JSeparator());
+		fileMenu.add(new JMenuItem(saveStoneMap));
+		fileMenu.add(new JMenuItem(loadStoneMap));
+		fileMenu.add(new JMenuItem(unloadStoneMap));
 
 		fileMenu.add(new JSeparator());
 		fileMenu.add(new JMenuItem(saveConfig));
@@ -702,6 +709,41 @@ public class CobwebApplication extends JFrame {
 		private static final long serialVersionUID = 1L;
 	};
 
+	private Action loadStoneMap = new AbstractAction("Load Stone Map")
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+
+			// Select the XML file
+			FileDialog theDialog = new FileDialog(CobwebApplication.this, "Choose a file to load", FileDialog.LOAD);
+			theDialog.setFile("*.xml");
+			theDialog.setVisible(true);
+			if(theDialog.getFile() != null)
+			{
+				String filePath = theDialog.getDirectory() + theDialog.getFile();
+
+				// Load the XML file
+				StoneSampler.insertStoneMap(simRunner.getSimulation(), filePath, true);
+				simulatorUI.update(true);
+			}
+
+		}
+		private static final long serialVersionUID = 1L;
+	};
+
+	private Action unloadStoneMap = new AbstractAction("Unload Stone Map")
+	{
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+
+			StoneSampler.unloadStoneMap(simRunner.getSimulation().theEnvironment);
+			simulatorUI.update(true);
+		}
+		private static final long serialVersionUID = 1L;
+	};
+
 	private Action setLog = new AbstractAction("Log") {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -853,6 +895,27 @@ public class CobwebApplication extends JFrame {
 					}
 				}
 			}
+		}
+		private static final long serialVersionUID = 1L;
+	};
+
+	private Action saveStoneMap = new AbstractAction("Save Stone Map") {
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			FileDialog theDialog = new FileDialog(CobwebApplication.this, "Choose a file to save state to", FileDialog.SAVE);
+
+			if(StoneSampler.hasStoneMap())
+				theDialog.setFile(StoneSampler.getStoneMapFilename());
+			else
+				theDialog.setFile("*.xml");
+
+			theDialog.setVisible(true);
+			if(theDialog.getFile() != null)
+			{
+				StoneSampler.saveStoneMap(simRunner.getSimulation(), theDialog.getDirectory() + theDialog.getFile());
+			}
+
 		}
 		private static final long serialVersionUID = 1L;
 	};
