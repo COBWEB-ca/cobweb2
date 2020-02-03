@@ -218,6 +218,27 @@ public class ComplexAgentParams implements ResizableParam {
 	public MutatableFloat broadcastMinSimilarity = new MutatableFloat(0f);
 
 	/**
+	 * The possible partner type of the agent
+	 */
+	@ConfDisplayName("Partner of Other Type")
+	@ConfXMLTag("partnerType")
+	public MutatableInt partnerType = new MutatableInt(-1);
+
+	/**
+	 * The possible agent type that this agent can give birth to
+	 */
+	@ConfDisplayName("Possible Child Type")
+	@ConfXMLTag("childType")
+	public MutatableInt childType = new MutatableInt(-1);
+
+	/**
+	 *
+	 */
+	@ConfDisplayName("Probability of give birth to child")
+	@ConfXMLTag("ProbGiveBirthToOtherType")
+	public MutatableFloat probGiveBirthToOtherType = new MutatableFloat(0);
+
+	/**
 	 * Agent's food web parameters.
 	 */
 	@ConfXMLTag("foodweb")

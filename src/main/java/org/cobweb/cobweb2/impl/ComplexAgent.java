@@ -3,6 +3,7 @@ package org.cobweb.cobweb2.impl;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.cobweb.cobweb2.core.Agent;
@@ -114,8 +115,32 @@ public class ComplexAgent extends Agent {
 		return child;
 	}
 
+	//prob = probability of creating a child of another type
 	private ComplexAgent createChildSexual(LocationDirection location, ComplexAgent otherParent) {
-		ComplexAgent child = new ComplexAgent(simulation, getType());
+		System.out.println("---------------------------------\n" +
+				"this.type is " + getType() + "  partner.type is " + otherParent.getType());
+
+		float probOfOtherType = params.probGiveBirthToOtherType.getValue();
+		float probGiveBirthToSameType = probOfOtherType + (1 - probOfOtherType)/2;
+		Random rand = new Random();
+		ComplexAgent child;
+		float n = rand.nextFloat();
+		System.out.println(" n = " + n);
+		System.out.println("probGiveBirthToOtherType: " + probOfOtherType);
+		System.out.println("probGiveBirthToSameType: " + probGiveBirthToSameType);
+
+
+		if(n <= probOfOtherType){
+			child = new ComplexAgent(simulation, params.childType.getValue());
+			System.out.println("other Type");
+
+		}else if(n <= probGiveBirthToSameType){
+			child = new ComplexAgent(simulation, getType());
+			System.out.println("self type");
+		}else{
+			child = new ComplexAgent(simulation, otherParent.getType());
+			System.out.println("patner Type");
+		}
 		child.init(environment, location, this, otherParent);
 		return child;
 	}
@@ -557,7 +582,9 @@ public class ComplexAgent extends Agent {
 
 		// if the agents are of the same type, check if they have enough
 		// resources to breed
-		if (adjacentAgent.getType() == getType()) {
+
+
+		if (adjacentAgent.getType() == getType() || adjacentAgent.getType() == (this.params.partnerType.getValue() - 1)) {
 
 			double sim = 0.0;
 			boolean canBreed = !pregnant && enoughEnergy(params.breedEnergy.getValue()) && params.sexualBreedChance.getValue() != 0.0
