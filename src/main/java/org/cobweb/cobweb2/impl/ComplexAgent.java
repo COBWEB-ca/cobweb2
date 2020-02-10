@@ -117,29 +117,24 @@ public class ComplexAgent extends Agent {
 
 	//prob = probability of creating a child of another type
 	private ComplexAgent createChildSexual(LocationDirection location, ComplexAgent otherParent) {
-		System.out.println("---------------------------------\n" +
-				"this.type is " + getType() + "  partner.type is " + otherParent.getType());
-
-		float probOfOtherType = params.probGiveBirthToOtherType.getValue();
-		float probGiveBirthToSameType = probOfOtherType + (1 - probOfOtherType)/2;
-		Random rand = new Random();
 		ComplexAgent child;
-		float n = rand.nextFloat();
-		System.out.println(" n = " + n);
-		System.out.println("probGiveBirthToOtherType: " + probOfOtherType);
-		System.out.println("probGiveBirthToSameType: " + probGiveBirthToSameType);
+		if(getType() != otherParent.getType()){
+			float probOfOtherType = params.probGiveBirthToOtherType.getValue();
+			float probGiveBirthToSameType = probOfOtherType + (1 - probOfOtherType)/2;
+			Random rand = new Random();
 
+			float n = rand.nextFloat();
 
-		if(n <= probOfOtherType){
-			child = new ComplexAgent(simulation, params.childType.getValue());
-			System.out.println("other Type");
+			if(n <= probOfOtherType){
+				child = new ComplexAgent(simulation, params.childType.getValue());
 
-		}else if(n <= probGiveBirthToSameType){
-			child = new ComplexAgent(simulation, getType());
-			System.out.println("self type");
+			}else if(n <= probGiveBirthToSameType){
+				child = new ComplexAgent(simulation, getType());
+			}else{
+				child = new ComplexAgent(simulation, otherParent.getType());
+			}
 		}else{
-			child = new ComplexAgent(simulation, otherParent.getType());
-			System.out.println("patner Type");
+			child = new ComplexAgent(simulation, getType());
 		}
 		child.init(environment, location, this, otherParent);
 		return child;
@@ -606,7 +601,7 @@ public class ComplexAgent extends Agent {
 		}
 	}
 
-	/**
+    /**
 	 * Controls what happens to the agent on this tick.  If the
 	 * agent is still alive, what happens to the agent is determined
 	 * by the controller.

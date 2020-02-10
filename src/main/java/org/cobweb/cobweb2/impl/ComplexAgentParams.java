@@ -232,7 +232,10 @@ public class ComplexAgentParams implements ResizableParam {
 	public MutatableInt childType = new MutatableInt(-1);
 
 	/**
-	 *
+	 * The probability of giving birth to an agent of "possible child type"
+     * e.g. if probGiveBirthToOtherType = 0.8, then prob. of giving birth to
+     * "possible child type" is 0.8, the prob. of giving birth to this agent type
+     * is 0.1, the prob. of giving birth to its partner type is 0.1.
 	 */
 	@ConfDisplayName("Probability of give birth to child")
 	@ConfXMLTag("ProbGiveBirthToOtherType")
