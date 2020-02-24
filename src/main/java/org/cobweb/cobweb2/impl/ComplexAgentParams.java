@@ -220,14 +220,14 @@ public class ComplexAgentParams implements ResizableParam {
 	/**
 	 * The possible partner type of the agent
 	 */
-	@ConfDisplayName("Partner of Other Type")
+	@ConfDisplayName("Partner of other type")
 	@ConfXMLTag("partnerType")
 	public MutatableInt partnerType = new MutatableInt(-1);
 
 	/**
 	 * The possible agent type that this agent can give birth to
 	 */
-	@ConfDisplayName("Possible Child Type")
+	@ConfDisplayName("Possible child type")
 	@ConfXMLTag("childType")
 	public MutatableInt childType = new MutatableInt(-1);
 
@@ -237,7 +237,7 @@ public class ComplexAgentParams implements ResizableParam {
      * "possible child type" is 0.8, the prob. of giving birth to this agent type
      * is 0.1, the prob. of giving birth to its partner type is 0.1.
 	 */
-	@ConfDisplayName("Probability of give birth to child")
+	@ConfDisplayName("Probability of giving birth to child")
 	@ConfXMLTag("ProbGiveBirthToOtherType")
 	public MutatableFloat probGiveBirthToOtherType = new MutatableFloat(0);
 

@@ -126,7 +126,7 @@ public class ComplexAgent extends Agent {
 			float n = rand.nextFloat();
 
 			if(n <= probOfOtherType){
-				child = new ComplexAgent(simulation, params.childType.getValue());
+				child = new ComplexAgent(simulation, params.childType.getValue()- 1);
 
 			}else if(n <= probGiveBirthToSameType){
 				child = new ComplexAgent(simulation, getType());
